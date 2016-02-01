@@ -1,0 +1,359 @@
+swagger: "2.0"
+info:
+  title: "CAF Job Service"
+  version: "1.0"
+  description: |
+    Allows for jobs (commands or scripts - most likely in Docker containers) to
+    run periodically at fixed times, dates, or intervals.
+
+    The jobs might be used for maintenance or administration tasks, but any
+    command could be registered as a job; they are very general-purpose.  Using
+    Docker images makes the jobs more portable, as pre-configuration of the host
+    machine should not be necessary, as any dependencies that the job command
+    requires should be in the Docker container.
+host: jobservice.caf.hpe.com
+basePath: /v1
+paths:
+  /jobs:
+    get:
+      description: Returns the list of job definitions defined in the system
+      responses:
+        200:
+          description: Returns the list of jobs
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/job"
+    post:
+      description: Used to create a new job in the system
+      responses:
+        200:
+          description: Indicates that the job was successfully created
+  /jobs/{jobId}:
+    parameters:
+      - name: jobId
+        in: path
+        type: string
+        required: true
+        description: The identifier of the job
+    get:
+      description: Retrieves information about the specified job
+      responses:
+        200:
+          description: Returns the job data
+          schema:
+            $ref: "#/definitions/job"
+        400:
+          description: The "jobId" parameter contains invalid characters.
+        404:
+          description: The specified job is not found.
+    put:
+      description:
+        Creates or updates the specified job using the job definition included
+        in the http body
+      responses:
+        200:
+          description: Indicates that the job was successfully created
+        400:
+          description: The "jobId" parameter contains invalid characters.
+    delete:
+      description: Deletes the specified job from the system
+      responses:
+        200:
+          description: Indicates that the job was successfully deleted
+        400:
+          description: The "jobId" parameter contains invalid characters.
+  /jobs/{jobId}/tasks:
+    get:
+      description:
+        Retrieves the currently active tasks that are associated with the job
+      parameters:
+        - name: jobId
+          in: path
+          type: string
+          required: true
+          description: The identifier of the job to be created or updated
+        - name: includeHistory
+          in: query
+          type: boolean
+          description:
+            Causes information about historical tasks associated with the job to
+            be returned
+          default: false
+      responses:
+        200:
+          description: Returns the active tasks
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/task"
+        400:
+          description: The "jobId" parameter contains invalid characters.
+  /jobs/{jobId}/tasks/{taskId}:
+    parameters:
+      - name: jobId
+        in: path
+        type: string
+        required: true
+        description: The identifier of the job
+      - name: taskId
+        in: path
+        type: string
+        required: true
+        description: The identifier of the task
+    get:
+      description: Retrieves the details about the specified task
+      responses:
+        200:
+          description: Returns the task data
+          schema:
+            $ref: "#/definitions/task"
+        400:
+          description:
+            The "jobId" or "taskId" parameter contains invalid characters.
+        404:
+          description: The specified task is not found.
+    delete:
+      description:
+        Can only be used on a currently running task, to cause the task to
+        terminate abnormally.
+      responses:
+        200:
+          description: Indicates that the job was successfully deleted
+        400:
+          description: The "jobId" parameter contains invalid characters.
+    post:
+      description:
+        Posts a progress update to the specified task
+      parameters:
+        - name: progressUpdate
+          description: Indication of the task's progression
+          in: body
+          schema:
+            type: object
+            required:
+              - percentComplete
+            properties:
+              percentComplete:
+                type: number
+                format: float
+                description: Gives an indication of the progress of the task
+      responses:
+        200:
+          description: The progress update has been accepted
+        400:
+          description:
+            The "jobId" or "taskId" parameter contains invalid characters.
+        404:
+          description: The specified task is not found.
+definitions:
+  job:
+    type: object
+    required:
+      - name
+      - description
+    properties:
+      name:
+        type: string
+        description: The name of the job
+      description:
+        type: string
+        description: The description of the job
+      data:
+        # TODO: Should we make this more structured than just string
+        #       Name/Value Pairs perhaps
+        #       Or possibly even more structured than that - storing in xml
+        #       would mean xpath searches could be done later
+        type: string
+        description:
+          External data can be associated with the job for use by other
+          components
+      enabled:
+        type: boolean
+        description: Allows an inactive job definition to be added to the system
+        default: true
+      triggers:
+        type: array
+        items:
+          $ref: "#/definitions/trigger"
+        description:
+          A set of criteria that will trigger the execution of the job.  If
+          multiple triggers are specified then the job will start when any of
+          them occur.
+      triggerTimeSecs:
+        type: integer
+        format: int64
+        description:
+          This is the length of time, in seconds, that the job must start
+          within.  Normally the job should start as soon as it is triggered,
+          but if this is not possible for some reason, then it is still
+          permissible for it to start any time within the period defined here.
+      condition:
+        type: string  # TODO: Need a proper type for this
+        description:
+          Conditions control whether the job will run.  The job will not run
+          when it is triggered if the conditions are not met; it will only run
+          if the conditions are met.  (This could be only when the load on the
+          system is low for example.)
+      actions:
+        type: array
+        items:
+          $ref: "#/definitions/action"
+        description:
+          A sequence of work items to be performed when the job is triggered
+      highPriority:
+        type: boolean
+        description:
+          Can be used to indicate that the job is high priority.  This will be
+          used to determine which jobs should be scheduled when multiple jobs
+          are triggered at the same time, if there is insufficient resources to
+          schedule all of them.
+        default: false
+  trigger:
+    type: object
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        description: The type of the trigger
+        # TODO: Do we also need a 'dependent' job trigger?
+        # It could map to Chronos Dependent Job.  It would take a list of jobs
+        # which must be run before this job is run.  (Nts: Not sure if we
+        # really need this; having a sequence of actions might be a simpler
+        # if it is adequate).
+        enum:
+          - recurring
+      iso8601:
+        type: string
+        description: "This property is used when the type of the trigger is set
+          to 'recurring'.  It is an ISO 8601 format string that defines the
+          trigger.  It consists of thee parts separated by forward slashes.
+            - 1) Number of repetitions: Rx to repeat x times, or R to repeat
+                 indefinitely
+            - 2) Initial start time for the job
+            - 3) Length of time between repetitions
+          For example, \"R/2016-02-14T10:00:00Z/P1Y\", would trigger every 14th
+          February at 10am."
+  action:
+    type: object
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        description: The type of the action
+        enum:
+          - docker
+      retries:
+        type: integer
+        format: int32
+        description: Number of retries to attempt if the action fails
+      compute:
+        description: Used to limit the resources that are allocated to the job
+        properties:
+          cpu:
+            type: integer
+            format: int32
+            description:
+              Relative figure indicating how much cpu resource can be allocated
+              to the job
+          mem:
+            type: integer
+            format: int32
+            description: Amount of memory (in MB) allocated to the job
+          disk:
+            type: integer
+            format: int32
+            description: Amount of disk space (in MB) allocated to the job
+  #docker-action:
+  #  type: object
+  #  required:
+  #    - image
+  #  properties:
+      image:
+        type: string
+        description:
+          The Docker image to create the container from.  Obviously this image
+          must be available to the Docker hosts.
+      environment:
+        type: array
+        items:
+          $ref: "#/definitions/environment-variable"
+        description: A list of environment variables to be set in the container
+      command:
+        type: string
+        description:
+          Allows the default command to be overridden when creating the
+          container
+      arguments:
+        type: array
+        items:
+          type: string
+        description: The arguments to pass when creating the container
+      # TODO: Do we really want to expose this?
+      #       It seems like effectively exposing the Docker host is a bad
+      #       idea in a Mesos cluster
+      volumes:
+        type: array
+        items:
+          $ref: "#/definitions/docker-volume"
+        description: A list of volumes to mount from the Docker host
+      # TODO: Again, do we really want to expose this?
+      network:
+        type: string
+        enum:
+          - none
+          - bridge
+  environment-variable:
+    type: object
+    required:
+      - name
+      - value
+    properties:
+      name:
+        type: string
+        description: The name of the environment variable to set
+      value:
+        type: string
+        description:
+          The value to be set (or a value token if valueIsToken is set
+      valueIsToken:
+        type: boolean
+        default: false
+        description:
+          If this parameter is set to false then the ‘value’ parameter is taken
+          literally.  If it is set to true then the ‘value’ parameter must be
+          one of a pre-defined set of tokens, and the value of the environment
+          variable will be set in accordance with the token.  (e.g. TASK_ID)
+  docker-volume:
+    type: object
+  task:
+    type: object
+    properties:
+      taskId:
+        type: string
+        description: The task identifier
+      actionIndex:
+        type: integer
+        format: int32
+        description: The index of the action in the actions array
+      startTime:
+        type: string
+        format: date-time
+        description: The time the task started
+      endTime:
+        type: string
+        format: date-time
+        description: The time the task finished
+      status:
+        type: string
+        description: The status of the task
+        enum:
+          - Running
+          - Succeeded
+          - Failed
+      percentComplete:
+        type: number
+        format: float
+        description: Gives an indication of the progress of the task
