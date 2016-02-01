@@ -74,4 +74,9 @@
         </plugins>
     </build>
 
+    <ciManagement>
+        <system>hudson</system>
+        <url>http://cafbuilder.hpswlabs.hp.com:8080/job/job-service-client/</url>
+    </ciManagement>
+
 </project>
