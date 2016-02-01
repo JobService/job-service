@@ -14,7 +14,16 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.install.skip>true</maven.install.skip>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <job-service-contract.version>1.0-SNAPSHOT</job-service-contract.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.hpe.caf</groupId>
+            <artifactId>job-service-contract</artifactId>
+            <version>${job-service-contract.version}</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -27,7 +36,7 @@
                     <dependency>
                         <groupId>com.hpe.caf</groupId>
                         <artifactId>job-service-contract</artifactId>
-                        <version>1.0-SNAPSHOT</version>
+                        <version>${job-service-contract.version}</version>
                     </dependency>
                 </dependencies>
                 <executions>
