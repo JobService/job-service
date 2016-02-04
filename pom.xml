@@ -6,37 +6,45 @@
 
     <groupId>com.hpe.caf</groupId>
     <artifactId>job-service-client</artifactId>
+    <packaging>jar</packaging>
+    <name>job-service-client</name>
     <version>1.0-SNAPSHOT</version>
 
-    <packaging>pom</packaging>
+    <parent>
+        <groupId>com.hpe.caf</groupId>
+        <artifactId>caf-restapi-client-base</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../caf-restapi-client-base</relativePath>
+    </parent>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.install.skip>true</maven.install.skip>
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <job-service-contract.version>1.0-SNAPSHOT</job-service-contract.version>
+        <swagger-contract-artifactId>job-service-contract</swagger-contract-artifactId>
+        <swagger-contract-version>1.0-SNAPSHOT</swagger-contract-version>
+        <swagger-codegen-inputSpec>/com/hpe/caf/services/job/swagger.yaml</swagger-codegen-inputSpec>
+        <swagger-codegen-modelPackage>com.hpe.caf.services.job.client.model</swagger-codegen-modelPackage>
+        <swagger-codegen-apiPackage>com.hpe.caf.services.job.client.api</swagger-codegen-apiPackage>
+        <swagger-codegen-invokerPackage>com.hpe.caf.services.job.client</swagger-codegen-invokerPackage>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.hpe.caf</groupId>
-            <artifactId>job-service-contract</artifactId>
-            <version>${job-service-contract.version}</version>
+            <artifactId>${swagger-contract-artifactId}</artifactId>
+            <version>${swagger-contract-version}</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-codegen-maven-plugin</artifactId>
-                <version>2.1.5</version>
+                <version>${swagger-codegen-maven-plugin-version}</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.hpe.caf</groupId>
-                        <artifactId>job-service-contract</artifactId>
-                        <version>${job-service-contract.version}</version>
+                        <artifactId>${swagger-contract-artifactId}</artifactId>
+                        <version>${swagger-contract-version}</version>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -46,12 +54,12 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>/com/hpe/caf/services/job/swagger.yaml</inputSpec>
+                            <inputSpec>${swagger-codegen-inputSpec}</inputSpec>
                             <language>java</language>
                             <addCompileSourceRoot>false</addCompileSourceRoot>
-                            <modelPackage>com.hpe.caf.services.job.client.model</modelPackage>
-                            <apiPackage>com.hpe.caf.services.job.client.api</apiPackage>
-                            <invokerPackage>com.hpe.caf.services.job.client</invokerPackage>
+                            <modelPackage>${swagger-codegen-modelPackage}</modelPackage>
+                            <apiPackage>${swagger-codegen-apiPackage}</apiPackage>
+                            <invokerPackage>${swagger-codegen-invokerPackage}</invokerPackage>
                             <configOptions>
                                 <groupId>${project.groupId}</groupId>
                                 <artifactId>${project.artifactId}</artifactId>
@@ -61,25 +69,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <artifactId>maven-invoker-plugin</artifactId>
-                <version>2.0.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <pom>target/generated-sources/swagger/pom.xml</pom>
-                            <goals>
-                                <goal>install</goal>
-                            </goals>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
     </build>
 
