@@ -56,7 +56,6 @@
                         <configuration>
                             <inputSpec>${swagger-codegen-inputSpec}</inputSpec>
                             <language>java</language>
-                            <addCompileSourceRoot>false</addCompileSourceRoot>
                             <modelPackage>${swagger-codegen-modelPackage}</modelPackage>
                             <apiPackage>${swagger-codegen-apiPackage}</apiPackage>
                             <invokerPackage>${swagger-codegen-invokerPackage}</invokerPackage>
