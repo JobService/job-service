@@ -31,6 +31,7 @@
             <groupId>com.hpe.caf</groupId>
             <artifactId>${swagger-contract-artifactId}</artifactId>
             <version>${swagger-contract-version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
