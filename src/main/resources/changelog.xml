@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="create_job_status_enum_type" author="Connor Mulholland">
+        <sql>CREATE TYPE job_status AS ENUM ('Active','Cancelled','Completed','Failed','Paused','Waiting')</sql>
+    </changeSet>
+
+    <changeSet id="create_job_table" author="Connor Mulholland">
+        <createTable tableName="job">
+            <column name="job_id" type="VARCHAR(48)">
+                <constraints primaryKey="true" primaryKeyName="pk_job" deleteCascade="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="description" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="data" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="create_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="job_status" defaultValue="Waiting">
+                <constraints nullable="false"/>
+            </column>
+            <column name="percentage_complete" type="DOUBLE" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="failure_details" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createIndex indexName="idx_job_jobid_status"
+                     tableName="job">
+            <column name="job_id" type="varchar(48)"/>
+            <column name="status" type="job_status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="create_procedure_createJob" author="Connor Mulholland" >
+        <createProcedure path="createJob.sql"
+                         procedureName="create_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_createTaskTable" author="Connor Mulholland" >
+        <createProcedure path="createTaskTable.sql"
+                         procedureName="internal_create_task_table"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_deleteJob" author="Connor Mulholland" >
+        <createProcedure path="deleteJob.sql"
+                         procedureName="delete_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_deleteTaskTable" author="Connor Mulholland" >
+        <createProcedure path="deleteTaskTable.sql"
+                         procedureName="internal_delete_task_table"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_getJob" author="Connor Mulholland" >
+        <createProcedure path="getJob.sql"
+                         procedureName="get_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_getJobs" author="Connor Mulholland" >
+        <createProcedure path="getJobs.sql"
+                         procedureName="get_jobs"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_getLastPosition" author="Connor Mulholland" >
+        <createProcedure path="getLastPosition.sql"
+                         procedureName="internal_get_last_position"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_getStatus" author="Connor Mulholland" >
+        <createProcedure path="getStatus.sql"
+                         procedureName="get_status"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_reportFailure" author="Connor Mulholland" >
+        <createProcedure path="reportFailure.sql"
+                         procedureName="report_failure"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_reportProgress" author="Connor Mulholland" >
+        <createProcedure path="reportProgress.sql"
+                         procedureName="report_progress"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_reportTaskCompletion" author="Connor Mulholland" >
+        <createProcedure path="reportTaskCompletion.sql"
+                         procedureName="internal_report_task_completion"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_reportTaskFailure" author="Connor Mulholland" >
+        <createProcedure path="reportTaskFailure.sql"
+                         procedureName="internal_report_task_failure"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+</databaseChangeLog>
