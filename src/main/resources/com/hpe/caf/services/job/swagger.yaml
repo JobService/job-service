@@ -129,6 +129,30 @@ paths:
             type: boolean
         400:
           description: The `jobId` parameter contains invalid characters.
+  /jobs/{jobId}/cancel:
+    parameters:
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that can be used to correlate events that occurred
+          across different CAF services
+      - name: jobId
+        in: path
+        type: string
+        required: true
+        description: The identifier of the job
+    post:
+      tags:
+        - Jobs
+      summary: Cancels the job
+      description: Cancels the specified job
+      operationId: cancelJob
+      responses:
+        200:
+          description: The cancellation has been accepted
+        400:
+          description: The `jobId` parameter contains invalid characters.
 definitions:
   newJob:
     type: object
