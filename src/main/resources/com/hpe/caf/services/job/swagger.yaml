@@ -68,6 +68,8 @@ paths:
           description: Returns the job data
           schema:
             $ref: "#/definitions/job"
+        400:
+          description: The `jobId` parameter contains invalid characters.
         404:
           description: The specified job is not found.
     put:
@@ -88,6 +90,8 @@ paths:
       responses:
         200:
           description: Indicates that the job was successfully created
+        400:
+          description: The `jobId` parameter contains invalid characters.
     delete:
       tags:
         - Jobs
@@ -97,6 +101,8 @@ paths:
       responses:
         200:
           description: Indicates that the job was successfully deleted
+        400:
+          description: The `jobId` parameter contains invalid characters.
 definitions:
   newJob:
     type: object
