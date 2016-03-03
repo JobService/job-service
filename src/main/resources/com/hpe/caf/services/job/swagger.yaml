@@ -103,6 +103,32 @@ paths:
           description: Indicates that the job was successfully deleted
         400:
           description: The `jobId` parameter contains invalid characters.
+  /jobs/{jobId}/isActive:
+    parameters:
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that can be used to correlate events that occurred
+          across different CAF services
+      - name: jobId
+        in: path
+        type: string
+        required: true
+        description: The identifier of the job
+    get:
+      tags:
+        - Jobs
+      summary: Checks if the job is active
+      description: Checks if the specified job is active
+      operationId: getJobActive
+      responses:
+        200:
+          description: Returns whether the job is active
+          schema:
+            type: boolean
+        400:
+          description: The `jobId` parameter contains invalid characters.
 definitions:
   newJob:
     type: object
