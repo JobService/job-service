@@ -88,8 +88,10 @@ paths:
           schema:
             $ref: "#/definitions/newJob"
       responses:
-        200:
+        201:
           description: Indicates that the job was successfully created
+        204:
+          description: Indicates that the job was successfully updated
         400:
           description: The `jobId` parameter contains invalid characters.
     delete:
@@ -99,7 +101,7 @@ paths:
       description: Deletes the specified job from the system
       operationId: deleteJob
       responses:
-        200:
+        204:
           description: Indicates that the job was successfully deleted
         400:
           description: The `jobId` parameter contains invalid characters.
@@ -149,7 +151,7 @@ paths:
       description: Cancels the specified job
       operationId: cancelJob
       responses:
-        200:
+        204:
           description: The cancellation has been accepted
         400:
           description: The `jobId` parameter contains invalid characters.
