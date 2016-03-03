@@ -167,8 +167,11 @@ definitions:
         description: The status of the job
         enum:
           - Active
+          - Cancelled
           - Completed
           - Failed
+          - Paused
+          - Waiting
       percentageComplete:
         type: number
         format: float
