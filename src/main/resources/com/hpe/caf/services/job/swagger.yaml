@@ -6,7 +6,7 @@ info:
     Allows background operations to be sent to the CAF Workers, and for the
     operations to be tracked and controlled.
 
-    Users can check on the progress of operations, and even them to be
+    Users can check on the progress of operations, and request them to be
     cancelled, paused, or resumed.  *NB: Pause and Resume are future
     requirements.*
 
