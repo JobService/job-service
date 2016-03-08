@@ -32,7 +32,7 @@ BEGIN
 
     PERFORM 1 FROM job WHERE job_id = v_job_id FOR UPDATE;
     UPDATE job
-    SET status = 'Failed', failure_details = concat(failure_details, in_failure_details || ' ')
+    SET status = 'Failed', failure_details = concat(failure_details, in_failure_details || chr(10))
     WHERE job_id = v_job_id;
 
   ELSE
@@ -44,7 +44,7 @@ BEGIN
     --  Modify parent target table and update it's status and % completed.
     EXECUTE format('SELECT 1 FROM %I WHERE task_id = %L FOR UPDATE', v_parent_table_name, v_task_id) INTO v_temp;
     EXECUTE format('
-      UPDATE %I SET status = ''Failed'', failure_details = concat(failure_details, %L || '' '') WHERE task_id = %L
+      UPDATE %I SET status = ''Failed'', failure_details = concat(failure_details, %L || chr(10)) WHERE task_id = %L
       ',
       v_parent_table_name, in_failure_details, v_task_id);
 

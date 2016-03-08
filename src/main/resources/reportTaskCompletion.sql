@@ -50,7 +50,7 @@ BEGIN
 
     --  If job has completed, then remove task tables associated with the job.
     IF v_percentage_completed = 100.00 THEN
-      PERFORM internal_delete_task_table(v_job_id);
+      PERFORM internal_delete_task_table(v_job_id, false);
     END IF;
 
   ELSE

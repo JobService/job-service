@@ -9,7 +9,6 @@ DECLARE
   v_job_id VARCHAR(48);
   v_parent VARCHAR(58);
   v_parent_table_name VARCHAR(63);
-  v_failure_details TEXT;
   v_temp SMALLINT;
 BEGIN
 
@@ -23,9 +22,6 @@ BEGIN
     RAISE EXCEPTION 'Failure details have not been specified';
   END IF;
 
-  --  Construct failure message.
-  v_failure_details = 'Task id {' || in_task_id || '} reported failure with: {' || in_failure_details || '}';
-
   --  If dot separator exists then we are dealing with a task, otherwise a job.
   IF position('.' in in_task_id) = 0 THEN
     v_job_id = in_task_id;
@@ -34,7 +30,7 @@ BEGIN
     PERFORM 1 FROM job WHERE job_id = v_job_id FOR UPDATE;
     UPDATE job
     SET status = 'Failed',
-        failure_details = concat(failure_details, v_failure_details || ' ')
+        failure_details = concat(failure_details, in_failure_details || chr(10))
     WHERE job_id = v_job_id;
 
   ELSE
@@ -46,12 +42,12 @@ BEGIN
     --  Insert row into parent table for the specified task id.
     EXECUTE format('SELECT 1 FROM %I WHERE task_id = %L FOR UPDATE', v_parent_table_name, in_task_id) INTO v_temp;
     EXECUTE format('
-      UPDATE %I SET status = ''Failed'', failure_details = concat(failure_details, %L || '' '') WHERE task_id = %L;
+      UPDATE %I SET status = ''Failed'', failure_details = concat(failure_details, %L || chr(10)) WHERE task_id = %L;
       ',
       v_parent_table_name, in_failure_details, in_task_id);
 
     --  Propagate failure details up to subsequent parent(s).
-    PERFORM internal_report_task_failure(v_parent_table_name, v_failure_details);
+    PERFORM internal_report_task_failure(v_parent_table_name, in_failure_details);
 
   END IF;
 

@@ -8,7 +8,7 @@ CREATE OR REPLACE FUNCTION get_job(in_job_id VARCHAR(48))
 BEGIN
   --  Raise exception if the job identifier has not been specified.
   IF in_job_id IS NULL OR in_job_id = '' THEN
-    RAISE EXCEPTION 'Job identifier has not been specified';
+    RAISE EXCEPTION 'Job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data;
   END IF;
 
   --  Return job metadata belonging to the specified job_id.
@@ -18,7 +18,7 @@ BEGIN
   FROM job WHERE job.job_id = in_job_id;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'job_id {%} not found', in_job_id;
+    RAISE EXCEPTION 'job_id {%} not found', in_job_id USING ERRCODE = 'P0002'; -- sqlstate no_data_found
   END IF;
 END
 $$ LANGUAGE plpgsql;

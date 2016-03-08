@@ -11,7 +11,12 @@ DECLARE
 BEGIN
   --  Raise exception if job identifier has not been specified.
   IF in_job_id IS NULL OR in_job_id = '' THEN
-    RAISE EXCEPTION 'The job identifier has not been specified';
+    RAISE EXCEPTION 'The job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data;
+  END IF;
+
+  --  Raise exception if no matching job identifier has not been found.
+  IF NOT EXISTS (SELECT 1 FROM job where job_id = in_job_id) THEN
+    RAISE EXCEPTION 'job_id {%} not found', in_job_id USING ERRCODE = 'P0002'; -- sqlstate no_data_found
   END IF;
 
   --  Identify task tables associated with the specified job.

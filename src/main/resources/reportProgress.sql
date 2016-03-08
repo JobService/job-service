@@ -31,7 +31,7 @@ BEGIN
 
     --  If job is completed, then remove task tables associated with the job.
     IF in_status = 'Completed' THEN
-      PERFORM internal_delete_task_table(v_job_id);
+      PERFORM internal_delete_task_table(v_job_id,false);
     END IF;
 
   ELSE

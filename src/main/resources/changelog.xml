@@ -34,12 +34,22 @@
             <column name="failure_details" type="TEXT">
                 <constraints nullable="true"/>
             </column>
+            <column name="job_hash" type="INT">
+                <constraints nullable="true"/>
+            </column>
         </createTable>
         <createIndex indexName="idx_job_jobid_status"
                      tableName="job">
             <column name="job_id" type="varchar(48)"/>
             <column name="status" type="job_status"/>
         </createIndex>
+    </changeSet>
+
+    <changeSet id="create_procedure_cancelJob" author="Connor Mulholland" >
+        <createProcedure path="cancelJob.sql"
+                         procedureName="cancel_job"
+                         schemaName="public">
+        </createProcedure>
     </changeSet>
 
     <changeSet id="create_procedure_createJob" author="Connor Mulholland" >
