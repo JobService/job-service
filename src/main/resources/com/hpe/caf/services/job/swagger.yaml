@@ -105,6 +105,8 @@ paths:
           description: Indicates that the job was successfully deleted
         400:
           description: The `jobId` parameter contains invalid characters.
+        404:
+          description: The specified job is not found.
   /jobs/{jobId}/isActive:
     parameters:
       - name: CAF-Correlation-Id
@@ -155,6 +157,8 @@ paths:
           description: The cancellation has been accepted
         400:
           description: The `jobId` parameter contains invalid characters.
+        404:
+          description: The specified job is not found.
 definitions:
   newJob:
     type: object
@@ -247,5 +251,7 @@ definitions:
       failureTime:
         type: string
         format: date-time
+      failureSource:
+        type: string
       failureMessage:
         type: string
