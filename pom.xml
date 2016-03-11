@@ -16,11 +16,19 @@
         <relativePath>../caf-maven-latest</relativePath>
     </parent>
 
+    <properties>
+        <swagger.contract.groupId>com.hpe.caf</swagger.contract.groupId>
+        <swagger.contract.artifactId>job-service-contract</swagger.contract.artifactId>
+        <swagger.contract.version>1.0-SNAPSHOT</swagger.contract.version>
+        <swagger.contract.path>/com/hpe/caf/services/job</swagger.contract.path>
+        <finalName>${project.artifactId}</finalName>
+    </properties>
+
     <dependencies>
         <dependency>
-            <groupId>com.hpe.caf</groupId>
-            <artifactId>job-service-contract</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>${swagger.contract.groupId}</groupId>
+            <artifactId>${swagger.contract.artifactId}</artifactId>
+            <version>${swagger.contract.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -31,14 +39,9 @@
         </dependency>
     </dependencies>
 
-    <properties>
-        <finalName>${project.artifactId}</finalName>
-    </properties>
-
     <build>
         <finalName>${finalName}</finalName>
         <plugins>
-            <!-- The maven dependency plugin adds the swagger.yaml as an accessible file within the webapp war. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -57,8 +60,9 @@
                                     <excludes>**/META-INF/**</excludes>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>com.hpe.caf</groupId>
-                                    <artifactId>job-service-contract</artifactId>
+                                    <groupId>${swagger.contract.groupId}</groupId>
+                                    <artifactId>${swagger.contract.artifactId}</artifactId>
+                                    <version>${swagger.contract.version}</version>
                                     <outputDirectory>${project.build.directory}/swagger-contract</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
@@ -67,10 +71,6 @@
                 </executions>
             </plugin>
 
-            <!-- Unpack dependencies keeps the internal file structure of the war file.
-            We will requires the swagger.yaml file be in the api-docs folder.
-            So using resources plugin to move the file to the correct location.
-            This step could be avoided by putting the swagger.yaml directly in resources rather than in a package directory. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -85,7 +85,7 @@
                             <outputDirectory>${project.build.directory}/${finalName}/api-docs</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${project.build.directory}/swagger-contract/com/hpe/caf/services/job</directory>
+                                    <directory>${project.build.directory}/swagger-contract${swagger.contract.path}</directory>
                                 </resource>
                             </resources>
                         </configuration>
