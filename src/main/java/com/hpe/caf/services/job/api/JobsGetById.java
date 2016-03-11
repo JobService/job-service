@@ -1,10 +1,12 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.job.api.generated.model.Job;
+import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JobsGetById {
+public final class JobsGetById {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsGetById.class);
 

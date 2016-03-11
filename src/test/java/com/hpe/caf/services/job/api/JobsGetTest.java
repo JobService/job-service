@@ -1,5 +1,6 @@
 package com.hpe.caf.services.job.api;
 
+import com.hpe.caf.services.job.configuration.AppConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,9 +14,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.HashMap;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({JobsGet.class})
+@PrepareForTest({JobsGet.class, DatabaseHelper.class, AppConfig.class})
 @PowerMockIgnore("javax.management.*")
-public class JobsGetTest {
+public final class JobsGetTest {
 
     @Mock
     private DatabaseHelper mockDatabaseHelper;

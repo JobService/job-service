@@ -1,7 +1,9 @@
 package com.hpe.caf.services.job.api;
 
 import java.sql.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
@@ -9,6 +11,9 @@ import java.util.Properties;
 
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
+import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.exceptions.NotFoundException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The DatabaseHelper class is responsible for database operations.
  */
-public class DatabaseHelper {
+public final class DatabaseHelper {
 
     private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
     private static final String JDBC_DRIVER = "org.postgresql.Driver";
@@ -58,7 +63,7 @@ public class DatabaseHelper {
                 job.setName(rs.getString("name"));
                 job.setDescription(rs.getString("description"));
                 job.setExternalData(rs.getString("data"));
-                job.setCreateTime(rs.getDate("create_date"));
+                job.setCreateTime(getDate(rs.getString("create_date")));
                 job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase()));
                 job.setPercentageComplete(rs.getFloat("percentage_complete"));
 
@@ -105,7 +110,7 @@ public class DatabaseHelper {
                 job.setName(rs.getString("name"));
                 job.setDescription(rs.getString("description"));
                 job.setExternalData(rs.getString("data"));
-                job.setCreateTime(rs.getDate("create_date"));
+                job.setCreateTime(getDate(rs.getString("create_date")));
                 job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase()));
                 job.setPercentageComplete(rs.getFloat("percentage_complete"));
 
@@ -285,6 +290,26 @@ public class DatabaseHelper {
     }
 
     /**
+     * Creates the specified job.
+     */
+    public void reportFailure(String jobId, String failureDetails) throws Exception {
+
+        String reportFailureFnCallSQL = "{call report_failure(?,?)}";
+
+        try (
+                Connection conn = getConnection();
+                CallableStatement stmt = conn.prepareCall(reportFailureFnCallSQL)
+        ) {
+            stmt.setString(1,jobId);
+            stmt.setString(2,failureDetails);
+
+            LOG.debug("Calling report_failure() database function...");
+            stmt.execute();
+        }
+
+    }
+
+    /**
      * Parses the failure details string returned from the database and returns as a list.
      */
     private static List<Failure> getFailuresAsList (String failureDetails) throws Exception {
@@ -297,11 +322,7 @@ public class DatabaseHelper {
             JSONObject jFailure = new JSONObject(failure);
             Failure f = new Failure();
             f.setFailureId(jFailure.getString("failureId"));
-
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-            Date date  = formatter.parse(jFailure.getString("failureTime"));
-            f.setFailureTime(date);
-
+            f.setFailureTime(getDate(jFailure.getString("failureTime")));
             f.failureSource(jFailure.getString("failureSource"));
             f.failureMessage(jFailure.getString("failureMessage"));
             failures.add(f);
@@ -344,6 +365,16 @@ public class DatabaseHelper {
         }
 
         return conn;
+    }
+
+    /**
+     * Returns java.util.date from a string.
+     */
+    private static Date getDate(String dateString) throws ParseException {
+
+        Instant instant = Instant.parse ( dateString );
+        return java.util.Date.from( instant );
+
     }
 
 }

@@ -1,13 +1,26 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.api.Codec;
+import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 
+import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.queue.QueueServices;
+import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.util.ModuleLoader;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JobsPut {
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public final class JobsPut {
 
     private static final String ERR_MSG_TASK_DATA_NOT_SPECIFIED = "The task data has not been specified.";
     private static final String ERR_MSG_TASK_CLASSIFIER_NOT_SPECIFIED = "The task classifier has not been specified.";
@@ -85,12 +98,22 @@ public class JobsPut {
                     QueueServices queueServices = QueueServicesFactory.create(config, job.getTask().getTargetPipe(),codec);
                     LOG.info("createOrUpdateJob: Sending task data to the target queue...");
                     queueServices.sendMessage(job.getTask());
+                    queueServices.close();
                 } catch(Exception ex) {
-                    //  Delete job created in the database if message delivery fails.
-                    databaseHelper.deleteJob(jobId);
+                    //  Failure adding job data to queue. Update the job with the failure details.
+                    Failure f = new Failure();
+                    f.setFailureId("ADD_TO_QUEUE_FAILURE");
+                    f.setFailureTime(new Date());
+                    f.failureSource("Job Service - PUT /jobs/{"+jobId+"}");
+                    f.failureMessage(ex.getMessage());
 
-                    //  Re-throw message.
-                    throw ex;
+                    ObjectMapper mapper = new ObjectMapper();
+                    final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                    mapper.setDateFormat(df);
+                    databaseHelper.reportFailure(jobId, mapper.writeValueAsString(f));
+
+                    //  Throw error message to user.
+                    throw new Exception("Failed to add task data to the queue.");
                 }
             }
             else {

@@ -2,6 +2,10 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
+import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.queue.QueueServices;
+import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,9 +19,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.HashMap;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({JobsPut.class,QueueServicesFactory.class})
+@PrepareForTest({JobsPut.class,QueueServices.class, QueueServicesFactory.class, DatabaseHelper.class, AppConfig.class})
 @PowerMockIgnore("javax.management.*")
-public class JobsPutTest {
+public final class JobsPutTest {
 
     @Mock
     private DatabaseHelper mockDatabaseHelper;
@@ -43,7 +47,7 @@ public class JobsPutTest {
 
         //  Mock QueueServices calls.
         Mockito.doNothing().when(mockQueueServices).sendMessage(Mockito.any());
-        PowerMockito.whenNew(QueueServices.class).withArguments(Mockito.any(),Mockito.anyString(),Mockito.any()).thenReturn(mockQueueServices);
+        PowerMockito.whenNew(QueueServices.class).withArguments(Mockito.any(),Mockito.any(),Mockito.anyString(),Mockito.any()).thenReturn(mockQueueServices);
 
         //  Mock QueueServicesFactory calls.
         PowerMockito.mockStatic(QueueServicesFactory.class);

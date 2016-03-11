@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Map;
 
-public class TestUtil {
+public final class TestUtil {
 
     public static void setSystemEnvironmentFields(Map<String, String> newenv) throws Exception {
         Class[] classes = Collections.class.getDeclaredClasses();

@@ -1,11 +1,20 @@
 package com.hpe.caf.services.job.api;
 
+import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.exceptions.NotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.ws.rs.core.Response;
 
-public class ApiExceptionMapperTest {
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({BadRequestException.class, NotFoundException.class})
+@PowerMockIgnore("javax.management.*")
+public final class ApiExceptionMapperTest {
 
     @Test
     public void testToResponseBadRequestException () {

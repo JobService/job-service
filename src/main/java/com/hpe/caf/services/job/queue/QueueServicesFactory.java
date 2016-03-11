@@ -1,6 +1,7 @@
-package com.hpe.caf.services.job.api;
+package com.hpe.caf.services.job.queue;
 
 import com.hpe.caf.api.Codec;
+import com.hpe.caf.services.job.configuration.AppConfig;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 
 import com.rabbitmq.client.Channel;
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * This class is responsible for creating the RabbitMQ connection and channel.
  */
-public class QueueServicesFactory {
+public final class QueueServicesFactory {
 
     public static QueueServices create(final AppConfig configuration, final String targetQueue, final Codec codec) throws IOException, TimeoutException {
         //  Create connection and channel for publishing messages.
@@ -22,7 +23,7 @@ public class QueueServicesFactory {
         //  Declare target worker queue.
         RabbitUtil.declareWorkerQueue(publishChannel, targetQueue);
 
-        return new QueueServices(publishChannel, targetQueue, codec);
+        return new QueueServices(connection, publishChannel, targetQueue, codec);
     }
 
     private static Connection createConnection(AppConfig configuration)

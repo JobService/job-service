@@ -1,5 +1,7 @@
 package com.hpe.caf.services.job.api;
 
+import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -7,10 +9,10 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 /**
  * Utility class for shared functionality.
  */
-public class ApiServiceUtil {
+public final class ApiServiceUtil {
 
     private static final String ERR_MSG_DB_CONNECTION_PROPS_MISSING = "One or more Vertica database connection properties have not been provided.";
-    private static final String API_SERVICE_RESERVED_CHARACTERS_REGEX = "[.*]";
+    private static final String API_SERVICE_RESERVED_CHARACTERS_REGEX = "[.,:;*?!|()]";
 
     public static final String ERR_MSG_JOB_ID_NOT_SPECIFIED = "The job identifier has not been specified.";
     public static final String ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS = "The job identifier contains one or more invalid characters.";

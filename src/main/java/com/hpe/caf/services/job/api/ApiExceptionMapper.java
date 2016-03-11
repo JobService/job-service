@@ -1,5 +1,8 @@
 package com.hpe.caf.services.job.api;
 
+import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.exceptions.NotFoundException;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -9,7 +12,7 @@ import javax.ws.rs.ext.Provider;
  * to response http status codes.
  */
 @Provider
-public class ApiExceptionMapper implements ExceptionMapper<Exception> {
+public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
 
     @Override
     public Response toResponse(Exception exception) {

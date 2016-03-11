@@ -1,9 +1,11 @@
 package com.hpe.caf.services.job.api;
 
+import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JobsCancel {
+public final class JobsCancel {
     private static final Logger LOG = LoggerFactory.getLogger(JobsCancel.class);
 
     public static void cancelJob(String jobId) throws Exception {

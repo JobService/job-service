@@ -1,10 +1,11 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.job.api.generated.model.Job;
+import com.hpe.caf.services.job.configuration.AppConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JobsGet {
+public final class JobsGet {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsGet.class);
 

@@ -1,4 +1,4 @@
-package com.hpe.caf.services.job.api;
+package com.hpe.caf.services.job.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

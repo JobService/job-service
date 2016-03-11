@@ -1,11 +1,20 @@
 package com.hpe.caf.services.job.api;
 
+import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 
-public class ApiServiceUtilTest {
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({AppConfig.class})
+@PowerMockIgnore("javax.management.*")
+public final class ApiServiceUtilTest {
 
     @Test
     public void testGetAppConfigPropertiesSuccess () throws Exception {
@@ -35,6 +44,51 @@ public class ApiServiceUtilTest {
 
         //  Test expected failure call to class method because of missing properties/
         AppConfig configProps = ApiServiceUtil.getAppConfigProperties();
+    }
+
+    @Test
+    public void testIsNotNullOrEmpty_Success_True () throws Exception {
+
+        String test = "Test";
+        boolean isNotNullOrEmpty = ApiServiceUtil.isNotNullOrEmpty(test);
+        Assert.assertTrue(isNotNullOrEmpty);
+
+    }
+
+    @Test
+    public void testIsNotNullOrEmpty_Success_False () throws Exception {
+
+        String test = "";
+        boolean isNotNullOrEmpty = ApiServiceUtil.isNotNullOrEmpty(test);
+        Assert.assertFalse(isNotNullOrEmpty);
+
+    }
+
+    @Test
+    public void testContainsInvalidCharacters_Success_True_Period () throws Exception {
+
+        String test = "Te.st";
+        boolean isInvalid = ApiServiceUtil.containsInvalidCharacters(test);
+        Assert.assertTrue(isInvalid);
+
+    }
+
+    @Test
+    public void testContainsInvalidCharacters_Success_True_Asterisk () throws Exception {
+
+        String test = "Te*t";
+        boolean isInvalid = ApiServiceUtil.containsInvalidCharacters(test);
+        Assert.assertTrue(isInvalid);
+
+    }
+
+    @Test
+    public void testContainsInvalidCharacters_Success_False () throws Exception {
+
+        String test = "Test";
+        boolean isInvalid = ApiServiceUtil.containsInvalidCharacters(test);
+        Assert.assertFalse(isInvalid);
+
     }
 
 }
