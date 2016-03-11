@@ -21,7 +21,6 @@
         <swagger.contract.artifactId>job-service-contract</swagger.contract.artifactId>
         <swagger.contract.version>1.0-SNAPSHOT</swagger.contract.version>
         <swagger.contract.path>/com/hpe/caf/services/job</swagger.contract.path>
-        <finalName>${project.artifactId}</finalName>
     </properties>
 
     <dependencies>
@@ -40,7 +39,6 @@
     </dependencies>
 
     <build>
-        <finalName>${finalName}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -56,7 +54,7 @@
                                 <artifactItem>
                                     <groupId>com.hpe.caf</groupId>
                                     <artifactId>swagger-ui</artifactId>
-                                    <outputDirectory>${project.build.directory}/${finalName}</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/swagger-ui</outputDirectory>
                                     <excludes>**/META-INF/**</excludes>
                                 </artifactItem>
                                 <artifactItem>
@@ -73,24 +71,19 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.7</version>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/${finalName}/api-docs</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${project.build.directory}/swagger-contract${swagger.contract.path}</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <directory>${project.build.directory}/swagger-ui</directory>
+                        </resource>
+                        <resource>
+                            <directory>${project.build.directory}/swagger-contract${swagger.contract.path}</directory>
+                            <targetPath>api-docs</targetPath>
+                        </resource>
+                    </webResources>
+                </configuration>
             </plugin>
         </plugins>
     </build>
