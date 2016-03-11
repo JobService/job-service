@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hpe.caf</groupId>
+    <artifactId>job-service-html</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+
+    <parent>
+        <groupId>com.hpe.caf</groupId>
+        <artifactId>caf-maven-latest</artifactId>
+        <version>1-SNAPSHOT</version>
+        <relativePath>../caf-maven-latest</relativePath>
+    </parent>
+
+    <properties>
+        <swagger.contract.groupId>com.hpe.caf</swagger.contract.groupId>
+        <swagger.contract.artifactId>job-service-contract</swagger.contract.artifactId>
+        <swagger.contract.version>1.0-SNAPSHOT</swagger.contract.version>
+        <swagger.contract.path>/com/hpe/caf/services/job</swagger.contract.path>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${swagger.contract.groupId}</groupId>
+            <artifactId>${swagger.contract.artifactId}</artifactId>
+            <version>${swagger.contract.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Unpack the Swagger REST API files -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${swagger.contract.groupId}</groupId>
+                                    <artifactId>${swagger.contract.artifactId}</artifactId>
+                                    <version>${swagger.contract.version}</version>
+                                    <outputDirectory>${project.build.directory}/swagger-contract</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Generate the AsciiDoc files from the Swagger API -->
+            <plugin>
+                <groupId>io.github.robwin</groupId>
+                <artifactId>swagger2markup-maven-plugin</artifactId>
+                <version>0.9.3</version>
+                <executions>
+                    <execution>
+                        <id>output-asciidoc</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>process-swagger</goal>
+                        </goals>
+                        <configuration>
+                            <inputDirectory>${project.build.directory}/swagger-contract${swagger.contract.path}</inputDirectory>
+                            <outputDirectory>${project.build.directory}/generated-docs/asciidoc</outputDirectory>
+                            <markupLanguage>asciidoc</markupLanguage>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Generate HTML from the AsciiDoc -->
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>1.5.3</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-pdf</artifactId>
+                        <version>1.5.0-alpha.10.1</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>output-html</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${project.build.directory}/generated-docs/asciidoc</sourceDirectory>
+                            <outputDirectory>${project.build.directory}/generated-docs/html</outputDirectory>
+                            <backend>html5</backend>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Bundle the HTML files into the WAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <webResources>
+                        <resource>
+                            <directory>${project.build.directory}/generated-docs/html</directory>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <ciManagement>
+        <system>hudson</system>
+        <url>http://cafbuilder.hpswlabs.hp.com:8080/job/job-service-html/</url>
+    </ciManagement>
+
+</project>
