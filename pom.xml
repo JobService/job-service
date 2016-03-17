@@ -15,18 +15,6 @@
         <relativePath>../caf-maven-latest</relativePath>
     </parent>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.hpe.caf.worker</groupId>
-                <artifactId>worker-framework</artifactId>
-                <version>10.5-SNAPSHOT</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>javax.validation</groupId>
