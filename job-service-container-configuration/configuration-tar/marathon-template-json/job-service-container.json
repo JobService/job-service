@@ -1,0 +1,45 @@
+{
+  "id": "/${marathon-group}/job-service",
+  "cpus": "${job-service-cpus}",
+  "mem": "${job-service-mem}",
+  "instances": "${job-service-instances}",
+  "container": {
+    "docker": {
+      "image": "${docker-registry}/caf/job-service:${job-service-version}",
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 0,
+          "protocol": "tcp",
+          "servicePort": "${job-service-8080-serviceport}"
+        }
+      ],
+      "privileged": true,
+      "forcePullImage": "${forcePullImage}"
+    },
+    "type": "DOCKER"
+  },
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "gracePeriodSeconds": "${job-service-healthcheck-graceperiodseconds}",
+      "intervalSeconds": "${job-service-healthcheck-intervalseconds}",
+      "maxConsecutiveFailures": "${job-service-healthcheck-maxconsecutivefailures}",
+      "path": "/",
+      "timeoutSeconds": "${job-service-healthcheck-timeoutseconds}"
+    }
+  ],
+  "env": {
+    "_JAVA_OPTIONS": "-Xms${job-service-java-mem-min}m -Xmx${job-service-java-mem-max}m",
+    "CAF_CONFIG_PATH": "/mnt/mesos/sandbox",
+    "database.url": "${job-service-database.url}",
+    "database.username": "${job-service-database.username}",
+    "database.password": "${job-service-database.password}"
+  },
+  "uris": [
+    "${marathon-uris-root}/${docker-login-config}",
+    "${marathon-uris-root}/${service-config-location}/cfg_${marathon-group}_job-service_ServiceConfiguration"
+  ]
+}
+

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hpe.caf</groupId>
+    <artifactId>job-service-container</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <modules>
+        <module>job-service-container-build</module>
+        <module>job-service-container-documentation</module>
+        <module>job-service-container-configuration</module>
+    </modules>
+    
+    <parent>
+        <groupId>com.hpe.caf</groupId>
+        <artifactId>caf-latest-develop</artifactId>
+        <version>1-SNAPSHOT</version>
+        <relativePath>../caf-latest-develop</relativePath>
+    </parent>
+
+    <properties>
+        <job-service.container.name>caf/job-service:${project.version}</job-service.container.name>
+        <version.major>1-SNAPSHOT</version.major>
+        <version.major.minor>${project.version}</version.major.minor>
+        <tomcatBaseImage>tomcat:jre8</tomcatBaseImage>
+        <webserviceWarName>job-service</webserviceWarName>
+        <webserviceBasePath>/v1</webserviceBasePath>
+        <deployFileUrl>${project.distributionManagement.snapshotRepository.url}</deployFileUrl>
+        <repositoryId>${project.distributionManagement.snapshotRepository.id}</repositoryId>
+    </properties>
+
+    <ciManagement>
+        <system>hudson</system>
+        <url>http://cafbuilder.hpswlabs.hp.com:8080/job/job-service-container/</url>
+    </ciManagement>
+
+</project>

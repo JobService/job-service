@@ -1,0 +1,10 @@
+{
+    "outputQueue":"test-workflow-in",
+    "threads":"1",
+    "resultSizeThreshold": "1024",
+    "database.url": "jdbc:postgresql://127.0.0.1:5432/jobservice",
+    "database.username": "postgres",
+    "database.password": "password",
+    "JOB_SERVICE_API_CONFIG_PATH": ""
+
+}

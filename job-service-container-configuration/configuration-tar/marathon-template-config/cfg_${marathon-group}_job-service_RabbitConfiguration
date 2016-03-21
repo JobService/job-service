@@ -1,0 +1,9 @@
+{
+        "backoffInterval": "${rabbit-backoffInterval}",
+        "maxBackoffInterval": "${rabbit-maxBackoffInterval}",
+        "maxAttempts": "${rabbit-maxattempts}",
+        "rabbitHost": "${rabbit-host}",
+        "rabbitPort": "${rabbit-port}",
+        "rabbitUser": "${rabbit-user}",
+        "rabbitPassword": "${rabbit-password}"
+}

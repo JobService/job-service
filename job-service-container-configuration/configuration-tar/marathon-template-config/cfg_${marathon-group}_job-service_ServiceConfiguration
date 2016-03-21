@@ -1,0 +1,8 @@
+{
+    "outputQueue":"${marathon-group}-workflow-in",
+    "threads":"${job-service-threads}",
+    "resultSizeThreshold": "${job-service-resultSizeThreshold}",
+    "database.url": "${job-service-database.url}",
+    "database.username": "${job-service-database.username}",
+    "database.password": "${job-service-database.password}"
+}
