@@ -16,12 +16,6 @@ public class JobTrackingWorkerTask {
     private String trackedTaskId;
 
 
-    /**
-     * The type of event being reported about the task identified by trackedTaskId.
-     */
-    private JobTrackingEventType eventType;
-
-
     @Min(0)
     @Max(100)
     private int estimatedPercentageCompleted;
@@ -34,16 +28,6 @@ public class JobTrackingWorkerTask {
 
     public void setTrackedTaskId(String trackedTaskId) {
         this.trackedTaskId = Objects.requireNonNull(trackedTaskId);
-    }
-
-
-    public JobTrackingEventType getEventType() {
-        return eventType;
-    }
-
-
-    public void setEventType(JobTrackingEventType eventType) {
-        this.eventType = eventType;
     }
 
 
