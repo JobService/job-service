@@ -13,7 +13,7 @@ info:
     The main use cases for this functionality centre around batch document
     processing.  The service can be used to send work to the Batch Worker, and
     then to track the progress of the work.
-basePath: /caf-job-service/v1
+basePath: /job-service/v1
 tags:
   - name: Jobs
     description: Job Control
