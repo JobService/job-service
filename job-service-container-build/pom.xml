@@ -225,7 +225,8 @@
                         <!-- Run jobservice db installer. -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.0-SNAPSHOT</name>
+                            <name>caf/job-service-db-installer:1.0-SNAPSHOT</name>
+                            <registry>${docker.dev.repo}</registry>
                             <run>
                                 <links>
                                     <link>jobservice-integrationtests-postgres</link>
