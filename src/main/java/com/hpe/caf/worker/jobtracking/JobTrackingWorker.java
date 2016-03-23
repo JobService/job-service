@@ -121,6 +121,7 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
             }
         } catch (JobReportingException e) {
             LOG.warn("Error reporting task {} progress to the Job Database: ", proxiedTaskMessage.getTaskId(), e);
+            //TODO - should this ex be rethrown?
         }
     }
 
