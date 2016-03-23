@@ -1,15 +1,15 @@
 {
   "docker-registry": "rh7-artifactory.hpswlabs.hp.com:8443",
   "marathon-group": "demo",
-  "forcePullImage": false,
+  "force-pull": false,
   "marathon-uris-root": "/vagrant",
   "service-config-location":"marathon-config",
   "docker-login-config": "<MUST_REPLACE: Location of docker login config tar>",
 
-  "rabbitmq.host": "MUST REPLACE: host where rabbitmq runs i.e. docker ip",
-  "rabbitmq.port": "5672",
-  "rabbitmq.username": "MUST REPLACE:",
-  "rabbitmq.password": "MUST REPLACE:",
+  "rabbit-host": "MUST REPLACE: host where rabbitmq runs",
+  "rabbit-port": "5672",
+  "rabbit-user": "MUST REPLACE:",
+  "rabbit-pass": "MUST REPLACE:",
 
   "job-service-cpus": "0.5",
   "job-service-mem": "512",
@@ -24,9 +24,7 @@
   "job-service-healthcheck-timeoutseconds": "20",
   "job-service-java-mem-min": "256",
   "job-service-java-mem-max": "256",
-  "job-service-config-path": "REPLACE if using a config.properties file, otherwise remove.",
   "job-service-database.url": "MUST REPLACE: jdbc:postgresql://<host-address>:<host-port>:5432/jobservice",
   "job-service-database.username": "MUST REPLACE: postgres",
   "job-service-database.password": "MUST REPLACE: root"
-
 }

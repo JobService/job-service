@@ -21,6 +21,19 @@
 #### docker-login-config
 - Following the steps [here](https://mesosphere.github.io/marathon/docs/native-docker-private-registry.html) this property specifies the path to the tar containing your docker login configuration file. This is required for each container to be able to pull their image down from Artifactory. **Note this value must be replaced.**
 
+### RabbitMQ
+#### rabbit-host
+- The host address where RabbitMQ is running.
+
+#### rabbit-port
+- The port number where RabbitMQ is accepting messages.
+
+#### rabbit-user
+- The username to allow access to the RabbitMQ service.
+
+#### rabbit-pass
+- The password to allow access to the RabbitMQ service.
+
 ### Job Service
 #### job-service-cpus
 - Configures the amount of CPU of each CAF Audit Management Service container. This does not have to be a whole number.
@@ -59,10 +72,10 @@
 - This property specifies the path to the directory containing the config.properties which can be used as an alternative means of specifying the database environment variables.
 
 #### Job-service-database.username
-- This property specifies the username of the PostgreSQL database account used by the CAF Job Service.
+- This property specifies the username of the database account used by the CAF Job Service.
 
 #### Job-service-database.password
-- This property specifies the password of the PostgreSQL database account used by the CAF Job Service.
+- This property specifies the password of the database account used by the CAF Job Service.
 
 #### Job-service-database.url
-- This property specifies the JDBC address of the PostgreSQL database account used by the CAF Job Service.
+- This property specifies the JDBC address of the database account used by the CAF Job Service.

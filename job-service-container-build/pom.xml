@@ -33,12 +33,29 @@
             <version>${job-service-ui.version}</version>
             <type>war</type>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hpe.caf</groupId>
+            <artifactId>job-service-client</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <properties>
         <job-service-ui.version>1.0-SNAPSHOT</job-service-ui.version>
-        <swaggerUIWarName>job-service-ui-${job-service-ui.version}</swaggerUIWarName>
+        <swaggerUIWarName>job-service-ui</swaggerUIWarName>
         <db.name>jobservice</db.name>
+        <postgres.db.port>5432</postgres.db.port>
+        <job-service-db-installer.version>1.0-SNAPSHOT</job-service-db-installer.version>
+        <docker.dev.repo>rh7-artifactory.hpswlabs.hp.com:8443</docker.dev.repo>
     </properties>
 
     <profiles>
@@ -84,7 +101,6 @@
                 <webservice.adminport>25080</webservice.adminport>
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
-                <postgres.db.port>5432</postgres.db.port>
                 <!--<db.connection>jdbc:postgresql://${docker.host.address}:${postgres.db.port}</db.connection>-->
             </properties>
         </profile>
@@ -93,24 +109,24 @@
     <build>
         <plugins>
             <!-- Compile test sources. -->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-compiler-plugin</artifactId>-->
-                <!--<version>${maven.compiler.version}</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>test-compile</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>testCompile</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<testCompilerArgument>-parameters</testCompilerArgument>-->
-                            <!--<source>1.8</source>-->
-                            <!--<target>1.8</target>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.version}</version>
+                <executions>
+                    <execution>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <testCompilerArgument>-parameters</testCompilerArgument>
+                            <source>1.8</source>
+                            <target>1.8</target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
             <!-- Process the test resources, test cases. -->
             <!--<plugin>-->
@@ -128,38 +144,37 @@
             <!--</plugin>-->
 
             <!-- Run integration tests. -->
-            <!--<plugin>-->
-                <!--<artifactId>maven-failsafe-plugin</artifactId>-->
-                <!--<version>${maven.failsafe.version}</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>webservice-Docker</id>-->
-                        <!--<goals>-->
-                            <!--<goal>integration-test</goal>-->
-                            <!--<goal>verify</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<systemPropertyVariables>-->
-                        <!--<webservice.adminport>${webservice.adminport}</webservice.adminport>-->
-                        <!--<docker.host.address>${docker.host.address}</docker.host.address>-->
-                        <!--<postgres.db.port>${postgres.db.port}</postgres.db.port>-->
-                    <!--</systemPropertyVariables>-->
-                    <!--<environmentVariables>-->
-                        <!--<CAF_APPNAME>caf/job-service</CAF_APPNAME>-->
-                        <!--<CAF_CONFIG_PATH>${project.basedir}/test-config</CAF_CONFIG_PATH>-->
-                        <!--<webserviceurl>http://${docker.host.address}:${webservice.adminport}/${webserviceWarName}${webserviceBasePath}</webserviceurl>-->
-                        <!--<database.url>jdbc:postgresql://${docker.host.address}:5432/${db.name}</database.url>-->
-                        <!--<database.username>postgres</database.username>-->
-                        <!--<database.password>root</database.password>-->
-                        <!--<rabbitmq.host>${docker.host.address}</rabbitmq.host>-->
-                        <!--<rabbitmq.port>5672</rabbitmq.port>-->
-                        <!--<rabbitmq.username>user</rabbitmq.username>-->
-                        <!--<rabbitmq.password>pass</rabbitmq.password>-->
-                    <!--</environmentVariables>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven.failsafe.version}</version>
+                <executions>
+                    <execution>
+                        <id>webservice-Docker</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <systemPropertyVariables>
+                        <webservice.adminport>${webservice.adminport}</webservice.adminport>
+                        <docker.host.address>${docker.host.address}</docker.host.address>
+                    </systemPropertyVariables>
+                    <environmentVariables>
+                        <CAF_APPNAME>caf/job-service</CAF_APPNAME>
+                        <CAF_CONFIG_PATH>${project.basedir}/test-config</CAF_CONFIG_PATH>
+                        <database.url>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${db.name}</database.url>
+                        <database.username>postgres</database.username>
+                        <database.password>root</database.password>
+                        <rabbitmq.host>rabbitmq</rabbitmq.host>
+                        <rabbitmq.port>5672</rabbitmq.port>
+                        <rabbitmq.username>guest</rabbitmq.username>
+                        <rabbitmq.password>guest</rabbitmq.password>
+                        <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
+                    </environmentVariables>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.jolokia</groupId>
@@ -179,78 +194,76 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <registry>${docker.dev.repo}</registry>
                     <verbose>true</verbose>
-                    <autoPull>on</autoPull>
                     <logDate>default</logDate>
                     <watchInterval>500</watchInterval>
                     <images>
                         <!-- pull in a normal postgres DB for integration tests -->
-                        <!--<image>-->
-                            <!--<alias>jobservice-integrationtests-postgres</alias>-->
-                            <!--<name>index.docker.io/postgres:9.4</name>-->
-                            <!--<run>-->
-                                <!--<ports>-->
-                                    <!--<port>${postgres.db.port}:5432</port>-->
-                                <!--</ports>-->
-                                <!--<env>-->
-                                    <!--<POSTGRES_PASSWORD>root</POSTGRES_PASSWORD>-->
-                                    <!--<POSTGRES_USER>postgres</POSTGRES_USER>-->
-                                    <!--<POSTGRES_DB>${db.name}</POSTGRES_DB>-->
-                                <!--</env>-->
-                                <!--<wait>-->
-                                    <!--<log>PostgreSQL init process complete</log>-->
-                                    <!--<time>20000</time>-->
-                                    <!--<shutdown>500</shutdown>-->
-                                <!--</wait>-->
-                                <!--<log>-->
-                                    <!--<enabled>true</enabled>-->
-                                <!--</log>-->
-                            <!--</run>-->
-                        <!--</image>-->
+                        <image>
+                            <alias>jobservice-integrationtests-postgres</alias>
+                            <name>index.docker.io/postgres:9.4</name>
+                            <run>
+                                <ports>
+                                    <port>${postgres.db.port}:5432</port>
+                                </ports>
+                                <env>
+                                    <POSTGRES_PASSWORD>root</POSTGRES_PASSWORD>
+                                    <POSTGRES_USER>postgres</POSTGRES_USER>
+                                    <POSTGRES_DB>${db.name}</POSTGRES_DB>
+                                </env>
+                                <wait>
+                                    <log>PostgreSQL init process complete</log>
+                                    <time>120000</time>
+                                    <shutdown>500</shutdown>
+                                </wait>
+                                <log>
+                                    <enabled>true</enabled>
+                                </log>
+                            </run>
+                        </image>
 
                         <!-- Run jobservice db installer. -->
-                        <!--<image>-->
-                            <!--<alias>job-service-liquibase-container</alias>-->
-                            <!--<name>caf/job-service-db-installer:1.0</name>-->
-                            <!--<run>-->
-                                <!--<links>-->
-                                    <!--<link>jobservice-integrationtests-postgres</link>-->
-                                <!--</links>-->
-                                <!--<log>-->
-                                    <!--<enabled>true</enabled>-->
-                                <!--</log>-->
-                                <!--<cmd>java -jar /job-service-db.jar -fd -db.user postgres -db.pass root -db.name ${db.name} -db.connection jdbc:postgresql://boilerplate-integrationtests-postgres:5432 -log debug-->
-                                <!--</cmd>-->
-                                <!--<wait>-->
-                                    <!--<log>DB update finished.</log>-->
-                                    <!--<time>10000</time>-->
-                                    <!--<shutdown>500</shutdown>-->
-                                <!--</wait>-->
-                            <!--</run>-->
-                        <!--</image>-->
+                        <image>
+                            <alias>job-service-liquibase-container</alias>
+                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.0-SNAPSHOT</name>
+                            <run>
+                                <links>
+                                    <link>jobservice-integrationtests-postgres</link>
+                                </links>
+                                <log>
+                                    <enabled>true</enabled>
+                                </log>
+                                <cmd>java -jar /job-service-db.jar -fd -db.user postgres -db.pass root -db.name ${db.name} -db.connection jdbc:postgresql://jobservice-integrationtests-postgres:5432 -log debug
+                                </cmd>
+                                <wait>
+                                    <log>DB update finished.</log>
+                                    <time>120000</time>
+                                    <shutdown>500</shutdown>
+                                </wait>
+                            </run>
+                        </image>
                         <!--Run rabbitmq for tests. -->
-                        <!--<image>-->
-                            <!--<alias>rabbitmq</alias>-->
-                            <!--<name>rabbitmq:3-management</name>-->
-                            <!--<run>-->
-                                <!--<ports>-->
-                                    <!--<port>${rabbitmq.ctrl.port}:15672</port>-->
-                                    <!--<port>${rabbitmq.node.port}:5672</port>-->
-                                <!--</ports>-->
-                                <!--<wait>-->
-                                    <!--<log>Server startup complete</log>-->
-                                    <!--<http>-->
-                                        <!--<url>http://${docker.host.address}:${rabbitmq.ctrl.port}</url>-->
-                                    <!--</http>-->
-                                    <!--<time>120000</time>-->
-                                    <!--<shutdown>500</shutdown>-->
-                                <!--</wait>-->
-                                <!--<log>-->
-                                    <!--<enabled>true</enabled>-->
-                                <!--</log>-->
-                            <!--</run>-->
-                        <!--</image>-->
+                        <image>
+                            <alias>rabbitmq</alias>
+                            <name>rabbitmq:3-management</name>
+                            <run>
+                                <ports>
+                                    <port>${rabbitmq.ctrl.port}:15672</port>
+                                    <port>${rabbitmq.node.port}:5672</port>
+                                </ports>
+                                <wait>
+                                    <log>Server startup complete</log>
+                                    <http>
+                                        <url>http://${docker.host.address}:${rabbitmq.ctrl.port}</url>
+                                    </http>
+                                    <time>120000</time>
+                                    <shutdown>500</shutdown>
+                                </wait>
+                                <log>
+                                    <enabled>true</enabled>
+                                </log>
+                            </run>
+                        </image>
                         <!--Build image for config files-->
                         <image>
                             <alias>config</alias>
@@ -348,20 +361,23 @@
                                     <!-- When the container is deployed in Marathon it will use the environment variable values specified in the container json. -->
                                     <CAF_APPNAME>caf/job-service</CAF_APPNAME>
                                     <CAF_CONFIG_PATH>${project.basedir}/config</CAF_CONFIG_PATH>
-                                    <database.url>jdbc:postgresql://${docker.host.address}:5432/${db.name}</database.url>
+                                    <database.url>jdbc:postgresql://jobservice-integrationtests-postgres:5432/${db.name}</database.url>
                                     <database.username>postgres</database.username>
-                                    <database.password>pssword</database.password>
+                                    <database.password>root</database.password>
                                     <rabbitmq.host>rabbitmq</rabbitmq.host>
                                     <rabbitmq.port>5672</rabbitmq.port>
-                                    <rabbitmq.username>user</rabbitmq.username>
-                                    <rabbitmq.password>pass</rabbitmq.password>
+                                    <rabbitmq.username>guest</rabbitmq.username>
+                                    <rabbitmq.password>guest</rabbitmq.password>
                                 </env>
                                 <volumes>
                                     <from>
                                         <image>config</image>
                                     </from>
                                 </volumes>
-                                <links></links>
+                                <links>
+                                    <link>jobservice-integrationtests-postgres</link>
+                                    <link>rabbitmq</link>
+                                </links>
                                 <log>
                                     <enabled>true</enabled>
                                 </log>

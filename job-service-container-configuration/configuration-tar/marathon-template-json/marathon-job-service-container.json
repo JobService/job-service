@@ -16,7 +16,7 @@
         }
       ],
       "privileged": true,
-      "forcePullImage": "${forcePullImage}"
+      "force-pull": "${force-pull}"
     },
     "type": "DOCKER"
   },
@@ -35,11 +35,14 @@
     "CAF_CONFIG_PATH": "/mnt/mesos/sandbox",
     "database.url": "${job-service-database.url}",
     "database.username": "${job-service-database.username}",
-    "database.password": "${job-service-database.password}"
+    "database.password": "${job-service-database.password}",
+    "rabbitmq.host": "${rabbit-host}",
+    "rabbitmq.port": "${rabbit-port}",
+    "rabbitmq.username": "${rabbit-user}",
+    "rabbitmq.password": "${rabbit-pass}"
   },
   "uris": [
-    "${marathon-uris-root}/${docker-login-config}",
-    "${marathon-uris-root}/${service-config-location}/cfg_${marathon-group}_job-service_ServiceConfiguration"
+    "${marathon-uris-root}/${docker-login-config}"
   ]
 }
 
