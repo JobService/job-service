@@ -2,18 +2,24 @@ package com.hpe.caf.worker.jobtracking;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
  * This task is used to inform the Job Tracking worker of the progress of another task.
+ * EITHER jobTaskId OR proxiedTaskInfo should have a value.
  */
 public class JobTrackingWorkerTask {
     /**
-     * The taskId of the other task whose progress is being reported.
+     * The jobTaskId of the tracked task whose progress is being reported.
+     * If this has a value then proxiedTaskInfo should be null.
      */
-    @NotNull
-    private String trackedTaskId;
+    private String jobTaskId;
+
+    /**
+     * Details of a proxied task.
+     * If this has a value then jobTaskId should be null.
+     */
+    private ProxiedTaskInfo proxiedTaskInfo;
 
 
     @Min(0)
@@ -21,15 +27,26 @@ public class JobTrackingWorkerTask {
     private int estimatedPercentageCompleted;
 
 
-    public String getTrackedTaskId() {
-        return trackedTaskId;
+    public String getJobTaskId() {
+        return jobTaskId;
     }
 
 
-    public void setTrackedTaskId(String trackedTaskId) {
-        this.trackedTaskId = Objects.requireNonNull(trackedTaskId);
+    public void setJobTaskId(String jobTaskId) {
+        this.jobTaskId = Objects.requireNonNull(jobTaskId);
+        this.proxiedTaskInfo = null;
     }
 
+
+    public ProxiedTaskInfo getProxiedTaskInfo() {
+        return proxiedTaskInfo;
+    }
+
+
+    public void setProxiedTaskInfo(ProxiedTaskInfo proxiedTaskInfo) {
+        this.proxiedTaskInfo = proxiedTaskInfo;
+        this.jobTaskId = null;
+    }
 
     public int getEstimatedPercentageCompleted() {
         return estimatedPercentageCompleted;
