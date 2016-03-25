@@ -25,7 +25,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>caf-audit-management-service-configuration</finalName>
+                            <finalName>${project.artifactId}</finalName>
                             <descriptors>
                                 <descriptor>assembly.xml</descriptor>
                             </descriptors>
