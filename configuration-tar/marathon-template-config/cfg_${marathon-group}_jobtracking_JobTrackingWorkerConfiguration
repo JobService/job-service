@@ -1,0 +1,7 @@
+{
+        "jobDatabaseURL": "${jobtracking-database-connection-string}",
+        "jobDatabaseUsername": "${jobtracking-database-username}",
+        "jobDatabasePassword": "${jobtracking-database-password}",
+        "outputQueue": "${marathon-group}-workflow-out",
+        "threads": ${jobtracking-threads}
+}
