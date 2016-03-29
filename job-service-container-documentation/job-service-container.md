@@ -28,9 +28,6 @@ The username to access the queue server with.
 #### rabbitmq.password
 The password to access the queue server with.
 
-#### JOB_SERVICE_API_CONFIG_PATH
-The path to the directory containing the config.properties which can be used as an alternative means of specifying the PostgreSQL database and RabbitMQ environment variables.
-
 
 
 

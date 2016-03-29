@@ -36,28 +36,28 @@
 
 ### Job Service
 #### job-service-cpus
-- Configures the amount of CPU of each CAF Audit Management Service container. This does not have to be a whole number.
+- Configures the amount of CPU of each CAF Job Service container. This does not have to be a whole number.
 
 #### job-service-mem
-- Configures the amount of RAM of each CAF Audit Management Service container. Note that this property does not configure the amount of RAM available to the container but is instead an upper limit. If the container's RAM exceeds this value it will cause docker to destroy and restart the container.
+- Configures the amount of RAM of each CAF Job Service container. Note that this property does not configure the amount of RAM available to the container but is instead an upper limit. If the container's RAM exceeds this value it will cause docker to destroy and restart the container.
 
 #### job-service-instances
-- Configures the number of instances of the CAF Audit Management Service container to start on launch.
+- Configures the number of instances of the CAF Job Service container to start on launch.
 
 #### job-service-version
-- This property specifies the version number of the CAF Audit Management Service to pull down from Artifactory.
+- This property specifies the version number of the CAF Job Service to pull down from Artifactory.
 
 #### job-service-8080-serviceport
-- This property specifies the external port number on the host machine that will be forwarded to the containers internal 8080 port. This port is used to call the CAF Audit Management Service web service.
+- This property specifies the external port number on the host machine that will be forwarded to the containers internal 8080 port. This port is used to call the CAF Job Service web service.
 
 #### job-service-healthcheck-graceperiodseconds
-- This property specifies the time in seconds Marathon must wait before calling the CAF Audit Management Service's health check. This allows the application time to finish starting up as a premature health check will return a failure.
+- This property specifies the time in seconds Marathon must wait before calling the CAF Job Service's health check. This allows the application time to finish starting up as a premature health check will return a failure.
 
 #### job-service-healthcheck-intervalseconds
 - This property specifies the time in seconds between each health check call.
 
 #### job-service-healthcheck-maxconsecutivefailures
-- This property specifies the maximum number of times the CAF Audit Management Service can fail its health check before Marathon considers the application failed and restarts it.
+- This property specifies the maximum number of times the CAF Job Service can fail its health check before Marathon considers the application failed and restarts it.
 
 #### job-service-healthcheck-timeoutseconds
 - This property specifies the time in seconds Marathon will wait for the health check to return a response before failing the check.
