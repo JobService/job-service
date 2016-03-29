@@ -13,10 +13,10 @@ public class JobTrackingWorkerHealthCheck implements HealthReporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorker.class);
 
-    private final JobTrackingWorkerReporter reporter;
+    private final JobTrackingReporter reporter;
 
 
-    public JobTrackingWorkerHealthCheck(JobTrackingWorkerReporter reporter) {
+    public JobTrackingWorkerHealthCheck(JobTrackingReporter reporter) {
         this.reporter = reporter;
     }
 
@@ -28,7 +28,7 @@ public class JobTrackingWorkerHealthCheck implements HealthReporter {
     public HealthResult healthCheck() {
         try
         {
-            if (!reporter.performHealthCheck()) {
+            if (!reporter.verifyJobDatabase()) {
                 LOG.warn("Error contacting Job Database.");
                 return new HealthResult(HealthStatus.UNHEALTHY, "Job Database connection check failed.");
             }

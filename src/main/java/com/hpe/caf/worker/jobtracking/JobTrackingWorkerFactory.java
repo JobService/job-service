@@ -20,7 +20,7 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
      * Job Tracking Worker has to be able to proxy messages for other workers.
      */
     @Override
-    public Worker getMismatchedWorker(final String classifier, final int version, final TaskStatus status, final byte[] data, final byte[] context) throws InvalidTaskException {
+    public Worker getMismatchedWorker(final String classifier, final int version, final TaskStatus status, final byte[] data, final byte[] context) throws TaskRejectedException, InvalidTaskException {
         JobTrackingWorkerTask jtwTask = new JobTrackingWorkerTask();
         jtwTask.setProxiedTaskInfo(new ProxiedTaskInfo(classifier, data));
         return new JobTrackingWorker(jtwTask, getConfiguration().getOutputQueue(), getCodec(), createReporter());
@@ -40,7 +40,7 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
 
 
     @Override
-    public Worker createWorker(JobTrackingWorkerTask task) throws InvalidTaskException {
+    public Worker createWorker(JobTrackingWorkerTask task) throws TaskRejectedException, InvalidTaskException {
         return new JobTrackingWorker(task, getConfiguration().getOutputQueue(), getCodec(), createReporter());
     }
 
@@ -59,12 +59,20 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
 
     @Override
     public HealthResult healthCheck() {
-        JobTrackingWorkerHealthCheck healthCheck = new JobTrackingWorkerHealthCheck(createReporter());
-        return healthCheck.healthCheck();
+        try {
+            JobTrackingWorkerHealthCheck healthCheck = new JobTrackingWorkerHealthCheck(createReporter());
+            return healthCheck.healthCheck();
+        } catch (TaskRejectedException e) {
+            return new HealthResult(HealthStatus.UNHEALTHY, "Failed to perform Job Tracking Worker health check. " + e.getMessage());
+        }
     }
 
 
-    private JobTrackingWorkerReporter createReporter() {
-        return new JobTrackingWorkerReporter(getConfiguration().getJobDatabaseConnectionString());
+    private JobTrackingReporter createReporter() throws TaskRejectedException {
+        try {
+            return new JobTrackingWorkerReporter(getConfiguration().getJobDatabaseURL(), getConfiguration().getJobDatabaseUsername(), getConfiguration().getJobDatabasePassword());
+        } catch (JobReportingException e) {
+            throw new TaskRejectedException("Failed to create Job Database reporter for Job Tracking Worker. ", e);
+        }
     }
 }

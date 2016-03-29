@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Objects;
 
@@ -26,10 +27,10 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorker.class);
 
     @NotNull
-    private JobTrackingWorkerReporter reporter;
+    private JobTrackingReporter reporter;
 
 
-    public JobTrackingWorker(final JobTrackingWorkerTask task, final String outputQueue, final Codec codec, final JobTrackingWorkerReporter reporter) throws InvalidTaskException {
+    public JobTrackingWorker(final JobTrackingWorkerTask task, final String outputQueue, final Codec codec, final JobTrackingReporter reporter) throws InvalidTaskException {
         super(task, outputQueue, codec);
         this.reporter = Objects.requireNonNull(reporter);
     }
@@ -115,9 +116,12 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
             boolean rejected = headers.getOrDefault(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED, null) != null;
             int retries = Integer.parseInt(String.valueOf(headers.getOrDefault(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_RETRY, "0")));
             if (rejected) {
-                reporter.reportJobTaskRejected(jobTaskId, retries);
+                String rejectedHeader = String.valueOf(headers.get(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED));
+                String rejectionDetails = MessageFormat.format("{0}. Execution of this job task was retried {1} times.", rejectedHeader, retries);
+                reporter.reportJobTaskRejected(jobTaskId, rejectionDetails);
             } else {
-                reporter.reportJobTaskFailure(jobTaskId, retries);
+                String retryDetails = MessageFormat.format("This job task encountered a problem and will be retried. This will be retry attempt number {0} for this job task.", retries);
+                reporter.reportJobTaskRetry(jobTaskId, retryDetails);
             }
         } catch (JobReportingException e) {
             LOG.warn("Error reporting task {} progress to the Job Database: ", proxiedTaskMessage.getTaskId(), e);

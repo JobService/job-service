@@ -35,7 +35,7 @@ public class JobTrackingWorkerTest {
     public void testProxiedCompleteTask() throws Exception {
         //Setup
         Codec codec = new JsonCodec();
-        JobTrackingWorkerReporter reporter = Mockito.mock(JobTrackingWorkerReporter.class);
+        JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
         TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_SUCCESS, Collections.EMPTY_MAP, toQueue);
         TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), statusCheckUrl, trackingPipe, toQueue); //trackToPipe==toQueue
@@ -61,7 +61,7 @@ public class JobTrackingWorkerTest {
     public void testProxiedInProgressTask() throws Exception {
         //Setup
         Codec codec = new JsonCodec();
-        JobTrackingWorkerReporter reporter = Mockito.mock(JobTrackingWorkerReporter.class);
+        JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
         TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_SUCCESS, Collections.EMPTY_MAP, toQueue);
         TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), statusCheckUrl, trackingPipe, trackToPipe);
@@ -87,7 +87,7 @@ public class JobTrackingWorkerTest {
     public void testProxiedRejectedTask() throws Exception {
         //Setup
         Codec codec = new JsonCodec();
-        JobTrackingWorkerReporter reporter = Mockito.mock(JobTrackingWorkerReporter.class);
+        JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
         TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_FAILURE, Collections.EMPTY_MAP, toQueue);
         TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), statusCheckUrl, trackingPipe, trackToPipe);
@@ -106,7 +106,7 @@ public class JobTrackingWorkerTest {
 
         //verify results
         Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
-        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRejected(Mockito.eq(jobTaskId), Mockito.anyInt());
+        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRejected(Mockito.eq(jobTaskId), Mockito.anyString());
     }
 
 
@@ -114,15 +114,14 @@ public class JobTrackingWorkerTest {
     public void testProxiedRetriedTask() throws Exception {
         //Setup
         Codec codec = new JsonCodec();
-        JobTrackingWorkerReporter reporter = Mockito.mock(JobTrackingWorkerReporter.class);
+        JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
         TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_FAILURE, Collections.EMPTY_MAP, toQueue);
         TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), statusCheckUrl, trackingPipe, trackToPipe);
         tm.setTracking(tracking);
 
         Map<String, Object> headers = new HashMap<String, Object>();
-        int numRetries = 42;
-        headers.put(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_RETRY, numRetries);
+        headers.put(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_RETRY, 1);
 
         WorkerCallback mockCallback = Mockito.mock(WorkerCallback.class);
 
@@ -134,7 +133,7 @@ public class JobTrackingWorkerTest {
 
         //verify results
         Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
-        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskFailure(Mockito.eq(jobTaskId), Mockito.eq(numRetries));
+        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRetry(Mockito.eq(jobTaskId), Mockito.anyString());
     }
 
 
@@ -142,7 +141,7 @@ public class JobTrackingWorkerTest {
     public void testTrackingEventTask() throws Exception {
         //Setup
         Codec codec = new JsonCodec();
-        JobTrackingWorkerReporter reporter = Mockito.mock(JobTrackingWorkerReporter.class);
+        JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
         //Create the worker subject to testing
         JobTrackingWorker worker = new JobTrackingWorker(createTrackedTask(jobTaskId), outputQueue, codec, reporter);
