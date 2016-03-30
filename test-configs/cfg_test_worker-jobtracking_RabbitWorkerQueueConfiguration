@@ -1,4 +1,13 @@
 {
+    "rabbitConfiguration":{
+        "backoffInterval": 1,
+        "maxBackoffInterval": 30,
+        "maxAttempts": 20,
+        "rabbitHost": "rabbitmq",
+        "rabbitPort": 5672,
+        "rabbitUser": "guest",
+        "rabbitPassword": "guest"
+    },
     "prefetchBuffer": 0,
     "inputQueue": "test-input-1",
     "retryQueue": "test-input-1",

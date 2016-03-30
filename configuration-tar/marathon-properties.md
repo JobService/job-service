@@ -36,12 +36,6 @@ These properties are used across multiple json template files rather than being 
 ####caf-fs-storage-hostPath
 - If using the file system based CAF Datastore, this property specifies the path on the host machine to the folder acting as the Datastore. This should be a folder docker can reach to be able to mount the folder on each container.
 
-####license-serverhost
-- This property specifies the Hostname or IP address of an IDOL License server. This is used by the Job Tracking worker container to retrieve a license file for Image Server. **Note this value must be replaced**
-
-####license-serverport
-- This property specifies the port number to connect to of the IDOL License server. This is used by the Job Tracking worker container to retrieve a license file for Image Server. **Note this value must be replaced**
-
 ####marathon-uris-root
 - The root folder that contains all files available for Marathon to copy into containers.
 
@@ -168,8 +162,20 @@ These properties are used across multiple json template files rather than being 
 - This property specifies the result size limit (in bytes) of the Job Tracking worker at which the result will
 be written to the DataStore rather than held in a byte array.
 
-####jobtracking-threads
-- This property configures the number of threads the Job Tracking Worker runs with.
-
 ####jobtracking-version
 - This property specifies the version number of the Job Tracking Worker to pull down from Artifactory.
+
+####jobtracking-database-connection-string
+- This property specifies the database connection string to connect to the jobservice database.
+
+####jobtracking-database-username
+- This property specifies the database username to connect to the jobservice database.
+
+####jobtracking-database-password
+- This property specifies the database password to connect to the jobservice database.
+
+####jobtracking-output-queue
+- This property specifies the name of the RabbitMQ output queue for outputted messages from the worker.
+
+####jobtracking-threads
+- This property configures the number of threads the Job Tracking Worker runs with.

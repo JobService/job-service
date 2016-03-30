@@ -9,6 +9,16 @@
 	"worker-config-location":"marathon-config",
 	"docker-login-config": "<MUST_REPLACE: Location of docker login config tar>",
 
+	"storage_service-server": "<MUST_REPLACE: Server for storage service>",
+	"storage_service-port": "<MUST_REPLACE: Port for storage service>",
+	"storage_service-auth-server": "<MUST_REPLACE: Server for storage service authentication>",
+	"storage_service-auth-port": "<MUST_REPLACE: Port for storage service authentication>",
+	"storage_service-auth-userName": "<MUST_REPLACE: User name for storage service authentication>",
+	"storage_service-auth-password": "<MUST_REPLACE: Password for storage service authentication>",
+	"storage_service-auth-clientName": "<MUST_REPLACE: Client name for storage service authentication>",
+	"storage_service-auth-clientSecret": "<MUST_REPLACE: Client secret for storage service authentication>",
+	"storage_service-auth-realm": "<MUST_REPLACE: Realm for storage service authentication>",
+
 	"rabbit-id":"rabbit-01",
 	"rabbit-cpus":0.4,
 	"rabbit-mem":"512",
