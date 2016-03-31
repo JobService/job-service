@@ -1,9 +1,9 @@
 {
-    "rabbitmq.host":"rabbitmq",
-    "rabbitmq.port":"5672",
-    "rabbitmq.username":"guest",
-    "rabbitmq.password":"guest",
-    "database.url": "jdbc:postgresql://192.168.56.200:5432/jobservice",
-    "database.username": "postgres",
-    "database.password": "root"
+    "RABBITMQ_HOST":"rabbitmq",
+    "RABBITMQ_PORT":"5672",
+    "RABBITMQ_USERNAME":"guest",
+    "RABBITMQ_PASSWORD":"guest",
+    "CAF_DATABASE_URL": "jdbc:postgresql://192.168.56.200:5432/jobservice",
+    "CAF_DATABASE_USERNAME": "postgres",
+    "CAF_DATABASE_PASSWORD": "root"
 }

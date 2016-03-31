@@ -164,13 +164,13 @@
                     <environmentVariables>
                         <CAF_APPNAME>caf/job-service</CAF_APPNAME>
                         <CAF_CONFIG_PATH>${project.basedir}/test-config</CAF_CONFIG_PATH>
-                        <database.url>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${db.name}</database.url>
-                        <database.username>postgres</database.username>
-                        <database.password>root</database.password>
-                        <rabbitmq.host>rabbitmq</rabbitmq.host>
-                        <rabbitmq.port>5672</rabbitmq.port>
-                        <rabbitmq.username>guest</rabbitmq.username>
-                        <rabbitmq.password>guest</rabbitmq.password>
+                        <CAF_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${db.name}</CAF_DATABASE_URL>
+                        <CAF_DATABASE_USERNAME>postgres</CAF_DATABASE_USERNAME>
+                        <CAF_DATABASE_PASSWORD>root</CAF_DATABASE_PASSWORD>
+                        <RABBITMQ_HOST>rabbitmq</RABBITMQ_HOST>
+                        <RABBITMQ_PORT>5672</RABBITMQ_PORT>
+                        <RABBITMQ_USERNAME>guest</RABBITMQ_USERNAME>
+                        <RABBITMQ_PASSWORD>guest</RABBITMQ_PASSWORD>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
                     </environmentVariables>
                 </configuration>
@@ -362,13 +362,13 @@
                                     <!-- When the container is deployed in Marathon it will use the environment variable values specified in the container json. -->
                                     <CAF_APPNAME>caf/job-service</CAF_APPNAME>
                                     <CAF_CONFIG_PATH>${project.basedir}/config</CAF_CONFIG_PATH>
-                                    <database.url>jdbc:postgresql://jobservice-integrationtests-postgres:5432/${db.name}</database.url>
-                                    <database.username>postgres</database.username>
-                                    <database.password>root</database.password>
-                                    <rabbitmq.host>rabbitmq</rabbitmq.host>
-                                    <rabbitmq.port>5672</rabbitmq.port>
-                                    <rabbitmq.username>guest</rabbitmq.username>
-                                    <rabbitmq.password>guest</rabbitmq.password>
+                                    <CAF_DATABASE_URL>jdbc:postgresql://jobservice-integrationtests-postgres:5432/${db.name}</CAF_DATABASE_URL>
+                                    <CAF_DATABASE_USERNAME>postgres</CAF_DATABASE_USERNAME>
+                                    <CAF_DATABASE_PASSWORD>root</CAF_DATABASE_PASSWORD>
+                                    <RABBITMQ_HOST>rabbitmq</RABBITMQ_HOST>
+                                    <RABBITMQ_PORT>5672</RABBITMQ_PORT>
+                                    <RABBITMQ_USERNAME>guest</RABBITMQ_USERNAME>
+                                    <RABBITMQ_PASSWORD>guest</RABBITMQ_PASSWORD>
                                 </env>
                                 <volumes>
                                     <from>

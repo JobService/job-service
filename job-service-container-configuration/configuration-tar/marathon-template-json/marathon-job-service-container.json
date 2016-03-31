@@ -33,13 +33,13 @@
   "env": {
     "_JAVA_OPTIONS": "-Xms${job-service-java-mem-min}m -Xmx${job-service-java-mem-max}m",
     "CAF_CONFIG_PATH": "/mnt/mesos/sandbox",
-    "database.url": "${job-service-database.url}",
-    "database.username": "${job-service-database.username}",
-    "database.password": "${job-service-database.password}",
-    "rabbitmq.host": "${rabbit-host}",
-    "rabbitmq.port": "${rabbit-port}",
-    "rabbitmq.username": "${rabbit-user}",
-    "rabbitmq.password": "${rabbit-pass}"
+    "CAF_DATABASE_URL": "${job-service-database.url}",
+    "CAF_DATABASE_USERNAME": "${job-service-database.username}",
+    "CAF_DATABASE_PASSWORD": "${job-service-database.password}",
+    "RABBITMQ_HOST": "${rabbit-host}",
+    "RABBITMQ_PORT": "${rabbit-port}",
+    "RABBITMQ_USERNAME": "${rabbit-user}",
+    "RABBITMQ_PASSWORD": "${rabbit-pass}"
   },
   "uris": [
     "${marathon-uris-root}/${docker-login-config}"
