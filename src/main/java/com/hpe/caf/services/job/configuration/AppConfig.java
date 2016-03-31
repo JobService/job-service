@@ -16,31 +16,31 @@ public class AppConfig {
     private Environment environment;
 
     public String getDatabaseURL(){
-        return environment.getProperty("database.url");
+        return environment.getProperty("CAF_DATABASE_URL");
     }
 
     public String getDatabaseUsername(){
-        return environment.getProperty("database.username");
+        return environment.getProperty("CAF_DATABASE_USERNAME");
     }
 
     public String getDatabasePassword(){
-        return environment.getProperty("database.password");
+        return environment.getProperty("CAF_DATABASE_PASSWORD");
     }
 
     public String getRabbitMQHost(){
-        return environment.getProperty("rabbitmq.host");
+        return environment.getProperty("RABBITMQ_HOST");
     }
 
     public int getRabbitMQPort(){
-        return Integer.parseInt(environment.getProperty("rabbitmq.port"));
+        return Integer.parseInt(environment.getProperty("RABBITMQ_PORT"));
     }
 
     public String getRabbitMQUsername(){
-        return environment.getProperty("rabbitmq.username");
+        return environment.getProperty("RABBITMQ_USERNAME");
     }
 
     public String getRabbitMQPassword(){
-        return environment.getProperty("rabbitmq.password");
+        return environment.getProperty("RABBITMQ_PASSWORD");
     }
 
 }

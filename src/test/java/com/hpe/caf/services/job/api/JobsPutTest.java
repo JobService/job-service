@@ -40,9 +40,9 @@ public final class JobsPutTest {
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(Mockito.any()).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
-        newEnv.put("database.url","testUrl");
-        newEnv.put("database.username","testUserName");
-        newEnv.put("database.password","testPassword");
+        newEnv.put("CAF_DATABASE_URL","testUrl");
+        newEnv.put("CAF_DATABASE_USERNAME","testUserName");
+        newEnv.put("CAF_DATABASE_PASSWORD","testPassword");
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         //  Mock QueueServices calls.
