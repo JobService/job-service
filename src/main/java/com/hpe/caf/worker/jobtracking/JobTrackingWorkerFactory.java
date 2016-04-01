@@ -20,7 +20,7 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
      * Job Tracking Worker has to be able to proxy messages for other workers.
      */
     @Override
-    public Worker getMismatchedWorker(final String classifier, final int version, final TaskStatus status, final byte[] data, final byte[] context) throws TaskRejectedException, InvalidTaskException {
+    public Worker getMismatchedWorker(final String classifier, final int version, final TaskStatus status, final byte[] data, final byte[] context, TrackingInfo tracking) throws TaskRejectedException, InvalidTaskException {
         JobTrackingWorkerTask jtwTask = new JobTrackingWorkerTask();
         jtwTask.setProxiedTaskInfo(new ProxiedTaskInfo(classifier, data));
         return new JobTrackingWorker(jtwTask, getConfiguration().getOutputQueue(), getCodec(), createReporter());
