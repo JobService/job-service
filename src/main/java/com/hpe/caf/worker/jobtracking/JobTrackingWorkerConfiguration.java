@@ -6,29 +6,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * Configuration for the JobTrackingWorker, read in from test-configs/cfg_test_worker-jobtracking-JobTrackingWorkerConfiguration.
+ * Configuration for the JobTrackingWorker.
  */
 public class JobTrackingWorkerConfiguration {
-    /**
-     * The URL of the Job Database (PostgreSQL).
-     */
-    @NotNull
-    @Size(min = 1)
-    private String jobDatabaseURL;
-
-    /**
-     * The username to use when connecting to the Job Database.
-     */
-    @NotNull
-    @Size(min = 1)
-    private String jobDatabaseUsername;
-
-    /**
-     * The password to use with the configured username when connecting to the Job Database.
-     */
-    @NotNull
-    @Size(min = 1)
-    private String jobDatabasePassword;
 
     /**
      * Output queue to return results to RabbitMQ.
@@ -46,36 +26,6 @@ public class JobTrackingWorkerConfiguration {
 
 
     public JobTrackingWorkerConfiguration() { }
-
-
-    public String getJobDatabaseURL() {
-        return jobDatabaseURL;
-    }
-
-
-    public void setJobDatabaseURL(String jobDatabaseURL) {
-        this.jobDatabaseURL = jobDatabaseURL;
-    }
-
-
-    public String getJobDatabaseUsername() {
-        return jobDatabaseUsername;
-    }
-
-
-    public void setJobDatabaseUsername(String jobDatabaseUsername) {
-        this.jobDatabaseUsername = jobDatabaseUsername;
-    }
-
-
-    public String getJobDatabasePassword() {
-        return jobDatabasePassword;
-    }
-
-
-    public void setJobDatabasePassword(String jobDatabasePassword) {
-        this.jobDatabasePassword = jobDatabasePassword;
-    }
 
 
     public String getOutputQueue() {

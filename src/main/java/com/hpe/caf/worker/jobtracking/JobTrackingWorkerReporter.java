@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.Properties;
@@ -43,14 +40,14 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     private String jobDatabasePassword;
 
 
-    public JobTrackingWorkerReporter(final String jobDatabaseURL, final String jobDatabaseUsername, final String jobDatabasePassword) throws JobReportingException {
-        this.jobDatabaseURL = Objects.requireNonNull(jobDatabaseURL).toLowerCase();
+    public JobTrackingWorkerReporter() throws JobReportingException {
+        this.jobDatabaseURL = Objects.requireNonNull(JobDatabaseProperties.getDatabaseUrl()).toLowerCase();
         if (!jobDatabaseURL.startsWith(JDBC_POSTGRESQL_PREFIX))
         {
             throw new JobReportingException("Invalid database url string format - must start with jdbc:postgresql:");
         }
-        this.jobDatabaseUsername = Objects.requireNonNull(jobDatabaseUsername);
-        this.jobDatabasePassword = Objects.requireNonNull(jobDatabasePassword);
+        this.jobDatabaseUsername = Objects.requireNonNull(JobDatabaseProperties.getDatabaseUsername());
+        this.jobDatabasePassword = Objects.requireNonNull(JobDatabaseProperties.getDatabasePassword());
 
         try {
             LOG.debug("Registering JDBC driver \"{}\" ...", JDBC_DRIVER);
@@ -66,7 +63,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException {
         try (Connection conn = getConnection()) {
             //TODO - FUTURE: pass estimatedPercentageCompleted to the database function
-            report(conn, jobTaskId, job_status.Active);
+            report(conn, jobTaskId, JobStatus.Active);
         } catch (SQLException se) {
             throw new JobReportingException(MessageFormat.format("Failed to report the progress of job task {0}. {1}", jobTaskId, se.getMessage()), se);
         }
@@ -76,7 +73,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public void reportJobTaskComplete(final String jobTaskId) throws JobReportingException {
         try (Connection conn = getConnection()) {
-            report(conn, jobTaskId, job_status.Completed);
+            report(conn, jobTaskId, JobStatus.Completed);
         } catch (SQLException se) {
             throw new JobReportingException(MessageFormat.format("Failed to report the completion of job task {0}. {1}", jobTaskId, se.getMessage()), se);
         }
@@ -87,7 +84,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     public void reportJobTaskRetry(final String jobTaskId, final String retryDetails) throws JobReportingException {
         try (Connection conn = getConnection()) {
             //TODO - Is there no way to report retryDetails?
-            report(conn, jobTaskId, job_status.Active);
+            report(conn, jobTaskId, JobStatus.Active);
         } catch (SQLException se) {
             throw new JobReportingException(MessageFormat.format("Failed to report the failure and retry of job task {0}. {1}", jobTaskId, se.getMessage()), se);
         }
@@ -147,11 +144,11 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * @param status status of the job task
      * @throws SQLException
      */
-    private void report(Connection connection, final String jobTaskId, final job_status status) throws SQLException {
+    private void report(Connection connection, final String jobTaskId, final JobStatus status) throws SQLException {
         String reportProgressFnCallSQL = "{call report_progress(?,?)}";
         try (CallableStatement stmt = connection.prepareCall(reportProgressFnCallSQL)) {
             stmt.setString(1, jobTaskId);
-            stmt.setString(2, status.name());
+            stmt.setObject(2, status, Types.OTHER);
             LOG.debug("Calling report_progress() database function for job task {} with status {} ...", jobTaskId, status.name());
             stmt.execute();
         }
@@ -173,19 +170,5 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             LOG.debug("Calling report_failure() database function for job task {} ...", jobTaskId);
             stmt.execute();
         }
-    }
-
-
-    /**
-     * Enumeration mirroring the job_status ENUM defined in the Job Database.
-     * Refer to \CAFdev\job-service-db\src\main\resources\changelog.xml
-     */
-    private enum job_status {
-        Active,
-        Cancelled,
-        Completed,
-        Failed,
-        Paused,
-        Waiting
     }
 }

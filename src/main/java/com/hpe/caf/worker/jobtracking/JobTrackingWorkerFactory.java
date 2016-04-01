@@ -70,7 +70,7 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
 
     private JobTrackingReporter createReporter() throws TaskRejectedException {
         try {
-            return new JobTrackingWorkerReporter(getConfiguration().getJobDatabaseURL(), getConfiguration().getJobDatabaseUsername(), getConfiguration().getJobDatabasePassword());
+            return new JobTrackingWorkerReporter();
         } catch (JobReportingException e) {
             throw new TaskRejectedException("Failed to create Job Database reporter for Job Tracking Worker. ", e);
         }

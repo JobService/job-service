@@ -113,6 +113,12 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
                 return;
             }
 
+            if (taskStatus == TaskStatus.RESULT_FAILURE || taskStatus == TaskStatus.RESULT_EXCEPTION) {
+                String rejectionDetails = MessageFormat.format("{0}. Execution of this job task failed.", taskStatus.toString());
+                reporter.reportJobTaskRejected(jobTaskId, rejectionDetails);
+                return;
+            }
+
             boolean rejected = headers.getOrDefault(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED, null) != null;
             int retries = Integer.parseInt(String.valueOf(headers.getOrDefault(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_RETRY, "0")));
             if (rejected) {

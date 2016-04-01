@@ -1,3 +1,5 @@
+package com.hpe.caf.worker.jobtracking;
+
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.worker.*;
 import com.hpe.caf.codec.JsonCodec;
@@ -111,7 +113,7 @@ public class JobTrackingWorkerTest {
 
 
     @Test
-    public void testProxiedRetriedTask() throws Exception {
+    public void testProxiedFailedTask() throws Exception {
         //Setup
         Codec codec = new JsonCodec();
         JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
@@ -133,7 +135,7 @@ public class JobTrackingWorkerTest {
 
         //verify results
         Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
-        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRetry(Mockito.eq(jobTaskId), Mockito.anyString());
+        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRejected(Mockito.eq(jobTaskId), Mockito.anyString());
     }
 
 
