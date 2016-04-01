@@ -1,7 +1,4 @@
 {
-        "jobDatabaseURL": "jdbc:postresql://127.0.0.1:5432/jobservice",
-        "jobDatabaseUsername": "postgres",
-        "jobDatabasePassword": "password",
-		"outputQueue": "test-output-1",
+		"outputQueue": "jobtrackingworker-test-output-1",
         "threads": 1
 }

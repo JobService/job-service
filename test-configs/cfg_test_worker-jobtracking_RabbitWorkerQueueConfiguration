@@ -9,8 +9,8 @@
         "rabbitPassword": "guest"
     },
     "prefetchBuffer": 0,
-    "inputQueue": "test-input-1",
-    "retryQueue": "test-input-1",
-    "rejectedQueue": "test-rejected-1",
-    "retryLimit": 2
+    "inputQueue": "jobtrackingworker-test-input-1",
+    "retryQueue": "jobtrackingworker-test-input-1",
+    "rejectedQueue": "jobtrackingworker-test-rejected-1",
+    "retryLimit": 1
 }

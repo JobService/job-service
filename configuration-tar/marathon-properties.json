@@ -49,9 +49,9 @@
 	"jobtracking-healthcheck-timeoutseconds":"20",
 	"jobtracking-resultsize-threshold": "1024",
 	"jobtracking-version":"latest",
-	"jobtracking-database-connection-string":"<MUST REPLACE: database address i.e. jdbc:postgresql://192.168.56.200:5432/jobservice",
-	"jobtracking-database-username":"<MUST REPLACE: i.e. postgres",
-	"jobtracking-database-password":"<MUST REPLACE: i.e. root",
-	"jobtracking-output-queue":"<MUST REPLACE: i.e. demo-workflow-out",
+	"jobtracking-database-url":"<MUST REPLACE: Job database address e.g. jdbc:postgresql://192.168.56.200:5432/jobservice",
+	"jobtracking-database-username":"<MUST REPLACE: Job database username credential e.g. postgres",
+	"jobtracking-database-password":"<MUST REPLACE: Job database password credential e.g. root",
+	"jobtracking-output-queue":"<MUST REPLACE: Job Tracking Worker output queue name e.g. demo-workflow-out",
 	"jobtracking-threads": "1"
 }

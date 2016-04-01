@@ -165,8 +165,8 @@ be written to the DataStore rather than held in a byte array.
 ####jobtracking-version
 - This property specifies the version number of the Job Tracking Worker to pull down from Artifactory.
 
-####jobtracking-database-connection-string
-- This property specifies the database connection string to connect to the jobservice database.
+####jobtracking-database-url
+- This property specifies the address of the jobservice database.
 
 ####jobtracking-database-username
 - This property specifies the database username to connect to the jobservice database.

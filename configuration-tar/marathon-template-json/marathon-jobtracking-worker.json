@@ -36,7 +36,10 @@
   },
   "env": {
     "_JAVA_OPTIONS": "-Xms${jobtracking-java-mem-min}m -Xmx${jobtracking-java-mem-max}m",
-    "CAF_CONFIG_PATH": "/mnt/mesos/sandbox"
+    "CAF_CONFIG_PATH": "/mnt/mesos/sandbox",
+    "JOB_DATABASE_URL": "${jobtracking-database-url}",
+    "JOB_DATABASE_USERNAME": "${jobtracking-database-username}",
+    "JOB_DATABASE_PASSWORD": "${jobtracking-database-password}"
   },
   "healthChecks": [
     {
