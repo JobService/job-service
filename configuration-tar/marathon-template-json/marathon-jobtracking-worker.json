@@ -63,6 +63,7 @@
     "${marathon-uris-root}/${worker-config-location}/cfg_${marathon-group}_jobtracking_JobTrackingWorkerConfiguration",
     "${marathon-uris-root}/${worker-config-location}/cfg_${marathon-group}_jobtracking_RabbitWorkerQueueConfiguration",
     "${marathon-uris-root}/${worker-config-location}/cfg_${marathon-group}_jobtracking_FileSystemDataStoreConfiguration",
+    "${marathon-uris-root}/${worker-config-location}/cfg_${marathon-group}_jobtracking_StorageServiceDataStoreConfiguration",
     "${marathon-uris-root}/${docker-login-config}"
   ]
 }
