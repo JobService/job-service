@@ -16,7 +16,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <version.major>1</version.major>
+        <version.major>1-SNAPSHOT</version.major>
         <version.major.minor>${project.version}</version.major.minor>
         <test.data>${project.basedir}/test-data</test.data>
         <caf.worker-framework.version>10.5-SNAPSHOT</caf.worker-framework.version>
