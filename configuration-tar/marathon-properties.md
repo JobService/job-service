@@ -174,8 +174,5 @@ be written to the DataStore rather than held in a byte array.
 ####jobtracking-database-password
 - This property specifies the database password to connect to the jobservice database.
 
-####jobtracking-output-queue
-- This property specifies the name of the RabbitMQ output queue for outputted messages from the worker.
-
 ####jobtracking-threads
 - This property configures the number of threads the Job Tracking Worker runs with.

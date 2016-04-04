@@ -52,6 +52,5 @@
 	"jobtracking-database-url":"<MUST REPLACE: Job database address e.g. jdbc:postgresql://192.168.56.200:5432/jobservice",
 	"jobtracking-database-username":"<MUST REPLACE: Job database username credential e.g. postgres",
 	"jobtracking-database-password":"<MUST REPLACE: Job database password credential e.g. root",
-	"jobtracking-output-queue":"<MUST REPLACE: Job Tracking Worker output queue name e.g. demo-workflow-out",
 	"jobtracking-threads": "1"
 }
