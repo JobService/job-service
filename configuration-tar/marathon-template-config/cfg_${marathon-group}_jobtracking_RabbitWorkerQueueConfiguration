@@ -8,8 +8,9 @@
       "maxBackoffInterval":"${rabbit-maxBackoffInterval}",
       "rabbitPort":"${rabbit-port}"
    },
-	"deadLetterExchange": "${rabbit-deadLetterExchange}",
-   "prefetchBuffer":1,
+	"retryLimit": 10,
+	"rejectedQueue": "${marathon-group}-extract-rejected",
+    "prefetchBuffer":1,
 	"inputQueue": "${marathon-group}-jobtracking-in"
 }
 
