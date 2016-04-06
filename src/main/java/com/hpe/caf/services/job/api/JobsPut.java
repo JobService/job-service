@@ -3,22 +3,18 @@ package com.hpe.caf.services.job.api;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
-
 import com.hpe.caf.services.job.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.util.ModuleLoader;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public final class JobsPut {
 
@@ -97,7 +93,7 @@ public final class JobsPut {
                 try {
                     QueueServices queueServices = QueueServicesFactory.create(config, job.getTask().getTargetPipe(),codec);
                     LOG.info("createOrUpdateJob: Sending task data to the target queue...");
-                    queueServices.sendMessage(job.getTask());
+                    queueServices.sendMessage(jobId, job.getTask(), config);
                     queueServices.close();
                 } catch(Exception ex) {
                     //  Failure adding job data to queue. Update the job with the failure details.

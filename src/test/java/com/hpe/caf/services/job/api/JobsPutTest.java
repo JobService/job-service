@@ -46,7 +46,7 @@ public final class JobsPutTest {
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         //  Mock QueueServices calls.
-        Mockito.doNothing().when(mockQueueServices).sendMessage(Mockito.any());
+        Mockito.doNothing().when(mockQueueServices).sendMessage(Mockito.any(), Mockito.any(), Mockito.any());
         PowerMockito.whenNew(QueueServices.class).withArguments(Mockito.any(),Mockito.any(),Mockito.anyString(),Mockito.any()).thenReturn(mockQueueServices);
 
         //  Mock QueueServicesFactory calls.
@@ -64,7 +64,9 @@ public final class JobsPutTest {
         action.setTaskData("TestTaskData");
         action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         action.setTargetPipe("JobServiceQueue");
+
         validJob.setTask(action);
+
 
     }
 
@@ -78,7 +80,7 @@ public final class JobsPutTest {
 
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).doesJobAlreadyExist(Mockito.anyString(), Mockito.anyInt());
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).createJob(Mockito.anyString(),Mockito.anyString(),Mockito.anyString(),Mockito.anyString(),Mockito.anyInt());
-        Mockito.verify(mockQueueServices, Mockito.times(1)).sendMessage(Mockito.any());
+        Mockito.verify(mockQueueServices, Mockito.times(1)).sendMessage(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -91,7 +93,7 @@ public final class JobsPutTest {
 
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).doesJobAlreadyExist(Mockito.anyString(), Mockito.anyInt());
         Mockito.verify(mockDatabaseHelper, Mockito.times(0)).createJob(Mockito.anyString(),Mockito.anyString(),Mockito.anyString(),Mockito.anyString(),Mockito.anyInt());
-        Mockito.verify(mockQueueServices, Mockito.times(0)).sendMessage(Mockito.any());
+        Mockito.verify(mockQueueServices, Mockito.times(0)).sendMessage(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     @Test(expected = BadRequestException.class)

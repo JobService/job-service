@@ -4,18 +4,21 @@ import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TaskStatus;
+import com.hpe.caf.api.worker.TrackingInfo;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
+import com.hpe.caf.services.job.configuration.AppConfig;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.MessageProperties;
+import org.apache.commons.codec.binary.Base64;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
-
-import org.apache.commons.codec.binary.Base64;
 
 /**
  * This class is responsible sending task data to the target queue.
@@ -38,7 +41,7 @@ public final class QueueServices {
     /**
      * Send task data message to the target queue.
      */
-    public void sendMessage(WorkerAction workerAction) throws IOException
+    public void sendMessage(String jobId, WorkerAction workerAction, AppConfig config) throws IOException
     {
         //  Generate a random task id.
         String taskId = UUID.randomUUID().toString();
@@ -51,14 +54,22 @@ public final class QueueServices {
             taskData = Base64.decodeBase64(workerAction.getTaskData());
         }
 
+        //set up string for statusCheckUrl
+        String statusCheckUrl = config.getWebserviceUrl() +"/jobs/" +jobId +"/isActive";
+
         //  Construct the task message.
+        final TrackingInfo trackingInfo = new TrackingInfo(jobId, calculateStatusCheckDate(config.getStatusCheckTime()),
+                statusCheckUrl, config.getTrackingPipe(), workerAction.getTargetPipe());
+
         final TaskMessage taskMessage = new TaskMessage(
                 taskId,
                 workerAction.getTaskClassifier(),
                 workerAction.getTaskApiVersion(),
                 taskData,
                 TaskStatus.NEW_TASK,
-                Collections.<String, byte[]>emptyMap());
+                Collections.<String, byte[]>emptyMap(),
+                targetQueue,
+                trackingInfo);
 
         //  Serialise the task message.
         //  Wrap any CodecException as a RuntimeException as it shouldn't happen
@@ -72,6 +83,21 @@ public final class QueueServices {
         //  Send the message.
         publisherChannel.basicPublish(
                 "", targetQueue, MessageProperties.TEXT_PLAIN, taskMessageBytes);
+    }
+
+    private Date calculateStatusCheckDate(String statusCheckTime){
+        //make sure statusCheckTime is a valid long
+        long seconds = 0;
+        try{
+            seconds = Long.parseLong(statusCheckTime);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Please provide a valid integer for statusCheckTime in seconds. " +e);
+        }
+
+        //set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
+        Instant now = Instant.now();
+        Instant later = now.plusSeconds(seconds);
+        return java.util.Date.from( later );
     }
 
     /**

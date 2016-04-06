@@ -28,19 +28,31 @@ public class AppConfig {
     }
 
     public String getRabbitMQHost(){
-        return environment.getProperty("RABBITMQ_HOST");
+        return environment.getProperty("CAF_RABBITMQ_HOST");
     }
 
     public int getRabbitMQPort(){
-        return Integer.parseInt(environment.getProperty("RABBITMQ_PORT"));
+        return Integer.parseInt(environment.getProperty("CAF_RABBITMQ_PORT"));
     }
 
     public String getRabbitMQUsername(){
-        return environment.getProperty("RABBITMQ_USERNAME");
+        return environment.getProperty("CAF_RABBITMQ_USERNAME");
     }
 
     public String getRabbitMQPassword(){
-        return environment.getProperty("RABBITMQ_PASSWORD");
+        return environment.getProperty("CAF_RABBITMQ_PASSWORD");
+    }
+
+    public String getTrackingPipe() {
+        return environment.getProperty("CAF_TRACKING_PIPE");
+    }
+
+    public String getStatusCheckTime() {
+        return environment.getProperty("CAF_STATUS_CHECK_TIME");
+    }
+
+    public String getWebserviceUrl() {
+        return environment.getProperty("CAF_WEBSERVICE_URL");
     }
 
 }
