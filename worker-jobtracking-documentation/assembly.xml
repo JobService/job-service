@@ -1,0 +1,13 @@
+<assembly>
+    <id>bundle</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <includes>
+                <include>*.md</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
