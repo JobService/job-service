@@ -1,4 +1,5 @@
 {
+    "rabbitConfiguration":{
         "backoffInterval": 1,
         "maxBackoffInterval": 30,
         "maxAttempts": 20,
@@ -6,4 +7,9 @@
         "rabbitPort": 5672,
         "rabbitUser": "guest",
         "rabbitPassword": "guest"
+    },
+    "prefetchBuffer": 0,
+    "inputQueue": "jobservice-test-input-1",
+    "rejectedQueue": "jobservice-test-rejected-1",
+    "retryLimit": 1
 }

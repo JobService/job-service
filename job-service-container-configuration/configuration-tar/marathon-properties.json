@@ -26,5 +26,8 @@
   "job-service-java-mem-max": "256",
   "job-service-database.url": "<MUST REPLACE: jdbc:postgresql://<host-address>:<host-port>:5432/jobservice>",
   "job-service-database.username": "<MUST REPLACE: postgres>",
-  "job-service-database.password": "<MUST REPLACE: root>"
+  "job-service-database.password": "<MUST REPLACE: root>",
+  "job-service-tracking-pipe": "<MUST REPLACE: Queue that job tracking worker is listening to>",
+  "job-service-status-check-time": "5",
+  "job-service-web-service-url": "<MUST REPLACE: URL path to the web service used by the job tracking worker i.e. http://192.168.56.200:8080>"
 }

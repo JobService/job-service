@@ -36,10 +36,13 @@
     "CAF_DATABASE_URL": "${job-service-database.url}",
     "CAF_DATABASE_USERNAME": "${job-service-database.username}",
     "CAF_DATABASE_PASSWORD": "${job-service-database.password}",
-    "RABBITMQ_HOST": "${rabbit-host}",
-    "RABBITMQ_PORT": "${rabbit-port}",
-    "RABBITMQ_USERNAME": "${rabbit-user}",
-    "RABBITMQ_PASSWORD": "${rabbit-pass}"
+    "CAF_TRACKING_PIPE": "${job-service-tracking-pipe}",
+    "CAF_STATUS_CHECK_TIME": "${job-service-status-check-time}",
+    "CAF_WEBSERVICE_URL": "${job-service-web-service-url}",
+    "CAF_RABBITMQ_HOST": "${rabbit-host}",
+    "CAF_RABBITMQ_PORT": "${rabbit-port}",
+    "CAF_RABBITMQ_USERNAME": "${rabbit-user}",
+    "CAF_RABBITMQ_PASSWORD": "${rabbit-pass}"
   },
   "uris": [
     "${marathon-uris-root}/${docker-login-config}"

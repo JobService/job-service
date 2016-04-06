@@ -47,6 +47,33 @@
             <artifactId>job-service-client</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.hpe.caf.worker</groupId>
+            <artifactId>worker-testing-util</artifactId>
+            <version>2-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.hpe.caf.worker</groupId>
+            <artifactId>worker-testing-integration</artifactId>
+            <version>2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hpe.caf.codec</groupId>
+            <artifactId>${caf.codec.impl}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hpe.caf.config</groupId>
+            <artifactId>${caf.config.impl}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hpe.caf.worker</groupId>
+            <artifactId>${caf.worker-queue.impl}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hpe.caf.worker</groupId>
+            <artifactId>${caf.worker-store.impl}</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -56,6 +83,10 @@
         <postgres.db.port>5432</postgres.db.port>
         <job-service-db-installer.version>1.0-SNAPSHOT</job-service-db-installer.version>
         <docker.dev.repo>rh7-artifactory.hpswlabs.hp.com:8443</docker.dev.repo>
+        <caf.config.impl>config-file</caf.config.impl>
+        <caf.codec.impl>codec-json</caf.codec.impl>
+        <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
+        <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
     </properties>
 
     <profiles>
@@ -93,6 +124,9 @@
                     </plugin>
                 </plugins>
             </build>
+            <properties>
+                <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
+            </properties>
         </profile>
 
         <profile>
@@ -101,6 +135,7 @@
                 <webservice.adminport>25080</webservice.adminport>
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
+                <!--<CAF_JOBSERVICE_PORT>8080</CAF_JOBSERVICE_PORT>-->
                 <!--<db.connection>jdbc:postgresql://${docker.host.address}:${postgres.db.port}</db.connection>-->
             </properties>
         </profile>
@@ -160,17 +195,15 @@
                     <systemPropertyVariables>
                         <webservice.adminport>${webservice.adminport}</webservice.adminport>
                         <docker.host.address>${docker.host.address}</docker.host.address>
+                        <rabbitmq.node.port>${rabbitmq.node.port}</rabbitmq.node.port>
+                        <rabbitmq.ctrl.port>${rabbitmq.ctrl.port}</rabbitmq.ctrl.port>
                     </systemPropertyVariables>
                     <environmentVariables>
-                        <CAF_APPNAME>caf/job-service</CAF_APPNAME>
+                        <CAF_APPNAME>test/jobservice</CAF_APPNAME>
                         <CAF_CONFIG_PATH>${project.basedir}/test-config</CAF_CONFIG_PATH>
-                        <CAF_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${db.name}</CAF_DATABASE_URL>
-                        <CAF_DATABASE_USERNAME>postgres</CAF_DATABASE_USERNAME>
-                        <CAF_DATABASE_PASSWORD>root</CAF_DATABASE_PASSWORD>
-                        <RABBITMQ_HOST>rabbitmq</RABBITMQ_HOST>
-                        <RABBITMQ_PORT>5672</RABBITMQ_PORT>
-                        <RABBITMQ_USERNAME>guest</RABBITMQ_USERNAME>
-                        <RABBITMQ_PASSWORD>guest</RABBITMQ_PASSWORD>
+                        <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
+                        <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
+                        <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
                     </environmentVariables>
                 </configuration>
@@ -360,15 +393,18 @@
                                 </ports>
                                 <env>
                                     <!-- When the container is deployed in Marathon it will use the environment variable values specified in the container json. -->
-                                    <CAF_APPNAME>caf/job-service</CAF_APPNAME>
-                                    <CAF_CONFIG_PATH>${project.basedir}/config</CAF_CONFIG_PATH>
+                                    <CAF_APPNAME>test/jobservice</CAF_APPNAME>
+                                    <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
                                     <CAF_DATABASE_URL>jdbc:postgresql://jobservice-integrationtests-postgres:5432/${db.name}</CAF_DATABASE_URL>
                                     <CAF_DATABASE_USERNAME>postgres</CAF_DATABASE_USERNAME>
                                     <CAF_DATABASE_PASSWORD>root</CAF_DATABASE_PASSWORD>
-                                    <RABBITMQ_HOST>rabbitmq</RABBITMQ_HOST>
-                                    <RABBITMQ_PORT>5672</RABBITMQ_PORT>
-                                    <RABBITMQ_USERNAME>guest</RABBITMQ_USERNAME>
-                                    <RABBITMQ_PASSWORD>guest</RABBITMQ_PASSWORD>
+                                    <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
+                                    <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
+                                    <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
+                                    <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
+                                    <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
+                                    <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
+                                    <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
                                 </env>
                                 <volumes>
                                     <from>

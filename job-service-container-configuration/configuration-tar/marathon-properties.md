@@ -79,3 +79,13 @@
 
 #### Job-service-database.url
 - This property specifies the JDBC address of the database account used by the CAF Job Service.
+
+#### Job-service-tracking-pipe
+- This is the pipe output messages relating to this task should be sent, regardless of their nature (i.e. whether they are Reject messages, Retry messages, Response messages, or some other type of message). It is the responsibility of the Job Tracking Worker, which will be consuming messages sent to this pipe, to forward the message to the intended recipient, which is indicated by the 'to' field (mentioned later).
+  Note: One exception to this is where the tracking pipe specified is the same pipe that the worker itself is consuming messages from. If this is the case then the tracking pipe should be ignored. It likely means that this is the Job Tracking Worker. Not making an exception for this case would cause to an infinite loop.
+
+#### Job-service-status-check-time
+- This is the time after which it is appropriate to try to confirm that the task has not been cancelled or aborted.
+
+#### Job-service-web-service-url
+- This is the URL address of the job service web api, required by the job tracking worker to access the web service.
