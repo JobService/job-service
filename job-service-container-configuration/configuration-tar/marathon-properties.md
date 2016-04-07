@@ -31,7 +31,7 @@
 #### rabbit-user
 - The username to allow access to the RabbitMQ service.
 
-#### rabbit-pass
+#### rabbit-password
 - The password to allow access to the RabbitMQ service.
 
 ### Job Service

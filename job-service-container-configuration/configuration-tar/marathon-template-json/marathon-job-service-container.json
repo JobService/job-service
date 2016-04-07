@@ -42,7 +42,7 @@
     "CAF_RABBITMQ_HOST": "${rabbit-host}",
     "CAF_RABBITMQ_PORT": "${rabbit-port}",
     "CAF_RABBITMQ_USERNAME": "${rabbit-user}",
-    "CAF_RABBITMQ_PASSWORD": "${rabbit-pass}"
+    "CAF_RABBITMQ_PASSWORD": "${rabbit-password}"
   },
   "uris": [
     "${marathon-uris-root}/${docker-login-config}"

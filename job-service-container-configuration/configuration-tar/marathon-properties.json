@@ -9,7 +9,7 @@
   "rabbit-host": "<MUST REPLACE: rabbitmq>",
   "rabbit-port": "5672",
   "rabbit-user": "<MUST REPLACE: user>",
-  "rabbit-pass": "<MUST REPLACE: pass>",
+  "rabbit-password": "<MUST REPLACE: pass>",
 
   "job-service-cpus": "0.5",
   "job-service-mem": "512",

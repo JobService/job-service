@@ -13,7 +13,7 @@
     "type": "DOCKER"
   },
   "env": {
-    "RABBITMQ_DEFAULT_PASS": "${rabbit-pass}",
+    "RABBITMQ_DEFAULT_PASS": "${rabbit-password}",
     "RABBITMQ_DEFAULT_USER": "${rabbit-user}",
     "RABBITMQ_ERLANG_COOKIE": "${rabbit-erlang-cookie}"
   }
