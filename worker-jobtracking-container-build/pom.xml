@@ -16,7 +16,7 @@
         <test.data>${project.basedir}/test-data</test.data>
         <job.database.name>jobservice</job.database.name>
         <job.database.host>jobtracking-integrationtests-postgres</job.database.host>
-        <job.database.url>jdbc:postgresql://${job.database.host}:${job.database.port}/${job.database.name}</job.database.url>
+        <job.database.url>jdbc:postgresql://${job.database.host}:5432/${job.database.name}</job.database.url>
         <job.database.username>postgres</job.database.username>
         <job.database.password>root</job.database.password>
     </properties>
@@ -122,7 +122,7 @@
                     <environmentVariables>
                         <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
                         <CAF_CONFIG_PATH>${project.basedir}/test-configs</CAF_CONFIG_PATH>
-                        <JOB_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${job.database.port}/${job.database.name}</JOB_DATABASE_URL>
+                        <JOB_DATABASE_URL>jdbc:postgresql://${docker.host.address}:5432/${job.database.name}</JOB_DATABASE_URL>
                         <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
                         <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
                     </environmentVariables>
@@ -205,7 +205,7 @@
                             <name>index.docker.io/postgres:9.4</name>
                             <run>
                                 <ports>
-                                    <port>${job.database.port}:5432</port>
+                                    <port>5432:5432</port>
                                 </ports>
                                 <env>
                                     <POSTGRES_PASSWORD>${job.database.password}</POSTGRES_PASSWORD>
@@ -235,7 +235,7 @@
                                 <log>
                                     <enabled>true</enabled>
                                 </log>
-                                <cmd>java -jar /job-service-db.jar -fd -db.user ${job.database.username} -db.pass ${job.database.password} -db.name ${job.database.name} -db.connection jdbc:postgresql://${job.database.host}:${job.database.port} -log debug
+                                <cmd>java -jar /job-service-db.jar -fd -db.user ${job.database.username} -db.pass ${job.database.password} -db.name ${job.database.name} -db.connection jdbc:postgresql://${job.database.host}:5432 -log debug
                                 </cmd>
                                 <wait>
                                     <log>DB update finished.</log>
@@ -407,7 +407,6 @@
                 <worker.adminport>8081</worker.adminport>
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
-                <job.database.port>5432</job.database.port>
             </properties>
         </profile>
         <profile>
