@@ -1,5 +1,5 @@
 /**
- * Created by CS on 05/04/2016.
+ * The expectation object
  */
 public class JobServiceTrackingInfoExpectation {
 
@@ -24,7 +24,8 @@ public class JobServiceTrackingInfoExpectation {
     private String trackingPipe;
 
     /**
-     * The final destination queue, when it is here the tracking info is removed
+     * The final destination queue, when it is here the tracking info is removed.
+     * This is also the target pipe.
      */
     private String trackingTo;
 

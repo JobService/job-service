@@ -7,7 +7,8 @@ import com.hpe.caf.worker.testing.TestItem;
 import java.text.MessageFormat;
 
 /**
- * Created by CS on 05/04/2016.
+ * JobServiceOutputDeliveryHandler will obtain the result from the SimpleQueueConsumerImpl and this can be used for
+ * assertions.
  */
 public class JobServiceOutputDeliveryHandler implements ResultHandler {
 
@@ -69,10 +70,15 @@ public class JobServiceOutputDeliveryHandler implements ResultHandler {
                                 trackTo));
             }
 
-            if(tracking.getStatusCheckTime()==null){
+            if(tracking.getStatusCheckTime()==null) {
                 context.failed(new TestItem(taskMessage.getTaskId(), null, null),
-                                "In the forwarded task message, expected a checkStatusTime but none was found.");
+                        "In the forwarded task message, expected a checkStatusTime but none was found.");
             }
+
+//            if(!(tracking.getStatusCheckTime() instanceof java.util.Date)){
+//                context.failed(new TestItem(taskMessage.getTaskId(), null, null),
+//                        "In the forwarded task message, expected a checkStatusTime but none was found.");
+//            }
         }
 
         context.finishedSuccessfully();

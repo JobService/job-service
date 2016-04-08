@@ -23,7 +23,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Created by CS on 14/03/2016.
+ * Integration tests for the functionality of the Job Service.
+ * (Not an end to end integration test.)
  */
 public class JobServiceIT {
 
@@ -308,10 +309,10 @@ public class JobServiceIT {
         JobServiceTrackingInfoExpectation expectation = new JobServiceTrackingInfoExpectation(jobId, statusCheckTime, statusCheckUrl,
                 trackingPipe, testQueue, jobTrackingInfoPresent);
 
-        testProxiedMessageReporting(expectation, jobId, newJob, jobCorrelationId);
+        testMessagesPutOnQueue(expectation, jobId, newJob, jobCorrelationId);
     }
 
-    public void testProxiedMessageReporting(final JobServiceTrackingInfoExpectation expectation, String jobId, NewJob newJob, String jobCorrelationId) throws Exception {
+    public void testMessagesPutOnQueue(final JobServiceTrackingInfoExpectation expectation, String jobId, NewJob newJob, String jobCorrelationId) throws Exception {
         try (QueueManager queueManager = getQueueManager(expectation.getTrackingTo())) {
             ExecutionContext context = new ExecutionContext(false);
             Timer timer = getTimer(context);
@@ -325,10 +326,10 @@ public class JobServiceIT {
         }
     }
 
-    private QueueManager getQueueManager(final String forwardingQueue) throws IOException, TimeoutException {
-        //Test messages are published to the Job Tracking Worker input queue, as specified in rabbitConfiguration.
-        //The Job Tracking Worker should forward these to forwardingQueue so we'll consume from there rather than the Job Tracking Worker's own output queue.
-        QueueServices queueServices = QueueServicesFactory.create(rabbitConfiguration, forwardingQueue, workerServices.getCodec());
+    private QueueManager getQueueManager(final String queueName) throws IOException, TimeoutException {
+        //Test messages are published to the target pipe specified in the test (jobservice-test-input-1).
+        //The test will consume these messages and assert that the results are as expected.
+        QueueServices queueServices = QueueServicesFactory.create(rabbitConfiguration, queueName, workerServices.getCodec());
         boolean debugEnabled = SettingsProvider.defaultProvider.getBooleanSetting(SettingNames.createDebugMessage,false);
         return new QueueManager(queueServices, workerServices, debugEnabled);
     }
