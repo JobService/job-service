@@ -360,7 +360,7 @@
                                         </fileSets>
                                         <dependencySets>
                                             <dependencySet>
-                                                <useProjectArtifact>true</useProjectArtifact>
+                                                <useProjectArtifact>false</useProjectArtifact>
                                                 <includes>
                                                     <include>com.hpe.caf:job-service</include>
                                                 </includes>
@@ -368,7 +368,7 @@
                                                 <outputFileNameMapping>${webserviceWarName}.war</outputFileNameMapping>
                                             </dependencySet>
                                             <dependencySet>
-                                                <useProjectArtifact>true</useProjectArtifact>
+                                                <useProjectArtifact>false</useProjectArtifact>
                                                 <includes>
                                                     <include>com.hpe.caf:job-service-ui</include>
                                                 </includes>
