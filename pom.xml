@@ -23,7 +23,7 @@
     </parent>
 
     <properties>
-        <job-service.container.name>caf/job-service:${project.version}</job-service.container.name>
+        <job-service.container.name>${docker.dev.repo}/caf/job-service:${project.version}</job-service.container.name>
         <version.major>1-SNAPSHOT</version.major>
         <version.major.minor>${project.version}</version.major.minor>
         <tomcatBaseImage>tomcat:jre8</tomcatBaseImage>

@@ -226,7 +226,6 @@
                             <goal>push</goal>
                         </goals>
                         <configuration>
-                            <registry>${docker.dev.repo}</registry>
                             <image>job-service</image>
                         </configuration>
                     </execution>
@@ -263,8 +262,7 @@
                         <!-- Run jobservice db installer. -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>caf/job-service-db-installer:1.0-SNAPSHOT</name>
-                            <registry>${docker.dev.repo}</registry>
+                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.0-SNAPSHOT</name>
                             <run>
                                 <links>
                                     <link>jobservice-integrationtests-postgres</link>
