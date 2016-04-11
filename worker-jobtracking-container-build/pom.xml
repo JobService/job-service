@@ -189,7 +189,6 @@
                             <goal>push</goal>
                         </goals>
                         <configuration>
-                            <registry>${docker.dev.repo}</registry>
                             <image>jobtracking-worker</image>
                         </configuration>
                     </execution>
@@ -226,8 +225,7 @@
                         <!-- Run jobservice db installer against postgres database to install jobservice schema. -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>caf/job-service-db-installer:1.0-SNAPSHOT</name>
-                            <registry>${docker.dev.repo}</registry>
+                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.0-SNAPSHOT</name>
                             <run>
                                 <links>
                                     <link>${job.database.host}</link>
@@ -455,7 +453,7 @@
             <id>store-fs</id>
             <properties>
                 <caf.worker-store.impl>worker-store-fs</caf.worker-store.impl>
-                <worker-jobtracking.container.name>caf/worker-jobtracking-fs</worker-jobtracking.container.name>
+                <worker-jobtracking.container.name>${docker.dev.repo}/caf/worker-jobtracking-fs</worker-jobtracking.container.name>
             </properties>
         </profile>
 
@@ -470,7 +468,7 @@
             </activation>
             <properties>
                 <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
-                <worker-jobtracking.container.name>caf/worker-jobtracking</worker-jobtracking.container.name>
+                <worker-jobtracking.container.name>${docker.dev.repo}/caf/worker-jobtracking</worker-jobtracking.container.name>
                 <datastore.container.id>0a1b8e24cc44490888b3d8d8ebba8309</datastore.container.id>
             </properties>
         </profile>
