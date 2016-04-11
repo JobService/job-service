@@ -13,6 +13,7 @@ import com.rabbitmq.client.MessageProperties;
 import org.apache.commons.codec.binary.Base64;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
@@ -55,7 +56,7 @@ public final class QueueServices {
         }
 
         //set up string for statusCheckUrl
-        String statusCheckUrl = config.getWebserviceUrl() +"/jobs/" +jobId +"/isActive";
+        String statusCheckUrl = config.getWebserviceUrl() +"/jobs/" +URLEncoder.encode(jobId, "UTF-8") +"/isActive";
 
         //  Construct the task message.
         final TrackingInfo trackingInfo = new TrackingInfo(jobId, calculateStatusCheckDate(config.getStatusCheckTime()),
