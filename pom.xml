@@ -61,14 +61,13 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <registry>${docker.dev.repo}</registry>
                     <verbose>true</verbose>
                     <autoPull>on</autoPull>
                     <logDate>default</logDate>
                     <images>
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>caf/job-service-db-installer</name>
+                            <name>${docker.dev.repo}/caf/job-service-db-installer</name>
                             <build>
                                 <from>java:8</from>
                                 <tags>
