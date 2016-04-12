@@ -80,6 +80,7 @@ public class JobServiceIT {
         workerActionTask.setTaskApiVersion(taskApiVer);
         workerActionTask.setTaskData(jobName +"_TaskClassifier Sample Test Task Data.");
         workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
         workerActionTask.setTargetPipe("Queue_" +jobId);
 
         NewJob newJob = new NewJob();
@@ -116,6 +117,7 @@ public class JobServiceIT {
         workerActionTask.setTaskApiVersion(taskApiVer);
         workerActionTask.setTaskData(jobName +"_TaskClassifier Sample Test Task Data.");
         workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
         workerActionTask.setTargetPipe("Queue_" +jobId);
 
         NewJob newJob = new NewJob();
@@ -158,6 +160,7 @@ public class JobServiceIT {
             workerActionTask.setTaskApiVersion(1);
             workerActionTask.setTaskData("Sample Test Task Data.");
             workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+            workerActionTask.setTaskPipe("TaskQueue_" + randomUUID);
             workerActionTask.setTargetPipe("Queue_" +randomUUID);
 
             NewJob newJob = new NewJob();
@@ -190,39 +193,6 @@ public class JobServiceIT {
         }
     }
 
-//    @Test
-//    public void testJobIsActive() throws ApiException {
-//create a job
-//    String jobId = UUID.randomUUID().toString();
-//    String jobName = "Job_" +jobId;
-//    String jobDesc = jobName +" Descriptive Text.";
-//    String jobCorrelationId = "1";
-//    String jobExternalData = jobName +" External data.";
-//    int taskApiVer = 1;
-//
-//    //create a WorkerAction task
-//    WorkerAction workerActionTask = new WorkerAction();
-//    workerActionTask.setTaskClassifier(jobName +"_testCancelJob");
-//    workerActionTask.setTaskApiVersion(taskApiVer);
-//    workerActionTask.setTaskData(jobName +"_TaskClassifier Sample Test Task Data.");
-//    workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
-//    workerActionTask.setTargetPipe("Queue_" +jobId);
-//
-//        NewJob newJob = new NewJob();
-//        newJob.setName(jobName);
-//        newJob.setDescription(jobDesc);
-//        newJob.setExternalData(jobExternalData);
-//        newJob.setTask(workerActionTask);
-//
-//        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
-//
-//        //send a task to the job here.
-//
-//        Boolean active = jobsApi.getJobActive(jobId, jobCorrelationId);
-//
-//        Assert.assertTrue(active);
-//    }
-
     @Test
     public void testCancelJob() throws ApiException {
         //create a job
@@ -239,6 +209,7 @@ public class JobServiceIT {
         workerActionTask.setTaskApiVersion(taskApiVer);
         workerActionTask.setTaskData(jobName +"_TaskClassifier Sample Test Task Data.");
         workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
         workerActionTask.setTargetPipe("Queue_" +jobId);
 
         NewJob newJob = new NewJob();
@@ -271,6 +242,7 @@ public class JobServiceIT {
         String jobCorrelationId = "1";
         String jobExternalData = jobName +" External data.";
         String testQueue = "jobservice-test-input-1";
+        String trackingToQueue = "tracking-to-queue";
 
         //create the worker action including target pipe
         WorkerAction workerActionTask = new WorkerAction();
@@ -278,7 +250,8 @@ public class JobServiceIT {
         workerActionTask.setTaskApiVersion(1);
         workerActionTask.setTaskData(jobName + "_TaskClassifier Sample Test Task Data.");
         workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
-        workerActionTask.setTargetPipe(testQueue);
+        workerActionTask.setTaskPipe(testQueue);
+        workerActionTask.setTargetPipe(trackingToQueue);
 
         //create a job
         NewJob newJob = new NewJob();
@@ -303,17 +276,15 @@ public class JobServiceIT {
         if(statusCheckTime==null)
             throw new Exception("CAF_TRACKING_PIPE environment variable is null.");
 
-        boolean jobTrackingInfoPresent = true;
-
         //create expectation object for comparing message on RabbitMQ
         JobServiceTrackingInfoExpectation expectation = new JobServiceTrackingInfoExpectation(jobId, statusCheckTime, statusCheckUrl,
-                trackingPipe, testQueue, jobTrackingInfoPresent);
+                trackingPipe, trackingToQueue, true);
 
-        testMessagesPutOnQueue(expectation, jobId, newJob, jobCorrelationId);
+        testMessagesPutOnQueue(testQueue, expectation, jobId, newJob, jobCorrelationId);
     }
 
-    public void testMessagesPutOnQueue(final JobServiceTrackingInfoExpectation expectation, String jobId, NewJob newJob, String jobCorrelationId) throws Exception {
-        try (QueueManager queueManager = getQueueManager(expectation.getTrackingTo())) {
+    public void testMessagesPutOnQueue(final String taskQueue, final JobServiceTrackingInfoExpectation expectation, String jobId, NewJob newJob, String jobCorrelationId) throws Exception {
+        try (QueueManager queueManager = getQueueManager(taskQueue)) {
             ExecutionContext context = new ExecutionContext(false);
             Timer timer = getTimer(context);
             Thread thread = queueManager.start(new JobServiceOutputDeliveryHandler(context, expectation));
