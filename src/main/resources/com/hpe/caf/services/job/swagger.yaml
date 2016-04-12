@@ -185,8 +185,8 @@ definitions:
       - taskClassifier
       - taskApiVersion
       - taskData
+      - taskPipe
       - targetPipe
-      - trackTo
     properties:
       taskClassifier:
         type: string
@@ -201,9 +201,9 @@ definitions:
         enum:
           - utf8
           - base64
-      targetPipe:
+      taskPipe:
         type: string
-      trackTo:
+      targetPipe:
         type: string
   job:
     type: object
