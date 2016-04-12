@@ -21,6 +21,7 @@ public final class JobsPut {
     private static final String ERR_MSG_TASK_DATA_NOT_SPECIFIED = "The task data has not been specified.";
     private static final String ERR_MSG_TASK_CLASSIFIER_NOT_SPECIFIED = "The task classifier has not been specified.";
     private static final String ERR_MSG_TASK_API_VERSION_NOT_SPECIFIED = "The task api version has not been specified.";
+    private static final String ERR_MSG_TASK_QUEUE_NOT_SPECIFIED = "The task queue name has not been specified.";
     private static final String ERR_MSG_TARGET_QUEUE_NOT_SPECIFIED = "The target queue name has not been specified.";
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsPut.class);
@@ -67,6 +68,12 @@ public final class JobsPut {
                 throw new BadRequestException(ERR_MSG_TARGET_QUEUE_NOT_SPECIFIED);
             }
 
+            //  Make sure the task queue name has been provided.
+            if (!ApiServiceUtil.isNotNullOrEmpty(job.getTask().getTaskPipe())) {
+                LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_QUEUE_NOT_SPECIFIED);
+                throw new BadRequestException(ERR_MSG_TASK_QUEUE_NOT_SPECIFIED);
+            }
+
             //  Load serialization class.
             Codec codec = ModuleLoader.getService(Codec.class);
 
@@ -91,7 +98,7 @@ public final class JobsPut {
 
                 //  Get database helper instance.
                 try {
-                    QueueServices queueServices = QueueServicesFactory.create(config, job.getTask().getTargetPipe(),codec);
+                    QueueServices queueServices = QueueServicesFactory.create(config, job.getTask().getTaskPipe(),codec);
                     LOG.info("createOrUpdateJob: Sending task data to the target queue...");
                     queueServices.sendMessage(jobId, job.getTask(), config);
                     queueServices.close();

@@ -63,6 +63,7 @@ public final class JobsPutTest {
         action.setTaskApiVersion(1);
         action.setTaskData("TestTaskData");
         action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        action.setTaskPipe("TaskQueue");
         action.setTargetPipe("JobServiceQueue");
 
         validJob.setTask(action);
@@ -129,6 +130,7 @@ public final class JobsPutTest {
         action.setTaskApiVersion(1);
         action.setTaskData("");
         action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        action.setTaskPipe("TaskQueue");
         action.setTargetPipe("JobServiceQueue");
         job.setTask(action);
 
@@ -148,6 +150,7 @@ public final class JobsPutTest {
         action.setTaskApiVersion(1);
         action.setTaskData("TestTaskData");
         action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        action.setTaskPipe("TaskQueue");
         action.setTargetPipe("JobServiceQueue");
         job.setTask(action);
 
@@ -167,6 +170,7 @@ public final class JobsPutTest {
         action.setTaskApiVersion(0);
         action.setTaskData("TestTaskData");
         action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        action.setTaskPipe("TaskQueue");
         action.setTargetPipe("JobServiceQueue");
         job.setTask(action);
 
@@ -186,7 +190,28 @@ public final class JobsPutTest {
         action.setTaskApiVersion(0);
         action.setTaskData("TestTaskData");
         action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        action.setTaskPipe("TaskQueue");
         action.setTargetPipe("");
+        job.setTask(action);
+
+        //  Test failed run of job creation where target queue has not been specified.
+        JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testCreateJob_Failure_TaskQueueNotSpecified() throws Exception {
+
+        NewJob job = new NewJob();
+        WorkerAction action = new WorkerAction();
+        job.setName("TestName");
+        job.setDescription("TestDescription");
+        job.setExternalData("TestExternalData");
+        action.setTaskClassifier("TestTaskClassifier");
+        action.setTaskApiVersion(0);
+        action.setTaskData("TestTaskData");
+        action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        action.setTaskPipe("");
+        action.setTargetPipe("JobServiceQueue");
         job.setTask(action);
 
         //  Test failed run of job creation where target queue has not been specified.
