@@ -186,6 +186,7 @@ definitions:
       - taskApiVersion
       - taskData
       - targetPipe
+      - trackTo
     properties:
       taskClassifier:
         type: string
@@ -201,6 +202,8 @@ definitions:
           - utf8
           - base64
       targetPipe:
+        type: string
+      trackTo:
         type: string
   job:
     type: object
