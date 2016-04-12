@@ -1,0 +1,152 @@
+package com.hpe.caf.jobservice.acceptance;
+
+import com.hpe.caf.api.Codec;
+import com.hpe.caf.api.CodecException;
+import com.hpe.caf.api.worker.TaskMessage;
+import com.hpe.caf.api.worker.TrackingInfo;
+import com.hpe.caf.services.job.client.ApiException;
+import com.hpe.caf.services.job.client.api.JobsApi;
+import com.hpe.caf.services.job.client.model.Failure;
+import com.hpe.caf.services.job.client.model.Job;
+import com.hpe.caf.worker.example.ExampleWorkerResult;
+import com.hpe.caf.worker.testing.ExecutionContext;
+import com.hpe.caf.worker.testing.ResultHandler;
+import com.hpe.caf.worker.testing.TestItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+
+/**
+ * Verifies result messages issued at the end of the end-to-end test.
+ */
+public class FinalOutputDeliveryHandler implements ResultHandler {
+
+    private Codec codec;
+    private JobsApi jobsApi;
+    private ExecutionContext context;
+    private JobServiceEndToEndITExpectation expectation;
+    private List<String> expectedWorkerItems;
+    private int currentWorkerItemNumber;
+
+    private static final Logger LOG = LoggerFactory.getLogger(FinalOutputDeliveryHandler.class);
+
+
+    public FinalOutputDeliveryHandler(Codec codec, JobsApi jobsApi, ExecutionContext context, JobServiceEndToEndITExpectation expectation) {
+        this.codec = codec;
+        this.jobsApi = jobsApi;
+        this.context = context;
+        this.expectation = expectation;
+        this.expectedWorkerItems = expectation.getWorkerItemAssetIds();
+        this.currentWorkerItemNumber = 0;
+    }
+
+
+    @Override
+    public void handleResult(TaskMessage resultMessage) {
+        try {
+            currentWorkerItemNumber++;
+            LOG.info("Handling result message {}", resultMessage.getTaskId());
+            verifyWorkerResult(resultMessage);
+            verifyTrackingInfoPresence(resultMessage);
+            verifyJob(resultMessage);
+        } catch (Exception e) {
+            LOG.error("Error while handling result message {}. ", resultMessage.getTaskId(), e);
+            context.failed(new TestItem(resultMessage.getTaskId(), null, null), e.getMessage());
+        }
+
+        if (currentWorkerItemNumber == expectedWorkerItems.size()) {
+            context.finishedSuccessfully();
+        }
+    }
+
+
+    private void verifyWorkerResult(final TaskMessage resultMessage) throws CodecException {
+        assertEqual("worker result task status", expectation.getTaskStatus().toString(), resultMessage.getTaskStatus().toString(), resultMessage);
+        assertEqual("worker task classifier", expectation.getTaskClassifier(), resultMessage.getTaskClassifier(), resultMessage);
+        assertEqual("worker task API version", String.valueOf(expectation.getTaskApiVersion()), String.valueOf(resultMessage.getTaskApiVersion()), resultMessage);
+
+        ExampleWorkerResult workerResult = codec.deserialise(resultMessage.getTaskData(), ExampleWorkerResult.class);
+        assertEqual("worker result status", expectation.getWorkerResultStatus().toString(), workerResult.workerStatus.toString(), resultMessage);
+    }
+
+
+    private void verifyTrackingInfoPresence(final TaskMessage resultMessage) {
+        TrackingInfo tracking = resultMessage.getTracking();
+        if (tracking != null && tracking.getTrackTo().equals(expectation.getTrackTo())) {
+            String errorMessage = "Unexpected tracking info found on a result message from the end-to-end test for job " + expectation.getJobId() + ". This message has arrived at its trackTo queue " + expectation.getTrackTo() + " so it should have had its tracking info removed.";
+            LOG.error(errorMessage);
+            context.failed(new TestItem(resultMessage.getTaskId(), null, null), errorMessage);
+        }
+    }
+
+
+    private void verifyJob(final TaskMessage resultMessage) throws ApiException {
+        verifyJobActive(resultMessage);
+        Job job = jobsApi.getJob(expectation.getJobId(), expectation.getCorrelationId());
+        verifyJobStatus(resultMessage, job);
+        verifyJobPercentageComplete(resultMessage, job);
+        verifyJobFailures(resultMessage, job);
+    }
+
+
+    private void verifyJobActive(final TaskMessage resultMessage) throws ApiException {
+        boolean jobIsActive = jobsApi.getJobActive(expectation.getJobId(), expectation.getCorrelationId());
+        boolean expectJobActive = getCurrentMessageExpectedJobStatus() == Job.StatusEnum.ACTIVE;
+        assertEqual("job active", String.valueOf(expectJobActive), String.valueOf(jobIsActive), resultMessage);
+    }
+
+
+    private void verifyJobStatus(final TaskMessage resultMessage, final Job job) throws ApiException {
+        assertEqual("job status", getCurrentMessageExpectedJobStatus().toString(), job.getStatus().toString(), resultMessage);
+    }
+
+
+    private void verifyJobPercentageComplete(final TaskMessage resultMessage, final Job job) throws ApiException {
+        int percentageComplete = Math.round(job.getPercentageComplete());
+        int expectedPercentageComplete = (currentWorkerItemNumber * 100) / expectedWorkerItems.size();
+        assertEqual("percentage completion", String.valueOf(expectedPercentageComplete), String.valueOf(percentageComplete), resultMessage);
+    }
+
+
+    private void verifyJobFailures(final TaskMessage resultMessage, final Job job) throws ApiException {
+        int numFailures = job.getFailures().size();
+        boolean failuresFound = numFailures > 0;
+        boolean expectedFailures = getCurrentMessageExpectedJobStatus() == Job.StatusEnum.FAILED;
+        if (expectedFailures != failuresFound) {
+            String errorMessage = "Expected job " + expectation.getJobId() + " to have " + (expectedFailures ? "" : "no ") + "failures." + (expectedFailures ? "" : " Found " + String.valueOf(numFailures) + " failures: " + String.valueOf(getFailureMessages(job)));
+            LOG.error(errorMessage);
+            context.failed(new TestItem(resultMessage.getTaskId(), null, null), errorMessage);
+        }
+    }
+
+
+    private String getFailureMessages(final Job job) {
+        StringBuilder concatResult = new StringBuilder();
+        for (Failure failure : job.getFailures()) {
+            concatResult.append(System.lineSeparator());
+            concatResult.append(failure.getFailureMessage());
+        }
+        return concatResult.toString();
+    }
+
+
+    private Job.StatusEnum getCurrentMessageExpectedJobStatus() {
+        return currentMessageIsLastExpected() ? Job.StatusEnum.COMPLETED : Job.StatusEnum.ACTIVE;
+    }
+
+
+    private boolean currentMessageIsLastExpected() {
+        return currentWorkerItemNumber == expectedWorkerItems.size();
+    }
+
+
+    private void assertEqual(final String valueName, final String expected, final String actual, final TaskMessage resultMessage) {
+        if (!expected.equals(actual)) {
+            String errorMessage = "Expected job " + expectation.getJobId() + " to have " + valueName + " = " + expected + " but it has " + valueName + " = " + actual;
+            LOG.error(errorMessage);
+            context.failed(new TestItem(resultMessage.getTaskId(), null, null), errorMessage);
+        }
+    }
+}
