@@ -70,7 +70,7 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
     public void determineForwardingAction(TaskMessage proxiedTaskMessage, String queueMessageId, Map<String, Object> headers, WorkerCallback callback) {
         reportProxiedTask(proxiedTaskMessage, headers);
 
-        LOG.warn("Forwarding task {}", proxiedTaskMessage.getTaskId());
+        LOG.debug("Forwarding task {}", proxiedTaskMessage.getTaskId());
         callback.forward(queueMessageId, proxiedTaskMessage.getTo(), proxiedTaskMessage, headers);
     }
 

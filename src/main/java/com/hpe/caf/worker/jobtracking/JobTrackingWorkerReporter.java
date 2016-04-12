@@ -149,7 +149,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         try (CallableStatement stmt = connection.prepareCall(reportProgressFnCallSQL)) {
             stmt.setString(1, jobTaskId);
             stmt.setObject(2, status, Types.OTHER);
-            LOG.debug("Calling report_progress() database function for job task {} with status {} ...", jobTaskId, status.name());
+            LOG.info("Reporting progress of job task {} with status {} ...", jobTaskId, status.name());
             stmt.execute();
         }
     }
@@ -167,7 +167,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         try (CallableStatement stmt = connection.prepareCall(reportFailureFnCallSQL)) {
             stmt.setString(1, jobTaskId);
             stmt.setString(2, failureDetails);
-            LOG.debug("Calling report_failure() database function for job task {} ...", jobTaskId);
+            LOG.info("Reporting failure of job task {} ...", jobTaskId);
             stmt.execute();
         }
     }
