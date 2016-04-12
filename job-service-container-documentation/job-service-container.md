@@ -7,34 +7,34 @@ It uses the java:8 base image.
 
 ## Environment Variables
 
-#### CAF_TRACKING_PIPE
+#### CAF\_TRACKING\_PIPE
 This is the pipe output messages relating to this task should be sent.
 
-#### CAF_STATUS_CHECK_TIME
+#### CAF\_STATUS\_CHECK\_TIME
 This is the number of seconds after which it is appropriate to try to confirm that the task has not been cancelled or aborted.
 
-#### CAF_WEBSERVICE_URL
+#### CAF\_WEBSERVICE\_URL
 This is the URL address of the job service web api.
 
-#### CAF_DATABASE_URL
+#### CAF\_DATABASE\_URL
 The connection string URL used by the job service to connect to the PostgreSQL database. This URL has the format jdbc:postgresql://PostgreSQLHost:portNumber/databaseName
 
-#### CAF_DATABASE_USERNAME
+#### CAF\_DATABASE\_USERNAME
 The username of the PostreSQL database account used by the job service to access the PostgreSQL database.
 
-#### CAF_DATABASE_PASSWORD
+#### CAF\_DATABASE\_PASSWORD
 The password of the PostreSQL database account used by the job service to access the PostreSQL database.
 
-#### CAF_RABBITMQ_HOST
+#### CAF\_RABBITMQ\_HOST
 The host that runs the specified queue.
 
-#### CAF_RABBITMQ_PORT
+#### CAF\_RABBITMQ\_PORT
 The port exposed on the host to access the queue by. e.g. 5672
 
-#### CAF_RABBITMQ_USERNAME
+#### CAF\_RABBITMQ\_USERNAME
 The username to access the queue server with.
 
-#### CAF_RABBITMQ_PASSWORD
+#### CAF\_RABBITMQ\_PASSWORD
 The password to access the queue server with.
 
 
