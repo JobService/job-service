@@ -1,10 +1,10 @@
 package com.hpe.caf.worker.jobtracking;
 
 import com.hpe.caf.api.Codec;
+import com.hpe.caf.api.ConfigurationSource;
 import com.hpe.caf.api.worker.*;
 import com.hpe.caf.codec.JsonCodec;
 import com.hpe.caf.util.rabbitmq.RabbitHeaders;
-import com.hpe.caf.worker.jobtracking.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +20,7 @@ import java.util.Map;
  * JUnit test to verify the worker correctly performs the desired action.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class JobTrackingWorkerTest {
+public class JobTrackingWorkerFactoryTest {
 
     private static final String taskId = "task-id";
     private static final String anotherWorkerClassifier = "AnotherWorker";
@@ -47,11 +47,11 @@ public class JobTrackingWorkerTest {
 
         WorkerCallback mockCallback = Mockito.mock(WorkerCallback.class);
 
-        //Create the worker subject to testing
-        JobTrackingWorker worker = new JobTrackingWorker(createProxiedTask(anotherWorkerClassifier, codec.serialise(tm)), outputQueue, codec, reporter);
+        //Create the worker factory subject to testing
+        JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
 
         //Test
-        worker.determineForwardingAction(tm, queueMsgId, headers, mockCallback);
+        workerFactory.determineForwardingAction(tm, queueMsgId, headers, mockCallback);
 
         //verify results
         Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
@@ -73,11 +73,11 @@ public class JobTrackingWorkerTest {
 
         WorkerCallback mockCallback = Mockito.mock(WorkerCallback.class);
 
-        //Create the worker subject to testing
-        JobTrackingWorker worker = new JobTrackingWorker(createProxiedTask(anotherWorkerClassifier, codec.serialise(tm)), outputQueue, codec, reporter);
+        //Create the worker factory subject to testing
+        JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
 
         //Test
-        worker.determineForwardingAction(tm, queueMsgId, headers, mockCallback);
+        workerFactory.determineForwardingAction(tm, queueMsgId, headers, mockCallback);
 
         //verify results
         Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
@@ -100,11 +100,11 @@ public class JobTrackingWorkerTest {
 
         WorkerCallback mockCallback = Mockito.mock(WorkerCallback.class);
 
-        //Create the worker subject to testing
-        JobTrackingWorker worker = new JobTrackingWorker(createProxiedTask(anotherWorkerClassifier, codec.serialise(tm)), outputQueue, codec, reporter);
+        //Create the worker factory subject to testing
+        JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
 
         //Test
-        worker.determineForwardingAction(tm, queueMsgId, headers, mockCallback);
+        workerFactory.determineForwardingAction(tm, queueMsgId, headers, mockCallback);
 
         //verify results
         Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
@@ -127,11 +127,11 @@ public class JobTrackingWorkerTest {
 
         WorkerCallback mockCallback = Mockito.mock(WorkerCallback.class);
 
-        //Create the worker subject to testing
-        JobTrackingWorker worker = new JobTrackingWorker(createProxiedTask(anotherWorkerClassifier, codec.serialise(tm)), outputQueue, codec, reporter);
+        //Create the worker factory subject to testing
+        JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
 
         //Test
-        worker.determineForwardingAction(tm, queueMsgId, headers, mockCallback);
+        workerFactory.determineForwardingAction(tm, queueMsgId, headers, mockCallback);
 
         //verify results
         Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
@@ -160,10 +160,10 @@ public class JobTrackingWorkerTest {
     }
 
 
-    private JobTrackingWorkerTask createProxiedTask(final String proxiedTaskClassifier, final byte[] proxiedTaskData) {
-        JobTrackingWorkerTask task = new JobTrackingWorkerTask();
-        task.setProxiedTaskInfo(new ProxiedTaskInfo(proxiedTaskClassifier, proxiedTaskData));
-        return task;
+    private JobTrackingWorkerFactory createJobTrackingWorkerFactory(Codec codec, JobTrackingReporter reporter) throws WorkerException {
+        ConfigurationSource configSource = Mockito.mock(ConfigurationSource.class);
+        DataStore store = Mockito.mock(DataStore.class);
+        return new JobTrackingWorkerFactory(configSource, store, codec, reporter);
     }
 
 
