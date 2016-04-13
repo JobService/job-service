@@ -71,14 +71,14 @@
 #### job-service-config-path
 - This property specifies the path to the directory containing the config.properties which can be used as an alternative means of specifying the database environment variables.
 
+#### job-service-database.url
+- This property specifies the JDBC address of the database account used by the CAF Job Service.
+
 #### job-service-database.username
 - This property specifies the username of the database account used by the CAF Job Service.
 
 #### job-service-database.password
 - This property specifies the password of the database account used by the CAF Job Service.
-
-#### job-service-database.url
-- This property specifies the JDBC address of the database account used by the CAF Job Service.
 
 #### job-service-tracking-pipe
 - This is the pipe where the Job Tracking Worker is listening.
