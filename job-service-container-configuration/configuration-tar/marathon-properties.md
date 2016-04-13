@@ -71,20 +71,20 @@
 #### job-service-config-path
 - This property specifies the path to the directory containing the config.properties which can be used as an alternative means of specifying the database environment variables.
 
-#### Job-service-database.username
+#### job-service-database.username
 - This property specifies the username of the database account used by the CAF Job Service.
 
-#### Job-service-database.password
+#### job-service-database.password
 - This property specifies the password of the database account used by the CAF Job Service.
 
-#### Job-service-database.url
+#### job-service-database.url
 - This property specifies the JDBC address of the database account used by the CAF Job Service.
 
-#### Job-service-tracking-pipe
+#### job-service-tracking-pipe
 - This is the pipe where the Job Tracking Worker is listening.
 
-#### Job-service-status-check-time
+#### job-service-status-check-time
 - This is the amount of seconds after which it is appropriate to try to confirm that the task has not been cancelled or aborted.
 
-#### Job-service-web-service-url
+#### job-service-web-service-url
 - This is the URL address of the job service web api.
