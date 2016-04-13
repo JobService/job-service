@@ -8,7 +8,7 @@ It uses the java:8 base image.
 ## Environment Variables
 
 #### CAF\_TRACKING\_PIPE
-This is the pipe output messages relating to this task should be sent.
+This is the pipe where the Job Tracking Worker is listening.
 
 #### CAF\_STATUS\_CHECK\_TIME
 This is the number of seconds after which it is appropriate to try to confirm that the task has not been cancelled or aborted.

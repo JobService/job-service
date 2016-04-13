@@ -81,7 +81,7 @@
 - This property specifies the JDBC address of the database account used by the CAF Job Service.
 
 #### Job-service-tracking-pipe
-- This is the pipe which output messages relating to this task should be sent.
+- This is the pipe where the Job Tracking Worker is listening.
 
 #### Job-service-status-check-time
 - This is the amount of seconds after which it is appropriate to try to confirm that the task has not been cancelled or aborted.
