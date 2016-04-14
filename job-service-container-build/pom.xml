@@ -85,7 +85,6 @@
         <job-service-ui.version>1.0-SNAPSHOT</job-service-ui.version>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
         <db.name>jobservice</db.name>
-        <postgres.db.port>5432</postgres.db.port>
         <job-service-db-installer.version>1.0-SNAPSHOT</job-service-db-installer.version>
         <docker.dev.repo>rh7-artifactory.hpswlabs.hp.com:8443</docker.dev.repo>
         <caf.config.impl>config-file</caf.config.impl>
@@ -140,6 +139,7 @@
                 <webservice.adminport>25080</webservice.adminport>
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
+                <postgres.db.port>5432</postgres.db.port>
                 <!--<CAF_JOBSERVICE_PORT>8080</CAF_JOBSERVICE_PORT>-->
                 <!--<db.connection>jdbc:postgresql://${docker.host.address}:${postgres.db.port}</db.connection>-->
             </properties>
