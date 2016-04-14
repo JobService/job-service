@@ -122,7 +122,7 @@
                     <environmentVariables>
                         <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
                         <CAF_CONFIG_PATH>${project.basedir}/test-configs</CAF_CONFIG_PATH>
-                        <JOB_DATABASE_URL>jdbc:postgresql://${docker.host.address}:5432/${job.database.name}</JOB_DATABASE_URL>
+                        <JOB_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${job.database.name}</JOB_DATABASE_URL>
                         <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
                         <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
                     </environmentVariables>
@@ -204,7 +204,7 @@
                             <name>index.docker.io/postgres:9.5</name>
                             <run>
                                 <ports>
-                                    <port>5432:5432</port>
+                                    <port>${postgres.db.port}:5432</port>
                                 </ports>
                                 <env>
                                     <POSTGRES_PASSWORD>${job.database.password}</POSTGRES_PASSWORD>
@@ -405,6 +405,7 @@
                 <worker.adminport>8081</worker.adminport>
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
+                <postgres.db.port>5432</postgres.db.port>
             </properties>
         </profile>
         <profile>
