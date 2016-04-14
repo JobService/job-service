@@ -332,7 +332,7 @@
                             <name>index.docker.io/postgres:9.5</name>
                             <run>
                                 <ports>
-                                    <port>5432:5432</port>
+                                    <port>${postgres.db.port}:5432</port>
                                 </ports>
                                 <env>
                                     <POSTGRES_PASSWORD>${job.database.password}</POSTGRES_PASSWORD>
@@ -556,6 +556,7 @@
             <properties>
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
+                <postgres.db.port>5432</postgres.db.port>
             </properties>
         </profile>
     </profiles>
