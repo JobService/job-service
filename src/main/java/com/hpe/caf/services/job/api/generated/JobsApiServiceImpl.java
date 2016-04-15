@@ -55,8 +55,12 @@ public class JobsApiServiceImpl extends JobsApiService {
     @Override
     public Response getJobActive(String jobId, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
-        boolean isActive = JobsActive.isJobActive(jobId);
-        return Response.ok().entity(isActive).build();
+        JobsActive.JobsActiveResult result = JobsActive.isJobActive(jobId);
+
+        CacheControl cc = new CacheControl();
+        cc.setMaxAge(result.statusCheckIntervalSecs);
+
+        return Response.ok().entity(result.active).cacheControl(cc).build();
     }
 
 }

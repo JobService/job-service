@@ -9,8 +9,19 @@ public final class JobsActive {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsActive.class);
 
-    public static boolean isJobActive(String jobId) throws Exception {
+    public static class JobsActiveResult {
+        public final boolean active;
+        public final int statusCheckIntervalSecs;
+
+        public JobsActiveResult(boolean active, int statusCheckIntervalSecs) {
+            this.active = active;
+            this.statusCheckIntervalSecs = statusCheckIntervalSecs;
+        }
+    }
+
+    public static JobsActiveResult isJobActive(String jobId) throws Exception {
         boolean active;
+        int statusCheckIntervalMillis;
 
         try {
             LOG.info("isJobActive: Starting...");
@@ -31,6 +42,9 @@ public final class JobsActive {
             LOG.debug("isJobActive: Reading database connection properties...");
             AppConfig config = ApiServiceUtil.getAppConfigProperties();
 
+            //  Get the number of seconds after which it is appropriate to try to confirm that the task has not been cancelled or aborted.
+            statusCheckIntervalMillis = Integer.parseInt(config.getStatusCheckTime());
+
             //  Get database helper instance.
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
@@ -44,7 +58,7 @@ public final class JobsActive {
         }
 
         LOG.info("isJobActive: Done.");
-        return active;
+        return new JobsActiveResult(active,statusCheckIntervalMillis);
     }
 
 }
