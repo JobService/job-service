@@ -91,6 +91,7 @@
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
+        <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
     </properties>
 
     <profiles>
@@ -128,9 +129,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <properties>
-                <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
-            </properties>
         </profile>
 
         <profile>
