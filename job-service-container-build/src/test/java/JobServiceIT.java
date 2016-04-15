@@ -101,6 +101,38 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testJobIsActive() throws ApiException {
+        //create a job
+        String jobId = UUID.randomUUID().toString();
+        String jobName = "Job_" +jobId;
+        String jobDesc = jobName +" Descriptive Text.";
+        String jobCorrelationId = "1";
+        String jobExternalData = jobName +" External data.";
+        int taskApiVer = 1;
+
+        //create a WorkerAction task
+        WorkerAction workerActionTask = new WorkerAction();
+        workerActionTask.setTaskClassifier(jobName +"_testCancelJob");
+        workerActionTask.setTaskApiVersion(taskApiVer);
+        workerActionTask.setTaskData(jobName +"_TaskClassifier Sample Test Task Data.");
+        workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
+        workerActionTask.setTargetPipe("Queue_" +jobId);
+
+        NewJob newJob = new NewJob();
+        newJob.setName(jobName);
+        newJob.setDescription(jobDesc);
+        newJob.setExternalData(jobExternalData);
+        newJob.setTask(workerActionTask);
+
+        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+
+        // Check if job is active.
+        boolean isActive = jobsApi.getJobActive(jobId, jobCorrelationId);
+        Assert.assertFalse(isActive);
+    }
+
+    @Test
     public void testDeleteJob() throws ApiException {
         //create a job
         String jobId = UUID.randomUUID().toString();
