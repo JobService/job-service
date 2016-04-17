@@ -11,7 +11,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
  */
 public final class ApiServiceUtil {
 
-    private static final String ERR_MSG_DB_CONNECTION_PROPS_MISSING = "One or more Vertica database connection properties have not been provided.";
+    private static final String ERR_MSG_DB_CONNECTION_PROPS_MISSING = "One or more PostgreSQL database connection properties have not been provided.";
     private static final String API_SERVICE_RESERVED_CHARACTERS_REGEX = "[.,:;*?!|()]";
 
     public static final String ERR_MSG_JOB_ID_NOT_SPECIFIED = "The job identifier has not been specified.";
