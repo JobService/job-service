@@ -19,10 +19,10 @@ The location of the configuration files to be used by the worker. Common to all 
 The full path of the dropwizard configuration file that the worker should use. This can be used to control various dropwizard options such as logging output level. This is optional and the worker shall default to the configuration file included in the image if this is not provided.
 
 ##### JOB\_DATABASE\_URL
-The address of the jobservice database.
+The address of the Job Service Database.
 
 ##### JOB\_DATABASE\_USERNAME
-The database username to connect to the jobservice database.
+The database username to connect to the Job Service Database.
 
 ##### JOB_DATABASE_PASSWORD
-The database password to connect to the jobservice database.
+The database password to connect to the Job Service Database.

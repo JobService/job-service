@@ -166,13 +166,13 @@ be written to the DataStore rather than held in a byte array.
 - This property specifies the version number of the Job Tracking Worker to pull down from Artifactory.
 
 ####jobtracking-database-url
-- This property specifies the address of the jobservice database.
+- This property specifies the address of the Job Service Database.
 
 ####jobtracking-database-username
-- This property specifies the database username to connect to the jobservice database.
+- This property specifies the database username to connect to the Job Service Database.
 
 ####jobtracking-database-password
-- This property specifies the database password to connect to the jobservice database.
+- This property specifies the database password to connect to the Job Service Database.
 
 ####jobtracking-threads
 - This property configures the number of threads the Job Tracking Worker runs with.
