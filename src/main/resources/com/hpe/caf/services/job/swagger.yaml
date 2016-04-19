@@ -130,6 +130,10 @@ paths:
           description: Returns whether the job is active
           schema:
             type: boolean
+          headers:
+            CacheableJobStatus:
+                description: A response that includes this header with the value ‘true’ is eligible for caching in a cache specific to job status responses.
+                type: boolean
         400:
           description: The `jobId` parameter contains invalid characters.
   /jobs/{jobId}/cancel:
