@@ -60,7 +60,7 @@ public class JobsApiServiceImpl extends JobsApiService {
         CacheControl cc = new CacheControl();
         cc.setMaxAge(result.statusCheckIntervalSecs);
 
-        return Response.ok().entity(result.active).cacheControl(cc).build();
+        return Response.ok().header("CacheableJobStatus",true).entity(result.active).cacheControl(cc).build();
     }
 
 }
