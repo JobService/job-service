@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -23,12 +25,13 @@ import java.util.List;
  */
 public class FinalOutputDeliveryHandler implements ResultHandler {
 
-    private Codec codec;
-    private JobsApi jobsApi;
-    private ExecutionContext context;
-    private JobServiceEndToEndITExpectation expectation;
-    private List<String> expectedWorkerItems;
+    private final Codec codec;
+    private final JobsApi jobsApi;
+    private final ExecutionContext context;
+    private final JobServiceEndToEndITExpectation expectation;
+    private final List<String> expectedWorkerItems;
     private int currentWorkerItemNumber;
+    private Timer cancellationVerifier;
 
     private static final Logger LOG = LoggerFactory.getLogger(FinalOutputDeliveryHandler.class);
 
@@ -40,6 +43,10 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
         this.expectation = expectation;
         this.expectedWorkerItems = expectation.getWorkerItemAssetIds();
         this.currentWorkerItemNumber = 0;
+        if (expectation.isExpectJobCancellation()) {
+            LOG.debug("Expecting cancellation of Job {}", expectation.getJobId());
+            cancellationVerifier = getCancellationVerifier(context);
+        }
     }
 
 
@@ -50,13 +57,20 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
             LOG.info("Handling result message {}", resultMessage.getTaskId());
             verifyWorkerResult(resultMessage);
             verifyTrackingInfoPresence(resultMessage);
-            verifyJob(resultMessage);
+            if (!expectation.isExpectJobCancellation()) {
+                verifyJob(resultMessage);
+            }
         } catch (Exception e) {
             LOG.error("Error while handling result message {}. ", resultMessage.getTaskId(), e);
             context.failed(new TestItem(resultMessage.getTaskId(), null, null), e.getMessage());
         }
 
         if (currentWorkerItemNumber == expectedWorkerItems.size()) {
+            if (expectation.isExpectJobCancellation()) {
+                String errorMessage = "Job cancellation expected so we did not expect to receive all result messages for the job";
+                LOG.error(errorMessage);
+                context.failed(new TestItem(resultMessage.getTaskId(), null, null), errorMessage);
+            }
             context.finishedSuccessfully();
         }
     }
@@ -105,7 +119,7 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
 
     private void verifyJobPercentageComplete(final TaskMessage resultMessage, final Job job) throws ApiException {
         int percentageComplete = Math.round(job.getPercentageComplete());
-        int expectedPercentageComplete = (currentWorkerItemNumber * 100) / expectedWorkerItems.size();
+        int expectedPercentageComplete = Math.round((currentWorkerItemNumber * 100) / (float)expectedWorkerItems.size());
         assertEqual("percentage completion", String.valueOf(expectedPercentageComplete), String.valueOf(percentageComplete), resultMessage);
     }
 
@@ -147,6 +161,44 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
             String errorMessage = "Expected job " + expectation.getJobId() + " to have " + valueName + " = " + expected + " but it has " + valueName + " = " + actual;
             LOG.error(errorMessage);
             context.failed(new TestItem(resultMessage.getTaskId(), null, null), errorMessage);
+        }
+    }
+
+
+    private Timer getCancellationVerifier(ExecutionContext context) {
+        int allowedSecondsPerWorkItem = 5;
+        long timeoutSecs = allowedSecondsPerWorkItem * expectedWorkerItems.size();
+        LOG.debug("Starting cancellation timer - after {} seconds (allowing {} seconds per work item) this will verify that the job was cancelled and therefore that we did not receive all result messages.", timeoutSecs, allowedSecondsPerWorkItem);
+        long timeout = 1000 * timeoutSecs;
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                LOG.debug("Cancellation timer - {} seconds have elapsed so verifying cancellation.", timeoutSecs);
+                if (currentWorkerItemNumber == expectedWorkerItems.size()) {
+                    String errorMessage = "Job cancellation expected so we did not expect to receive all result messages for the job";
+                    LOG.error(errorMessage);
+                    context.failed(new TestItem("JobId=" + expectation.getJobId(), null, null), errorMessage);
+                }
+                verifyJobCancelled();
+                context.finishedSuccessfully();
+            }
+        }, timeout);
+        return timer;
+    }
+
+
+    private void verifyJobCancelled() {
+        try {
+            Job job = jobsApi.getJob(expectation.getJobId(), expectation.getCorrelationId());
+            if (job.getStatus() != Job.StatusEnum.CANCELLED) {
+                String errorMessage = "Expected job " + expectation.getJobId() + " to have status = CANCELLED but it has STATUS = " + job.getStatus().toString();
+                LOG.error(errorMessage);
+                context.failed(new TestItem("JobId=" + expectation.getJobId(), null, null), errorMessage);
+            }
+        } catch (ApiException e) {
+            LOG.error("Error while verifying job cancellation for job {}. ", expectation.getJobId(), e);
+            context.failed(new TestItem("JobId=" + expectation.getJobId(), null, null), e.getMessage());
         }
     }
 }

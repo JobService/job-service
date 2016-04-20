@@ -49,13 +49,7 @@ public class JobServiceEndToEndIT {
     private static ConfigurationSource configurationSource;
     private static RabbitWorkerQueueConfiguration rabbitConfiguration;
     private static JobsApi jobsApi;
-    private static final String[] testItemContent =
-            {
-                    "aaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                    "bbbbbbbbbbbbbbbbbbbbbbbbbbb",
-                    "ccccccccccccccccccccccccccc",
-                    "ddddddddddddddddddddddddddd"
-            };
+    private static final int numTestItemsToGenerate = 50;
 
     private List<String> testItemAssetIds;
 
@@ -90,11 +84,12 @@ public class JobServiceEndToEndIT {
 
 
     @Test
-    public void runTests() throws Exception {
+    public void testJobCompletion() throws Exception {
         String jobId = "J" + System.currentTimeMillis();
 
         JobServiceEndToEndITExpectation expectation =
                 new JobServiceEndToEndITExpectation(
+                        false,
                         exampleWorkerMessageOutQueue,
                         jobId,
                         jobCorrelationId,
@@ -119,10 +114,42 @@ public class JobServiceEndToEndIT {
     }
 
 
+    @Test
+    public void testJobCancellation() throws Exception {
+        String jobId = "J" + System.currentTimeMillis();
+
+        JobServiceEndToEndITExpectation expectation =
+                new JobServiceEndToEndITExpectation(
+                        true,
+                        exampleWorkerMessageOutQueue,
+                        jobId,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            Timer timer = getTimer(context);
+            Thread thread = queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context, expectation));
+
+            createJob(jobId);
+
+            cancelJob(jobId);
+
+            TestResult result = context.getTestResult();
+            Assert.assertTrue(result.isSuccess());
+        }
+    }
+
+
     private List<String> generateWorkerBatch() throws DataStoreException {
         List<String> assetIds = new ArrayList<>();
         String containerId = getContainerId();
-        for (String itemContent : testItemContent) {
+        for (int testItemNumber = 0; testItemNumber < numTestItemsToGenerate; testItemNumber++) {
+            String itemContent = "TestItem_" + String.valueOf(testItemNumber);
             InputStream is = new ByteArrayInputStream(itemContent.getBytes(StandardCharsets.UTF_8));
             String reference = workerServices.getDataStore().store(is, containerId);
             assetIds.add(reference);
@@ -149,9 +176,14 @@ public class JobServiceEndToEndIT {
      * Creates a new job in the Job Database.
      * @param jobId the new job should be created with this id
      */
-    private void createJob(final String jobId) throws Exception{
+    private void createJob(final String jobId) throws Exception {
         NewJob newJob = constructNewJob(jobId);
         jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+    }
+
+
+    private void cancelJob(final String jobId) throws Exception {
+        jobsApi.cancelJob(jobId, jobCorrelationId);
     }
 
 
@@ -190,7 +222,7 @@ public class JobServiceEndToEndIT {
         task.taskMessageType = "ExampleWorkerTaskBuilder";
         task.taskMessageParams = exampleWorkerTaskMessageParams;
         task.targetPipe = exampleWorkerMessageInQueue;
-        return new String(workerServices.getCodec().serialise(task));
+        return new String(workerServices.getCodec().serialise(task), StandardCharsets.UTF_8);
     }
 
 

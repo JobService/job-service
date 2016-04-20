@@ -9,16 +9,18 @@ import java.util.List;
  * Holds values to be used to verify test results.
  */
 public class JobServiceEndToEndITExpectation {
-    private String trackTo;
-    private String jobId;
-    private String correlationId;
-    private String taskClassifier;
-    private int taskApiVersion;
-    private TaskStatus taskStatus;
-    private ExampleWorkerStatus workerResultStatus;
-    private List<String> workerItemAssetIds;
+    private final boolean expectJobCancellation;
+    private final String trackTo;
+    private final String jobId;
+    private final String correlationId;
+    private final String taskClassifier;
+    private final int taskApiVersion;
+    private final TaskStatus taskStatus;
+    private final ExampleWorkerStatus workerResultStatus;
+    private final List<String> workerItemAssetIds;
 
-    public JobServiceEndToEndITExpectation(String trackTo, String jobId, String correlationId, String taskClassifier, int taskApiVersion, TaskStatus taskStatus, ExampleWorkerStatus workerResultStatus, List<String> workerItemAssetIds) {
+    public JobServiceEndToEndITExpectation(boolean expectJobCancellation, String trackTo, String jobId, String correlationId, String taskClassifier, int taskApiVersion, TaskStatus taskStatus, ExampleWorkerStatus workerResultStatus, List<String> workerItemAssetIds) {
+        this.expectJobCancellation = expectJobCancellation;
         this.trackTo = trackTo;
         this.jobId = jobId;
         this.correlationId = correlationId;
@@ -27,6 +29,10 @@ public class JobServiceEndToEndITExpectation {
         this.taskStatus = taskStatus;
         this.workerResultStatus = workerResultStatus;
         this.workerItemAssetIds = workerItemAssetIds;
+    }
+
+    public boolean isExpectJobCancellation() {
+        return expectJobCancellation;
     }
 
     public String getTrackTo() {
