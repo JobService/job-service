@@ -22,12 +22,20 @@ BEGIN
   IF position('.' in in_task_id) = 0 THEN
     v_job_id = in_task_id;
 
-    --  Modify job row.
-    PERFORM 1 FROM job WHERE job_id = v_job_id FOR UPDATE;
-    UPDATE job
-    SET status = in_status,
-        percentage_complete = CASE WHEN in_status = 'Completed' THEN 100.00 ELSE percentage_complete END
-    WHERE job_id = v_job_id;
+    --  Modify job row but need to disallow cancelled jobs from being reactivated.
+    IF in_status = 'Active' THEN
+      PERFORM 1 FROM job WHERE job_id = v_job_id FOR UPDATE;
+      UPDATE job
+      SET status = in_status
+      WHERE job_id = v_job_id
+      AND status <> 'Cancelled';
+    ELSE
+      PERFORM 1 FROM job WHERE job_id = v_job_id FOR UPDATE;
+      UPDATE job
+      SET status = in_status,
+          percentage_complete = CASE WHEN in_status = 'Completed' THEN 100.00 ELSE percentage_complete END
+      WHERE job_id = v_job_id;
+    END IF;
 
     --  If job is completed, then remove task tables associated with the job.
     IF in_status = 'Completed' THEN
