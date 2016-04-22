@@ -58,6 +58,7 @@
             <groupId>com.hpe.caf.worker</groupId>
             <artifactId>worker-testing-integration</artifactId>
             <version>2-SNAPSHOT</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.hpe.caf.codec</groupId>
