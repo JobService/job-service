@@ -12,11 +12,26 @@
     <packaging>pom</packaging>
     <artifactId>job-service-container-build</artifactId>
 
+    <properties>
+        <job-service.version>1.0-SNAPSHOT</job-service.version>
+        <job-service-client.version>1.0-SNAPSHOT</job-service-client.version>
+        <job-service-ui.version>1.0-SNAPSHOT</job-service-ui.version>
+        <job-service-db-installer.version>1.0-SNAPSHOT</job-service-db-installer.version>
+        <swaggerUIWarName>job-service-ui</swaggerUIWarName>
+        <db.name>jobservice</db.name>
+        <docker.dev.repo>rh7-artifactory.hpswlabs.hp.com:8443</docker.dev.repo>
+        <caf.config.impl>config-file</caf.config.impl>
+        <caf.codec.impl>codec-json</caf.codec.impl>
+        <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
+        <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
+        <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.hpe.caf</groupId>
             <artifactId>job-service</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${job-service.version}</version>
             <type>war</type>
         </dependency>
         <dependency>
@@ -45,7 +60,7 @@
         <dependency>
             <groupId>com.hpe.caf</groupId>
             <artifactId>job-service-client</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${job-service-client.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -81,19 +96,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <properties>
-        <job-service-ui.version>1.0-SNAPSHOT</job-service-ui.version>
-        <swaggerUIWarName>job-service-ui</swaggerUIWarName>
-        <db.name>jobservice</db.name>
-        <job-service-db-installer.version>1.0-SNAPSHOT</job-service-db-installer.version>
-        <docker.dev.repo>rh7-artifactory.hpswlabs.hp.com:8443</docker.dev.repo>
-        <caf.config.impl>config-file</caf.config.impl>
-        <caf.codec.impl>codec-json</caf.codec.impl>
-        <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
-        <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
-        <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
-    </properties>
 
     <profiles>
         <profile>
@@ -261,7 +263,7 @@
                         <!-- Run jobservice db installer. -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.0-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/job-service-db-installer:${job-service-db-installer.version}</name>
                             <run>
                                 <links>
                                     <link>jobservice-integrationtests-postgres</link>
