@@ -410,7 +410,7 @@
                                     <CAF_DATABASE_USERNAME>${job.database.username}</CAF_DATABASE_USERNAME>
                                     <CAF_DATABASE_PASSWORD>${job.database.password}</CAF_DATABASE_PASSWORD>
                                     <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
-                                    <CAF_STATUS_CHECK_TIME>3</CAF_STATUS_CHECK_TIME>
+                                    <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
                                     <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
                                     <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
                                     <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
