@@ -16,7 +16,7 @@
   "job-service-resultSizeThreshold": "1024",
   "job-service-threads": "1",
   "job-service-instances": "1",
-  "job-service-version": "1.0-SNAPSHOT",
+  "job-service-version": "1.1-SNAPSHOT",
   "job-service-8080-serviceport": "25080",
   "job-service-healthcheck-graceperiodseconds": "300",
   "job-service-healthcheck-intervalseconds": "120",
