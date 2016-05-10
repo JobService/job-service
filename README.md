@@ -4,7 +4,7 @@ This is the database schema and provisioning tool for the [Job Service](https://
 
 ## Setup
 
-The Job Service database requires PostgreSQL 9.5. The database is installed using the Liquibase database change management tool and you can choose to install from the database artifact directly or you can use the Docker image that is  also available.
+The Job Service database requires PostgreSQL 9.4 or later. The database is installed using the Liquibase database change management tool and you can choose to install from the database artifact directly or you can use the Docker image that is  also available.
 
 ### Database Artifact
 Download the [job-service-db-1.0-jar-with-dependencies](http://cmbg-maven.autonomy.com/nexus/content/repositories/releases/com/hpe/caf/job-service-db/1.0/job-service-db-1.0-jar-with-dependencies.jar) jar from Nexus and then run:
