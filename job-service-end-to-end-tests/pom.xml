@@ -20,7 +20,7 @@
         <version.major>1-SNAPSHOT</version.major>
         <version.major.minor>${project.version}</version.major.minor>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <caf.worker-framework.version>10.5-SNAPSHOT</caf.worker-framework.version>
+        <caf.worker-framework.version>10.7-SNAPSHOT</caf.worker-framework.version>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
@@ -330,7 +330,7 @@
                         <!-- Run a PostgreSQL DB -->
                         <image>
                             <alias>${job.database.host}</alias>
-                            <name>index.docker.io/postgres:9.5</name>
+                            <name>index.docker.io/postgres:9.4</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
@@ -354,7 +354,7 @@
                         <!-- Run jobservice db installer against PostgreSQL database to install jobservice schema -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.0-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.1-SNAPSHOT</name>
                             <run>
                                 <links>
                                     <link>${job.database.host}</link>
