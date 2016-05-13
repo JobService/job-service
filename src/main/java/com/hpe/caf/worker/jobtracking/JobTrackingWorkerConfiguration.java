@@ -1,5 +1,7 @@
 package com.hpe.caf.worker.jobtracking;
 
+import com.hpe.caf.api.worker.WorkerConfiguration;
+
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -8,7 +10,7 @@ import javax.validation.constraints.Size;
 /**
  * Configuration for the JobTrackingWorker.
  */
-public class JobTrackingWorkerConfiguration {
+public class JobTrackingWorkerConfiguration extends WorkerConfiguration {
 
     /**
      * Output queue to return results to RabbitMQ.
