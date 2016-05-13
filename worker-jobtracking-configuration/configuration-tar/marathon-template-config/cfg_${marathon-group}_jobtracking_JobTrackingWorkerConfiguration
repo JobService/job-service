@@ -1,4 +1,5 @@
 {
+        "workerVersion": "${jobtracking-version}",
         "outputQueue": "${marathon-group}-workflow-out",
         "threads": ${jobtracking-threads}
 }

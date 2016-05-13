@@ -1,4 +1,5 @@
 {
+        "workerVersion": "1.2-SNAPSHOT",
 		"outputQueue": "jobtrackingworker-test-output-1",
         "threads": 1
 }
