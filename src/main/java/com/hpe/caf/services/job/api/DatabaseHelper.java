@@ -1,14 +1,5 @@
 package com.hpe.caf.services.job.api;
 
-import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Date;
-import java.util.Properties;
-
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.job.configuration.AppConfig;
@@ -17,6 +8,14 @@ import com.hpe.caf.services.job.exceptions.NotFoundException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.*;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * The DatabaseHelper class is responsible for database operations.
@@ -361,7 +360,7 @@ public final class DatabaseHelper {
             conn = DriverManager.getConnection(dbURL, myProp);
         } catch(Exception ex){
             LOG.error("Cannot get connection");
-            throw new BadRequestException(ex.getMessage());
+            throw ex;
         }
 
         return conn;
