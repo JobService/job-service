@@ -20,7 +20,7 @@
         <version.major>1-SNAPSHOT</version.major>
         <version.major.minor>${project.version}</version.major.minor>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <caf.worker-framework.version>10.7-SNAPSHOT</caf.worker-framework.version>
+        <caf.worker-framework.version>10.8-SNAPSHOT</caf.worker-framework.version>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
