@@ -12,7 +12,7 @@
 
     <groupId>com.hpe.caf.worker</groupId>
     <artifactId>worker-jobtracking-container</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -24,7 +24,7 @@
     <properties>
         <version.major>1-SNAPSHOT</version.major>
         <version.major.minor>${project.version}</version.major.minor>
-        <caf.worker-framework.version>10.8-SNAPSHOT</caf.worker-framework.version>
+        <caf.worker-framework.version>10.9-SNAPSHOT</caf.worker-framework.version>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
