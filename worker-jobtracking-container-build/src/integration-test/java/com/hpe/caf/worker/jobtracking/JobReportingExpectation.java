@@ -8,13 +8,20 @@ public class JobReportingExpectation {
     private JobStatus status;
     private float percentageComplete;
     private boolean failureDetailsPresent;
+    private boolean failureDetailsIdPresent;
+    private boolean failureDetailsTimePresent;
+    private boolean failureDetailsSourcePresent;
+    private boolean failureDetailsMessagePresent;
 
-
-    public JobReportingExpectation(String jobId, JobStatus status, float percentageComplete, boolean failureDetailsPresent) {
+    public JobReportingExpectation(String jobId, JobStatus status, float percentageComplete, boolean failureDetailsPresent, boolean failureDetailsIdPresent, boolean failureDetailsTimePresent, boolean failureDetailsSourcePresent, boolean failureDetailsMessagePresent) {
         this.jobId = jobId;
         this.status = status;
         this.percentageComplete = percentageComplete;
         this.failureDetailsPresent = failureDetailsPresent;
+        this.failureDetailsIdPresent = failureDetailsIdPresent;
+        this.failureDetailsTimePresent = failureDetailsTimePresent;
+        this.failureDetailsSourcePresent = failureDetailsSourcePresent;
+        this.failureDetailsMessagePresent = failureDetailsMessagePresent;
     }
 
 
@@ -47,7 +54,6 @@ public class JobReportingExpectation {
         this.percentageComplete = percentageComplete;
     }
 
-
     public boolean getFailureDetailsPresent() {
         return failureDetailsPresent;
     }
@@ -55,5 +61,41 @@ public class JobReportingExpectation {
 
     public void setFailureDetailsPresent(boolean failureDetailsPresent) {
         this.failureDetailsPresent = failureDetailsPresent;
+    }
+
+    public boolean getFailureDetailsIdPresent() {
+        return failureDetailsIdPresent;
+    }
+
+
+    public void setFailureDetailsIdPresent(boolean failureDetailsIdPresent) {
+        this.failureDetailsIdPresent = failureDetailsIdPresent;
+    }
+
+    public boolean getFailureDetailsTimePresent() {
+        return failureDetailsTimePresent;
+    }
+
+
+    public void setFailureDetailsTimePresent(boolean failureDetailsTimePresent) {
+        this.failureDetailsTimePresent = failureDetailsTimePresent;
+    }
+
+    public boolean getFailureDetailsSourcePresent() {
+        return failureDetailsSourcePresent;
+    }
+
+
+    public void setFailureDetailsSourcePresent(boolean failureDetailsSourcePresent) {
+        this.failureDetailsSourcePresent = failureDetailsSourcePresent;
+    }
+
+    public boolean getFailureDetailsMessagePresent() {
+        return failureDetailsMessagePresent;
+    }
+
+
+    public void setFailureDetailsMessagePresent(boolean failureDetailsMessagePresent) {
+        this.failureDetailsMessagePresent = failureDetailsMessagePresent;
     }
 }

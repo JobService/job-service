@@ -19,8 +19,6 @@ import com.hpe.caf.worker.testing.*;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -83,7 +81,7 @@ public class JobTrackingWorkerIT {
                         jobTaskId,
                         to,
                         true,
-                        new JobReportingExpectation(jobTaskId, JobStatus.Active, 0, false));
+                        new JobReportingExpectation(jobTaskId, JobStatus.Active, 0, false, false, false, false, false));
         testProxiedMessageReporting(taskMessage, expectation);
     }
 
@@ -113,7 +111,7 @@ public class JobTrackingWorkerIT {
                         jobTaskId,
                         to,
                         false,
-                        new JobReportingExpectation(jobTaskId, JobStatus.Completed, 100, false));
+                        new JobReportingExpectation(jobTaskId, JobStatus.Completed, 100, false, false, false, false, false));
         testProxiedMessageReporting(taskMessage, expectation);
     }
 
@@ -146,7 +144,7 @@ public class JobTrackingWorkerIT {
                         jobTaskId,
                         to,
                         false,
-                        new JobReportingExpectation(jobTaskId, JobStatus.Failed, 0, true));
+                        new JobReportingExpectation(jobTaskId, JobStatus.Failed, 0, true, true, true, true, true));
         testProxiedMessageReporting(failureMessage, expectation);
     }
 

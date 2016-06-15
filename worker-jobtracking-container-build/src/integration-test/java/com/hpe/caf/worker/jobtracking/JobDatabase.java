@@ -1,5 +1,6 @@
 package com.hpe.caf.worker.jobtracking;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,9 +68,20 @@ public class JobDatabase {
                     assertEquals(jobTaskId, rs, "status", jobReportingExpectation.getStatus());
                     assertEquals(jobTaskId, rs, "percentage_complete", jobReportingExpectation.getPercentageComplete());
                     assertHasValue(jobTaskId, rs, "failure_details", jobReportingExpectation.getFailureDetailsPresent());
+
+                    //  Parse JSON failure sub-strings.
+                    String failureDetails = rs.getString("failure_details");
+                    if (failureDetails != null && !failureDetails.isEmpty()) {
+                        ObjectMapper mapper = new ObjectMapper();
+                        JobTrackingWorkerFailure objFailure = mapper.readValue(failureDetails, JobTrackingWorkerFailure.class);
+                        assertHasValue(jobTaskId, "failureId", objFailure.getFailureId(), jobReportingExpectation.getFailureDetailsIdPresent());
+                        assertHasValue(jobTaskId, "failureTime", objFailure.getFailureTime().toString(), jobReportingExpectation.getFailureDetailsTimePresent());
+                        assertHasValue(jobTaskId, "failureSource", objFailure.getFailureSource(), jobReportingExpectation.getFailureDetailsSourcePresent());
+                        assertHasValue(jobTaskId, "failureMessage", objFailure.getFailureMessage(), jobReportingExpectation.getFailureDetailsMessagePresent());
+                        }
+                    }
                 }
             }
-        }
     }
 
 
@@ -128,6 +140,15 @@ public class JobDatabase {
 
     private void assertHasValue(final String jobTaskId, ResultSet rs, final String column, final boolean expectedHasValue) throws Exception {
         String actual = rs.getString(column);
+        LOG.info("Job task {} has {} = {}", jobTaskId, column, actual == null ? "null" : actual);
+        boolean actualHasValue = (actual != null) && !actual.isEmpty();
+        if (expectedHasValue != actualHasValue) {
+            LOG.error("Job task {} does not have the expected {} in the Job Database. Expected {}. Found \"{}\".", jobTaskId, column, expectedHasValue ? "a value" : "no value", actual == null ? "null" : actual);
+            throw new Exception(MessageFormat.format("Job task {0} does not have the expected {1} in the Job Database. Expected {2}. Found \"{3}\".", jobTaskId, column, expectedHasValue ? "a value" : "no value", actual == null ? "null" : actual));
+        }
+    }
+
+    private void assertHasValue(final String jobTaskId, final  String column, final String actual, final boolean expectedHasValue) throws Exception {
         LOG.info("Job task {} has {} = {}", jobTaskId, column, actual == null ? "null" : actual);
         boolean actualHasValue = (actual != null) && !actual.isEmpty();
         if (expectedHasValue != actualHasValue) {
