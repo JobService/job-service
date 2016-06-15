@@ -25,6 +25,7 @@ public final class DatabaseHelper {
     private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
     private static final String JDBC_DRIVER = "org.postgresql.Driver";
     private static final String ERR_MSG_DB_URL_FORMAT_INVALID = "Invalid database url string format - must start with jdbc:postgresql:";
+    private static final String FAILURE_PROPERTY_MISSING = "Unknown";
 
     private static AppConfig appConfig;
 
@@ -317,14 +318,23 @@ public final class DatabaseHelper {
 
         //  Split on newline character.
         for (String failure: failureDetails.split("\\r?\\n")){
-
-            JSONObject jFailure = new JSONObject(failure);
-            Failure f = new Failure();
-            f.setFailureId(jFailure.getString("failureId"));
-            f.setFailureTime(getDate(jFailure.getString("failureTime")));
-            f.failureSource(jFailure.getString("failureSource"));
-            f.failureMessage(jFailure.getString("failureMessage"));
-            failures.add(f);
+            if (failure.startsWith("{")) {
+                JSONObject jFailure = new JSONObject(failure);
+                Failure f = new Failure();
+                f.setFailureId(jFailure.getString("failureId"));
+                f.setFailureTime(getDate(jFailure.getString("failureTime")));
+                f.failureSource(jFailure.getString("failureSource"));
+                f.failureMessage(jFailure.getString("failureMessage"));
+                failures.add(f);
+            } else {
+                //  Valid failure JSON not detected.
+                Failure f = new Failure();
+                f.setFailureId(FAILURE_PROPERTY_MISSING);
+                f.setFailureTime(new Date());
+                f.failureSource(FAILURE_PROPERTY_MISSING);
+                f.failureMessage(failure);
+                failures.add(f);
+            }
         }
 
         return failures;
