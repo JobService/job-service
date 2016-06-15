@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Getting Started
-last_updated: Created and last modified by Conal Smith on Apr 25, 2016
+last_updated: Created and last modified by Conal Smith on June 15, 2016
 ---
 
 ## Deploying the Job Service Web API
