@@ -108,7 +108,7 @@ public class JobTrackingWorkerFactoryTest {
 
         //verify results
         Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
-        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRejected(Mockito.eq(jobTaskId), Mockito.anyString());
+        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRejected(Mockito.eq(jobTaskId), Mockito.any());
     }
 
 
@@ -135,7 +135,7 @@ public class JobTrackingWorkerFactoryTest {
 
         //verify results
         Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
-        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRejected(Mockito.eq(jobTaskId), Mockito.anyString());
+        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRejected(Mockito.eq(jobTaskId), Mockito.any());
     }
 
 

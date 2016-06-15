@@ -1,12 +1,16 @@
 package com.hpe.caf.worker.jobtracking;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.sql.*;
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -92,11 +96,19 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
 
     @Override
-    public void reportJobTaskRejected(final String jobTaskId, final String rejectionDetails) throws JobReportingException {
+    public void reportJobTaskRejected(final String jobTaskId, final JobTrackingWorkerFailure rejectionDetails) throws JobReportingException {
         try (Connection conn = getConnection()) {
-            reportFailure(conn, jobTaskId, rejectionDetails);
+
+            ObjectMapper mapper = new ObjectMapper();
+            final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            mapper.setDateFormat(df);
+
+            reportFailure(conn, jobTaskId, mapper.writeValueAsString(rejectionDetails));
+
         } catch (SQLException se) {
             throw new JobReportingException(MessageFormat.format("Failed to report the failure and rejection of job task {0}. {1}", jobTaskId, se.getMessage()), se);
+        } catch (JsonProcessingException e) {
+            throw new JobReportingException("Cannot serialize job task failure details.",e);
         }
     }
 

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -139,7 +140,16 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
 
             if (taskStatus == TaskStatus.RESULT_FAILURE || taskStatus == TaskStatus.RESULT_EXCEPTION) {
                 String rejectionDetails = MessageFormat.format("{0}. Execution of this job task failed.", taskStatus.toString());
-                reporter.reportJobTaskRejected(jobTaskId, rejectionDetails);
+
+                //  Failed to execute job task.
+                JobTrackingWorkerFailure f = new JobTrackingWorkerFailure();
+                f.setFailureId("JOB_TASK_FAILED");
+                f.setFailureTime(new Date());
+                f.setFailureSource("Job Tracking Worker");
+                f.setFailureMessage(rejectionDetails);
+
+                reporter.reportJobTaskRejected(jobTaskId, f);
+
                 return;
             }
 
@@ -148,7 +158,16 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
             if (rejected) {
                 String rejectedHeader = String.valueOf(headers.get(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED));
                 String rejectionDetails = MessageFormat.format("{0}. Execution of this job task was retried {1} times.", rejectedHeader, retries);
-                reporter.reportJobTaskRejected(jobTaskId, rejectionDetails);
+
+                //  Failed to execute job task.
+                JobTrackingWorkerFailure f = new JobTrackingWorkerFailure();
+                f.setFailureId(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED);
+                f.setFailureTime(new Date());
+                f.setFailureSource("Job Tracking Worker");
+                f.setFailureMessage(rejectionDetails);
+
+                reporter.reportJobTaskRejected(jobTaskId, f);
+
             } else {
                 String retryDetails = MessageFormat.format("This job task encountered a problem and will be retried. This will be retry attempt number {0} for this job task.", retries);
                 reporter.reportJobTaskRetry(jobTaskId, retryDetails);
