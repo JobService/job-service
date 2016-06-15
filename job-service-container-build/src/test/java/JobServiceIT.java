@@ -171,7 +171,7 @@ public class JobServiceIT {
         try {
             jobsApi.getJob(jobId, jobCorrelationId).getDescription();
         } catch (Exception e) {
-            Assert.assertEquals(e.getMessage(), "ERROR: job_id {" +jobId +"} not found");
+            Assert.assertEquals("{\"message\":\"ERROR: job_id {" +jobId +"} not found\"}", e.getMessage());
         }
 
     }
