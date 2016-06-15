@@ -20,12 +20,12 @@
         <version.major>1-SNAPSHOT</version.major>
         <version.major.minor>${project.version}</version.major.minor>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <caf.worker-framework.version>10.8-SNAPSHOT</caf.worker-framework.version>
+        <caf.worker-framework.version>10.10-SNAPSHOT</caf.worker-framework.version>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
-        <datastore.container.id>0a1b8e24cc44490888b3d8d8ebba8309</datastore.container.id>
+        <datastore.container.id>2f0e1a924d954ed09966f91d726e4960</datastore.container.id>
         <job.database.name>jobservice</job.database.name>
         <job.database.host>jobtracking-integrationtests-postgres</job.database.host>
         <job.database.url>jdbc:postgresql://${job.database.host}:5432/${job.database.name}</job.database.url>
