@@ -65,3 +65,31 @@ java -jar marathon-loader-2.1-jar-with-dependencies.jar -m "./marathon-template-
 where -e is used to specify the Marathon endpoint
 
 This will launch the container which includes both the Web Service and UI.
+
+## Using the Job Service Web API
+
+### Add a job
+
+Expand the PUT /jobs/{jobId} method. Enter value for jobId. Click on the example value box on the right to fill in the
+newJob body. Edit these fields with your own details:
+
+`name`: name of the job
+`description`: description of the job
+`externalData`: external data
+`taskClassifier`: classifier of the task
+`taskApiVersion`: API version of the task
+`taskData`: data of the task
+`taskDataEncoding`: encoding of the task data e.g. `utf8`
+`taskPipe`: rabbit queue name feeding in messages to the job tracking worker
+`targetPipe`: final destination queue where tracking will stop
+
+Press `Try it out!` he result will be shown whether the addition of the job is a success or not (201 if job is successfully added or 204 if
+job is successfully updated. You can view the job with the get jobs method call.
+
+![Add Job](images/JobServiceUIAddJob.png)
+
+ ### Get jobs
+
+ Expand the GET /jobs method. Press `Try it out!`. The list of jobs in the system will appear in the response body.
+
+ ![Add Job](images/JobServiceUIGet.png)
