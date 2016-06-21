@@ -26,7 +26,7 @@ paused or resumed.
 
 The job service runs with a base Tomcat image and provides a friendly user interface for making requests which can be
 accessed at `http://<host>:<port>/job-service-ui`. For more details on this visit [Job Service UI](https://github.hpe.com/caf/job-service-ui)
-and for deployment information see [Getting Started](https://github.hpe.com/caf/job-service-container/blob/develop/documentation/getting-started.md).
+and for deployment information see [Getting Started](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/getting-started.md).
 
 ### Job Tracking Worker
 
