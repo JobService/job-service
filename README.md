@@ -6,12 +6,12 @@ The supplied Marathon [properties](https://github.hpe.com/caf/job-service-contai
 
 ## Job Service Links
 
-[Overview](https://github.hpe.com/caf/job-service-container/blob/develop/documentation/Overview.md)
+[Overview](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Overview.md)
 
-[Getting Started](https://github.hpe.com/caf/job-service-container/blob/develop/documentation/Getting-Started.md)
+[Getting Started](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Getting-Started.md)
 
-[API](https://github.hpe.com/caf/job-service-container/blob/develop/documentation/API.md)
+[API](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/API.md)
 
-[Features](https://github.hpe.com/caf/job-service-container/blob/develop/documentation/Features.md)
+[Features](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Features.md)
 
-[Architecture](https://github.hpe.com/caf/job-service-container/blob/develop/documentation/Architecture.md)
+[Architecture](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Architecture.md)
