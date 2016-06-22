@@ -84,10 +84,10 @@ newJob body. Edit these fields with your own details:
 
 Press `Try it out!`, the result code will show whether the addition of the job is a success or not (201 if job is successfully added or 204 if job is successfully updated).
 
-![Add Job](images/JobServiceUIAddJob.png)
+![Add Job](images/JobServiceUIAddJob.PNG)
 
 ### Get jobs
 
 Expand the GET /jobs method. Press `Try it out!`. The list of jobs in the system will appear in the response body and you will be able to see the job you just created.
 
-![Add Job](images/JobServiceUIGet.png)
+![Add Job](images/JobServiceUIGet.PNG)
