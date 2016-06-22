@@ -44,7 +44,7 @@ The marathon application loader is used to start the Job Service docker containe
 
 #### Job Service Container Configuration
 
-Download the templates found [here](https://github.hpe.com/caf/job-service-container/tree/develop/configuration)
+Download the templates found [here](https://github.hpe.com/caf/job-service-container/tree/develop/configuration/marathon-template-json)
 and when running the command below point the options to the folder where the template files reside.
 
 See the configuration for Job Service [here](https://github.hpe.com/caf/job-service-container/blob/develop/configuration/marathon-properties.md).
@@ -54,8 +54,7 @@ file with marathon loader to deploy the audit-management-web-service.
 
 #### Launch the Job Service using Marathon loader
 
-Copy the container configuration marathon template folder (i.e. [marathon-template-json](https://github.hpe.com/caf/job-service-container/tree/develop/configuration))
-and the corresponding [marathon-properties.json](https://github.hpe.com/caf/job-service-container/blob/develop/configuration/marathon-properties.json)
+Copy the container configuration marathon template folder (i.e. [marathon-template-json](https://github.hpe.com/caf/job-service-container/tree/develop/configuration)) and the corresponding [marathon-properties.json](https://github.hpe.com/caf/job-service-container/blob/develop/configuration/marathon-properties.json)
 file to the same folder containing the marathon application loader artifact.
 
 To start the Audit Management Web Service container, run the marathon application loader with:
@@ -83,13 +82,12 @@ newJob body. Edit these fields with your own details:
 `taskPipe`: rabbit queue name feeding in messages to the job tracking worker
 `targetPipe`: final destination queue where tracking will stop
 
-Press `Try it out!` he result will be shown whether the addition of the job is a success or not (201 if job is successfully added or 204 if
-job is successfully updated. You can view the job with the get jobs method call.
+Press `Try it out!`, the result code will show whether the addition of the job is a success or not (201 if job is successfully added or 204 if job is successfully updated).
 
 ![Add Job](images/JobServiceUIAddJob.png)
 
- ### Get jobs
+### Get jobs
 
- Expand the GET /jobs method. Press `Try it out!`. The list of jobs in the system will appear in the response body.
+Expand the GET /jobs method. Press `Try it out!`. The list of jobs in the system will appear in the response body and you will be able to see the job you just created.
 
- ![Add Job](images/JobServiceUIGet.png)
+![Add Job](images/JobServiceUIGet.png)
