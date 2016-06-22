@@ -54,11 +54,11 @@ This will be an unusual worker in that, much like the Keyview Worker (when it is
 
 In common with all of the other workers, we will define the structure of the messages to be sent in a **worker-batch-shared** package.
 
-batchDefinition: String
-batchType: String
-taskMessageType: String
-taskMessageParams: Map&lt;String, String&gt;
-targetPipe: String
+batchDefinition: String <br>
+batchType: String <br>
+taskMessageType: String <br>
+taskMessageParams: Map&lt;String, String&gt; <br>
+targetPipe: String <br>
 
 | **batchDefinition**   | This is the definition of the batch. For example, it might be a string like "workbook == 5". The definition string will be interpreted by the type specified to the 'batchType' field.  **Example:** workbook == 5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 |-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -71,13 +71,7 @@ targetPipe: String
 
 ##### BatchWorkerPlugin
 
-This interface is implemented by the type specified to the 
-
-batchType field. Its 
-
-processBatch() method is called by the Batch Worker and is expected to interpret the batch definition string, and to make multiple calls to the supplied
-
-BatchWorkerServices object in line with how the batch needs to be broken down.
+This interface is implemented by the type specified to the batchType field. Its processBatch() method is called by the Batch Worker and is expected to interpret the batch definition string, and to make multiple calls to the supplied BatchWorkerServices object in line with how the batch needs to be broken down.
 
 It must also return an identifying string that will be used in the batch type field of the BatchWorkerTask to load the plugin.
 
@@ -98,10 +92,9 @@ interface BatchWorkerPlugin
 ##### BatchWorkerServices
 
 An implementation of this type is contained in the Batch Worker code.
-It is passed to the 
+It is passed to the batchType object so that it can utilise services provided by the Batch Worker.
 
-batchType object so that it can utilise services provided by the Batch Worker.
-
+```
 interface BatchWorkerServices
 {
     // Creates a new sub-task which represents a smaller batch
@@ -111,89 +104,57 @@ interface BatchWorkerServices
     void registerItemSubtask(String taskClassifier, int taskApiVersion, Object taskData);
 
 }
+```
 
 #### Batch Worker Walk-through
 
-When the Batch Worker receives a batch to process, it first constructs an instance of the type that is specified by the 
+When the Batch Worker receives a batch to process, it first constructs an instance of the type that is specified by the `batchType` field. This type should implement the `BatchWorkerPlugin` interface.
 
-batchType field. This type should implement the 
+It then constructs its own internal `BatchWorkerServicesImpl` object - an object which implements the `BatchWorkerServices` interface.
 
-BatchWorkerPlugin interface.
+It calls `processBatch()`, passing in the services object and the other parameters.
 
-It then constructs its own internal 
-
-BatchWorkerServicesImpl object - an object which implements the 
-
-BatchWorkerServices interface.
-
-It calls 
-
-processBatch(), passing in the services object and the other parameters.
-
-The implementation of the 
-
-processBatch() method will interpret the batch definition string and split it up into either:
+The implementation of the `processBatch()` method will interpret the batch definition string and split it up into either:
 
 1. a set of batch definitions representing smaller batches, OR
 2. a set of items
 
-If it determines to split the batch into a set of smaller batches, then it will make a series of calls to the 
+If it determines to split the batch into a set of smaller batches, then it will make a series of calls to the `registerBatchSubtask()` method. The Batch Worker will construct messages which are to be directed back towards itself and dispatch them to the input pipe that the Batch Worker itself is listening on (not to the pipe specified by the `targetPipe` field).
 
-registerBatchSubtask() method. The Batch Worker will construct messages which are to be directed back towards itself and dispatch them to the input pipe that the Batch Worker itself is listening on (not to the pipe specified by the 
+If it instead determines to split the batch into a set of items, then it will first construct an instance of the type that is specified by the `taskMessageFactory` field, and then use it to generate task messages that are appropriate to be sent to the worker listening on the `targetPipe`. It will call the `registerItemSubtask()` method for each item, and the Batch Worker will dispatch the messages to the pipe specified by the `targetPipe` field.
 
-targetPipe field).
+**Note:** It strikes me that the `taskMessageFactory` object is performing a role very similar to that performed by the Policy Handlers. We may require one of these objects for each potential destination worker. Not sure if this is a valid observation, or whether there is any mileage in trying to rationalise the concepts.
 
-If it instead determines to split the batch into a set of items, then it will first construct an instance of the type that is specified by the 
-
-taskMessageFactory field, and then use it to generate task messages that are appropriate to be sent to the worker listening on the 
-
-targetPipe. It will call the 
-
-registerItemSubtask() method for each item, and the Batch Worker will dispatch the messages to the pipe specified by the 
-
-targetPipe field.
-
-**Note:** It strikes me that the 
-
-taskMessageFactory object is performing a role very similar to that performed by the Policy Handlers. We may require one of these objects for each potential destination worker. Not sure if this is a valid observation, or whether there is any mileage in trying to rationalise the concepts.
-
-**Note:** We might want to include some code in the Batch Worker to ensure that a faulty plugin can't turn this into an infinite loop, where a faulty Batch Plugin returns same size or larger batches. Possibly add a 'Nesting Level' field, and then abort messages that have been through the mill.
+**Note:** We might want to include some code in the Batch Worker to ensure that a faulty plugin can't turn this into an infinite loop, where a faulty Batch Plugin returns same size or larger batches. Possibly add a 'Nesting Level' field, and then abort messages that have been through the mill.
 
 #### Subtask Identification
 
-I haven't yet described the tracking fields that we will add, but note that if they are present, that the implementation of the registerSubtask() methods must indicate that the task is a subtask by appending a subtask identifier to the taskId. So if the taskId was J5.1 and this is the second subtask, it should be assigned the taskId J5.1.2. Also note that the subtask's 
+I haven't yet described the tracking fields that we will add, but note that if they are present, that the implementation of the registerSubtask() methods must indicate that the task is a subtask by appending a subtask identifier to the taskId. So if the taskId was J5.1 and this is the second subtask, it should be assigned the taskId J5.1.2. Also note that the subtask's `trackTo` pipe need not necessarily be the same as the parent task's `trackTo` pipe, if indeed it has one.
 
-trackTo pipe need not necessarily be the same as the parent task's 
-
-trackTo pipe, if indeed it has one.
-
-_**TODO:** Think about whether we should also introduce a concept of relative weights, or can we just assume that all subtasks have equal weight (when it comes to Percentage Complete reporting)._
+_**TODO:** Think about whether we should also introduce a concept of relative weights, or can we just assume that all subtasks have equal weight (when it comes to Percentage Complete reporting)._
 
 ### Worker Framework Enhancements
 
 In order to facilitate the Progress Reporting and Job Control requirements we need to make some enhancements to the Worker Framework itself.
 
-These are the fields which are currently in the 
+These are the fields which are currently in the `TaskMessage` structure:
 
-TaskMessage structure:
-
-taskId: String    -    What is this?
-taskClassifier: String
-taskApiVersion: int
-taskData: byte[]
-taskStatus: TaskStatus
-context: Map&lt;String, byte[]&gt;
+taskId: String    -    What is this? <br>
+taskClassifier: String <br>
+taskApiVersion: int <br>
+taskData: byte[] <br>
+taskStatus: TaskStatus <br>
+context: Map&lt;String, byte[]&gt; <br>
 
 #### Tracking Fields
 
-We will add additional 'tracking' fields to the 
-
-TaskMessage structure.
+We will add additional 'tracking' fields to the `TaskMessage` structure.
 
 Additional fields to be added:
 
 tracking: TrackingInfo
 
+```
 TrackingInfo {
     taskId: String
     statusCheckTime: dateTime
@@ -201,6 +162,7 @@ TrackingInfo {
     trackingPipe: String
     trackTo: String
 }
+```
 
 | **taskId**          | This is an identifier assigned for tracking the task.Depending on what the other taskId is maybe we don't need this. I envisage this to be the letter J followed by the job id, and then possibly followed by multiple numeric subtask ids separated by periods.  **Example:** J5.1.2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -237,7 +199,7 @@ After the Worker Framework has checked that the task is still active, but before
 ### Job Tracking Worker
 
 The Job Tracking Worker is special in that it is both a normal Worker that receives messages that were intended for it (although they are Event Messages rather than Document Messages), and it is also acts as a Proxy, routing messages that were not ultimately intended for it to the correct Worker (although the actual message forwarding will be done by Worker Framework code).
-
+batchDefinition
 Messages will typically arrive at the Job Tracking Worker because the pipe that it is consuming messages from is specified as the `trackingPipe` (which will trigger the Worker Framework to re-route output messages).
 
 This Worker performs the following functions:
