@@ -245,6 +245,8 @@ When a task is marked complete, we need to check whether it means that the paren
 
 ### Job Service
 
+![Alt text](images/job_service_database_overview.png)
+
 We will introduce a new REST Web Service known as the Job Service.
 
 It will act as the entry-point to allow background operations such as the bulk document processing operations to be initiated, tracked, and cancelled.
