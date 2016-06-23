@@ -26,11 +26,11 @@ Make sure your own hibernate compatible database is running (i.e. PostgreSQL).
 
 `docker run -i -t <job-service-db-installer Image ID> bash`
 
-2. Then execute the installer jar from within the container using the command below, replacing the options with your own database setup :
+2. Then execute the installer jar from within the container using the command below, replacing the options with your own database setup:
 
 `java -jar /job-service-db.jar -db.connection jdbc:postgresql://localhost:5432 -db.name jobservice -db.pass root -db.user postgres -fd`
 
-> Note: if you aren't running the database in your Docker virtual machine, make sure you enable client authentication and allow TCP/IP socket and restart your database server. <br>
+> Note: if you aren't running the database in your Docker virtual machine, make sure you enable client authentication and allow TCP/IP socket and restart your database server. E.g. for Postgres setup: <br>
 > * `vi /var/lib/pgsql/data/pg_hba.conf` append the line `host    all             all             0.0.0.0/0            md5` <br>
 > * `vi /var/lib/pgsql/data/postgresql.conf` change the listen addresses to `listen_addresses='*'`
 
@@ -52,17 +52,15 @@ repository mirror: [http://rh7-artifactory.hpswlabs.hp.com:8081/artifactory/poli
 
 #### Job Service Marathon Loader Configuration
 
-Download the templates found [here](https://github.hpe.com/caf/job-service-container/tree/develop/configuration/marathon-template-json) and when running the command below point the options to the folder where the template files reside.
+Download the [marathon-template-json](https://github.hpe.com/caf/job-service-container/tree/develop/configuration/marathon-template-json) folder.
 
-See the configuration for Job Service [here](https://github.hpe.com/caf/job-service-container/blob/develop/configuration/marathon-properties.md).
+Download the [marathon-properties.json](https://github.hpe.com/caf/job-service-container/blob/develop/configuration/marathon-properties.json) and change the properties to your own setup.
 
-Tailor the [marathon-properties.json](https://github.hpe.com/caf/job-service-container/blob/develop/configuration/marathon-properties.json) with your own settings.
+For documentation on the properties see [marathon-properties.md](https://github.hpe.com/caf/job-service-container/blob/develop/configuration/marathon-properties.md).
 
 #### Launch the Job Service using Marathon loader
 
-Copy the container configuration marathon template folder (i.e. [marathon-template-json](https://github.hpe.com/caf/job-service-container/tree/develop/configuration)) and the corresponding [marathon-properties.json](https://github.hpe.com/caf/job-service-container/blob/develop/configuration/marathon-properties.json) file to the same folder containing the marathon application loader artifact.
-
-Run the marathon application loader with:
+Run the marathon loader application changing the options to point to the relevant locations:
 
 `java -jar marathon-loader-2.1-jar-with-dependencies.jar -m "./marathon-template-json" -v "./marathon-properties.json" -e http://localhost:8080 -mo "./marathon-config"`
 
