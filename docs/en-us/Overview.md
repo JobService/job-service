@@ -1,37 +1,47 @@
 ---
 layout: default
-title: Overview
+title: CAF Job Service Overview
 last_updated: Created and last modified by Conal Smith on June 14, 2016
 ---
 
-# Overview
+# CAF Job Service Overview
 
-The job service provides a pluggable batch processing mechanism that allows users of the service to
-devise their own batch definition and provide logic to translate a batch into smaller and smaller batches
-until ultimately single items are sent for processing by worker nodes.
+## Introduction
 
-The batch translation process scales elastically allowing a large batch to be broken down in parallel by multiple
-batch processors. The individual items are also processed elastically by workers which scale up and down depending
-on the type of work to be performed on the item. Throughout all of this feedback is collected to allow a user to
-inspect the progress of the batch by the job service.
+The CAF Job Service Web API is a RESTful Web Service.  Its central aim is to make it easier to use and receive feedback from the CAF Workers which have been built.  There are different types of CAF Workers, but they all perform tasks asynchronously in the background.  The Job Service can be used to send tasks to these Workers, and then to check on the progress of the tasks, and even to cancel them if they have not yet been executed.
 
-### Job Service Web API
+The CAF Job Service complements the CAF Workers by making their functionality more readily available, and by providing a standard mechanism for interacting with them.  For example, by using the Job Service users do not need to concern themselves with which messaging framework the CAF Workers use for communication.
 
-![Alt text](images/job_service_database_overview.png)
+> **Future:** In the future it is likely that we will enhance the Job Service to provide further, more fine-grained control, over the tasks that it has been used to send to the Workers.  For example, we will likely add operations to allow tasks to be Paused and Resumed.
 
-The [Job Service Web API](https://github.hpe.com/caf/job-service) is a REST web service which has methods to create,
-retrieve, update, delete, cancel and check the status of jobs. It is the main entry point for users wishing to send
-operations to workers, check on the progress of these operations, and even allow for these operations to be cancelled,
-paused or resumed.
+The Job service’s extensible design allows you to define a batch of work and provide a batch processor plugin that interprets a batch, splitting it into smaller batches or individual items of work upon which the service can act. 
 
-The job service runs with a base Tomcat image and provides a friendly user interface for making requests which can be
-accessed at `http://<host>:<port>/job-service-ui`. For more details on this visit [Job Service UI](https://github.hpe.com/caf/job-service-ui)
-and for deployment information see [Getting Started](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/getting-started.md).
+The process of batch splitting is scaled elastically using the autoscaler, allowing sub-batches of a larger batch to be processed in parallel. The individual items are also processed elastically by workers which scale up and down depending on the type of work to be performed on the item. The individual items of work emerge and go into the RabbitMQ queue, which is defined in the job and processed by workers. Throughout all of this feedback is collected to allow a user to inspect the progress of the batch by the job service.
 
-### Job Tracking Worker
 
-The Job Tracking Worker is a component of the bulk document processing system. It is a CAF Worker which receives messages from the tracking pipe
-and performs the following functions:
+## Job Service Web API
+
+The Job Service Web API is the RESTful web service acting as the main entry point for users wishing to send operations to workers, check on the progress of these operations, and even allow for these operations to be cancelled. It adds Job entries to the Job Service database table which are then updated by the Job Tracking Worker.
+
+To see the web methods made available by the Job Service Web API see [API](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/API.md).
+
+For more details on the architecture behind the Job Service Web API see [Architecture](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Architecture.md).
+
+For instructions on deploying and using the Job Service Web API see [Getting Started](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Getting-Started.md).
+
+
+## Batch Worker
+
+Whilst the Job Service can be used in conjunction with any CAF Worker, a key worker that the Job Service is often used with is the Batch Worker.
+
+The Batch Worker is designed to take batches of work, and to recursively break up these batches into ever smaller batches of work, and eventually into individual tasks which it then sends to the other CAF Workers.
+
+The Job Service is particularly beneficial when using the Batch Worker because it makes it possible to monitor the progress of the batch as a whole.  Even if the size of the batch is not known in advance, using the Job Service makes it possible to monitor the overall progress of the entire batch, as well as making other operations available such as the capability to cancel the batch.
+
+
+## Job Tracking Worker
+
+Another underlying CAF Worker with a role in the Job Service is the The Job Tracking Worker. It receives messages from the tracking pipe and performs the following functions:
 
 1. Checks for task cancellation (as all workers do)
 2. Reports the progress of the task to the Job Database, Either marking task complete in
@@ -41,45 +51,17 @@ the job database or else marking the task in progress.
 5. Allows for more effective caching of job status
 6. Can also accept Progress Update messages.
 
-For more intricate details visit the [Job Tracking Worker Repository](https://github.hpe.com/caf/worker-jobtracking) or for more information of its role within the bulk document processing system see the [CAF Job Service Architecture](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Architecture.md) page.
+For more intricate details visit the [Job Tracking Worker](https://github.hpe.com/caf/worker-jobtracking) repository.
 
-### Job Database
+For more information on its architecture and role with the Job Service see [Architecture](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Architecture.md).
 
-You can install the job database on your own system using the job-service-db-installer.jar, instructions are described in [Getting Started](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Getting-Started.md)
 
-The Job table stores information on the jobs that are requested. Entries will be added by the Job Service Web API and updated by the Job Tracking Worker. 
+## Example Usages
+The combination of the Job Service and the Batch Worker is used in a number of document processing scenarios.  Here are some examples of this:
 
-| **Column**     | **Data Type** | **Nullable?** | **Primary Key?** |
-|----------------|---------------|---------------|------------------|
-| CreateDate     | DateTime      |               |                  |
-| FailureDetails | ---           | Yes           |                  |
-| IsComplete     | Boolean       |               |                  |
-| JobId          | String        |               | Yes              |
+- **Document Reprocessing:** Where a set of documents which have already been ingested are put through the ingestion process again (perhaps because of some updates made to the process).
+- **Document Tagging:** Where a specified tag is associated with a set of documents.
+- **Document Export:** Where a set of documents are exported (into zip files for example).
+- **Document Production:** Where renditions of a set of documents are produced (such as TIFF renditions for example).
 
-Task tables have the same structure as the job table. There is one task table per job which is created when the first subtask is reported, and deleted when the job has completed successfully.
-
-For more information on the Job Service database see [Job Service DB](https://github.hpe.com/caf/job-service-db).
-
-### Batch Worker
-
-The Batch Worker is used to break up large batches of documents into smaller items which can be ingested into the job system. 
-
-For more information on the Batch Worker go to [Batch Worker](https://github.hpe.com/caf/worker-batch) or see the [CAF Job Service Architecture](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Architecture.md) page for more information on its role within the bulk document processing system.
-
-### Use Case Scenarios
-
-#### Document Reprocessing
-
-Suppose a user has a set of documents they want to re-ingest into the system. They can select a batch of documents that have already been through the ingestion process and have them re-sent through the ingestion process again (perhaps some updates were made to the process). From the Job Service UI the documents can be selected to be re-ingested and the user can receive feedback with regard to the process of the re-ingestion. The user can also cancel the operation.
-
-#### Document Tagging
-
-A user can append a tag to a batch of documents and receive progress reports on the operation.
-
-#### Document Export
-
-A user can export a set of documents into zip files.
-
-#### Document Production
-
-A user can produce TIFF renditions of a set of documents.
+In all of these scenarios using the Job Service means that the UI can provide feedback with regard to the progress of the operations, and can also allow the operations to be cancelled before they have been completed.  Additionally, using the Job Service allows the UI to report if the operation fails, and if it does then it allows the UI to report the failure details.
