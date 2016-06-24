@@ -45,8 +45,8 @@ targetPipe: String <br>
 | Field                 | Description |
 |-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **batchDefinition**   | This is the definition of the batch. For example, it might be a string like "workbook == 5". The definition string is interpreted by the type specified to the 'batchType' field.  **Example:** workbook == 5 |
-| **batchType**         | This is the type that is used to interpret the batch definition string. The Batch Worker creates an instance of this class to interpret the definition string, so the specified class must be made available on the Batch Worker's classpath. We should be able to make these types available as a mounted tar, in the same way that we make the Policy Handlers and Converters available to the Policy Worker.  **Note:** We should really use a simple type locator mechanism here, so that a string like "DocumentBatch" can be specified rather than a string like "com.hpe.caf.worker.batch.plugins.document". |
-| **taskMessageType**   | This is a factory type that is used to construct the TaskMessage for each item of the batch. This string is passed to the instance of the 'batchType' object and it creates an instance of this class, so only types which have been deployed may be specified.  Obviously this type is highly tied to the 'targetPipe' field, in that the messages produced by this object must be compatible with the workers they are being sent to.  The interface that this type must implement, and the services provided by the 'batchType' plugin to it, are not defined at the BatchWorker level - that is an internal detail between the two objects.  **Note:** I think we should change the type of this field from the simple String that it currently is to a structure which specifies both a type and parameters. |
+| **batchType**         | This is the type that is used to interpret the batch definition string. The Batch Worker creates an instance of this class to interpret the definition string, so the specified class must be made available on the Batch Worker's classpath. |
+| **taskMessageType**   | This is a factory type that is used to construct the TaskMessage for each item of the batch. This string is passed to the instance of the 'batchType' object and it creates an instance of this class, so only types which have been deployed may be specified.  Obviously this type is highly tied to the 'targetPipe' field, in that the messages produced by this object must be compatible with the workers they are being sent to.  The interface that this type must implement, and the services provided by the 'batchType' plugin to it, are not defined at the BatchWorker level - that is an internal detail between the two objects. |
 | **taskMessageParams** | This is a set of named parameters to be passed to the specified TaskMessage builder (i.e. the factory type specified by the 'taskMessageType' parameter). Their meaning is dependant on the type specified. |
 | **targetPipe**        | A message is constructed for each item of the batch. This field specifies the pipe (channel or queue) where these per-item messages are to be forwarded to.  **Example:** workflow-in |
 
@@ -88,9 +88,9 @@ interface BatchWorkerServices
 }
 ```
 
-#### Batch Worker Walk-through
+### Batch Worker Walk-through
 
-When the Batch Worker receives a batch to process, it first constructs an instance of the type that is specified by the `batchType` field. This type should implement the `BatchWorkerPlugin` interface.
+When the Batch Worker receives a batch to process, it first constructs an instance of the type that is specified by the `batchType` field. This type implements the `BatchWorkerPlugin` interface.
 
 It then constructs its own internal `BatchWorkerServicesImpl` object - an object which implements the `BatchWorkerServices` interface.
 
@@ -105,7 +105,7 @@ If it determines to split the batch into a set of smaller batches, then it makes
 
 If it instead determines to split the batch into a set of items, then it first constructs an instance of the type that is specified by the `taskMessageFactory` field, and then use it to generate task messages that are appropriate to be sent to the worker listening on the `targetPipe`. It calls the `registerItemSubtask()` method for each item, and the Batch Worker dispatches the messages to the pipe specified by the `targetPipe` field.
 
-#### Subtask Identification
+### Subtask Identification
 
 If the tracking fields are present, that the implementation of the registerSubtask() methods indicates that the task is a subtask by appending a subtask identifier to the taskId. So if the taskId was J5.1 and this is the second subtask, it assigns the taskId J5.1.2. Also note that the subtask's `trackTo` pipe aren't necessarily the same as the parent task's `trackTo` pipe, if indeed it has one.
 
@@ -129,8 +129,8 @@ TrackingInfo {
 | **taskId**          | This is an identifier assigned for tracking the task. This is the letter J followed by the job id, and then followed by multiple numeric subtask ids separated by periods.  **Example:** J5.1.2 |
 | **statusCheckTime** | This is the time after which it is appropriate to try to confirm that the task has not been cancelled or aborted. |
 | **statusCheckUrl**  | This is the url to use to check whether the job has been cancelled or aborted. |
-| **trackingPipe**    | This is the pipe output messages relating to this task should be sent, regardless of their nature (i.e. whether they are Reject messages, Retry messages, Response messages, or some other type of message). It is the responsibility of the Job Tracking Worker, which consumes messages sent to this pipe, to forward the message to the intended recipient, which is indicated by the 'to' field (mentioned later).  **Note:** One exception to this is where the tracking pipe specified is the same pipe that the worker itself is consuming messages from. If this is the case then the tracking pipe should be ignored. It likely means that this is the Job Tracking Worker. Not making an exception for this case would cause to an infinite loop. |
-| **trackTo**         | This is the pipe where tracking is to stop. If the Worker Framework is publishing a message to this pipe then it should remove the 'tracking' fields, as we are not interested in tracking from this point. |
+| **trackingPipe**    | This is the pipe output messages relating to this task are be sent, regardless of their nature (i.e. whether they are Reject messages, Retry messages, Response messages, or some other type of message). It is the responsibility of the Job Tracking Worker, which consumes messages sent to this pipe, to forward the message to the intended recipient, which is indicated by the 'to' field (mentioned later).  **Note:** One exception to this is where the tracking pipe specified is the same pipe that the worker itself is consuming messages from. If this is the case then the tracking pipe is ignored. It likely means that this is the Job Tracking Worker. |
+| **trackTo**         | This is the pipe where tracking is to stop. If the Worker Framework is publishing a message to this pipe then it removes the 'tracking' fields, as we are not interested in tracking from this point. |
 
 
 When a Worker receives a message to be processed then the Worker Framework first compares the current time to the time specified in the `statusCheckTime` field. If the expiry time has passed then the `statusCheckUrl` is used to re-check the job status.
@@ -150,11 +150,11 @@ This field is automatically set by the Worker Framework and is the destination p
 After the Worker Framework has checked that the task is still active, but before it instantiates the actual Worker code, it checks the `to` field, to confirm that the message was actually intended for this worker.
 
 - If the message was intended for it (i.e. if the `to` field is set to the pipe that the Worker is consuming) then the Worker Framework continues to process the message as normal, using the existing interfaces.
-- If the message was not intended for it (i.e. if the `to` field is not set to the pipe that the Worker is consuming), then the Worker Framework checks if the Worker code supports a new interface (to be defined) and takes instructions through this interface with regard to how the message should be processed. The worker code should be able to examine the message, and instructs the framework to:
+- If the message was not intended for it (i.e. if the `to` field is not set to the pipe that the Worker is consuming), then the Worker Framework checks if the Worker code supports a new interface (to be defined) and takes instructions through this interface with regard to how the message should be processed. The worker code examines the message, and instructs the framework to:
     - discard the message
-    - publish the message to the destination pipe (this should be the default)
+    - publish the message to the destination pipe (this is be the default)
 
-### Job Tracking Worker
+## Job Tracking Worker
 
 The Job Tracking Worker is special in that it is both a normal Worker that receives messages that were intended for it (although they are Event Messages rather than Document Messages), and it is also acts as a Proxy, routing messages that were not ultimately intended for it to the correct Worker (although the actual message forwarding is be done by Worker Framework code).
 batchDefinition
@@ -164,21 +164,18 @@ This Worker performs the following functions:
 
 1. Checks for task cancellation (as all workers do)
 2. Reports the progress of the task to the Job Database
-3. If the job is paused, forwards the message to a Job-specific paused pipe _[Ignore for v1 implementation]_
-4. If the job is active, forwards messages to the correct destination pipe
-5. Allows for more effective caching of job status (inc. potential bulk update) _[Ignore for v1 implementation]_
-6. Can also accept Progress Update messages. _[Ignore for v1 implementation]_
+3. If the job is active, forwards messages to the correct destination pipe
 
-#### Progress Reporting
+### Progress Reporting
 
 When the Job Tracking Worker receives a success message which is to be proxied (i.e. one where the `taskStatus` is `RESULT_SUCCESS` or `NEW_TASK` and the `to` field is not the pipe that the worker itself is listening on), then it checks whether the `trackTo` pipe is the same as the `to` pipe.
 
-- If it is, then the task is complete, and it should be marked complete in the Job Database.
+- If it is, then the task is complete, and it is marked complete in the Job Database.
 - If it is not, then the Job Database is updated to reflect that the task is still progressing but is not complete. Unfortunately we can only tell that the task is progressing; we cannot get an estimated percentage completion, as we don't know how many more workers it will have to go through before it gets to the `trackTo` pipe, or how long each worker will take.
 
 The Job Tracking Worker is able to recognise Failure messages and Retry messages which are being proxied, and update the Job Database appropriately.
 
-_[The Partial Progress Updating functionality described in this paragraph is not to be included in the initial implementation]._ The Job Tracking Worker should also be able to receive Progress Update messages sent directly to it by workers which have been updated to do so. These are messages which simply contain the task identifier and an estimated Percentage Completion. The Job Tracking Worker should update the Job Database accordingly. It might make sense to send always send a 0% Complete message from the Worker Framework before a Worker starts processing a task, but apart from that it would of course only make sense to update those workers which tend to require a lot of time to progress tasks (such as the Speech Worker for example).
+_[The Partial Progress Updating functionality described in this paragraph is not to be included in the initial implementation]._ The Job Tracking Worker also receives Progress Update messages sent directly to it by workers which have been updated to do so. These are messages which simply contain the task identifier and an estimated Percentage Completion. The Job Tracking Worker updates the Job Database accordingly. It might make sense to send always send a 0% Complete message from the Worker Framework before a Worker starts processing a task, but apart from that it would of course only make sense to update those workers which tend to require a lot of time to progress tasks (such as the Speech Worker for example).
 
 ## Job Database
 
