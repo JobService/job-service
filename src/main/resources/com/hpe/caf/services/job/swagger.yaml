@@ -75,7 +75,7 @@ paths:
       tags:
         - Jobs
       summary: Adds a new job
-      description:
+      description: |
         Creates the specified job using the job definition included in the http
         body
       operationId: createOrUpdateJob
@@ -178,7 +178,7 @@ definitions:
         #       Or possibly even more structured than that - storing in xml
         #       would mean xpath searches could be done later
         type: string
-        description:
+        description: |
           External data can be associated with the job for use by other
           components
       task:
@@ -223,7 +223,7 @@ definitions:
         description: The description of the job
       externalData:
         type: string
-        description:
+        description: |
           External data can be associated with the job for use by other
           components
       createTime:
