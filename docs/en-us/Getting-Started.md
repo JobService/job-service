@@ -300,15 +300,17 @@ Add a job with the newJob body following the template:
 
 ### Verification of correct setup
 
-Observe that the message output to the Example Worker output queue demo-example-out won't contain any tracking info. The payload for the messages sent to RabbitMQ will look like this. Notice `tracking` is `null` and the taskData contains the data.
+Observe that the message output to the Example Worker output queue demo-example-out won't contain any tracking info. The payload for the messages sent to RabbitMQ will look like this. Notice `tracking` is `null`.
 
 ```
 {"version":3,"taskId":"j_demo_1.1","taskClassifier":"ExampleWorker","taskApiVersion":1,"taskData":"eyJ3b3JrZXJTdGF0dXMiOiJDT01QTEVURUQiLCJ0ZXh0RGF0YSI6eyJyZWZlcmVuY2UiOm51bGwsImRhdGEiOiJBQUFBQUFEdnY3MEFBQUR2djcwQUF3QURBQUFBQUFZRlMxQjBlSFF1TTJOdlpIUnpaWFFBQUFCa0FBQUFJQUFCQUFBQUFBQUFBQXdBQUFBSUFBQUFDQlB2djczdnY3MGFTQ2hhVkFBQUFBQUFGQUFVQWdGTFVIUjRkQzR5WTI5a2RITmxkQUFBQURJQUFBQWdBQUVBQUFBQUFBQUFEQUFBQUFnQUFBQUlaTysvdmUrL3ZlKy92VWdvV2swQUFBQUFBQlFBRkFJQlMxQjBlSFF1TVdOdlpIUnpaWFFBQUFBQUFBQUFJQUFCQUFBQUFBQUFBQXdBQUFBSUFBQUFDTysvdmM2VE5rZ29Xa1VBQUFBQUFCUUFGQUlCUzFBelkyOWtkSE5sZEhSNGRDNHpZMjlrZEhObGRBQUFBQXdBQUFBSUFBQUFDQlB2djczdnY3MGFTQ2hhVkFBQUFBQUFGQVFEUzFBeVkyOWtkSE5sZEhSNGRDNHlZMjlrZEhObGRBQUFBQXdBQUFBSUFBQUFDR1R2djczdnY3M3Z2NzFJS0ZwTkFBQUFBQUFVQkFOTFVERmpiMlIwYzJWMGRIaDBMakZqYjJSMGMyVjBBQUFBREFBQUFBZ0FBQUFJNzcrOXpwTTJTQ2hhUlFBQUFBQUFGQVFEUzFBPSJ9fQ==","taskStatus":"RESULT_SUCCESS","context":{},"to":"demo-example-out","tracking":null,"sourceInfo":{"name":"ExampleWorker","version":"1.0-SNAPSHOT"}}
 ```
 
-Open the stdout log file for the Job Tracking Worker and verify the following:
+The image below shows how to locate the stdout output for the Job Tracking Worker, after clicking on the Jobtracking application in Marathon .
 
-![Healthy Services](images/Jobtracking_stdout.png)
+![Jobtracking Stdout](images/Jobtracking_stdout.png)
+
+Open the stdout log file for the Job Tracking Worker and verify the following:
 
 * Message is registered and split into separate tasks by the Batch Worker
 
