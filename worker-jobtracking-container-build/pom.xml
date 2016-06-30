@@ -97,7 +97,6 @@
         <dependency>
             <groupId>com.hpe.caf</groupId>
             <artifactId>container-cert-script</artifactId>
-            <version>1.2</version>
             <type>tar.gz</type>
         </dependency>
     </dependencies>
