@@ -51,15 +51,17 @@ repository mirror: [http://rh7-artifactory.hpswlabs.hp.com:8081/artifactory/poli
 
 #### Job Service Marathon Loader Configuration
 
-Download the [marathon-template-json](https://github.hpe.com/caf/job-service-container/tree/develop/configuration/marathon-template-json) folder.
+Download the [configuration files](https://github.hpe.com/caf/chateau/tree/develop/services/job-service/configuration-files) to a folder in the same directory as marathon loader jar i.e. `marathon-template-config`.
 
-Download the [marathon-properties.json](https://github.hpe.com/caf/job-service-container/blob/develop/configuration/marathon-properties.json) and change the properties to your own setup.
+Download the [marathon-job-service-container.json](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/marathon-templates/marathon-job-service-container.json) to a folder in the same directory as marathon loader jar i.e. `marathon-template-json`.
 
-For documentation on the properties see [marathon-properties.md](https://github.hpe.com/caf/job-service-container/blob/develop/configuration/marathon-properties.md).
+Download the [properties.json](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/properties.json) file and place it in the same directory as marathon loader jar. You will need to change the properties to fit your own setup.
+
+For documentation on the properties see [properties.md](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/properties.md).
 
 #### Launching Job Service using Marathon loader
 
-Run the marathon loader application changing the options to point to the relevant locations:
+Run the marathon loader application changing the command line options to point to the relevant locations:
 
 `java -jar marathon-loader-2.1-jar-with-dependencies.jar -m "./marathon-template-json" -v "./marathon-properties.json" -e http://localhost:8080 -mo "./marathon-config"`
 
@@ -74,7 +76,7 @@ This will launch the container which includes both the Job Service Web API and t
 
 A handy user interface is provided and accessible on the same host and port as the Web service. The Swagger UI page will be accessible at the following address:
 
-`http://<docker-host-address>:<service-port specified in marathon-properties.json>/job-service-ui`
+`http://<docker-host-address>:<service-port specified in properties.json>/job-service-ui`
 
 ### Add a job
 
@@ -117,75 +119,68 @@ In your docker virtual machine run the commands:
 
 ### Marathon Loader Configruation
 
-Download the files in the marathon-template-config folders below and place in your own marathon-template-config folder in the same directory as marathon loader.
+* Download the configuration files for the components from the following locations and place them into your `marathon-template-config` folder.
 
-* Batch Worker [marathon-template-config](https://github.hpe.com/caf/worker-batch-container/tree/develop/worker-batch-configuration/configuration-tar/marathon-template-config).
+    * Batch Worker [configuration files](https://github.hpe.com/caf/chateau/tree/develop/services/batch-worker/configuration-files).
 
-* Jobtracking Worker [marathon-template-config](https://github.hpe.com/caf/worker-jobtracking-container/tree/develop/worker-jobtracking-configuration/configuration-tar/marathon-template-config).
+    * Jobtracking Worker [configuration files](https://github.hpe.com/caf/chateau/tree/develop/services/jobtracking-worker/configuration-files).
 
-* Example Worker [marathon-template-config](https://github.hpe.com/caf/worker-example-container/tree/develop/configuration/marathon-template-config).
+    * Example Worker [configuration files](https://github.hpe.com/caf/chateau/tree/develop/services/example-worker/configuration-files).
 
-Download the marathon-template-json.json files to a marathon-template-json folder in the same directory as marathon loader.
+* Download the following marathon json files to your `marathon-template-json` folder.
 
-* Batch Worker [marathon-batch-worker.json](https://github.hpe.com/caf/worker-batch-container/blob/develop/worker-batch-configuration/configuration-tar/marathon-template-json/marathon-batch-worker.json).
+    * Batch Worker [marathon-batch-worker.json](https://github.hpe.com/caf/chateau/blob/develop/services/batch-worker/marathon-templates/marathon-batch-worker.json).
 
-* Jobtracking Worker [marathon-jobtracking-worker.json](https://github.hpe.com/caf/worker-jobtracking-container/blob/develop/worker-jobtracking-configuration/configuration-tar/marathon-template-json/marathon-jobtracking-worker.json).
+    * Jobtracking Worker [marathon-jobtracking-worker.json](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/marathon-templates/marathon-jobtracking-worker.json).
 
-* Example Worker [marathon-example-worker.json](https://github.hpe.com/caf/worker-example-container/blob/develop/configuration/marathon-template-json/marathon-example-worker.json).
+    * Example Worker [marathon-example-worker.json](marathon-example-worker.json).
 
-* RabbitMQ [marathon-rabbit.json](https://github.hpe.com/caf/worker-example-container/blob/develop/configuration/marathon-template-json/marathon-rabbit.json)
+    * RabbitMQ [marathon-rabbit.json](https://github.hpe.com/caf/worker-example-container/blob/develop/configuration/marathon-template-json/marathon-rabbit.json)
 
-Add the properties specific to each component to your marathon-properties.json file in the same directory as marathon loader. This supplies the properties to the templates.
+* Add the properties specific to each component to your properties.json file in the same directory as marathon loader. This supplies the properties to the templates.
 
-* Batch Worker [marathon-properties.json](https://github.hpe.com/caf/worker-batch-container/blob/develop/worker-batch-configuration/configuration-tar/marathon-properties.json).
+    * Batch Worker [properties.json](https://github.hpe.com/caf/chateau/blob/develop/services/batch-worker/properties.json).
 
-* Jobtracking Worker [marathon-properties.json](https://github.hpe.com/caf/worker-jobtracking-container/blob/develop/worker-jobtracking-configuration/configuration-tar/marathon-properties.json).
+    * Example Worker [marathon-properties.json](https://github.hpe.com/caf/worker-example-container/blob/develop/configuration/marathon-properties.json).
 
-* Example Worker [marathon-properties.json](https://github.hpe.com/caf/worker-example-container/blob/develop/configuration/marathon-properties.json).
+    * Properties for the Jobtracking Worker are already included in the Job Service properties file: [properties.json](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/properties.json).
 
 ### Other Prerequisites
 
-1. Download the batch-plugins.tar.gz from Nexus which contains the plugins necessary for using the Batch Worker, and place in a batch-plugins folder on your docker host machine. Specify this location as the `"batch-plugin-location"` property in marathon-properties.json.
+* Download the `worker-batch-plugins-package-1.0.tar.gz` from Nexus [here](http://cmbg-maven.autonomy.com/nexus/service/local/artifact/maven/redirect?r=releases&g=com.hpe.caf.worker.batch&a=worker-batch-plugins-package&v=1.0&e=tar.gz) and rename this to `batch-plugins.tar.gz`. This contains the plugins necessary for using the Batch Worker. Place this in a `batch-plugins` folder in your shared folder with your docker host machine. Specify the location from the Docker VM to the file as the `"batch-plugin-location"` property in marathon-properties.json.
 
-http://cmbg-maven.autonomy.com/nexus/content/repositories/snapshots/com/hpe/caf/worker/batch/worker-batch-plugins-package/1.1-SNAPSHOT/
+* You will also need dummy data in datastore and a datastore reference to this data. Dummy data can be uploaded via the document-generator in Perforce.
 
-2. You will also need dummy data in datastore and a datastore reference to this data. Dummy data can be uploaded via the document-generator in Perforce.
-
-You must now tailor the marathon properties to your fit your own setup. By the end you will have a marathon-properties.json file like this with your own setup details:
+* You must now tailor the marathon properties to your fit your own setup. By the end you will have a properties.json file like this with your own setup details:
 
 ```
 {
-	"docker-registry": "rh7-artifactory.hpswlabs.hp.com:8443",
-	"marathon-group": "demo",
-	"force-pull": false,
-	"caf-fs-storage-hostPath": "/vagrant/store",
-	"marathon-uris-root": "/vagrant",
-	"worker-config-location": "marathon-config",
-	"docker-login-config": "<MUST_REPLACE: Location of docker login config tar>",
+	"docker-registry": "<ENVIRONMENT_VALUE: Uses environment option: docker-registry>",
+	"marathon-group": "<CONFIGURATION_VALUE: uses configuration option: marathon-group>",
+	"service-groupname": "batch-worker",
+	"force-pull": "<CONFIGURATION_VALUE: Uses environment option: force-pull>",
+	"docker-login-config": "<ENVIRONMENT_VALUE: Uses environment option: docker-login-config>",
+	"marathon-uris-root": "<ENVIRONMENT_VALUE: Uses environment option: marathon-uris-root>",
+	"service-config-location": "<CONFIGURATION_VALUE: Uses environment option: service-config-location>",
 
-	"storage_service-server": "<MUST_REPLACE: Server for storage service>",
-	"storage_service-port": "<MUST_REPLACE: Port for storage service>",
+	"storage-api-haproxy-name": "<ENVIRONMENT_VALUE: uses environment option from storage-server.json: storage-api-haproxy-name>",
+	"storage-api-https-service-port": "<ENVIRONMENT_VALUE: uses environment option from storage-server.json: storage-api-https-service-port>",
+	"idm-keycloak-hostname": "<ENVIRONMENT_VALUE: uses environment option: idm-keycloak-hostname>",
+	"idm-keycloak-https-service-port": "<ENVIRONMENT_VALUE: uses environment option: idm-keycloak-https-service-port>",
+	"idm-keycloak-app-client-id": "<CONFIGURATION_VALUE: uses configuration option in keycloak.json: idm-keycloak-app-client-id>",
+	"idm-keycloak-app-client-secret": "<CONFIGURATION_VALUE: uses configuration option in keycloak.json: idm-keycloak-app-client-secret>",
+	"idm-keycloak-realm": "<CONFIGURATION_VALUE: uses configuration option in keycloak.json: idm-keycloak-realm>",
+	"idm-dataprocessing-worker-username": "<ENVIRONMENT_VALUE: uses environment option in idm.json: idm-dataprocessing-worker-username>",
+	"idm-dataprocessing-worker-password": "<ENVIRONMENT_VALUE: uses environment option in idm.json: idm-dataprocessing-worker-password>",
 
-	"storage_service-auth-server": "<MUST_REPLACE: Server for storage service authentication>",
-	"storage_service-auth-port": "<MUST_REPLACE: Port for storage service authentication>",
-	"storage_service-auth-userName": "<MUST_REPLACE: User name for storage service authentication>",
-	"storage_service-auth-password": "<MUST_REPLACE: Password for storage service authentication>",
-	"storage_service-auth-clientName": "<MUST_REPLACE: Client name for storage service authentication>",
-	"storage_service-auth-clientSecret": "<MUST_REPLACE: Client secret for storage service authentication>",
-	"storage_service-auth-realm": "<MUST_REPLACE: Realm for storage service authentication>",
-
-	"rabbit-id": "rabbit-01",
-	"rabbit-cpus": 0.4,
-	"rabbit-mem": "512",
-	"rabbit-instances": "1",
-	"rabbit-erlang-cookie": "chocolatechip",
-	"rabbit-host": "<MUST_REPLACE: IP>",
-	"rabbit-user": "user",
-	"rabbit-password": "pass",
+	"rabbit-host": "<ENVIRONMENT_VALUE: Uses environment option: rabbit-host>",
+	"rabbit-user": "<ENVIRONMENT_VALUE: Uses environment option: rabbit-user>",
+	"rabbit-password": "<ENVIRONMENT_VALUE: Uses environment option: rabbit-password>",
+	"rabbit-port": "<ENVIRONMENT_VALUE: Uses environment option: rabbit-port>",
+	"rabbit-management-api-port": "<ENVIRONMENT_VALUE: Uses environment option: rabbit-management-api-port>",
 	"rabbit-maxattempts": "3",
 	"rabbit-backoffInterval": "5",
 	"rabbit-maxBackoffInterval": "15",
-	"rabbit-port": "5672",
 
 	"batch-cpus": "0.4",
 	"batch-mem": "768",
@@ -201,30 +196,52 @@ You must now tailor the marathon properties to your fit your own setup. By the e
 	"batch-healthcheck-intervalseconds": "120",
 	"batch-healthcheck-maxconsecutivefailures": "5",
 	"batch-healthcheck-timeoutseconds": "20",
-	"batch-version": "1.5-SNAPSHOT",
+	"batch-version": "1.3",
 	"batch-threads": "1",
 	"batch-cache-expire": "120",
-	"batch-plugin-location": "<MUST_REPLACE: Location of Batch Worker Plugins>",
+	"batch-inputqueue": "<CONFIGURATION_VALUE: Use configuration option: batch-inputqueue>",
+	"batch-outputqueue": "<CONFIGURATION_VALUE: Use configuration optionL batch-outputqueue>",
+	"batch-plugin-location": "batch-plugin-location",
 
-	"jobtracking-cpus":"0.5",
-	"jobtracking-mem":"1024",
-	"jobtracking-java-mem-min":"512",
-	"jobtracking-java-mem-max":"512",
-	"jobtracking-8080-serviceport":"34080",
-	"jobtracking-8081-serviceport":"34081",
-	"jobtracking-autoscale.metric":"rabbitmq",
-	"jobtracking-autoscale.scalingprofile":"default",
-	"jobtracking-autoscale.maxinstances":"4",
-	"jobtracking-autoscale.mininstances":"1",
-	"jobtracking-healthcheck-graceperiodseconds":"300",
-	"jobtracking-healthcheck-intervalseconds":"120",
-	"jobtracking-healthcheck-maxconsecutivefailures":"5",
-	"jobtracking-healthcheck-timeoutseconds":"20",
+	"job-service-cpus": "0.5",
+	"job-service-mem": "512",
+	"job-service-resultSizeThreshold": "1024",
+	"job-service-threads": "1",
+	"job-service-instances": "1",
+	"job-service-version": "1.0",
+	"job-service-8080-serviceport": "25080",
+	"job-service-healthcheck-graceperiodseconds": "300",
+	"job-service-healthcheck-intervalseconds": "120",
+	"job-service-healthcheck-maxconsecutivefailures": "5",
+	"job-service-healthcheck-timeoutseconds": "20",
+	"job-service-java-mem-min": "256",
+	"job-service-java-mem-max": "256",
+	"job-service-status-check-time": "5",
+	"job-service-web-service-url": "<ENVIRONMENT_VALUE: use environment option job-service-web-service-url>",
+
+	"jobtracking-inputqueue": "<CONFIGURATION_VALUE: use configuration option jobtracking-inputqueue>",
+	"jobtracking-outputqueue": "<CONFIGURATION_VALUE: use configuration option jobtracking-outputqueue>",
+
+	"postgres-job-service-db-databasename": "<CONFIGURATION_VALUE: Use configuration option postgres-job-service-db-databasename>",
+	"postgres-job-service-db-user": "<ENVIRONMENT_VALUE: use environment option: postgres-job-service-db-user>",
+	"postgres-job-service-db-password": "ENVIRONMENT_VALUE: use environment option: postgres-job-service-db-password",
+
+	"jobtracking-cpus": "0.5",
+	"jobtracking-mem": "1024",
+	"jobtracking-java-mem-min": "512",
+	"jobtracking-java-mem-max": "512",
+	"jobtracking-8080-serviceport": "34080",
+	"jobtracking-8081-serviceport": "34081",
+	"jobtracking-autoscale.metric": "rabbitmq",
+	"jobtracking-autoscale.scalingprofile": "default",
+	"jobtracking-autoscale.maxinstances": "4",
+	"jobtracking-autoscale.mininstances": "1",
+	"jobtracking-healthcheck-graceperiodseconds": "300",
+	"jobtracking-healthcheck-intervalseconds": "120",
+	"jobtracking-healthcheck-maxconsecutivefailures": "5",
+	"jobtracking-healthcheck-timeoutseconds": "20",
 	"jobtracking-resultsize-threshold": "1024",
-	"jobtracking-version":"1.5-SNAPSHOT",
-	"jobtracking-database-url":"<MUST REPLACE: Job database address e.g. jdbc:postgresql://192.168.56.200:5432/jobservice",
-	"jobtracking-database-username":"<MUST REPLACE: Job database username credential e.g. postgres",
-	"jobtracking-database-password":"<MUST REPLACE: Job database password credential e.g. root",
+	"jobtracking-version": "1.4",
 	"jobtracking-threads": "1",
 
 	"example-cpus":"0.4",
@@ -392,3 +409,12 @@ DEBUG [2016-06-29 16:21:49,301] com.hpe.caf.worker.queue.rabbit.WorkerConfirmLis
 DEBUG [2016-06-29 16:21:49,306] com.hpe.caf.worker.queue.rabbit.WorkerConfirmListener: RabbitMQ broker ACKed published sequence id 26 (multiple: false)
 DEBUG [2016-06-29 16:21:49,306] com.hpe.caf.worker.queue.rabbit.WorkerQueueConsumerImpl: Acknowledging message 26
 ```
+
+## Links
+
+For more information on Chateau see [here](https://github.hpe.com/caf/chateau).
+
+For more information on Job Service templates, configuration and property files see [here](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/README.md).
+
+For more information on Batch Worker templates, configuration and property files see [here](https://github.hpe.com/caf/chateau/blob/develop/services/batch-worker/README.md).
+
