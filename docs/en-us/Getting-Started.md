@@ -29,14 +29,14 @@ A handy user interface is provided and accessible on the same host and port as t
 Expand the PUT /jobs/{jobId} method. Enter value for jobId. Click on the example value box on the right to fill in the
 newJob body. Edit these fields with your own details:
 
-`name`: name of the job
-`description`: description of the job
-`externalData`: external data
-`taskClassifier`: classifier of the task
-`taskApiVersion`: API version of the task
-`taskData`: data of the task (include a batch definition if sending to the batch worker)
-`taskDataEncoding`: encoding of the task data e.g. `utf8`
-`taskPipe`: name of rabbit queue feeding messages to the first worker
+`name`: name of the job <br>
+`description`: description of the job <br>
+`externalData`: external data <br>
+`taskClassifier`: classifier of the task <br>
+`taskApiVersion`: API version of the task <br>
+`taskData`: data of the task (include a batch definition if sending to the batch worker) <br>
+`taskDataEncoding`: encoding of the task data e.g. `utf8` <br>
+`taskPipe`: name of rabbit queue feeding messages to the first worker <br>
 `targetPipe`: name of the final worker's output queue where tracking will stop
 
 Press `Try it out!`, the result code will show whether the addition of the job is a success or not (201 if job is successfully added or 204 if job is successfully updated).
