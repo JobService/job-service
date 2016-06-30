@@ -1,9 +1,3 @@
----
-layout: default
-title: Job Service
-last_updated: Created and last modified by Conal Smith on June 14, 2016
----
-
 ## Service Information
 
 | Attribute | Description |
@@ -20,5 +14,5 @@ last_updated: Created and last modified by Conal Smith on June 14, 2016
 | Scaling |   |
 | Artifacts | job-service, Version 1.0 <br> job-service-db-installer, Version 1.0 |
 | Compliance | Fortify - Not Verified <br> Web Inspect - Not Verified |
-| Documentation | Configuration - [Job Service Configuration](https://github.hpe.com/caf/job-service-container/configuration/job-service-container.md) <br> API - [Job Service API](https://github.hpe.com/caf/job-service/job-service.md)
+| Documentation | Configuration - [Job Service Configuration](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/properties.md) <br> API - [Job Service API](https://github.hpe.com/caf/job-service)
 | Known Issues	| None |
