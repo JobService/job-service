@@ -152,6 +152,7 @@ public class JobTrackingWorkerIT {
     public void testProxiedMessageReporting(final TaskMessage testMessage, final JobTrackingWorkerITExpectation expectation) throws Exception {
         try (QueueManager queueManager = getQueueManager(expectation.getForwardingQueue())) {
             ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
             Timer timer = getTimer(context);
             Thread thread = queueManager.start(new JobTaskWorkerOutputDeliveryHandler(jobDatabase, context, expectation));
             queueManager.publish(testMessage);
