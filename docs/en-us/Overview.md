@@ -4,40 +4,38 @@ title: CAF Job Service Overview
 last_updated: Created and last modified by Conal Smith on June 14, 2016
 ---
 
-# CAF Job Service Overview
+# Overview
+
+The Job Service is a RESTful web service that makes it easy for you to use and receive feedback from Worker Framework miscroservices (workers).
 
 ## Introduction
+The Worker Framework provides many different types of workers, but they all perform tasks asynchronously in the background. The Job Service can send tasks to these workers, check the progress on those tasks, and cancel them, if they have not executed yet. The Job Service complements the Worker Framework by making its functionality more readily available, and providing a standard mechanism for interacting with workers. For example, using the Job Service relieves you from having to concern yourself with which messaging framework the workers use for communication.
 
-The CAF Job Service is a RESTful Web Service.  Its central aim is to make it easier to use and receive feedback from the CAF Workers which have been built.  There are different types of CAF Workers, but they all perform tasks asynchronously in the background.  The Job Service can be used to send tasks to these Workers, and then to check on the progress of the tasks, and even to cancel them if they have not yet been executed.
-
-The CAF Job Service complements the CAF Workers by making their functionality more readily available, and by providing a standard mechanism for interacting with them.  For example, by using the Job Service users do not need to concern themselves with which messaging framework the CAF Workers use for communication.
-
-> **Future:** In the future it is likely that we will enhance the Job Service to provide further, more fine-grained control, over the tasks that it has been used to send to the Workers.  For example, we will likely add operations to allow tasks to be Paused and Resumed.
+**_Future: We might enhance the Job Service to provide further, more fine-grained control over the tasks that it sends to the workers. For example, the Job Service could add operations to pause or resume tasks._**
 
 ## Job Service Web API
+The Job Service web API is the RESTful web service acting as the main entry point for sending operations to workers, checking on the progress of these operations, and even allowing cancellation of these operations. The service adds job entries to the Job Service database table, which is then updated by the job tracking worker.
 
-The Job Service Web API is the RESTful web service acting as the main entry point for users wishing to send operations to workers, check on the progress of these operations, and even allow for these operations to be cancelled. It adds Job entries to the Job Service database table which are then updated by the Job Tracking Worker.
+To see the web methods in the Job Service web API, see [API](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/API.md).
 
-To see the web methods made available by the Job Service Web API see [API](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/API.md).
+For more details on the architecture of the Job Service web API, see [Architecture](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Architecture.md).
 
-For more details on the architecture behind the Job Service Web API see [Architecture](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Architecture.md).
+For instructions on deploying and using the Job Service web API, see [Getting Started](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Getting-Started.md).
 
-For instructions on deploying and using the Job Service Web API see [Getting Started](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Getting-Started.md).
+### Batch Worker
+The Job Service works in conjunction with any worker from the Worker Framework, but the batch worker is the key worker most often controlled by the Job Service.
 
-## Batch Worker
+The batch worker takes batches of work, recursively breaks them down into ever smaller batches of work and ultimately individual tasks, which are then sent to other workers.
 
-Whilst the Job Service can be used in conjunction with any CAF Worker, a key worker that the Job Service is often used with is the Batch Worker.
+The Job Service is particularly beneficial to the batch worker because it monitors the progress of the batch as a whole. Even if the size of the batch is not known in advance, using the Job Service makes it possible to monitor the overall progress of the entire batch, as well as making other operations available, such as the capability to cancel the batch.
 
-The Batch Worker is designed to take batches of work, and to recursively break up these batches into ever smaller batches of work, and eventually into individual tasks which it then sends to the other CAF Workers.
+#### Example Usages
+The combination of the Job Service and the batch worker is used in a number of document processing scenarios. Here are some examples of this:
 
-The Job Service is particularly beneficial when using the Batch Worker because it makes it possible to monitor the progress of the batch as a whole.  Even if the size of the batch is not known in advance, using the Job Service makes it possible to monitor the overall progress of the entire batch, as well as making other operations available such as the capability to cancel the batch.
+- Document Reprocessing: A set of documents that have already been ingested is put through the ingestion process again. For example, you might re-ingest because of some updates to the process).
+- Document Tagging: A specified tag is associated with a set of documents.
+- Document Export: A set of documents is exported, for example, to a zip file.
+- Document Production: A set of documents is rendered in some format, for example, TIFF.
 
-## Example Usages
-The combination of the Job Service and the Batch Worker is used in a number of document processing scenarios.  Here are some examples of this:
+In all of these scenarios, the Job Service enables the user interface to provide feedback on the progress of the operations. It also allows the cancellation of operations before they have completed. Additionally, using the Job Service lets the user interface report operation failures, including the failure details.
 
-- **Document Reprocessing:** Where a set of documents which have already been ingested are put through the ingestion process again (perhaps because of some updates made to the process).
-- **Document Tagging:** Where a specified tag is associated with a set of documents.
-- **Document Export:** Where a set of documents are exported (into zip files for example).
-- **Document Production:** Where renditions of a set of documents are produced (such as TIFF renditions for example).
-
-In all of these scenarios using the Job Service means that the UI can provide feedback with regard to the progress of the operations, and can also allow the operations to be cancelled before they have been completed.  Additionally, using the Job Service allows the UI to report if the operation fails, and if it does then it allows the UI to report the failure details.
