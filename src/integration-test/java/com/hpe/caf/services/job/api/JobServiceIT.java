@@ -321,6 +321,7 @@ public class JobServiceIT {
     public void testMessagesPutOnQueue(final String taskQueue, final JobServiceTrackingInfoExpectation expectation, String jobId, NewJob newJob, String jobCorrelationId) throws Exception {
         try (QueueManager queueManager = getQueueManager(taskQueue)) {
             ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
             Timer timer = getTimer(context);
             Thread thread = queueManager.start(new JobServiceOutputDeliveryHandler(context, expectation));
 
