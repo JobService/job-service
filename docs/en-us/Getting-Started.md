@@ -14,7 +14,7 @@ To download and set up Chateau, follow the instructions in the [README.md](https
 
 Installation instructions for the Job Service Database can be found [here](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/README.md).
 
-To deploy the Job Service follow the [Service Deployment](https://github.hpe.com/caf/chateau/blob/develop/deployment.md) guide and use the following option with the deployment shell script.
+To deploy the Job Service and Job Tracking Worker follow the [Service Deployment](https://github.hpe.com/caf/chateau/blob/develop/deployment.md) guide and use the following option with the deployment shell script.
 
 `./deploy-service.sh job-service`
 
@@ -51,11 +51,13 @@ Expand the GET /jobs method. Press `Try it out!`. The list of jobs in the system
 
 ## Deploying End-To-End System
 
-In order to run an end-to-end Job Service system we need to run the Batch Worker and another service to send the tasks to, in this case the Example Worker.
+In order to test an end-to-end Job Service system we need to deploy and run the Job Service, Job Tracking Worker, Batch Worker and another service to send the tasks to, in this case the Example Worker.
+
+Firstly deploy the Job Service using Chateau as described above.
 
 ### Batch Worker
 
-The Batch Worker can be run using Chateau.
+The Batch Worker can be deployed using Chateau.
 
 Prerequisites for running the Batch Worker can be found [here](https://github.hpe.com/caf/chateau/blob/develop/services/batch-worker/README.md).
 
@@ -65,30 +67,13 @@ The Batch Worker will be deployed by the deployment script with the following co
 
 ### Example Worker
 
-Currently the Example Worker can be run using Marathon Loader.
+The Example Worker can be deployed using Chateau.
 
-Download the marathon configuration files [here](https://github.hpe.com/caf/worker-example-container/tree/develop/configuration/marathon-template-config). 
+Prerequisites for running the Example Worker can be found [here](https://github.hpe.com/caf/chateau/blob/develop/services/example-worker/README.md).
 
-Download the marathon json file for example worker [here](https://github.hpe.com/caf/worker-example-container/blob/develop/configuration/marathon-template-json/marathon-example-worker.json).
+Run the deployment script with the following command:
 
-Download [marathon-properties.json](https://github.hpe.com/caf/worker-example-container/blob/develop/configuration/marathon-properties.json).
-
-Download the marathon loader jar from Nexus repository: [http://cmbg-maven.autonomy.com/nexus/content/repositories/releases/](http://cmbg-maven.autonomy.com/nexus/content/repositories/releases/)
-
-Run marathon loader with the command:
-
-```
-java -jar marathon-loader-2.1-jar-with-dependencies.jar -m "./marathon-template-json" -v "./marathon-properties.json" -e http://localhost:8080 -mo "./marathon-config"
-```
-
-* -m specifies the location of the marathon-template-json folder
-* -v specifies the location of the marathon-properties.json file
-* -e is used to specify the Marathon endpoint
-* -mo specifies the location where the generated marathon configs will be output
-
-This will launch the container for Example Worker.
-
-You will also need dummy data in datastore and a datastore reference to this data. Dummy data can be uploaded via the document-generator.
+`./deploy-service.sh example-worker`
 
 The status of the services can be viewed on Marathon at the following URL:
 
@@ -97,6 +82,8 @@ The status of the services can be viewed on Marathon at the following URL:
 Here you will be able to see the health of the workers and services.
 
 ![Marathon Health](images/MarathonAllHealthy.png)
+
+You will also need dummy data in a datastore and a storage reference to this data. Dummy data can be uploaded via the [document-generator](https://github.hpe.com/caf/document-generator). For more information on using the document generator see the [README.md](https://github.hpe.com/caf/document-generator/README.md).
 
 ### Send a Job
 
@@ -121,13 +108,9 @@ Add a job with the newJob body following the template:
 ```
 
 * Task classifier must be set to `BatchWorker` as we are sending the job to the Batch Worker.
-
 * Set the task Api version i.e. 1.
-
-* Set the taskData, in this case we are adding a batch definition with a storage reference and the datastorePartialReference is the container ID.
-
-* Set taskPipe to the name of the queue consumed by the first worker you want to sent the work to i.e. Batch Worker `demo-batch-in` - so that the batch can be broken down into task items.
-
+* Set the taskData, in this case we are adding a batch definition with a storage reference and the datastorePartialReference is the container ID. This storage reference is the reference to the dummy data stored using document generator.
+* Set taskPipe to the queue consumed by the first worker you want to sent the work to i.e. Batch Worker `demo-batch-in` - so that the batch can be broken down into task items.
 * Set targetPipe to the name of the final worker where tracking will stop i.e. `demo-example-out`.
 
 ### Verification of correct setup
@@ -138,24 +121,18 @@ Observe that the message output to the Example Worker output queue demo-example-
 {"version":3,"taskId":"j_demo_1.1","taskClassifier":"ExampleWorker","taskApiVersion":1,"taskData":"eyJ3b3JrZXJTdGF0dXMiOiJDT01QTEVURUQiLCJ0ZXh0RGF0YSI6eyJyZWZlcmVuY2UiOm51bGwsImRhdGEiOiJBQUFBQUFEdnY3MEFBQUR2djcwQUF3QURBQUFBQUFZRlMxQjBlSFF1TTJOdlpIUnpaWFFBQUFCa0FBQUFJQUFCQUFBQUFBQUFBQXdBQUFBSUFBQUFDQlB2djczdnY3MGFTQ2hhVkFBQUFBQUFGQUFVQWdGTFVIUjRkQzR5WTI5a2RITmxkQUFBQURJQUFBQWdBQUVBQUFBQUFBQUFEQUFBQUFnQUFBQUlaTysvdmUrL3ZlKy92VWdvV2swQUFBQUFBQlFBRkFJQlMxQjBlSFF1TVdOdlpIUnpaWFFBQUFBQUFBQUFJQUFCQUFBQUFBQUFBQXdBQUFBSUFBQUFDTysvdmM2VE5rZ29Xa1VBQUFBQUFCUUFGQUlCUzFBelkyOWtkSE5sZEhSNGRDNHpZMjlrZEhObGRBQUFBQXdBQUFBSUFBQUFDQlB2djczdnY3MGFTQ2hhVkFBQUFBQUFGQVFEUzFBeVkyOWtkSE5sZEhSNGRDNHlZMjlrZEhObGRBQUFBQXdBQUFBSUFBQUFDR1R2djczdnY3M3Z2NzFJS0ZwTkFBQUFBQUFVQkFOTFVERmpiMlIwYzJWMGRIaDBMakZqYjJSMGMyVjBBQUFBREFBQUFBZ0FBQUFJNzcrOXpwTTJTQ2hhUlFBQUFBQUFGQVFEUzFBPSJ9fQ==","taskStatus":"RESULT_SUCCESS","context":{},"to":"demo-example-out","tracking":null,"sourceInfo":{"name":"ExampleWorker","version":"1.0-SNAPSHOT"}}
 ```
 
-The image below shows how to locate the stdout output for the Job Tracking Worker, after clicking on the Jobtracking application in Marathon .
+The image below shows how to locate the stdout output for the Job Tracking Worker, after clicking on the Job Tracking application in Marathon .
 
 ![Jobtracking Stdout](images/Jobtracking_stdout.png)
 
 Open the stdout log file for the Job Tracking Worker and verify the following:
 
 * Message is registered and split into separate tasks by the Batch Worker
-
 * Separate messages are forwarded to the Example Worker input queue
-
 * Job Status check returns Active for separated messages
-
 * Single message forwarded to the Batch Worker output queue
-
 * Job Status check returns Completed for separated messages
-
 * Separate messages forwarded to the Example Worker output queue
-
 * Tracking information is removed from separate messages
 
 The output log will look something like this:
