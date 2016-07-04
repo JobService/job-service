@@ -1,95 +1,103 @@
 ---
 layout: default
 title: Getting Started
-last_updated: Created and last modified by Conal Smith on June 15, 2016
+last_updated: Last modified by Frank Rovitto on July 1, 2016
 ---
 
 # Getting Started
 
-## Deploying the CAF Job Service with Chateau
+## Deploying the Job Service with Chateau
 
-**[Chateau](https://github.hpe.com/caf/chateau)** can be used to launch workers and services such as the Job Service.
+**[Chateau](https://github.hpe.com/caf/chateau)** can launch workers and services, such as the Job Service.
 
-To download and set up Chateau, follow the instructions in the [README.md](https://github.hpe.com/caf/chateau/blob/develop/README.md). 
+- To download and set up Chateau, follow the instructions in the [README.md](https://github.hpe.com/caf/chateau/blob/develop/README.md). 
 
-Installation instructions for the Job Service Database can be found [here](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/README.md).
+- Installation instructions for the Job Service database can be found [here](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/README.md).
 
-To deploy the Job Service and Job Tracking Worker follow the [Service Deployment](https://github.hpe.com/caf/chateau/blob/develop/deployment.md) guide and use the following option with the deployment shell script.
+- To deploy the Job Service and job tracking worker, follow the [Service Deployment](https://github.hpe.com/caf/chateau/blob/develop/deployment.md) guide and use the following option with the deployment shell script.
 
-`./deploy-service.sh job-service`
+  `./deploy-service.sh job-service`
 
-## Using the Job Service Web API
+## Using the Job Service Web User Interface
 
-A handy user interface is provided and accessible on the same host and port as the Web service. The Swagger UI page will be accessible at the following address:
+A handy user interface is provided on the same host and port as the web service. The Swagger user interface page is accessible from the following address:
 
-`http://<docker-host-address>:<service-port>/job-service-ui`
+`<job-service-web-service-url>/job-service-ui`
 
-### Add a job
+### Adding a Job
 
-Expand the PUT /jobs/{jobId} method. Enter value for jobId. Click on the example value box on the right to fill in the
-newJob body. Edit these fields with your own details:
+1. Expand the PUT /jobs/{jobId} method. 
+2. Enter a value for jobId. 
+3. Click on the example value box on the right to fill in the new job body. 
+4. Edit these fields with your own details:
+ 
+ `name`: name of the job <br>
+  `description`: description of the job <br>
+  `externalData`: external data <br>
+  `taskClassifier`: classifier of the task <br>
+  `taskApiVersion`: API version of the task <br>
+  `taskData`: data of the task (include a batch definition if sending to the batch worker) <br>
+  `taskDataEncoding`: encoding of the task data, for example, `utf8` <br>
+  `taskPipe`: name of the RabbitMQ queue feeding messages to the first worker <br>
+  `targetPipe`: name of the final worker's output queue where tracking will stop
 
-`name`: name of the job <br>
-`description`: description of the job <br>
-`externalData`: external data <br>
-`taskClassifier`: classifier of the task <br>
-`taskApiVersion`: API version of the task <br>
-`taskData`: data of the task (include a batch definition if sending to the batch worker) <br>
-`taskDataEncoding`: encoding of the task data e.g. `utf8` <br>
-`taskPipe`: name of rabbit queue feeding messages to the first worker <br>
-`targetPipe`: name of the final worker's output queue where tracking will stop
-
-Press `Try it out!`, the result code will show whether the addition of the job is a success or not (201 if job is successfully added or 204 if job is successfully updated).
+5. Press `Try it out!`. The resulting code will show whether the addition of the job succeeds or not. 
+   - 201, if the job is successfully added
+   - 204, if the job is successfully updated
 
 ![Add Job](images/JobServiceUIAddJob.PNG)
 
-### Get jobs
+### Getting Jobs
 
-Expand the GET /jobs method. Press `Try it out!`. The list of jobs in the system will appear in the response body and you will be able to see the job you just created.
+1. Expand the GET /jobs method. 
+2. Press `Try it out!`. The list of jobs in the system appears in the response body, including the job you just created.
 
 ![Add Job](images/JobServiceUIGet.PNG)
 
-## Deploying End-To-End System
+## Deploying an End-To-End System
 
-In order to test an end-to-end Job Service system we need to deploy and run the Job Service, Job Tracking Worker, Batch Worker and another service to send the tasks to, in this case the Example Worker.
+In order to test an end-to-end Job Service system, you need to deploy and run:
 
-Firstly deploy the Job Service using Chateau as described above.
+- the Job Service (see _Deploying the Job Service with Chateau_)
+- a job tracking worker (see _Deploying the Job Service with Chateau_)
+- a batch worker 
+- another service to send the tasks to, in this case, the example worker.
 
 ### Batch Worker
 
-The Batch Worker can be deployed using Chateau.
+You can deploy the batch worker with Chateau.
 
-Prerequisites for running the Batch Worker can be found [here](https://github.hpe.com/caf/chateau/blob/develop/services/batch-worker/README.md).
+Prerequisites for running the batch worker can be found [here](https://github.hpe.com/caf/chateau/blob/develop/services/batch-worker/README.md).
 
-The Batch Worker will be deployed by the deployment script with the following command:
+The following command with the deployment script deploys a batch worker:
 
 `./deploy-service.sh batch-worker`
 
 ### Example Worker
 
-The Example Worker can be deployed using Chateau.
+You can deploy the example worker using Chateau.
 
-Prerequisites for running the Example Worker can be found [here](https://github.hpe.com/caf/chateau/blob/develop/services/example-worker/README.md).
+Prerequisites for running the example worker can be found [here](https://github.hpe.com/caf/chateau/blob/develop/services/example-worker/README.md).
 
-Run the deployment script with the following command:
+The following command with the deployment script deploys an example worker:
 
 `./deploy-service.sh example-worker`
 
-The status of the services can be viewed on Marathon at the following URL:
+You can view the status of the services on Marathon at the following URL:
 
-`http://<docker-host-address>:8080/ui/#`
+`<marathon-endpoint>/ui/#`
 
-Here you will be able to see the health of the workers and services.
+The figure shows you the health of the workers and services:
 
 ![Marathon Health](images/MarathonAllHealthy.png)
 
-You will also need dummy data in a datastore and a storage reference to this data. Dummy data can be uploaded via the [document-generator](https://github.hpe.com/caf/document-generator). For more information on using the document generator see the [README.md](https://github.hpe.com/caf/document-generator/README.md).
+You also need dummy data in a datastore and a storage reference to this data. Dummy data can be uploaded from the [document-generator](https://github.hpe.com/caf/document-generator). For more information on using the document generator, see the [README.md](https://github.hpe.com/caf/document-generator/README.md).
 
 ### Send a Job
 
-Open the Swagger UI as explained above.
+Open the Swagger user interface as explained under _Using the Job Service Web User Interface_.
 
-Add a job with the newJob body following the template:
+Add a job with the new job body following this template:
 
 ```
 {
@@ -107,35 +115,37 @@ Add a job with the newJob body following the template:
 }
 ```
 
-* Task classifier must be set to `BatchWorker` as we are sending the job to the Batch Worker.
-* Set the task Api version i.e. 1.
-* Set the taskData, in this case we are adding a batch definition with a storage reference and the datastorePartialReference is the container ID. This storage reference is the reference to the dummy data stored using document generator.
-* Set taskPipe to the queue consumed by the first worker you want to sent the work to i.e. Batch Worker `demo-batch-in` - so that the batch can be broken down into task items.
-* Set targetPipe to the name of the final worker where tracking will stop i.e. `demo-example-out`.
+Note the following:
+
+* `TaskClassifier` must be set to `BatchWorker` as you are sending the job to the batch worker.
+* Set the `taskApiVersion` to 1.
+* For the `taskData`, we are adding a batch definition with a storage reference and the `datastorePartialReference` is the container ID. This storage reference is the reference to the dummy data stored using document generator.
+* Set `taskPipe` to the queue consumed by the first worker to which you want to send the work, in this case, the batch worker `demo-batch-in`. The batch can then be broken down into task items.
+* Set `targetPipe` to the name of the final worker where tracking will stop, in this case, `demo-example-out`.
 
 ### Verification of correct setup
 
-Observe that the message output to the Example Worker output queue demo-example-out won't contain any tracking info. The payload for the messages sent to RabbitMQ will look like this. Notice `tracking` is `null`.
+The message output to the example worker output queue, demo-example-out, contains no tracking information. The payload for the messages sent to RabbitMQ will look similar to the following. Notice that `tracking` is `null`.
 
 ```
 {"version":3,"taskId":"j_demo_1.1","taskClassifier":"ExampleWorker","taskApiVersion":1,"taskData":"eyJ3b3JrZXJTdGF0dXMiOiJDT01QTEVURUQiLCJ0ZXh0RGF0YSI6eyJyZWZlcmVuY2UiOm51bGwsImRhdGEiOiJBQUFBQUFEdnY3MEFBQUR2djcwQUF3QURBQUFBQUFZRlMxQjBlSFF1TTJOdlpIUnpaWFFBQUFCa0FBQUFJQUFCQUFBQUFBQUFBQXdBQUFBSUFBQUFDQlB2djczdnY3MGFTQ2hhVkFBQUFBQUFGQUFVQWdGTFVIUjRkQzR5WTI5a2RITmxkQUFBQURJQUFBQWdBQUVBQUFBQUFBQUFEQUFBQUFnQUFBQUlaTysvdmUrL3ZlKy92VWdvV2swQUFBQUFBQlFBRkFJQlMxQjBlSFF1TVdOdlpIUnpaWFFBQUFBQUFBQUFJQUFCQUFBQUFBQUFBQXdBQUFBSUFBQUFDTysvdmM2VE5rZ29Xa1VBQUFBQUFCUUFGQUlCUzFBelkyOWtkSE5sZEhSNGRDNHpZMjlrZEhObGRBQUFBQXdBQUFBSUFBQUFDQlB2djczdnY3MGFTQ2hhVkFBQUFBQUFGQVFEUzFBeVkyOWtkSE5sZEhSNGRDNHlZMjlrZEhObGRBQUFBQXdBQUFBSUFBQUFDR1R2djczdnY3M3Z2NzFJS0ZwTkFBQUFBQUFVQkFOTFVERmpiMlIwYzJWMGRIaDBMakZqYjJSMGMyVjBBQUFBREFBQUFBZ0FBQUFJNzcrOXpwTTJTQ2hhUlFBQUFBQUFGQVFEUzFBPSJ9fQ==","taskStatus":"RESULT_SUCCESS","context":{},"to":"demo-example-out","tracking":null,"sourceInfo":{"name":"ExampleWorker","version":"1.0-SNAPSHOT"}}
 ```
 
-The image below shows how to locate the stdout output for the Job Tracking Worker, after clicking on the Job Tracking application in Marathon .
+The figure shows how to locate the stdout output for the job tracking worker, after clicking on the job tracking application in Marathon.
 
 ![Jobtracking Stdout](images/Jobtracking_stdout.png)
 
-Open the stdout log file for the Job Tracking Worker and verify the following:
+Open the stdout log file for the job tracking worker and verify the following:
 
-* Message is registered and split into separate tasks by the Batch Worker
-* Separate messages are forwarded to the Example Worker input queue
-* Job Status check returns Active for separated messages
-* Single message forwarded to the Batch Worker output queue
-* Job Status check returns Completed for separated messages
-* Separate messages forwarded to the Example Worker output queue
-* Tracking information is removed from separate messages
+* Message is registered and split into separate tasks by the batch worker.
+* Separate messages are forwarded to the example worker input queue.
+* Job status check returns Active for separated messages.
+* Single message forwarded to the batch worker output queue.
+* Job status check returns Completed for separated messages.
+* Separate messages forwarded to the example worker output queue.
+* Tracking information is removed from separate messages.
 
-The output log will look something like this:
+The output log should look something like this:
 
 ```
 DEBUG [2016-06-29 16:21:44,765] com.hpe.caf.worker.queue.rabbit.WorkerQueueConsumerImpl: Registering new message 22
@@ -204,9 +214,9 @@ DEBUG [2016-06-29 16:21:49,306] com.hpe.caf.worker.queue.rabbit.WorkerQueueConsu
 
 ## Links
 
-For more information on Chateau see [here](https://github.hpe.com/caf/chateau).
+For more information on Chateau, go [here](https://github.hpe.com/caf/chateau).
 
-For more information on Job Service templates, configuration and property files see [here](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/README.md).
+For more information on Job Service templates, and configuration and property files, see [here](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/README.md).
 
-For more information on Batch Worker templates, configuration and property files see [here](https://github.hpe.com/caf/chateau/blob/develop/services/batch-worker/README.md).
+For more information on batch worker templates, and configuration and property files, see [here](https://github.hpe.com/caf/chateau/blob/develop/services/batch-worker/README.md).
 
