@@ -1,18 +1,17 @@
 swagger: "2.0"
 info:
-  title: "CAF Job Service"
+  title: "Job Service"
   version: "1.0"
   description: |
-    Allows background operations to be sent to the CAF Workers, and for the
+    Allows background operations to be sent to the workers, and for the
     operations to be tracked and controlled.
 
-    Users can check on the progress of operations, and request them to be
-    cancelled, paused, or resumed.  *NB: Pause and Resume are future
+    You can check the progress of operations, and request to cancel, pause, or resume them.  *NB: Pause and Resume are future
     requirements.*
 
-    The main use cases for this functionality centre around batch document
-    processing.  The service can be used to send work to the Batch Worker, and
-    then to track the progress of the work.
+    The primary use of this functionality is batch document
+    processing.  The service can send work to the Batch Worker, and
+    then track the progress of that work.
 basePath: /job-service/v1
 tags:
   - name: Jobs
@@ -28,17 +27,17 @@ paths:
         in: header
         type: string
         description: |
-          An identifier that can be used to correlate events that occurred
-          across different CAF services
+          An identifier that correlates events 
+          across different services.
     get:
       tags:
         - Jobs
       summary: Gets the list of jobs
-      description: Returns the list of job definitions defined in the system
+      description: Returns the list of job definitions defined in the system.
       operationId: getJobs
       responses:
         200:
-          description: Returns the list of jobs
+          description: Returns the list of jobs.
           schema:
             type: array
             items:
@@ -49,8 +48,8 @@ paths:
         in: header
         type: string
         description: |
-          An identifier that can be used to correlate events that occurred
-          across different CAF services
+          An identifier that correlates events 
+          across different services.
       - name: jobId
         in: path
         type: string
@@ -59,12 +58,12 @@ paths:
     get:
       tags:
         - Jobs
-      summary: Gets the specified job
-      description: Retrieves information about the specified job
+      summary: Gets the specified job.
+      description: Retrieves information about the specified job.
       operationId: getJob
       responses:
         200:
-          description: Returns the job data
+          description: Returns the job data.
           schema:
             $ref: "#/definitions/job"
         400:
@@ -74,10 +73,10 @@ paths:
     put:
       tags:
         - Jobs
-      summary: Adds a new job
+      summary: Adds a new job.
       description: |
         Creates the specified job using the job definition included in the http
-        body
+        body.
       operationId: createOrUpdateJob
       parameters:
         - name: newJob
@@ -88,20 +87,20 @@ paths:
             $ref: "#/definitions/newJob"
       responses:
         201:
-          description: Indicates that the job was successfully created
+          description: Indicates that the job was successfully created.
         204:
-          description: Indicates that the job was successfully updated
+          description: Indicates that the job was successfully updated.
         400:
           description: The `jobId` parameter contains invalid characters.
     delete:
       tags:
         - Jobs
-      summary: Deletes the specified job
-      description: Deletes the specified job from the system
+      summary: Deletes the specified job.
+      description: Deletes the specified job from the system.
       operationId: deleteJob
       responses:
         204:
-          description: Indicates that the job was successfully deleted
+          description: Indicates that the job was successfully deleted.
         400:
           description: The `jobId` parameter contains invalid characters.
         404:
@@ -112,8 +111,8 @@ paths:
         in: header
         type: string
         description: |
-          An identifier that can be used to correlate events that occurred
-          across different CAF services
+          An identifier that correlates events 
+          across different services.
       - name: jobId
         in: path
         type: string
@@ -122,12 +121,12 @@ paths:
     get:
       tags:
         - Jobs
-      summary: Checks if the job is active
-      description: Checks if the specified job is active
+      summary: Checks whether the job is active.
+      description: Checks whether the specified job is active.
       operationId: getJobActive
       responses:
         200:
-          description: Returns whether the job is active
+          description: Returns whether the job is active.
           schema:
             type: boolean
           headers:
@@ -142,7 +141,7 @@ paths:
         in: header
         type: string
         description: |
-          An identifier that can be used to correlate events that occurred
+          An identifier that correlates events 
           across different CAF services
       - name: jobId
         in: path
@@ -152,12 +151,12 @@ paths:
     post:
       tags:
         - Jobs
-      summary: Cancels the job
-      description: Cancels the specified job
+      summary: Cancels the job.
+      description: Cancels the specified job.
       operationId: cancelJob
       responses:
         204:
-          description: The cancellation has been accepted
+          description: The cancellation has been accepted.
         400:
           description: The `jobId` parameter contains invalid characters.
         404:
@@ -180,7 +179,7 @@ definitions:
         type: string
         description: |
           External data can be associated with the job for use by other
-          components
+          components.
       task:
         $ref: "#/definitions/worker-action"
   worker-action:
@@ -225,7 +224,7 @@ definitions:
         type: string
         description: |
           External data can be associated with the job for use by other
-          components
+          components.
       createTime:
         type: string
         format: date-time
@@ -243,7 +242,7 @@ definitions:
       percentageComplete:
         type: number
         format: float
-        description: Gives an indication of the progress of the job
+        description: Gives an indication of the progress of the job.
       failures:
         type: array
         items:
