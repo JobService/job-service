@@ -1,26 +1,22 @@
 ---
 layout: default
 title: Features
-last_updated: Created and last modified by Conal Smith on June 14, 2016
+last_updated: Last modified by Frank Rovitto on July 5, 2016
 ---
 
 # Key Features
 
-## Workers Interaction
+## Worker Interaction
 
-The Job Service offers an easy and user friendly way to interact with workers and receive feedback about their progress processing tasks. Users do not have to concern themselves with the messaging framework used by the CAF Workers for communication.
-
-For example, users can send tasks to workers, see the progress of these tasks and even cancel them using the Job Service Web API.
+The Job Service offers an easy and user-friendly way to interact with workers and receive feedback about progress on their tasks. You do not have to concern yourself with the messaging framework used by the workers for communication. For example, you can send tasks to workers, see the progress of these tasks, and even cancel them using the Job Service web API.
 
 ## Large Batch Handling
 
-Large batches of work are split into smaller batches until individual items can be processed. These items can be processed in parallel vastly improving performance.
-
-For example, users can send a large batch of work to the Batch Worker which will split the work into small work items. These can then be sent to individual workers, while monitoring the entire batch of work.
+The Job Service splits large batches of work into smaller batches, until the individual items can be processed. The system can process these items in parallel, vastly improving performance. For example, you can send a large batch of work to the Batch Worker, which splits the work into small work items. These small work items are then sent to individual workers, while monitoring the entire batch of work.
 
 ## Elastic Scaling
 
-The process of batch splitting is scaled using the autoscaler. Sub-batches can be processed in parallel. Workers also scale up and down depending on the type of work to be performed on the item, making maximum use of the available resources.
+The process of batch splitting is scaled with the autoscaler. Sub-batches can be processed in parallel. Workers also scale up and down depending on the type of work to be performed on the item, which makes maximum use of the available resources.
 
 
 
