@@ -321,6 +321,10 @@
                                     <tag>latest</tag>
                                 </tags>
                                 <labels>
+                                    <Build.Number>${version.major.minor}</Build.Number>
+                                    <Build.Date>${maven.build.timestamp}</Build.Date>
+                                    <Git.Branch>${git.branch}</Git.Branch>
+                                    <Git.Commit>${git.revision}</Git.Commit>
                                     <caf.worker-framework.version>${caf.worker-framework.version}</caf.worker-framework.version>
                                     <caf.worker-queue.impl>${caf.worker-queue.impl}</caf.worker-queue.impl>
                                     <caf.worker-store.impl>${caf.worker-store.impl}</caf.worker-store.impl>
