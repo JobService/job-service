@@ -75,6 +75,12 @@
                                     <tag>${version.major.minor}</tag>
                                     <tag>latest</tag>
                                 </tags>
+                                <labels>
+                                    <Build.Number>${version.major.minor}</Build.Number>
+                                    <Build.Date>${maven.build.timestamp}</Build.Date>
+                                    <Git.Branch>${git.branch}</Git.Branch>
+                                    <Git.Commit>${git.revision}</Git.Commit>
+                                </labels>
                                 <assembly>
                                     <basedir>/</basedir>
                                     <inline>
