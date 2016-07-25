@@ -19,11 +19,6 @@
     <properties>
         <maven.install.skip>true</maven.install.skip>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <caf.worker-framework.version>10.10-SNAPSHOT</caf.worker-framework.version>
-        <caf.config.impl>config-file</caf.config.impl>
-        <caf.codec.impl>codec-json</caf.codec.impl>
-        <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
-        <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
         <datastore.container.id>2f0e1a924d954ed09966f91d726e4960</datastore.container.id>
         <job.database.name>jobservice</job.database.name>
         <job.database.host>jobtracking-integrationtests-postgres</job.database.host>
@@ -37,7 +32,7 @@
             <dependency>
                 <groupId>com.hpe.caf.worker</groupId>
                 <artifactId>worker-framework</artifactId>
-                <version>${caf.worker-framework.version}</version>
+                <version>10.10-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -53,11 +48,11 @@
         </dependency>
         <dependency>
             <groupId>com.hpe.caf.config</groupId>
-            <artifactId>${caf.config.impl}</artifactId>
+            <artifactId>config-file</artifactId>
         </dependency>
         <dependency>
             <groupId>com.hpe.caf.worker</groupId>
-            <artifactId>${caf.worker-store.impl}</artifactId>
+            <artifactId>worker-store-cs</artifactId>
         </dependency>
         <dependency>
             <groupId>com.hpe.caf.worker</groupId>
@@ -65,11 +60,11 @@
         </dependency>
         <dependency>
             <groupId>com.hpe.caf.worker</groupId>
-            <artifactId>${caf.worker-queue.impl}</artifactId>
+            <artifactId>worker-queue-rabbit</artifactId>
         </dependency>
         <dependency>
             <groupId>com.hpe.caf.codec</groupId>
-            <artifactId>${caf.codec.impl}</artifactId>
+            <artifactId>codec-json</artifactId>
         </dependency>
         <dependency>
             <groupId>com.hpe.caf.util</groupId>
