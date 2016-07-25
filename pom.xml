@@ -32,7 +32,7 @@
             <dependency>
                 <groupId>com.hpe.caf.worker</groupId>
                 <artifactId>worker-framework</artifactId>
-                <version>10.10-SNAPSHOT</version>
+                <version>10.13-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -73,7 +73,7 @@
         <dependency>
             <groupId>com.hpe.caf.worker.batch</groupId>
             <artifactId>worker-batch-test-plugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -83,18 +83,18 @@
         <dependency>
             <groupId>com.hpe.caf</groupId>
             <artifactId>job-service-client</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.hpe.caf.worker.batch</groupId>
             <artifactId>worker-batch-shared</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.hpe.caf.worker</groupId>
             <artifactId>worker-example-shared</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.hpe.caf.worker</groupId>
@@ -229,7 +229,7 @@
                                 <artifactItem>
                                     <groupId>com.hpe.caf.worker.batch</groupId>
                                     <artifactId>worker-batch-plugins-package</artifactId>
-                                    <version>1.0-SNAPSHOT</version>
+                                    <version>1.1-SNAPSHOT</version>
                                     <type>tar.gz</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/worker-batch-plugins-package-unpacked</outputDirectory>
@@ -347,7 +347,7 @@
                         <!-- Run jobservice db installer against PostgreSQL database to install jobservice schema -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.1-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.2-SNAPSHOT</name>
                             <run>
                                 <links>
                                     <link>${job.database.host}</link>
@@ -391,7 +391,7 @@
                         <!-- Run the Job Service -->
                         <image>
                             <alias>job-service</alias>
-                            <name>${docker.dev.repo}/caf/job-service:1.0-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/job-service:1.1-SNAPSHOT</name>
                             <run>
                                 <ports>
                                     <port>${jobservice.adminport}:8080</port>
@@ -435,7 +435,7 @@
                         <!-- Run Job Tracking worker -->
                         <image>
                             <alias>jobtracking-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-jobtracking:1.0-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/worker-jobtracking:1.8-SNAPSHOT</name>
                             <run>
                                 <ports>
                                     <port>${jobtracking-worker.adminport}:8081</port>
@@ -473,7 +473,7 @@
                         <!-- Run Batch worker -->
                         <image>
                             <alias>batch-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-batch:1.0-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/worker-batch:1.8-SNAPSHOT</name>
                             <run>
                                 <ports>
                                     <port>${batch-worker.adminport}:8081</port>
