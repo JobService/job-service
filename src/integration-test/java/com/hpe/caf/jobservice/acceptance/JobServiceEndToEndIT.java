@@ -101,6 +101,7 @@ public class JobServiceEndToEndIT {
 
         try (QueueManager queueManager = getFinalQueueManager()) {
             ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
             Timer timer = getTimer(context);
             Thread thread = queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context, expectation));
 
@@ -132,6 +133,7 @@ public class JobServiceEndToEndIT {
 
         try (QueueManager queueManager = getFinalQueueManager()) {
             ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
             Timer timer = getTimer(context);
             Thread thread = queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context, expectation));
 
