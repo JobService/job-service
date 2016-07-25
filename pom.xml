@@ -30,7 +30,6 @@
         <job.database.url>jdbc:postgresql://${job.database.host}:5432/${job.database.name}</job.database.url>
         <job.database.username>postgres</job.database.username>
         <job.database.password>root</job.database.password>
-        <test.data>${project.basedir}/test-data</test.data>
     </properties>
 
     <dependencyManagement>
