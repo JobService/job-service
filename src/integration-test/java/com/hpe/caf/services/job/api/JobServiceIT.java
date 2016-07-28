@@ -132,7 +132,9 @@ public class JobServiceIT {
 
         // Check if job is active.
         boolean isActive = jobsApi.getJobActive(jobId, jobCorrelationId);
-        Assert.assertFalse(isActive);
+
+        // Job will be in a 'Waiting' state, which is assumed as being Active.
+        Assert.assertTrue(isActive);
     }
 
     @Test
