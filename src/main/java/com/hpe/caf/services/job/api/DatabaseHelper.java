@@ -239,7 +239,7 @@ public final class DatabaseHelper {
 
         boolean active = false;
 
-        String rowExistsSQL = "select 1 as isActive from job where job_id = ? and status='Active'";
+        String rowExistsSQL = "select 1 as isActive from job where job_id = ? and status IN ('Active', 'Waiting')";
 
         try (
                 Connection conn = getConnection();
