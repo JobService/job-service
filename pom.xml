@@ -9,9 +9,9 @@
 
   <parent>
     <groupId>com.hpe.caf</groupId>
-    <artifactId>caf-latest-develop</artifactId>
+    <artifactId>caf-maven-latest</artifactId>
     <version>1-SNAPSHOT</version>
-    <relativePath>../caf-latest-develop</relativePath>
+    <relativePath>../caf-maven-latest</relativePath>
   </parent>
 
   <build>
@@ -141,10 +141,12 @@
     <dependency>
       <groupId>com.hpe.caf.util</groupId>
       <artifactId>util-moduleloader</artifactId>
+      <version>1.1</version>
     </dependency>
     <dependency>
       <groupId>com.hpe.caf.codec</groupId>
       <artifactId>codec-json</artifactId>
+      <version>10.1</version>
       <scope>runtime</scope>
     </dependency>
 
@@ -159,18 +161,22 @@
     <dependency>
       <groupId>com.hpe.caf</groupId>
       <artifactId>caf-api</artifactId>
+      <version>11.0</version>
     </dependency>
     <dependency>
       <groupId>com.hpe.caf</groupId>
       <artifactId>caf-configs</artifactId>
+      <version>10.0</version>
     </dependency>
     <dependency>
       <groupId>com.hpe.caf.worker</groupId>
       <artifactId>worker-queue-rabbit</artifactId>
+      <version>10.9</version>
     </dependency>
     <dependency>
       <groupId>com.hpe.caf.util</groupId>
       <artifactId>util-rabbitmq</artifactId>
+      <version>2.1</version>
     </dependency>
 
     <!-- Support for JSON in Response -->
