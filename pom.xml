@@ -347,7 +347,7 @@
                         <!-- Run jobservice db installer against PostgreSQL database to install jobservice schema -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.2-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.1</name>
                             <run>
                                 <links>
                                     <link>${job.database.host}</link>
@@ -391,7 +391,7 @@
                         <!-- Run the Job Service -->
                         <image>
                             <alias>job-service</alias>
-                            <name>${docker.dev.repo}/caf/job-service:1.1-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/job-service:1.1</name>
                             <run>
                                 <ports>
                                     <port>${jobservice.adminport}:8080</port>
@@ -435,7 +435,7 @@
                         <!-- Run Job Tracking worker -->
                         <image>
                             <alias>jobtracking-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-jobtracking:1.8-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/worker-jobtracking:1.7</name>
                             <run>
                                 <ports>
                                     <port>${jobtracking-worker.adminport}:8081</port>
@@ -473,7 +473,7 @@
                         <!-- Run Batch worker -->
                         <image>
                             <alias>batch-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-batch:1.8-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/worker-batch:1.7</name>
                             <run>
                                 <ports>
                                     <port>${batch-worker.adminport}:8081</port>
