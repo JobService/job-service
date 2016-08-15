@@ -1,7 +1,6 @@
 ---
 layout: default
 title: CAF Job Service Overview
-last_updated: Created and last modified by Conal Smith on June 14, 2016
 ---
 
 # Overview
@@ -16,11 +15,11 @@ The Worker Framework provides many different types of workers, but they all perf
 ## Job Service Web API
 The Job Service web API is the RESTful web service acting as the main entry point for sending operations to workers, checking on the progress of these operations, and even allowing cancellation of these operations. The service adds job entries to the Job Service database table, which is then updated by the job tracking worker.
 
-To see the web methods in the Job Service web API, see [API](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/API.md).
+To see the web methods in the Job Service web API, see [API](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/API.md).
 
-For more details on the architecture of the Job Service web API, see [Architecture](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Architecture.md).
+For more details on the architecture of the Job Service web API, see [Architecture](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Architecture.md).
 
-For instructions on deploying and using the Job Service web API, see [Getting Started](https://github.hpe.com/caf/job-service-container/blob/develop/docs/en-us/Getting-Started.md).
+For instructions on deploying and using the Job Service web API, see [Getting Started](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Getting-Started.md).
 
 ### Batch Worker
 The Job Service works in conjunction with any worker from the Worker Framework, but the batch worker is the key worker most often controlled by the Job Service.
