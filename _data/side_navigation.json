@@ -5,6 +5,14 @@
         },
         "children": [{
             "title": {
+                "en-us": "Overview"
+            },
+            "url": {
+                "en-us": "pages/en-us/Overview"
+            }
+        },
+		{
+            "title": {
                 "en-us": "Features"
             },
             "url": {
