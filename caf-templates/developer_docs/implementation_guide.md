@@ -6,7 +6,7 @@ The documentation site is a Jekyll project consisting of HPE themed layouts and 
 
 Using these layouts will provide a consistent user experience across all services.
 
-To incorporate the documentation into your project create a documentation folder in your repository. This will contain all files required to build your Jekyll site.
+To incorporate the documentation into your project create a `docs` folder in your repository. This will contain all files required to build your Jekyll site.
 
 Each service's documentation should be accessible from both the GitHub site and the site hosted in the gh-pages branch of the repository.
 
@@ -253,6 +253,8 @@ To create our site we need to add a `_config.yml` file to the documentation dire
 
     layouts_dir:  caf-templates/_layouts
     includes_dir: caf-templates/_includes
+    sass:
+        sass_dir: caf-templates/_sass
 
     # paginate: 5
     # paginate_path: "/pages/en-us/blog/page:num/"
@@ -336,10 +338,10 @@ Add the following files to the `_data` directory and update the values to reflec
     {
         "navigation_items": [{
             "title": {
-                "en-us": "Blog"
+                "en-us": "Contribute"
             },
             "url": {
-                "en-us": "pages/en-us/blog/index"
+                "en-us": "pages/en-us/contribute"
             }
         }],
         "feedback_url": ""

@@ -17,3 +17,6 @@ includes_dir: caf-templates/_includes
 
 paginate: 5
 paginate_path: "/pages/en-us/blog/page:num/"
+
+sass:
+    sass_dir: caf-templates/_sass
