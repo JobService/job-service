@@ -2,4 +2,7 @@
 **/dependency-reduced-pom.xml
 **/*.bak
 **/target/
-**/.idea/
+/target/
+.idea/
+documentation/_site/
+documentation/node_modules/ 
