@@ -17,7 +17,6 @@
     </parent>
 
     <properties>
-        <job-service.container.name>${docker.dev.repo}/caf/job-service:${project.version}</job-service.container.name>
         <tomcatBaseImage>tomcat:jre8</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
@@ -340,11 +339,12 @@
                         </image>
                         <image>
                             <alias>job-service</alias>
-                            <name>${job-service.container.name}</name>
+                            <name>${docker.dev.repo}/caf/job-service:${project.version}</name>
                             <build>
                                 <maintainer>conal.smith@hpe.com</maintainer>
                                 <from>${tomcatBaseImage}</from>
                                 <labels>
+                                    <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
                                     <Git.Branch>${git.branch}</Git.Branch>
                                     <Git.Commit>${git.revision}</Git.Commit>
