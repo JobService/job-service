@@ -7,7 +7,7 @@
     <groupId>com.hpe.caf</groupId>
     <artifactId>job-service-container</artifactId>
     <packaging>pom</packaging>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     
     <parent>
         <groupId>com.hpe.caf</groupId>
@@ -18,8 +18,6 @@
 
     <properties>
         <job-service.container.name>${docker.dev.repo}/caf/job-service:${project.version}</job-service.container.name>
-        <version.major>1-SNAPSHOT</version.major>
-        <version.major.minor>${project.version}</version.major.minor>
         <tomcatBaseImage>tomcat:jre8</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
@@ -346,13 +344,7 @@
                             <build>
                                 <maintainer>conal.smith@hpe.com</maintainer>
                                 <from>${tomcatBaseImage}</from>
-                                <tags>
-                                    <tag>${version.major}</tag>
-                                    <tag>${version.major.minor}</tag>
-                                    <tag>latest</tag>
-                                </tags>
                                 <labels>
-                                    <Build.Number>${version.major.minor}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
                                     <Git.Branch>${git.branch}</Git.Branch>
                                     <Git.Commit>${git.revision}</Git.Commit>
