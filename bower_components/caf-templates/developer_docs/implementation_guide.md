@@ -48,21 +48,14 @@ Next, create a .bowerrc file in the documentation folder with the following cont
         },
         "resolvers": [
             "bower-art-resolver"
-        ],
-        "directory": "."
+        ]
     }
-
-You should then create a bower.json file to contain information on the project along with any dependencies bower should download for you. 
-Use the following command to make bower step you through the process:
-
-    bower init
 
 #### Getting the Templates
 
-Navigate to the documentation directory using the Command Prompt. We can now use Bower to download the Jekyll templates and add 
-this as a dependency to our bower json file.
+Navigate to the documentation directory using the Command Prompt. We can now use Bower to download the Jekyll package.
 
-	bower install caf-templates --save
+	bower install caf-templates --config.directory=.
 
 ### Installing Jekyll and its Dependencies
 
@@ -179,7 +172,7 @@ Grunt tasks are configured in the Gruntfile.js file which can should also be add
                 build: {
                     options: {
                         serve: false,
-                        incremental: false,
+                        incremental: true,
                         watch: false,
                         config: '_config.yml',
                         bundleExec: true
@@ -188,7 +181,7 @@ Grunt tasks are configured in the Gruntfile.js file which can should also be add
                 serve: {
                     options: {
                         serve: true,
-                        incremental: false,
+                        incremental: true,
                         watch: true,
                         baseurl: '/documentation',
                         config: '_config.yml',
@@ -198,9 +191,8 @@ Grunt tasks are configured in the Gruntfile.js file which can should also be add
                 }
             },
             exec: {
-                bower_install: 'bower install',
-                bower_uninstall: 'bower uninstall caf-templates',
-                bower_clean: 'bower cache clean'
+                bower_install: 'bower install caf-templates --config.directory=.',
+                bower_uninstall: 'bower uninstall caf-templates --config.directory=.'
             },
             buildcontrol: {
                 options: {
@@ -229,9 +221,9 @@ Grunt tasks are configured in the Gruntfile.js file which can should also be add
 
         grunt.registerTask('build', ['jekyll:build']);
         grunt.registerTask('serve', ['jekyll:serve']);
-        grunt.registerTask('update', ['exec:bower_uninstall', 'exec:bower_clean', 'exec:bower_install']);
+        grunt.registerTask('update', ['exec:bower_uninstall', 'exec:bower_install']);
 
-        grunt.registerTask('publish', ['exec:bower_uninstall', 'exec:bower_clean', 'exec:bower_install', 'buildcontrol:pages']);
+        grunt.registerTask('publish', ['buildcontrol:pages']);
     };
 
 
@@ -249,7 +241,7 @@ To create our site we need to add a `_config.yml` file to the documentation dire
     email: caf@hpe.com
 
     description: My Service Description
-    baseurl: "/documentation"
+    baseurl: "https://pages.github.hpe.com/caf/elements"
 
     # Build settings
     exclude: ['node_modules']
@@ -272,23 +264,8 @@ The `baseurl` property should also be updated with the url that you site will be
 
 #### Configuring .gitignore
 
-You should add a `.gitignore` file to both the root repository folder to exclude the following files and folders:
-
--   docs/node_modules
--   docs/_site
--   docs/.sass-cache
--   docs/.jekyll-metadata
--   docs/Gemfile.lock
--   docs/caf-templates
-
-You should also add a `.gitignore` file to the `docs` folder to exclude the following files and folders:
-
--   node_modules
--   _site
--   .sass-cache
--   .jekyll-metadata
--   Gemfile.lock
-
+You should add a `.gitignore` file to both the root repository folder and the documentation folder to exclude the `node_modules` folder and the `_site` folders 
+from being pushed to the repository.
 
 #### Setting Up Navigation
 
@@ -573,8 +550,6 @@ Page content goes here.
 
 Additionally, you should grant the documentation team access so they can make changes directly and submit pull requests. This can be achieved by going to the Settings area of your repository on GitHub. Under the Collaborators section you can grant access to users by entering their username, full name or email address.
 
-**Note:** If you are migrating from the old documentation site you can simply add your existing markdown files to the `pages` -> `en-us` folder to provide the content for the site.
-
 ### Testing Documentation
 
 Testing the documentation site before publishing will help identify any errors. The Command Prompt output when running on a local machine is more helpful than the error messages GitHub provides when building the documentation fails.
@@ -597,8 +572,6 @@ There is an addition grunt task to update the template files to the latest versi
 For each release of your service the latest documentation should be published to gh-pages making it accessible to visitors of your documentation web site. 
 
 During the release process `grunt publish` will update the template files to the latest version, build your documentation and push it into your repositories gh-pages branch. Before publishing new documentation your build job must preserve the previous version of the documentation in a folder within gh-pages named vMajor.Minor.Patch, where Major Minor and Patch are placed with the previous versions numbers.
-
-GitHub will automatically assign your documentation site a pages.github.hpe.com/caf/repository-name domain once a gh-pages branch is created.
 
 Before publishing documentation ensure that the site has been configured correctly. A configuration file called `_config.yml` will need to have the `baseurl` property set correctly. It should be set to the url your GitHub pages site will be located at, eg:
 
@@ -636,7 +609,6 @@ This can be seen below:
 layout: landing
 
 logo: assets/img/caflogo.png
-background_image: assets/img/landing_4.jpg
 title: Common Application Framework <br><small>from the Big Data group at Hewlett Packard Enterprise</small>
 slogan: The Microservices based solution to your Big Data Analytics problems the <br>Common Application Framework accelerates time to value.
 button:
