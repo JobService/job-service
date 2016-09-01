@@ -4,5 +4,9 @@
 **/target/
 /target/
 .idea/
-documentation/_site/
-documentation/node_modules/ 
+docs/_site
+docs/node_modules
+docs/.sass-cache
+docs/.jekyll-metadata
+docs/Gemfile.lock
+docs/caf-templates

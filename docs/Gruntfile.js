@@ -5,7 +5,7 @@ module.exports = function(grunt) {
             build: {
                 options: {
                     serve: false,
-                    incremental: true,
+                    incremental: false,
                     watch: false,
                     config: '_config.yml',
                     bundleExec: true
@@ -14,7 +14,7 @@ module.exports = function(grunt) {
             serve: {
                 options: {
                     serve: true,
-                    incremental: true,
+                    incremental: false,
                     watch: true,
                     baseurl: '/documentation',
                     config: '_config.yml',
