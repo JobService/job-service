@@ -12,12 +12,10 @@
 
     <groupId>com.hpe.caf.worker</groupId>
     <artifactId>worker-jobtracking-container</artifactId>
-    <version>1.8-SNAPSHOT</version>
+    <version>1.8.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
-        <version.major>1-SNAPSHOT</version.major>
-        <version.major.minor>${project.version}</version.major.minor>
         <caf.worker-framework.version>10.12-SNAPSHOT</caf.worker-framework.version>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
@@ -315,13 +313,8 @@
                             <name>${worker-jobtracking.container.name}</name>
                             <build>
                                 <from>java:8</from>
-                                <tags>
-                                    <tag>${version.major}</tag>
-                                    <tag>${version.major.minor}</tag>
-                                    <tag>latest</tag>
-                                </tags>
                                 <labels>
-                                    <Build.Number>${version.major.minor}</Build.Number>
+                                    <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
                                     <Git.Branch>${git.branch}</Git.Branch>
                                     <Git.Commit>${git.revision}</Git.Commit>
@@ -479,7 +472,7 @@
             <id>store-fs</id>
             <properties>
                 <caf.worker-store.impl>worker-store-fs</caf.worker-store.impl>
-                <worker-jobtracking.container.name>${docker.dev.repo}/caf/worker-jobtracking-fs</worker-jobtracking.container.name>
+                <worker-jobtracking.container.name>${docker.dev.repo}/caf/worker-jobtracking-fs:${project.version}</worker-jobtracking.container.name>
             </properties>
         </profile>
 
@@ -494,7 +487,7 @@
             </activation>
             <properties>
                 <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
-                <worker-jobtracking.container.name>${docker.dev.repo}/caf/worker-jobtracking</worker-jobtracking.container.name>
+                <worker-jobtracking.container.name>${docker.dev.repo}/caf/worker-jobtracking:${project.version}</worker-jobtracking.container.name>
                 <datastore.container.id>2f0e1a924d954ed09966f91d726e4960</datastore.container.id>
             </properties>
         </profile>
