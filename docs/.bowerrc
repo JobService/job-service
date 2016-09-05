@@ -7,5 +7,6 @@
     },
     "resolvers": [
         "bower-art-resolver"
-    ]
+    ],
+    "directory": "."
 }

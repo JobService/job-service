@@ -24,8 +24,9 @@ module.exports = function(grunt) {
             }
         },
         exec: {
-            bower_install: 'bower install caf-templates --config.directory=.',
-            bower_uninstall: 'bower uninstall caf-templates --config.directory=.'
+            bower_install: 'bower install',
+            bower_uninstall: 'bower uninstall caf-templates',
+            bower_clean: 'bower cache clean'
         },
         buildcontrol: {
             options: {
@@ -54,7 +55,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', ['jekyll:build']);
     grunt.registerTask('serve', ['jekyll:serve']);
-    grunt.registerTask('update', ['exec:bower_uninstall', 'exec:bower_install']);
+    grunt.registerTask('update', ['exec:bower_uninstall', 'exec:bower_clean', 'exec:bower_install']);
 
-    grunt.registerTask('publish', ['buildcontrol:pages']);
+    grunt.registerTask('publish', ['exec:bower_uninstall', 'exec:bower_clean', 'exec:bower_install', 'buildcontrol:pages']);
 };
