@@ -14,6 +14,9 @@
           <h3 class="slogan">{{ page.slogan }}</h3>
           <br>
           <a class="btn button-primary download-caf" href="{{ page.button.url }}">{{ page.button.title }}</a>
+          {% if site.version %}
+          <p class="version">Currently v{{ site.version }}</p>
+          {% endif %}
       </div>
   </div>
 

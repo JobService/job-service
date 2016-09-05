@@ -247,6 +247,7 @@ To create our site we need to add a `_config.yml` file to the documentation dire
 
     title: My Service
     email: caf@hpe.com
+    version: 1.0.0
 
     description: My Service Description
     baseurl: "/documentation"

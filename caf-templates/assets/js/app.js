@@ -4,6 +4,7 @@
 (function() {
     angular.module('caf', ['hpe.elements', 'RecursionHelper', 'mohsen1.schema-form', 'hc.marked']);
     angular.module('caf').directive('markdownify', markdownify);
+    angular.module('caf').directive('table', table);
     angular.module('caf').directive('headerScroll', headerScroll);
     angular.module('caf').directive('hoverTooltip', hoverTooltip);
     angular.module('caf').directive('collapseButton', collapseButton);
@@ -16,6 +17,38 @@
     angular.module('caf').directive('collapsiblePanel', collapsiblePanel);
     angular.module('caf').directive('ngHrefBind', ngHrefBind);
     angular.module('caf').directive('defaultUrl', defaultUrl);
+
+    /*
+        Automatically style tables
+    */
+    function table() {
+        return {
+            restrict: 'E',
+            link: function(scope, element) {
+                // get the native element
+                var nativeElement = element.get(0);
+
+                // check if element has table class already
+                if(nativeElement.classList.contains('table')) return;
+
+                // iterate each parent element
+                var parent = nativeElement.parentElement;
+
+                // check each parent to see if they have the swagger-container class
+                while(parent) {
+
+                    // if has class then stop here
+                    if(parent.classList.contains('swagger-container')) return;
+
+                    // check parent element
+                    parent = parent.parentElement;
+                }
+
+                // if we get this far it is not in the swagger container - so add the class
+                nativeElement.classList.add('table');
+            }
+        };
+    }
 
     defaultUrl.$inject = ['$parse', '$localize'];
     function defaultUrl($parse, $localize) {
