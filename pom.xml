@@ -508,7 +508,7 @@
                         <!-- Run Example worker -->
                         <image>
                             <alias>example-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-example:1.0-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/worker-example:1.0.0-SNAPSHOT</name>
                             <run>
                                 <ports>
                                     <port>${example-worker.adminport}:8081</port>
