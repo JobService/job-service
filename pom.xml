@@ -19,7 +19,7 @@
     <properties>
         <maven.install.skip>true</maven.install.skip>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <datastore.container.id>2f0e1a924d954ed09966f91d726e4960</datastore.container.id>
+        <datastore.container.id>66d1c33ec8c74fee99d207e7521a93ec</datastore.container.id>
         <job.database.name>jobservice</job.database.name>
         <job.database.host>jobtracking-integrationtests-postgres</job.database.host>
         <job.database.url>jdbc:postgresql://${job.database.host}:5432/${job.database.name}</job.database.url>
