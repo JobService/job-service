@@ -488,7 +488,7 @@
             <properties>
                 <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
                 <worker-jobtracking.container.name>${docker.dev.repo}/caf/worker-jobtracking:${project.version}</worker-jobtracking.container.name>
-                <datastore.container.id>2f0e1a924d954ed09966f91d726e4960</datastore.container.id>
+                <datastore.container.id>66d1c33ec8c74fee99d207e7521a93ec</datastore.container.id>
             </properties>
         </profile>
     </profiles>
