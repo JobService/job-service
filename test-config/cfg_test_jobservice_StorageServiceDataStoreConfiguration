@@ -4,8 +4,8 @@
         "authenticationConfiguration": {
             "serverName": "a1-dev-hap012.lab.lynx-connected.com",
              "port": 8443,
-             "userName": "caf_store_bfs@groups.int.hpe.com",
-             "password": "Password1",
+             "userName": "caf_store_bfs2@groups.ext.hpe.com",
+             "password": "Password1@",
              "clientName": "direct-grant-client",
              "clientSecret": "34a868ed-b2a3-4433-bca3-d60cabcd79df",
              "realm": "caf"
