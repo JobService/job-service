@@ -11,7 +11,7 @@ button:
 
 features:
     title: About Job Service
-    subtitle: The Job Service is a RESTful web service that makes it easy for you to use and receive feedback from Worker Framework miscroservices (workers).
+    subtitle: The Job Service is a RESTful web service that makes it easy for you to use and receive feedback from Worker Framework microservices (workers).
     feature_list:
         - icon: hpe-user-worker 
           title: Worker Interaction
