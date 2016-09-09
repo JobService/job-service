@@ -17,6 +17,36 @@
     angular.module('caf').directive('collapsiblePanel', collapsiblePanel);
     angular.module('caf').directive('ngHrefBind', ngHrefBind);
     angular.module('caf').directive('defaultUrl', defaultUrl);
+    angular.module('caf').directive('openLink', openLink);
+
+
+    function openLink() {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs) {
+                // get the target url
+                var url = attrs.openLink;
+
+                element.click(openNewTab);
+
+                function openNewTab() {
+                    var anchor = document.createElement('a');
+                    anchor.setAttribute('href', url);
+                    
+                    if(url && url.toLowerCase().indexOf('mailto') !== 0) {
+                        anchor.setAttribute('target', '_blank');
+                    }
+
+                    anchor.style.display = 'none';
+                    document.body.appendChild(anchor);
+
+                    anchor.click();
+
+                    document.body.removeChild(anchor);
+                }
+            }
+        };
+    }
 
     /*
         Automatically style tables
@@ -29,16 +59,16 @@
                 var nativeElement = element.get(0);
 
                 // check if element has table class already
-                if(nativeElement.classList.contains('table')) return;
+                if (nativeElement.classList.contains('table')) return;
 
                 // iterate each parent element
                 var parent = nativeElement.parentElement;
 
                 // check each parent to see if they have the swagger-container class
-                while(parent) {
+                while (parent) {
 
                     // if has class then stop here
-                    if(parent.classList.contains('swagger-container')) return;
+                    if (parent.classList.contains('swagger-container')) return;
 
                     // check parent element
                     parent = parent.parentElement;
@@ -51,30 +81,31 @@
     }
 
     defaultUrl.$inject = ['$parse', '$localize'];
+
     function defaultUrl($parse, $localize) {
         return {
             restrict: 'A',
             link: function(scope, element, attrs) {
 
                 // ensure a url has been provided
-                if(!attrs.defaultUrl || attrs.defaultUrl === null) return;
+                if (!attrs.defaultUrl || attrs.defaultUrl === null) return;
 
                 // get the default url
                 var url = $parse(attrs.defaultUrl)(scope);
 
                 // if no url then stop here
-                if(!url) return;
+                if (!url) return;
 
                 // get selected language if available
                 var selected_language = $localize.getSelectedLanguage();
 
-                if(url.hasOwnProperty(selected_language)) {
+                if (url.hasOwnProperty(selected_language)) {
                     element.attr('href', baseUrl + '/' + url[selected_language]);
                 } else {
                     // get the default language
                     var default_language = $localize.getDefaultLanguage();
 
-                    element.attr('href', baseUrl + '/' + url[default_language]);                    
+                    element.attr('href', baseUrl + '/' + url[default_language]);
                 }
             }
         };
@@ -267,7 +298,7 @@
                         return matching_url;
                     });
 
-                    
+
                     //if no matching menu item was found then stop here
                     if (!selectedItem || selectedItem.length === 0) {
                         return;
