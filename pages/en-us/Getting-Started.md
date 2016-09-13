@@ -107,10 +107,11 @@ Add a job with the new job body following this template:
   "task": {
     "taskClassifier": "BatchWorker",
     "taskApiVersion": 1,
-    "taskData": "{\"batchDefinition\":\"[\\\"2f0e1a924d954ed09966f91d726e4960/fda3cf959a1d456b8d54800ba9e9b2f5\\\",\\\"02f0e1a924d954ed09966f91d726e4960/fda3cf959a1d456b8d54800ba9e9b2f5\\\"]\",\"batchType\":\"AssetIdBatchPlugin\",\"taskMessageType\":\"ExampleWorkerTaskBuilder\",\"taskMessageParams\":{\"datastorePartialReference\":\"2f0e1a924d954ed09966f91d726e4960\",\"action\":\"REVERSE\"},\"targetPipe\":\"demo-example-in\"}",
+    "taskData": "{\"batchDefinition\":\"[\\\"2f0e1a924d954ed09966f91d726e4960/fda3cf959a1d456b8d54800ba9e9b2f5\\\",\\\"02f0e1a924d954ed09966f91d726e4960/fda3cf959a1d456b8d54800ba9e9b2f5\\\"]\",\"batchType\":\"AssetIdBatchPlugin\",\"taskMessageType\":\"ExampleWorkerTaskBuilder\",\"taskMessageParams\":{\"datastorePartialReference\":\"2f0e1a924d954ed09966f91d726e4960\",\"action\":\"REVERSE\"},\"targetPipe\":\"dataprocessing-example-in\"}",
     "taskDataEncoding": "utf8",
-    "taskPipe": "demo-batch-in",
-    "targetPipe": "demo-example-out"
+    "taskPipe": "dataprocessing-batch-in",
+    "targetPipe": "dataprocessing-example-out"
+    
   }
 }
 ```
@@ -120,8 +121,8 @@ Note the following:
 * `TaskClassifier` must be set to `BatchWorker` as you are sending the job to the batch worker.
 * Set the `taskApiVersion` to 1.
 * For the `taskData`, we are adding a batch definition with a storage reference and the `datastorePartialReference` is the container ID. This storage reference is the reference to the dummy data stored using document generator.
-* Set `taskPipe` to the queue consumed by the first worker to which you want to send the work, in this case, the batch worker `demo-batch-in`. The batch can then be broken down into task items.
-* Set `targetPipe` to the name of the final worker where tracking will stop, in this case, `demo-example-out`.
+* Set `taskPipe` to the queue consumed by the first worker to which you want to send the work, in this case, the batch worker `dataprocessing-batch-in`. The batch can then be broken down into task items.
+* Set `targetPipe` to the name of the final worker where tracking will stop, in this case, `dataprocessing-example-out`.
 
 ### Verification of correct setup
 
