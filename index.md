@@ -3,7 +3,7 @@ layout: landing
 
 logo: assets/img/caflogo.png
 background_image: assets/img/landing_4.jpg
-title: Job Service <br><small>from the Big Data group at Hewlett Packard Enterprise</small>
+title: Job Service <br><small>From the Information Management and Governance Research and Development Team at Hewlett Packard Enterprise</small>
 slogan: Create, retrieve, update, cancel and check <br> the status of your jobs.
 button:
     title: Learn More
