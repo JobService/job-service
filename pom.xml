@@ -23,7 +23,7 @@
         <deployFileUrl>${project.distributionManagement.snapshotRepository.url}</deployFileUrl>
         <repositoryId>${project.distributionManagement.snapshotRepository.id}</repositoryId>
         <job-service.version>1.1-SNAPSHOT</job-service.version>
-        <job-service-client.version>1.1-SNAPSHOT</job-service-client.version>
+        <job-service-client.version>1.1.0-SNAPSHOT</job-service-client.version>
         <job-service-ui.version>1.1-SNAPSHOT</job-service-ui.version>
         <job-service-db-installer.version>1.1-SNAPSHOT</job-service-db-installer.version>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
