@@ -28,7 +28,7 @@
         <job-service-db-installer.version>1.1-SNAPSHOT</job-service-db-installer.version>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
         <db.name>jobservice</db.name>
-        <docker.dev.repo>rh7-artifactory.hpswlabs.hp.com:8443</docker.dev.repo>
+        <docker.dev.repo>rh7-artifactory.svs.hpeswlab.net:8443</docker.dev.repo>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
