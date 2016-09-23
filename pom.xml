@@ -11,7 +11,7 @@
 
     <groupId>com.hpe.caf.worker</groupId>
     <artifactId>worker-jobtracking</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
