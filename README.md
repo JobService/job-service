@@ -21,7 +21,7 @@ This is available as a Docker container - see [job-service-db-container](https:/
 
 With PostgreSQL 9.4 or later installed and configured, pull the installer image from artifactory using:
 
-	docker pull rh7-artifactory.hpswlabs.hp.com:8443/caf/job-service-db-installer:1.1
+	docker pull rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-db-installer:1.1
 
 then run the image using:
 
