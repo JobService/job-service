@@ -43,7 +43,7 @@ Next, create a .bowerrc file in the documentation folder with the following cont
         "registry":
         {
             "search": [
-                "http://rh7-artifactory.hpswlabs.hp.com:8081/artifactory/api/bower/bower-virtual"
+                "http://rh7-artifactory.svs.hpeswlab.net:8081/artifactory/api/bower/bower-virtual"
             ]
         },
         "resolvers": [
