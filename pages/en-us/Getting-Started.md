@@ -91,7 +91,7 @@ The figure shows you the health of the workers and services:
 
 ![Marathon Health](images/MarathonAllHealthy.png)
 
-You also need dummy data in a datastore and a storage reference to this data. Dummy data can be uploaded from the document-generator. For more information on using the document generator, see the README.md.
+You also need dummy data in a datastore and a storage reference to this data. Dummy data can be uploaded from the document-generator. For more information on using the document generator, see the [README.md](https://github.hpe.com/caf/policy-worker/blob/develop/PolicyWorkerDocumentGenerator/README.md).
 
 ### Send a Job
 
