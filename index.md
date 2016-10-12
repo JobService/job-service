@@ -32,8 +32,8 @@ social:
           title: Twitter
           subtitle: Follow us on Twitter to keep up with the latest news and updates from the team or to get in touch with us!
           link:
-            title: '@caf'
-            url: http://twitter.com
+            title: '@caf_jobservice'
+            url: https://twitter.com/caf_jobservice
         - icon: hpe-social-github
           title: GitHub
           subtitle: Fork Job Service on GitHub and submit a pull request to help contribute to the project! Or if you have discovered an issue, report it to us.
