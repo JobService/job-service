@@ -15,3 +15,6 @@ The supplied Marathon [properties](https://github.hpe.com/caf/chateau/blob/devel
 [Features](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Features.md)
 
 [Architecture](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Architecture.md)
+
+## Feature Testing
+The testing for Job Service is defined [here](testcases)
