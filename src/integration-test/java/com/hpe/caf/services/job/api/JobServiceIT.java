@@ -12,9 +12,6 @@ import com.hpe.caf.services.job.client.model.NewJob;
 import com.hpe.caf.services.job.client.model.WorkerAction;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -24,11 +21,16 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
+import org.testng.annotations.Listeners;
+import org.testng.annotations.BeforeTest;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * Integration tests for the functionality of the Job Service.
  * (Not an end to end integration test.)
  */
+@Listeners({com.hpe.test.framework.listeners.TestNG_SQLReporter.class})
 public class JobServiceIT {
 
     private String connectionString;
@@ -44,7 +46,7 @@ public class JobServiceIT {
     private static final long defaultTimeOutMs = 120000; // 2 minutes
 
 
-    @Before
+    @BeforeTest
     public void setup() throws Exception {
         projectId = UUID.randomUUID().toString();
         connectionString = System.getenv("webserviceurl");
