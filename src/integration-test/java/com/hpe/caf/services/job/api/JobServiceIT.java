@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  * Integration tests for the functionality of the Job Service.
  * (Not an end to end integration test.)
  */
-@Listeners({com.hpe.test.framework.listeners.TestNG_SQLReporter.class})
+@Listeners({com.hpe.qa.test.framework.listeners.testng_sqlreporter.class})
 public class JobServiceIT {
 
     private String connectionString;
