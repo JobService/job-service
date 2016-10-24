@@ -176,7 +176,7 @@
                                 </Property>
                                 <Property>
                                     <key>kafka-istf.producer.TopicName</key>
-                                    <value>ISTFTest</value>
+                                    <value>JobService</value>
                                 </Property>
                             </systemProperties>
                         </configuration>
