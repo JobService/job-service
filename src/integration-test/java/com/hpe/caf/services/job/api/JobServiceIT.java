@@ -21,7 +21,6 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
-import org.testng.annotations.Listeners;
 import org.testng.annotations.BeforeTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -30,7 +29,6 @@ import org.testng.annotations.Test;
  * Integration tests for the functionality of the Job Service.
  * (Not an end to end integration test.)
  */
-@Listeners({com.hpe.qa.test.framework.listeners.testng_sqlreporter.class})
 public class JobServiceIT {
 
     private String connectionString;

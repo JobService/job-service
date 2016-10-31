@@ -34,6 +34,7 @@
         <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
         <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
+        <istfTopicName>JobService</istfTopicName>
     </properties>
 
     <dependencies>
@@ -108,14 +109,6 @@
             <version>10.6</version>
             <scope>test</scope>
         </dependency>
-
-        <!--ISTF Dependencies-->
-        <dependency>
-            <groupId>com.hpe.qa.test.framework.listeners</groupId>
-            <artifactId>testng_sqlreporter</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <profiles>
@@ -150,43 +143,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.5.0</version>
-                        <executions>
-                            <execution>
-                                <id>istf-report-upload</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>java</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <mainClass>com.mapr.istf.CreateJsonTestCase</mainClass>
-                            <includeProjectDependencies>false</includeProjectDependencies>
-                            <includePluginDependencies>true</includePluginDependencies>
-                            <cleanupDaemonThreads>false</cleanupDaemonThreads>
-                            <systemProperties>
-                                <Property>
-                                    <key>kafka-istf.database.SourceDatabase</key>
-                                    <value>target/failsafe-reports/Reports.dat</value>
-                                </Property>
-                                <Property>
-                                    <key>kafka-istf.producer.TopicName</key>
-                                    <value>JobService</value>
-                                </Property>
-                            </systemProperties>
-                        </configuration>
-                        <dependencies> 
-                            <dependency>
-                                <groupId>com.hpe.caf.istf</groupId>
-                                <artifactId>caf-kafka-istf</artifactId>
-                                <version>2.1.0-SNAPSHOT</version>
-                            </dependency>
-                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
@@ -261,10 +217,6 @@
                         <docker.host.address>${docker.host.address}</docker.host.address>
                         <rabbitmq.node.port>${rabbitmq.node.port}</rabbitmq.node.port>
                         <rabbitmq.ctrl.port>${rabbitmq.ctrl.port}</rabbitmq.ctrl.port>
-                        <ProductName>job-service</ProductName>
-                        <BuildID>job-service:${project.version}::${git.branch}::${git.shortRevision}::${maven.build.timestamp}</BuildID> 
-                        <ProductVersion>${project.version}</ProductVersion>
-                        <ProductGUID>1</ProductGUID>
                     </systemPropertyVariables>
                     <environmentVariables>
                         <CAF_APPNAME>test/jobservice</CAF_APPNAME>
