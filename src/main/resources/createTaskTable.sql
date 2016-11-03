@@ -30,12 +30,12 @@ BEGIN
 
   -- Create indexes.
   v_index_name = 'idx_' || in_table_name || '_s';
-  IF (SELECT to_regclass(v_index_name::cstring)) IS NULL THEN
+  IF (SELECT to_regclass(format('%I', v_index_name)::cstring)) IS NULL THEN
     EXECUTE format('CREATE INDEX %1$I ON %2$I (%3$I)',v_index_name, in_table_name, 'status');
   END IF;
 
   v_index_name = 'idx_' || in_table_name || '_if';
-  IF (SELECT to_regclass(v_index_name::cstring)) IS NULL THEN
+  IF (SELECT to_regclass(format('%I', v_index_name)::cstring)) IS NULL THEN
     EXECUTE format('CREATE INDEX %1$I ON %2$I (%3$I)',v_index_name, in_table_name, 'is_final');
   END IF;
 
