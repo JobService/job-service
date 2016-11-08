@@ -100,7 +100,6 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
         verifyJobActive(resultMessage);
         Job job = jobsApi.getJob(expectation.getJobId(), expectation.getCorrelationId());
         verifyJobStatus(resultMessage, job);
-        verifyJobPercentageComplete(resultMessage, job);
         verifyJobFailures(resultMessage, job);
     }
 
@@ -115,14 +114,6 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
     private void verifyJobStatus(final TaskMessage resultMessage, final Job job) throws ApiException {
         assertEqual("job status", getCurrentMessageExpectedJobStatus().toString(), job.getStatus().toString(), resultMessage);
     }
-
-
-    private void verifyJobPercentageComplete(final TaskMessage resultMessage, final Job job) throws ApiException {
-        int percentageComplete = Math.round(job.getPercentageComplete());
-        int expectedPercentageComplete = Math.round((currentWorkerItemNumber * 100) / (float)expectedWorkerItems.size());
-        assertEqual("percentage completion", String.valueOf(expectedPercentageComplete), String.valueOf(percentageComplete), resultMessage);
-    }
-
 
     private void verifyJobFailures(final TaskMessage resultMessage, final Job job) throws ApiException {
         int numFailures = job.getFailures().size();
