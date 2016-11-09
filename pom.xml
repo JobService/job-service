@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>caf-maven-latest</artifactId>
-        <groupId>com.hpe.caf</groupId>
-        <version>1-SNAPSHOT</version>
-        <relativePath>../caf-maven-latest/pom.xml</relativePath>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>com.github.cafapi</groupId>
+        <artifactId>caf-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath />
+    </parent>
 
     <groupId>com.hpe.caf.worker</groupId>
     <artifactId>worker-jobtracking</artifactId>
@@ -22,9 +23,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.hpe.caf.worker</groupId>
+                <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-framework</artifactId>
-                <version>10.11-SNAPSHOT</version>
+                <version>1.0.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -38,20 +39,19 @@
             <version>1.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
+            <groupId>com.github.workerframework</groupId>
             <artifactId>worker-caf</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
+            <groupId>com.github.workerframework</groupId>
             <artifactId>worker-api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.util</groupId>
+            <groupId>com.github.cafapi.util</groupId>
             <artifactId>util-moduleloader</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.util</groupId>
+            <groupId>com.github.workerframework</groupId>
             <artifactId>util-rabbitmq</artifactId>
         </dependency>
         <dependency>
@@ -80,7 +80,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.codec</groupId>
+            <groupId>com.github.cafapi.codec</groupId>
             <artifactId>codec-json</artifactId>
             <scope>test</scope>
         </dependency>
