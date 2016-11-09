@@ -10,10 +10,10 @@
     <packaging>war</packaging>
 
     <parent>
-        <groupId>com.hpe.caf</groupId>
-        <artifactId>caf-maven-latest</artifactId>
-        <version>1-SNAPSHOT</version>
-        <relativePath>../caf-maven-latest</relativePath>
+        <groupId>com.github.cafapi</groupId>
+        <artifactId>caf-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath />
     </parent>
 
     <properties>
