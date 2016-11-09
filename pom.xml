@@ -14,6 +14,7 @@
         <groupId>com.hpe.caf</groupId>
         <artifactId>caf-restapi-client-base</artifactId>
         <version>1.0.1</version>
+        <relativePath />
     </parent>
 
     <properties>
