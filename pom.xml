@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.hpe.caf</groupId>
-        <artifactId>caf-maven-latest</artifactId>
-        <version>1-SNAPSHOT</version>
-        <relativePath>../caf-maven-latest</relativePath>
+        <groupId>com.github.cafapi</groupId>
+        <artifactId>caf-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath />
     </parent>
 
     <groupId>com.hpe.caf.worker</groupId>
@@ -16,7 +16,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <caf.worker-framework.version>10.13.0-SNAPSHOT</caf.worker-framework.version>
+        <caf.worker-framework.version>1.0.0</caf.worker-framework.version>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
@@ -32,7 +32,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.hpe.caf.worker</groupId>
+                <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-framework</artifactId>
                 <version>${caf.worker-framework.version}</version>
                 <type>pom</type>
@@ -44,7 +44,7 @@
     <dependencies>
         <!--Core worker framework dependencies and concrete implementations.-->
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
+            <groupId>com.github.workerframework</groupId>
             <artifactId>standard-worker-container</artifactId>
             <type>pom</type>
         </dependency>
@@ -55,27 +55,27 @@
             <type>exe</type>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.config</groupId>
+            <groupId>com.github.cafapi.config</groupId>
             <artifactId>${caf.config.impl}</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
+            <groupId>com.github.workerframework</groupId>
             <artifactId>${caf.worker-store.impl}</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
+            <groupId>com.github.workerframework</groupId>
             <artifactId>worker-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
+            <groupId>com.github.workerframework</groupId>
             <artifactId>${caf.worker-queue.impl}</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.codec</groupId>
+            <groupId>com.github.cafapi.codec</groupId>
             <artifactId>${caf.codec.impl}</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.util</groupId>
+            <groupId>com.github.cafapi.util</groupId>
             <artifactId>util-ref</artifactId>
         </dependency>
         <!--Worker jobtracking dependencies.-->
@@ -96,15 +96,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
+            <groupId>com.github.workerframework</groupId>
             <artifactId>worker-testing-util</artifactId>
-            <version>2-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
+            <groupId>com.github.workerframework</groupId>
             <artifactId>worker-testing-integration</artifactId>
-            <version>2-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -115,7 +115,7 @@
         </dependency>
         <!--Certificate dependencies.-->
         <dependency>
-            <groupId>com.hpe.caf</groupId>
+            <groupId>com.github.cafapi</groupId>
             <artifactId>container-cert-script</artifactId>
             <type>tar.gz</type>
         </dependency>
@@ -356,7 +356,7 @@
                                                 <scope>runtime</scope>
                                                 <excludes>
                                                     <exclude>com.github.krallin:tini</exclude>
-                                                    <exclude>com.hpe.caf:container-cert-script</exclude>
+                                                    <exclude>com.github.cafapi:container-cert-script</exclude>
                                                 </excludes>
                                             </dependencySet>
                                             <dependencySet>
@@ -371,7 +371,7 @@
                                                 <useTransitiveFiltering>true</useTransitiveFiltering>
                                                 <unpack>true</unpack>
                                                 <includes>
-                                                    <include>com.hpe.caf:container-cert-script</include>
+                                                    <include>com.github.cafapi:container-cert-script</include>
                                                 </includes>
                                             </dependencySet>
                                         </dependencySets>
