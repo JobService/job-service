@@ -18,7 +18,7 @@
 
     <properties>
         <swagger-contract-artifactId>job-service-contract</swagger-contract-artifactId>
-        <swagger-contract-version>1.1.0</swagger-contract-version>
+        <swagger-contract-version>1.1.0-SNAPSHOT</swagger-contract-version>
         <swagger-codegen-inputSpec>/com/hpe/caf/services/job/swagger.yaml</swagger-codegen-inputSpec>
         <swagger-codegen-modelPackage>com.hpe.caf.services.job.client.model</swagger-codegen-modelPackage>
         <swagger-codegen-apiPackage>com.hpe.caf.services.job.client.api</swagger-codegen-apiPackage>
