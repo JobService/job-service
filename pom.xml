@@ -82,7 +82,7 @@
         <dependency>
             <groupId>com.hpe.caf.worker</groupId>
             <artifactId>worker-jobtracking</artifactId>
-            <version>1.3</version>
+            <version>1.4.0</version>
         </dependency>
         <!--Test dependencies.-->
         <dependency>
@@ -98,19 +98,19 @@
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-testing-util</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-testing-integration</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.hpe.caf.worker</groupId>
             <artifactId>worker-ocr-shared</artifactId>
-            <version>1.2</version>
+            <version>1.3.0</version>
             <scope>test</scope>
         </dependency>
         <!--Certificate dependencies.-->
@@ -488,7 +488,7 @@
             <properties>
                 <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
                 <worker-jobtracking.container.name>${docker.dev.repo}/caf/worker-jobtracking:${project.version}</worker-jobtracking.container.name>
-                <datastore.container.id>66d1c33ec8c74fee99d207e7521a93ec</datastore.container.id>
+                <datastore.container.id>b591d8c6615c4af99d7915719b01259c</datastore.container.id>
             </properties>
         </profile>
     </profiles>
