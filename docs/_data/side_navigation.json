@@ -43,5 +43,49 @@
                 "en-us": "pages/en-us/Architecture"
             }
         }]
+    }, {
+        "title": {
+            "en-us": "Batch Worker"
+        },
+        "children": [{
+            "title": {
+                "en-us": "Overview"
+            },
+            "url": {
+                "en-us": "pages/en-us/Overview#batch-worker"
+            }
+        },
+		{
+            "title": {
+                "en-us": "Features"
+            },
+            "url": {
+                "en-us": "pages/en-us/Features#large-batch-handling"
+            }
+        },
+        {
+            "title": {
+                "en-us": "Getting Started"
+            },
+            "url": {
+                "en-us": "pages/en-us/Getting-Started-batchworker"
+            }
+        },
+		{
+            "title": {
+                "en-us": "API"
+            },
+            "url": {
+                "en-us": "pages/en-us/API-batchworker"
+            }
+        },
+		{
+            "title": {
+                "en-us": "Architecture"
+            },
+            "url": {
+                "en-us": "pages/en-us/Architecture-batchworker"
+            }
+        }]
     }]
 }
