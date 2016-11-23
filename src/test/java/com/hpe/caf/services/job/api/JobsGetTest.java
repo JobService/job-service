@@ -37,9 +37,9 @@ public final class JobsGetTest {
     @Test
     public void testGetJob_Success() throws Exception {
         //  Test successful run of job retrieval.
-        JobsGet.getJobs();
+        JobsGet.getJobs("", 0, 0, 0);
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs();
+        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs("", 0, 0, 0);
     }
 
 }

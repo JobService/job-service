@@ -15,10 +15,10 @@ import javax.ws.rs.core.UriInfo;
 public class JobsApiServiceImpl extends JobsApiService {
 
     @Override
-    public Response getJobs(String cAFCorrelationId, SecurityContext securityContext)
+    public Response getJobs(final String jobIdStartsWith, final Integer statusType, final Integer limit, final Integer offset, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
         try {
-            Job[] jobs = JobsGet.getJobs();
+            Job[] jobs = JobsGet.getJobs(jobIdStartsWith, statusType, limit, offset);
             return Response.ok().entity(jobs).build();
         } catch (BadRequestException e){
             return Response.status(Response.Status.BAD_REQUEST).entity(new ApiResponseMessage(e.getMessage())).build();

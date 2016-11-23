@@ -28,9 +28,13 @@ public class JobsApi  {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Returns the list of jobs", response = Job.class, responseContainer = "List") })
 
     public Response getJobs(
+            @ApiParam(value = "Only those results whose job id starts with this value will be returned") @QueryParam("jobIdStartsWith") String jobIdStartsWith,
+            @ApiParam(value = "If 1 is passed in, only those results with statuses other than 'Completed' will be returned. If 2 is passed in, only those results with 'Completed' status will be returned. If 3 is passed in, only those records with inactive statuses will be returned. Pass in 0 or don't pass anything to return all statuses.") @QueryParam("statusType") Integer statusType,
+            @ApiParam(value = "The maximum results to return (i.e. page size)") @QueryParam("limit") Integer limit,
+            @ApiParam(value = "The starting position from which to return results (useful for paging)") @QueryParam("offset") Integer offset,
             @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,@Context SecurityContext securityContext)
             throws Exception {
-        return delegate.getJobs(cAFCorrelationId,securityContext);
+        return delegate.getJobs(jobIdStartsWith, statusType, limit, offset, cAFCorrelationId,securityContext);
     }
 
     @GET

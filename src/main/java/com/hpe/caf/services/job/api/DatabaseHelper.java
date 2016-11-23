@@ -44,15 +44,32 @@ public final class DatabaseHelper {
     /**
      * Returns a list of job definitions in the system.
      */
-    public Job[] getJobs() throws Exception {
+    public Job[] getJobs(String jobIdStartsWith, Integer statusType, Integer limit, Integer offset) throws Exception {
 
         List<Job> jobs=new ArrayList<>();
-        String getJobsFnCallSQL = "{call get_jobs()}";
+        String getJobsFnCallSQL = "{call get_jobs(?,?,?,?)}";
 
         try (
                 Connection conn = getConnection();
                 CallableStatement stmt = conn.prepareCall(getJobsFnCallSQL)
         ) {
+            if (jobIdStartsWith == null) {
+                jobIdStartsWith = "";
+            }
+            if (statusType == null) {
+                statusType = 0;
+            }
+            if (limit == null) {
+                limit = 0;
+            }
+            if (offset == null) {
+                offset = 0;
+            }
+            stmt.setString(1, jobIdStartsWith);
+            stmt.setInt(2, statusType);
+            stmt.setInt(3, limit);
+            stmt.setInt(4, offset);
+
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
             ResultSet rs = stmt.executeQuery();

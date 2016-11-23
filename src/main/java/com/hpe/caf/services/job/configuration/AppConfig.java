@@ -55,4 +55,14 @@ public class AppConfig {
         return environment.getProperty("CAF_WEBSERVICE_URL");
     }
 
+    public int getDefaultPageSize(){
+        final String defaultPageSize = environment.getProperty("CAF_JOB_SERVICE_PAGE_SIZE");
+        if (defaultPageSize == null) {
+            return 0;
+        }
+        else {
+            return Integer.parseInt(defaultPageSize);
+        }
+    }
+
 }

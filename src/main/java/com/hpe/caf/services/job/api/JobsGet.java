@@ -9,7 +9,7 @@ public final class JobsGet {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsGet.class);
 
-    public static Job[] getJobs() throws Exception {
+    public static Job[] getJobs(final String jobId, final Integer statusType, Integer limit, final Integer offset) throws Exception {
 
         Job[] jobs;
 
@@ -25,7 +25,10 @@ public final class JobsGet {
 
             //  Get list of job definitions in the system.
             LOG.info("getJobs: Getting list of job definitions...");
-            jobs = databaseHelper.getJobs();
+            if (limit == null || limit <= 0) {
+                limit = config.getDefaultPageSize();
+            }
+            jobs = databaseHelper.getJobs(jobId, statusType, limit, offset);
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());
             throw e;
