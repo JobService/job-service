@@ -29,6 +29,26 @@ paths:
         description: |
           An identifier that correlates events 
           across different services.
+      - name: jobIdStartsWith
+        in: query
+        type: string
+        required: false
+        description: Only those results whose job id starts with this value will be returned
+      - name: statusType
+        in: query
+        type: integer
+        required: false
+        description: If 1 is passed in, only those results with statuses other than 'Completed' will be returned. If 2 is passed in, only those results with 'Completed' status will be returned. If 3 is passed in, only those records with inactive statuses will be returned. Pass in 0 or don't pass anything to return all statuses.
+      - name: limit
+        in: query
+        type: integer
+        required: false
+        description: The maximum results to return (i.e. page size)
+      - name: offset
+        in: query
+        type: integer
+        required: false
+        description: The starting position from which to return results (useful for paging)
     get:
       tags:
         - Jobs
