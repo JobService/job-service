@@ -36,17 +36,24 @@ paths:
         description: Only those results whose job id starts with this value will be returned
       - name: statusType
         in: query
-        type: integer
+        type: string
         required: false
-        description: If 1 is passed in, only those results with statuses other than 'Completed' will be returned. If 2 is passed in, only those results with 'Completed' status will be returned. If 3 is passed in, only those records with inactive statuses will be returned. Pass in 0 or don't pass anything to return all statuses.
+        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned.
+        enum:
+          - All
+          - NotCompleted
+          - Completed
+          - Inactive
       - name: limit
         in: query
         type: integer
+        format: int32
         required: false
         description: The maximum results to return (i.e. page size)
       - name: offset
         in: query
         type: integer
+        format: int32
         required: false
         description: The starting position from which to return results (useful for paging)
     get:
