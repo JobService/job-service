@@ -15,7 +15,7 @@ import javax.ws.rs.core.UriInfo;
 public class JobsApiServiceImpl extends JobsApiService {
 
     @Override
-    public Response getJobs(final String jobIdStartsWith, final Integer statusType, final Integer limit, final Integer offset, String cAFCorrelationId, SecurityContext securityContext)
+    public Response getJobs(final String jobIdStartsWith, final String statusType, final Integer limit, final Integer offset, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
         try {
             Job[] jobs = JobsGet.getJobs(jobIdStartsWith, statusType, limit, offset);

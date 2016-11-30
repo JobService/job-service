@@ -44,7 +44,7 @@ public final class DatabaseHelper {
     /**
      * Returns a list of job definitions in the system.
      */
-    public Job[] getJobs(String jobIdStartsWith, Integer statusType, Integer limit, Integer offset) throws Exception {
+    public Job[] getJobs(String jobIdStartsWith, String statusType, Integer limit, Integer offset) throws Exception {
 
         List<Job> jobs=new ArrayList<>();
         String getJobsFnCallSQL = "{call get_jobs(?,?,?,?)}";
@@ -57,7 +57,7 @@ public final class DatabaseHelper {
                 jobIdStartsWith = "";
             }
             if (statusType == null) {
-                statusType = 0;
+                statusType = "";
             }
             if (limit == null) {
                 limit = 0;
@@ -66,7 +66,7 @@ public final class DatabaseHelper {
                 offset = 0;
             }
             stmt.setString(1, jobIdStartsWith);
-            stmt.setInt(2, statusType);
+            stmt.setString(2, statusType);
             stmt.setInt(3, limit);
             stmt.setInt(4, offset);
 

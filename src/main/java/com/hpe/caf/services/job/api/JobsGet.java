@@ -9,7 +9,7 @@ public final class JobsGet {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsGet.class);
 
-    public static Job[] getJobs(final String jobId, final Integer statusType, Integer limit, final Integer offset) throws Exception {
+    public static Job[] getJobs(final String jobId, final String statusType, Integer limit, final Integer offset) throws Exception {
 
         Job[] jobs;
 
