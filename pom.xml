@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hpe.caf</groupId>
+    <artifactId>job-service-caller-container</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>com.github.cafapi</groupId>
+        <artifactId>caf-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath />
+    </parent>
+
+    <properties>
+        <maven.install.skip>true</maven.install.skip>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${fabric8.docker.maven.version}</version>
+                <executions>
+                    <execution>
+                        <id>docker-build</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>docker-push</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <autoPull>always</autoPull>
+                    <images>
+                        <image>
+                            <alias>job-service-caller-image</alias>
+                            <name>${docker.dev.repo}/caf/job-service-task-creation:${project.version}</name>
+                            <build>
+                                <maintainer>adam.pau.rogan@hpe.com</maintainer>
+                                <from>python:2</from>
+                                <labels>
+                                    <Build.Number>${project.version}</Build.Number>
+                                    <Build.Date>${maven.build.timestamp}</Build.Date>
+                                    <Git.Branch>${git.branch}</Git.Branch>
+                                    <Git.Commit>${git.revision}</Git.Commit>
+                                </labels>
+                                <assembly>
+                                    <mode>tar</mode>
+                                    <inline>
+                                        <fileSets>
+                                            <fileSet>
+                                                <outputDirectory>/</outputDirectory>
+                                                <includes>
+                                                    <include>script/*</include>
+                                                </includes>
+                                                <fileMode>0755</fileMode>
+                                            </fileSet>
+                                        </fileSets>
+                                    </inline>
+                                </assembly>
+                                <runCmds>
+                                    <run>pip install --proxy=http://web-proxy.sdc.hpecorp.net:8080 requests</run>
+                                </runCmds>
+                                <entryPoint>
+                                    <exec>
+                                        <args>python2</args>
+                                        <args>/maven/script/createJob.py</args>
+                                    </exec>
+                                </entryPoint>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
