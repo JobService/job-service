@@ -13,11 +13,13 @@ import json                     # for JSON parsing and validation
 import requests                 # for calling the CAF Job Service
 import sys
 import time
+import re                       # for string substitution
 
 # CAF Job Service endpoint.
 job_service_api_endpoint = '/job-service/v1/jobs/'
 
-# Global job definition.
+# Global job identifier and definition.
+job_id = ''
 job_definition = ''
 
 # Log message to standard output.
@@ -68,6 +70,15 @@ def validate_args(args):
     if args.jobId == "":
         log('The job identifier argument is empty. Exiting.')
         abnormal_termination()
+    else:
+        # Replace unsupported job identifier characters.
+        global job_id
+        job_id = re.sub(r'[.,:;*?!|()]',r'_',args.jobId)
+
+        # Job identifiers longer than 48 chars not supported by Job Service.
+        if len(job_id) > 48:
+            log('The job identifier is too long. Exiting.')
+            abnormal_termination()
 
     if args.jobDefinitionFilename is not None:
         # Make sure the supplied job definition is valid JSON.
@@ -147,7 +158,7 @@ def main():
     args = parse_args()
 
     # Construct uri to be used in calls to the CAF Job Service.
-    uri = args.jobWebServiceURL + job_service_api_endpoint + args.jobId
+    uri = args.jobWebServiceURL + job_service_api_endpoint + job_id
 
     # Call CAF Job Service to create a new job.
     call_put_job_service(uri, job_definition)

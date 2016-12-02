@@ -79,9 +79,10 @@
                                 <entryPoint>
                                     <exec>
                                         <args>python2</args>
-                                        <args>/maven/script/createJob.py</args>
+                                        <args>createJob.py</args>
                                     </exec>
                                 </entryPoint>
+                                <workdir>/maven/script</workdir>
                             </build>
                         </image>
                     </images>
