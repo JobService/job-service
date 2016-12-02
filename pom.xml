@@ -49,7 +49,7 @@
                     <images>
                         <image>
                             <alias>job-service-caller-image</alias>
-                            <name>${docker.dev.repo}/caf/job-service-task-creation:${project.version}</name>
+                            <name>${docker.dev.repo}/caf/job-service-caller-container:${project.version}</name>
                             <build>
                                 <maintainer>adam.pau.rogan@hpe.com</maintainer>
                                 <from>python:2</from>
