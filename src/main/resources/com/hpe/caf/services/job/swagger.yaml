@@ -188,6 +188,41 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         404:
           description: The specified job is not found.
+  /jobStats/count:
+    parameters:
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that correlates events
+          across different services.
+      - name: jobIdStartsWith
+        in: query
+        type: string
+        required: false
+        description: Only those results whose job id starts with this value will be returned
+      - name: statusType
+        in: query
+        type: string
+        required: false
+        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned.
+        enum:
+          - All
+          - NotCompleted
+          - Completed
+          - Inactive
+    get:
+      tags:
+        - Jobs
+      summary: Gets the count of jobs
+      description: Returns the count of job definitions defined in the system.
+      operationId: getJobsCount
+      responses:
+        200:
+          description: Returns the count of jobs.
+          schema:
+            type: integer
+            format: int64
 definitions:
   newJob:
     type: object
