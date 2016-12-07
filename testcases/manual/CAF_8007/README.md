@@ -4,7 +4,7 @@ Verify that the Get Jobs web service call returns correct error codes when inval
 
 **Test Steps**
 
-Using the Job Service web service perform an Get Jobs, entering invalid information and then check the job service database
+Using the Job Service web service perform a Get Jobs call entering invalid information.  Also ensure to exercise the additional `offset`, `limit`, `statusType` and `jobIdStartsWith` parameters entering invalid information.
 
 **Test Data**
 
@@ -14,4 +14,4 @@ N/A
 
 The Get Job call returns the expected error codes
 
-**JIRA Link** - [CAF-605](https://jira.autonomy.com/browse/CAF-605)
+**JIRA Link** - [CAF-605](https://jira.autonomy.com/browse/CAF-605), [CAF-1826](https://jira.autonomy.com/browse/CAF-1826), [CAF-1838](https://jira.autonomy.com/browse/CAF-1838), [CAF-1909](https://jira.autonomy.com/browse/CAF-1909)
