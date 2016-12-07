@@ -103,6 +103,41 @@ public final class DatabaseHelper {
     }
 
     /**
+     * Returns the number of job definitions in the system.
+     */
+    public long getJobsCount(String jobIdStartsWith, String statusType) throws Exception {
+
+        long jobsCount = 0;
+        String getJobsCountFnCallSQL = "{call get_jobs_count(?,?)}";
+
+        try (
+                Connection conn = getConnection();
+                CallableStatement stmt = conn.prepareCall(getJobsCountFnCallSQL)
+        ) {
+            if (jobIdStartsWith == null) {
+                jobIdStartsWith = "";
+            }
+            if (statusType == null) {
+                statusType = "";
+            }
+            stmt.setString(1, jobIdStartsWith);
+            stmt.setString(2, statusType);
+
+            //  Execute a query to return a count of all job definitions in the system.
+            LOG.debug("Calling get_jobs_count() database function...");
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                jobsCount = rs.getLong(1);
+            }
+
+            rs.close();
+        }
+
+        return jobsCount;
+    }
+
+    /**
      * Returns the job definition for the specified job.
      */
     public Job getJob(String jobId) throws Exception {
