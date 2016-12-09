@@ -42,6 +42,14 @@
             "url": {
                 "en-us": "pages/en-us/Architecture"
             }
+        },
+        {
+            "title": {
+                "en-us": "Scheduling Jobs"
+            },
+            "url": {
+                "en-us": "pages/en-us/Scheduling-Jobs"
+            }
         }]
     }, {
         "title": {
