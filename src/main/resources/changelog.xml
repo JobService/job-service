@@ -135,11 +135,4 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
-
-    <changeSet id="create_procedure_getJobsCount" author="Jason Albert" >
-        <createProcedure path="getJobsCount.sql"
-                         procedureName="get_jobs_count"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
 </databaseChangeLog>
