@@ -5,7 +5,7 @@
   <artifactId>job-service</artifactId>
   <packaging>war</packaging>
   <name>job-service</name>
-  <version>1.2.1</version>
+  <version>1.2.2-SNAPSHOT</version>
 
   <parent>
         <groupId>com.github.cafapi</groupId>
