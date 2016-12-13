@@ -6,7 +6,7 @@
 
     <groupId>com.hpe.caf</groupId>
     <artifactId>job-service-contract</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.2-SNAPSHOT</version>
 
     <parent>
         <groupId>com.github.cafapi</groupId>
