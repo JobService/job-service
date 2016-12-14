@@ -170,7 +170,7 @@
                         <CAF_CONFIG_PATH>${project.basedir}/test-configs</CAF_CONFIG_PATH>
                         <CAF_WEBSERVICE_URL>http://${docker.host.address}:${jobservice.adminport}/job-service/v1</CAF_WEBSERVICE_URL>
                         <CAF_DOCKER_HOST>http://${docker.host.address}:2375</CAF_DOCKER_HOST>
-                        <CAF_DOCKER_VERSION>1.24</CAF_DOCKER_VERSION>
+                        <CAF_DOCKER_VERSION>1.22</CAF_DOCKER_VERSION>
                         <CAF_JOB_SERVICE_CALLER_IMAGE>${docker.dev.repo}/caf/job-service-caller:${job.service.caller.version}</CAF_JOB_SERVICE_CALLER_IMAGE>
                     </environmentVariables>
                 </configuration>
@@ -374,7 +374,7 @@
                         <!-- Run jobservice db installer against PostgreSQL database to install jobservice schema -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.2.1-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.4.0-SNAPSHOT</name>
                             <run>
                                 <links>
                                     <link>${job.database.host}</link>
@@ -418,7 +418,7 @@
                         <!-- Run the Job Service -->
                         <image>
                             <alias>job-service</alias>
-                            <name>${docker.dev.repo}/caf/job-service:1.2.1-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/job-service:1.4.0-SNAPSHOT</name>
                             <run>
                                 <ports>
                                     <port>${jobservice.adminport}:8080</port>
