@@ -19,12 +19,13 @@
     <properties>
         <maven.install.skip>true</maven.install.skip>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <datastore.container.id>66d1c33ec8c74fee99d207e7521a93ec</datastore.container.id>
+        <datastore.container.id>b591d8c6615c4af99d7915719b01259c</datastore.container.id>
         <job.database.name>jobservice</job.database.name>
         <job.database.host>jobtracking-integrationtests-postgres</job.database.host>
         <job.database.url>jdbc:postgresql://${job.database.host}:5432/${job.database.name}</job.database.url>
         <job.database.username>postgres</job.database.username>
         <job.database.password>root</job.database.password>
+        <job.service.caller.version>1.0.0-SNAPSHOT</job.service.caller.version>
     </properties>
 
     <dependencyManagement>
@@ -168,6 +169,9 @@
                         <CAF_APPNAME>test/jobservice-acceptance</CAF_APPNAME>
                         <CAF_CONFIG_PATH>${project.basedir}/test-configs</CAF_CONFIG_PATH>
                         <CAF_WEBSERVICE_URL>http://${docker.host.address}:${jobservice.adminport}/job-service/v1</CAF_WEBSERVICE_URL>
+                        <CAF_DOCKER_HOST>http://${docker.host.address}:2375</CAF_DOCKER_HOST>
+                        <CAF_DOCKER_VERSION>1.24</CAF_DOCKER_VERSION>
+                        <CAF_JOB_SERVICE_CALLER_IMAGE>${docker.dev.repo}/caf/job-service-caller:${job.service.caller.version}</CAF_JOB_SERVICE_CALLER_IMAGE>
                     </environmentVariables>
                 </configuration>
             </plugin>
@@ -290,6 +294,28 @@
                             </build>
                         </image>
 
+                        <!-- Image for job definition test data -->
+                        <image>
+                            <alias>jobDefinition</alias>
+                            <name>${project.artifactId}-test-job-definition:${project.version}</name>
+                            <build>
+                                <assembly>
+                                    <basedir>/jobDefinition</basedir>
+                                    <inline>
+                                        <fileSets>
+                                            <fileSet>
+                                                <directory>test-job-definitions</directory>
+                                                <outputDirectory>/</outputDirectory>
+                                                <includes>
+                                                    <include>*</include>
+                                                </includes>
+                                            </fileSet>
+                                        </fileSets>
+                                    </inline>
+                                </assembly>
+                            </build>
+                        </image>
+
                         <!-- Image for Batch Worker plugins -->
                         <image>
                             <alias>plugin</alias>
@@ -348,7 +374,7 @@
                         <!-- Run jobservice db installer against PostgreSQL database to install jobservice schema -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.1</name>
+                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.2.1-SNAPSHOT</name>
                             <run>
                                 <links>
                                     <link>${job.database.host}</link>
@@ -392,7 +418,7 @@
                         <!-- Run the Job Service -->
                         <image>
                             <alias>job-service</alias>
-                            <name>${docker.dev.repo}/caf/job-service:1.1</name>
+                            <name>${docker.dev.repo}/caf/job-service:1.2.1-SNAPSHOT</name>
                             <run>
                                 <ports>
                                     <port>${jobservice.adminport}:8080</port>
@@ -436,7 +462,7 @@
                         <!-- Run Job Tracking worker -->
                         <image>
                             <alias>jobtracking-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-jobtracking:1.7</name>
+                            <name>${docker.dev.repo}/caf/worker-jobtracking:1.7.4-SNAPSHOT</name>
                             <run>
                                 <ports>
                                     <port>${jobtracking-worker.adminport}:8081</port>
@@ -474,7 +500,7 @@
                         <!-- Run Batch worker -->
                         <image>
                             <alias>batch-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-batch:1.7</name>
+                            <name>${docker.dev.repo}/caf/worker-batch:1.8.1-SNAPSHOT</name>
                             <run>
                                 <ports>
                                     <port>${batch-worker.adminport}:8081</port>
@@ -539,6 +565,13 @@
                                 </wait>
                             </run>
                         </image>
+
+                        <!-- Image for job-service-caller -->
+                        <image>
+                            <alias>job-service-caller</alias>
+                            <name>${docker.dev.repo}/caf/job-service-caller:${job.service.caller.version}</name>
+                        </image>
+
                     </images>
                 </configuration>
             </plugin>

@@ -1,0 +1,12 @@
+{
+  "name": "JobServiceCallerTest",
+  "description": "Description for job service caller test.",
+  "task": {
+    "taskClassifier": "ExampleWorker",
+    "taskApiVersion": 1,
+    "taskData": "{\"sourceData\":{\"reference\":null,\"data\":\"U2VuZCB0byBleGFtcGxlIHdvcmtlciB0ZXN0IQ==\"},\"action\":\"REVERSE\"}",
+    "taskDataEncoding": "utf8",
+    "taskPipe": "exampleworker-test-input-1",
+    "targetPipe": "exampleworker-test-output-1"
+  }
+}

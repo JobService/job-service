@@ -18,6 +18,9 @@ import com.hpe.caf.worker.example.ExampleWorkerConstants;
 import com.hpe.caf.worker.example.ExampleWorkerStatus;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -53,6 +56,16 @@ public class JobServiceEndToEndIT {
 
     private List<String> testItemAssetIds;
 
+    //  Scripted Job Service testing.
+    private static final String CREATE_JOB_DEFN_CONTAINER_JSON_FILENAME = "create_job_definition_container.json";
+    private static final String CREATE_JOB_SERVICE_CALLER_CONTAINER_JSON_FILENAME = "create_job_service_caller_container.json";
+    private static String jobDefinitionContainerJSON;
+    private static String jobServiceCallerContainerJSON;
+    private static final String pollingInterval = "10";
+    private static final String jobDefinitionFile = "test_job_definition.json";
+    private static String dockerContainersURL;
+    private static String jobServiceURL;
+    private static String jobServiceCallerImage;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -64,6 +77,11 @@ public class JobServiceEndToEndIT {
         rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
         rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
         jobsApi = createJobsApi();
+        dockerContainersURL = System.getenv("CAF_DOCKER_HOST") + "/v" + System.getenv("CAF_DOCKER_VERSION") + "/containers/";
+        jobServiceURL = System.getenv("CAF_WEBSERVICE_URL").replace("/job-service/v1","");
+        jobDefinitionContainerJSON = JobServiceCallerTestsHelper.getJSONFromFile(CREATE_JOB_DEFN_CONTAINER_JSON_FILENAME);
+        jobServiceCallerContainerJSON = JobServiceCallerTestsHelper.getJSONFromFile(CREATE_JOB_SERVICE_CALLER_CONTAINER_JSON_FILENAME);
+        jobServiceCallerImage = System.getenv("CAF_JOB_SERVICE_CALLER_IMAGE");
     }
 
 
@@ -146,6 +164,149 @@ public class JobServiceEndToEndIT {
         }
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testJobServiceCaller_Success() throws ParseException, IOException, TimeoutException {
+        //  Generate job identifier.
+        String jobId = "J" + System.currentTimeMillis();
+
+        List<String> testItemAssetIds = new ArrayList<>();
+        testItemAssetIds.add("TestItemAssetId");
+
+        JobServiceEndToEndITExpectation expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        jobId,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            Timer timer = getTimer(context);
+            Thread thread = queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context, expectation));
+
+            //  Identify name of test data container as  we need to set up VolumesFrom to access the test data file.
+            String jobDefinitionContainerName = JobServiceCallerTestsHelper.getJobDefinitionContainerName(jobDefinitionContainerJSON, dockerContainersURL);
+
+            //  Parse the job service caller container json string. This JSON will need modified for the test.
+            JSONObject createContainerObject = JobServiceCallerTestsHelper.parseJson(jobServiceCallerContainerJSON);
+
+            //  Before job service caller container can be started, a number of changes to the container JSON needs to be made including Cmd, HostConfig and Image.
+            //  Configure Cmd (i.e. modify job identifier, web service url, polling interval and job definition file that will be passed to the containerized script).
+            JSONArray cmd = new JSONArray();
+            cmd.add(0, "-j");
+            cmd.add(1, jobId);
+            cmd.add(2, "-u");
+            cmd.add(3, jobServiceURL);
+            cmd.add(4, "-p");
+            cmd.add(5, pollingInterval);
+            cmd.add(6, "-f");
+            cmd.add(7, "/jobDefinition/" + jobDefinitionFile);
+            createContainerObject.put("Cmd", cmd);
+
+            //  Configure HostConfig
+            JSONObject hostConfig = (JSONObject) createContainerObject.get("HostConfig");
+            JSONArray volumesFrom = new JSONArray();
+            volumesFrom.add(jobDefinitionContainerName);
+            hostConfig.put("VolumesFrom", volumesFrom);
+            createContainerObject.put("HostConfig", hostConfig);
+
+            //  Configure Image.
+            createContainerObject.put("Image", jobServiceCallerImage);
+
+            //  Send POST request to create the job service caller container.
+            String createContainerURL = dockerContainersURL + "create";
+            String sendCreateContainerPostResponse = JobServiceCallerTestsHelper.sendPOST(createContainerURL,createContainerObject.toJSONString().replace("\\/","/"), "application/json", "gzip");
+
+            //  Get container id from response object.
+            JSONObject createContainerResponse = JobServiceCallerTestsHelper.parseJson(sendCreateContainerPostResponse);
+            String id = (String) createContainerResponse.get("Id");
+
+            //  Use container id to send POST to start the container.
+            String startContainerURL = dockerContainersURL + id + "/start";
+            JobServiceCallerTestsHelper.sendPOST(startContainerURL,"","text/plain", "gzip");
+
+            //  Use container id to send POST request to wait on container response.
+            String waitContainerURL = dockerContainersURL + id + "/wait";
+            String sendWaitContainerPostResponse = JobServiceCallerTestsHelper.sendPOST(waitContainerURL,"", "text/plain", "gzip");
+
+            // Get status code.
+            JSONObject waitContainerResponse = JobServiceCallerTestsHelper.parseJson(sendWaitContainerPostResponse);
+            long statusCode = (long) waitContainerResponse.get("StatusCode");
+
+            //  Expecting StatusCode=0 for success.
+            Assert.assertNotNull(statusCode);
+            Assert.assertEquals(0L, statusCode);
+
+            // Waits for the final result message to appear on the Example worker's output queue.
+            // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
+            TestResult result = context.getTestResult();
+            Assert.assertTrue(result.isSuccess());
+        }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testJobServiceCaller_Failure() throws ParseException, IOException, TimeoutException {
+        //  Generate job identifier.
+        String jobId = "J" + System.currentTimeMillis();
+
+        //  Identify name of test data container as  we need to set up VolumesFrom to access the test data file.
+        String jobDefinitionContainerName = JobServiceCallerTestsHelper.getJobDefinitionContainerName(jobDefinitionContainerJSON, dockerContainersURL);
+
+        //  Parse the job service caller container json string.
+        JSONObject createContainerObject = JobServiceCallerTestsHelper.parseJson(jobServiceCallerContainerJSON);
+
+        //  Modify job identifier, polling interval and job definition file. Leave web service url as we want to force an error.
+        JSONArray cmd = new JSONArray();
+        cmd.add(0, "-j");
+        cmd.add(1, jobId);
+        cmd.add(2, "-p");
+        cmd.add(3, pollingInterval);
+        cmd.add(4, "-f");
+        cmd.add(5, "/jobDefinition/" + jobDefinitionFile);
+        createContainerObject.put("Cmd", cmd);
+
+        //  Configure HostConfig
+        JSONObject hostConfig = (JSONObject) createContainerObject.get("HostConfig");
+        JSONArray volumesFrom = new JSONArray();
+        volumesFrom.add(jobDefinitionContainerName);
+        hostConfig.put("VolumesFrom", volumesFrom);
+        createContainerObject.put("HostConfig", hostConfig);
+
+        //  Configure Image.
+        createContainerObject.put("Image", jobServiceCallerImage);
+
+        //  Send POST request to create the job service caller container.
+        String createContainerURL = dockerContainersURL + "create";
+        String sendCreateContainerPostResponse = JobServiceCallerTestsHelper.sendPOST(createContainerURL,createContainerObject.toJSONString().replace("\\/","/"), "application/json", "gzip");
+
+        //  Get container id from response object.
+        JSONObject createContainerResponse = JobServiceCallerTestsHelper.parseJson(sendCreateContainerPostResponse);
+        String id = (String) createContainerResponse.get("Id");
+
+        //  Use container id to send POST to start the container.
+        String startContainerURL = dockerContainersURL + id + "/start";
+        JobServiceCallerTestsHelper.sendPOST(startContainerURL,"","text/plain", "gzip");
+
+        //  Use container id to send POST request to wait on container response.
+        String waitContainerURL = dockerContainersURL + id + "/wait";
+        String sendWaitContainerPostResponse = JobServiceCallerTestsHelper.sendPOST(waitContainerURL,"", "text/plain", "gzip");
+
+        // Get status code.
+        JSONObject waitContainerResponse = JobServiceCallerTestsHelper.parseJson(sendWaitContainerPostResponse);
+        long statusCode = (long) waitContainerResponse.get("StatusCode");
+
+        //  Expecting StatusCode > 0 for failure.
+        Assert.assertNotNull(statusCode);
+        Assert.assertTrue(statusCode > 0);
+    }
 
     private List<String> generateWorkerBatch() throws DataStoreException {
         List<String> assetIds = new ArrayList<>();
