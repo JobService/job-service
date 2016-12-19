@@ -6,18 +6,11 @@
 
     <groupId>com.hpe.caf</groupId>
     <artifactId>job-service-contract</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
 
     <parent>
-        <groupId>com.github.cafapi</groupId>
-        <artifactId>caf-parent</artifactId>
-        <version>1.0.0</version>
-        <relativePath />
+        <groupId>com.hpe.caf</groupId>
+        <artifactId>job-service-aggregator</artifactId>
+        <version>1.8.0-SNAPSHOT</version>
     </parent>
-
-    <ciManagement>
-        <system>hudson</system>
-        <url>http://cafbuilder.hpeswlab.net:8080/job/job-service-contract/</url>
-    </ciManagement>
 
 </project>

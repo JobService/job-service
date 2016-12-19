@@ -6,14 +6,12 @@
 
     <groupId>com.hpe.caf</groupId>
     <artifactId>job-service-acceptance-tests</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <parent>
-        <groupId>com.github.cafapi</groupId>
-        <artifactId>caf-parent</artifactId>
-        <version>1.0.0</version>
-        <relativePath />
+        <groupId>com.hpe.caf</groupId>
+        <artifactId>job-service-aggregator</artifactId>
+        <version>1.8.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -25,20 +23,7 @@
         <job.database.url>jdbc:postgresql://${job.database.host}:5432/${job.database.name}</job.database.url>
         <job.database.username>postgres</job.database.username>
         <job.database.password>root</job.database.password>
-        <job.service.caller.version>1.0.0-SNAPSHOT</job.service.caller.version>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.github.workerframework</groupId>
-                <artifactId>worker-framework</artifactId>
-                <version>1.0.0</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -84,7 +69,7 @@
         <dependency>
             <groupId>com.hpe.caf</groupId>
             <artifactId>job-service-client</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -171,7 +156,7 @@
                         <CAF_WEBSERVICE_URL>http://${docker.host.address}:${jobservice.adminport}/job-service/v1</CAF_WEBSERVICE_URL>
                         <CAF_DOCKER_HOST>http://${docker.host.address}:2375</CAF_DOCKER_HOST>
                         <CAF_DOCKER_VERSION>1.22</CAF_DOCKER_VERSION>
-                        <CAF_JOB_SERVICE_CALLER_IMAGE>${docker.dev.repo}/caf/job-service-caller:${job.service.caller.version}</CAF_JOB_SERVICE_CALLER_IMAGE>
+                        <CAF_JOB_SERVICE_CALLER_IMAGE>${docker.dev.repo}/caf/job-service-caller:${project.version}</CAF_JOB_SERVICE_CALLER_IMAGE>
                     </environmentVariables>
                 </configuration>
             </plugin>
@@ -374,7 +359,7 @@
                         <!-- Run jobservice db installer against PostgreSQL database to install jobservice schema -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>${docker.dev.repo}/caf/job-service-db-installer:1.4.0-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/job-service-db-installer:${project.version}</name>
                             <run>
                                 <links>
                                     <link>${job.database.host}</link>
@@ -418,7 +403,7 @@
                         <!-- Run the Job Service -->
                         <image>
                             <alias>job-service</alias>
-                            <name>${docker.dev.repo}/caf/job-service:1.4.0-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/job-service:${project.version}</name>
                             <run>
                                 <ports>
                                     <port>${jobservice.adminport}:8080</port>
@@ -462,7 +447,7 @@
                         <!-- Run Job Tracking worker -->
                         <image>
                             <alias>jobtracking-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-jobtracking:1.7.4-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/worker-jobtracking:${project.version}</name>
                             <run>
                                 <ports>
                                     <port>${jobtracking-worker.adminport}:8081</port>
@@ -569,7 +554,7 @@
                         <!-- Image for job-service-caller -->
                         <image>
                             <alias>job-service-caller</alias>
-                            <name>${docker.dev.repo}/caf/job-service-caller:${job.service.caller.version}</name>
+                            <name>${docker.dev.repo}/caf/job-service-caller:${project.version}</name>
                         </image>
 
                     </images>
@@ -588,10 +573,5 @@
             </properties>
         </profile>
     </profiles>
-
-    <ciManagement>
-        <system>hudson</system>
-        <url>http://cafbuilder.hpeswlab.net:8080/job/job-service-acceptance-tests/</url>
-    </ciManagement>
 
 </project>
