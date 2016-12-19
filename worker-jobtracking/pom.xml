@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>com.github.cafapi</groupId>
+        <artifactId>caf-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath />
+    </parent>
+
+    <groupId>com.hpe.caf.worker</groupId>
+    <artifactId>worker-jobtracking</artifactId>
+    <version>1.4.1-SNAPSHOT</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.github.workerframework</groupId>
+                <artifactId>worker-framework</artifactId>
+                <version>1.0.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.hpe.caf.worker</groupId>
+            <artifactId>worker-jobtracking-shared</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-caf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cafapi.util</groupId>
+            <artifactId>util-moduleloader</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>util-rabbitmq</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.4.1208.jre7</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cafapi.codec</groupId>
+            <artifactId>codec-json</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+    </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>cmbg-maven-releases</id>
+            <name>Internal Releases</name>
+            <url>http://cbgmaven.hpeswlab.net/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>cmbg-maven-snapshots</id>
+            <name>Internal Snapshots</name>
+            <url>http://cbgmaven.hpeswlab.net/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+</project>
