@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hpe.caf</groupId>
+    <artifactId>job-service-ui</artifactId>
+    <version>1.2.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+
+    <parent>
+        <groupId>com.github.cafapi</groupId>
+        <artifactId>caf-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath />
+    </parent>
+
+    <properties>
+        <swagger.contract.groupId>com.hpe.caf</swagger.contract.groupId>
+        <swagger.contract.artifactId>job-service-contract</swagger.contract.artifactId>
+        <swagger.contract.version>1.1.2-SNAPSHOT</swagger.contract.version>
+        <swagger.contract.path>/com/hpe/caf/services/job</swagger.contract.path>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${swagger.contract.groupId}</groupId>
+            <artifactId>${swagger.contract.artifactId}</artifactId>
+            <version>${swagger.contract.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cafapi</groupId>
+            <artifactId>swagger-ui</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.github.cafapi</groupId>
+                                    <artifactId>swagger-ui</artifactId>
+									<version>1.0.0</version>
+                                    <outputDirectory>${project.build.directory}/swagger-ui</outputDirectory>
+                                    <excludes>**/META-INF/**</excludes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>${swagger.contract.groupId}</groupId>
+                                    <artifactId>${swagger.contract.artifactId}</artifactId>
+                                    <version>${swagger.contract.version}</version>
+                                    <outputDirectory>${project.build.directory}/swagger-contract</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <webResources>
+                        <resource>
+                            <directory>${project.build.directory}/swagger-ui</directory>
+                        </resource>
+                        <resource>
+                            <directory>${project.build.directory}/swagger-contract${swagger.contract.path}</directory>
+                            <targetPath>api-docs</targetPath>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <ciManagement>
+        <system>hudson</system>
+        <url>http://cafbuilder.hpeswlab.net:8080/job/job-service-ui/</url>
+    </ciManagement>
+
+</project>
