@@ -1,0 +1,6 @@
+com\hpe\caf\worker\jobtracking\JobTrackingWorkerIT$1.class
+com\hpe\caf\worker\jobtracking\JobTrackingWorkerITExpectation.class
+com\hpe\caf\worker\jobtracking\JobReportingExpectation.class
+com\hpe\caf\worker\jobtracking\JobTaskWorkerOutputDeliveryHandler.class
+com\hpe\caf\worker\jobtracking\JobDatabase.class
+com\hpe\caf\worker\jobtracking\JobTrackingWorkerIT.class

@@ -1,0 +1,10 @@
+com\hpe\caf\worker\jobtracking\JobDatabaseProperties.class
+com\hpe\caf\worker\jobtracking\JobTrackingWorkerFailure.class
+com\hpe\caf\worker\jobtracking\JobTrackingReporter.class
+com\hpe\caf\worker\jobtracking\JobTrackingWorkerFactory.class
+com\hpe\caf\worker\jobtracking\JobStatus.class
+com\hpe\caf\worker\jobtracking\JobTrackingWorker.class
+com\hpe\caf\worker\jobtracking\JobTrackingWorkerHealthCheck.class
+com\hpe\caf\worker\jobtracking\JobTrackingWorkerFactoryProvider.class
+com\hpe\caf\worker\jobtracking\JobTrackingWorkerConfiguration.class
+com\hpe\caf\worker\jobtracking\JobTrackingWorkerReporter.class
