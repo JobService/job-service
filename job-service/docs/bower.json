@@ -1,0 +1,20 @@
+{
+  "name": "job-service",
+  "description": "CAF job-service Documentation Jekyll Project",
+  "main": "",
+  "authors": [
+    "Christopher Comac <christopher.jam.comac@hpe.com>"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "caf-templates": "^2.0.2"
+  }
+}

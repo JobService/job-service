@@ -1,0 +1,113 @@
+package com.hpe.caf.services.job.api.generated;
+
+import com.hpe.caf.services.job.api.*;
+import com.hpe.caf.services.job.api.generated.model.Job;
+import com.hpe.caf.services.job.api.generated.model.NewJob;
+import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.exceptions.NotFoundException;
+
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
+
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-02-29T10:25:31.219Z")
+public class JobsApiServiceImpl extends JobsApiService {
+
+    @Override
+    public Response getJobs(final String jobIdStartsWith, final String statusType, final Integer limit, final Integer offset, String cAFCorrelationId, SecurityContext securityContext)
+            throws Exception {
+        try {
+            Job[] jobs = JobsGet.getJobs(jobIdStartsWith, statusType, limit, offset);
+            return Response.ok().entity(jobs).build();
+        } catch (BadRequestException e){
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ApiResponseMessage(e.getMessage())).build();
+        } catch (NotFoundException e){
+            return Response.status(Response.Status.NOT_FOUND).entity(new ApiResponseMessage(e.getMessage())).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ApiResponseMessage(e.getMessage())).build();
+        }
+    }
+
+    @Override
+    public Response getJob(String jobId, String cAFCorrelationId, SecurityContext securityContext)
+            throws Exception {
+        try {
+            Job job = JobsGetById.getJob(jobId);
+            return Response.ok().entity(job).build();
+        } catch (BadRequestException e){
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ApiResponseMessage(e.getMessage())).build();
+        } catch (NotFoundException e){
+            return Response.status(Response.Status.NOT_FOUND).entity(new ApiResponseMessage(e.getMessage())).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ApiResponseMessage(e.getMessage())).build();
+        }
+    }
+
+    @Override
+    public Response createOrUpdateJob(String jobId, NewJob newJob, String cAFCorrelationId, SecurityContext securityContext, UriInfo uriInfo)
+            throws Exception {
+        try {
+            String createOrUpdate = JobsPut.createOrUpdateJob(jobId, newJob);
+            if (createOrUpdate.equals("create")) {
+                //  Return HTTP 201 for successful create.
+                return Response.created(uriInfo.getRequestUri()).build();
+            } else {
+                //  Must be update - return HTTP 204 for successful update.
+                return Response.noContent().build();
+            }
+        } catch (BadRequestException e){
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ApiResponseMessage(e.getMessage())).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ApiResponseMessage(e.getMessage())).build();
+        }
+    }
+
+    @Override
+    public Response deleteJob(String jobId, String cAFCorrelationId, SecurityContext securityContext)
+            throws Exception {
+        try {
+            JobsDelete.deleteJob(jobId);
+            return Response.noContent().build();
+        } catch (BadRequestException e){
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ApiResponseMessage(e.getMessage())).build();
+        } catch (NotFoundException e){
+            return Response.status(Response.Status.NOT_FOUND).entity(new ApiResponseMessage(e.getMessage())).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ApiResponseMessage(e.getMessage())).build();
+        }
+    }
+
+    @Override
+    public Response cancelJob(String jobId, String cAFCorrelationId, SecurityContext securityContext)
+            throws Exception {
+        try {
+            JobsCancel.cancelJob(jobId);
+            return Response.noContent().build();
+        } catch (BadRequestException e){
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ApiResponseMessage(e.getMessage())).build();
+        } catch (NotFoundException e){
+            return Response.status(Response.Status.NOT_FOUND).entity(new ApiResponseMessage(e.getMessage())).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ApiResponseMessage(e.getMessage())).build();
+        }
+    }
+
+    @Override
+    public Response getJobActive(String jobId, String cAFCorrelationId, SecurityContext securityContext)
+            throws Exception {
+        try {
+            JobsActive.JobsActiveResult result = JobsActive.isJobActive(jobId);
+
+            CacheControl cc = new CacheControl();
+            cc.setMaxAge(result.statusCheckIntervalSecs);
+
+            return Response.ok().header("CacheableJobStatus", true).entity(result.active).cacheControl(cc).build();
+        } catch (BadRequestException e){
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ApiResponseMessage(e.getMessage())).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ApiResponseMessage(e.getMessage())).build();
+        }
+    }
+
+}
