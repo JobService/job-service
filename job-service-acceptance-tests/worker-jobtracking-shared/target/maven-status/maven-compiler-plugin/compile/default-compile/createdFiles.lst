@@ -1,6 +1,0 @@
-com\hpe\caf\worker\jobtracking\JobReportingException.class
-com\hpe\caf\worker\jobtracking\JobTrackingWorkerConstants.class
-com\hpe\caf\worker\jobtracking\JobTrackingWorkerResult.class
-com\hpe\caf\worker\jobtracking\JobTrackingWorkerTask.class
-com\hpe\caf\worker\jobtracking\JobTrackingWorkerStatus.class
-com\hpe\caf\worker\jobtracking\ProxiedTaskInfo.class
