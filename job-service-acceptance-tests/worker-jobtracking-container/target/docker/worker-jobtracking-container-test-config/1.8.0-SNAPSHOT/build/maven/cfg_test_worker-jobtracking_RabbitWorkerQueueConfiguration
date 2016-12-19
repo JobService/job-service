@@ -1,0 +1,16 @@
+{
+    "rabbitConfiguration":{
+        "backoffInterval": 1,
+        "maxBackoffInterval": 30,
+        "maxAttempts": 20,
+        "rabbitHost": "rabbitmq",
+        "rabbitPort": 5672,
+        "rabbitUser": "guest",
+        "rabbitPassword": "guest"
+    },
+    "prefetchBuffer": 0,
+    "inputQueue": "jobtrackingworker-test-input-1",
+    "retryQueue": "jobtrackingworker-test-input-1",
+    "rejectedQueue": "jobtrackingworker-test-rejected-1",
+    "retryLimit": 1
+}

@@ -1,7 +1,0 @@
-{
-  "HostConfig": {},
-  "Labels": {
-    "dmp.coordinates": "com.hpe.caf:job-service-acceptance-tests:1.0.0-SNAPSHOT"
-  },
-  "Image": "job-service-acceptance-tests-test-job-definition:1.0.0-SNAPSHOT"
-}

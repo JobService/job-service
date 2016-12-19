@@ -1,5 +1,0 @@
-{
-        "outputQueue": "batchworker-test-output-1",
-		"threads": 1,
-		"cacheExpireTime": 60
-}
