@@ -1,4 +1,4 @@
-# Job Service Container [![Build Status](http://cafbuilder.hpswlabs.hp.com:8080/buildStatus/icon?job=job-service-container)](http://cafbuilder.hpswlabs.hp.com:8080/job/job-service-container)
+# Job Service Container [![Build Status](http://cafbuilder.hpswlabs.hp.com:8080/buildStatus/icon?job=job-service)](http://cafbuilder.hpswlabs.hp.com:8080/job/job-service)
 
 This docker image contains the [Job Service](https://github.hpe.com/caf/job-service) hosted in Apache Tomcat 8.
 
@@ -17,4 +17,4 @@ The supplied Marathon [properties](https://github.hpe.com/caf/chateau/blob/devel
 [Architecture](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Architecture.md)
 
 ## Feature Testing
-The testing for Job Service is defined [here](testcases)
+The testing for Job Service is defined [here](../testcases)

@@ -18,8 +18,6 @@
         <tomcatBaseImage>tomcat:jre8</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
-        <deployFileUrl>${project.distributionManagement.snapshotRepository.url}</deployFileUrl>
-        <repositoryId>${project.distributionManagement.snapshotRepository.id}</repositoryId>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
         <db.name>jobservice</db.name>
         <docker.dev.repo>rh7-artifactory.svs.hpeswlab.net:8443</docker.dev.repo>

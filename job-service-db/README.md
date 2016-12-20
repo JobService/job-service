@@ -17,7 +17,7 @@ With PostgreSQL 9.4 or later installed and configured, download the [job-service
 the database connection, user and password string arguments will need changed to match your PostgreSQL 9.4 or later setup.
 
 ### Docker Image
-This is available as a Docker container - see [job-service-db-container](https://github.hpe.com/caf/job-service-db-container).
+This is available as a Docker container - see [job-service-db-container](https://github.hpe.com/caf/job-service/tree/develop/job-service-db-container).
 
 With PostgreSQL 9.4 or later installed and configured, pull the installer image from artifactory using:
 
