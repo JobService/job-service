@@ -210,7 +210,7 @@ public class JobServiceIT {
         }
 
         //retrieve the jobs
-        List<Job> retrievedJobs = jobsApi.getJobs("100");
+        List<Job> retrievedJobs = jobsApi.getJobs("100",null,null,null,null);
 
         //test to make sure at least the 10 jobs created are returned. Unable to filter by cafCorrelationID
         Assert.assertTrue(retrievedJobs.size()>=10);

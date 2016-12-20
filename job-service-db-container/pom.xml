@@ -18,7 +18,7 @@
         <dependency>
             <groupId>com.hpe.caf</groupId>
             <artifactId>job-service-db</artifactId>
-            <version>${project.version}}</version>
+            <version>${project.version}</version>
             <classifier>jar-with-dependencies</classifier>
             <scope>runtime</scope>
             <type>jar</type>

@@ -17,7 +17,7 @@
     <properties>
         <swagger.contract.groupId>com.hpe.caf</swagger.contract.groupId>
         <swagger.contract.artifactId>job-service-contract</swagger.contract.artifactId>
-        <swagger.contract.version>1.1.2-SNAPSHOT</swagger.contract.version>
+        <swagger.contract.version>${project.version}</swagger.contract.version>
         <swagger.contract.path>/com/hpe/caf/services/job</swagger.contract.path>
     </properties>
 
