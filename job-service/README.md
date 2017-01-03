@@ -4,12 +4,12 @@ The job-service API is used to create, retrieve, update, delete, cancel and chec
 
 ## Job Service Links
 
-[Overview](https://pages.github.hpe.com/caf/job-service/pages/en-us/Overview)
+[Overview](https://github.hpe.com/caf/job-service/blob/develop/job-service/docs/pages/en-us/Overview.md)
 
-[Getting Started](https://pages.github.hpe.com/caf/job-service/pages/en-us/Getting-Started)
+[Getting Started](https://github.hpe.com/caf/job-service/blob/develop/job-service/docs/pages/en-us/Getting-Started.md)
 
-[API](https://pages.github.hpe.com/caf/job-service/pages/en-us/API)
+[API](https://github.hpe.com/caf/job-service/blob/develop/job-service/docs/pages/en-us/API.md)
 
-[Features](https://pages.github.hpe.com/caf/job-service/pages/en-us/Features)
+[Features](https://github.hpe.com/caf/job-service/blob/develop/job-service/docs/pages/en-us/Features.md)
 
-[Architecture](https://pages.github.hpe.com/caf/job-service/pages/en-us/Architecture)
+[Architecture](https://github.hpe.com/caf/job-service/blob/develop/job-service/docs/pages/en-us/Architecture.md)
