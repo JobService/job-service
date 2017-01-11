@@ -5,8 +5,8 @@ header: The Job Service Team
 
 team_members:
     - name: Dermot Hardy
-      email: dermot.hardy:hpe.com
-      avatar: /assets/img/user.png
+      email: dermot.hardy@hpe.com
+      avatar: /assets/img/team/Dermot.jpg
       social:
         - title: GitHub
           icon: hpe-social-github
@@ -14,10 +14,10 @@ team_members:
         - title: Email
           icon: hpe-social-email
           url: mailto:dermot.hardy@hpe.com
-          
+
     - name: Connor Mulholland
       email: connor.mulholland@hpe.com
-      avatar: /assets/img/user.png
+      avatar: /assets/img/team/Connor.jpg
       social:
        - title: GitHub
          icon: hpe-social-github
@@ -28,7 +28,7 @@ team_members:
 
     - name: Conal Smith
       email: conal.smith@hpe.com
-      avatar: /assets/img/user.png
+      avatar: /assets/img/team/Conal.jpg
       social:
        - title: GitHub
          icon: hpe-social-github
@@ -36,4 +36,16 @@ team_members:
        - title: Email
          icon: hpe-social-email
          url: mailto:conal.smith@hpe.com
+
+    - name: Philip Crooks
+      email: philip.crooks@hpe.com
+      avatar: /assets/img/team/Philip.jpg
+      social:
+        - title: GitHub
+          icon: hpe-social-github
+          url: https://github.hpe.com/philip-crooks
+        - title: Email
+          icon: hpe-social-email
+          url: mailto:philip-crooks@hpe.com
+
 ---
