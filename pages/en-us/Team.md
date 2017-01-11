@@ -37,15 +37,4 @@ team_members:
          icon: hpe-social-email
          url: mailto:conal.smith@hpe.com
 
-    - name: Philip Crooks
-      email: philip.crooks@hpe.com
-      avatar: /assets/img/team/Philip.jpg
-      social:
-        - title: GitHub
-          icon: hpe-social-github
-          url: https://github.hpe.com/philip-crooks
-        - title: Email
-          icon: hpe-social-email
-          url: mailto:philip-crooks@hpe.com
-
 ---
