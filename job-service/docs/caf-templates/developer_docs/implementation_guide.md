@@ -48,14 +48,21 @@ Next, create a .bowerrc file in the documentation folder with the following cont
         },
         "resolvers": [
             "bower-art-resolver"
-        ]
+        ],
+        "directory": "."
     }
+
+You should then create a bower.json file to contain information on the project along with any dependencies bower should download for you. 
+Use the following command to make bower step you through the process:
+
+    bower init
 
 #### Getting the Templates
 
-Navigate to the documentation directory using the Command Prompt. We can now use Bower to download the Jekyll package.
+Navigate to the documentation directory using the Command Prompt. We can now use Bower to download the Jekyll templates and add 
+this as a dependency to our bower json file.
 
-	bower install caf-templates --config.directory=.
+	bower install caf-templates --save
 
 ### Installing Jekyll and its Dependencies
 
@@ -172,7 +179,7 @@ Grunt tasks are configured in the Gruntfile.js file which can should also be add
                 build: {
                     options: {
                         serve: false,
-                        incremental: true,
+                        incremental: false,
                         watch: false,
                         config: '_config.yml',
                         bundleExec: true
@@ -181,7 +188,7 @@ Grunt tasks are configured in the Gruntfile.js file which can should also be add
                 serve: {
                     options: {
                         serve: true,
-                        incremental: true,
+                        incremental: false,
                         watch: true,
                         baseurl: '/documentation',
                         config: '_config.yml',
@@ -191,8 +198,9 @@ Grunt tasks are configured in the Gruntfile.js file which can should also be add
                 }
             },
             exec: {
-                bower_install: 'bower install caf-templates --config.directory=.',
-                bower_uninstall: 'bower uninstall caf-templates --config.directory=.'
+                bower_install: 'bower install',
+                bower_uninstall: 'bower uninstall caf-templates',
+                bower_clean: 'bower cache clean'
             },
             buildcontrol: {
                 options: {
@@ -221,9 +229,9 @@ Grunt tasks are configured in the Gruntfile.js file which can should also be add
 
         grunt.registerTask('build', ['jekyll:build']);
         grunt.registerTask('serve', ['jekyll:serve']);
-        grunt.registerTask('update', ['exec:bower_uninstall', 'exec:bower_install']);
+        grunt.registerTask('update', ['exec:bower_uninstall', 'exec:bower_clean', 'exec:bower_install']);
 
-        grunt.registerTask('publish', ['buildcontrol:pages']);
+        grunt.registerTask('publish', ['exec:bower_uninstall', 'exec:bower_clean', 'exec:bower_install', 'buildcontrol:pages']);
     };
 
 
@@ -239,9 +247,16 @@ To create our site we need to add a `_config.yml` file to the documentation dire
 
     title: My Service
     email: caf@hpe.com
+    version: 1.0.0
 
     description: My Service Description
-    baseurl: "https://pages.github.hpe.com/caf/elements"
+    baseurl: "/documentation"
+
+    # Set a custom logo in the navigation bar
+    # navigation_image: 'assets/img/worker-framework-logo.png'
+
+    # Provide a custom stylesheet to style you site
+    # custom_stylesheet: 'assets/css/site.css'
 
     # Build settings
     exclude: ['node_modules']
@@ -264,8 +279,23 @@ The `baseurl` property should also be updated with the url that you site will be
 
 #### Configuring .gitignore
 
-You should add a `.gitignore` file to both the root repository folder and the documentation folder to exclude the `node_modules` folder and the `_site` folders 
-from being pushed to the repository.
+You should add a `.gitignore` file to both the root repository folder to exclude the following files and folders:
+
+-   docs/node_modules
+-   docs/_site
+-   docs/.sass-cache
+-   docs/.jekyll-metadata
+-   docs/Gemfile.lock
+-   docs/caf-templates
+
+You should also add a `.gitignore` file to the `docs` folder to exclude the following files and folders:
+
+-   node_modules
+-   _site
+-   .sass-cache
+-   .jekyll-metadata
+-   Gemfile.lock
+
 
 #### Setting Up Navigation
 
@@ -336,15 +366,22 @@ Add the following files to the `_data` directory and update the values to reflec
 ##### footer_links.json
 
     {
-        "navigation_items": [{
+        "feedback_url": "https://github.hpe.com/caf/service/issues",
+        "copyright": "©2017 HPE Common Application Framework",
+        "footer_logo": "assets/img/footer-logo.png",
+        "footer_columns": [{
             "title": {
-                "en-us": "Contribute"
+            "en-us": "Social"
+            },
+            "links": [{
+            "title": {
+                "en-us": "GitHub"
             },
             "url": {
-                "en-us": "pages/en-us/contribute"
+                "en-us": "http://github.hpe.com"
             }
-        }],
-        "feedback_url": ""
+            }]
+        }]
     }
 
 #### Setting up Localization
@@ -550,6 +587,8 @@ Page content goes here.
 
 Additionally, you should grant the documentation team access so they can make changes directly and submit pull requests. This can be achieved by going to the Settings area of your repository on GitHub. Under the Collaborators section you can grant access to users by entering their username, full name or email address.
 
+**Note:** If you are migrating from the old documentation site you can simply add your existing markdown files to the `pages` -> `en-us` folder to provide the content for the site.
+
 ### Testing Documentation
 
 Testing the documentation site before publishing will help identify any errors. The Command Prompt output when running on a local machine is more helpful than the error messages GitHub provides when building the documentation fails.
@@ -572,6 +611,8 @@ There is an addition grunt task to update the template files to the latest versi
 For each release of your service the latest documentation should be published to gh-pages making it accessible to visitors of your documentation web site. 
 
 During the release process `grunt publish` will update the template files to the latest version, build your documentation and push it into your repositories gh-pages branch. Before publishing new documentation your build job must preserve the previous version of the documentation in a folder within gh-pages named vMajor.Minor.Patch, where Major Minor and Patch are placed with the previous versions numbers.
+
+GitHub will automatically assign your documentation site a pages.github.hpe.com/caf/repository-name domain once a gh-pages branch is created.
 
 Before publishing documentation ensure that the site has been configured correctly. A configuration file called `_config.yml` will need to have the `baseurl` property set correctly. It should be set to the url your GitHub pages site will be located at, eg:
 
@@ -603,13 +644,17 @@ To set these attributes, we simply have to set the layout to `landing` and defin
 Add any images you want to use to the `assets` directory you created in your documentation folder. 
 Update the paths used in the YAML below to point to the correct locations.
 
+The icons for features are from the [Elements Icon Set](https://pages.github.hpe.com/caf/elements/pages/en-us/css.html#icons), 
+however if you wish to use an image instead simply replace the `icon` property with an `image` property and se the value to the url of the image.
+
 This can be seen below:  
 ```yaml
 ---
 layout: landing
 
 logo: assets/img/caflogo.png
-title: Common Application Framework <br><small>from the Big Data group at Hewlett Packard Enterprise</small>
+background_image: assets/img/landing_4.jpg
+title: Common Application Framework <br><small>From the Information Management and Governance Research and Development Team at Hewlett Packard Enterprise</small>
 slogan: The Microservices based solution to your Big Data Analytics problems the <br>Common Application Framework accelerates time to value.
 button:
     title: Learn More
@@ -653,7 +698,7 @@ social:
           title: Twitter
           subtitle: Follow us on Twitter to keep up with the latest news and updates from the CAF team or to get in touch with us!
           link:
-            title: '@caf'
+            title: '@twitterhandle'
             url: http://twitter.com
         - icon: hpe-social-github
           title: GitHub
@@ -669,6 +714,8 @@ social:
             url: pages/en-us/blog/index.html
 ---
 ```
+
+You should create a Twitter account for your service. We recommend creating a gmail or yahoo email account for the Twitter login credentials so they can be shared with your team allowing anyone to add content. Ensure to update the social links on this page to point to the correct locations.
 
 The above YAML would result in the following:
 
@@ -739,6 +786,30 @@ An example of how a page using this layout might look:
 
 ![Alt text](images/default_layout.PNG)
 
+
+#### Adding a Banner
+
+Provide quick access to the most important links at the top of pages by adding a banner. 
+
+```yaml
+---
+layout: default
+title: Getting Started
+
+banner:
+    icon: 'assets/img/hard-hat.png'
+    title: Worker Framework
+    subtitle: Analyze a Larger Range of Formats
+    links:
+        - title: GitHub
+          url: https://github.hpe.com/caf/worker-framework
+---
+```
+
+Which will look like the following:
+
+![Alt text](images/banner.png)
+
 ---------------------------------------
 
 ### Blog Layout
@@ -750,8 +821,11 @@ To use the `blog` layout add the following to the top of your HTML file. The blo
 ```yaml
 ---
 layout: blog
+no_posts_message: No Blog Posts
 ---
 ```
+
+The `no_posts_message` property allows you to define the message shown when no posts exist. If this is not specified 'No Blog Posts' will be shown.
 
 Add a `_posts` folder to the documentation folder which should contain the markdown files for each blog post. Blog posts should be named using the following format to ensure posts are ordered correctly: YEAR-MONTH-DAY-Blog_Title.md
 
@@ -935,6 +1009,23 @@ Below is an example of how a complete Swagger layout would look like:
 
 ![Alt text](images/swagger_example.PNG)
 
+
+## Customizing The Site
+
+Each service may have a specific logo associated with it. To make it appear in the top navigation bar add the following property to the `_config.yml` and giving it a value of the image url:
+
+```yaml
+navigation_image: 'assets/img/worker-framework-logo.png'
+```
+
+Further customization can be achieved by adding a custom stylesheet to override some of the default styles. 
+Add the following property to the `_config.yml` file with the url of the stylesheet you wish to use:
+
+```yaml
+custom_stylesheet: 'site.css'
+```
+
+
 ## Adding Showcase Entry
 
 A showcase site for CAF components can be found at [cafapi.github.io](http://cafapi.github.io) and provides a brief description of each service along with a link to each service's documentation site.
@@ -946,5 +1037,6 @@ To add your service to the showcase page:
 	+ Add a new markdown file under `showcase` -> `en-us` -> `services`
 	+ Update the showcase.json file found in the `_data` folder
 - Schedule review of showcase entry and service documentation with Frank. This review should be run from the fork and show the finished showcase entry and service docs.
+- Build your changes using the "grunt" task.
 - Submit pull request for Frank to review.
 - Frank will approve or reject content. If approved he will merge the changes.

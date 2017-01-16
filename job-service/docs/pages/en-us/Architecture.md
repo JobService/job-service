@@ -2,6 +2,14 @@
 layout: default
 title: Architecture
 last_updated: Last modified by Frank Rovitto on July 1, 2016
+
+banner:
+    icon: 'assets/img/fork-lift.png'
+    title: Job Service
+    subtitle: Analyze a Larger Range of Formats
+    links:
+        - title: GitHub
+          url: https://github.hpe.com/caf/job-service
 ---
 
 # Architecture
@@ -12,7 +20,7 @@ The Job Service is a REST web service that sends operations to workers, checks o
 
 The figure below illustrates the overall flow and relationship of components in the Job Service.
 
-![Architecture](images/ArchitectureSimple.png)
+![Architecture](images/ArchitectureSimpleWBG.png)
 
 The pipes represent asynchronous message queues on RabbitMQ.
 

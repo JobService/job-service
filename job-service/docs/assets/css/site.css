@@ -1,0 +1,581 @@
+/*
+    General Site Styling
+*/
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed');
+
+body {
+    background-color: #0b0b09;
+}
+
+h3 {
+    color: #E9E9E9;
+    bold: #e7af18;
+}
+
+p {
+    color: #E9E9E9;
+}
+
+a {
+    color: #e7af18;
+    transition: color 0.3s ease-in-out;
+}
+
+a:hover,
+a:visited {
+    color: #fff;
+}
+
+
+/*
+    Page Layout
+*/
+
+.wrapper-content {
+    padding: 35px 20px 40px;
+}
+
+.sidebar {
+    top: 114px;
+}
+
+/*
+    Top Navigation Bar
+*/
+
+.top-header {
+    background-color: #000;
+    height: 54px;
+    border-bottom: 2px solid #e7af18;
+}
+
+.top-header.base-shadow {
+    box-shadow: 0px 2px 5px 0px #000000;
+}
+
+.top-header .container .logo {
+    height: 52px;
+}
+
+.top-header .container .logo .image {
+    max-height: 30px;
+}
+
+.top-header .container .menu .menu-item {
+    padding: 4px 20px;
+    color: #A6A8AB;
+}
+
+.top-header .container .menu .menu-item.active {
+    background-color: #e7af18;
+}
+
+.top-header .container .menu .menu-item.active a {
+    color: #fff;
+}
+
+.top-header .container .menu .menu-item a {
+    font-size: 16px;
+    opacity: 1;
+    color: #A6A8AB;
+    transition: color 0.3s ease-in-out;
+    margin: 0;
+    height: 44px;
+    line-height: 44px;
+}
+
+.top-header .container .menu .menu-item a:hover {
+    color: #fff;
+}
+
+.top-header .menu-toggle {
+    top: 10px;
+}
+
+@media (max-width: 992px) {
+    .top-header .container .menu {
+        top: 52px;
+        background-color: #192023;
+    }
+}
+
+/*
+    Splash Page
+*/
+
+.splash-page .splash-header {
+    padding-top: 54px;
+    background: #73c7bd;
+    background-image: linear-gradient(to bottom,  #156690 0%,#4daac0 100%);
+    box-shadow: none;
+    height: 500px;
+    border-bottom: 1px solid #0a0f15;
+}
+
+.splash-page .splash-header .caf-brand {
+    background-image: url(../../assets/img/header.png);
+    background-repeat: no-repeat; 
+    background-size: contain;
+    background-position: left bottom;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.splash-page .splash-header .caf-brand .title {
+    font-size: 50px;
+    font-family: 'Roboto Condensed', sans-serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.splash-page .splash-header .caf-brand .slogan {
+    font-family: Metric;
+}
+
+@media (min-width: 768px) {
+    .splash-page .splash-header .caf-brand {
+        width: 750px;
+    }
+}
+
+@media (min-width: 992px) {
+    .splash-page .splash-header .caf-brand {
+        width: 970px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .splash-page .splash-header .caf-brand {
+        width: 1400px;
+        justify-content: flex-end;        
+    }
+}
+
+
+.splash-page .splash-header .caf-brand .download-caf {
+    background-color: #e7af18;
+    color: #fff;
+    padding: 15px 65px;
+    height: auto;
+    margin-top: 0;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.splash-page .splash-header .caf-brand .download-caf:hover {
+    background-color: #8d6b10;
+}
+
+.splash-page hr {
+    border-top: 1px solid #323d43;
+    max-width: 1170px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.splash-page .social-card .icon {
+    color: #e7af18;
+}
+
+.splash-page .social-card .title {
+    color: #fff;
+}
+
+.splash-page .social-card .subtitle {
+    color: #E9E9E9;
+}
+
+.splash-page .social-card .link {
+    color: #e7af18;
+}
+
+.splash-page .social-card .link:hover {
+    color: #8d6b10;
+}
+
+.splash-page .section-title {
+    color: #fff;
+}
+
+.splash-page .section-subtitle {
+    font-size: 20px;
+}
+
+.feature-list .feature .title {
+    color: #fff;
+}
+
+.feature-list .feature .subtitle {
+    color: #E9E9E9;
+}
+
+/*
+    Default Layout
+*/
+
+.content-container {
+    padding-top: 54px;
+}
+
+.content-container .docs-content h1, 
+.content-container .docs-content h2,
+.content-container .docs-content h3 {
+    font-family: Metric;
+    color: #fff;
+    border-color: #323d43;
+    margin-top: 2em;
+}
+
+.content-container .docs-content .footer {
+    border-color: #323d43; 
+}
+
+.content-container .docs-content .footer a {
+    color: #74E291;
+}
+
+/*
+    Side Navigation
+*/
+.sidebar .nav > li > a {
+    color: #fff;
+}
+
+.sidebar .nav .nav > li > a {
+    color: #E9E9E9;
+}
+
+.sidebar .nav .nav > li > a:focus {
+    background-color: transparent;
+}
+
+.sidebar .nav .nav > li.active > a {
+    color: #fff;
+    border-color: #e7af18;
+}
+
+.sidebar .nav .nav > li > a:hover {
+    border-color: #e7af18;
+    color: #e7af18;
+}
+
+/*
+    Language Selection Modal
+*/
+.language-modal {
+    background-color: #1b282e;
+}
+
+/*
+    Footer Localize Button
+*/
+localize-button .btn.inline-dropdown.dropdown-toggle:focus {
+    border-color: transparent;
+}
+
+localize-button .btn.inline-dropdown.dropdown-toggle:hover {
+    background-color: transparent !important;
+}
+
+localize-button .inline-dropdown i,
+localize-button .btn.inline-dropdown.dropdown-toggle > span {
+    color: #A6A8AB;
+    border-bottom-color: #A6A8AB;
+    transition: all 0.3s ease-in-out;
+}
+
+localize-button .inline-dropdown:hover i,
+localize-button .btn.inline-dropdown.dropdown-toggle:hover > span {
+    color: #fff;
+    border-bottom-color: #fff;    
+}
+
+/*
+    Responsive Side Menu Button
+*/
+.side-nav-expand-btn {
+    background-color: #74E291;
+    box-shadow: 1px 1px 3px #000;
+}
+
+.side-nav-expand-btn:hover {
+    background-color: #5BC978;
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        background-color: #1b282e;
+    }
+}
+
+/*
+    Team Page
+*/
+.business-card .social .social-link .hpe-icon,
+.business-card .social .social-link .platform {
+    color: #E9E9E9;
+    opacity: 1;
+}
+
+.business-card .social .social-link:hover .hpe-icon,
+.business-card .social .social-link:hover .platform {
+    color: #fff;
+}
+
+
+
+/*
+    Page footer
+*/
+
+.footer-banner {
+    background-color: #000000;
+}
+
+.footer-banner .footer-title {
+    color: #e7af18;
+}
+
+.footer-banner .copyright,
+.footer-banner .feedback {
+    opacity: 0.5;
+    color: #e7af18;
+}
+
+/*
+    Blog Page
+*/
+.ebox-title,
+.ebox-content {
+    background-color: transparent;
+}
+
+.ebox-content {
+    border-color: #323d43;
+}
+
+.content-container .docs-content h1, 
+.content-container .docs-content h2, 
+.content-container .docs-content h3, 
+.content-container .docs-content h4, 
+.content-container .docs-content h5, 
+.content-container .docs-content h6
+{
+    font-family: Metric;
+    color: #fff;
+}
+
+.content-container .docs-content .no-posts {
+    margin-top: 20px;
+}
+
+.blog-post .blog-header {
+    padding-top: 0;
+}
+
+.blog-post .blog-header .blog-title h3 {
+    margin-top: 0;
+}
+
+/*
+    Code Snippets
+*/
+
+.highlighter-rouge pre.highlight {
+    background-color: #2c2e2d;
+    border-color: #000;
+}
+
+code {
+    background-color: #2c2e2d;
+    border-color: #000;
+    color: #e7af18;
+}
+
+.highlight .k,
+.highlight .p,
+.highlight .n {
+    color: #eee;
+}
+
+.highlight .m {
+    margin: 0;
+}
+
+.highlight .nt {
+    color: #e7af18;
+}
+
+.highlight .na {
+    color: #00caca;
+}
+
+.highlight .s {
+    color: #11dd48;
+}
+
+/*
+    Pagination Controls
+*/
+.pagination-container .btn-group .button-secondary {
+    background-color: #354247;
+    border-color: #192023;
+    box-shadow: none;
+    color: #E9E9E9;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.pagination-container .btn-group .button-secondary.active {
+    background-color: #2e2c2d;
+}
+
+.pagination-container .btn-group .button-secondary.active:hover {
+    background-color: #8d6b10;
+}
+
+.pagination-container .btn-group .button-secondary:hover {
+    background-color: #1B282D;
+}
+
+/*
+    Team Page
+*/
+.flip-container .front,
+.flip-container .back {
+    background-color: #2c2e2d;
+    box-shadow: none;
+    border: 1px solid #000000;
+}
+
+/*
+    Getting Started Page
+*/
+.docs-content ul li,
+.docs-content ol li {
+    color: #E9E9E9;
+}
+
+.docs-content pre {
+    background-color: #354247;
+    border-color: #192023;
+    color: #E9E9E9;    
+}
+
+.docs-content .table {
+    color: #fff;
+}
+
+.docs-content .table tr th,
+.docs-content .table tr td {
+    border-color: #212121;
+}
+
+/*
+    Page Banner
+*/
+.content-container .docs-content .page-banner .page-banner-contents .page-banner-tagline {
+    color: #A6A8AB;
+}
+
+.content-container .docs-content .page-banner .page-banner-contents .page-banner-links .page-banner-link {
+    border: 2px solid #e7af18;
+    color: #e7af18;
+}
+
+/*
+    Containers
+*/
+.tag-container .tag.active {
+    border: 2px solid #f;
+	color: #fff;
+    box-shadow: 0 0 0 2px #01a982;
+    opacity: 1;
+}
+
+
+
+.text-black {
+    color: #fff !important;
+}
+
+/*
+    Swagger
+*/
+
+.swagger-container .model-name {
+    font-size: 21px;
+    color: #fff;
+    font-family: Metric-Light;
+    margin-top: 15px;
+}
+
+.tag-container .tag {
+    border-color: rgba(231, 175, 24, 0.6);
+    color: #E9E9E9;
+}
+
+.tag-container .tag:hover {
+    border: 2px solid rgba(231, 175, 24, 0.8);
+    box-shadow: 0 0 0 2px rgba(231, 175, 24, 0.8);
+    opacity: .8;
+}
+
+.tag-container .tag.active {
+    border: 2px solid #e7af18;
+    box-shadow: 0 0 0 2px #e7af18;
+}
+
+.tag-container .tag-clear {
+    color: #E9E9E9;
+}
+
+.swagger-container .panel {
+    background-color: transparent;
+}
+
+.swagger-container .indicator {
+    border-top-color: #e7af18;
+    border-bottom-color: #e7af18;
+    border-right-color: #e7af18;
+}
+
+.swagger-container .panel h1,
+.swagger-container .panel h2,
+.swagger-container .panel h3 {
+    margin-top: 0;
+}
+
+.swagger-container .table-hover>tbody>tr:hover {
+	background-color: #0b0b09;
+}
+
+.swagger-container .json-schema-view .bracket,
+.swagger-container .json-schema-view .title  {
+    color: #01a982;
+}
+
+.swagger-container .json-schema-view .brace,
+.swagger-container .json-schema-view .toggle-handle {
+    color: #ffffff;
+}
+
+.swagger-container a {
+    color: #01a982 !important;
+    text-decoration: none;
+}
+
+a.toggler-link .json-formatter-row a {
+    color: #01a982;
+    text-decoration: none;
+}
+
+.swagger-container .json-formatter-row .key {
+    color: #dddddd;
+    cursor: pointer;
+}

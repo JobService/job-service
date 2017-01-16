@@ -1,9 +1,10 @@
 /*
   Initialise angular
 */
-(function() {
+(function () {
     angular.module('caf', ['hpe.elements', 'RecursionHelper', 'mohsen1.schema-form', 'hc.marked']);
     angular.module('caf').directive('markdownify', markdownify);
+    angular.module('caf').directive('table', table);
     angular.module('caf').directive('headerScroll', headerScroll);
     angular.module('caf').directive('hoverTooltip', hoverTooltip);
     angular.module('caf').directive('collapseButton', collapseButton);
@@ -16,32 +17,137 @@
     angular.module('caf').directive('collapsiblePanel', collapsiblePanel);
     angular.module('caf').directive('ngHrefBind', ngHrefBind);
     angular.module('caf').directive('defaultUrl', defaultUrl);
+    angular.module('caf').directive('openLink', openLink);
+    angular.module('caf').directive('navbarButton', navbarButton);
+
+
+    navbarButton.$inject = ['$timeout'];
+
+    function navbarButton($timeout) {
+        return {
+            restrict: 'A',
+            link: function (scope, element, attrs) {
+                var innerLink = element.find('a');
+                var current_url = window.location.href;
+
+                $timeout(function() {
+
+                    var nav_link = innerLink.attr('href');
+
+                    if(!nav_link) {
+                        return;
+                    }
+
+                    // if the string contains a # then we need to only take the left part of the string
+                    if (current_url.indexOf('#') !== -1) {
+                        current_url = current_url.substr(0, current_url.indexOf('#'));
+                    }
+
+                    if (endsWith(current_url, nav_link)) {
+                        element.addClass('active');
+                    }
+                });
+
+                // check if a string ends with a specific string
+                function endsWith(subjectString, searchString, position) {
+
+                    if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
+                        position = subjectString.length;
+                    }
+                    position -= searchString.length;
+                    var lastIndex = subjectString.indexOf(searchString, position);
+                    return lastIndex !== -1 && lastIndex === position;
+                }
+            }
+        };
+    }
+
+    function openLink() {
+        return {
+            restrict: 'A',
+            link: function (scope, element, attrs) {
+                // get the target url
+                var url = attrs.openLink;
+
+                element.click(openNewTab);
+
+                function openNewTab() {
+                    var anchor = document.createElement('a');
+                    anchor.setAttribute('href', url);
+
+                    if (url && url.toLowerCase().indexOf('mailto') !== 0) {
+                        anchor.setAttribute('target', '_blank');
+                    }
+
+                    anchor.style.display = 'none';
+                    document.body.appendChild(anchor);
+
+                    anchor.click();
+
+                    document.body.removeChild(anchor);
+                }
+            }
+        };
+    }
+
+    /*
+        Automatically style tables
+    */
+    function table() {
+        return {
+            restrict: 'E',
+            link: function (scope, element) {
+                // get the native element
+                var nativeElement = element.get(0);
+
+                // check if element has table class already
+                if (nativeElement.classList.contains('table')) return;
+
+                // iterate each parent element
+                var parent = nativeElement.parentElement;
+
+                // check each parent to see if they have the swagger-container class
+                while (parent) {
+
+                    // if has class then stop here
+                    if (parent.classList.contains('swagger-container')) return;
+
+                    // check parent element
+                    parent = parent.parentElement;
+                }
+
+                // if we get this far it is not in the swagger container - so add the class
+                nativeElement.classList.add('table');
+            }
+        };
+    }
 
     defaultUrl.$inject = ['$parse', '$localize'];
+
     function defaultUrl($parse, $localize) {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs) {
+            link: function (scope, element, attrs) {
 
                 // ensure a url has been provided
-                if(!attrs.defaultUrl || attrs.defaultUrl === null) return;
+                if (!attrs.defaultUrl || attrs.defaultUrl === null) return;
 
                 // get the default url
                 var url = $parse(attrs.defaultUrl)(scope);
 
                 // if no url then stop here
-                if(!url) return;
+                if (!url) return;
 
                 // get selected language if available
                 var selected_language = $localize.getSelectedLanguage();
 
-                if(url.hasOwnProperty(selected_language)) {
+                if (url.hasOwnProperty(selected_language)) {
                     element.attr('href', baseUrl + '/' + url[selected_language]);
                 } else {
                     // get the default language
                     var default_language = $localize.getDefaultLanguage();
 
-                    element.attr('href', baseUrl + '/' + url[default_language]);                    
+                    element.attr('href', baseUrl + '/' + url[default_language]);
                 }
             }
         };
@@ -56,7 +162,7 @@
             scope: {
                 markdownify: '='
             },
-            link: function(scope, element, attr) {
+            link: function (scope, element, attr) {
 
                 // if there is an initial value then convert it
                 if (scope.markdownify) {
@@ -69,7 +175,7 @@
                 }
 
                 // watch for any changes
-                scope.$watch('markdownify', function(nv, ov) {
+                scope.$watch('markdownify', function (nv, ov) {
                     // if the value is the same then do nothing
                     if (nv === ov) return;
 
@@ -90,7 +196,7 @@
     function headerScroll() {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs) {
+            link: function (scope, element, attrs) {
 
                 // store whether or not we are at the top
                 var at_top = window.pageYOffset === 0;
@@ -127,13 +233,13 @@
             scope: {
                 ngHrefBind: '='
             },
-            link: function(scope, element, attrs) {
+            link: function (scope, element, attrs) {
 
                 // set the href to the correct model value
                 element.get(0).href = scope.ngHrefBind;
 
                 // watch for any changes
-                scope.$watch('ngHrefBind', function(nv, ov) {
+                scope.$watch('ngHrefBind', function (nv, ov) {
                     // set the href to the correct model value
                     element.get(0).href = scope.ngHrefBind;
                 });
@@ -149,7 +255,7 @@
     function collapsiblePanel() {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs) {
+            link: function (scope, element, attrs) {
 
                 //toggle the collapse state on header click
                 element.find('.panel-heading').click(toggle_collapse);
@@ -171,7 +277,7 @@
     function responseCode() {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs) {
+            link: function (scope, element, attrs) {
 
                 function updateColour() {
 
@@ -191,9 +297,9 @@
                 updateColour();
 
                 // watch for any changes in the contents
-                scope.$watch(function() {
+                scope.$watch(function () {
                     return element.html();
-                }, function(nv, ov) {
+                }, function (nv, ov) {
                     if (nv !== ov) updateColour();
                 });
             }
@@ -209,9 +315,9 @@
     function sideMenu($timeout, $localize) {
         return {
             restrict: 'A',
-            link: function(scope, element, attr) {
+            link: function (scope, element, attr) {
 
-                $timeout(function() {
+                $timeout(function () {
 
                     var current_page_urls = $localize.getPageUrls();
 
@@ -219,7 +325,7 @@
                     var browser_base_url = window.location.href;
                     var browser_url = browser_base_url.substring((browser_base_url.indexOf(baseUrl) + baseUrl.length));
 
-                    var selectedItem = element.find('.nav a').filter(function(idx, menuItem) {
+                    var selectedItem = element.find('.nav a').filter(function (idx, menuItem) {
                         var menu_url = menuItem.href.substring((menuItem.href.indexOf(baseUrl) + baseUrl.length));
 
                         if (browser_url === menu_url) return true;
@@ -234,7 +340,7 @@
                         return matching_url;
                     });
 
-                    
+
                     //if no matching menu item was found then stop here
                     if (!selectedItem || selectedItem.length === 0) {
                         return;
@@ -261,8 +367,8 @@
     function menuToggle() {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs) {
-                element.click(function() {
+            link: function (scope, element, attrs) {
+                element.click(function () {
                     $('.top-header .menu').toggleClass('expanded');
                 });
             }
@@ -280,8 +386,8 @@
             scope: {
                 definitionName: '='
             },
-            link: function(scope, element, attrs) {
-                $swagger.getDefinitions(function(json) {
+            link: function (scope, element, attrs) {
+                $swagger.getDefinitions(function (json) {
 
                     //create schema view from definitions
                     var schemaView = new JSONSchemaView(json[scope.definitionName], 1);
@@ -305,7 +411,7 @@
             scope: {
                 data: '='
             },
-            link: function(scope, element, attrs) {
+            link: function (scope, element, attrs) {
 
                 //create schema view from definitions
                 var schemaView = new JSONSchemaView(scope.data, 0);
@@ -331,7 +437,7 @@
         var callbacks = [];
         var is_loading = false;
 
-        vm.getSwaggerJson = function(callback) {
+        vm.getSwaggerJson = function (callback) {
 
             // add to the list of callbacks we need to make
             callbacks.push(callback);
@@ -352,7 +458,7 @@
 
                 // if file is a yaml or yml file
                 if (swagger_url.toLowerCase().endsWith('yaml') || swagger_url.toLowerCase().endsWith('yml')) {
-                    YAML.load(swagger_url, function(json) {
+                    YAML.load(swagger_url, function (json) {
 
                         // sotre the json so we dont need to do this again
                         vm.swaggerData = json;
@@ -361,7 +467,7 @@
                         dereference(json);
                     });
                 } else if (swagger_url.toLowerCase().endsWith('json')) {
-                    $.getJSON(swagger_url, null, function(json) {
+                    $.getJSON(swagger_url, null, function (json) {
                         dereference(json);
                     });
                 } else {
@@ -373,7 +479,7 @@
             }
 
             function dereference(json) {
-                vm.parser.dereference(json).then(function(schema) {
+                vm.parser.dereference(json).then(function (schema) {
                     for (var i = 0; i < callbacks.length; i++) {
                         callbacks[i].apply(vm, [schema]);
                     }
@@ -384,8 +490,8 @@
 
         };
 
-        vm.getDefinitions = function(callback) {
-            vm.getSwaggerJson(function(schema) {
+        vm.getDefinitions = function (callback) {
+            vm.getSwaggerJson(function (schema) {
                 callback(schema.definitions);
             });
         };
@@ -400,7 +506,7 @@
     function collapseButton() {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs) {
+            link: function (scope, element, attrs) {
                 var collapsed = true;
                 var initialText = element.text();
 
@@ -430,7 +536,7 @@
     function hoverTooltip() {
         return {
             restrict: 'A',
-            link: function(scope, element, attrs) {
+            link: function (scope, element, attrs) {
 
                 var tooltip_position = attrs.tooltipPosition || 'top';
                 var tooltip_text = attrs.hoverTooltip || '';

@@ -9,6 +9,10 @@
       background: #eef;
     }
 
+    code {
+      white-space: pre;
+    }
+
     .c     { color: #998; font-style: italic } // Comment
     .err   { color: #a61717; background-color: #e3d2d2 } // Error
     .k     { font-weight: bold } // Keyword
@@ -68,4 +72,5 @@
     .vg    { color: #008080 } // Name.Variable.Global
     .vi    { color: #008080 } // Name.Variable.Instance
     .il    { color: #099 } // Literal.Number.Integer.Long
+    .p     { padding: 0 !important } // Bootstrap overrides this
 }
