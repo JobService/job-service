@@ -2,6 +2,14 @@
 layout: default
 title: Features
 last_updated: Last modified by Frank Rovitto on July 5, 2016
+
+banner:
+    icon: 'assets/img/fork-lift.png'
+    title: Job Service
+    subtitle: Analyze a Larger Range of Formats
+    links:
+        - title: GitHub
+          url: https://github.hpe.com/caf/job-service
 ---
 
 # Key Features

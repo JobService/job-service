@@ -7,6 +7,9 @@ baseurl: "https://pages.github.hpe.com/caf/job-service"
 # Build settings
 exclude: ['node_modules']
 
+navigation_image: 'assets/img/job-service-logo.png'
+custom_stylesheet: 'assets/css/site.css'
+
 markdown: kramdown
 highlighter: rouge
 
