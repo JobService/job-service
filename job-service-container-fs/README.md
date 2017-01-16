@@ -6,15 +6,15 @@ The supplied Marathon [properties](https://github.hpe.com/caf/chateau/blob/devel
 
 ## Job Service Links
 
-[Overview](https://github.hpe.com/caf/job-service/blob/develop/job-service/docs/pages/en-us/Overview.md)
+[Overview](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Overview.md)
 
-[Getting Started](https://github.hpe.com/caf/job-service/blob/develop/job-service/docs/pages/en-us/Getting-Started.md)
+[Getting Started](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Getting-Started.md)
 
-[API](https://github.hpe.com/caf/job-service/blob/develop/job-service/docs/pages/en-us/API.md)
+[API](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/API.md)
 
-[Features](https://github.hpe.com/caf/job-service/blob/develop/job-service/docs/pages/en-us/Features.md)
+[Features](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Features.md)
 
-[Architecture](https://github.hpe.com/caf/job-service/blob/develop/job-service/docs/pages/en-us/Architecture.md)
+[Architecture](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Architecture.md)
 
 ## Feature Testing
 The testing for Job Service is defined [here](../testcases)

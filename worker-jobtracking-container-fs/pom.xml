@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.hpe.caf.worker</groupId>
-    <artifactId>worker-jobtracking-container</artifactId>
+    <artifactId>worker-jobtracking-container-fs</artifactId>
     <packaging>pom</packaging>
 
     <parent>
@@ -14,14 +14,14 @@
     </parent>
 
     <properties>
-        <container.directory>${project.basedir}/../worker-jobtracking-container-fs</container.directory>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
-        <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
-        <worker-jobtracking.container.name>${docker.dev.repo}/caf/worker-jobtracking:${project.version}</worker-jobtracking.container.name>
+        <caf.worker-store.impl>worker-store-fs</caf.worker-store.impl>
+        <caf.worker-store.impl>worker-store-fs</caf.worker-store.impl>
+        <worker-jobtracking.container.name>${docker.dev.repo}/caf/worker-jobtracking-fs:${project.version}</worker-jobtracking.container.name>
         <datastore.container.id>b591d8c6615c4af99d7915719b01259c</datastore.container.id>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
-        <test.data>${container.directory}/test-data</test.data>
+        <test.data>${project.basedir}/test-data</test.data>
         <job.database.name>jobservice</job.database.name>
         <job.database.host>jobtracking-integrationtests-postgres</job.database.host>
         <job.database.url>jdbc:postgresql://${job.database.host}:5432/${job.database.name}</job.database.url>
@@ -126,7 +126,8 @@
                     </systemPropertyVariables>
                     <environmentVariables>
                         <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
-                        <CAF_CONFIG_PATH>${container.directory}/test-configs</CAF_CONFIG_PATH>
+                        <CAF_CONFIG_PATH>${project.basedir}/test-configs</CAF_CONFIG_PATH>
+                        <CAF_INTEGRATIONTESTS_FS_PATH>${CAF_ITEGRATIONTESTS_FS_LOCATION}/fsdatastore</CAF_INTEGRATIONTESTS_FS_PATH>
                         <JOB_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${job.database.name}</JOB_DATABASE_URL>
                         <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
                         <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
@@ -282,7 +283,7 @@
                                     <inline>
                                         <fileSets>
                                             <fileSet>
-                                                <directory>${container.directory}/test-configs</directory>
+                                                <directory>test-configs</directory>
                                                 <outputDirectory>/</outputDirectory>
                                                 <includes>
                                                     <include>*</include>
@@ -324,8 +325,6 @@
                                     <inline>
                                         <fileSets>
                                             <fileSet>
-                                                <directory>${container.directory}</directory>
-                                                <outputDirectory>/</outputDirectory>
                                                 <lineEnding>unix</lineEnding>
                                                 <includes>
                                                     <include>*.sh</include>
@@ -333,8 +332,6 @@
                                                 <fileMode>0755</fileMode>
                                             </fileSet>
                                             <fileSet>
-                                                <directory>${container.directory}</directory>
-                                                <outputDirectory>/</outputDirectory>
                                                 <lineEnding>unix</lineEnding>
                                                 <includes>
                                                     <include>*.yaml</include>
@@ -384,6 +381,9 @@
                                     <from>
                                         <image>config</image>
                                     </from>
+                                    <bind>
+                                        <volume>/vagrant/fsdatastore:/vagrant/fsdatastore</volume>
+                                    </bind>
                                 </volumes>
                                 <links>
                                     <link>rabbitmq</link>
@@ -405,7 +405,6 @@
                 </configuration>
             </plugin>
         </plugins>
-        <testSourceDirectory>${container.directory}/src/integration-test/java</testSourceDirectory>
     </build>
 
     <profiles>
@@ -421,15 +420,15 @@
         <profile>
             <id>long-running-tests</id>
             <properties>
-                <test.data>${container.directory}/test-data-long</test.data>
+                <test.data>${project.basedir}/test-data-long</test.data>
             </properties>
         </profile>
         <profile>
             <id>integration-test</id>
             <activation>
                 <property>
-                    <name>RE_BUILD_TYPE</name>
-                    <value>continuous</value>
+                    <name>CAF_BUILD_TYPE</name>
+                    <value>official</value>
                 </property>
             </activation>
             <build>

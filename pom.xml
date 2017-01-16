@@ -18,7 +18,7 @@
     </parent>
 
     <properties>
-        <caf.worker-framework.version>1.0.0</caf.worker-framework.version>
+        <caf.worker-framework.version>1.1.2-70</caf.worker-framework.version>
     </properties>
 
     <dependencyManagement>
@@ -41,11 +41,13 @@
         <module>job-service-contract</module>
         <module>job-service</module>
         <module>job-service-container</module>
+        <module>job-service-container-fs</module>
         <module>job-service-client</module>
         <module>job-service-html</module>
         <module>worker-jobtracking</module>
         <module>worker-jobtracking-shared</module>
         <module>worker-jobtracking-container</module>
+        <module>worker-jobtracking-container-fs</module>
         <module>job-service-acceptance-tests</module>
     </modules>
 

@@ -15,7 +15,6 @@
     </parent>
 
     <properties>
-        <container.directory>${project.basedir}/../job-service-container-fs</container.directory>
         <tomcatBaseImage>tomcat:jre8</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
@@ -213,7 +212,7 @@
                     </systemPropertyVariables>
                     <environmentVariables>
                         <CAF_APPNAME>test/jobservice</CAF_APPNAME>
-                        <CAF_CONFIG_PATH>${container.directory}/test-config</CAF_CONFIG_PATH>
+                        <CAF_CONFIG_PATH>${project.basedir}/test-config</CAF_CONFIG_PATH>
                         <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
                         <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
                         <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
@@ -321,7 +320,7 @@
                                     <inline>
                                         <fileSets>
                                             <fileSet>
-                                                <directory>${container.directory}/test-config</directory>
+                                                <directory>test-config</directory>
                                                 <outputDirectory>/</outputDirectory>
                                                 <includes>
                                                     <include>*</include>
@@ -364,8 +363,6 @@
                                     <inline>
                                         <fileSets>
                                             <fileSet>
-                                                <directory>${container.directory}</directory>
-                                                <outputDirectory>/</outputDirectory>
                                                 <lineEnding>unix</lineEnding>
                                                 <includes>
                                                     <include>*.sh</include>
@@ -448,7 +445,6 @@
                 </configuration>
             </plugin>
         </plugins>
-        <testSourceDirectory>${container.directory}/src/integration-test/java</testSourceDirectory>
     </build>
 
 </project>

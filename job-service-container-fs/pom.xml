@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.hpe.caf</groupId>
-    <artifactId>job-service-container</artifactId>
+    <artifactId>job-service-container-fs</artifactId>
     <packaging>pom</packaging>
 
     <parent>
@@ -15,7 +15,6 @@
     </parent>
 
     <properties>
-        <container.directory>${project.basedir}/../job-service-container-fs</container.directory>
         <tomcatBaseImage>tomcat:jre8</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
@@ -24,7 +23,6 @@
         <docker.dev.repo>rh7-artifactory.svs.hpeswlab.net:8443</docker.dev.repo>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
-        <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
         <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
         <istfTopicName>JobService</istfTopicName>
@@ -69,37 +67,31 @@
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-testing-util</artifactId>
-            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-testing-integration</artifactId>
-            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.codec</groupId>
+            <groupId>com.github.cafapi.codec</groupId>
             <artifactId>${caf.codec.impl}</artifactId>
-            <version>10.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.config</groupId>
+            <groupId>com.github.cafapi.config</groupId>
             <artifactId>${caf.config.impl}</artifactId>
-            <version>10.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
+            <groupId>com.github.workerframework</groupId>
             <artifactId>${caf.worker-queue.impl}</artifactId>
-            <version>10.9</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
-            <artifactId>${caf.worker-store.impl}</artifactId>
-            <version>10.6</version>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-store-fs</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -213,9 +205,10 @@
                     </systemPropertyVariables>
                     <environmentVariables>
                         <CAF_APPNAME>test/jobservice</CAF_APPNAME>
-                        <CAF_CONFIG_PATH>${container.directory}/test-config</CAF_CONFIG_PATH>
+                        <CAF_CONFIG_PATH>${project.basedir}/test-config</CAF_CONFIG_PATH>
                         <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
                         <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
+                        <CAF_INTEGRATIONTESTS_FS_PATH>${CAF_INTEGRATIONTESTS_FS_LOCATION}/fsdatastore</CAF_INTEGRATIONTESTS_FS_PATH>
                         <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
                     </environmentVariables>
@@ -321,7 +314,7 @@
                                     <inline>
                                         <fileSets>
                                             <fileSet>
-                                                <directory>${container.directory}/test-config</directory>
+                                                <directory>test-config</directory>
                                                 <outputDirectory>/</outputDirectory>
                                                 <includes>
                                                     <include>*</include>
@@ -364,8 +357,6 @@
                                     <inline>
                                         <fileSets>
                                             <fileSet>
-                                                <directory>${container.directory}</directory>
-                                                <outputDirectory>/</outputDirectory>
                                                 <lineEnding>unix</lineEnding>
                                                 <includes>
                                                     <include>*.sh</include>
@@ -425,6 +416,9 @@
                                     <from>
                                         <image>config</image>
                                     </from>
+                                    <bind>
+                                        <volume>/vagrant/fsdatastore:/vagrant/fsdatastore</volume>
+                                    </bind>
                                 </volumes>
                                 <links>
                                     <link>jobservice-integrationtests-postgres</link>
@@ -448,7 +442,6 @@
                 </configuration>
             </plugin>
         </plugins>
-        <testSourceDirectory>${container.directory}/src/integration-test/java</testSourceDirectory>
     </build>
 
 </project>
