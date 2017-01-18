@@ -453,8 +453,7 @@
             <id>integration-test</id>
             <activation>
                 <property>
-                    <name>CAF_BUILD_TYPE</name>
-                    <value>official</value>
+                    <name>RE_BUILD_TYPE</name>
                 </property>
             </activation>
             <build>

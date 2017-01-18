@@ -102,7 +102,6 @@
             <activation>
                 <property>
                     <name>RE_BUILD_TYPE</name>
-                    <value>continuous</value>
                 </property>
             </activation>
             <build>
