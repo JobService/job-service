@@ -127,7 +127,7 @@
                     <environmentVariables>
                         <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
                         <CAF_CONFIG_PATH>${project.basedir}/test-configs</CAF_CONFIG_PATH>
-                        <CAF_INTEGRATIONTESTS_FS_PATH>${CAF_ITEGRATIONTESTS_FS_LOCATION}/fsdatastore</CAF_INTEGRATIONTESTS_FS_PATH>
+                        <CAF_INTEGRATIONTESTS_FS_PATH>${caf.integrationtests.fs.path}</CAF_INTEGRATIONTESTS_FS_PATH>
                         <JOB_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${job.database.name}</JOB_DATABASE_URL>
                         <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
                         <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
@@ -205,6 +205,34 @@
                     <logDate>default</logDate>
                     <autoPull>always</autoPull>
                     <images>
+                        <image>
+                            <alias>webdav</alias>
+                            <name>cloudesire/webdav</name>
+                            <run>
+                                <volumes>
+                                    <bind>
+                                        <volume>/srv/common/webdav</volume>
+                                    </bind>
+                                </volumes>
+                                <ports>
+                                    <port>${webdav.apache.port}:8080</port>
+                                </ports>
+                                <env>
+                                    <APACHE_PORT>8080</APACHE_PORT>
+                                </env>
+                                <wait>
+                                    <log>WebDAV Server startup complete</log>
+                                    <http>
+                                        <url>http://${docker.host.address}:${webdav.apache.port}</url>
+                                    </http>
+                                    <time>120000</time>
+                                    <shutdown>500</shutdown>
+                                </wait>
+                                <log>
+                                    <enabled>true</enabled>
+                                </log>
+                            </run>
+                        </image>
                         <!-- pull in a normal postgres DB for integration tests -->
                         <image>
                             <alias>${job.database.host}</alias>
@@ -380,10 +408,8 @@
                                 <volumes>
                                     <from>
                                         <image>config</image>
+                                        <image>webdav</image>
                                     </from>
-                                    <bind>
-                                        <volume>/vagrant/fsdatastore:/vagrant/fsdatastore</volume>
-                                    </bind>
                                 </volumes>
                                 <links>
                                     <link>rabbitmq</link>

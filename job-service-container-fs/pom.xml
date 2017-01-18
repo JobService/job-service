@@ -208,7 +208,7 @@
                         <CAF_CONFIG_PATH>${project.basedir}/test-config</CAF_CONFIG_PATH>
                         <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
                         <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
-                        <CAF_INTEGRATIONTESTS_FS_PATH>${CAF_INTEGRATIONTESTS_FS_LOCATION}/fsdatastore</CAF_INTEGRATIONTESTS_FS_PATH>
+                        <CAF_INTEGRATIONTESTS_FS_PATH>${caf.integrationtests.fs.path}</CAF_INTEGRATIONTESTS_FS_PATH>
                         <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
                     </environmentVariables>
@@ -237,6 +237,34 @@
                     <watchInterval>500</watchInterval>
                     <autoPull>always</autoPull>
                     <images>
+                        <image>
+                            <alias>webdav</alias>
+                            <name>cloudesire/webdav</name>
+                            <run>
+                                <volumes>
+                                    <bind>
+                                        <volume>/srv/common/webdav</volume>
+                                    </bind>
+                                </volumes>
+                                <ports>
+                                    <port>${webdav.apache.port}:8080</port>
+                                </ports>
+                                <env>
+                                    <APACHE_PORT>8080</APACHE_PORT>
+                                </env>
+                                <wait>
+                                    <log>WebDAV Server startup complete</log>
+                                    <http>
+                                        <url>http://${docker.host.address}:${webdav.apache.port}</url>
+                                    </http>
+                                    <time>120000</time>
+                                    <shutdown>500</shutdown>
+                                </wait>
+                                <log>
+                                    <enabled>true</enabled>
+                                </log>
+                            </run>
+                        </image>
                         <!-- pull in a normal postgres DB for integration tests -->
                         <image>
                             <alias>jobservice-integrationtests-postgres</alias>
@@ -415,10 +443,8 @@
                                 <volumes>
                                     <from>
                                         <image>config</image>
+                                        <image>webdav</image>
                                     </from>
-                                    <bind>
-                                        <volume>/vagrant/fsdatastore:/vagrant/fsdatastore</volume>
-                                    </bind>
                                 </volumes>
                                 <links>
                                     <link>jobservice-integrationtests-postgres</link>
