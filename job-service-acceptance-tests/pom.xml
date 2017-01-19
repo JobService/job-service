@@ -59,7 +59,7 @@
         <dependency>
             <groupId>com.hpe.caf.worker.batch</groupId>
             <artifactId>worker-batch-test-plugin</artifactId>
-            <version>1.8.0-SNAPSHOT</version>
+            <version>1.8.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -75,23 +75,23 @@
         <dependency>
             <groupId>com.hpe.caf.worker.batch</groupId>
             <artifactId>worker-batch-shared</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-example-shared</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.2.0-113</version>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-testing-util</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.2.0-113</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-testing-integration</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.2.0-113</version>
             <scope>test</scope>
         </dependency>
 
@@ -218,7 +218,7 @@
                                 <artifactItem>
                                     <groupId>com.hpe.caf.worker.batch</groupId>
                                     <artifactId>worker-batch-plugins-package</artifactId>
-                                    <version>1.1.0-SNAPSHOT</version>
+                                    <version>1.1.0</version>
                                     <type>tar.gz</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/worker-batch-plugins-package-unpacked</outputDirectory>
@@ -485,7 +485,7 @@
                         <!-- Run Batch worker -->
                         <image>
                             <alias>batch-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-batch:1.8.1-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/worker-batch:1.9.0-4</name>
                             <run>
                                 <ports>
                                     <port>${batch-worker.adminport}:8081</port>
@@ -520,7 +520,7 @@
                         <!-- Run Example worker -->
                         <image>
                             <alias>example-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-example:1.0.0-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/worker-example:1.0.2</name>
                             <run>
                                 <ports>
                                     <port>${example-worker.adminport}:8081</port>

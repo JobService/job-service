@@ -92,7 +92,7 @@ A job hash needs to be created to specify the job details including the name, th
         "name": "my-docker-job",
         "container": {
             "type": "DOCKER",
-            "image": "rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-caller:1.0.0-SNAPSHOT",
+            "image": "rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-caller:1.8.0",
             "forcePullImage": true,
             "network": "BRIDGE"
         },
