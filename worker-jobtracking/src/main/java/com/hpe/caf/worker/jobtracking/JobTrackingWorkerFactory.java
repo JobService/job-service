@@ -128,7 +128,7 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
 
             TaskStatus taskStatus = proxiedTaskMessage.getTaskStatus();
 
-            if (taskStatus == TaskStatus.NEW_TASK || taskStatus == TaskStatus.RESULT_SUCCESS) {
+            if (taskStatus == TaskStatus.NEW_TASK || taskStatus == TaskStatus.RESULT_SUCCESS || taskStatus == TaskStatus.RESULT_FAILURE) {
                 if (trackToPipe.equalsIgnoreCase(toPipe)) {
                     reporter.reportJobTaskComplete(jobTaskId);
                 } else {
@@ -138,7 +138,7 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
                 return;
             }
 
-            if (taskStatus == TaskStatus.RESULT_FAILURE || taskStatus == TaskStatus.RESULT_EXCEPTION) {
+            if (taskStatus == TaskStatus.RESULT_EXCEPTION) {
                 String rejectionDetails = MessageFormat.format("{0}. Execution of this job task failed.", taskStatus.toString());
 
                 //  Failed to execute job task.

@@ -91,7 +91,7 @@ public class JobTrackingWorkerFactoryTest {
         Codec codec = new JsonCodec();
         JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
-        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_FAILURE, Collections.EMPTY_MAP, toQueue);
+        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_EXCEPTION, Collections.EMPTY_MAP, toQueue);
         TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), statusCheckUrl, trackingPipe, trackToPipe);
         tm.setTracking(tracking);
 
@@ -135,7 +135,7 @@ public class JobTrackingWorkerFactoryTest {
 
         //verify results
         Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
-        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRejected(Mockito.eq(jobTaskId), Mockito.any());
+        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskProgress(Mockito.eq(jobTaskId),Mockito.anyInt());
     }
 
 
