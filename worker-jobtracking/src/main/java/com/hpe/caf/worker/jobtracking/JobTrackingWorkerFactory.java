@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Map;
@@ -139,7 +140,11 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
             }
 
             if (taskStatus == TaskStatus.RESULT_EXCEPTION) {
-                String rejectionDetails = MessageFormat.format("{0}. Execution of this job task failed.", taskStatus.toString());
+                //  Extract task data comprising the reason for RESULT_EXCEPTION.
+                String taskData = new String(proxiedTaskMessage.getTaskData(), StandardCharsets.UTF_8);
+
+                //  Append task data to failure message.
+                String rejectionDetails = MessageFormat.format("{0}. Execution of this job task failed with {1}.", taskStatus.toString(), taskData);
 
                 //  Failed to execute job task.
                 JobTrackingWorkerFailure f = new JobTrackingWorkerFailure();
