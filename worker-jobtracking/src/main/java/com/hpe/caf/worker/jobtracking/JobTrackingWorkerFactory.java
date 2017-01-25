@@ -140,18 +140,17 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
             }
 
             if (taskStatus == TaskStatus.RESULT_EXCEPTION || taskStatus == TaskStatus.INVALID_TASK) {
-                //  Extract task data comprising the reason for RESULT_EXCEPTION or INVALID_TASK.
-                String taskData = new String(proxiedTaskMessage.getTaskData(), StandardCharsets.UTF_8);
-
-                //  Append task data to failure message.
-                String rejectionDetails = MessageFormat.format("{0}. Execution of this job task failed with {1}.", taskStatus.toString(), taskData);
 
                 //  Failed to execute job task.
                 JobTrackingWorkerFailure f = new JobTrackingWorkerFailure();
-                f.setFailureId("JOB_TASK_FAILED");
+                f.setFailureId(taskStatus.toString());
                 f.setFailureTime(new Date());
-                f.setFailureSource("Job Tracking Worker");
-                f.setFailureMessage(rejectionDetails);
+                f.setFailureSource(getWorkerName(proxiedTaskMessage));
+
+                final byte[] taskData = proxiedTaskMessage.getTaskData();
+                if (taskData != null) {
+                    f.setFailureMessage(new String(taskData, StandardCharsets.UTF_8));
+                }
 
                 reporter.reportJobTaskRejected(jobTaskId, f);
 
@@ -168,7 +167,7 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
                 JobTrackingWorkerFailure f = new JobTrackingWorkerFailure();
                 f.setFailureId(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED);
                 f.setFailureTime(new Date());
-                f.setFailureSource("Job Tracking Worker");
+                f.setFailureSource(getWorkerName(proxiedTaskMessage));
                 f.setFailureMessage(rejectionDetails);
 
                 reporter.reportJobTaskRejected(jobTaskId, f);
@@ -190,5 +189,26 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
         } catch (JobReportingException e) {
             throw new TaskRejectedException("Failed to create Job Database reporter for Job Tracking Worker. ", e);
         }
+    }
+
+    /**
+     * Returns the worker name from the source information in the task message or an "Unknown" string if it is not present.
+     *
+     * @param taskMessage the task message to be examined
+     * @return the name of the worker that created the task message
+     */
+    private static String getWorkerName(final TaskMessage taskMessage)
+    {
+        final TaskSourceInfo sourceInfo = taskMessage.getSourceInfo();
+        if (sourceInfo == null) {
+            return "Unknown - no source info";
+        }
+
+        final String workerName = sourceInfo.getName();
+        if (workerName == null) {
+            return "Unknown - worker name not set";
+        }
+
+        return workerName;
     }
 }
