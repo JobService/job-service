@@ -139,8 +139,8 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
                 return;
             }
 
-            if (taskStatus == TaskStatus.RESULT_EXCEPTION) {
-                //  Extract task data comprising the reason for RESULT_EXCEPTION.
+            if (taskStatus == TaskStatus.RESULT_EXCEPTION || taskStatus == TaskStatus.INVALID_TASK) {
+                //  Extract task data comprising the reason for RESULT_EXCEPTION or INVALID_TASK.
                 String taskData = new String(proxiedTaskMessage.getTaskData(), StandardCharsets.UTF_8);
 
                 //  Append task data to failure message.
