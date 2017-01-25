@@ -465,7 +465,7 @@
                         <executions>
                             <execution>
                                 <id>start</id>
-                                <phase>package</phase></phase>
+                                <phase>package</phase>
                                 <goals>
                                     <goal>build</goal>
                                     <goal>start</goal>
