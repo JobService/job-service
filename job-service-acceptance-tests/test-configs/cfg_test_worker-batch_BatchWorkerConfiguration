@@ -1,5 +1,7 @@
 {
         "outputQueue": "batchworker-test-output-1",
 		"threads": 1,
-		"cacheExpireTime": 60
+		"cacheExpireTime": 60,
+		"returnValueBehaviour": "RETURN_ONLY_IF_ZERO_SUBTASKS"
+
 }

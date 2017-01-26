@@ -21,10 +21,10 @@ import com.hpe.caf.worker.testing.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -95,7 +95,7 @@ public class JobServiceEndToEndIT {
     }
 
 
-    @Before
+    @BeforeMethod
     public void testSetup() throws Exception {
         testItemAssetIds = generateWorkerBatch();
     }

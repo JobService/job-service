@@ -121,15 +121,10 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
                 return;
             }
 
-            String toPipe = proxiedTaskMessage.getTo();
-            if (toPipe == null) {
-                LOG.warn("Cannot evaluate job task progress for job task {} in worker task {} - the task message has no 'to' pipe", jobTaskId, proxiedTaskMessage.getTaskId());
-                return;
-            }
-
             TaskStatus taskStatus = proxiedTaskMessage.getTaskStatus();
 
             if (taskStatus == TaskStatus.NEW_TASK || taskStatus == TaskStatus.RESULT_SUCCESS || taskStatus == TaskStatus.RESULT_FAILURE) {
+                String toPipe = proxiedTaskMessage.getTo();
                 if (trackToPipe.equalsIgnoreCase(toPipe)) {
                     reporter.reportJobTaskComplete(jobTaskId);
                 } else {
