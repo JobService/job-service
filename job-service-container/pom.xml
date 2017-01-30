@@ -28,6 +28,7 @@
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
         <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
         <istfTopicName>JobService</istfTopicName>
+        <skipTests>true</skipTests>
     </properties>
 
     <dependencies>
@@ -107,11 +108,11 @@
     <profiles>
         <profile>
             <id>integration-test</id>
-            <activation>
-                <property>
-                    <name>RE_BUILD_TYPE</name>
-                </property>
-            </activation>
+            <!--<activation>-->
+                <!--<property>-->
+                    <!--<name>RE_BUILD_TYPE</name>-->
+                <!--</property>-->
+            <!--</activation>-->
             <build>
                 <plugins>
                     <plugin>
@@ -123,7 +124,6 @@
                                 <id>start</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
-                                    <goal>build</goal>
                                     <goal>start</goal>
                                 </goals>
                             </execution>
@@ -226,6 +226,14 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>${fabric8.docker.maven.version}</version>
                 <executions>
+                    <!-- Build the container in compile phase. -->
+                    <execution>
+                        <id>build-docker-container</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
                     <execution>
                         <id>upload-docker-container</id>
                         <phase>deploy</phase>
