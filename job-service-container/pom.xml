@@ -27,7 +27,6 @@
         <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
         <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
-        <istfTopicName>JobService</istfTopicName>
         <skipTests>true</skipTests>
     </properties>
 
