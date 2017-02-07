@@ -16,9 +16,9 @@ import com.hpe.caf.worker.ocr.OCRWorkerStatus;
 import com.hpe.caf.worker.ocr.OCRWorkerTask;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -144,7 +144,7 @@ public class JobTrackingWorkerIT {
                         jobTaskId,
                         to,
                         false,
-                        new JobReportingExpectation(jobTaskId, JobStatus.Failed, 0, true, true, true, true, true));
+                        new JobReportingExpectation(jobTaskId, JobStatus.Completed, 100, false, true, true, true, true));
         testProxiedMessageReporting(failureMessage, expectation);
     }
 

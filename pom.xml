@@ -47,13 +47,7 @@
         <module>worker-jobtracking</module>
         <module>worker-jobtracking-shared</module>
         <module>worker-jobtracking-container</module>
-        <module>worker-jobtracking-container-fs</module>
         <module>job-service-acceptance-tests</module>
     </modules>
-
-    <ciManagement>
-        <system>hudson</system>
-        <url>http://cafbuilder.hpeswlab.net:8080/job/job-service/</url>
-    </ciManagement>
 
 </project>

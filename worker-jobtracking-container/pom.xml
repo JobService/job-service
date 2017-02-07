@@ -14,20 +14,18 @@
     </parent>
 
     <properties>
-        <container.directory>${project.basedir}/../worker-jobtracking-container-fs</container.directory>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
-        <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
+        <caf.worker-store.impl>worker-store-fs</caf.worker-store.impl>
         <worker-jobtracking.container.name>${docker.dev.repo}/caf/worker-jobtracking:${project.version}</worker-jobtracking.container.name>
         <datastore.container.id>b591d8c6615c4af99d7915719b01259c</datastore.container.id>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
-        <test.data>${container.directory}/test-data</test.data>
+        <test.data>${project.basedir}/test-data</test.data>
         <job.database.name>jobservice</job.database.name>
         <job.database.host>jobtracking-integrationtests-postgres</job.database.host>
         <job.database.url>jdbc:postgresql://${job.database.host}:5432/${job.database.name}</job.database.url>
         <job.database.username>postgres</job.database.username>
         <job.database.password>root</job.database.password>
-        <skipTests>true</skipTests>
     </properties>
 
     <dependencies>
@@ -80,6 +78,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>        
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
@@ -127,7 +130,8 @@
                     </systemPropertyVariables>
                     <environmentVariables>
                         <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
-                        <CAF_CONFIG_PATH>${container.directory}/test-configs</CAF_CONFIG_PATH>
+                        <CAF_CONFIG_PATH>${project.basedir}/test-configs</CAF_CONFIG_PATH>
+                        <CAF_INTEGRATIONTESTS_FS_PATH>${caf.integrationtests.fs.path}</CAF_INTEGRATIONTESTS_FS_PATH>
                         <JOB_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${job.database.name}</JOB_DATABASE_URL>
                         <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
                         <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
@@ -213,6 +217,34 @@
                     <logDate>default</logDate>
                     <autoPull>always</autoPull>
                     <images>
+                        <image>
+                            <alias>webdav</alias>
+                            <name>cloudesire/webdav</name>
+                            <run>
+                                <volumes>
+                                    <bind>
+                                        <volume>/srv/common/webdav</volume>
+                                    </bind>
+                                </volumes>
+                                <ports>
+                                    <port>${webdav.apache.port}:8080</port>
+                                </ports>
+                                <env>
+                                    <APACHE_PORT>8080</APACHE_PORT>
+                                </env>
+                                <wait>
+                                    <log>WebDAV Server startup complete</log>
+                                    <http>
+                                        <url>http://${docker.host.address}:${webdav.apache.port}</url>
+                                    </http>
+                                    <time>120000</time>
+                                    <shutdown>500</shutdown>
+                                </wait>
+                                <log>
+                                    <enabled>true</enabled>
+                                </log>
+                            </run>
+                        </image>
                         <!-- pull in a normal postgres DB for integration tests -->
                         <image>
                             <alias>${job.database.host}</alias>
@@ -291,7 +323,7 @@
                                     <inline>
                                         <fileSets>
                                             <fileSet>
-                                                <directory>${container.directory}/test-configs</directory>
+                                                <directory>test-configs</directory>
                                                 <outputDirectory>/</outputDirectory>
                                                 <includes>
                                                     <include>*</include>
@@ -333,8 +365,6 @@
                                     <inline>
                                         <fileSets>
                                             <fileSet>
-                                                <directory>${container.directory}</directory>
-                                                <outputDirectory>/</outputDirectory>
                                                 <lineEnding>unix</lineEnding>
                                                 <includes>
                                                     <include>*.sh</include>
@@ -342,8 +372,6 @@
                                                 <fileMode>0755</fileMode>
                                             </fileSet>
                                             <fileSet>
-                                                <directory>${container.directory}</directory>
-                                                <outputDirectory>/</outputDirectory>
                                                 <lineEnding>unix</lineEnding>
                                                 <includes>
                                                     <include>*.yaml</include>
@@ -392,6 +420,7 @@
                                 <volumes>
                                     <from>
                                         <image>config</image>
+                                        <image>webdav</image>
                                     </from>
                                 </volumes>
                                 <links>
@@ -414,7 +443,6 @@
                 </configuration>
             </plugin>
         </plugins>
-        <testSourceDirectory>${container.directory}/src/integration-test/java</testSourceDirectory>
     </build>
 
     <profiles>
@@ -430,16 +458,16 @@
         <profile>
             <id>long-running-tests</id>
             <properties>
-                <test.data>${container.directory}/test-data-long</test.data>
+                <test.data>${project.basedir}/test-data-long</test.data>
             </properties>
         </profile>
         <profile>
             <id>integration-test</id>
-            <!--<activation>-->
-                <!--<property>-->
-                    <!--<name>RE_BUILD_TYPE</name>-->
-                <!--</property>-->
-            <!--</activation>-->
+             <activation>
+                <property>
+                    <name>RE_BUILD_TYPE</name>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
