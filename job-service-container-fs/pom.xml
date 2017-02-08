@@ -234,7 +234,7 @@
                     <verbose>true</verbose>
                     <logDate>default</logDate>
                     <watchInterval>500</watchInterval>
-                    <autoPull>always</autoPull>
+                    <autoPull>on</autoPull>
                     <images>
                         <image>
                             <alias>webdav</alias>
