@@ -8,4 +8,5 @@
 
    <include file="changelog.xml" />
    <include file="v1.3.0/changelog.xml" />
+   <include file="v1.9.0/changelog.xml" />
 </databaseChangeLog>
