@@ -488,7 +488,7 @@
                         <!-- Run Batch worker -->
                         <image>
                             <alias>batch-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-batch:1.11.0-16</name>
+                            <name>${corporateDockerReleaseRegistry}/caf/worker-batch:1.11.0-16</name>
                             <run>
                                 <ports>
                                     <port>${batch-worker.adminport}:8081</port>
