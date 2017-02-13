@@ -26,6 +26,7 @@
   "OnBuild": null,
   "Labels": {},
   "HostConfig": {
+    "Links": ["<link name for job-service docker container>"],
     "Binds": null,
     "ContainerIDFile": "",
     "LogConfig": {

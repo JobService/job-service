@@ -1,5 +1,6 @@
 package com.hpe.caf.jobservice.acceptance;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -7,6 +8,7 @@ import org.junit.Assert;
 
 import java.io.*;
 import java.net.*;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -31,6 +33,22 @@ public final class JobServiceCallerTestsHelper {
         final JSONParser parser = new JSONParser();
         final Object obj = parser.parse(input);
         return (JSONObject) obj;
+    }
+
+    /**
+     * Parses the input json string and returns the value of the passed in key.
+     *
+     * @param input - string to parse
+     * @return JSONArray - JSONArray representation of input string
+     * @throws ParseException
+     */
+    public static JSONArray parseJsonArray(final String input) throws ParseException {
+        if (input == null) {
+            return null;
+        }
+        final JSONParser parser = new JSONParser();
+        final Object obj = parser.parse(input);
+        return (JSONArray) obj;
     }
 
     /**
@@ -189,6 +207,58 @@ public final class JobServiceCallerTestsHelper {
 
         //  Remove first character from container name (i.e. '/').
         return removeFirst(name);
+    }
+
+    /**
+     * Gets the container link name for job web service container.
+     *
+     * @param jobServiceImageName - job web service image name.
+     * @param jobServiceAdminPort - job web service admin port.
+     * @param dockerContainersURL - docker containers URL needed to create the container and access its name.
+     * @return String - link name for the job web service container
+     * @throws IOException, ParseException
+     */
+    public static String getJobServiceContainerLinkName(String jobServiceImageName, String jobServiceAdminPort, String dockerContainersURL) throws IOException, ParseException {
+
+        String jobServiceContainerName = "";
+        String getContainersMetadataURL = dockerContainersURL + "/json";
+
+        //  Get a list of running containers.
+        String sendGetContainersMetadataPostResponse = sendGET(getContainersMetadataURL);
+        JSONArray getContainersMetadataResponse = parseJsonArray(sendGetContainersMetadataPostResponse);
+
+        //  Iterate through each running container and identify the job web service image we need matching on the admin port it is using.
+        for (Object objContainer: getContainersMetadataResponse) {
+            JSONObject container = (JSONObject)objContainer;
+            String image = (String)container.get("Image");
+
+            //  Only match on the specified job web service image.
+            if (image.equalsIgnoreCase(jobServiceImageName)) {
+                JSONArray ports = (JSONArray)container.get("Ports");
+
+                //  Iterate through ports and match on the specified admin port.
+                for (Object objPort: ports) {
+                    JSONObject port = (JSONObject)objPort;
+
+                    String portValue = Long.toString((Long)port.get("PublicPort"));
+                    if (portValue.equals(jobServiceAdminPort)) {
+                        //  Match found. Use the container Names section to generate a link name.
+                        List<String> names = (List<String>)container.get("Names");
+
+                        //  Remove first character from container name (i.e. '/').
+                        jobServiceContainerName = removeFirst(names.get(0)) + ":job-service";
+                        break;
+                    }
+                }
+            }
+
+            if (!jobServiceContainerName.isEmpty()){
+                break;
+            }
+        }
+
+        //  Return link name.
+        return jobServiceContainerName;
     }
 
     /**

@@ -64,8 +64,10 @@ public class JobServiceEndToEndIT {
     private static final String pollingInterval = "10";
     private static final String jobDefinitionFile = "test_job_definition.json";
     private static String dockerContainersURL;
-    private static String jobServiceURL;
     private static String jobServiceCallerImage;
+    private static String jobServiceCallerWebServiceLinkURL;
+    private static String jobServiceImage;
+    private static String jobServiceAdminPort;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -78,10 +80,12 @@ public class JobServiceEndToEndIT {
         rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
         jobsApi = createJobsApi();
         dockerContainersURL = System.getenv("CAF_DOCKER_HOST") + "/v" + System.getenv("CAF_DOCKER_VERSION") + "/containers/";
-        jobServiceURL = System.getenv("CAF_WEBSERVICE_URL").replace("/job-service/v1","");
+        jobServiceImage = System.getenv("CAF_JOB_SERVICE_IMAGE");
+        jobServiceAdminPort = System.getenv("CAF_JOB_SERVICE_ADMIN_PORT");
         jobDefinitionContainerJSON = JobServiceCallerTestsHelper.getJSONFromFile(CREATE_JOB_DEFN_CONTAINER_JSON_FILENAME);
         jobServiceCallerContainerJSON = JobServiceCallerTestsHelper.getJSONFromFile(CREATE_JOB_SERVICE_CALLER_CONTAINER_JSON_FILENAME);
         jobServiceCallerImage = System.getenv("CAF_JOB_SERVICE_CALLER_IMAGE");
+        jobServiceCallerWebServiceLinkURL = System.getenv("CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL");
     }
 
 
@@ -197,13 +201,16 @@ public class JobServiceEndToEndIT {
             //  Parse the job service caller container json string. This JSON will need modified for the test.
             JSONObject createContainerObject = JobServiceCallerTestsHelper.parseJson(jobServiceCallerContainerJSON);
 
+            //  Identify link name for the job-service container.
+            String jobServiceContainerLinkName = JobServiceCallerTestsHelper.getJobServiceContainerLinkName(jobServiceImage, jobServiceAdminPort, dockerContainersURL);
+
             //  Before job service caller container can be started, a number of changes to the container JSON needs to be made including Cmd, HostConfig and Image.
             //  Configure Cmd (i.e. modify job identifier, web service url, polling interval and job definition file that will be passed to the containerized script).
             JSONArray cmd = new JSONArray();
             cmd.add(0, "-j");
             cmd.add(1, jobId);
             cmd.add(2, "-u");
-            cmd.add(3, jobServiceURL);
+            cmd.add(3, jobServiceCallerWebServiceLinkURL);
             cmd.add(4, "-p");
             cmd.add(5, pollingInterval);
             cmd.add(6, "-f");
@@ -212,6 +219,11 @@ public class JobServiceEndToEndIT {
 
             //  Configure HostConfig
             JSONObject hostConfig = (JSONObject) createContainerObject.get("HostConfig");
+
+            JSONArray links = new JSONArray();
+            links.add(jobServiceContainerLinkName);
+            hostConfig.put("Links", links);
+
             JSONArray volumesFrom = new JSONArray();
             volumesFrom.add(jobDefinitionContainerName);
             hostConfig.put("VolumesFrom", volumesFrom);
@@ -263,6 +275,9 @@ public class JobServiceEndToEndIT {
         //  Parse the job service caller container json string.
         JSONObject createContainerObject = JobServiceCallerTestsHelper.parseJson(jobServiceCallerContainerJSON);
 
+        //  Identify link name for the job-service container.
+        String jobServiceContainerLinkName = JobServiceCallerTestsHelper.getJobServiceContainerLinkName(jobServiceImage, jobServiceAdminPort, dockerContainersURL);
+
         //  Modify job identifier, polling interval and job definition file. Leave web service url as we want to force an error.
         JSONArray cmd = new JSONArray();
         cmd.add(0, "-j");
@@ -275,9 +290,15 @@ public class JobServiceEndToEndIT {
 
         //  Configure HostConfig
         JSONObject hostConfig = (JSONObject) createContainerObject.get("HostConfig");
+
+        JSONArray links = new JSONArray();
+        links.add(jobServiceContainerLinkName);
+        hostConfig.put("Links", links);
+
         JSONArray volumesFrom = new JSONArray();
         volumesFrom.add(jobDefinitionContainerName);
         hostConfig.put("VolumesFrom", volumesFrom);
+
         createContainerObject.put("HostConfig", hostConfig);
 
         //  Configure Image.
