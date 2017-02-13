@@ -59,7 +59,7 @@
         <dependency>
             <groupId>com.hpe.caf.worker.batch</groupId>
             <artifactId>worker-batch-test-plugin</artifactId>
-            <version>1.11.0-SNAPSHOT</version>
+            <version>1.11.0-16</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>com.hpe.caf.worker.batch</groupId>
             <artifactId>worker-batch-shared</artifactId>
-            <version>1.11.0-SNAPSHOT</version>
+            <version>1.11.0-16</version>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
@@ -221,7 +221,7 @@
                                 <artifactItem>
                                     <groupId>com.hpe.caf.worker.batch</groupId>
                                     <artifactId>worker-batch-plugins-package</artifactId>
-                                    <version>1.11.0-SNAPSHOT</version>
+                                    <version>1.11.0-16</version>
                                     <type>tar.gz</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/worker-batch-plugins-package-unpacked</outputDirectory>
@@ -488,7 +488,7 @@
                         <!-- Run Batch worker -->
                         <image>
                             <alias>batch-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-batch:1.11.0-SNAPSHOT</name>
+                            <name>${docker.dev.repo}/caf/worker-batch:1.11.0-16</name>
                             <run>
                                 <ports>
                                     <port>${batch-worker.adminport}:8081</port>
