@@ -1,13 +1,18 @@
 package com.hpe.caf.jobservice.acceptance;
 
+import com.google.common.base.Strings;
+import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,6 +20,8 @@ import java.util.Scanner;
  * This utility class provides helper methods for the job service caller tests.
  */
 public final class JobServiceCallerTestsHelper {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JobServiceCallerTestsHelper.class);
 
     private JobServiceCallerTestsHelper() {
     }
@@ -63,6 +70,8 @@ public final class JobServiceCallerTestsHelper {
      */
     public static String sendPOST(String targetURL, String input, String contentType, String acceptEncoding) throws IOException {
 
+        LOG.debug("sendPOST: targetURL {}, input {}", targetURL, input);
+
         StringBuilder sb = new StringBuilder();
         String line;
 
@@ -74,7 +83,7 @@ public final class JobServiceCallerTestsHelper {
 
             //  Route through proxy if debugging enabled.
             if (isDebuggingEnabled()) {
-                Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8888));
+                Proxy proxy = getProxy();
                 urlConnection = (HttpURLConnection) url.openConnection(proxy);
             } else {
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -108,9 +117,16 @@ public final class JobServiceCallerTestsHelper {
                 br.close();
             } else {
                 throw new RuntimeException("Failed : HTTP error code : "
-                        + urlConnection.getResponseCode());
+                        + urlConnection.getResponseCode()
+                        + " Error stream : "
+                        + IOUtils.toString(urlConnection.getErrorStream(), StandardCharsets.UTF_8)
+                        + " Url : "
+                        + urlConnection.getURL().toString());
             }
 
+        } catch (Exception e) {
+            LOG.error("Error while sending POST request {}. ", e);
+            throw e;
         } finally {
             if (urlConnection != null) {
                 try {
@@ -132,6 +148,8 @@ public final class JobServiceCallerTestsHelper {
      */
     public static String sendGET(String targetURL) throws IOException {
 
+        LOG.debug("sendGET: targetURL {}", targetURL);
+
         StringBuilder sb = new StringBuilder();
         String line;
 
@@ -142,7 +160,7 @@ public final class JobServiceCallerTestsHelper {
 
             //  Route through proxy if debugging enabled.
             if (isDebuggingEnabled()) {
-                Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8888));
+                Proxy proxy = getProxy();
                 urlConnection = (HttpURLConnection) url.openConnection(proxy);
             } else {
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -165,9 +183,16 @@ public final class JobServiceCallerTestsHelper {
                 br.close();
             } else {
                 throw new RuntimeException("Failed : HTTP error code : "
-                        + urlConnection.getResponseCode());
+                        + urlConnection.getResponseCode()
+                        + " Error stream : "
+                        + IOUtils.toString(urlConnection.getErrorStream(), StandardCharsets.UTF_8)
+                        + " Url : "
+                        + urlConnection.getURL().toString());
             }
 
+        } catch (Exception e) {
+            LOG.error("Error while sending GET request {}. ", e);
+            throw e;
         } finally {
             if (urlConnection != null) {
                 try {
@@ -189,19 +214,24 @@ public final class JobServiceCallerTestsHelper {
      * @throws IOException, ParseException
      */
     public static String getJobDefinitionContainerName(String containerJSON, String dockerContainersURL) throws IOException, ParseException {
+        LOG.debug("getJobDefinitionContainerName: containerJSON {}, dockerContainersURL {}", containerJSON, dockerContainersURL);
 
         //  Append "create" to url in order to send request to create the container
+        LOG.debug("getJobDefinitionContainerName: Creating container ...");
         String createContainerURL = dockerContainersURL + "create";
         String sendCreateContainerPostResponse = sendPOST(createContainerURL,containerJSON,"application/json", "gzip");
 
         // Get container id from response object.
+        LOG.debug("getJobDefinitionContainerName: Get container id from response ...");
         JSONObject createContainerResponse = parseJson(sendCreateContainerPostResponse);
         String id = (String) createContainerResponse.get("Id");
 
         //  Use identifier to build up a URL that can be used to return container metadata.
+        LOG.debug("getJobDefinitionContainerName: Get container metadata ...");
         String getContainerMetadataURL = dockerContainersURL + id + "/json";
         String sendGetContainerMetadataPostResponse = sendGET(getContainerMetadataURL);
 
+        LOG.debug("getJobDefinitionContainerName: Get container name ...");
         JSONObject getContainerMetadataResponse = parseJson(sendGetContainerMetadataPostResponse);
         String name = (String) getContainerMetadataResponse.get("Name");
 
@@ -220,14 +250,18 @@ public final class JobServiceCallerTestsHelper {
      */
     public static String getJobServiceContainerLinkName(String jobServiceImageName, String jobServiceAdminPort, String dockerContainersURL) throws IOException, ParseException {
 
+        LOG.debug("getJobServiceContainerLinkName: jobServiceImageName {}, jobServiceAdminPort {}, dockerContainersURL {}", jobServiceImageName, jobServiceAdminPort, dockerContainersURL);
+
         String jobServiceContainerName = "";
         String getContainersMetadataURL = dockerContainersURL + "/json";
 
         //  Get a list of running containers.
+        LOG.debug("getJobDefinitionContainerName: Retrieve a list of running containers ...");
         String sendGetContainersMetadataPostResponse = sendGET(getContainersMetadataURL);
         JSONArray getContainersMetadataResponse = parseJsonArray(sendGetContainersMetadataPostResponse);
 
         //  Iterate through each running container and identify the job web service image we need matching on the admin port it is using.
+        LOG.debug("getJobDefinitionContainerName: Identify job web service image matching on admin port ...");
         for (Object objContainer: getContainersMetadataResponse) {
             JSONObject container = (JSONObject)objContainer;
             String image = (String)container.get("Image");
@@ -242,6 +276,8 @@ public final class JobServiceCallerTestsHelper {
 
                     String portValue = Long.toString((Long)port.get("PublicPort"));
                     if (portValue.equals(jobServiceAdminPort)) {
+                        LOG.debug("getJobDefinitionContainerName: Found matching job web service image ...");
+
                         //  Match found. Use the container Names section to generate a link name.
                         List<String> names = (List<String>)container.get("Names");
 
@@ -308,4 +344,25 @@ public final class JobServiceCallerTestsHelper {
         return isEnabled;
     }
 
+    private static Proxy getProxy() {
+        String proxyHostName;
+        if (!Strings.isNullOrEmpty(System.getenv("DEBUG_HTTP_PROXY_HOST"))) {
+            proxyHostName = System.getenv("DEBUG_HTTP_PROXY_HOST");
+        } else {
+            proxyHostName = "localhost";
+        }
+
+        LOG.debug("getProxy: proxyHostName {}", proxyHostName);
+
+        int proxyPort;
+        if (!Strings.isNullOrEmpty(System.getenv("DEBUG_HTTP_PROXY_PORT"))) {
+            proxyPort = Integer.parseInt(System.getenv("DEBUG_HTTP_PROXY_PORT"));
+        } else {
+            proxyPort = 8888;
+        }
+
+        LOG.debug("getProxy: proxyPort {}", proxyPort);
+
+        return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHostName, proxyPort));
+    }
 }
