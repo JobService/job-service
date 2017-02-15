@@ -21,6 +21,8 @@ import com.hpe.caf.worker.testing.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeClass;
@@ -68,6 +70,8 @@ public class JobServiceEndToEndIT {
     private static String jobServiceCallerWebServiceLinkURL;
     private static String jobServiceImage;
     private static String jobServiceAdminPort;
+
+    private static final Logger LOG = LoggerFactory.getLogger(JobServiceEndToEndIT.class);
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -171,6 +175,9 @@ public class JobServiceEndToEndIT {
     @Test
     @SuppressWarnings("unchecked")
     public void testJobServiceCaller_Success() throws ParseException, IOException, TimeoutException {
+
+        LOG.debug("Starting testJobServiceCaller_Success() ...");
+
         //  Generate job identifier.
         String jobId = "J" + System.currentTimeMillis();
 
@@ -260,73 +267,87 @@ public class JobServiceEndToEndIT {
             // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
             TestResult result = context.getTestResult();
             Assert.assertTrue(result.isSuccess());
+        } catch (Exception e){
+            LOG.error("Error while running testJobServiceCaller_Success().", e);
+            throw e;
         }
+
+        LOG.debug("Finished testJobServiceCaller_Success().");
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testJobServiceCaller_Failure() throws ParseException, IOException, TimeoutException {
-        //  Generate job identifier.
-        String jobId = "J" + System.currentTimeMillis();
+        LOG.debug("Starting testJobServiceCaller_Failure() ...");
 
-        //  Identify name of test data container as  we need to set up VolumesFrom to access the test data file.
-        String jobDefinitionContainerName = JobServiceCallerTestsHelper.getJobDefinitionContainerName(jobDefinitionContainerJSON, dockerContainersURL);
+        try {
+            //  Generate job identifier.
+            String jobId = "J" + System.currentTimeMillis();
 
-        //  Parse the job service caller container json string.
-        JSONObject createContainerObject = JobServiceCallerTestsHelper.parseJson(jobServiceCallerContainerJSON);
+            //  Identify name of test data container as  we need to set up VolumesFrom to access the test data file.
+            String jobDefinitionContainerName = JobServiceCallerTestsHelper.getJobDefinitionContainerName(jobDefinitionContainerJSON, dockerContainersURL);
 
-        //  Identify link name for the job-service container.
-        String jobServiceContainerLinkName = JobServiceCallerTestsHelper.getJobServiceContainerLinkName(jobServiceImage, jobServiceAdminPort, dockerContainersURL);
+            //  Parse the job service caller container json string.
+            JSONObject createContainerObject = JobServiceCallerTestsHelper.parseJson(jobServiceCallerContainerJSON);
 
-        //  Modify job identifier, polling interval and job definition file. Leave web service url as we want to force an error.
-        JSONArray cmd = new JSONArray();
-        cmd.add(0, "-j");
-        cmd.add(1, jobId);
-        cmd.add(2, "-p");
-        cmd.add(3, pollingInterval);
-        cmd.add(4, "-f");
-        cmd.add(5, "/jobDefinition/" + jobDefinitionFile);
-        createContainerObject.put("Cmd", cmd);
+            //  Identify link name for the job-service container.
+            String jobServiceContainerLinkName = JobServiceCallerTestsHelper.getJobServiceContainerLinkName(jobServiceImage, jobServiceAdminPort, dockerContainersURL);
 
-        //  Configure HostConfig
-        JSONObject hostConfig = (JSONObject) createContainerObject.get("HostConfig");
+            //  Modify job identifier, polling interval and job definition file. Leave web service url as we want to force an error.
+            JSONArray cmd = new JSONArray();
+            cmd.add(0, "-j");
+            cmd.add(1, jobId);
+            cmd.add(2, "-p");
+            cmd.add(3, pollingInterval);
+            cmd.add(4, "-f");
+            cmd.add(5, "/jobDefinition/" + jobDefinitionFile);
+            createContainerObject.put("Cmd", cmd);
 
-        JSONArray links = new JSONArray();
-        links.add(jobServiceContainerLinkName);
-        hostConfig.put("Links", links);
+            //  Configure HostConfig
+            JSONObject hostConfig = (JSONObject) createContainerObject.get("HostConfig");
 
-        JSONArray volumesFrom = new JSONArray();
-        volumesFrom.add(jobDefinitionContainerName);
-        hostConfig.put("VolumesFrom", volumesFrom);
+            JSONArray links = new JSONArray();
+            links.add(jobServiceContainerLinkName);
+            hostConfig.put("Links", links);
 
-        createContainerObject.put("HostConfig", hostConfig);
+            JSONArray volumesFrom = new JSONArray();
+            volumesFrom.add(jobDefinitionContainerName);
+            hostConfig.put("VolumesFrom", volumesFrom);
 
-        //  Configure Image.
-        createContainerObject.put("Image", jobServiceCallerImage);
+            createContainerObject.put("HostConfig", hostConfig);
 
-        //  Send POST request to create the job service caller container.
-        String createContainerURL = dockerContainersURL + "create";
-        String sendCreateContainerPostResponse = JobServiceCallerTestsHelper.sendPOST(createContainerURL,createContainerObject.toJSONString().replace("\\/","/"), "application/json", "gzip");
+            //  Configure Image.
+            createContainerObject.put("Image", jobServiceCallerImage);
 
-        //  Get container id from response object.
-        JSONObject createContainerResponse = JobServiceCallerTestsHelper.parseJson(sendCreateContainerPostResponse);
-        String id = (String) createContainerResponse.get("Id");
+            //  Send POST request to create the job service caller container.
+            String createContainerURL = dockerContainersURL + "create";
+            String sendCreateContainerPostResponse = JobServiceCallerTestsHelper.sendPOST(createContainerURL, createContainerObject.toJSONString().replace("\\/", "/"), "application/json", "gzip");
 
-        //  Use container id to send POST to start the container.
-        String startContainerURL = dockerContainersURL + id + "/start";
-        JobServiceCallerTestsHelper.sendPOST(startContainerURL,"","text/plain", "gzip");
+            //  Get container id from response object.
+            JSONObject createContainerResponse = JobServiceCallerTestsHelper.parseJson(sendCreateContainerPostResponse);
+            String id = (String) createContainerResponse.get("Id");
 
-        //  Use container id to send POST request to wait on container response.
-        String waitContainerURL = dockerContainersURL + id + "/wait";
-        String sendWaitContainerPostResponse = JobServiceCallerTestsHelper.sendPOST(waitContainerURL,"", "text/plain", "gzip");
+            //  Use container id to send POST to start the container.
+            String startContainerURL = dockerContainersURL + id + "/start";
+            JobServiceCallerTestsHelper.sendPOST(startContainerURL, "", "text/plain", "gzip");
 
-        // Get status code.
-        JSONObject waitContainerResponse = JobServiceCallerTestsHelper.parseJson(sendWaitContainerPostResponse);
-        long statusCode = (long) waitContainerResponse.get("StatusCode");
+            //  Use container id to send POST request to wait on container response.
+            String waitContainerURL = dockerContainersURL + id + "/wait";
+            String sendWaitContainerPostResponse = JobServiceCallerTestsHelper.sendPOST(waitContainerURL, "", "text/plain", "gzip");
 
-        //  Expecting StatusCode > 0 for failure.
-        Assert.assertNotNull(statusCode);
-        Assert.assertTrue(statusCode > 0);
+            // Get status code.
+            JSONObject waitContainerResponse = JobServiceCallerTestsHelper.parseJson(sendWaitContainerPostResponse);
+            long statusCode = (long) waitContainerResponse.get("StatusCode");
+
+            //  Expecting StatusCode > 0 for failure.
+            Assert.assertNotNull(statusCode);
+            Assert.assertTrue(statusCode > 0);
+        } catch (Exception e){
+            LOG.error("Error while running testJobServiceCaller_Failure().", e);
+            throw e;
+        }
+
+        LOG.debug("Finished testJobServiceCaller_Failure().");
     }
 
     private List<String> generateWorkerBatch() throws DataStoreException {
