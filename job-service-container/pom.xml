@@ -15,19 +15,16 @@
     </parent>
 
     <properties>
-        <container.directory>${project.basedir}/../job-service-container-fs</container.directory>
         <tomcatBaseImage>tomcat:jre8</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
         <db.name>jobservice</db.name>
-        <docker.dev.repo>rh7-artifactory.svs.hpeswlab.net:8443</docker.dev.repo>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
-        <caf.worker-store.impl>worker-store-cs</caf.worker-store.impl>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
         <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
-        <skipTests>true</skipTests>
+        <istfTopicName>JobService</istfTopicName>
     </properties>
 
     <dependencies>
@@ -69,37 +66,31 @@
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-testing-util</artifactId>
-            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-testing-integration</artifactId>
-            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.codec</groupId>
+            <groupId>com.github.cafapi.codec</groupId>
             <artifactId>${caf.codec.impl}</artifactId>
-            <version>10.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.config</groupId>
+            <groupId>com.github.cafapi.config</groupId>
             <artifactId>${caf.config.impl}</artifactId>
-            <version>10.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
+            <groupId>com.github.workerframework</groupId>
             <artifactId>${caf.worker-queue.impl}</artifactId>
-            <version>10.9</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
-            <artifactId>${caf.worker-store.impl}</artifactId>
-            <version>10.6</version>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-store-fs</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -107,11 +98,11 @@
     <profiles>
         <profile>
             <id>integration-test</id>
-            <!--<activation>-->
-                <!--<property>-->
-                    <!--<name>RE_BUILD_TYPE</name>-->
-                <!--</property>-->
-            <!--</activation>-->
+            <activation>
+                <property>
+                    <name>RE_BUILD_TYPE</name>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -121,8 +112,9 @@
                         <executions>
                             <execution>
                                 <id>start</id>
-                                <phase>pre-integration-test</phase>
+                                <phase>package</phase>
                                 <goals>
+                                    <goal>build</goal>
                                     <goal>start</goal>
                                 </goals>
                             </execution>
@@ -211,9 +203,10 @@
                     </systemPropertyVariables>
                     <environmentVariables>
                         <CAF_APPNAME>test/jobservice</CAF_APPNAME>
-                        <CAF_CONFIG_PATH>${container.directory}/test-config</CAF_CONFIG_PATH>
+                        <CAF_CONFIG_PATH>${project.basedir}/test-config</CAF_CONFIG_PATH>
                         <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
                         <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
+                        <CAF_INTEGRATIONTESTS_FS_PATH>${caf.integrationtests.fs.path}</CAF_INTEGRATIONTESTS_FS_PATH>
                         <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
                     </environmentVariables>
@@ -225,14 +218,6 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>${fabric8.docker.maven.version}</version>
                 <executions>
-                    <!-- Build the container in compile phase. -->
-                    <execution>
-                        <id>build-docker-container</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
                     <execution>
                         <id>upload-docker-container</id>
                         <phase>deploy</phase>
@@ -248,8 +233,36 @@
                     <verbose>true</verbose>
                     <logDate>default</logDate>
                     <watchInterval>500</watchInterval>
-                    <autoPull>always</autoPull>
+                    <autoPull>on</autoPull>
                     <images>
+                        <image>
+                            <alias>webdav</alias>
+                            <name>cloudesire/webdav</name>
+                            <run>
+                                <volumes>
+                                    <bind>
+                                        <volume>/srv/common/webdav</volume>
+                                    </bind>
+                                </volumes>
+                                <ports>
+                                    <port>${webdav.apache.port}:8080</port>
+                                </ports>
+                                <env>
+                                    <APACHE_PORT>8080</APACHE_PORT>
+                                </env>
+                                <wait>
+                                    <log>WebDAV Server startup complete</log>
+                                    <http>
+                                        <url>http://${docker.host.address}:${webdav.apache.port}</url>
+                                    </http>
+                                    <time>120000</time>
+                                    <shutdown>500</shutdown>
+                                </wait>
+                                <log>
+                                    <enabled>true</enabled>
+                                </log>
+                            </run>
+                        </image>
                         <!-- pull in a normal postgres DB for integration tests -->
                         <image>
                             <alias>jobservice-integrationtests-postgres</alias>
@@ -327,7 +340,7 @@
                                     <inline>
                                         <fileSets>
                                             <fileSet>
-                                                <directory>${container.directory}/test-config</directory>
+                                                <directory>test-config</directory>
                                                 <outputDirectory>/</outputDirectory>
                                                 <includes>
                                                     <include>*</include>
@@ -370,8 +383,6 @@
                                     <inline>
                                         <fileSets>
                                             <fileSet>
-                                                <directory>${container.directory}</directory>
-                                                <outputDirectory>/</outputDirectory>
                                                 <lineEnding>unix</lineEnding>
                                                 <includes>
                                                     <include>*.sh</include>
@@ -430,6 +441,7 @@
                                 <volumes>
                                     <from>
                                         <image>config</image>
+                                        <image>webdav</image>
                                     </from>
                                 </volumes>
                                 <links>
@@ -454,7 +466,6 @@
                 </configuration>
             </plugin>
         </plugins>
-        <testSourceDirectory>${container.directory}/src/integration-test/java</testSourceDirectory>
     </build>
 
 </project>
