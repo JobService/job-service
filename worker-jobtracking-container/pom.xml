@@ -34,6 +34,12 @@
             <groupId>com.github.workerframework</groupId>
             <artifactId>standard-worker-container</artifactId>
             <type>pom</type>
+            <exclusions>
+                <exclusion>
+                    <artifactId>worker-store-cs</artifactId>
+                    <groupId>com.github.workerframework</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.github.krallin</groupId>
