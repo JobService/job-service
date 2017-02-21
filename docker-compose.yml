@@ -1,0 +1,104 @@
+version: '3'
+services:
+  jobservice:
+    depends_on:
+      - rabbitmq
+      - jobservicedb
+    environment:
+      CAF_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
+      CAF_DATABASE_USERNAME: postgres
+      CAF_DATABASE_PASSWORD: root
+      CAF_RABBITMQ_HOST: rabbitmq
+      CAF_RABBITMQ_PORT: 5672
+      CAF_RABBITMQ_PASSWORD: guest
+      CAF_RABBITMQ_USERNAME: guest
+      CAF_STATUS_CHECK_TIME: 5
+      CAF_TRACKING_PIPE: jobtracking-in
+      CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
+    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/job-service:1.9.1-78
+    ports:
+      - "${JOB_SERVICE_PORT:-9411}:8080"
+
+  jobservicedb:
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: jobservice
+    image: postgres:9.4
+    volumes:
+      - job-service-db:/var/lib/postgresql/data
+
+  # Surprisingly this loses the data in the queues even though the volume is specified
+  # There must be an environment variable or something like that that can be set to cause it to persist to the volume
+  rabbitmq:
+    image: rabbitmq:3-management
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+
+  worker-batch:
+    depends_on:
+      - rabbitmq
+    environment:
+      CAF_APPNAME: /caf/batch-worker/batch
+      CAF_CONFIG_PATH: /mnt/caf-config-files
+      CAF_RABBITMQ_HOST: rabbitmq
+      CAF_RABBITMQ_PORT: 5672
+      CAF_RABBITMQ_PASSWORD: guest
+      CAF_RABBITMQ_USERNAME: guest
+      CAF_RABBITMQ_PREFETCH_BUFFER: 1
+      CAF_WORKER_INPUT_QUEUE: batch-in
+      CAF_WORKER_OUTPUT_QUEUE: batch-out
+      CAF_WORKER_REJECTED_QUEUE: batch-rejected
+    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-batch-fs:1.11.0-16
+    volumes:
+      - ./batch-plugins:/mnt/mesos/sandbox/batch-plugins:ro
+      - ./config-files:/mnt/caf-config-files:ro
+      - ${JOB_SERVICE_DEMO_DIR:-./demo-dir}:/mnt/caf-datastore-root
+
+  worker-jobtracking:
+    depends_on:
+      - rabbitmq
+      - jobservicedb
+    environment:
+      CAF_APPNAME: /caf/job-service/jobtracking
+      CAF_CONFIG_PATH: /mnt/caf-config-files
+      CAF_RABBITMQ_HOST: rabbitmq
+      CAF_RABBITMQ_PORT: 5672
+      CAF_RABBITMQ_PASSWORD: guest
+      CAF_RABBITMQ_USERNAME: guest
+      CAF_RABBITMQ_PREFETCH_BUFFER: 1
+      CAF_WORKER_INPUT_QUEUE: jobtracking-in
+      CAF_WORKER_OUTPUT_QUEUE: jobtracking-out
+      CAF_WORKER_REJECTED_QUEUE: jobtracking-rejected
+      JOB_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
+      JOB_DATABASE_USERNAME: postgres
+      JOB_DATABASE_PASSWORD: root
+    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-jobtracking:1.9.1-78
+    volumes:
+      - ./config-files:/mnt/caf-config-files:ro
+
+  worker-langid:
+    depends_on:
+      - rabbitmq
+    environment:
+      CAF_RABBITMQ_HOST: rabbitmq
+      CAF_RABBITMQ_PORT: 5672
+      CAF_RABBITMQ_PASSWORD: guest
+      CAF_RABBITMQ_USERNAME: guest
+      CAF_RABBITMQ_PREFETCH_BUFFER: 1
+      CAF_WORKER_DATASTORE_PATH: /mnt/caf-datastore-root
+      CAF_WORKER_INPUT_QUEUE: languageidentification-in
+      CAF_WORKER_OUTPUT_QUEUE: languageidentification-out
+      CAF_WORKER_REJECTED_QUEUE: languageidentification-rejected
+      CAF_WORKER_RETRY_LIMIT: 10
+      HAVEN_ON_DEMAND_API_KEY: 86880213-f83e-4d75-8236-e14f11695407
+      HTTP_PROXY: ${HTTP_PROXY}
+      HTTPS_PROXY: ${HTTPS_PROXY}
+    image: rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-language-identification:1.0.0-SNAPSHOT
+    volumes:
+      - ${JOB_SERVICE_DEMO_DIR:-./demo-dir}:/mnt/caf-datastore-root
+
+volumes:
+  job-service-db:
+  rabbitmq:
+  worker-datastore:

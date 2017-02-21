@@ -1,0 +1,33 @@
+version: '3'
+services:
+  # Expose the Job Service Database so that an external Database tool like DbVisualizer
+  # can be used to connect to it.
+  jobservicedb:
+    ports:
+      - "9450:5432"
+
+  # Expose the RabbitMQ UI so that the queues can be easily examined.
+  rabbitmq:
+    ports:
+      - "9451:15672"
+
+  # Expose the Batch Worker admin port
+  worker-batch:
+    environment:
+      CAF_LOG_LEVEL: DEBUG
+    ports:
+      - "9452:8081"
+
+  # Expose the Job Tracking Worker admin port
+  worker-jobtracking:
+    environment:
+      CAF_LOG_LEVEL: DEBUG
+    ports:
+      - "9453:8081"
+
+  # Expose the Language Identification Worker admin port
+  worker-langid:
+    environment:
+      CAF_LOG_LEVEL: DEBUG
+    ports:
+      - "9454:8081"
