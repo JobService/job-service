@@ -23,6 +23,7 @@
         <job.database.url>jdbc:postgresql://${job.database.host}:5432/${job.database.name}</job.database.url>
         <job.database.username>postgres</job.database.username>
         <job.database.password>root</job.database.password>
+        <create.job.def.container.template.dir>templates</create.job.def.container.template.dir>
     </properties>
 
     <dependencies>
@@ -137,6 +138,23 @@
 
 
     <build>
+        <testResources>
+            <testResource>
+                <!-- Include create_job_definition_container.json with project version substitution but place in auto-generated
+                location to avoid checkin. -->
+                <directory>${create.job.def.container.template.dir}</directory>
+                <includes>
+                    <include>create_job_definition_container.json</include>
+                </includes>
+                <filtering>true</filtering>
+                <targetPath>${project.build.directory}/generated-test-sources/resources</targetPath>
+            </testResource>
+            <testResource>
+                <!-- Mark the generated-test-resources as a resources folder, and not source. -->
+                <directory>${project.build.directory}/generated-test-sources/resources</directory>
+            </testResource>
+        </testResources>
+
         <plugins>
             <!--Run integration tests.-->
             <plugin>
