@@ -1,4 +1,4 @@
-# Job Service [![Build Status](http://cafbuilder.hpswlabs.hp.com:8080/buildStatus/icon?job=job-service)](http://cafbuilder.hpswlabs.hp.com:8080/job/job-service)
+# Job Service
 
 Manifest of the components which make up the Job Service:
 * [job-service](job-service)

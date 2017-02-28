@@ -1,4 +1,4 @@
-# Job Service Test Cases [![Build Status](http://cafbuilder.hpswlabs.hp.com:8080/buildStatus/icon?job=job-service)](http://cafbuilder.hpswlabs.hp.com:8080/job/job-service/)
+# Job Service Test Cases
 
 The automated testcases for the Job Service are documented in the [automated](automated) folder
 

@@ -1,4 +1,4 @@
-# Job Service Container [![Build Status](http://cafbuilder.hpswlabs.hp.com:8080/buildStatus/icon?job=job-service)](http://cafbuilder.hpswlabs.hp.com:8080/job/job-service)
+# Job Service Container
 
 This docker image contains the [Job Service](https://github.hpe.com/caf/job-service) hosted in Apache Tomcat 8.
 
