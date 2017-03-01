@@ -10,9 +10,9 @@ The database is installed using the Liquibase database change management tool an
 The Job Service database requires PostgreSQL 9.4 or later to be installed and configured. 
 
 ### Database Artifact
-With PostgreSQL 9.4 or later installed and configured, download the [job-service-db-1.2.0-jar-with-dependencies](http://cbgmaven.hpeswlab.net/nexus/content/repositories/releases/com/hpe/caf/job-service-db/1.2.0/job-service-db-1.2.0-jar-with-dependencies.jar) jar from Nexus and then run:
+With PostgreSQL 9.4 or later installed and configured, download the [job-service-db-1.9.1-78-jar-with-dependencies](http://rh7-artifactory.svs.hpeswlab.net:8081/artifactory/libs-release-local/com/hpe/caf/job-service-db/1.9.1-78/job-service-db-1.9.1-78-jar-with-dependencies.jar) jar from Artifactory and then run:
 
-	java -jar /job-service-db-1.2.0-jar-with-dependencies.jar -db.connection jdbc:postgresql://localhost:5432 -db.name jobservice -db.pass root -db.user postgres -fd
+	java -jar /job-service-db-1.9.1-78-jar-with-dependencies.jar -db.connection jdbc:postgresql://localhost:5432 -db.name jobservice -db.pass root -db.user postgres -fd
 
 the database connection, user and password string arguments will need changed to match your PostgreSQL 9.4 or later setup.
 
