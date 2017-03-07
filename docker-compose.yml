@@ -24,7 +24,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
       POSTGRES_DB: jobservice
-    image: postgres:9.4
+    image: rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-postgres:1.10.0-SNAPSHOT
     volumes:
       - job-service-db:/var/lib/postgresql/data
 
