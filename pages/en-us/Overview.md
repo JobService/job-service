@@ -13,7 +13,7 @@ banner:
 
 # Overview
 
-The Job Service is a RESTful web service that makes it easy for you to use and receive feedback from Worker Framework miscroservices (workers).
+The Job Service is a RESTful web service that makes it easy for you to use and receive feedback from Worker Framework microservices (workers).
 
 ## Introduction
 The Worker Framework provides many different types of workers, but they all perform tasks asynchronously in the background. The Job Service can send tasks to these workers, check the progress on those tasks, and cancel them, if they have not executed yet. The Job Service complements the Worker Framework by making its functionality more readily available, and providing a standard mechanism for interacting with workers. For example, using the Job Service relieves you from having to concern yourself with which messaging framework the workers use for communication.
