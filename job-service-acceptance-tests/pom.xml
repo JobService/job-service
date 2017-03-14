@@ -377,10 +377,10 @@
                             </run>
                         </image>
 
-                        <!-- Run jobservice db installer against PostgreSQL database to install jobservice schema -->
+                        <!-- Run jobservice postgres container against PostgreSQL database to install jobservice schema -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>${docker.dev.repo}/caf/job-service-db-installer:${project.version}</name>
+                            <name>${corporateDockerRegistry}/caf/job-service-postgres:${project.version}</name>
                             <run>
                                 <links>
                                     <link>${job.database.host}</link>
@@ -388,8 +388,7 @@
                                 <log>
                                     <enabled>true</enabled>
                                 </log>
-                                <cmd>java -jar /job-service-db.jar -fd -db.user ${job.database.username} -db.pass ${job.database.password} -db.name ${job.database.name} -db.connection jdbc:postgresql://${job.database.host}:5432 -log debug
-                                </cmd>
+                                <cmd>./install_job_service_db.sh -fd -db.connection jdbc:postgresql://${job.database.host}:5432 -db.name ${job.database.name} -db.user ${job.database.username} -db.pass ${job.database.password} -log debug</cmd>
                                 <wait>
                                     <log>DB update finished.</log>
                                     <time>120000</time>

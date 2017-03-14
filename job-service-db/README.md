@@ -1,6 +1,6 @@
 # Job Service Database Installer
 
-This is the database schema and provisioning tool for the [Job Service](https://github.hpe.com/caf/job-service). 
+This is the database schema and provisioning tool for the [Job Service](../job-service). 
 
 ## Setup
 
@@ -17,18 +17,26 @@ With PostgreSQL 9.4 or later installed and configured, download the [job-service
 the database connection, user and password string arguments will need changed to match your PostgreSQL 9.4 or later setup.
 
 ### Docker Image
-This is available as a Docker container - see [job-service-db-container](https://github.hpe.com/caf/job-service/tree/develop/job-service-db-container).
+This is available as a Docker container - see [job-service-postgres-container](../job-service-postgres-container).
 
-With PostgreSQL 9.4 or later installed and configured, pull the installer image from artifactory using:
+With PostgreSQL 9.4 or later installed and configured, pull the installer image from artifactory. For example:
 
-	docker pull rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-db-installer:1.2.0
+	docker pull rh7-artifactory.svs.hpeswlab.net:8444/caf/job-service-postgres:1.10.0-<buildnum>
 
 then run the image using:
 
-	docker run -i -t <IMAGE ID> bash
+	docker run --rm rh7-artifactory.svs.hpeswlab.net:8444/caf/job-service-postgres:1.10.0-<buildnum> \
+	./install_job_service_db.sh \
+	-db.connection jdbc:postgresql://<postgres host>:5432/ \
+	-db.name jobservice \
+	-db.user postgres \
+	-db.pass root
 
-then the following to run the jar from the `job-service-db-installer` container:
+where:
 
-	java -jar /job-service-db.jar -db.connection jdbc:postgresql://localhost:5432 -db.name jobservice -db.pass root -db.user postgres -fd
+*   db.connection  : Specifies the jdbc connection string to the database service. This does not include the database name.  e.g. `jdbc:postgresql://<postgres host>:5432/`.
+*   db.name  :  Specifies the name of the database to be created or updated.
+*   db.user  :  Specifies the username to access the database.
+*   db.pass  :  Specifies the password to access the database.
 
-the database connection, user and password string arguments will need changed to match your PostgreSQL 9.4 or later setup.
+The jdbc database connection, user and password string arguments will need changed to match your external PostgreSQL 9.4 or later setup.

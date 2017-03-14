@@ -8,7 +8,7 @@ Manifest of the components which make up the Job Service:
 * [job-service-container](job-service-container)
 * [job-service-contract](job-service-contract)
 * [job-service-db](job-service-db)
-* [job-service-db-container](job-service-db-container)
+* [job-service-postgres-container](job-service-postgres-container)
 * [job-service-html](job-service-html)
 * [job-service-ui](job-service-ui)
 * [worker-jobtracking](worker-boilerplate)
