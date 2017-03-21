@@ -6,7 +6,22 @@ A Docker container encapsulating the job service database. This container has be
 
 ## Service Mode
 
-By default, the container runs the job service database as a service. On start up, a database named 'jobservice' is installed on a postgres 9.4 instance inside the container. The postgres instance will not be available for connection until the database set up is complete. The completion can be seen when the container log outputs the line "Completed installation of Job Service database.".
+By default, the container runs the job service database as a service. On start up, a database (named 'jobservice' by default) is installed on a postgres 9.4 instance inside the container. The postgres instance will not be available for connection until the database set up is complete. The completion can be seen when the container log outputs the line "Completed installation of Job Service database.".
+
+### Environment Variables
+
+The following environment variables can be passed to the container to control its behaviour on startup.
+
+#### POSTGRES_DB
+- The name to use for the installed job service database. Defaults to 'jobservice'.
+
+#### POSTGRES_PASSWORD
+
+- The postgres password that will be used for database communication.
+
+#### POSTGRES_USER
+
+- The postgres user that will be created with permissions for the installed job service database.
 
 ## Utility Mode
 

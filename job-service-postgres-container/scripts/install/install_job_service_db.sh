@@ -1,8 +1,7 @@
 #!/bin/bash
 
-echo "installing job service database"
+echo "Installing Job Service database"
 
-java \
-  -jar /job-service-db.jar $@
-  
-echo "installed job service database"
+java -jar /job-service-db.jar $@
+
+echo "Installed Job Service database"
