@@ -31,3 +31,10 @@ services:
       CAF_LOG_LEVEL: DEBUG
     ports:
       - "9454:8081"
+
+  # Expose the LanguageDetection Worker admin port
+  worker-languagedetection:
+    environment:
+      CAF_LOG_LEVEL: DEBUG
+    ports:
+      - "9455:8081"

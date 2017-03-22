@@ -98,6 +98,26 @@ services:
     volumes:
       - ${JOB_SERVICE_DEMO_DIR:-./demo-dir}:/mnt/caf-datastore-root
 
+  worker-languagedetection:
+    depends_on:
+      - rabbitmq
+    environment:
+      CAF_APPNAME: /caf/dataprocessing/languagedetection
+      CAF_CONFIG_PATH: /mnt/caf-config-files
+      CAF_RABBITMQ_HOST: rabbitmq
+      CAF_RABBITMQ_PORT: 5672
+      CAF_RABBITMQ_PASSWORD: guest
+      CAF_RABBITMQ_USERNAME: guest
+      CAF_RABBITMQ_PREFETCH_BUFFER: 1
+      CAF_WORKER_INPUT_QUEUE: languagedetection-in
+      CAF_WORKER_OUTPUT_QUEUE: languagedetection-out
+      CAF_WORKER_REJECTED_QUEUE: languagedetection-rejected
+      cld2.location: cld2native
+    image: rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-languagedetection:1.0.0-SNAPSHOT
+    volumes:
+      - ./config-files:/mnt/caf-config-files:ro
+      - ${JOB_SERVICE_DEMO_DIR:-./demo-dir}:/mnt/caf-datastore-root
+
 volumes:
   job-service-db:
   rabbitmq:
