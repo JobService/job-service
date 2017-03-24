@@ -86,13 +86,11 @@
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-testing-util</artifactId>
-            <version>1.2.0-113</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-testing-integration</artifactId>
-            <version>1.2.0-113</version>
             <scope>test</scope>
         </dependency>
 

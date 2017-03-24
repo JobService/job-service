@@ -160,12 +160,30 @@
                 </executions>
             </plugin>
 
-            <!--Compile test resources.-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${maven.resources.version}</version>
                 <executions>
+                    <!-- Process the local configuration files -->
+                    <execution>
+                        <id>process-config-files</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/config-files</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/config</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+
+                    <!-- Compile test resources -->
                     <execution>
                         <phase>process-test-resources</phase>
                         <goals>
@@ -175,12 +193,30 @@
                 </executions>
             </plugin>
 
-            <!--Copies dependencies to the output lib folder.-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>2.10</version>
                 <executions>
+                    <!-- Unpack the base worker configuration files -->
+                    <execution>
+                        <id>process-config-files</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.github.workerframework</groupId>
+                                    <artifactId>worker-default-configs</artifactId>
+                                    <outputDirectory>${project.build.directory}/config-files</outputDirectory>
+                                    <excludes>**/META-INF/**</excludes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+
+                    <!-- Copies dependencies to the output lib folder -->
                     <execution>
                         <phase>test-compile</phase>
                         <goals>
@@ -383,6 +419,10 @@
                                                 <includes>
                                                     <include>*.yaml</include>
                                                 </includes>
+                                            </fileSet>
+                                            <fileSet>
+                                                <directory>${project.build.directory}/config-files</directory>
+                                                <outputDirectory>config</outputDirectory>
                                             </fileSet>
                                         </fileSets>
                                         <dependencySets>
