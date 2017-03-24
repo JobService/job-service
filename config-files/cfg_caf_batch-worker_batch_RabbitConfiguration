@@ -1,9 +1,0 @@
-{
-    "backoffInterval": "5",
-    "maxBackoffInterval": "15",
-    "maxAttempts": "3",
-    "rabbitHost": "rabbitmq",
-    "rabbitPort": "5672",
-    "rabbitUser": "guest",
-    "rabbitPassword": "guest"
-}

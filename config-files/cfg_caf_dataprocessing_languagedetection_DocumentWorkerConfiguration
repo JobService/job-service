@@ -1,8 +1,0 @@
-{
-    "workerName": "LanguageDetectionWorker",
-    "workerVersion": "1.0.0-SNAPSHOT",
-    "outputQueue": "languagedetection-out",
-    "threads": 1,
-    "maxBatchSize": 2,
-    "maxBatchTime": 5000
-}

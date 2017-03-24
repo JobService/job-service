@@ -1,6 +1,0 @@
-{
-    "retryLimit": 10,
-    "rejectedQueue": "jobtracking-rejected",
-    "prefetchBuffer": 1,
-    "inputQueue": "jobtracking-in"
-}

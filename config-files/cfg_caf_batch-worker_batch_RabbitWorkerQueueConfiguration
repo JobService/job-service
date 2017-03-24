@@ -1,6 +1,0 @@
-{
-    "retryLimit": 10,
-    "rejectedQueue": "batch-rejected",
-    "prefetchBuffer": 1,
-    "inputQueue": "batch-in"
-}

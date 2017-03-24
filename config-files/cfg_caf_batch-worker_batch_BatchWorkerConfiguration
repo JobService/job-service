@@ -1,7 +1,0 @@
-{
-    "workerVersion": "1.11.0-16",
-    "outputQueue": "batch-out",
-    "threads": "1",
-    "cacheExpireTime": 120,
-    "returnValueBehaviour": "RETURN_NONE"
-}

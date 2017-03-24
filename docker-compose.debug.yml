@@ -11,30 +11,29 @@ services:
     ports:
       - "9451:15672"
 
-  # Expose the Batch Worker admin port
+  # Expose the Batch Worker debugging and admin ports
   worker-batch:
     environment:
       CAF_LOG_LEVEL: DEBUG
+      _JAVA_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     ports:
-      - "9452:8081"
+      - "9452:5005"
+      - "9453:8081"
 
-  # Expose the Job Tracking Worker admin port
+  # Expose the Job Tracking Worker debugging and admin ports
   worker-jobtracking:
     environment:
       CAF_LOG_LEVEL: DEBUG
+      _JAVA_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     ports:
-      - "9453:8081"
-
-  # Expose the Language Identification Worker admin port
-  worker-langid:
-    environment:
-      CAF_LOG_LEVEL: DEBUG
-    ports:
-      - "9454:8081"
-
-  # Expose the LanguageDetection Worker admin port
-  worker-languagedetection:
-    environment:
-      CAF_LOG_LEVEL: DEBUG
-    ports:
+      - "9454:5005"
       - "9455:8081"
+
+  # Expose the Language Detection Worker debugging and admin ports
+  worker-langdetect:
+    environment:
+      CAF_LOG_LEVEL: DEBUG
+      _JAVA_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+    ports:
+      - "9456:5005"
+      - "9457:8081"
