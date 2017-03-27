@@ -41,8 +41,9 @@ services:
       CAF_BATCH_WORKER_ERROR_QUEUE: batch-err
     image: rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-batch-fs:1.12.0-SNAPSHOT
     volumes:
+      - worker-datastore:/mnt/caf-datastore-root
       - ./batch-plugins:/mnt/mesos/sandbox/batch-plugins:ro
-      - ${JOB_SERVICE_DEMO_DIR:-./demo-dir}:/mnt/caf-datastore-root
+      - ${JOB_SERVICE_DEMO_INPUT_DIR:-./input-files}:/mnt/caf-worker-input-dir:ro
 
   worker-jobtracking:
     depends_on:
@@ -66,10 +67,15 @@ services:
     environment:
       CAF_WORKER_INPUT_QUEUE: languageidentification-in
       CAF_WORKER_OUTPUT_QUEUE: languageidentification-out
-      CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER: /mnt/caf-datastore-root/output-items
+      CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER: /mnt/caf-worker-output-dir
+    # Remove when files are put in the read DataStore
+    # (necessary because the verifyReference() function ensures that no other location is read)
+      CAF_WORKER_DATASTORE_PATH: /mnt/caf-worker-input-dir
     image: rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-languagedetection:1.0.0-SNAPSHOT
     volumes:
-      - ${JOB_SERVICE_DEMO_DIR:-./demo-dir}:/mnt/caf-datastore-root
+      - worker-datastore:/mnt/caf-datastore-root
+      - ${JOB_SERVICE_DEMO_INPUT_DIR:-./input-files}:/mnt/caf-worker-input-dir:ro
+      - ${JOB_SERVICE_DEMO_OUTPUT_DIR:-./output-files}:/mnt/caf-worker-output-dir
 
 volumes:
   job-service-db:
