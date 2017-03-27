@@ -53,7 +53,6 @@ services:
     environment:
       CAF_WORKER_INPUT_QUEUE: jobtracking-in
       CAF_WORKER_OUTPUT_QUEUE: jobtracking-out
-      CAF_WORKER_REJECTED_QUEUE: jobtracking-rejected
       JOB_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
       JOB_DATABASE_USERNAME: postgres
       JOB_DATABASE_PASSWORD: root
@@ -67,7 +66,6 @@ services:
     environment:
       CAF_WORKER_INPUT_QUEUE: languageidentification-in
       CAF_WORKER_OUTPUT_QUEUE: languageidentification-out
-      CAF_WORKER_REJECTED_QUEUE: languageidentification-rejected
       CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER: /mnt/caf-datastore-root/output-items
     image: rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-languagedetection:1.0.0-SNAPSHOT
     volumes:
