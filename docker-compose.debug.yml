@@ -11,8 +11,8 @@ services:
     ports:
       - "9451:15672"
 
-  # Expose the Batch Worker debugging and admin ports
-  worker-batch:
+  # Expose the GlobFilter Worker debugging and admin ports
+  worker-globfilter:
     environment:
       CAF_LOG_LEVEL: DEBUG
       _JAVA_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005

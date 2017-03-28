@@ -113,29 +113,26 @@ The Docker Compose file contains the following services:
     - Enter the following Job Definition into the `newJob` parameter:
 
         <pre><code>{
-          "name": "JobName",
-          "description": "JobDescription",
-          "externalData": "JobSpecificTags",
+          "name": "Some job name",
+          "description": "The description of the job",
           "task": {
             "taskClassifier": "BatchWorker",
             "taskApiVersion": 1,
             "taskDataObject": {
-              "batchType": "WorkerDocumentBatchPlugin",
+              "batchType": "GlobPattern",
               "batchDefinition": "*.txt",
-              "taskMessageType": "DocumentWorkerTaskBuilder",
+              "taskMessageType": "DocumentMessage",
               "taskMessageParams": {
-                "datastorePartialReference": "theDatastoreParitalReference",
-                "documentDataInputFolder": "/mnt/caf-worker-input-dir",
-                "outputSubfolder": "test1"
+                "field:binaryFile": "CONTENT",
+                "field:fileName": "FILE_NAME",
+                "cd:outputSubfolder": "subDir"
               },
               "targetPipe": "languageidentification-in"
             },
-            "taskPipe": "batch-in",
+            "taskPipe": "globfilter-in",
             "targetPipe": "languageidentification-out"
           }
         }</code></pre>
-
-        NOTE: The Job Definition above is not actually right - we can't use `taskDataObject` until [CAF-2332](https://jira.autonomy.com/browse/CAF-2332) is complete, and also the definition will need to change when the GlobFilter Worker becomes available and we see what parameters it takes.  Also I'd like to get rid of `externalData` if possible.
 
 7. Check on the Job's progress  
     Go to the `GET /jobs/{jobId}` operation.
