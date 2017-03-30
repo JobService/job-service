@@ -111,7 +111,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testJobCompletion() throws Exception {
-        String jobId = "J" + System.currentTimeMillis();
+        final String jobId = generateJobId();
 
         JobServiceEndToEndITExpectation expectation =
                 new JobServiceEndToEndITExpectation(
@@ -143,7 +143,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testJobCancellation() throws Exception {
-        String jobId = "J" + System.currentTimeMillis();
+        final String jobId = generateJobId();
 
         JobServiceEndToEndITExpectation expectation =
                 new JobServiceEndToEndITExpectation(
@@ -179,7 +179,7 @@ public class JobServiceEndToEndIT {
         LOG.debug("Starting testJobServiceCaller_Success() ...");
 
         //  Generate job identifier.
-        String jobId = "J" + System.currentTimeMillis();
+        final String jobId = generateJobId();
 
         List<String> testItemAssetIds = new ArrayList<>();
         testItemAssetIds.add("TestItemAssetId");
@@ -282,7 +282,7 @@ public class JobServiceEndToEndIT {
 
         try {
             //  Generate job identifier.
-            String jobId = "J" + System.currentTimeMillis();
+            final String jobId = generateJobId();
 
             //  Identify name of test data container as  we need to set up VolumesFrom to access the test data file.
             String jobDefinitionContainerName = JobServiceCallerTestsHelper.getJobDefinitionContainerName(jobDefinitionContainerJSON, dockerContainersURL);
@@ -430,6 +430,15 @@ public class JobServiceEndToEndIT {
         return new String(workerServices.getCodec().serialise(task), StandardCharsets.UTF_8);
     }
 
+    /**
+     * Generate a unique Job Id.
+     *
+     * @return a pseudo-random job id
+     */
+    private String generateJobId()
+    {
+        return "J" + System.currentTimeMillis() + "-" + (int) (Math.random() * 10000);
+    }
 
     private QueueManager getFinalQueueManager() throws IOException, TimeoutException {
         // The end-to-end test should ultimately result in an example worker result message
