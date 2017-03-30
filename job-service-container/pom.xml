@@ -93,6 +93,17 @@
             <artifactId>worker-store-fs</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.cafapi</groupId>
+            <artifactId>container-cert-script</artifactId>
+            <type>tar.gz</type>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -209,6 +220,7 @@
                         <CAF_INTEGRATIONTESTS_FS_PATH>${caf.integrationtests.fs.path}</CAF_INTEGRATIONTESTS_FS_PATH>
                         <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
+                        <webserviceurlhttps>https://${docker.host.address}:${webservice.https.adminport}/job-service/v1</webserviceurlhttps>
                     </environmentVariables>
                 </configuration>
             </plugin>
@@ -352,6 +364,28 @@
                                 </assembly>
                             </build>
                         </image>
+                        <!--Build image for keystore-->
+                        <image>
+                            <alias>keystore</alias>
+                            <name>${project.artifactId}-keystore:${project.version}</name>
+                            <build>
+                                <maintainer>conal.smith@hpe.com</maintainer>
+                                <assembly>
+                                    <basedir>/test-keystore</basedir>
+                                    <inline>
+                                        <fileSets>
+                                            <fileSet>
+                                                <directory>test-keystore</directory>
+                                                <outputDirectory>/</outputDirectory>
+                                                <includes>
+                                                    <include>*</include>
+                                                </includes>
+                                            </fileSet>
+                                        </fileSets>
+                                    </inline>
+                                </assembly>
+                            </build>
+                        </image>
                         <image>
                             <alias>job-service</alias>
                             <name>${docker.dev.repo}/caf/job-service:${project.version}</name>
@@ -416,13 +450,37 @@
                                                 </includes>
                                                 <outputDirectory>/maven</outputDirectory>
                                             </dependencySet>
+                                            <dependencySet>
+                                                <useProjectArtifact>false</useProjectArtifact>
+                                                <scope>runtime</scope>
+                                                <useTransitiveDependencies>true</useTransitiveDependencies>
+                                                <useTransitiveFiltering>true</useTransitiveFiltering>
+                                                <excludes>
+                                                    <exclude>com.github.cafapi:container-cert-script</exclude>
+                                                </excludes>
+                                            </dependencySet>
+                                            <dependencySet>
+                                                <includes>
+                                                    <include>com.github.cafapi:container-cert-script</include>
+                                                </includes>
+                                                <useProjectArtifact>false</useProjectArtifact>
+                                                <useTransitiveFiltering>true</useTransitiveFiltering>
+                                                <unpack>true</unpack>
+                                            </dependencySet>
                                         </dependencySets>
+                                        <files>
+                                            <file>
+                                                <source>src/main/resources/server.xml</source>
+                                                <outputDirectory>/usr/local/tomcat/conf</outputDirectory>
+                                            </file>
+                                        </files>
                                     </inline>
                                 </assembly>
                             </build>
                             <run>
                                 <ports>
                                     <port>${webservice.adminport}:8080</port>
+                                    <port>${webservice.https.adminport}:8443</port>
                                 </ports>
                                 <env>
                                     <!-- When the container is deployed in Marathon it will use the environment variable values specified in the container json. -->
@@ -438,9 +496,11 @@
                                     <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
                                     <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
                                     <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
+                                    <SSL_TOMCAT_CA_CERT_LOCATION>/test-keystore/tomcat.keystore</SSL_TOMCAT_CA_CERT_LOCATION>
                                 </env>
                                 <volumes>
                                     <from>
+                                        <image>keystore</image>
                                         <image>config</image>
                                         <image>webdav</image>
                                     </from>
