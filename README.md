@@ -149,7 +149,7 @@ The Docker Compose file contains the following services:
 ## Override Files
 Docker Compose supports the concept of Override Files which can be used to modify the service definitions in the main Docker Compose files, or to add extra service definitions.
 
-The following override file is supplied alongside the main Docker Compose file for the service:
+The following override files are supplied alongside the main Docker Compose file for the service:
 
 <table>
   <tr>
@@ -172,8 +172,50 @@ The following override file is supplied alongside the main Docker Compose file f
 
     The override file itself can be examined to check which ports these internal ports are exposed on.  The external ports are not used for the normal operation of the services so they can be safely modified if they clash with any other services running on the host.</td>
   </tr>
+  <tr>
+    <td>docker&#8209;compose.https.yml</td>
+    <td>This override file can be used to activate a HTTPS port in the Job Service which can be used for secure communication.<p>
+    <p>
+    You must provide a keystore file either at the default path (./keystore/.keystore) or a custom path and set the <code>JOB_SERVICE_KEYSTORE</code> environment variable.<p>
+    <p>
+    The default port exposed for HTTPS communication is 9412 but this can be overridden by supplying the environment variable <code>JOB_SERVICE_PORT_HTTPS</code>.</td>
+  </tr>
 </table>
 
 Use the -f switch to apply override files.  For example, to start the services with the docker-compose.debug.yml file applied run the following command:
 
     docker-compose -f docker-compose.yml -f docker-compose.debug.yml up
+
+### Activating HTTPS endpoint
+
+Optionally, the `docker-compose.https.yml` override can be used to activate a HTTPS endpoint for secure communication with the Job Service.
+
+Along with running the above override, a keystore must be provided. To generate a keystore, follow the Oracle [instructions](https://docs.oracle.com/cd/E19509-01/820-3503/ggfen/index.html).
+
+Place this keystore file in a folder called `keystore` in job-service-deploy. Name it `.keystore` or else provide your own custom path by setting `JOB_SERVICE_KEYSTORE` (e.g. `./mykeystore/ks.p12`).
+
+You can optionally override the default HTTPS port (9412) by providing the environment variable <code>JOB_SERVICE_PORT_HTTPS</code>.
+
+Run the following command: 
+
+`docker-compose -f docker-compose.yml -f docker-compose.https.yml up`.
+
+Additional override parameters can be set and their function is described below.
+
+<table>
+  <tr>
+    <th>Environment Variable</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>JOB_SERVICE_PORT_HTTPS</td>
+    <td>9412</td>
+    <td>This is the HTTPS port to be exposed in the Job Service to allow secure communication. Unless a keystore is provided, the HTTPS port will not be active.</td>
+  </tr>
+  <tr>
+    <td>JOB_SERVICE_KEYSTORE</td>
+    <td>./keystore/.keystore</td>
+    <td>If you are activating the HTTPS port, you can override the default keystore location to provide your own keystore as a volume. This is the path of the keystore file (i.e. `./mykeystore/ks.p12`).</td>
+  </tr>
+</table>
