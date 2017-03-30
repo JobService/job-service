@@ -11,9 +11,9 @@ Manifest of the components which make up the Job Service:
 * [job-service-postgres-container](job-service-postgres-container)
 * [job-service-html](job-service-html)
 * [job-service-ui](job-service-ui)
-* [worker-jobtracking](worker-boilerplate)
-* [worker-jobtracking-container](worker-boilerplate-container)
-* [worker-jobtracking-shared](worker-boilerplate-shared)
+* [worker-jobtracking](worker-jobtracking)
+* [worker-jobtracking-container](worker-jobtracking-container)
+* [worker-jobtracking-shared](worker-jobtracking-shared)
 
 ## Job Tracking Worker Modules
 
@@ -32,4 +32,4 @@ This project contains the actual implementation of the Job Tracking Worker. It c
 This project builds a Docker image that packages the Job Tracking Worker for deployment. It can be found in [worker-jobtracking-container](worker-jobtracking-container).
 
 ## Feature Testing
-The testing for the Job Service is defined in [testcases](../testcases).
+The testing for the Job Service is defined in [testcases](testcases).
