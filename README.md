@@ -190,13 +190,17 @@ Use the -f switch to apply override files.  For example, to start the services w
 
 Optionally, the `docker-compose.https.yml` override can be used to activate a HTTPS endpoint for secure communication with the Job Service.
 
-Along with running the above override, a keystore must be provided. To generate a keystore, follow the Oracle [instructions](https://docs.oracle.com/cd/E19509-01/820-3503/ggfen/index.html).
+You can generate a default keystore setting both the keystore password and key password as `changeit` by running the following command:
+
+`keytool -genkey -alias tomcat -keystore .keystore`
+
+Generating a custom keystore with your own password/alias/protocol is not currently supported.
 
 Place this keystore file in a folder called `keystore` in job-service-deploy. Name it `.keystore` or else provide your own custom path by setting `JOB_SERVICE_KEYSTORE` (e.g. `./mykeystore/ks.p12`).
 
 You can optionally override the default HTTPS port (9412) by providing the environment variable <code>JOB_SERVICE_PORT_HTTPS</code>.
 
-Run the following command: 
+Run the following command:
 
 `docker-compose -f docker-compose.yml -f docker-compose.https.yml up`.
 
