@@ -76,7 +76,7 @@ The Docker Compose file contains the following services:
       </tr>
     </table>
 
-    In order to run multiple instances of the demonstartion stack simultaneously it would be necessary to set the `JOB_SERVICE_PORT` parameter to different values for each instance.
+    In order to run multiple instances of the demonstration stack simultaneously it would be necessary to set the `JOB_SERVICE_PORT` parameter to different values for each instance.
 
 3. Deploy the services  
     First navigate to the folder where you have downloaded the files to and then run one of the following commands, depending on whether you are using Docker Compose or Docker Stack:
