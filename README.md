@@ -192,9 +192,9 @@ Optionally, the `docker-compose.https.yml` override can be used to activate a HT
 
 You can generate a default keystore setting both the keystore password and key password as `changeit` by running the following command:
 
-`keytool -genkey -alias tomcat -keystore .keystore`
+`keytool -genkey -alias tomcat -keystore .keystore -keyalg RSA`
 
-Generating a custom keystore with your own password/alias/protocol is not currently supported.
+Generating a custom keystore with your own password/alias/protocol is not currently supported. For more information on generating keystores see these [instructions](https://tomcat.apache.org/tomcat-7.0-doc/ssl-howto.html).
 
 Place this keystore file in a folder called `keystore` in job-service-deploy. Name it `.keystore` or else provide your own custom path by setting `JOB_SERVICE_KEYSTORE` (e.g. `./mykeystore/ks.p12`).
 
