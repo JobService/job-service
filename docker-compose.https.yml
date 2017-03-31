@@ -1,0 +1,9 @@
+version: '3'
+services:
+  jobservice:
+    environment:
+      SSL_TOMCAT_CA_CERT_LOCATION: /keystore/tomcat.keystore
+    volumes:
+      - ${JOB_SERVICE_KEYSTORE:-./keystore/.keystore}:/keystore/tomcat.keystore
+    ports:
+      - "${JOB_SERVICE_PORT_HTTPS:-9412}:8443"

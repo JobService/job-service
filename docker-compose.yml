@@ -1,0 +1,79 @@
+version: '3'
+services:
+  jobservice:
+    depends_on:
+      - rabbitmq
+      - jobservicedb
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
+      CAF_DATABASE_USERNAME: postgres
+      CAF_DATABASE_PASSWORD: root
+      CAF_STATUS_CHECK_TIME: 5
+      CAF_TRACKING_PIPE: jobtracking-in
+      CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
+    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/job-service:1.10.0-110
+    ports:
+      - "${JOB_SERVICE_PORT:-9411}:8080"
+
+  jobservicedb:
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/job-service-postgres:1.10.0-110
+    volumes:
+      - job-service-db:/var/lib/postgresql/data
+
+  rabbitmq:
+    hostname: rabbitmq
+    image: rabbitmq:3-management
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+
+  worker-globfilter:
+    depends_on:
+      - rabbitmq
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_WORKER_INPUT_QUEUE: globfilter-in
+      CAF_BATCH_WORKER_ERROR_QUEUE: globfilter-err
+      CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER: /mnt/caf-worker-input-dir
+    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-globfilter:1.0.0-9
+    volumes:
+      - worker-datastore:/mnt/caf-datastore-root
+      - ${JOB_SERVICE_DEMO_INPUT_DIR:-./input-files}:/mnt/caf-worker-input-dir:ro
+
+  worker-jobtracking:
+    depends_on:
+      - rabbitmq
+      - jobservicedb
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_WORKER_INPUT_QUEUE: jobtracking-in
+      CAF_WORKER_OUTPUT_QUEUE: jobtracking-out
+      JOB_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
+      JOB_DATABASE_USERNAME: postgres
+      JOB_DATABASE_PASSWORD: root
+    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-jobtracking:1.10.0-110
+
+  worker-langdetect:
+    depends_on:
+      - rabbitmq
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_WORKER_INPUT_QUEUE: languageidentification-in
+      CAF_WORKER_OUTPUT_QUEUE: languageidentification-out
+      CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER: /mnt/caf-worker-output-dir
+    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-languagedetection:1.0.0-23
+    volumes:
+      - worker-datastore:/mnt/caf-datastore-root
+      - ${JOB_SERVICE_DEMO_OUTPUT_DIR:-./output-files}:/mnt/caf-worker-output-dir
+
+volumes:
+  job-service-db:
+  rabbitmq:
+  worker-datastore:

@@ -1,0 +1,34 @@
+The EU's latest Earth observer, Sentinel-2a, has gone operational.
+Users are now able to download its images of the planet, although they will need to register first.
+The Sentinel, which has been undergoing in-orbit testing since its launch back in June, views the land surface in optical and infrared light.
+Its pictures will be used by scientists to track everything from the growth of megacities to the variable yields of the world's most important food crops.
+And researchers will, of course, use 2a's acquisitions prominently in climate studies (examples are being shown at the COP21 talks in Paris).
+But the EU's free and open data policy means anyone can now download and play with the images.
+ParisImage copyrightCopernicus Sentinel data (2015)/ESA
+Image caption
+The EU and Esa have been showcasing the work of the Sentinel series of satellites at the climate summit (COP21) this past week in Paris
+And unlike the products from some specialist satellites, which are hard to interpret - the colour views from Sentinel-2a should appeal to a very broad audience.
+The European Space Agency (Esa), which manages the satellite for the EU, expects demand to be huge.
+Already, many thousands of users have registered to make Sentinel downloads - and these were people who were predominantly after the more complex radar pictures being produced by another spacecraft in the series, Sentinel-1a.
+"We expect the demand for all Sentinel data to be unprecedented. It is already unprecedented for us; we've never had so many downloads," said Prof Volker Liebig, the director of Earth observation at Esa.
+"It's hard to put a number on what it will be for Sentinel-2a, but it will be in petabytes, for sure."
+One petabyte is roughly equivalent to 200,000 commonly used DVDs.
+Optical imagery (essentially, what we see with our eyes) is the cornerstone of Earth observation, and increasingly it features in everyday applications on the web and on people's smartphones.
+AfricaImage copyrightCopernicus Sentinel data (2015)/ESA
+Image caption
+The extraordinary Okavango Delta in Botswana. Vegetation, in bright green, is fed by heavy rains from December to March. It is an oasis in what is otherwise an arid area. The Kalahari dunes to the left are picked out in a rose colour
+One of the major sources to date of free pictures has been the American Landsat series of spacecraft, which have assembled a continuous record of the world's fluctuating features stretching back more than 40 years.
+Sentinel-2a will be complementary, but also more capable - which further suggests demand will be big.
+2a's imaging instrument is sensitive across more bands of light (13 multispectral versus eight), allowing it to discern more information about the Earth's surface; and it will "carpet map" a much wider strip of ground (290km versus 185km).
+In addition, its colour images have a best resolution of 10m, versus Landsat's 30m.
+NamibImage copyrightCopernicus Sentinel data (2015)/ESA
+Image caption
+The Namibian city of Swakopmund is obscured by cloud. But the extensive dunes of the Namib Desert are cloud-free. Sentinel-2a will eventually operate alongside a second platform, increasing the opportunities to get clear views of the the ground
+Sentinel 2a will not be working at full pace straightaway: it is ramping up its coverage of landmasses, however experts have already confirmed that the early products are meeting the required quality.
+Further quality improvements are under way. This could take a few months, said Esa mission manager Dr Bianca Hoersch.
+"[As] for the user demand, as we see with Sentinel-1, there are more than 14,000 users. I would expect that with Sentinel-2 we will get more users, since the mission data - besides being valuable for operational services and science - is just simply stunning to look at and will attract the broader public.
+"Our systems are scalable to absorb increasing demand [and] we are closely monitoring the access performance, e.g. today, the download of a product of about 5GB takes less than 10 minutes."
+Anyone thinking of downloading pictures is warned to have plenty of storage. The files are large. Mirror servers are being set up in several countries.
+The next Sentinel to be launched in the EU's multi-billion-euro Copernicus Earth observation programme is numbered 3a.
+It will focus its gaze more on the oceans. The launch of this platform should take next month.
+Even more spacecraft will follow in the coming years.
