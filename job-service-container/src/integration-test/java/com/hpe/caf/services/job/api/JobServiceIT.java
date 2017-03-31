@@ -1,5 +1,8 @@
 package com.hpe.caf.services.job.api;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
 import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
 import com.hpe.caf.config.system.SystemBootstrapConfiguration;
@@ -15,6 +18,7 @@ import com.hpe.caf.worker.testing.*;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,7 +26,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 import org.testng.annotations.BeforeTest;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -42,15 +45,28 @@ public class JobServiceIT {
     private static RabbitWorkerQueueConfiguration rabbitConfiguration;
     private static String jobServiceOutputQueue;
     private static final long defaultTimeOutMs = 120000; // 2 minutes
-
-
+    
+    final HashMap<String,Object> testDataObjectMap = new HashMap<>();
+    final HashMap<String,String> taskMessageParams = new HashMap<>();
+    
     @BeforeTest
     public void setup() throws Exception {
         projectId = UUID.randomUUID().toString();
         connectionString = System.getenv("webserviceurl");
+        
+        //Populate maps for testing    
+        taskMessageParams.put("datastorePartialReference", "sample-files");
+        taskMessageParams.put("documentDataInputFolder", "/mnt/caf-datastore-root/sample-files");
+        taskMessageParams.put("documentDataOutputFolder", "/mnt/bla");
+        
+        testDataObjectMap.put("taskClassifier", "*.txt");
+        testDataObjectMap.put("batchType", "WorkerDocumentBatchPlugin");
+        testDataObjectMap.put("taskMessageType", "DocumentWorkerTaskBuilder");
+        testDataObjectMap.put("taskMessageParams", taskMessageParams);
+        testDataObjectMap.put("targetPipe", "languageidentification-in");
+        
 
         //set up client to connect to the web service running on docker, and call web methods from correct address.
-//        client.setApiKey(projectId);
         client.setBasePath(connectionString);
 
         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -64,7 +80,6 @@ public class JobServiceIT {
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
         rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
         rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
-//        jobServiceOutputQueue = rabbitConfiguration.getInputQueue();
     }
 
     @Test
@@ -97,10 +112,10 @@ public class JobServiceIT {
         //retrieve job using web method
         Job retrievedJob = jobsApi.getJob(jobId, jobCorrelationId);
 
-        Assert.assertEquals(retrievedJob.getId(), jobId);
-        Assert.assertEquals(retrievedJob.getName(), newJob.getName());
-        Assert.assertEquals(retrievedJob.getDescription(), newJob.getDescription());
-        Assert.assertEquals(retrievedJob.getExternalData(), newJob.getExternalData());
+        assertEquals(retrievedJob.getId(), jobId);
+        assertEquals(retrievedJob.getName(), newJob.getName());
+        assertEquals(retrievedJob.getDescription(), newJob.getDescription());
+        assertEquals(retrievedJob.getExternalData(), newJob.getExternalData());
     }
 
     @Test
@@ -134,7 +149,7 @@ public class JobServiceIT {
         boolean isActive = jobsApi.getJobActive(jobId, jobCorrelationId);
 
         // Job will be in a 'Waiting' state, which is assumed as being Active.
-        Assert.assertTrue(isActive);
+        assertTrue(isActive);
     }
 
     @Test
@@ -167,7 +182,7 @@ public class JobServiceIT {
 
         //make sure the job is there
         Job retrievedJob = jobsApi.getJob(jobId, jobCorrelationId);
-        Assert.assertEquals(retrievedJob.getId(), jobId);
+        assertEquals(retrievedJob.getId(), jobId);
 
         //delete the job
         jobsApi.deleteJob(jobId, jobCorrelationId);
@@ -176,9 +191,44 @@ public class JobServiceIT {
         try {
             jobsApi.getJob(jobId, jobCorrelationId).getDescription();
         } catch (Exception e) {
-            Assert.assertEquals("{\"message\":\"ERROR: job_id {" +jobId +"} not found\"}", e.getMessage());
+            assertEquals("{\"message\":\"ERROR: job_id {" +jobId +"} not found\"}", e.getMessage());
         }
 
+    }
+    
+    @Test
+    public void testCreateJobWithTaskData_Object() throws ApiException {
+        //create a job
+        String jobId = UUID.randomUUID().toString();
+        String jobName = "Job_" +jobId;
+        String jobDesc = jobName +" Descriptive Text.";
+        String jobCorrelationId = "1";
+        String jobExternalData = jobName +" External data.";
+        int taskApiVer = 1;
+
+        //create a WorkerAction task
+        WorkerAction workerActionTask = new WorkerAction();
+        workerActionTask.setTaskClassifier(jobName +"_testObjectJob");
+        workerActionTask.setTaskApiVersion(taskApiVer);
+        workerActionTask.setTaskData(testDataObjectMap);
+        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
+        workerActionTask.setTargetPipe("Queue_" +jobId);
+
+        NewJob newJob = new NewJob();
+        newJob.setName(jobName);
+        newJob.setDescription(jobDesc);
+        newJob.setExternalData(jobExternalData);
+        newJob.setTask(workerActionTask);
+
+        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+        
+         //retrieve job using web method
+        Job retrievedJob = jobsApi.getJob(jobId, jobCorrelationId);
+
+        assertEquals(retrievedJob.getId(), jobId);
+        assertEquals(retrievedJob.getName(), newJob.getName());
+        assertEquals(retrievedJob.getDescription(), newJob.getDescription());
+        assertEquals(retrievedJob.getExternalData(), newJob.getExternalData());
     }
 
     @Test
@@ -213,7 +263,7 @@ public class JobServiceIT {
         List<Job> retrievedJobs = jobsApi.getJobs("100",null,null,null,null);
 
         //test to make sure at least the 10 jobs created are returned. Unable to filter by cafCorrelationID
-        Assert.assertTrue(retrievedJobs.size()>=10);
+        assertTrue(retrievedJobs.size()>=10);
 
         for(int i=0; i<10; i++) {
             String expectedId = randomUUID +"_" +i;
@@ -222,10 +272,10 @@ public class JobServiceIT {
             String expectedExternalData = expectedName +" External data.";
             //only assert if the job is one of the jobs created above (the getJobs returns ALL jobs)
             if(retrievedJobs.get(i).getId().equals(""+i)) {
-                Assert.assertEquals(retrievedJobs.get(i).getId(), expectedId);
-                Assert.assertEquals(retrievedJobs.get(i).getName(), expectedName);
-                Assert.assertEquals(retrievedJobs.get(i).getDescription(), expectedDescription);
-                Assert.assertEquals(retrievedJobs.get(i).getExternalData(), expectedExternalData);
+                assertEquals(retrievedJobs.get(i).getId(), expectedId);
+                assertEquals(retrievedJobs.get(i).getName(), expectedName);
+                assertEquals(retrievedJobs.get(i).getDescription(), expectedDescription);
+                assertEquals(retrievedJobs.get(i).getExternalData(), expectedExternalData);
             }
         }
     }
@@ -261,7 +311,7 @@ public class JobServiceIT {
 
         Job retrievedJob = jobsApi.getJob(jobId, jobCorrelationId);
 
-        Assert.assertEquals(retrievedJob.getStatus(), Job.StatusEnum.CANCELLED);
+        assertEquals(retrievedJob.getStatus(), Job.StatusEnum.CANCELLED);
     }
 
     /**
@@ -331,7 +381,7 @@ public class JobServiceIT {
             jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
 
             TestResult result = context.getTestResult();
-            Assert.assertTrue(result.isSuccess());
+            assertTrue(result.isSuccess());
         }
     }
 

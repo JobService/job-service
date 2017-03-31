@@ -15,14 +15,18 @@ import org.slf4j.LoggerFactory;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 public final class JobsPut {
 
-    private static final String ERR_MSG_TASK_DATA_NOT_SPECIFIED = "The task data has not been specified.";
-    private static final String ERR_MSG_TASK_CLASSIFIER_NOT_SPECIFIED = "The task classifier has not been specified.";
-    private static final String ERR_MSG_TASK_API_VERSION_NOT_SPECIFIED = "The task api version has not been specified.";
-    private static final String ERR_MSG_TASK_QUEUE_NOT_SPECIFIED = "The task queue name has not been specified.";
-    private static final String ERR_MSG_TARGET_QUEUE_NOT_SPECIFIED = "The target queue name has not been specified.";
+    public static final String ERR_MSG_TASK_DATA_NOT_SPECIFIED = "The task data has not been specified.";
+    public static final String ERR_MSG_TASK_CLASSIFIER_NOT_SPECIFIED = "The task classifier has not been specified.";
+    public static final String ERR_MSG_TASK_API_VERSION_NOT_SPECIFIED = "The task api version has not been specified.";
+    public static final String ERR_MSG_TASK_QUEUE_NOT_SPECIFIED = "The task queue name has not been specified.";
+    public static final String ERR_MSG_TASK_DATA_DATATYPE_ERROR = "The taskData is null or empty, please ensure taskData is populated and of a suitable datatype";
+    public static final String ERR_MSG_TARGET_QUEUE_NOT_SPECIFIED = "The target queue name has not been specified.";
+    public static final String ERR_MSG_TASK_DATA_OBJECT_ENCODING_CONFLICT = "An encoding type has been found in the task along with "
+        + "taskDataObject. Remove taskDataEncoding and try again";
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsPut.class);
 
@@ -42,12 +46,6 @@ public final class JobsPut {
             if (ApiServiceUtil.containsInvalidCharacters(jobId)) {
                 LOG.error("createOrUpdateJob: Error - '{}'", ApiServiceUtil.ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS);
                 throw new BadRequestException(ApiServiceUtil.ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS);
-            }
-
-            //  Make sure task data has been provided.
-            if (!ApiServiceUtil.isNotNullOrEmpty(job.getTask().getTaskData())) {
-                LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_DATA_NOT_SPECIFIED);
-                throw new BadRequestException(ERR_MSG_TASK_DATA_NOT_SPECIFIED);
             }
 
             //  Make sure the task classifier has been provided.
@@ -72,6 +70,30 @@ public final class JobsPut {
             if (!ApiServiceUtil.isNotNullOrEmpty(job.getTask().getTaskPipe())) {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_QUEUE_NOT_SPECIFIED);
                 throw new BadRequestException(ERR_MSG_TASK_QUEUE_NOT_SPECIFIED);
+            }
+            
+            final Object taskData = job.getTask().getTaskData();
+
+            // Make sure that taskData is available
+            if (taskData == null) {
+                LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_DATA_NOT_SPECIFIED);
+                throw new BadRequestException(ERR_MSG_TASK_DATA_NOT_SPECIFIED);
+            }
+
+            if (taskData instanceof String) {
+                if (((String) taskData).isEmpty()) {
+                    LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_DATA_NOT_SPECIFIED);
+                    throw new BadRequestException(ERR_MSG_TASK_DATA_NOT_SPECIFIED);
+                }
+            } else if (taskData instanceof Map<?, ?>) {
+                if (job.getTask().getTaskDataEncoding() != null) {// If taskData is an object, ensure that taskDataEncoding has been left out.
+                    LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_DATA_OBJECT_ENCODING_CONFLICT);
+                    throw new BadRequestException(ERR_MSG_TASK_DATA_OBJECT_ENCODING_CONFLICT);
+                }
+            } else {
+                // The taskData is not of type String or Object
+                LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_DATA_DATATYPE_ERROR);
+                throw new BadRequestException(ERR_MSG_TASK_DATA_DATATYPE_ERROR);
             }
 
             //  Load serialization class.

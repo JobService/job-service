@@ -111,6 +111,15 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testJobCompletion() throws Exception {
+        testJobCompletion(false);
+    }
+
+    @Test
+    public void testJobCompletionWithTaskDataObject() throws Exception {
+        testJobCompletion(true);
+    }
+
+    private void testJobCompletion(final boolean useTaskDataObject) throws Exception {
         final String jobId = generateJobId();
 
         JobServiceEndToEndITExpectation expectation =
@@ -131,7 +140,7 @@ public class JobServiceEndToEndIT {
             Timer timer = getTimer(context);
             Thread thread = queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context, expectation));
 
-            createJob(jobId);
+            createJob(jobId, useTaskDataObject);
 
             // Waits for the final result message to appear on the Example worker's output queue.
             // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
@@ -143,6 +152,15 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testJobCancellation() throws Exception {
+        testJobCancellation(false);
+    }
+
+    @Test
+    public void testJobCancellationWithTaskDataObject() throws Exception {
+        testJobCancellation(true);
+    }
+
+    private void testJobCancellation(final boolean useTaskDataObject) throws Exception {
         final String jobId = generateJobId();
 
         JobServiceEndToEndITExpectation expectation =
@@ -163,7 +181,7 @@ public class JobServiceEndToEndIT {
             Timer timer = getTimer(context);
             Thread thread = queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context, expectation));
 
-            createJob(jobId);
+            createJob(jobId, useTaskDataObject);
 
             cancelJob(jobId);
 
@@ -380,9 +398,10 @@ public class JobServiceEndToEndIT {
     /**
      * Creates a new job in the Job Database.
      * @param jobId the new job should be created with this id
+     * @param useTaskDataObject indicates if the new job task should be created with taskDataObject
      */
-    private void createJob(final String jobId) throws Exception {
-        NewJob newJob = constructNewJob(jobId);
+    private void createJob(final String jobId, final boolean useTaskDataObject) throws Exception {
+        NewJob newJob = constructNewJob(jobId, useTaskDataObject);
         jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
     }
 
@@ -392,8 +411,8 @@ public class JobServiceEndToEndIT {
     }
 
 
-    private NewJob constructNewJob(String jobId) throws Exception {
-        WorkerAction batchWorkerAction = constructBatchWorkerAction();
+    private NewJob constructNewJob(String jobId, final boolean useTaskDataObject) throws Exception {
+        WorkerAction batchWorkerAction = constructBatchWorkerAction(useTaskDataObject);
         String jobName = "Job_" + jobId;
         NewJob newJob = new NewJob();
         newJob.setName(jobName);
@@ -404,12 +423,18 @@ public class JobServiceEndToEndIT {
     }
 
 
-    private WorkerAction constructBatchWorkerAction() throws Exception {
+    private WorkerAction constructBatchWorkerAction(final boolean useTaskDataObject) throws Exception {
         WorkerAction batchWorkerAction = new WorkerAction();
         batchWorkerAction.setTaskClassifier(BatchWorkerConstants.WORKER_NAME);
         batchWorkerAction.setTaskApiVersion(BatchWorkerConstants.WORKER_API_VERSION);
-        batchWorkerAction.setTaskData(constructSerialisedBatchWorkerTask());
-        batchWorkerAction.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+
+        if (useTaskDataObject) {
+            batchWorkerAction.setTaskData(constructBatchWorkerTask());
+        } else {
+            batchWorkerAction.setTaskData(constructSerialisedBatchWorkerTask());
+            batchWorkerAction.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        }
+
         batchWorkerAction.setTaskPipe(batchWorkerMessageInQueue);
         batchWorkerAction.setTargetPipe(exampleWorkerMessageOutQueue);
         return batchWorkerAction;
@@ -417,6 +442,11 @@ public class JobServiceEndToEndIT {
 
 
     private String constructSerialisedBatchWorkerTask() throws Exception {
+        final BatchWorkerTask task = constructBatchWorkerTask();
+        return new String(workerServices.getCodec().serialise(task), StandardCharsets.UTF_8);
+    }
+
+    private BatchWorkerTask constructBatchWorkerTask() throws Exception {
         Map<String, String> exampleWorkerTaskMessageParams = new HashMap<>();
         exampleWorkerTaskMessageParams.put("datastorePartialReference", getContainerId());
         exampleWorkerTaskMessageParams.put("action", "CAPITALISE");
@@ -427,7 +457,7 @@ public class JobServiceEndToEndIT {
         task.taskMessageType = "ExampleWorkerTaskBuilder";
         task.taskMessageParams = exampleWorkerTaskMessageParams;
         task.targetPipe = exampleWorkerMessageInQueue;
-        return new String(workerServices.getCodec().serialise(task), StandardCharsets.UTF_8);
+        return task;
     }
 
     /**

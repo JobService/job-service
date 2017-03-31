@@ -13,7 +13,7 @@ public class WorkerAction   {
 
     private String taskClassifier = null;
     private Integer taskApiVersion = null;
-    private String taskData = null;
+    private Object taskData = null;
 
 
     public enum TaskDataEncodingEnum {
@@ -33,7 +33,7 @@ public class WorkerAction   {
         }
     }
 
-    private TaskDataEncodingEnum taskDataEncoding = TaskDataEncodingEnum.UTF8;
+    private TaskDataEncodingEnum taskDataEncoding = null;
     private String taskPipe = null;
     private String targetPipe = null;
 
@@ -76,7 +76,7 @@ public class WorkerAction   {
 
     /**
      **/
-    public WorkerAction taskData(String taskData) {
+    public WorkerAction taskData(Object taskData) {
         this.taskData = taskData;
         return this;
     }
@@ -84,10 +84,10 @@ public class WorkerAction   {
 
     @ApiModelProperty(required = true, value = "")
     @JsonProperty("taskData")
-    public String getTaskData() {
+    public Object getTaskData() {
         return taskData;
     }
-    public void setTaskData(String taskData) {
+    public void setTaskData(Object taskData) {
         this.taskData = taskData;
     }
 

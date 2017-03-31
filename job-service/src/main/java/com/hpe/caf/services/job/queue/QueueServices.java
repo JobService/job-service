@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
@@ -49,10 +50,29 @@ public final class QueueServices {
 
         //  Serialise the data payload. Encoding type is provided in the WorkerAction.
         byte[] taskData = null;
-        if (workerAction.getTaskDataEncoding() == WorkerAction.TaskDataEncodingEnum.UTF8) {
-            taskData = workerAction.getTaskData().getBytes(StandardCharsets.UTF_8);
-        } else if (workerAction.getTaskDataEncoding() == WorkerAction.TaskDataEncodingEnum.BASE64){
-            taskData = Base64.decodeBase64(workerAction.getTaskData());
+
+        //Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
+        final Object taskDataObj = workerAction.getTaskData();
+        
+        if (taskDataObj instanceof String) {
+            final String taskDataStr = (String) taskDataObj;
+            final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
+
+            if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
+                taskData = taskDataStr.getBytes(StandardCharsets.UTF_8);
+            } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
+                taskData = Base64.decodeBase64(taskDataStr);
+            } else {
+                throw new RuntimeException("Unknown taskDataEncoding");
+            }
+        } else if (taskDataObj instanceof Map<?, ?>) {
+            try {
+                taskData = codec.serialise(taskDataObj);
+            } catch (CodecException e) {
+                throw new RuntimeException("Failed to serialise TaskData", e);
+            }
+        } else {
+            throw new RuntimeException("The taskData is an unexpected type");
         }
 
         //set up string for statusCheckUrl

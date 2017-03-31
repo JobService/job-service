@@ -259,10 +259,9 @@ definitions:
         type: integer
         format: int32
       taskData:
-        type: string
+        type: object
       taskDataEncoding:
         type: string
-        default: utf8
         enum:
           - utf8
           - base64
