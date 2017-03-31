@@ -59,7 +59,7 @@
                             <name>${corporateDockerRegistry}/caf/job-service-postgres:${project.version}</name>
                             <build>
                                 <maintainer>connor.mulholland@hpe.com</maintainer>
-                                <from>${corporateDockerSnapshotRegistry}/caf/java-postgres:1.0.0-SNAPSHOT</from>
+                                <from>${corporateDockerReleaseRegistry}/caf/java-postgres:1.0.0-28</from>
                                 <labels>
                                     <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
