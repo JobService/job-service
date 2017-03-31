@@ -118,7 +118,7 @@ The Docker Compose file contains the following services:
           "task": {
             "taskClassifier": "BatchWorker",
             "taskApiVersion": 1,
-            "taskDataObject": {
+            "taskData": {
               "batchType": "GlobPattern",
               "batchDefinition": "*.txt",
               "taskMessageType": "DocumentMessage",
