@@ -110,11 +110,6 @@ public class JobServiceEndToEndIT {
 
 
     @Test
-    public void testJobCompletion() throws Exception {
-        testJobCompletion(false);
-    }
-
-    @Test
     public void testJobCompletionWithTaskDataObject() throws Exception {
         testJobCompletion(true);
     }
