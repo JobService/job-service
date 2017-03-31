@@ -68,7 +68,7 @@ services:
       CAF_WORKER_INPUT_QUEUE: languageidentification-in
       CAF_WORKER_OUTPUT_QUEUE: languageidentification-out
       CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER: /mnt/caf-worker-output-dir
-    image: rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-languagedetection:1.0.0-SNAPSHOT
+    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-languagedetection:1.0.0-23
     volumes:
       - worker-datastore:/mnt/caf-datastore-root
       - ${JOB_SERVICE_DEMO_OUTPUT_DIR:-./output-files}:/mnt/caf-worker-output-dir
