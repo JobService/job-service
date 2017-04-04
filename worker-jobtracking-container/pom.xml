@@ -104,9 +104,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
-            <artifactId>worker-ocr-shared</artifactId>
-            <version>1.3.0</version>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-example-shared</artifactId>
+            <version>1.7.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <!--Certificate dependencies.-->

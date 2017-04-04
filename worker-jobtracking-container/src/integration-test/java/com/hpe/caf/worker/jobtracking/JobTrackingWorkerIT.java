@@ -10,10 +10,10 @@ import com.hpe.caf.api.worker.WorkerResponse;
 import com.hpe.caf.config.system.SystemBootstrapConfiguration;
 import com.hpe.caf.naming.ServicePath;
 import com.hpe.caf.util.ref.ReferencedData;
-import com.hpe.caf.worker.ocr.OCRWorkerConstants;
-import com.hpe.caf.worker.ocr.OCRWorkerResult;
-import com.hpe.caf.worker.ocr.OCRWorkerStatus;
-import com.hpe.caf.worker.ocr.OCRWorkerTask;
+import com.hpe.caf.worker.example.ExampleWorkerConstants;
+import com.hpe.caf.worker.example.ExampleWorkerResult;
+import com.hpe.caf.worker.example.ExampleWorkerStatus;
+import com.hpe.caf.worker.example.ExampleWorkerTask;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
 import org.testng.Assert;
@@ -33,7 +33,7 @@ public class JobTrackingWorkerIT {
 
     private static final String CONTEXT_KEY = "context";
     private static final byte[] CONTEXT_DATA = "testData".getBytes(StandardCharsets.UTF_8);
-    private static final byte[] MOCK_OCR_DOC_DATA = "some text content".getBytes(StandardCharsets.UTF_8);
+    private static final byte[] MOCK_EXAMPLE_DOC_DATA = "some text content".getBytes(StandardCharsets.UTF_8);
     private static final String STATUS_CHECK_URL = "http://fictional-host:1234/blah";
     private static final long defaultTimeOutMs = 600000; // 10 minutes
 
@@ -61,7 +61,7 @@ public class JobTrackingWorkerIT {
 
     /**
      * Tests reporting of an in-progress task.
-     * This test creates a task suitable for input to the OCR worker complete with tracking info which should divert
+     * This test creates a task suitable for input to the Example worker complete with tracking info which should divert
      * the message to the Job Tracking Worker - i.e. the TrackingInfo.trackingPipe is the input queue of the
      * Job Tracking Worker under test.
      * The Job Tracking Worker should report the progress of this task to the Job Database, reporting it as active;
@@ -73,9 +73,9 @@ public class JobTrackingWorkerIT {
     @Test
     public void testProxiedActiveMessage() throws Exception {
         String jobTaskId = jobDatabase.createJobTask("testProxiedActiveMessage");
-        String to = "jobtrackingworker-test-ocr-input-1";
-        String trackTo = "jobtrackingworker-test-ocr-output-1";
-        TaskMessage taskMessage = getOcrTaskMessage(jobTaskId, to, trackTo);
+        String to = "jobtrackingworker-test-example-input-1";
+        String trackTo = "jobtrackingworker-test-example-output-1";
+        TaskMessage taskMessage = getExampleTaskMessage(jobTaskId, to, trackTo);
         JobTrackingWorkerITExpectation expectation =
                 new JobTrackingWorkerITExpectation(
                         jobTaskId,
@@ -88,7 +88,7 @@ public class JobTrackingWorkerIT {
 
     /**
      * Tests reporting of a completed task.
-     * This test creates a task suitable for input to the OCR worker complete with tracking info which should divert
+     * This test creates a task suitable for input to the Example worker complete with tracking info which should divert
      * the message to the Job Tracking Worker - i.e. the TrackingInfo.trackingPipe is the input queue of the
      * Job Tracking Worker under test.
      * The Job Tracking Worker should report to the Job Database that this task is completed because the trackTo
@@ -103,9 +103,9 @@ public class JobTrackingWorkerIT {
     @Test
     public void testProxiedCompletedMessage() throws Exception {
         String jobTaskId = jobDatabase.createJobTask("testProxiedCompletedMessage");
-        String to = "jobtrackingworker-test-ocr-input-2";
+        String to = "jobtrackingworker-test-example-input-2";
         String trackTo = to;
-        TaskMessage taskMessage = getOcrTaskMessage(jobTaskId, to, trackTo);
+        TaskMessage taskMessage = getExampleTaskMessage(jobTaskId, to, trackTo);
         JobTrackingWorkerITExpectation expectation =
                 new JobTrackingWorkerITExpectation(
                         jobTaskId,
@@ -118,8 +118,8 @@ public class JobTrackingWorkerIT {
 
     /**
      * Tests reporting of a failed task.
-     * This test creates a task suitable for input to the OCR worker complete with tracking info, then generates
-     * a failure as though the OCR worker had failed this task. The failure result message should be diverted
+     * This test creates a task suitable for input to the Example worker complete with tracking info, then generates
+     * a failure as though the Example worker had failed this task. The failure result message should be diverted
      * to the Job Tracking Worker - i.e. the TrackingInfo.trackingPipe is the input queue of the
      * Job Tracking Worker under test.
      * The Job Tracking Worker should report the failure of this task to the Job Database; the test verifies this by
@@ -135,9 +135,9 @@ public class JobTrackingWorkerIT {
     @Test
     public void testProxiedFailureMessage() throws Exception {
         String jobTaskId = jobDatabase.createJobTask("testProxiedFailureMessage");
-        String to = "jobtrackingworker-test-ocr-output-3";
+        String to = "jobtrackingworker-test-example-output-3";
         String trackTo = to;
-        TaskMessage taskMessage = getOcrTaskMessage(jobTaskId, to, trackTo);
+        TaskMessage taskMessage = getExampleTaskMessage(jobTaskId, to, trackTo);
         TaskMessage failureMessage = failTask(to, taskMessage);
         JobTrackingWorkerITExpectation expectation =
                 new JobTrackingWorkerITExpectation(
@@ -185,10 +185,10 @@ public class JobTrackingWorkerIT {
     }
 
 
-    private TaskMessage getOcrTaskMessage(final String jobTaskId, final String to, final String trackTo) throws CodecException {
-        OCRWorkerTask ocrTask = getOcrWorkerTask();
+    private TaskMessage getExampleTaskMessage(final String jobTaskId, final String to, final String trackTo) throws CodecException {
+        ExampleWorkerTask exampleTask = getExampleWorkerTask();
 
-        // Wrap the OCR task in a TaskMessage with tracking info
+        // Wrap the Example task in a TaskMessage with tracking info
         String taskId = UUID.randomUUID().toString();
         Map<String, byte[]> context = Collections.singletonMap(CONTEXT_KEY, CONTEXT_DATA);
         TrackingInfo tracking =
@@ -200,9 +200,9 @@ public class JobTrackingWorkerIT {
                         trackTo);
         return new TaskMessage(
                 taskId,
-                OCRWorkerConstants.WORKER_NAME,
-                OCRWorkerConstants.WORKER_API_VER,
-                workerServices.getCodec().serialise(ocrTask),
+                ExampleWorkerConstants.WORKER_NAME,
+                ExampleWorkerConstants.WORKER_API_VER,
+                workerServices.getCodec().serialise(exampleTask),
                 TaskStatus.NEW_TASK,
                 context,
                 to,
@@ -210,39 +210,39 @@ public class JobTrackingWorkerIT {
     }
 
 
-    private OCRWorkerTask getOcrWorkerTask() {
-        OCRWorkerTask task = new OCRWorkerTask();
-        ReferencedData sourceDataRef = ReferencedData.getWrappedData(MOCK_OCR_DOC_DATA);
-        task.setSourceData(sourceDataRef);
-        task.setIncludePageDetail(false);
+    private ExampleWorkerTask getExampleWorkerTask() {
+        ExampleWorkerTask task = new ExampleWorkerTask();
+        ReferencedData sourceDataRef = ReferencedData.getWrappedData(MOCK_EXAMPLE_DOC_DATA);
+        task.sourceData = sourceDataRef;
         return task;
     }
 
 
     private TaskMessage failTask(final String responseQueue, final TaskMessage taskMessage) throws CodecException {
-        OCRWorkerResult ocrFailureResult = new OCRWorkerResult(OCRWorkerStatus.OCR_FAILED);
-        WorkerResponse ocrWorkerResponse =
+        ExampleWorkerResult exampleFailureResult = new ExampleWorkerResult();
+        exampleFailureResult.workerStatus = ExampleWorkerStatus.WORKER_EXAMPLE_FAILED;
+        WorkerResponse exampleWorkerResponse =
                 new WorkerResponse(
                         responseQueue,
                         TaskStatus.RESULT_FAILURE,
-                        workerServices.getCodec().serialise(ocrFailureResult),
-                        OCRWorkerConstants.WORKER_NAME,
-                        OCRWorkerConstants.WORKER_API_VER,
+                        workerServices.getCodec().serialise(exampleFailureResult),
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
                         (byte[])null);
 
         Map<String, byte[]> contextMap = taskMessage.getContext();
-        if ( ocrWorkerResponse.getContext() != null ) {
-            contextMap.put(servicePath.toString(), ocrWorkerResponse.getContext());
+        if ( exampleWorkerResponse.getContext() != null ) {
+            contextMap.put(servicePath.toString(), exampleWorkerResponse.getContext());
         }
 
         return new TaskMessage(
                 taskMessage.getTaskId(),
-                ocrWorkerResponse.getMessageType(),
-                ocrWorkerResponse.getApiVersion(),
-                ocrWorkerResponse.getData(),
-                ocrWorkerResponse.getTaskStatus(),
+                exampleWorkerResponse.getMessageType(),
+                exampleWorkerResponse.getApiVersion(),
+                exampleWorkerResponse.getData(),
+                exampleWorkerResponse.getTaskStatus(),
                 contextMap,
-                ocrWorkerResponse.getQueueReference(),
+                exampleWorkerResponse.getQueueReference(),
                 taskMessage.getTracking());
     }
 }
