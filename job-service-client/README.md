@@ -1,6 +1,6 @@
 # Job Service Client
 
-This project is a Java library to communicate with the [Job Service](https://github.hpe.com/caf/job-service). It allows callers to create, cancel, delete and retrieve job information sent to CAF Workers.
+This project is a Java library to communicate with the [Job Service](https://jobservice.github.io/jobservice). It allows callers to create, cancel, delete and retrieve job information sent to CAF Workers.
 
 ## Usage
 
