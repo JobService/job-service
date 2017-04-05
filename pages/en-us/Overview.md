@@ -5,7 +5,7 @@ title: CAF Job Service Overview
 banner:
     icon: 'assets/img/fork-lift.png'
     title: Job Service
-    subtitle: Analyze a Larger Range of Formats
+    subtitle: Orchestration, Management and Monitoring of Data Processing
     links:
         - title: GitHub
           url: https://github.hpe.com/caf/job-service
