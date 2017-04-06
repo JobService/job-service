@@ -56,10 +56,10 @@
                     <images>
                         <image>
                             <alias>job-service-postgres</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-postgres:${project.version}</name>
+                            <name>${corporateDockerRegistry}/caf/job-service-postgres:${project.version}</name>
                             <build>
                                 <maintainer>connor.mulholland@hpe.com</maintainer>
-                                <from>rh7-artifactory.svs.hpeswlab.net:8444/caf/java-postgres:1.0.0-28</from>
+                                <from>${corporateDockerReleaseRegistry}/caf/java-postgres:1.0.0-28</from>
                                 <labels>
                                     <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
