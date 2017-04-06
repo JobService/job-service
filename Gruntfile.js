@@ -38,7 +38,7 @@ module.exports = function(grunt) {
             },
             pages: {
                 options: {
-                    remote: 'git@github.hpe.com:caf/job-service.git',
+                    remote: 'git@github.com:JobService/job-service.git',
                     login: '',
                     token: '',
                     branch: 'gh-pages'
