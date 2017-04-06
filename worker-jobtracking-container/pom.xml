@@ -1,23 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2015-2017 Hewlett Packard Enterprise Development LP.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.hpe.caf.worker</groupId>
+    <groupId>com.github.jobservice</groupId>
     <artifactId>worker-jobtracking-container</artifactId>
     <packaging>pom</packaging>
 
     <parent>
-        <groupId>com.hpe.caf</groupId>
+        <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>1.11.0-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-store.impl>worker-store-fs</caf.worker-store.impl>
-        <worker-jobtracking.container.name>${docker.dev.repo}/caf/worker-jobtracking:${project.version}</worker-jobtracking.container.name>
+        <worker-jobtracking.container.name>rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-jobtracking:${project.version}</worker-jobtracking.container.name>
         <datastore.container.id>b591d8c6615c4af99d7915719b01259c</datastore.container.id>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
         <test.data>${project.basedir}/test-data</test.data>
@@ -73,7 +90,7 @@
         </dependency>
         <!--Worker jobtracking dependencies.-->
         <dependency>
-            <groupId>com.hpe.caf.worker</groupId>
+            <groupId>com.github.jobservice</groupId>
             <artifactId>worker-jobtracking</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -314,7 +331,7 @@
                         <!-- Run jobservice postgres container against postgres database to install jobservice schema. -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>${corporateDockerRegistry}/caf/job-service-postgres:${project.version}</name>
+                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-postgres:${project.version}</name>
                             <run>
                                 <links>
                                     <link>${job.database.host}</link>

@@ -1,20 +1,20 @@
 # Job Service Container
 
-This docker image contains the [Job Service](https://github.hpe.com/caf/job-service) hosted in Apache Tomcat 8.
+This docker image contains the [Job Service](../job-service) hosted in Apache Tomcat 8.
 
-The supplied Marathon [properties](https://github.hpe.com/caf/chateau/blob/develop/services/job-service/properties.md) can be used to deploy this container on Mesosphere’s [Marathon](https://mesosphere.github.io/marathon/) orchestration platform.
+[Job-service-deploy](https://github.com/jobservice/job-service-deploy) can be used to deploy this container on Docker.
 
 ## Job Service Links
 
-[Overview](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Overview.md)
+[Overview](https://jobservice.github.io/jobservice/pages/en-us/Overview)
 
-[Getting Started](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Getting-Started.md)
+[Getting Started](https://jobservice.github.io/jobservice/pages/en-us/Getting-Started)
 
-[API](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/API.md)
+[API](https://jobservice.github.io/jobservice/pages/en-us/API)
 
-[Features](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Features.md)
+[Features](https://jobservice.github.io/jobservice/pages/en-us/Features)
 
-[Architecture](https://github.hpe.com/caf/job-service/blob/develop/docs/en-us/Architecture.md)
+[Architecture](https://jobservice.github.io/jobservice/pages/en-us/Architecture)
 
 ## Feature Testing
 The testing for Job Service is defined [here](../testcases)

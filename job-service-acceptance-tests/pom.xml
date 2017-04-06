@@ -1,17 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2015-2017 Hewlett Packard Enterprise Development LP.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.hpe.caf</groupId>
+    <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-acceptance-tests</artifactId>
     <packaging>pom</packaging>
 
     <parent>
-        <groupId>com.hpe.caf</groupId>
+        <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>1.11.0-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -68,7 +85,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf</groupId>
+            <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-client</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -169,12 +186,12 @@
                     <environmentVariables>
                         <CAF_APPNAME>test/jobservice-acceptance</CAF_APPNAME>
                         <CAF_CONFIG_PATH>${project.basedir}/test-configs</CAF_CONFIG_PATH>
-                        <CAF_JOB_SERVICE_IMAGE>${docker.dev.repo}/caf/job-service:${project.version}</CAF_JOB_SERVICE_IMAGE>
+                        <CAF_JOB_SERVICE_IMAGE>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service:${project.version}</CAF_JOB_SERVICE_IMAGE>
                         <CAF_JOB_SERVICE_ADMIN_PORT>${jobservice.adminport}</CAF_JOB_SERVICE_ADMIN_PORT>
                         <CAF_WEBSERVICE_URL>http://${docker.host.address}:${jobservice.adminport}/job-service/v1</CAF_WEBSERVICE_URL>
                         <CAF_DOCKER_HOST>http://${docker.host.address}:2375</CAF_DOCKER_HOST>
                         <CAF_DOCKER_VERSION>1.22</CAF_DOCKER_VERSION>
-                        <CAF_JOB_SERVICE_CALLER_IMAGE>${docker.dev.repo}/caf/job-service-caller:${project.version}</CAF_JOB_SERVICE_CALLER_IMAGE>
+                        <CAF_JOB_SERVICE_CALLER_IMAGE>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-caller:${project.version}</CAF_JOB_SERVICE_CALLER_IMAGE>
                         <CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>http://job-service:8080</CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>
                     </environmentVariables>
                 </configuration>
@@ -378,7 +395,7 @@
                         <!-- Run jobservice postgres container against PostgreSQL database to install jobservice schema -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>${corporateDockerRegistry}/caf/job-service-postgres:${project.version}</name>
+                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-postgres:${project.version}</name>
                             <run>
                                 <links>
                                     <link>${job.database.host}</link>
@@ -421,7 +438,7 @@
                         <!-- Run the Job Service -->
                         <image>
                             <alias>job-service</alias>
-                            <name>${docker.dev.repo}/caf/job-service:${project.version}</name>
+                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service:${project.version}</name>
                             <run>
                                 <ports>
                                     <port>${jobservice.adminport}:8080</port>
@@ -465,7 +482,7 @@
                         <!-- Run Job Tracking worker -->
                         <image>
                             <alias>jobtracking-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-jobtracking:${project.version}</name>
+                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-jobtracking:${project.version}</name>
                             <run>
                                 <ports>
                                     <port>${jobtracking-worker.adminport}:8081</port>
@@ -503,7 +520,7 @@
                         <!-- Run Batch worker -->
                         <image>
                             <alias>batch-worker</alias>
-                            <name>${corporateDockerReleaseRegistry}/caf/worker-batch:1.11.0-16</name>
+                            <name>rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-batch:1.11.0-16</name>
                             <run>
                                 <ports>
                                     <port>${batch-worker.adminport}:8081</port>
@@ -538,7 +555,7 @@
                         <!-- Run Example worker -->
                         <image>
                             <alias>example-worker</alias>
-                            <name>${docker.dev.repo}/caf/worker-example:1.0.2</name>
+                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-example:1.0.2</name>
                             <run>
                                 <ports>
                                     <port>${example-worker.adminport}:8081</port>
@@ -572,7 +589,7 @@
                         <!-- Image for job-service-caller -->
                         <image>
                             <alias>job-service-caller</alias>
-                            <name>${docker.dev.repo}/caf/job-service-caller:${project.version}</name>
+                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-caller:${project.version}</name>
                         </image>
 
                     </images>
