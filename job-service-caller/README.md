@@ -5,7 +5,7 @@ job definition and the web service url for the CAF Job Service.
 ## Usage
 
 The CAF Job Service should be deployed prior to running the script.
-See the [Getting Started](https://jobservice.github.io/jobservice/pages/en-us/Getting-Started) guide for this.
+See the [Getting Started](https://pages.github.hpe.com/caf/job-service/pages/en-us/Getting-Started) guide for this.
 
 The script can be invoked using Python:
 

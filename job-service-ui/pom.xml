@@ -4,18 +4,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.jobservice</groupId>
+    <groupId>com.hpe.caf</groupId>
     <artifactId>job-service-ui</artifactId>
     <packaging>war</packaging>
 
     <parent>
-        <groupId>com.github.jobservice</groupId>
+        <groupId>com.hpe.caf</groupId>
         <artifactId>job-service-aggregator</artifactId>
         <version>1.11.0-SNAPSHOT</version>
     </parent>
 
     <properties>
-        <swagger.contract.groupId>com.github.jobservice</swagger.contract.groupId>
+        <swagger.contract.groupId>com.hpe.caf</swagger.contract.groupId>
         <swagger.contract.artifactId>job-service-contract</swagger.contract.artifactId>
         <swagger.contract.version>${project.version}</swagger.contract.version>
         <swagger.contract.path>/com/hpe/caf/services/job</swagger.contract.path>

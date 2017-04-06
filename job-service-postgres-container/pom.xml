@@ -4,19 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.jobservice</groupId>
+    <groupId>com.hpe.caf</groupId>
     <artifactId>job-service-postgres-container</artifactId>
     <packaging>pom</packaging>
 
     <parent>
-        <groupId>com.github.jobservice</groupId>
+        <groupId>com.hpe.caf</groupId>
         <artifactId>job-service-aggregator</artifactId>
         <version>1.11.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>
         <dependency>
-            <groupId>com.github.jobservice</groupId>
+            <groupId>com.hpe.caf</groupId>
             <artifactId>job-service-db</artifactId>
             <version>${project.version}</version>
             <classifier>jar-with-dependencies</classifier>
@@ -76,7 +76,7 @@
                                                 <fileMode>0755</fileMode>
                                                 <useProjectArtifact>true</useProjectArtifact>
                                                 <includes>
-                                                    <include>com.github.jobservice:job-service-db</include>
+                                                    <include>com.hpe.caf:job-service-db</include>
                                                 </includes>
                                                 <outputFileNameMapping>job-service-db.jar</outputFileNameMapping>
                                             </dependencySet>

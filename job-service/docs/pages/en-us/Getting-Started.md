@@ -15,7 +15,7 @@ banner:
 # Getting Started
 
 ## Job Service Deployment
-The [Job Service Deployment](https://github.com/jobservice/job-service-deploy/) repository can be used to deploy the Job Service. This repository provides the necessary deployment files in [Docker Compose](https://docs.docker.com/compose/) v3 format to launch the Job Service as well as a set of additional services included to provide a simple but complete demonstration of the Job Service.
+The [Job Service Deployment](https://github.hpe.com/caf/job-service-deploy/) repository can be used to deploy the Job Service. This repository provides the necessary deployment files in [Docker Compose](https://docs.docker.com/compose/) v3 format to launch the Job Service as well as a set of additional services included to provide a simple but complete demonstration of the Job Service.
 
 The list of additional services include:
  
@@ -23,7 +23,7 @@ The list of additional services include:
 * GlobFilter worker - this is a [Batch Worker](https://github.hpe.com/caf/worker-batch/tree/develop/worker-batch/) with the batch processing plugin built in. It takes in a glob filter as the batch definition, filters a given directory for matches and creates items of work from those matches.
 * Language Detection worker - this is an example of another worker that returns a list of languages detected in the text data.
 
-The only pre-requisite required to getting started with the files provided in the [Job Service Deployment](https://github.com/jobservice/job-service-deploy) repository is that [Docker](https://www.docker.com/) must be available on the system.
+The only pre-requisite required to getting started with the files provided in the [Job Service Deployment](https://github.hpe.com/caf/job-service-deploy) repository is that [Docker](https://www.docker.com/) must be available on the system.
 
 ## Using the Job Service Web User Interface
 

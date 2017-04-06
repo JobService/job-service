@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.jobservice</groupId>
+    <groupId>com.hpe.caf</groupId>
     <artifactId>job-service-container</artifactId>
     <packaging>pom</packaging>
 
     <parent>
-        <groupId>com.github.jobservice</groupId>
+        <groupId>com.hpe.caf</groupId>
         <artifactId>job-service-aggregator</artifactId>
         <version>1.11.0-SNAPSHOT</version>
     </parent>
@@ -29,7 +29,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.jobservice</groupId>
+            <groupId>com.hpe.caf</groupId>
             <artifactId>job-service</artifactId>
             <version>${project.version}</version>
             <type>war</type>
@@ -42,7 +42,7 @@
         </dependency>
         <!-- Swagger UI -->
         <dependency>
-            <groupId>com.github.jobservice</groupId>
+            <groupId>com.hpe.caf</groupId>
             <artifactId>job-service-ui</artifactId>
             <version>${project.version}</version>
             <type>war</type>
@@ -58,7 +58,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.jobservice</groupId>
+            <groupId>com.hpe.caf</groupId>
             <artifactId>job-service-client</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -429,7 +429,7 @@
                                             <dependencySet>
                                                 <useProjectArtifact>false</useProjectArtifact>
                                                 <includes>
-                                                    <include>com.github.jobservice:job-service</include>
+                                                    <include>com.hpe.caf:job-service</include>
                                                 </includes>
                                                 <outputDirectory>/opt</outputDirectory>
                                                 <outputFileNameMapping>${webserviceWarName}.war</outputFileNameMapping>
@@ -437,7 +437,7 @@
                                             <dependencySet>
                                                 <useProjectArtifact>false</useProjectArtifact>
                                                 <includes>
-                                                    <include>com.github.jobservice:job-service-ui</include>
+                                                    <include>com.hpe.caf:job-service-ui</include>
                                                 </includes>
                                                 <outputDirectory>/opt</outputDirectory>
                                                 <outputFileNameMapping>${swaggerUIWarName}.war</outputFileNameMapping>
