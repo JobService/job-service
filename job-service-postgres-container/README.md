@@ -34,7 +34,7 @@ The job service database requires PostgreSQL 9.4 or later to be installed and co
 
 The script to install the job service database can be invoked by running the container. The location of the install script inside the container, i.e. './install_job_service_db.sh' as well as the database install configuration arguments will need to be specified. An example is given next:
 
-	docker run --rm rh7-artifactory.svs.hpeswlab.net:8444/caf/job-service-postgres:1.10.0-<buildnum> \
+	docker run --rm jobservice/job-service-postgres:2.0.0 \
 	    ./install_job_service_db.sh \
 	    -db.connection jdbc:postgresql://<postgres host>:5432/ \
 	    -db.name jobservice \

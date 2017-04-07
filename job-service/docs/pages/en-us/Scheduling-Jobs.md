@@ -16,7 +16,7 @@ At the heart of Chronos job scheduling is a JSON POST request. The JSON hash you
 
 A Docker image is available which can be used to makes REST calls to the CAF Job Service API in order to create new jobs and wait on their completion. The latest image can be downloaded from Artifactory, for example:
 
-    docker pull rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-caller:1.0.0
+    docker pull jobservice/job-service-caller:2.0.0
 
 This Docker container has been configured to run as an executable and hosts a script, `createJob.py`, which calls the CAF Job Service API. The  script supports the following arguments:
 
@@ -55,7 +55,7 @@ You should deploy an end-to-end Job Service system comprising the Job Service, J
 ### Download Job Service Caller Container
 Download the latest Docker image for the Job Service Caller from Artifactory, for example:
 
-    docker pull rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-caller:1.0.0
+    docker pull jobservice/job-service-caller:2.0.0
 
 ### Create Job Service Definition JSON
 In order to add a new job using the Job Service, you should create a JSON file, e.g. `MyJobDefinition.json`, comprising a sample job definition:
@@ -92,7 +92,7 @@ A job hash needs to be created to specify the job details including the name, th
         "name": "my-docker-job",
         "container": {
             "type": "DOCKER",
-            "image": "rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-caller:1.8.0",
+            "image": "jobservice/job-service-caller:2.0.0",
             "forcePullImage": true,
             "network": "BRIDGE"
         },
