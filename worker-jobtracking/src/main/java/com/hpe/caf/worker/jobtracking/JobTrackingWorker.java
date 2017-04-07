@@ -32,25 +32,41 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
     @NotNull
     private JobTrackingReporter reporter;
 
-
+    /**
+     * Constructor called by the JobTrackingWorkerFactory.
+     */
     public JobTrackingWorker(final JobTrackingWorkerTask task, final String outputQueue, final Codec codec, final JobTrackingReporter reporter) throws InvalidTaskException {
         super(task, outputQueue, codec);
         this.reporter = Objects.requireNonNull(reporter);
     }
 
-
+    /**
+     * Gets the worker name.
+     *
+     * @return worker name
+     */
     @Override
     public String getWorkerIdentifier() {
         return JobTrackingWorkerConstants.WORKER_NAME;
     }
 
-
+    /**
+     * Gets teh worker API version.
+     *
+     * @return worker api version
+     */
     @Override
     public int getWorkerApiVersion() {
         return JobTrackingWorkerConstants.WORKER_API_VER;
     }
 
-
+    /**
+     * Main work method of the JobTrackingWorker.
+     *
+     * @return  worker response
+     * @throws  InterruptedException    if the work was interrupted by some cause
+     * @throws  TaskRejectedException   if the task is rejected
+     */
     @Override
     public WorkerResponse doWork() throws InterruptedException, TaskRejectedException {
         JobTrackingWorkerResult result = processTrackingEvent();

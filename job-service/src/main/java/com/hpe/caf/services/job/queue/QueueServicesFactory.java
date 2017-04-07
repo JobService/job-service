@@ -30,6 +30,16 @@ import java.util.concurrent.TimeoutException;
  */
 public final class QueueServicesFactory {
 
+    /**
+     * Create a new QueueServices object.
+     *
+     * @param   configuration       the app configuration
+     * @param   targetQueue         the target queue
+     * @param   codec               the serialization codec
+     * @return  QueueServices       new QueueServices object
+     * @throws  IOException         thrown if the connection cannot be created
+     * @throws  TimeoutException    thrown if the connection cannot be created
+     */
     public static QueueServices create(final AppConfig configuration, final String targetQueue, final Codec codec) throws IOException, TimeoutException {
         //  Create connection and channel for publishing messages.
         Connection connection = createConnection(configuration);
@@ -41,6 +51,9 @@ public final class QueueServicesFactory {
         return new QueueServices(connection, publishChannel, targetQueue, codec);
     }
 
+    /**
+     * Creates a connection to rabbit messaging server.
+     */
     private static Connection createConnection(AppConfig configuration)
             throws IOException, TimeoutException
     {

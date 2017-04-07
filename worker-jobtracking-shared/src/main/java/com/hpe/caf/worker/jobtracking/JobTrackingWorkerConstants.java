@@ -17,7 +17,14 @@ package com.hpe.caf.worker.jobtracking;
 
 
 public class JobTrackingWorkerConstants {
+    /**
+     * The name of the worker.
+     */
     public static final String WORKER_NAME = "JobTrackingWorker";
+
+    /**
+     * The API version of the worker.
+     */
     public static final int WORKER_API_VER = 1;
 
     private JobTrackingWorkerConstants() { }

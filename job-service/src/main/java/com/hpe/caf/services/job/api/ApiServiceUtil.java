@@ -34,6 +34,9 @@ public final class ApiServiceUtil {
 
     /**
      * Load required inputs from config.properties or environment variables.
+     *
+     * @return  properties  an object containing the properties read from environment variables
+     * @throws  BadRequestException thrown upon bad request
      */
     public static AppConfig getAppConfigProperties() throws BadRequestException {
         AppConfig properties;
@@ -63,6 +66,9 @@ public final class ApiServiceUtil {
 
     /**
      * Returns TRUE if the specified string is empty or null, otherwise FALSE.
+     *
+     * @param   str string to validate
+     * @return  boolean flag
      */
     public static boolean isNotNullOrEmpty(String str) {
         return str != null && !str.isEmpty();
@@ -70,6 +76,9 @@ public final class ApiServiceUtil {
 
     /**
      * Returns TRUE if the specified string contains one or more pre-defined reserved characters, otherwise FALSE.
+     *
+     * @param   toExamine string to validate
+     * @return  boolean flag
      */
     public static boolean containsInvalidCharacters(String toExamine) {
         String[] arr = toExamine.split(API_SERVICE_RESERVED_CHARACTERS_REGEX, 2);

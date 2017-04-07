@@ -18,14 +18,29 @@ package com.hpe.caf.worker.jobtracking;
 
 public class JobDatabaseProperties {
 
+    /**
+     * Gets the database URL from the environment variable.
+     *
+     * @return database url
+     */
     public static String getDatabaseUrl() {
         return System.getenv("JOB_DATABASE_URL");
     }
 
+    /**
+     * Gets the database username from the environment variable.
+     *
+     * @return database username
+     */
     public static String getDatabaseUsername() {
         return System.getenv("JOB_DATABASE_USERNAME");
     }
 
+    /**
+     * Gets the database password from the environment variable.
+     *
+     * @return database password
+     */
     public static String getDatabasePassword() {
         return System.getenv("JOB_DATABASE_PASSWORD");
     }

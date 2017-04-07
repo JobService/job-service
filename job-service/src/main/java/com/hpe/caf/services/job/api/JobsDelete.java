@@ -24,6 +24,12 @@ public final class JobsDelete {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsGet.class);
 
+    /**
+     * Delete the job with the specified job id.
+     *
+     * @param   jobId       id of the job to delete
+     * @throws  Exception   bad request or database exceptions thrown
+     */
     public static void deleteJob(String jobId) throws Exception {
         try {
             LOG.info("deleteJob: Starting...");

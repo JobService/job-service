@@ -24,6 +24,9 @@ public final class JobsActive {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsActive.class);
 
+    /**
+     * Private class holding the job's current activity and status check interval.
+     */
     public static class JobsActiveResult {
         public final boolean active;
         public final int statusCheckIntervalSecs;
@@ -34,6 +37,13 @@ public final class JobsActive {
         }
     }
 
+    /**
+     * Determine if the job is active.
+     *
+     * @param   jobId       the id of the job to test
+     * @return  active      job activity status object
+     * @throws  Exception   exceptions thrown by bad request or database exceptions
+     */
     public static JobsActiveResult isJobActive(String jobId) throws Exception {
         boolean active;
         int statusCheckIntervalMillis;

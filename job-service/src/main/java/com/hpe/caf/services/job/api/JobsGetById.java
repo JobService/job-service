@@ -25,6 +25,13 @@ public final class JobsGetById {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsGetById.class);
 
+    /**
+     * Get the job with the specified job id.
+     *
+     * @param   jobId       job id of the job to return
+     * @return  job         the job
+     * @throws  Exception   bad request or database exception
+     */
     public static Job getJob(String jobId) throws Exception {
 
         Job job;

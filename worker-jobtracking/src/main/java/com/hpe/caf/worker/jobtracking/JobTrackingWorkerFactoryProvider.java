@@ -24,6 +24,15 @@ import com.hpe.caf.api.worker.WorkerFactoryProvider;
 
 public class JobTrackingWorkerFactoryProvider implements WorkerFactoryProvider {
 
+    /**
+     * Returns a Worker Factory for creating workers for given tasks.
+     *
+     * @param configSource  the configuration source object containing configuration details
+     * @param dataStore     the data store object for data storage
+     * @param codec         the codec object to be used for serialization
+     * @return WorkerFactory
+     * @throws WorkerException  if the factory cannot be created
+     */
     @Override
     public WorkerFactory getWorkerFactory(final ConfigurationSource configSource, final DataStore dataStore, final Codec codec) throws WorkerException {
         return new JobTrackingWorkerFactory(configSource, dataStore, codec);

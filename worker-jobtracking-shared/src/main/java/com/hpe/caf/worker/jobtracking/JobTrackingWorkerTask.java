@@ -31,6 +31,9 @@ public class JobTrackingWorkerTask {
     private String jobTaskId;
 
 
+    /**
+     * The task's estimated percentage complete.
+     */
     @Min(0)
     @Max(100)
     private int estimatedPercentageCompleted;
