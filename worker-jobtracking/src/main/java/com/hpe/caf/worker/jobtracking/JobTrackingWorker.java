@@ -51,7 +51,7 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
     }
 
     /**
-     * Gets teh worker API version.
+     * Gets the worker API version.
      *
      * @return worker api version
      */
