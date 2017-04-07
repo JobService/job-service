@@ -37,7 +37,7 @@ social:
           subtitle: Fork Job Service on GitHub and submit a pull request to help contribute to the project! Or if you have discovered an issue, report it to us.
           link:
             title: Fork Job Service
-            url: https://github.hpe.com/caf/job-service
+            url: https://github.com/JobService/job-service
         - icon: hpe-chat
           title: Blog
           subtitle: Follow our blog to find out all of the exciting news and announcements regarding Job Service.

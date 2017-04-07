@@ -8,7 +8,7 @@ This guide provides instructions for creating, registering and testing an exampl
 
 
 ### ExampleWorkerTaskBuilder
-An existing [ExampleWorkerTaskBuilder](https://github.hpe.com/caf/worker-framework/tree/develop/worker-example/worker-example-message-builder) implementation is already supported which forwards items comprising a single document storage reference onto the Example Worker. This message builder implements an already defined [document-message-builder](https://github.hpe.com/caf/document-message-builder) interface. The remainder of this document will refer to this message builder interface and implementation.
+An existing [ExampleWorkerTaskBuilder](https://github.com/WorkerFramework/worker-framework/tree/develop/worker-example/worker-example-message-builder) implementation is already supported which forwards items comprising a single document storage reference onto the Example Worker. This message builder implements an already defined [document-message-builder](https://github.com/JobService/job-service/tree/develop/document-message-builder) interface. The remainder of this document will refer to this message builder interface and implementation.
 
 ## Creating a Batch Worker Plugin
 
@@ -16,7 +16,7 @@ The Batch Worker Plugin requires a task message builder implementation in order 
 
 ### Create Maven Project
 
-Create a new Maven project for the Batch Worker plugin. The Batch Worker Plugin and Batch Worker Services interfaces ([worker-batch-extensibility](https://github.hpe.com/caf/worker-batch-extensibility)), and the relevant task message builder interfaces ([document-message-builder](https://github.hpe.com/caf/document-message-builder)) should be included in the dependencies section of the project POM:
+Create a new Maven project for the Batch Worker plugin. The Batch Worker Plugin and Batch Worker Services interfaces ([worker-batch-extensibility](https://github.com/JobService/worker-batch/tree/develop/worker-batch-extensibility)), and the relevant task message builder interfaces ([document-message-builder](https://github.com/JobService/job-service/tree/develop/document-message-builder)) should be included in the dependencies section of the project POM:
 
     <dependency>
         <groupId>com.hpe.caf.worker.batch</groupId>
@@ -32,7 +32,7 @@ Create a new Maven project for the Batch Worker plugin. The Batch Worker Plugin 
 
 ### Implement Batch Worker Plugin
 
-Create a Batch Worker Plugin Java class. This class is responsible for interpreting and recursively splitting the batch definition into individual worker items that can be sent to a queue that a target worker is listening on. The primary requirement of the Batch Worker plugin class is that it should implement the BatchWorkerPlugin interface defined in [worker-batch-extensibility](https://github.hpe.com/caf/worker-batch-extensibility):
+Create a Batch Worker Plugin Java class. This class is responsible for interpreting and recursively splitting the batch definition into individual worker items that can be sent to a queue that a target worker is listening on. The primary requirement of the Batch Worker plugin class is that it should implement the BatchWorkerPlugin interface defined in [worker-batch-extensibility](https://github.com/JobService/worker-batch/tree/develop/worker-batch-extensibility):
 
     package com.hpe.caf.worker.batch.plugins;
     
@@ -126,7 +126,7 @@ The `processBatch()` method of the Batch Worker Plugin can use the CAF ModulePro
         }
     }
 
-In order to utilise the CAF ModuleProvider, you will need to reference the [util-moduleloader](https://github.hpe.com/caf/caf-common/tree/develop/util-moduleloader) artifact in the project POM:
+In order to utilise the CAF ModuleProvider, you will need to reference the [util-moduleloader](https://github.com/CAFapi/caf-common/tree/develop/util-moduleloader) artifact in the project POM:
 
     <dependency>
         <groupId>com.github.cafapi.util</groupId>
@@ -135,12 +135,12 @@ In order to utilise the CAF ModuleProvider, you will need to reference the [util
     </dependency>
 
 ## Register the Batch Worker Plugin
-To register the Batch Worker plugin, add a reference to it in the dependency management section of the [worker-batch-plugins-package](https://github.hpe.com/caf/worker-batch-plugins-package) project POM:
+To register the Batch Worker plugin, add a reference to it in the dependency management section of the [worker-batch-plugins-package](https://github.com/JobService/worker-batch/tree/develop/worker-batch-plugins-package) project POM:
 
     <dependencies>
         <!-- BatchWorkerPlugin implementations -->
         <dependency>
-            <groupId>com.hpe.caf.worker.batch.plugins</groupId>
+            <groupId>com.github.JobService</groupId>
             <artifactId>example-batch-plugin</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
@@ -153,23 +153,23 @@ To register the Batch Worker plugin, add a reference to it in the dependency man
         </dependency>
     </dependencies>
 
-The [worker-batch-plugins-package](https://github.hpe.com/caf/worker-batch-plugins-package) project is a collection of plugins and message builder implementations for use by the Batch Worker that are packaged in a single aggregated tar.gz. This can be unpacked and placed on the Batch Worker classpath.
+The [worker-batch-plugins-package](https://github.com/JobService/worker-batch/tree/develop/worker-batch-plugins-package) project is a collection of plugins and message builder implementations for use by the Batch Worker that are packaged in a single aggregated tar.gz. This can be unpacked and placed on the Batch Worker classpath.
 
 ## Testing the Batch Worker Plugin
 
-For the purposes of getting started, this section assumes a new example Batch Worker plugin has been created using the instructions provided in this document. It assumes a batch definition comprising a list of document storage references is to be used. The `processBatch()` method of the plugin is expected to recursively split the list of document storage references until individual worker items for a single document storage reference can be sent to a target worker. The target worker in this case is expected to be the Example Worker. The [ExampleWorkerTaskBuilder](https://github.hpe.com/caf/worker-framework/tree/develop/worker-example/worker-example-message-builder) implementation is the assumed choice of task message builder.
+For the purposes of getting started, this section assumes a new example Batch Worker plugin has been created using the instructions provided in this document. It assumes a batch definition comprising a list of document storage references is to be used. The `processBatch()` method of the plugin is expected to recursively split the list of document storage references until individual worker items for a single document storage reference can be sent to a target worker. The target worker in this case is expected to be the Example Worker. The [ExampleWorkerTaskBuilder](https://github.com/WorkerFramework/worker-framework/tree/develop/worker-example/worker-example-message-builder) implementation is the assumed choice of task message builder.
 
 The Job Service should be employed to test the example Batch Worker plugin created. The Job Service can send and monitor the progress of a batch of work sent to a Batch Worker. The message to be sent to the Batch Worker should include a batch definition comprising a list of document storage references as well as the target batch processor plugin. The Job Tracking Worker will also be deployed alongside the Job Service and the logs belonging to this worker can be utilised to verify the example Batch Worker plugin implementation.
 
 ### Job Service and Worker Deployment
-Follow the deployment instructions for the Job Service, Job Tracking Worker, Batch Worker and Example Worker in the [Getting Started guide for the Job Service](https://pages.github.hpe.com/caf/job-service/pages/en-us/Getting-Started).
+Follow the deployment instructions for the Job Service, Job Tracking Worker, Batch Worker and Example Worker in the [Getting Started guide for the Job Service](https://jobservice.github.io/job-service/pages/en-us/Getting-Started).
 
 ####  Batch Worker Plugin Registration
-Build the [worker-batch-plugins-package](https://github.hpe.com/caf/worker-batch-plugins-package) project and copy the aggregated batch-plugins.tar.gz to the ${marathon-uris-root}/${batch-plugin-location} location specified in the [Chateau pre-requisite](https://github.hpe.com/caf/chateau/blob/develop/services/batch-worker/README.md)  instructions for running the Batch Worker. This step places the example batch processing plugin on the Batch Worker classpath.
+Build the [worker-batch-plugins-package](https://github.com/JobService/worker-batch/tree/develop/worker-batch-plugins-package) project and copy the aggregated batch-plugins.tar.gz to the ${marathon-uris-root}/${batch-plugin-location} location specified in the [Chateau pre-requisite](https://github.hpe.com/caf/chateau/blob/develop/services/batch-worker/README.md)  instructions for running the Batch Worker. This step places the example batch processing plugin on the Batch Worker classpath.
 
 #### Sending a Job to the Batch Worker
 
-A Swagger user interface (UI) is provided on the same host and port as the Job Service. Usage instructions are provided in the [Getting Started guide for the Job Service](https://pages.github.hpe.com/caf/job-service/pages/en-us/Getting-Started).
+A Swagger user interface (UI) is provided on the same host and port as the Job Service. Usage instructions are provided in the [Getting Started guide for the Job Service](https://jobservice.github.io/job-service/pages/en-us/Getting-Started).
 
 You can use the Swagger UI to send the Batch Worker a batch of work. Add a job with the new job body following this template:
 
@@ -223,7 +223,7 @@ On completion, the payload sent to the Example Worker output queue, dataprocessi
         }
     }
 
-The logs of the Job Tracking Worker can also be inspected to verify the processing of the original message or batch of work sent to the Batch Worker. The [Getting Started guide for the Job Service](https://pages.github.hpe.com/caf/job-service/pages/en-us/Getting-Started) explains how to locate the stdout output for the job tracking worker. You can use this to verify the following:
+The logs of the Job Tracking Worker can also be inspected to verify the processing of the original message or batch of work sent to the Batch Worker. The [Getting Started guide for the Job Service](https://jobservice.github.io/job-service/pages/en-us/Getting-Started) explains how to locate the stdout output for the job tracking worker. You can use this to verify the following:
 
 * Message is registered and split into separate tasks by the batch worker
 * Separate messages directed back to the batch worker output queue for recursive splitting

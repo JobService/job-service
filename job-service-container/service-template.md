@@ -14,5 +14,5 @@
 | Scaling |   |
 | Artifacts | job-service, Version 1.1 <br> job-service-db-installer, Version 1.0 |
 | Compliance | Fortify - Not Verified <br> Web Inspect - Not Verified |
-| Documentation | Configuration - [Job Service Configuration](https://github.hpe.com/caf/chateau/tree/develop/services/job-service) <br> API - [Job Service API](https://github.hpe.com/caf/job-service)
+| Documentation | Configuration - [Job Service Configuration](https://github.hpe.com/caf/chateau/tree/develop/services/job-service) <br> API - [Job Service API](https://github.com/JobService/job-service)
 | Known Issues	| None |

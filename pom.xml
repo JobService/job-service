@@ -23,7 +23,7 @@
 
     <name>Job Service</name>
     <description>Orchestration, Management and Monitoring of Data Processing</description>
-    <url>https://jobservice.github.io/jobservice/</url>
+    <url>https://jobservice.github.io/job-service/</url>
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-aggregator</artifactId>
@@ -109,9 +109,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/jobservice/JobService.git</connection>
-        <developerConnection>scm:git:https://github.com/jobservice/JobService.git</developerConnection>
-        <url>https://github.com/jobservice/JobService.git</url>
+        <connection>scm:git:https://github.com/JobService/job-service.git</connection>
+        <developerConnection>scm:git:https://github.com/JobService/job-service.git</developerConnection>
+        <url>https://github.com/JobService/job-service.git</url>
     </scm>
 
 </project>

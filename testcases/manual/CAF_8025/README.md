@@ -4,7 +4,7 @@ Verify that Job Service job can be scheduled to run when required.
 
 **Test Steps**
 
-Follow the steps to schedule Job Service jobs through Chronos [here](https://pages.github.hpe.com/caf/job-service/pages/en-us/Scheduling-Jobs)
+Follow the steps to schedule Job Service jobs through Chronos [here](https://JobService.github.io/job-service/pages/en-us/Scheduling-Jobs)
 
 **Test Data**
 
