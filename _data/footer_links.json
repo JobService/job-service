@@ -1,6 +1,6 @@
 {
   "navigation_items": [],
-  "feedback_url": "https://github.hpe.com/caf/job-service/issues",
+  "feedback_url": "https://github.com/JobService/job-service/issues",
   "copyright": "© 2016 Hewlett Packard Enterprise",
   "footer_logo": "assets/img/job-service-logo.png",
   "footer_columns": [{
@@ -12,7 +12,7 @@
         "en-us": "GitHub"
       },
       "url": {
-        "en-us": "https://github.hpe.com/caf/job-service"
+        "en-us": "https://github.com/JobService/job-service"
       }
     },
     {

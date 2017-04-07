@@ -10,7 +10,7 @@ team_members:
       social:
         - title: GitHub
           icon: hpe-social-github
-          url: https://github.hpe.com/dermot-hardy
+          url: https://github.com/dermot-hardy
         - title: Email
           icon: hpe-social-email
           url: mailto:dermot.hardy@hpe.com
@@ -21,7 +21,7 @@ team_members:
       social:
        - title: GitHub
          icon: hpe-social-github
-         url: https://github.hpe.com/connor-mulholland
+         url: https://github.com/mulhollandc
        - title: Email
          icon: hpe-social-email
          url: mailto:connor.mulholland@hpe.com
@@ -32,7 +32,7 @@ team_members:
       social:
        - title: GitHub
          icon: hpe-social-github
-         url: https://github.hpe.com/conal-smith
+         url: https://github.com/conalsmith49
        - title: Email
          icon: hpe-social-email
          url: mailto:conal.smith@hpe.com

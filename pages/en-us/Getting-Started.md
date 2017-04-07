@@ -9,7 +9,7 @@ banner:
     subtitle: Orchestration, Management and Monitoring of Data Processing
     links:
         - title: GitHub
-          url: https://github.hpe.com/caf/job-service
+          url: https://github.com/JobService/job-service
 ---
 
 # Getting Started
@@ -20,7 +20,7 @@ The [Job Service Deployment](https://github.com/jobservice/job-service-deploy/) 
 The list of additional services include:
  
 * Job Tracking worker - reports on the progress of jobs to the Job Service database.
-* GlobFilter worker - this is a [Batch Worker](https://github.hpe.com/caf/worker-batch/tree/develop/worker-batch/) with the batch processing plugin built in. It takes in a glob filter as the batch definition, filters a given directory for matches and creates items of work from those matches.
+* GlobFilter worker - this is a [Batch Worker](https://github.com/JobService/worker-batch) with the batch processing plugin built in. It takes in a glob filter as the batch definition, filters a given directory for matches and creates items of work from those matches.
 * Language Detection worker - this is an example of another worker that returns a list of languages detected in the text data.
 
 The only pre-requisite required to getting started with the files provided in the [Job Service Deployment](https://github.com/jobservice/job-service-deploy) repository is that [Docker](https://www.docker.com/) must be available on the system.
