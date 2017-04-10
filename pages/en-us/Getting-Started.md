@@ -50,7 +50,7 @@ Adjust 'docker-host' to be the name of your own Docker Host and adjust the port 
 	* `taskPipe`: name of the RabbitMQ queue feeding messages to the first worker. <br>
 	* `targetPipe`: name of the final worker's RabbitMQ output queue where tracking will stop. <br><br>
 
-	![Add Job](https://jobservice.github.io/job-service/pages/en-us/images/JobServiceUIAddJob.PNG)
+	![Add Job](images/JobServiceUIAddJob.PNG)
 
 5. Press `Try it out!`. The resulting code will show whether the addition of the job succeeds or not. 
    - 201, if the job is successfully added
@@ -104,7 +104,7 @@ Notice how `tracking` is `null` as the message output contains no tracking infor
 1. Expand the GET /jobs operation. 
 2. Press `Try it out!`. The list of jobs in the system appears in the response body, including the job you just created.
 
-	![Get Job](https://jobservice.github.io/job-service/pages/en-us/images/JobServiceUIGet.PNG)
+	![Add Job](images/JobServiceUIGet.PNG)
 
 
 
