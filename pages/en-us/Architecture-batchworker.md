@@ -11,7 +11,7 @@ The batch worker is a microservice designed to take a batch of work and recursiv
 
 The figure below illustrates the overall flow and relationship of components involved in breaking batches of work down into smaller units of work until individual tasks are produced and sent to workers. The Job Service is included as it can send and monitor the progress of a batch of work as a whole.
 
-![Architecture](images/BatchWorker-Architecture.png)
+![Architecture]({{site.baseurl}}/pages/en-us/images/BatchWorker-Architecture.png)
 
 1. The Job Service sends a batch of work to RabbitMQ, which is the Asynchronous messaging service to be consumed by the batch worker. In this case, the batch is sent to worker-batch-in.
 2. The batch worker consumes the tasks from worker-batch-in.

@@ -141,7 +141,7 @@ After you have sent the job hash to Chronos using the example REST API call abov
 #### Chronos Web UI
 The Chronos Web UI can be used to track the status (i.e. SUCCESS or FAILURE) of the scheduled Docker job. This includes date and time information for the last completed and/or failed run. The Web UI also displays the number of successful and failed job runs to date.
 
-![DockerJobSuccess]({{ site.baseurl }}/pages/en-us/images/ChronosScheduledJobSuccess.png)
+![DockerJobSuccess]({{site.baseurl}}/pages/en-us/images/ChronosScheduledJobSuccess.png)
 
 #### Mesos Logs
 Additional logging from the `createJob.py` script will be available in the sandbox standard output log for the completed Chronos task. See under the Completed Tasks section of the Chronos Framework in the Mesos UI.
