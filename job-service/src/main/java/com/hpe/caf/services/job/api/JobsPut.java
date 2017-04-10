@@ -45,6 +45,15 @@ public final class JobsPut {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsPut.class);
 
+    /**
+     * Creates a new job with the job object provided if the specified job id does not exist. If the job id already exists it updates
+     * the existing job.
+     *
+     * @param   jobId           the id of the job to create or update
+     * @param   job             the job object which populates the job database in creation of the new job
+     * @return  targetOperation the result of the operation to be performed
+     * @throws  Exception       bad request exception or database exception
+     */
     public static String createOrUpdateJob(String jobId, NewJob job) throws Exception {
         String targetOperation;
 

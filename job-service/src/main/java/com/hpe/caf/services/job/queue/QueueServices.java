@@ -121,6 +121,9 @@ public final class QueueServices {
                 "", targetQueue, MessageProperties.TEXT_PLAIN, taskMessageBytes);
     }
 
+    /**
+     * Calculates the date of the next status check to be performed.
+     */
     private Date calculateStatusCheckDate(String statusCheckTime){
         //make sure statusCheckTime is a valid long
         long seconds = 0;

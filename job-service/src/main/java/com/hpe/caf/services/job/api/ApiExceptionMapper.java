@@ -29,6 +29,12 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
 
+    /**
+     * Convert an exception to the appropriate response object.
+     *
+     * @param   exception   the exception to be converted
+     * @return  the response
+     */
     @Override
     public Response toResponse(Exception exception) {
         //  Default response to HTTP 500 (i.e. INTERNAL SERVER ERROR)

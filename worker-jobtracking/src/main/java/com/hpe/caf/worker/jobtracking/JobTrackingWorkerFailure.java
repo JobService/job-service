@@ -26,6 +26,11 @@ public class JobTrackingWorkerFailure   {
 
     public JobTrackingWorkerFailure() {}
 
+    /**
+     * Get the failure id.
+     *
+     * @return failure id
+     */
     public String getFailureId() {
         return failureId;
     }
@@ -33,6 +38,11 @@ public class JobTrackingWorkerFailure   {
         this.failureId = failureId;
     }
 
+    /**
+     * Get the date object containing the time of the failure.
+     *
+     * @return date failure time
+     */
     public Date getFailureTime() {
         return failureTime;
     }
@@ -40,6 +50,11 @@ public class JobTrackingWorkerFailure   {
         this.failureTime = failureTime;
     }
 
+    /**
+     * Get the source of the failure.
+     *
+     * @return String failure source
+     */
     public String getFailureSource() {
         return failureSource;
     }
@@ -47,6 +62,11 @@ public class JobTrackingWorkerFailure   {
         this.failureSource = failureSource;
     }
 
+    /**
+     * Get the failure message.
+     *
+     * @return String failure message
+     */
     public String getFailureMessage() {
         return failureMessage;
     }

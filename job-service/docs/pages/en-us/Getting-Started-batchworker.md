@@ -120,7 +120,7 @@ The Job Service can be employed to test the Batch Worker Plugin created. The Job
 
 ### Job Service and Batch Worker Deployment
 
-Follow the deployment instructions for the Job Service, Job Tracking Worker and Batch Worker in the [Getting Started guide for the Job Service](https://jobservice.github.io/job-service/pages/en-us/Getting-Started).
+Follow the deployment instructions for the Job Service, Job Tracking Worker, Batch Worker (within the Docker Compose file, switch the Glob Filter Worker out for your newly created Batch Worker container and configuration) and Language Detection Worker in the [Job Service Ease of Deployment Guide](https://github.com/JobService/job-service-deploy/blob/develop/README.md).
 
 #### Sending a Job to the Batch Worker
 
@@ -158,7 +158,7 @@ Note the following:
 * The `taskData` field should contain the actual message that is to be sent to the Batch Worker and should be JSON-encoded.
   * In the template above, we are adding a batch definition comprising a list of strings for language detection.
   * The `batchType` field specifies the plugin to be used so set this to the name of your Batch Worker Plugin.
-  * The `taskMessageType` field indicates the task message builder implementation to use, in this case `DocumentMessage` is used as the plugin that the archetype produces builds and sends messages intended for Document Workers.
+  * The `taskMessageType` field indicates to the Batch Worker the type of task message that it should construct for the downstream worker. In this case `DocumentMessage` is used as the plugin, that the archetype produces, constructs and sends messages intended for Document Workers.
 * The `taskPipe` field specifies the queue where the message is to be forwarded to. Set this to the queue consumed by the Batch Worker, `batchsplit-in`.
 * The `targetPipe` field specifies the ultimate pipe where messages should arrive after processing. Set this to the name of the final worker where tracking will stop, in this case, `languageidentification-out`.
 

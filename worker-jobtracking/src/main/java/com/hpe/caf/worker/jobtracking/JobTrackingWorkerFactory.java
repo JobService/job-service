@@ -46,13 +46,17 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
     @NotNull
     private JobTrackingReporter reporter;
 
-
+    /**
+     * Constructor for JobTrackingWorkerFactory called by JobTrackingWorkerFactoryProvider
+     */
     public JobTrackingWorkerFactory(ConfigurationSource configSource, DataStore store, Codec codec) throws WorkerException {
         super(configSource, store, codec, JobTrackingWorkerConfiguration.class, JobTrackingWorkerTask.class);
         this.reporter = createReporter();
     }
 
-
+    /**
+     * Constructor for JobTrackingWorkerFactory called by JobTrackingWorkerFactoryProvider
+     */
     public JobTrackingWorkerFactory(ConfigurationSource configSource, DataStore store, Codec codec, JobTrackingReporter reporter) throws WorkerException {
         super(configSource, store, codec, JobTrackingWorkerConfiguration.class, JobTrackingWorkerTask.class);
         this.reporter = reporter;
@@ -70,7 +74,9 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
         return JobTrackingWorkerConstants.WORKER_API_VER;
     }
 
-
+    /**
+     * Create a worker to process the given task.
+     */
     @Override
     public Worker createWorker(JobTrackingWorkerTask task) throws TaskRejectedException, InvalidTaskException {
         return new JobTrackingWorker(task, getConfiguration().getOutputQueue(), getCodec(), reporter);
@@ -88,7 +94,10 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
         return getConfiguration().getThreads();
     }
 
-
+    /**
+     * Health check which returns healthy if the Job Tracking Worker components are available.
+     * @return
+     */
     @Override
     public HealthResult healthCheck() {
         try {
@@ -115,7 +124,12 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
         callback.forward(queueMessageId, proxiedTaskMessage.getTo(), proxiedTaskMessage, headers);
     }
 
-
+    /**
+     * Report the task's status to the job database.
+     *
+     * @param proxiedTaskMessage    the task to be reported
+     * @param headers               task headers such as if the task was rejected
+     */
     private void reportProxiedTask(final TaskMessage proxiedTaskMessage, Map<String, Object> headers) {
         try {
             TrackingInfo tracking = proxiedTaskMessage.getTracking();
@@ -192,7 +206,9 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
         }
     }
 
-
+    /**
+     * Create a JobTrackingWorkerReporter object
+     */
     private JobTrackingReporter createReporter() throws TaskRejectedException {
         try {
             return new JobTrackingWorkerReporter();

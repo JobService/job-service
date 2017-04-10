@@ -24,6 +24,16 @@ public final class JobsGet {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsGet.class);
 
+    /**
+     * Gets a list of jobs from the job database specified by environment variable configuration.
+     *
+     * @param jobId         optional id of the job to get
+     * @param statusType    optional status of the job
+     * @param limit         optional limit of jobs to return per page
+     * @param offset        optional offset from which to return page of jobs
+     * @return  jobs        list of jobs
+     * @throws Exception    bad request or database exceptions
+     */
     public static Job[] getJobs(final String jobId, final String statusType, Integer limit, final Integer offset) throws Exception {
 
         Job[] jobs;

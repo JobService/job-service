@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Features
-last_updated: Last modified by Frank Rovitto on July 5, 2016
+last_updated: Last modified by Conal Smith on April 10, 2017
 
 banner:
     icon: 'assets/img/fork-lift.png'
@@ -9,7 +9,7 @@ banner:
     subtitle: Orchestration, Management and Monitoring of Data Processing
     links:
         - title: GitHub
-          url: https://github.hpe.com/caf/job-service
+          url: https://github.com/JobService/job-service
 ---
 
 # Key Features

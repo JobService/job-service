@@ -77,7 +77,13 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         }
     }
 
-
+    /**
+     * Reports the percentage completed of the specified task id.
+     *
+     * @param jobTaskId identifies the job task whose progress is to be reported
+     * @param estimatedPercentageCompleted an indication of progress on the job task
+     * @throws JobReportingException
+     */
     @Override
     public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException {
         try (Connection conn = getConnection()) {
@@ -88,7 +94,12 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         }
     }
 
-
+    /**
+     * Reports the specified job task as complete.
+     *
+     * @param jobTaskId identifies the completed job task
+     * @throws JobReportingException
+     */
     @Override
     public void reportJobTaskComplete(final String jobTaskId) throws JobReportingException {
         try (Connection conn = getConnection()) {
@@ -98,7 +109,13 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         }
     }
 
-
+    /**
+     * Reports the job task as failure and to be retried.
+     *
+     * @param jobTaskId identifies the failed job task
+     * @param retryDetails an explanation of the retry of this job task
+     * @throws JobReportingException
+     */
     @Override
     public void reportJobTaskRetry(final String jobTaskId, final String retryDetails) throws JobReportingException {
         try (Connection conn = getConnection()) {
@@ -109,7 +126,13 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         }
     }
 
-
+    /**
+     * Reports the job task as a rejected task.
+     *
+     * @param jobTaskId identifies the rejected job task
+     * @param rejectionDetails an explanation of the failure and rejection of the job task
+     * @throws JobReportingException
+     */
     @Override
     public void reportJobTaskRejected(final String jobTaskId, final JobTrackingWorkerFailure rejectionDetails) throws JobReportingException {
         try (Connection conn = getConnection()) {

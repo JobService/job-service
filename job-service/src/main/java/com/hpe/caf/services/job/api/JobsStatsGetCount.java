@@ -23,6 +23,15 @@ public final class JobsStatsGetCount {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsStatsGetCount.class);
 
+    /**
+     * Returns the number of jobs. The jobId parameter can be used to filter jobs by providing an expression, for example "j1%" will
+     * provide jobs beginning with "j1". The statusType parameter can be used to further filter the status of the jobs.
+     *
+     * @param   jobId       expression for filtering jobs to be counted
+     * @param   statusType  further filtering of jobs with the provided status
+     * @return  jobsCount   the number of jobs matching the expression
+     * @throws  Exception   bad request or database exceptions
+     */
     public static long getJobsCount(final String jobId, final String statusType) throws Exception {
 
         long jobsCount;

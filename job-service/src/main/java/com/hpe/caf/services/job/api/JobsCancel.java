@@ -23,6 +23,12 @@ import org.slf4j.LoggerFactory;
 public final class JobsCancel {
     private static final Logger LOG = LoggerFactory.getLogger(JobsCancel.class);
 
+    /**
+     * Cancel the job specified by the jobId.
+     *
+     * @param   jobId       the id of the job to cancel
+     * @throws  Exception   bad request or database exceptions thrown
+     */
     public static void cancelJob(String jobId) throws Exception {
 
         try {
