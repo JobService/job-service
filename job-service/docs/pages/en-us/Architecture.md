@@ -20,7 +20,7 @@ The Job Service is a REST web service that sends operations to workers, checks o
 
 The figure below illustrates the overall flow and relationship of components in the Job Service.
 
-![Architecture](https://jobservice.github.io/job-service/pages/en-us/images/ArchitectureSimpleWBG.png)
+![Architecture](images/ArchitectureSimpleWBG.png)
 
 The pipes represent asynchronous message queues on RabbitMQ.
 
@@ -40,7 +40,7 @@ The pipes represent asynchronous message queues on RabbitMQ.
 
 ## Job Service
 
-![Job Service](https://jobservice.github.io/job-service/pages/en-us/images/job_service_database_overview.png)
+![Job Service](images/job_service_database_overview.png)
 
 As shown in the figure, the Job Service runs in a container with a base Tomcat image. 
 
