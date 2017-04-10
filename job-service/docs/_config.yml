@@ -2,7 +2,7 @@ title: Job Service
 email: caf@hpe.com
 
 description: Job Service Documentation
-baseurl: "https://JobService.github.io/job-service"
+baseurl: "/job-service"
 
 # Build settings
 exclude: ['node_modules']
