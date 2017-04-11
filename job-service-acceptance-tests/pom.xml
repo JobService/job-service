@@ -91,9 +91,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker.batch</groupId>
+            <groupId>com.github.jobservice</groupId>
             <artifactId>worker-batch-shared</artifactId>
-            <version>1.11.0-16</version>
+            <version>2.0.0-9</version>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
@@ -252,9 +252,9 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.hpe.caf.worker.batch</groupId>
+                                    <groupId>com.github.jobservice</groupId>
                                     <artifactId>worker-batch-plugins-package</artifactId>
-                                    <version>1.11.0-16</version>
+                                    <version>2.0.0-9</version>
                                     <type>tar.gz</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/worker-batch-plugins-package-unpacked</outputDirectory>
