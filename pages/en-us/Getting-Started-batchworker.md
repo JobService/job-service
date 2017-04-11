@@ -4,19 +4,37 @@ title: Batch Worker Getting Started
 ---
 
 # Getting Started
-This guide provides instructions for creating, registering and testing an example Batch Worker plugin for use by the Batch Worker.
 
+This guide provides instructions on creating a Batch Worker from the Batch Worker Maven Archetype and testing it using the Job Service.
 
-### ExampleWorkerTaskBuilder
-An existing [ExampleWorkerTaskBuilder](https://github.com/WorkerFramework/worker-framework/tree/develop/worker-example/worker-example-message-builder) implementation is already supported which forwards items comprising a single document storage reference onto the Example Worker. This message builder implements an already defined [document-message-builder](https://github.com/JobService/job-service/tree/develop/document-message-builder) interface. The remainder of this document will refer to this message builder interface and implementation.
+## Introduction
 
-## Creating a Batch Worker Plugin
+A Batch Worker can take batches of work, recursively break them down into smaller batches of work and then ultimately individual tasks, which are sent to other workers.
 
-The Batch Worker Plugin requires a task message builder implementation in order to create worker-specific task messages. The implementation depends on the structure of the batch definition and the targeted worker the messages are to be intended for. For example, the batch definition could be a list of case files. For the purposes of this Getting Started guide we will assume that a batch definition comprising a list of document storage references is available.
+The Job Service works in conjunction with any worker from the Worker Framework, but Batch Workers are workers that are most often controlled by the Job Service.
 
-### Create Maven Project
+The Job Service is particularly beneficial to the Batch Worker because it monitors the progress of the batch as a whole. Even if the size of the batch is not known in advance, using the Job Service makes it possible to monitor the overall progress of the entire batch, as well as making other operations available, such as the capability to cancel the batch.
 
-Create a new Maven project for the Batch Worker plugin. The Batch Worker Plugin and Batch Worker Services interfaces ([worker-batch-extensibility](https://github.com/JobService/worker-batch/tree/develop/worker-batch-extensibility)), and the relevant task message builder interfaces ([document-message-builder](https://github.com/JobService/job-service/tree/develop/document-message-builder)) should be included in the dependencies section of the project POM:
+This guide covers:
+
+- [Components of a Batch Worker Project](#components-of-a-batch-worker-project)
+	- An overview of the main components that make up a Batch Worker project.
+- [Creating a Batch Worker from Archetype](#creating-a-batch-worker-from-archetype)
+	- How to create a Batch Worker, containing the main components, from the Batch Worker Maven Archetype.
+- [Testing the Batch Worker](#testing-the-batch-worker)
+	- How to test a Batch Worker with the use of the Job Service.
+
+## Components of a Batch Worker Project
+
+The Batch Worker Plugin and it's corresponding container are the two main components that make up a Batch Worker project.
+
+### Batch Worker Plugin module
+
+The Batch Worker Plugin creates worker-specific task messages. The implementation depends on the structure of the batch definition and the targeted worker the messages are intended for. For example, the batch definition could be a list of case files. For the purposes of this Getting Started guide we will assume that a batch definition is comprised of a list of strings to be language detected and that each string should be split into tasks for a downstream language detection worker.
+
+#### Maven Project Dependencies
+
+The Batch Worker Plugin and Batch Worker Services interfaces ([worker-batch-extensibility](https://github.com/JobService/worker-batch/tree/develop/worker-batch-extensibility)) should be included in the dependencies section of the project POM:
 
     <dependency>
         <groupId>com.hpe.caf.worker.batch</groupId>
@@ -24,15 +42,10 @@ Create a new Maven project for the Batch Worker plugin. The Batch Worker Plugin 
         <version>1.1.0</version>
         <scope>provided</scope>
     </dependency>
-    <dependency>
-        <groupId>com.hpe.caf.messagebuilder</groupId>
-        <artifactId>document-message-builder</artifactId>
-        <version>1.1.0</version>
-    </dependency>
 
-### Implement Batch Worker Plugin
+#### Batch Worker Plugin
 
-Create a Batch Worker Plugin Java class. This class is responsible for interpreting and recursively splitting the batch definition into individual worker items that can be sent to a queue that a target worker is listening on. The primary requirement of the Batch Worker plugin class is that it should implement the BatchWorkerPlugin interface defined in [worker-batch-extensibility](https://github.com/JobService/worker-batch/tree/develop/worker-batch-extensibility):
+The Batch Worker Plugin class is responsible for interpreting and recursively splitting the batch definition into individual worker items that can be sent to a queue that a target worker is listening on. The primary requirement of the Batch Worker Plugin class is that it should implement the `BatchWorkerPlugin` interface defined in ([worker-batch-extensibility](https://github.com/JobService/worker-batch/tree/develop/worker-batch-extensibility)):
 
     package com.hpe.caf.worker.batch.plugins;
     
@@ -56,15 +69,11 @@ Create a Batch Worker Plugin Java class. This class is responsible for interpret
         }
     }
 
-The author of the Batch Worker plugin class controls the structure of the batch definition supplied to the `processBatch()` method.
+The author of the Batch Worker Plugin class controls the structure of the batch definition supplied to the `processBatch()` method.
 
-#### Service File
-Create a service file, `com.hpe.caf.worker.batch.BatchWorkerPlugin` under resources/META-INF/services and register the example Batch Worker plugin. This service file requires one line, the fully qualified name of the implementation class:
-
-    com.hpe.caf.worker.batch.plugins.ExampleBatchPlugin
- 
 #### Batch Worker Services
-It is the responsibility of the Batch Worker plugin to repeatedly call the Batch Worker services object in order to register sub-batches or individual work items. This can be done in the `processBatch()` method by making the appropriate `registerBatchSubtask()` and `registerItemSubtask()` services calls:
+
+It is the responsibility of the Batch Worker Plugin to repeatedly call the Batch Worker Services object in order to register sub-batches or individual work items. This can be done in the `processBatch()` method by making the appropriate `registerBatchSubtask()` and `registerItemSubtask()` services calls:
 
     @Override
     public void processBatch(BatchWorkerServices batchWorkerServices,
@@ -91,81 +100,27 @@ It is the responsibility of the Batch Worker plugin to repeatedly call the Batch
         }
     }
 
-#### Task Message Builder
-The `processBatch()` method of the Batch Worker Plugin can use the CAF ModuleProvider to load the appropriate task message builder implementation. The builder implementation can then be used to create a worker specific task message for each individual worker item using the `buildMessage()` method. In the sample code below, the `buildMessage()` method of the Document Message Builder requires a `DocumentServices` object that can be used to retrieve a `Document` object using the storage reference specified in the batch definition. It also requires additional message parameter details for the target worker.
+### Batch Worker Container module
 
-    @Override
-    public void processBatch(BatchWorkerServices batchWorkerServices,
-                             String batchDefinition,
-                             String taskMessageType,
-                             Map<String, String> taskMessageParams)
-        throws BatchDefinitionException
-    {
-        ...
-        
-        if (isSubBatchTrue) {
-            ...
-        } else {
-            // Use the CAF ModuleProvider to load the appropriate task message
-            // builder implementation.
-            DocumentMessageBuilder builder = ModuleProvider.getInstance()
-                .getModule(DocumentMessageBuilder.class, taskMessageType);
-            ...
-            
-            // Construct the DocumentServices object
-            Document document = new DocumentImpl(reference);
-            DocumentServices documentServices = new DocumentServicesImpl(document);
-            
-            // Create worker specific task message for individual worker item
-            TaskMessage taskMessageToSend =
-                builder.buildMessage(documentServices, taskMessageParams);
-            ...
-            
-            // Register individual worker item
-            batchWorkerServices.registerItemSubtask(...);
-        }
-    }
+The Batch Worker Container module of the project consumes the Batch Worker Plugin implementation as a dependency, produces a container from with it and runs testcase integration testing against the container with the `BatchWorkerAcceptanceIT.java` class.
 
-In order to utilise the CAF ModuleProvider, you will need to reference the [util-moduleloader](https://github.com/CAFapi/caf-common/tree/develop/util-moduleloader) artifact in the project POM:
+The next section, [Creating a Batch Worker from Archetype](#Creating-a-Batch-Worker-from-Archetype), creates a basic Batch Worker project for you that contains both Batch Worker Plugin and Batch Worker Container modules. It is recommended that you use this as the basis of your Batch Worker.
 
-    <dependency>
-        <groupId>com.github.cafapi.util</groupId>
-        <artifactId>util-moduleloader</artifactId>
-        <version>1.0.0</version>
-    </dependency>
+## Creating a Batch Worker from Archetype
 
-## Register the Batch Worker Plugin
-To register the Batch Worker plugin, add a reference to it in the dependency management section of the [worker-batch-plugins-package](https://github.com/JobService/worker-batch/tree/develop/worker-batch-plugins-package) project POM:
+The Batch Worker project offers a Batch Worker Archetype that provides a quick and easy way to generate a Batch Worker project containing Batch Worker Plugin and Container modules.
 
-    <dependencies>
-        <!-- BatchWorkerPlugin implementations -->
-        <dependency>
-            <groupId>com.github.JobService</groupId>
-            <artifactId>example-batch-plugin</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        
-        <!-- DocumentMessageBuilder implementations -->
-        <dependency>
-            <groupId>com.hpe.caf.worker.messagebuilder</groupId>
-            <artifactId>worker-example-message-builder</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
+To read more about the Batch Worker Archetype and its usage click [here](https://github.com/JobService/worker-batch/blob/develop/worker-batch-archetype/documentation/WorkerArchetypeUsage.md).
 
-The [worker-batch-plugins-package](https://github.com/JobService/worker-batch/tree/develop/worker-batch-plugins-package) project is a collection of plugins and message builder implementations for use by the Batch Worker that are packaged in a single aggregated tar.gz. This can be unpacked and placed on the Batch Worker classpath.
+## Testing the Batch Worker
 
-## Testing the Batch Worker Plugin
+For the purposes of getting started, this section assumes a new example Batch Worker Plugin has been created using the archetype. It assumes a `batchDefinition` that is comprised of a list of strings is to be used. The `processBatch()` method of the plugin is expected to recursively split the batch definition until individual worker items for a single string can be sent to a target worker. The target worker in this case is expected to be the Language Detection Document Worker.
 
-For the purposes of getting started, this section assumes a new example Batch Worker plugin has been created using the instructions provided in this document. It assumes a batch definition comprising a list of document storage references is to be used. The `processBatch()` method of the plugin is expected to recursively split the list of document storage references until individual worker items for a single document storage reference can be sent to a target worker. The target worker in this case is expected to be the Example Worker. The [ExampleWorkerTaskBuilder](https://github.com/WorkerFramework/worker-framework/tree/develop/worker-example/worker-example-message-builder) implementation is the assumed choice of task message builder.
+The Job Service can be employed to test the Batch Worker Plugin created. The Job Service can send and monitor the progress of a batch of work sent to a Batch Worker. The message to be sent to the Batch Worker should include a batch definition comprising a list of strings as well as the target batch processor plugin (this is the name of the class that implements the Batch Worker Plugin interface). The Job Tracking Worker will also be deployed alongside the Job Service and the logs belonging to this worker can be utilised to verify the Batch Worker Plugin implementation.
 
-The Job Service should be employed to test the example Batch Worker plugin created. The Job Service can send and monitor the progress of a batch of work sent to a Batch Worker. The message to be sent to the Batch Worker should include a batch definition comprising a list of document storage references as well as the target batch processor plugin. The Job Tracking Worker will also be deployed alongside the Job Service and the logs belonging to this worker can be utilised to verify the example Batch Worker plugin implementation.
+### Job Service and Batch Worker Deployment
 
-### Job Service and Worker Deployment
-Follow the deployment instructions for the Job Service, Job Tracking Worker, Batch Worker and Example Worker in the [Getting Started guide for the Job Service](https://jobservice.github.io/job-service/pages/en-us/Getting-Started).
-
-####  Batch Worker Plugin Registration
-Build the [worker-batch-plugins-package](https://github.com/JobService/worker-batch/tree/develop/worker-batch-plugins-package) project and copy the aggregated batch-plugins.tar.gz to the ${marathon-uris-root}/${batch-plugin-location} location specified in the [Chateau pre-requisite](https://github.hpe.com/caf/chateau/blob/develop/services/batch-worker/README.md)  instructions for running the Batch Worker. This step places the example batch processing plugin on the Batch Worker classpath.
+Follow the deployment instructions for the Job Service, Job Tracking Worker, Batch Worker (within the Docker Compose file, switch the Glob Filter Worker out for your newly created Batch Worker container and configuration) and Language Detection Worker in the [Job Service Ease of Deployment Guide](https://github.com/JobService/job-service-deploy/blob/develop/README.md).
 
 #### Sending a Job to the Batch Worker
 
@@ -175,59 +130,67 @@ You can use the Swagger UI to send the Batch Worker a batch of work. Add a job w
 
     {
       "name": "ExampleBatchPlugin_Job_1",
-      "description": "example-batch-worker-plugin-test",
+      "description": "batch-split-worker-plugin-test",
       "externalData": "",
       "task": {
           "taskClassifier": "BatchWorker",
           "taskApiVersion": 1,
-          "taskData": "{\"batchDefinition\":\"[\\\"66d1c33ec8c74fee99d207e7521a93ec/9f97451f75024be2a4017d2c17dca0b4\\\",\\\"66d1c33ec8c74fee99d207e7521a93ec/cfd59ecef76d4ae99581ac62409c3302\\\"]\",\"batchType\":\"ExampleBatchPlugin\",\"taskMessageType\":\"ExampleWorkerTaskBuilder\",\"taskMessageParams\":{\"datastorePartialReference\":\"66d1c33ec8c74fee99d207e7521a93ec\",\"action\":\"REVERSE\"},\"targetPipe\":\"dataprocessing-example-in\"}",
-          "taskDataEncoding": "utf8",
-          "taskPipe": "dataprocessing-batch-in",
-          "targetPipe": "dataprocessing-example-out"
-      }
+          "taskData": {
+              "batchType": "BatchSplitWorkerBatchPlugin",
+              "batchDefinition": "[\"EnglishLanguageString1\",\"EnglishLanguageString2\",\"EnglishLanguageString3\",\"EnglishLanguageString4\"]",
+              "taskMessageType": "DocumentMessage",
+              "taskMessageParams": {
+                  "contentFieldName": "CONTENT"
+              },
+              "targetPipe": "languageidentification-in"
+          },
+          "taskPipe": "batchsplit-in",
+          "targetPipe": "languageidentification-out"
+        }
     }
 
 Note the following:
 
 * The `name` and `description` fields are just informational.
 * The `externalData` field can be used to store information that you want associated with the job but that has no effect on it.
-* The `taskClassifier` field specifies the type of message being sent. This must be set to `BatchWorker` as you are sending the job to the Batch Worker.
+* The `taskClassifier` field specifies the type of message being sent. This must be set to `BatchWorker` as you are sending the job to a Batch Worker.
 * The `taskApiVersion` field specifies the contract version. Set this to 1.
 * The `taskData` field should contain the actual message that is to be sent to the Batch Worker and should be JSON-encoded.
-  * In the template above, we are adding a batch definition comprising a list of storage references and the `datastorePartialReference` is the container ID.
-  * The `batchType` field specifies the plugin to be used so set this to the name of your Batch Worker plugin.
-  * The `taskMessageType` field indicates the task message builder implementation to use, in this case the already existing `ExampleWorkerTaskBuilder` which is used to build and send messages onto the Example Worker for further processing.
-* The `taskDataEncoding` field specifies how the value of the `taskData` field should be encoded. Set this to utf8.
-* The `taskPipe` field specifies the queue where the message is to be forwarded to. Set this to the queue consumed by the Batch Worker, dataprocessing-batch-in.
-* The `targetPipe` field specifies the ultimate pipe where messages should arrive after processing. Set this to the name of the final worker where tracking will stop, in this case, dataprocessing-example-out.
+  * In the template above, we are adding a batch definition comprising a list of strings for language detection.
+  * The `batchType` field specifies the plugin to be used so set this to the name of your Batch Worker Plugin.
+  * The `taskMessageType` field indicates to the Batch Worker the type of task message that it should construct for the downstream worker. In this case `DocumentMessage` is used as the plugin, that the archetype produces, constructs and sends messages intended for Document Workers.
+* The `taskPipe` field specifies the queue where the message is to be forwarded to. Set this to the queue consumed by the Batch Worker, `batchsplit-in`.
+* The `targetPipe` field specifies the ultimate pipe where messages should arrive after processing. Set this to the name of the final worker where tracking will stop, in this case, `languageidentification-out`.
 
 #### Job Verification
 
 After the job has been created, the Swagger UI can be used to track the progress and status of the job using the GET /jobs method.
 
-On completion, the payload sent to the Example Worker output queue, dataprocessing-example-out, will look similar to the following:
+On completion, the payload sent to the Language Detection Document Worker output queue, `languageidentification-out`, will look similar to the following:
 
     {
-        "version": 3,
-        "taskId": "7.1.1",
-        "taskClassifier": "ExampleWorker",
-        "taskApiVersion": 1,
-        "taskData": "{"workerStatus":"COMPLETED","textData":{"reference":null,"data":"MF9tZXRJdHNlVA=="}}",
-        "taskStatus": "RESULT_SUCCESS",
-        "context": {},
-        "to": "dataprocessing-example-out",
-        "tracking": null,
-        "sourceInfo": {
-            "name": "ExampleWorker",
-            "version": "1.0.2"
-        }
+       "version":3,
+       "taskId":"AssetIDJob4.1.1.1",
+       "taskClassifier":"DocumentWorker",
+       "taskApiVersion":1,
+       "taskData":"eyJmaWVsZENoYW5nZXMiOnsiRGV0ZWN0ZWRMYW5ndWFnZTJfQ29uZmlkZW5jZVBlcmNlbnRhZ2UiOnsiYWN0aW9uIjoicmVwbGFjZSIsInZhbHVlcyI6W3siZGF0YSI6IjAifV19LCJEZXRlY3RlZExhbmd1YWdlMV9OYW1lIjp7ImFjdGlvbiI6InJlcGxhY2UiLCJ2YWx1ZXMiOlt7ImRhdGEiOiJFTkdMSVNIIn1dfSwiRGV0ZWN0ZWRMYW5ndWFnZTJfTmFtZSI6eyJhY3Rpb24iOiJyZXBsYWNlIiwidmFsdWVzIjpbeyJkYXRhIjoiVW5rbm93biJ9XX0sIkRldGVjdGVkTGFuZ3VhZ2UzX0NvZGUiOnsiYWN0aW9uIjoicmVwbGFjZSIsInZhbHVlcyI6W3siZGF0YSI6InVuIn1dfSwiRGV0ZWN0ZWRMYW5ndWFnZTJfQ29kZSI6eyJhY3Rpb24iOiJyZXBsYWNlIiwidmFsdWVzIjpbeyJkYXRhIjoidW4ifV19LCJEZXRlY3RlZExhbmd1YWdlMV9Db2RlIjp7ImFjdGlvbiI6InJlcGxhY2UiLCJ2YWx1ZXMiOlt7ImRhdGEiOiJlbiJ9XX0sIkRldGVjdGVkTGFuZ3VhZ2UxX0NvbmZpZGVuY2VQZXJjZW50YWdlIjp7ImFjdGlvbiI6InJlcGxhY2UiLCJ2YWx1ZXMiOlt7ImRhdGEiOiI5NSJ9XX0sIkRldGVjdGVkTGFuZ3VhZ2UzX05hbWUiOnsiYWN0aW9uIjoicmVwbGFjZSIsInZhbHVlcyI6W3siZGF0YSI6IlVua25vd24ifV19LCJEZXRlY3RlZExhbmd1YWdlM19Db25maWRlbmNlUGVyY2VudGFnZSI6eyJhY3Rpb24iOiJyZXBsYWNlIiwidmFsdWVzIjpbeyJkYXRhIjoiMCJ9XX0sIkRldGVjdGVkTGFuZ3VhZ2VzX1N0YXR1cyI6eyJhY3Rpb24iOiJyZXBsYWNlIiwidmFsdWVzIjpbeyJkYXRhIjoiQ09NUExFVEVEIn1dfSwiRGV0ZWN0ZWRMYW5ndWFnZXNfUmVsaWFibGVSZXN1bHQiOnsiYWN0aW9uIjoicmVwbGFjZSIsInZhbHVlcyI6W3siZGF0YSI6InRydWUifV19fX0=",
+       "taskStatus":"RESULT_SUCCESS",
+       "context":{
+
+       },
+       "to":"languageidentification-out",
+       "tracking":null,
+       "sourceInfo":{
+          "name":"worker-languagedetection",
+          "version":"1.0.0-23"
+       }
     }
 
 The logs of the Job Tracking Worker can also be inspected to verify the processing of the original message or batch of work sent to the Batch Worker. The [Getting Started guide for the Job Service](https://jobservice.github.io/job-service/pages/en-us/Getting-Started) explains how to locate the stdout output for the job tracking worker. You can use this to verify the following:
 
 * Message is registered and split into separate tasks by the batch worker
 * Separate messages directed back to the batch worker output queue for recursive splitting
-* Separate messages are forwarded to the example worker input queue
+* Separate messages are forwarded to the language-detection worker input queue
 * Job status check returns Active for separated messages
 * Job status check returns Completed for separated messages
-* Separate messages forwarded to the example worker output queue
+* Separate messages forwarded to the language-detection worker output queue
