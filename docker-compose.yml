@@ -13,7 +13,7 @@ services:
       CAF_STATUS_CHECK_TIME: 5
       CAF_TRACKING_PIPE: jobtracking-in
       CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
-    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/job-service:1.10.0-110
+    image: jobservice/job-service:2.0.0
     ports:
       - "${JOB_SERVICE_PORT:-9411}:8080"
 
@@ -21,7 +21,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
-    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/job-service-postgres:1.10.0-110
+    image: jobservice/job-service-postgres:2.0.0
     volumes:
       - job-service-db:/var/lib/postgresql/data
 
@@ -57,7 +57,7 @@ services:
       JOB_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
       JOB_DATABASE_USERNAME: postgres
       JOB_DATABASE_PASSWORD: root
-    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-jobtracking:1.10.0-110
+    image: jobservice/worker-jobtracking:2.0.0
 
   worker-langdetect:
     depends_on:
