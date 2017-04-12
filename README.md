@@ -48,7 +48,7 @@ The Docker Compose file contains the following services:
 ## Usage
 1. Download the files from this repository  
     You can clone this repository using Git or else you can simply download the files as a Zip using the following link:  
-    [https://github.hpe.com/caf/job-service-deploy/archive/develop.zip](https://github.hpe.com/caf/job-service-deploy/archive/develop.zip)
+    [https://github.com/JobService/job-service-deploy/archive/develop.zip](https://github.com/JobService/job-service-deploy/archive/develop.zip)
 
 2. Configure the external parameters if required  
     The following parameters may be set:
