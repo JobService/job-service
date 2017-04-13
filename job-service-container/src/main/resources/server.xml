@@ -90,6 +90,7 @@
             secure="true"
             keystoreFile="/keystore/tomcat.keystore"
             keystorePass="changeit"
+            keyPass="changeit"
             clientAuth="false"
             keyAlias="tomcat"
             sslProtocol="TLS" />
