@@ -386,21 +386,15 @@
                             <alias>keystore</alias>
                             <name>${project.artifactId}-keystore:${project.version}</name>
                             <build>
+                                <from>java:8</from>
                                 <maintainer>conal.smith@hpe.com</maintainer>
-                                <assembly>
-                                    <basedir>/test-keystore</basedir>
-                                    <inline>
-                                        <fileSets>
-                                            <fileSet>
-                                                <directory>test-keystore</directory>
-                                                <outputDirectory>/</outputDirectory>
-                                                <includes>
-                                                    <include>*</include>
-                                                </includes>
-                                            </fileSet>
-                                        </fileSets>
-                                    </inline>
-                                </assembly>
+                                <runCmds>
+                                    <runCmd>mkdir /test-keystore</runCmd>
+                                    <runCmd>$JAVA_HOME/bin/keytool -genkey -noprompt -alias tomcat -dname "CN=myname, OU=myorganisational.unit, O=myorganisation, L=mycity, S=myprovince, C=GB" -keystore /test-keystore/tomcat.keystore -storepass changeit -keypass changeit -keyalg RSA</runCmd>
+                                </runCmds>
+                                <volumes>
+                                    <volume>/test-keystore</volume>
+                                </volumes>
                             </build>
                         </image>
                         <image>
