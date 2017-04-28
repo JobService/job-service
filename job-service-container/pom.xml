@@ -254,7 +254,7 @@
                             <goal>push</goal>
                         </goals>
                         <configuration>
-                            <image>job-service</image>
+                            <filter>job-service</filter>
                         </configuration>
                     </execution>
                 </executions>

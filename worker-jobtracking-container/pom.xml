@@ -266,7 +266,7 @@
                             <goal>push</goal>
                         </goals>
                         <configuration>
-                            <image>jobtracking-worker</image>
+                            <filter>jobtracking-worker</filter>
                         </configuration>
                     </execution>
                 </executions>

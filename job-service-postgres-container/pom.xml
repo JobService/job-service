@@ -64,7 +64,7 @@
                             <goal>push</goal>
                         </goals>
                         <configuration>
-                            <image>job-service-postgres</image>
+                            <filter>job-service-postgres</filter>
                         </configuration>
                     </execution>
                 </executions>
