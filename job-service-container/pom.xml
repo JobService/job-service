@@ -41,7 +41,6 @@
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
         <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
-        <istfTopicName>JobService</istfTopicName>
     </properties>
 
     <dependencies>
