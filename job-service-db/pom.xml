@@ -34,7 +34,6 @@
         <dependency>
             <groupId>com.github.cafapi.util</groupId>
             <artifactId>util-liquibase-installer</artifactId>
-            <version>1.4.0-111</version>
         </dependency>
     </dependencies>
 

@@ -48,7 +48,6 @@
         <dependency>
             <groupId>com.github.cafapi</groupId>
             <artifactId>swagger-ui</artifactId>
-            <version>1.0.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

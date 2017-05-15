@@ -114,13 +114,11 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
-      <version>${servlet-api-version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>${junit-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -142,13 +140,11 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
-      <version>1.6.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
-      <version>1.6.2</version>
       <scope>test</scope>
     </dependency>
 
@@ -156,12 +152,10 @@
     <dependency>
       <groupId>com.github.cafapi.util</groupId>
       <artifactId>util-moduleloader</artifactId>
-      <version>1.0.0</version>
     </dependency>
     <dependency>
       <groupId>com.github.cafapi.codec</groupId>
       <artifactId>codec-json</artifactId>
-      <version>1.0.0</version>
       <scope>runtime</scope>
     </dependency>
 
@@ -169,29 +163,24 @@
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-      <version>1.9</version>
     </dependency>
 
     <!-- RabbitMQ queuing services support -->
     <dependency>
       <groupId>com.github.cafapi</groupId>
       <artifactId>caf-api</artifactId>
-      <version>1.0.0</version>
     </dependency>
     <dependency>
       <groupId>com.github.workerframework</groupId>
       <artifactId>worker-configs</artifactId>
-      <version>1.0.0</version>
     </dependency>
     <dependency>
       <groupId>com.github.workerframework</groupId>
       <artifactId>worker-queue-rabbit</artifactId>
-      <version>1.0.0</version>
     </dependency>
     <dependency>
         <groupId>com.github.workerframework</groupId>
         <artifactId>util-rabbitmq</artifactId>
-        <version>1.0.0</version>
     </dependency>
 
     <!-- Support for JSON in Response -->
@@ -254,12 +243,7 @@
 
   <properties>
     <swagger-core-version>1.5.4</swagger-core-version>
-    <jersey-version>1.18.1</jersey-version>
-    <slf4j-version>1.6.3</slf4j-version>
-    <junit-version>4.8.1</junit-version>
-    <servlet-api-version>2.5</servlet-api-version>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <jersey-version>1.19</jersey-version>
   </properties>
 
 </project>
