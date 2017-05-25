@@ -371,7 +371,7 @@
                         <!-- Run a PostgreSQL DB -->
                         <image>
                             <alias>${job.database.host}</alias>
-                            <name>index.docker.io/postgres:9.4</name>
+                            <name>index.docker.io/postgres:9.6</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
