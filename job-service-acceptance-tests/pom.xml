@@ -56,7 +56,13 @@
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-store-cs</artifactId>
+            <artifactId>worker-store-fs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
@@ -98,7 +104,7 @@
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-example-shared</artifactId>
-            <version>1.6.0-181</version>
+            <version>1.8.0-249</version>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
@@ -193,6 +199,7 @@
                         <CAF_DOCKER_VERSION>1.22</CAF_DOCKER_VERSION>
                         <CAF_JOB_SERVICE_CALLER_IMAGE>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-caller:${project.version}</CAF_JOB_SERVICE_CALLER_IMAGE>
                         <CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>http://job-service:8080</CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>
+                        <CAF_INTEGRATIONTESTS_FS_PATH>${caf.integrationtests.fs.path}</CAF_INTEGRATIONTESTS_FS_PATH>
                     </environmentVariables>
                 </configuration>
             </plugin>
@@ -293,6 +300,36 @@
                     <logDate>default</logDate>
                     <autoPull>on</autoPull>
                     <images>
+                         WebDav image 
+                        <image>
+                            <alias>webdav</alias>
+                            <name>cloudesire/webdav</name>
+                            <run>
+                                <volumes>
+                                    <bind>
+                                        <volume>/srv/common/webdav</volume>
+                                    </bind>
+                                </volumes>
+                                <ports>
+                                    <port>${webdav.apache.port}:8080</port>
+                                </ports>
+                                <env>
+                                    <APACHE_PORT>8080</APACHE_PORT>
+                                </env>
+                                <wait>
+                                    <log>WebDAV Server startup complete</log>
+                                    <http>
+                                        <url>http://${docker.host.address}:${webdav.apache.port}</url>
+                                    </http>
+                                    <time>120000</time>
+                                    <shutdown>500</shutdown>
+                                </wait>
+                                <log>
+                                    <enabled>true</enabled>
+                                </log>
+                            </run>
+                        </image>
+                        
                         <!-- Image for configs -->
                         <image>
                             <alias>config</alias>
@@ -460,6 +497,7 @@
                                 <volumes>
                                     <from>
                                         <image>config</image>
+                                        <image>webdav</image>
                                     </from>
                                 </volumes>
                                 <links>
@@ -497,6 +535,7 @@
                                 <volumes>
                                     <from>
                                         <image>config</image>
+                                        <image>webdav</image>
                                     </from>
                                 </volumes>
                                 <links>
@@ -520,7 +559,7 @@
                         <!-- Run Batch worker -->
                         <image>
                             <alias>batch-worker</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-batch:1.11.0-16</name>
+                            <name>index.docker.io/jobservice/worker-batchsplit:1.0.0</name>
                             <run>
                                 <ports>
                                     <port>${batch-worker.adminport}:8081</port>
@@ -533,6 +572,7 @@
                                     <from>
                                         <image>config</image>
                                         <image>plugin</image>
+                                        <image>webdav</image>
                                     </from>
                                 </volumes>
                                 <links>
@@ -555,7 +595,7 @@
                         <!-- Run Example worker -->
                         <image>
                             <alias>example-worker</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-example:1.0.2</name>
+                            <name>rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-example:1.8.0-249</name>
                             <run>
                                 <ports>
                                     <port>${example-worker.adminport}:8081</port>
@@ -567,6 +607,7 @@
                                 <volumes>
                                     <from>
                                         <image>config</image>
+                                        <image>webdav</image>
                                     </from>
                                 </volumes>
                                 <links>
