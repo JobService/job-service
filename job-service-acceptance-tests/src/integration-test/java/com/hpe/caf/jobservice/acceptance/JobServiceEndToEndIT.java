@@ -123,11 +123,10 @@ public class JobServiceEndToEndIT {
         testItemAssetIds = generateWorkerBatch();
     }
 
-
-    @Test
-    public void testJobCompletionWithTaskDataObject() throws Exception {
-        testJobCompletion(true);
-    }
+//    @Test
+//    public void testJobCompletionWithTaskDataObject() throws Exception {
+//        testJobCompletion(true);
+//    }
 
     private void testJobCompletion(final boolean useTaskDataObject) throws Exception {
         final String jobId = generateJobId();
