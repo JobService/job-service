@@ -124,11 +124,6 @@ public class JobServiceEndToEndIT {
     }
 
     @Test
-    public void testJobCompletion() throws Exception {
-       testJobCompletion(false);
-    }
-
-    @Test
     public void testJobCompletionWithTaskDataObject() throws Exception {
         testJobCompletion(true);
     }
@@ -164,10 +159,10 @@ public class JobServiceEndToEndIT {
     }
 
 
-    @Test
-    public void testJobCancellation() throws Exception {
-        testJobCancellation(false);
-    }
+//    @Test
+//    public void testJobCancellation() throws Exception {
+//        testJobCancellation(false);
+//    }
 
     @Test
     public void testJobCancellationWithTaskDataObject() throws Exception {
