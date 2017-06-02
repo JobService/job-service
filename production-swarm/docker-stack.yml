@@ -10,7 +10,7 @@ services:
       CAF_STATUS_CHECK_TIME: 5
       CAF_TRACKING_PIPE: jobtracking-in
       CAF_WEBSERVICE_URL: http://jobservice:9411/job-service/v1
-    image: jobservice/job-service:latest
+    image: jobservice/job-service:2.1.0
     deploy:
       restart_policy:
         condition: any
@@ -38,7 +38,7 @@ services:
       CAF_WORKER_OUTPUT_QUEUE: jobtracking-out
       JOB_DATABASE_USERNAME: "${CAF_DATABASE_USERNAME:-postgres}"
       JOB_DATABASE_PASSWORD: "${CAF_DATABASE_PASSWORD:-root}"
-    image: jobservice/worker-jobtracking:latest
+    image: jobservice/worker-jobtracking:2.1.0
     deploy:
       restart_policy:
         condition: any
