@@ -12,6 +12,8 @@ The `marathon.env` file supports configurable property settings necessary for se
 
 - `DOCKER_REGISTRY`: This setting configures the docker repository that pulls the Job Service and Job Tracking images.
 
+- `JOB_SERVICE_HOST`: This configures the host name for the CAF_WEBSERVICE_URL.
+
 - `JOB_SERVICE_8080_SERVICE_PORT`: This configures the external port number on the host machine that will be forwarded to the Job Service containers internal 8080 port. This port is used to call the Job Service web service. 
 
 - `JOB_TRACKING_8080_SERVICE_PORT`: This configures the external port number on the host machine that will be forwarded to the Job Tracking workers internal 8080 port. This port is used to call the workers health check.
