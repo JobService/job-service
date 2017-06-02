@@ -44,9 +44,19 @@ The `docker-stack.yml` file specifies default values for a number of additional 
 ## Execution
 
 To deploy the stack:  
-* Edit `rabbit.env`  
-* Edit `docker-stack.env`  
-* `docker stack deploy --compose-file=docker-stack.yml jobServiceProd`  
+* Edit `rabbit.env` to ensure the Job Service and Job Tracking Worker are pointing at the correct RabbitMQ instance  
+  * CAF_RABBITMQ_HOST=rabbitmq
+  * CAF_RABBITMQ_PORT=5672
+  * CAF_RABBITMQ_USERNAME=guest
+  * CAF_RABBITMQ_PASSWORD=guest
+* Edit `postgres.env` to ensure the Job Service and the Job Tracking Worker are pointing at the correct Postgres DB by replacing \<POSTGRES_HOST\> and \<POSTGRES_PORT\>  
+  * CAF_DATABASE_URL=jdbc:postgresql://\<POSTGRES_HOST\>:\<POSTGRES_PORT\>/jobservice
+  * JOB_DATABASE_URL=jdbc:postgresql://\<POSTGRES_HOST\>:\<POSTGRES_PORT\>/jobservice
+  * Ensure the Job Service DB has been created in your Postgres instance. For more info see [here](https://github.com/JobService/job-service/tree/develop/job-service-postgres-container#external-job-service-database-install)
+* Edit `docker-stack.yml` as necessary to update the properties as required i.e. the _Postgres Username_ and _Password_
+  * Ensure the versions of Job Service and Job Tracking Worker are correctly set
+* Execute `docker stack deploy --compose-file=docker-stack.yml jobServiceStack`
+* The Job Service and Job Tracking Worker containers will start up
 
 To tear down the stack:  
-* `docker stack rm jobServiceProd`
+* Execute `docker stack rm jobServiceStack`
