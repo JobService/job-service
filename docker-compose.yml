@@ -13,7 +13,7 @@ services:
       CAF_STATUS_CHECK_TIME: 5
       CAF_TRACKING_PIPE: jobtracking-in
       CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
-    image: rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service:2.1.0-SNAPSHOT
+    image: jobservice/job-service:2.1.0
     ports:
       - "${JOB_SERVICE_PORT:-9411}:8080"
 
@@ -21,7 +21,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
-    image: rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-postgres:2.1.0-SNAPSHOT
+    image: jobservice/job-service-postgres:2.1.0
     volumes:
       - job-service-db:/var/lib/postgresql/data
 
@@ -40,7 +40,7 @@ services:
       CAF_WORKER_INPUT_QUEUE: globfilter-in
       CAF_BATCH_WORKER_ERROR_QUEUE: globfilter-err
       CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER: /mnt/caf-worker-input-dir
-    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-globfilter:1.0.0-9
+    image: jobservice/worker-globfilter:2.1.0
     volumes:
       - worker-datastore:/mnt/caf-datastore-root
       - ${JOB_SERVICE_DEMO_INPUT_DIR:-./input-files}:/mnt/caf-worker-input-dir:ro
@@ -57,7 +57,7 @@ services:
       JOB_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
       JOB_DATABASE_USERNAME: postgres
       JOB_DATABASE_PASSWORD: root
-    image: rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-jobtracking:2.1.0-SNAPSHOT
+    image: jobservice/worker-jobtracking:2.1.0
 
   worker-langdetect:
     depends_on:
@@ -68,7 +68,7 @@ services:
       CAF_WORKER_INPUT_QUEUE: languageidentification-in
       CAF_WORKER_OUTPUT_QUEUE: languageidentification-out
       CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER: /mnt/caf-worker-output-dir
-    image: rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-languagedetection:1.0.0-23
+    image: cafdataprocessing/worker-languagedetection:2.0.0
     volumes:
       - worker-datastore:/mnt/caf-datastore-root
       - ${JOB_SERVICE_DEMO_OUTPUT_DIR:-./output-files}:/mnt/caf-worker-output-dir
