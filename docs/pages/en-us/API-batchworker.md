@@ -33,7 +33,7 @@ This interface only has a single method, `processBatch()`, which is called by th
 ### Task Message Builder 
 For individual worker items, the Batch Worker Plugin will require a message builder object to construct worker specific task messages for individual worker items. 
 
-An example task message builder, `ExampleWorkerTaskBuilder`, already exists which demonstrates how a task message can be built for the Example Worker, which is a trivial worker implementation. It can be found [here](https://github.com/WorkerFramework/worker-framework/tree/develop/worker-example/worker-example-message-builder). This example implementation introduces an additional layer of abstraction via the [DocumentMessageBuilder](https://github.hpe.com/caf/document-message-builder) interface to aid plugin re-usability.
+An example task message builder, `ExampleWorkerTaskBuilder`, already exists which demonstrates how a task message can be built for the Example Worker, which is a trivial worker implementation. It can be found [here](https://github.com/WorkerFramework/worker-framework/tree/develop/worker-example/worker-example-message-builder). This example implementation introduces an additional layer of abstraction via the [DocumentMessageBuilder](https://github.com/JobService/document-message-builder) interface to aid plugin re-usability.
 
 ## Batch Worker Services
 The Batch Worker constructs an object that provides necessary services to the Batch Worker Plugin. This services object implements the `BatchWorkerServices` interface, which is defined in the [worker-batch-extensibility](https://github.com/JobService/worker-batch/tree/develop/worker-batch-extensibility) project as follows:
