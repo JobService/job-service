@@ -69,6 +69,14 @@ services:
       CAF_WORKER_OUTPUT_QUEUE: languageidentification-out
       CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER: /mnt/caf-worker-output-dir
     image: cafdataprocessing/worker-languagedetection:2.0.0
+    labels:
+      - autoscale.metric=rabbitmq
+      - autoscale.scalingtarget=languageidentification-in
+      - autoscale.scalingprofile=default
+      - autoscale.maxinstances=4
+      - autoscale.mininstances=1
+      - autoscale.interval=30
+      - autoscale.backoff=10
     volumes:
       - worker-datastore:/mnt/caf-datastore-root
       - ${JOB_SERVICE_DEMO_OUTPUT_DIR:-./output-files}:/mnt/caf-worker-output-dir
