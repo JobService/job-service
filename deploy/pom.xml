@@ -40,6 +40,10 @@
         <outputDirectory>${project.build.directory}/deployment-files</outputDirectory>
         <finalName>${project.artifactId}</finalName>
 
+        <filters>
+            <filter>src/main/filters/service.properties</filter>
+        </filters>
+
         <resources>
             <resource>
                 <directory>${project.basedir}/src/main/resources</directory>
