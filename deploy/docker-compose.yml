@@ -1,0 +1,87 @@
+version: '3'
+services:
+  jobservice:
+    depends_on:
+      - rabbitmq
+      - jobservicedb
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
+      CAF_DATABASE_USERNAME: postgres
+      CAF_DATABASE_PASSWORD: root
+      CAF_STATUS_CHECK_TIME: 5
+      CAF_TRACKING_PIPE: jobtracking-in
+      CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
+    image: jobservice/job-service:2.1.0
+    ports:
+      - "${JOB_SERVICE_PORT:-9411}:8080"
+
+  jobservicedb:
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    image: jobservice/job-service-postgres:2.1.0
+    volumes:
+      - job-service-db:/var/lib/postgresql/data
+
+  rabbitmq:
+    hostname: rabbitmq
+    image: rabbitmq:3-management
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+
+  worker-globfilter:
+    depends_on:
+      - rabbitmq
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_WORKER_INPUT_QUEUE: globfilter-in
+      CAF_BATCH_WORKER_ERROR_QUEUE: globfilter-err
+      CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER: /mnt/caf-worker-input-dir
+    image: jobservice/worker-globfilter:2.1.0
+    volumes:
+      - worker-datastore:/mnt/caf-datastore-root
+      - ${JOB_SERVICE_DEMO_INPUT_DIR:-./input-files}:/mnt/caf-worker-input-dir:ro
+
+  worker-jobtracking:
+    depends_on:
+      - rabbitmq
+      - jobservicedb
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_WORKER_INPUT_QUEUE: jobtracking-in
+      CAF_WORKER_OUTPUT_QUEUE: jobtracking-out
+      JOB_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
+      JOB_DATABASE_USERNAME: postgres
+      JOB_DATABASE_PASSWORD: root
+    image: jobservice/worker-jobtracking:2.1.0
+
+  worker-langdetect:
+    depends_on:
+      - rabbitmq
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_WORKER_INPUT_QUEUE: languageidentification-in
+      CAF_WORKER_OUTPUT_QUEUE: languageidentification-out
+      CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER: /mnt/caf-worker-output-dir
+    image: cafdataprocessing/worker-languagedetection:2.0.0
+    labels:
+      - autoscale.metric=rabbitmq
+      - autoscale.scalingtarget=languageidentification-in
+      - autoscale.scalingprofile=default
+      - autoscale.maxinstances=4
+      - autoscale.mininstances=1
+      - autoscale.interval=30
+      - autoscale.backoff=10
+    volumes:
+      - worker-datastore:/mnt/caf-datastore-root
+      - ${JOB_SERVICE_DEMO_OUTPUT_DIR:-./output-files}:/mnt/caf-worker-output-dir
+
+volumes:
+  job-service-db:
+  rabbitmq:
+  worker-datastore:
