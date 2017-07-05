@@ -9,7 +9,7 @@
 				"instances": 1,
 				"container": {
 					"docker": {
-						"image": "${DOCKER_REGISTRY}/job-service:${project.version}",
+						"image": "jobservice/job-service:${project.version}",
 						"network": "BRIDGE",
 						"portMappings": [{
 							"containerPort": 8080,
@@ -51,7 +51,7 @@
 				"container": {
 					"type": "DOCKER",
 					"docker": {
-						"image": "${DOCKER_REGISTRY}/worker-jobtracking:${project.version}",
+						"image": "jobservice/worker-jobtracking:${project.version}",
 						"network": "BRIDGE",
 						"forcePullImage": true,
 						"portMappings": [{
