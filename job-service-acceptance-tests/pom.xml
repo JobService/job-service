@@ -559,7 +559,7 @@
                         <!-- Run Batch worker -->
                         <image>
                             <alias>batch-worker</alias>
-                            <name>index.docker.io/jobservice/worker-batchsplit:1.0.0</name>
+                            <name>jobservice/worker-batchsplit:1.0</name>
                             <run>
                                 <ports>
                                     <port>${batch-worker.adminport}:8081</port>
@@ -595,7 +595,7 @@
                         <!-- Run Example worker -->
                         <image>
                             <alias>example-worker</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8444/caf/worker-example:1.8.0-249</name>
+                            <name>cafdataprocessing/worker-example:1.8</name>
                             <run>
                                 <ports>
                                     <port>${example-worker.adminport}:8081</port>

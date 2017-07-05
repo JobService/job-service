@@ -76,7 +76,7 @@
                             <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-postgres:${project.version}</name>
                             <build>
                                 <maintainer>connor.mulholland@hpe.com</maintainer>
-                                <from>rh7-artifactory.svs.hpeswlab.net:8444/caf/java-postgres:1.0.0-28</from>
+                                <from>cafapi/java-postgres:1.0</from>
                                 <labels>
                                     <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
