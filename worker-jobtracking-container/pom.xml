@@ -34,7 +34,6 @@
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-store.impl>worker-store-fs</caf.worker-store.impl>
-        <worker-jobtracking.container.name>rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-jobtracking:${project.version}</worker-jobtracking.container.name>
         <datastore.container.id>b591d8c6615c4af99d7915719b01259c</datastore.container.id>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
         <test.data>${project.basedir}/test-data</test.data>
@@ -331,7 +330,7 @@
                         <!-- Run jobservice postgres container against postgres database to install jobservice schema. -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-postgres:${project.version}</name>
+                            <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <run>
                                 <links>
                                     <link>${job.database.host}</link>
@@ -398,7 +397,7 @@
                         <!--Job Tracking worker image.-->
                         <image>
                             <alias>jobtracking-worker</alias>
-                            <name>${worker-jobtracking.container.name}</name>
+                            <name>${dockerJobServiceOrg}worker-jobtracking${dockerProjectVersion}</name>
                             <build>
                                 <from>java:8</from>
                                 <labels>

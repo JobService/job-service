@@ -318,7 +318,7 @@
                         <!-- Run jobservice db installer. -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-postgres:${project.version}</name>
+                            <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <run>
                                 <links>
                                     <link>jobservice-integrationtests-postgres</link>
@@ -398,7 +398,7 @@
                         </image>
                         <image>
                             <alias>job-service</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service:${project.version}</name>
+                            <name>${dockerJobServiceOrg}job-service${dockerProjectVersion}</name>
                             <build>
                                 <maintainer>conal.smith@hpe.com</maintainer>
                                 <from>${tomcatBaseImage}</from>

@@ -38,6 +38,9 @@
 
     <properties>
         <caf.worker-framework.version>1.6.0-181</caf.worker-framework.version>
+        <dockerHubOrganization>jobservice</dockerHubOrganization>
+        <dockerJobServiceOrg>${dockerImagePrefix}${dockerHubOrganization}${dockerOrgSeperator}</dockerJobServiceOrg>
+        <dockerProjectVersion>${dockerVersionSeperator}${project.version}</dockerProjectVersion>
     </properties>
 
     <dependencyManagement>

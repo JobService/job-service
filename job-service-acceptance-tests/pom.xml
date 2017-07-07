@@ -192,12 +192,12 @@
                     <environmentVariables>
                         <CAF_APPNAME>test/jobservice-acceptance</CAF_APPNAME>
                         <CAF_CONFIG_PATH>${project.basedir}/test-configs</CAF_CONFIG_PATH>
-                        <CAF_JOB_SERVICE_IMAGE>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service:${project.version}</CAF_JOB_SERVICE_IMAGE>
+                        <CAF_JOB_SERVICE_IMAGE>${dockerJobServiceOrg}job-service${dockerProjectVersion}</CAF_JOB_SERVICE_IMAGE>
                         <CAF_JOB_SERVICE_ADMIN_PORT>${jobservice.adminport}</CAF_JOB_SERVICE_ADMIN_PORT>
                         <CAF_WEBSERVICE_URL>http://${docker.host.address}:${jobservice.adminport}/job-service/v1</CAF_WEBSERVICE_URL>
                         <CAF_DOCKER_HOST>http://${docker.host.address}:2375</CAF_DOCKER_HOST>
                         <CAF_DOCKER_VERSION>1.22</CAF_DOCKER_VERSION>
-                        <CAF_JOB_SERVICE_CALLER_IMAGE>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-caller:${project.version}</CAF_JOB_SERVICE_CALLER_IMAGE>
+                        <CAF_JOB_SERVICE_CALLER_IMAGE>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</CAF_JOB_SERVICE_CALLER_IMAGE>
                         <CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>http://job-service:8080</CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>
                         <CAF_INTEGRATIONTESTS_FS_PATH>${caf.integrationtests.fs.path}</CAF_INTEGRATIONTESTS_FS_PATH>
                     </environmentVariables>
@@ -432,7 +432,7 @@
                         <!-- Run jobservice postgres container against PostgreSQL database to install jobservice schema -->
                         <image>
                             <alias>job-service-liquibase-container</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-postgres:${project.version}</name>
+                            <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <run>
                                 <links>
                                     <link>${job.database.host}</link>
@@ -475,7 +475,7 @@
                         <!-- Run the Job Service -->
                         <image>
                             <alias>job-service</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service:${project.version}</name>
+                            <name>${dockerJobServiceOrg}job-service${dockerProjectVersion}</name>
                             <run>
                                 <ports>
                                     <port>${jobservice.adminport}:8080</port>
@@ -520,7 +520,7 @@
                         <!-- Run Job Tracking worker -->
                         <image>
                             <alias>jobtracking-worker</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/worker-jobtracking:${project.version}</name>
+                            <name>${dockerJobServiceOrg}worker-jobtracking${dockerProjectVersion}</name>
                             <run>
                                 <ports>
                                     <port>${jobtracking-worker.adminport}:8081</port>
@@ -630,7 +630,7 @@
                         <!-- Image for job-service-caller -->
                         <image>
                             <alias>job-service-caller</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-caller:${project.version}</name>
+                            <name>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</name>
                         </image>
 
                     </images>

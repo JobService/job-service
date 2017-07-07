@@ -73,7 +73,7 @@
                     <images>
                         <image>
                             <alias>job-service-postgres</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-postgres:${project.version}</name>
+                            <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <build>
                                 <maintainer>connor.mulholland@hpe.com</maintainer>
                                 <from>cafapi/java-postgres:1.0</from>

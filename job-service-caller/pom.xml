@@ -64,7 +64,7 @@
                     <images>
                         <image>
                             <alias>job-service-caller-image</alias>
-                            <name>rh7-artifactory.svs.hpeswlab.net:8443/caf/job-service-caller:${project.version}</name>
+                            <name>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</name>
                             <build>
                                 <maintainer>adam.pau.rogan@hpe.com</maintainer>
                                 <from>python:2</from>
