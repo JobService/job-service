@@ -37,7 +37,7 @@
     </parent>
 
     <properties>
-        <caf.worker-framework.version>2.0.0-279</caf.worker-framework.version>
+        <caf.worker-framework.version>2.2.0-294</caf.worker-framework.version>
         <dockerHubOrganization>jobservice</dockerHubOrganization>
         <dockerJobServiceOrg>${dockerImagePrefix}${dockerHubOrganization}${dockerOrgSeperator}</dockerJobServiceOrg>
         <dockerProjectVersion>${dockerVersionSeperator}${project.version}</dockerProjectVersion>
