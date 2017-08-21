@@ -150,6 +150,9 @@
                         <datastore.container.id>${datastore.container.id}</datastore.container.id>
                         <datastore.enabled>true</datastore.enabled>
                     </systemPropertyVariables>
+                    <!-- DEBUGGING -->
+                   <!--   <debugForkedProcess>true</debugForkedProcess>-->
+
                     <environmentVariables>
                         <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
                         <CAF_CONFIG_PATH>${project.basedir}/test-configs</CAF_CONFIG_PATH>
@@ -472,6 +475,9 @@
                             <run>
                                 <ports>
                                     <port>${worker.adminport}:8081</port>
+                                    <!-- DEBUGGING -->
+                                   <!-- <port>5005:5005</port>-->
+
                                 </ports>
                                 <env>
                                     <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
@@ -479,6 +485,9 @@
                                     <JOB_DATABASE_URL>${job.database.url}</JOB_DATABASE_URL>
                                     <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
                                     <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
+                                    <!-- DEBUGGING -->
+                                   <!-- <_JAVA_OPTIONS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</_JAVA_OPTIONS>-->
+
                                 </env>
                                 <volumes>
                                     <from>
