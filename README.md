@@ -67,7 +67,7 @@ The Docker Compose file contains the following services:
       <tr>
         <td>JOB_SERVICE_DEMO_INPUT_DIR</td>
         <td>./input&#8209;files</td>
-        <td>This directory is made available as a source for input files which may be read.  The glob-pattern is passed in as a parameter but this is the base directory that it starts from; it cannot read any files which are outside this directory.</td>
+        <td>This directory is made available as a source for input files which may be read. The glob-pattern is passed in as a parameter but this is the base directory that it starts from; it cannot read any files which are outside this directory.</td>
       </tr>
       <tr>
         <td>JOB_SERVICE_DEMO_OUTPUT_DIR</td>
@@ -158,27 +158,25 @@ The following override files are supplied alongside the main Docker Compose file
   </tr>
   <tr>
     <td>docker&#8209;compose.debug.yml</td>
-    <td>This override file can be used by developers to help with debugging.  It increases the logging levels, puts the services into a mode where a Java debugger can be attached to them, and exposes endpoints which are not normally exposed outside of the internal network.<p>
-    <p>
-
-    The following additional endpoints are exposed to the external network:
-
+    <td>This override file can be used by developers to help with debugging. It increases the logging levels, puts the services into a mode where a Java debugger can be attached to them, and exposes endpoints which are not normally exposed outside of the internal network.<p>
+    <p>        
+    The following additional endpoints are exposed to the external network:<p>
     <ol>
-        <li>Job Service Database Connection Port</li>
-        <li>RabbitMQ UI Port</li>
-        <li>Java Debugging Port for all Workers</li>
-        <li>Admin / HealthCheck Port for all Workers</li>
+      <li>Job Service Database Connection Port</li>
+      <li>RabbitMQ UI Port</li>
+      <li>Java Debugging Port for all Workers</li>
+      <li>Admin / HealthCheck Port for all Workers</li>
     </ol>
-
-    The override file itself can be examined to check which ports these internal ports are exposed on.  The external ports are not used for the normal operation of the services so they can be safely modified if they clash with any other services running on the host.</td>
+    <p>
+    The override file itself can be examined to check which ports these internal ports are exposed on. The external ports are not used for the normal operation of the services so they can be safely modified if they clash with any other services running on the host.</td>
   </tr>
   <tr>
     <td>docker&#8209;compose.https.yml</td>
     <td>This override file can be used to activate a HTTPS port in the Job Service which can be used for secure communication.<p>
     <p>
-    You must provide a keystore file either at the default path (./keystore/.keystore) or a custom path and set the <code>JOB_SERVICE_KEYSTORE</code> environment variable.<p>
+    You must provide a keystore file either at the default path (./keystore/.keystore) or a custom path and set the JOB_SERVICE_KEYSTORE environment variable.<p>
     <p>
-    The default port exposed for HTTPS communication is 9412 but this can be overridden by supplying the environment variable <code>JOB_SERVICE_PORT_HTTPS</code>.</td>
+    The default port exposed for HTTPS communication is 9412 but this can be overridden by supplying the environment variable JOB_SERVICE_PORT_HTTPS.</td>
   </tr>
 </table>
 
