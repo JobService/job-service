@@ -151,7 +151,7 @@
                         <datastore.enabled>true</datastore.enabled>
                     </systemPropertyVariables>
                     <!-- DEBUGGING -->
-                   <!--   <debugForkedProcess>true</debugForkedProcess>-->
+                    <!--   <debugForkedProcess>true</debugForkedProcess>-->
 
                     <environmentVariables>
                         <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
@@ -421,6 +421,9 @@
                                         <args>--</args>
                                     </exec>
                                 </entryPoint>
+                                <healthCheck>
+                                    <cmd>curl -f http://localhost:8081/healthcheck || exit 1</cmd>
+                                </healthCheck>
                                 <cmd>/maven/worker.sh</cmd>
                                 <assembly>
                                     <mode>tar</mode>
@@ -476,7 +479,7 @@
                                 <ports>
                                     <port>${worker.adminport}:8081</port>
                                     <!-- DEBUGGING -->
-                                   <!-- <port>5005:5005</port>-->
+                                    <!-- <port>5005:5005</port>-->
 
                                 </ports>
                                 <env>
@@ -486,7 +489,7 @@
                                     <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
                                     <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
                                     <!-- DEBUGGING -->
-                                   <!-- <_JAVA_OPTIONS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</_JAVA_OPTIONS>-->
+                                    <!-- <_JAVA_OPTIONS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</_JAVA_OPTIONS>-->
 
                                 </env>
                                 <volumes>
@@ -535,7 +538,7 @@
         </profile>
         <profile>
             <id>integration-test</id>
-             <activation>
+            <activation>
                 <property>
                     <name>RE_BUILD_TYPE</name>
                 </property>
