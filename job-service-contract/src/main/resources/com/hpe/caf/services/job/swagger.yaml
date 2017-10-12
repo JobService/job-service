@@ -131,6 +131,8 @@ paths:
       responses:
         201:
           description: Indicates that the job was successfully created.
+        202:
+          description: Indicates that the job was accepted but cannot be progressed as one or more prerequisite jobs have not yet completed.
         204:
           description: Indicates that the job was successfully updated.
         400:
@@ -260,6 +262,11 @@ definitions:
           components.
       task:
         $ref: "#/definitions/worker-action"
+      prerequisiteJobIds:
+        type: array
+        items:
+          type: string
+        description: List of job identifiers that must be complete prior to the start of this job.
   worker-action:
     type: object
     required:
