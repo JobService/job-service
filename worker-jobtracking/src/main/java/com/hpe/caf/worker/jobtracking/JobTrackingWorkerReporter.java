@@ -101,9 +101,11 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * @throws JobReportingException
      */
     @Override
-    public void reportJobTaskComplete(final String jobTaskId) throws JobReportingException {
+    public ResultSet reportJobTaskComplete(final String jobTaskId) throws JobReportingException {
         try (Connection conn = getConnection()) {
-            report(conn, jobTaskId, JobStatus.Completed);
+            ResultSet resultSet = report(conn, jobTaskId, JobStatus.Completed);
+            // TODO (Greg) return the ResultSet and deal with the returned results
+            return resultSet;
         } catch (SQLException se) {
             throw new JobReportingException(MessageFormat.format("Failed to report the completion of job task {0}. {1}", jobTaskId, se.getMessage()), se);
         }
@@ -194,13 +196,16 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * @param status status of the job task
      * @throws SQLException
      */
-    private void report(Connection connection, final String jobTaskId, final JobStatus status) throws SQLException {
+    private ResultSet report(Connection connection, final String jobTaskId, final JobStatus status) throws SQLException {
         String reportProgressFnCallSQL = "{call report_progress(?,?)}";
         try (CallableStatement stmt = connection.prepareCall(reportProgressFnCallSQL)) {
             stmt.setString(1, jobTaskId);
             stmt.setObject(2, status, Types.OTHER);
             LOG.info("Reporting progress of job task {} with status {} ...", jobTaskId, status.name());
             stmt.execute();
+            // TODO (Greg) get a ResultSet from this DB call
+            // reportJobTaskComplete() will need to deal with the returned ResultSet
+            return stmt.getResultSet();
         }
     }
 
@@ -221,4 +226,5 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             stmt.execute();
         }
     }
+
 }

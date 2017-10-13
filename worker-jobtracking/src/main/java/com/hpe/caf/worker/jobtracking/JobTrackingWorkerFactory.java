@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Map;
@@ -118,7 +120,10 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
      */
     @Override
     public void determineForwardingAction(TaskMessage proxiedTaskMessage, String queueMessageId, Map<String, Object> headers, WorkerCallback callback) {
-        reportProxiedTask(proxiedTaskMessage, headers);
+        
+        ResultSet resultSet = reportProxiedTask(proxiedTaskMessage, headers);
+        // TODO (Greg) Forward any dependent jobs which are now available for processing
+        forwardAvailableJobs(resultSet, callback, queueMessageId, proxiedTaskMessage.getContext());
 
         LOG.debug("Forwarding task {}", proxiedTaskMessage.getTaskId());
         callback.forward(queueMessageId, proxiedTaskMessage.getTo(), proxiedTaskMessage, headers);
@@ -127,27 +132,30 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
     /**
      * Report the task's status to the job database.
      *
-     * @param proxiedTaskMessage    the task to be reported
-     * @param headers               task headers such as if the task was rejected
+     * @param proxiedTaskMessage the task to be reported
+     * @param headers task headers such as if the task was rejected
+     * @return ResultSet containing any dependent jobs that are now available for processing else
+     *         returns null
      */
-    private void reportProxiedTask(final TaskMessage proxiedTaskMessage, Map<String, Object> headers) {
+    private ResultSet reportProxiedTask(final TaskMessage proxiedTaskMessage, Map<String, Object> headers) {
+        ResultSet resultSet = null;
         try {
             TrackingInfo tracking = proxiedTaskMessage.getTracking();
             if (tracking == null) {
                 LOG.warn("Cannot report job task progress for task {} - the task message has no tracking info", proxiedTaskMessage.getTaskId());
-                return;
+                return null;
             }
 
             String jobTaskId = tracking.getJobTaskId();
             if (jobTaskId == null) {
                 LOG.warn("Cannot report job task progress for task {} - the tracking info has no jobTaskId", proxiedTaskMessage.getTaskId());
-                return;
+                return null;
             }
 
             String trackToPipe = tracking.getTrackTo();
             if (trackToPipe == null) {
                 LOG.warn("Cannot evaluate job task progress for job task {} in worker task {} - the tracking info has no trackTo pipe", jobTaskId, proxiedTaskMessage.getTaskId());
-                return;
+                return null;
             }
 
             TaskStatus taskStatus = proxiedTaskMessage.getTaskStatus();
@@ -155,12 +163,13 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
             if (taskStatus == TaskStatus.NEW_TASK || taskStatus == TaskStatus.RESULT_SUCCESS || taskStatus == TaskStatus.RESULT_FAILURE) {
                 String toPipe = proxiedTaskMessage.getTo();
                 if (trackToPipe.equalsIgnoreCase(toPipe)) {
-                    reporter.reportJobTaskComplete(jobTaskId);
+                    // TODO (Greg) Now returns a ResultSet.  This ResultSet may or may not contain a list of dependent job info.
+                    resultSet = reporter.reportJobTaskComplete(jobTaskId);
                 } else {
                     //TODO - FUTURE: supply an accurate estimatedPercentageCompleted
                     reporter.reportJobTaskProgress(jobTaskId, 0);
                 }
-                return;
+                return resultSet;
             }
 
             if (taskStatus == TaskStatus.RESULT_EXCEPTION || taskStatus == TaskStatus.INVALID_TASK) {
@@ -178,7 +187,7 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
 
                 reporter.reportJobTaskRejected(jobTaskId, f);
 
-                return;
+                return null;
             }
 
             boolean rejected = headers.getOrDefault(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED, null) != null;
@@ -204,6 +213,7 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
             LOG.warn("Error reporting task {} progress to the Job Database: ", proxiedTaskMessage.getTaskId(), e);
             //TODO - should this ex be rethrown?
         }
+        return null;
     }
 
     /**
@@ -236,5 +246,44 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
         }
 
         return workerName;
+    }
+    
+    /**
+     * 
+     * @param resultSet
+     * @param callback
+     * @param queueMsgId
+     * @param context
+     */
+    private void forwardAvailableJobs(ResultSet resultSet, WorkerCallback callback, String queueMsgId, Map<String, byte[]> context)
+    {
+        // Walk the resultSet placing each returned job on the Rabbit Queue
+        try {
+            while (resultSet != null && resultSet.next()) {
+                // Retrieve the Json Text and other necessary data which represents the Job to be
+                // place on the Rabbit Queue
+                // Columns
+                // 1. jtd.job_id
+                // 2. jtd.task_classifier
+                // 3. jtd.task_api_version
+                // 4. jtd.task_data
+                // 5. jtd.task_data_encoding
+                // 6. jtd.task_pipe
+                // 7. jtd.target_pipe
+
+                TaskMessage taskMessage = null;
+                String taskId = resultSet.getString(1);
+                String taskClassifier = resultSet.getString(2);
+                int taskApiVersion = resultSet.getInt(3);
+                String taskData = resultSet.getString(4);
+                TaskStatus taskStatus = TaskStatus.NEW_TASK;
+                
+                taskMessage = new TaskMessage(taskId, taskClassifier, taskApiVersion, taskData.getBytes(), taskStatus, context);
+                
+                callback.send(queueMsgId, taskMessage);
+            }
+        } catch (SQLException e) {
+            LOG.error("Error retrieving Dependent Job Info from the Job Service Database {}", e);
+        }
     }
 }

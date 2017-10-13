@@ -15,6 +15,8 @@
  */
 package com.hpe.caf.worker.jobtracking;
 
+import java.sql.ResultSet;
+
 /**
  * Methods to be used to report job task progress and events to a Job Database.
  */
@@ -32,9 +34,10 @@ public interface JobTrackingReporter {
     /**
      * Reports the completion of a job task to the Job Database.
      * @param jobTaskId identifies the completed job task
+     * @return ResultSet containing any dependent jobs that are now available for processing
      * @throws JobReportingException
      */
-    void reportJobTaskComplete(final String jobTaskId) throws JobReportingException;
+    ResultSet reportJobTaskComplete(final String jobTaskId) throws JobReportingException;
 
 
     /**
