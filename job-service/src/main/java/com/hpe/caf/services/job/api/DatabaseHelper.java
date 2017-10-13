@@ -242,6 +242,43 @@ public final class DatabaseHelper {
     }
 
     /**
+     * Creates the specified job task data.
+     */
+    public void createJobTaskData(final String jobId, final String taskClassifier, final int taskApiVersion,
+                                  final byte[] taskData, final String taskPipe, final String targetPipe) throws Exception
+    {
+
+        String createJobTaskDataFnCallSQL = "{call create_job_task_data(?,?,?,?,?,?)}";
+
+        try (
+                Connection conn = getConnection();
+                CallableStatement stmt = conn.prepareCall(createJobTaskDataFnCallSQL)
+        ) {
+            stmt.setString(1,jobId);
+            stmt.setString(2,taskClassifier);
+            stmt.setInt(3,taskApiVersion);
+            stmt.setBytes(4,taskData);
+            stmt.setString(5,taskPipe);
+            stmt.setString(6,targetPipe);
+
+            LOG.debug("Calling create_job_task_data() database function...");
+            stmt.execute();
+        } catch (SQLException se) {
+            //  Determine source of SQL exception and throw appropriate error.
+            String sqlState = se.getSQLState();
+
+            if (sqlState.equals("02000")) {
+                //  A required parameter has not been provided.
+                throw new BadRequestException(se.getMessage());
+            }
+            else {
+                throw se;
+            }
+        }
+
+    }
+
+    /**
      * Deletes the specified job.
      */
     public void deleteJob(String jobId) throws Exception {
@@ -297,6 +334,33 @@ public final class DatabaseHelper {
         }
 
         return exists;
+    }
+
+    /**
+     * Returns TRUE if the specified job id is complete, otherwise FALSE.
+     */
+    public boolean isJobComplete(final String jobId) throws Exception
+    {
+
+        boolean complete = false;
+
+        String rowExistsSQL = "select 1 as isComplete from job where job_id = ? and status IN 'Complete'";
+
+        try (
+                Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(rowExistsSQL)
+        ) {
+            stmt.setString(1, jobId);
+
+            //  Execute a query to determine if the specified job is complete or not.
+            LOG.debug("Checking if the job is complete...");
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+                complete = rs.getInt("isComplete") > 0;
+            }
+        }
+
+        return complete;
     }
 
     /**
@@ -453,5 +517,31 @@ public final class DatabaseHelper {
 
     }
 
+    public void createJobDependency(final String jobId, final String prerequisiteJobId) throws Exception
+    {
+        String createJobDependencyFnCallSQL = "{call create_job_dependency(?,?)}";
+
+        try (
+                Connection conn = getConnection();
+                CallableStatement stmt = conn.prepareCall(createJobDependencyFnCallSQL)
+        ) {
+            stmt.setString(1,jobId);
+            stmt.setString(2,prerequisiteJobId);
+
+            LOG.debug("Calling create_job_dependency() database function...");
+            stmt.execute();
+        } catch (SQLException se) {
+            //  Determine source of SQL exception and throw appropriate error.
+            String sqlState = se.getSQLState();
+
+            if (sqlState.equals("02000")) {
+                //  A required parameter has not been provided.
+                throw new BadRequestException(se.getMessage());
+            }
+            else {
+                throw se;
+            }
+        }
+    }
 }
 

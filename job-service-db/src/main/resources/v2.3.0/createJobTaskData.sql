@@ -20,8 +20,7 @@
  *  Description:  Create a new row in the job_task_data table.
  */
 CREATE OR REPLACE FUNCTION create_job_task_data(in_job_id VARCHAR(48), in_task_classifier VARCHAR(255),
-in_task_api_version INT, in_task_data TEXT, in_task_data_encoding VARCHAR(32), in_task_pipe VARCHAR(255),
-in_target_pipe VARCHAR(255))
+in_task_api_version INT, in_task_data BYTEA, in_task_pipe VARCHAR(255), in_target_pipe VARCHAR(255))
   RETURNS VOID AS $$
 BEGIN
 
@@ -41,7 +40,7 @@ BEGIN
   END IF;
 
   --  Raise exception if job taskData has not been specified.
-  IF in_task_data IS NULL OR in_task_data = '' THEN
+  IF in_task_data IS NULL THEN
     RAISE EXCEPTION 'Job taskData has not been specified' USING ERRCODE = '02000'; -- sqlstate no data;
   END IF;
 
@@ -56,8 +55,8 @@ BEGIN
   END IF;
   
   -- Create new row in job_task_table.
-  insert into public.job_task_table (job_id, task_classifier, task_api_version, task_data, task_data_encoding, task_pipe, target_pipe)
-  values (in_job_id, in_task_classifier, in_task_api_version, in_task_data, in_task_data_encoding, in_task_pipe, in_target_pipe);
+  insert into public.job_task_table (job_id, task_classifier, task_api_version, task_data, task_pipe, target_pipe)
+  values (in_job_id, in_task_classifier, in_task_api_version, in_task_data, in_task_pipe, in_target_pipe);
 
 END
 $$ LANGUAGE plpgsql;

@@ -16,20 +16,26 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.api.Codec;
+import com.hpe.caf.api.CodecException;
 import com.hpe.caf.services.job.api.generated.model.Failure;
+import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
+import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.util.ModuleLoader;
+import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public final class JobsPut {
@@ -138,11 +144,32 @@ public final class JobsPut {
             if (!rowExists){
                 targetOperation = "create";
 
-                // TODO: if the job can be started then proceed as normal, else store the task data in the JobTaskData table. Store Dependency details in the JobDependency table. return 202 code if job cannot be started because one or more of the job.prereqJobs have not been completed yet
 
                 //  Create job in the database.
                 LOG.info("createOrUpdateJob: Creating job in the database...");
                 databaseHelper.createJob(jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
+
+                // TODO: if the job can be started then proceed as normal, else if a prereq job has not completed store the task data in the JobTaskData table. Store Dependency details in the JobDependency table. return 202 code if job cannot be started because one or more of the job.prereqJobs have not been completed yet
+                // All prerequisite jobs must be complete to start the job
+                final List<String> prerequisiteJobIds = job.getPrerequisiteJobIds();
+                for (final String prerequisiteJobId : prerequisiteJobIds) {
+                    // If the prerequisite job has not completed then store the task data in the JobTaskData table
+                    // and store dependency details in the JobDependency table
+                    if (!databaseHelper.isJobComplete(prerequisiteJobId)) {
+
+                        final WorkerAction jobTask = job.getTask();
+                        // Store the job task in the JobTaskData table
+                        databaseHelper.createJobTaskData(jobId, jobTask.getTaskClassifier(),
+                                jobTask.getTaskApiVersion(), getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(),
+                                jobTask.getTargetPipe());
+
+                        // Store the dependency details of the job into the JobDependency table
+                        storeJobDependencies(jobId, databaseHelper, prerequisiteJobIds);
+
+                        // Return that the job was accepted
+                        return "accept";
+                    }
+                }
 
                 //  Get database helper instance.
                 try {
@@ -179,6 +206,43 @@ public final class JobsPut {
             LOG.error("Error - '{}'", e.toString());
             throw e;
         }
+    }
+
+    private static void storeJobDependencies(final String jobId, final DatabaseHelper databaseHelper,
+                                             final List<String> prerequisiteJobIds) throws Exception
+    {
+        // Store prerequisiteJobIds into the JobDependency table
+        for (final String prerequisiteJobId : prerequisiteJobIds) {
+            databaseHelper.createJobDependency(jobId, prerequisiteJobId);
+        }
+    }
+
+    private static byte[] getTaskDataBytes(final WorkerAction workerAction, final Codec codec)
+    {
+        final Object taskDataObj = workerAction.getTaskData();
+        final byte[] taskDataBytes;
+        if (taskDataObj instanceof String) {
+            final String taskDataStr = (String) taskDataObj;
+            final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
+
+            if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
+                taskDataBytes = taskDataStr.getBytes(StandardCharsets.UTF_8);
+            } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
+                taskDataBytes = Base64.decodeBase64(taskDataStr);
+            } else {
+                throw new RuntimeException("Unknown taskDataEncoding");
+            }
+        } else if (taskDataObj instanceof Map<?, ?>) {
+            try {
+                taskDataBytes = codec.serialise(taskDataObj);
+            } catch (CodecException e) {
+                throw new RuntimeException("Failed to serialise TaskData", e);
+            }
+        } else {
+            throw new RuntimeException("The taskData is an unexpected type");
+        }
+
+        return taskDataBytes;
     }
 
 }
