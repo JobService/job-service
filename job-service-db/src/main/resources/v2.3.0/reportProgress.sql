@@ -19,8 +19,11 @@
  *
  *  Description:  Modify status of task and propagate progress state to subsequent parent task and job rows.
  */
-CREATE OR REPLACE FUNCTION report_progress(in_task_id varchar(58), in_status job_status)
-RETURNS VOID AS $$
+DROP FUNCTION IF EXISTS report_progress(varchar(58),job_status);
+CREATE FUNCTION report_progress(in_task_id varchar(58), in_status job_status)
+  RETURNS TABLE (job_id VARCHAR(48), task_classifier VARCHAR(255), task_api_version INT, task_data TEXT,
+  task_data_encoding VARCHAR(32), task_pipe VARCHAR(255), target_pipe VARCHAR(255)) AS $$
+#variable_conflict use_column  
 DECLARE
   v_job_id VARCHAR(48);
   v_parent VARCHAR(58);
@@ -40,7 +43,7 @@ BEGIN
 
     --  Modify job row but need to disallow cancelled jobs from being reactivated.
     IF in_status = 'Active' THEN
-      PERFORM 1 FROM job WHERE job_id = v_job_id FOR UPDATE;
+      PERFORM 1 FROM job WHERE job.job_id = v_job_id FOR UPDATE;
       UPDATE job
       SET status = in_status
       WHERE job_id = v_job_id
@@ -53,9 +56,29 @@ BEGIN
       WHERE job_id = v_job_id;
     END IF;
 
-    --  If job is completed, then remove task tables associated with the job.
     IF in_status = 'Completed' THEN
+      --  If job is completed, then remove task tables associated with the job.
       PERFORM internal_delete_task_table(v_job_id,false);
+
+      -- Get list of jobs that can now be run.
+      RETURN QUERY
+      SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_data_encoding, jtd.task_pipe, jtd.target_pipe
+      FROM job_task_data jtd
+      INNER JOIN job_dependency jd
+        ON jd.job_id = jtd.job_id
+      WHERE jd.dependent_job_id = v_job_id
+      AND NOT EXISTS (SELECT jd2.job_id
+                      FROM job_dependency jd2
+                      INNER JOIN job j
+                        ON j.job_Id = jd2.dependent_job_id
+                      WHERE jd2.job_id = jd.job_Id
+                      AND jd2.dependent_job_id <> v_job_id
+                      AND j.status <> 'Completed');
+
+      -- Remove corresponding dependency related rows.
+      DELETE FROM job_dependency jd WHERE jd.job_id = v_job_id;
+      DELETE FROM job_task_data jtd WHERE jtd.job_id = v_job_id;
+
     END IF;
 
   ELSE
@@ -95,7 +118,7 @@ BEGIN
         UPDATE %1$I SET status = %2$L, percentage_complete = CASE WHEN %2$L = ''Completed'' THEN 100.00 ELSE percentage_complete END WHERE task_id = %3$L RETURNING *
       )
       INSERT INTO %1$I (task_id, create_date, status, percentage_complete, failure_details, is_final)
-        SELECT %3$L, now() AT TIME ZONE ''UTC'', %2$L, 0.00, null, %4$L
+        SELECT %3$L, now(), %2$L, 0.00, null, %4$L
         WHERE NOT EXISTS (SELECT * FROM upsert)
       ',
       v_parent_table_name, in_status, in_task_id, v_is_final_task);

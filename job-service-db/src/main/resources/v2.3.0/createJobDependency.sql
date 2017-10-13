@@ -15,11 +15,11 @@
 --
 
 /*
- *  Name: create_job
+ *  Name: create_job_dependency
  *
- *  Description:  Create a new row in the job table.
+ *  Description:  Create a new row in the job_dependency table.
  */
-CREATE OR REPLACE FUNCTION create_job(in_job_id VARCHAR(48), in_name VARCHAR(255), in_description TEXT, in_data TEXT, in_job_hash INT)
+CREATE OR REPLACE FUNCTION create_job_dependency(in_job_id VARCHAR(48), in_dependent_job_id VARCHAR(48))
   RETURNS VOID AS $$
 BEGIN
 
@@ -28,9 +28,14 @@ BEGIN
     RAISE EXCEPTION 'Job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data;
   END IF;
 
-  -- Create new row in job and return the job_id.
-  insert into public.job (job_id, name, description, data, create_date, status, percentage_complete, failure_details, job_hash)
-  values (in_job_id, in_name, in_description, in_data, now() AT TIME ZONE 'UTC', 'Waiting', 0.00, null, in_job_hash);
+  --  Raise exception if dependent job identifier has not been specified.
+  IF in_dependent_job_id IS NULL OR in_dependent_job_id = '' THEN
+    RAISE EXCEPTION 'Dependent job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data;
+  END IF;
+
+  -- Create new row in job_dependency.
+  insert into public.job_dependency (job_id, dependent_job_id)
+  values (in_job_id, in_dependent_job_id);
 
 END
 $$ LANGUAGE plpgsql;
