@@ -138,6 +138,8 @@ public final class JobsPut {
             if (!rowExists){
                 targetOperation = "create";
 
+                // TODO: if the job can be started then proceed as normal, else store the task data in the JobTaskData table. Store Dependency details in the JobDependency table. return 202 code if job cannot be started because one or more of the job.prereqJobs have not been completed yet
+
                 //  Create job in the database.
                 LOG.info("createOrUpdateJob: Creating job in the database...");
                 databaseHelper.createJob(jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);

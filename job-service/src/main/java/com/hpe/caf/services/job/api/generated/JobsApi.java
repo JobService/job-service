@@ -79,6 +79,8 @@ public class JobsApi  {
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 201, message = "Indicates that the job was successfully created", response = void.class),
 
+            @io.swagger.annotations.ApiResponse(code = 202, message = "Indicates that the job was accepted but cannot be progressed as one or more prerequisite jobs have not yet completed.", response = void.class),
+
             @io.swagger.annotations.ApiResponse(code = 204, message = "Indicates that the job was successfully updated", response = void.class),
 
             @io.swagger.annotations.ApiResponse(code = 400, message = "The `jobId` parameter contains invalid characters.", response = void.class) })
