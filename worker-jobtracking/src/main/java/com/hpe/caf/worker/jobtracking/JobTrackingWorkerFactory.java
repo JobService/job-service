@@ -275,10 +275,12 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
                 String taskId = resultSet.getString(1);
                 String taskClassifier = resultSet.getString(2);
                 int taskApiVersion = resultSet.getInt(3);
-                String taskData = resultSet.getString(4);
+                String taskData = resultSet.getString(4); // This is changing to bytes
                 TaskStatus taskStatus = TaskStatus.NEW_TASK;
+                String to = null;
+                TrackingInfo trackingInfo = null;
                 
-                taskMessage = new TaskMessage(taskId, taskClassifier, taskApiVersion, taskData.getBytes(), taskStatus, context);
+                taskMessage = new TaskMessage(taskId, taskClassifier, taskApiVersion, taskData.getBytes(), taskStatus, context, to, trackingInfo);
                 
                 callback.send(queueMsgId, taskMessage);
             }
