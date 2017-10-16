@@ -27,4 +27,5 @@
    <include file="v1.3.0/changelog.xml" />
    <include file="v1.9.0/changelog.xml" />
    <include file="v2.1.0/changelog.xml" />
+   <include file="v2.3.0/changelog.xml" />
 </databaseChangeLog>
