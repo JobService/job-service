@@ -18,7 +18,6 @@ package com.hpe.caf.services.job.api;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.services.job.api.generated.model.Failure;
-import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.configuration.AppConfig;
@@ -151,23 +150,25 @@ public final class JobsPut {
 
                 // TODO: if the job can be started then proceed as normal, else if a prereq job has not completed store the task data in the JobTaskData table. Store Dependency details in the JobDependency table. return 202 code if job cannot be started because one or more of the job.prereqJobs have not been completed yet
                 // All prerequisite jobs must be complete to start the job
-                final List<String> prerequisiteJobIds = job.getPrerequisiteJobIds();
-                for (final String prerequisiteJobId : prerequisiteJobIds) {
-                    // If the prerequisite job has not completed then store the task data in the JobTaskData table
-                    // and store dependency details in the JobDependency table
-                    if (!databaseHelper.isJobComplete(prerequisiteJobId)) {
+                if (job.getPrerequisiteJobIds() != null) {
+                    final List<String> prerequisiteJobIds = job.getPrerequisiteJobIds();
+                    for (final String prerequisiteJobId : prerequisiteJobIds) {
+                        // If the prerequisite job has not completed then store the task data in the JobTaskData table
+                        // and store dependency details in the JobDependency table
+                        if (!databaseHelper.isJobComplete(prerequisiteJobId)) {
 
-                        final WorkerAction jobTask = job.getTask();
-                        // Store the job task in the JobTaskData table
-                        databaseHelper.createJobTaskData(jobId, jobTask.getTaskClassifier(),
-                                jobTask.getTaskApiVersion(), getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(),
-                                jobTask.getTargetPipe());
+                            final WorkerAction jobTask = job.getTask();
+                            // Store the job task in the JobTaskData table
+                            databaseHelper.createJobTaskData(jobId, jobTask.getTaskClassifier(),
+                                    jobTask.getTaskApiVersion(), getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(),
+                                    jobTask.getTargetPipe());
 
-                        // Store the dependency details of the job into the JobDependency table
-                        storeJobDependencies(jobId, databaseHelper, prerequisiteJobIds);
+                            // Store the dependency details of the job into the JobDependency table
+                            storeJobDependencies(jobId, databaseHelper, prerequisiteJobIds);
 
-                        // Return that the job was accepted
-                        return "accept";
+                            // Return that the job was accepted
+                            return "accept";
+                        }
                     }
                 }
 
