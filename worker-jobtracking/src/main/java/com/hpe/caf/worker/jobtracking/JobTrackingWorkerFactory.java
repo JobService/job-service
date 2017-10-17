@@ -17,18 +17,26 @@ package com.hpe.caf.worker.jobtracking;
 
 import com.hpe.caf.api.*;
 import com.hpe.caf.api.worker.*;
+import com.hpe.caf.services.job.queue.services.queue.QueueServices;
+import com.hpe.caf.services.job.queue.services.queue.QueueServicesFactory;
 import com.hpe.caf.util.rabbitmq.RabbitHeaders;
 import com.hpe.caf.worker.AbstractWorkerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Factory class for creating a JobTrackingWorker.
@@ -123,7 +131,13 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
         
         ResultSet resultSet = reportProxiedTask(proxiedTaskMessage, headers);
         // TODO (Greg) Forward any dependent jobs which are now available for processing
-        forwardAvailableJobs(resultSet, callback, queueMessageId, proxiedTaskMessage.getContext());
+        try {
+            forwardAvailableJobs(resultSet, proxiedTaskMessage.getTracking().getTrackingPipe());
+        } catch (Exception e) {
+            //  TODO
+            LOG.error("Error forwarding jobs to rabbitmq ...");
+            throw new RuntimeException("Error forwarding jobs to rabbitmq ...");
+        }
 
         LOG.debug("Forwarding task {}", proxiedTaskMessage.getTaskId());
         callback.forward(queueMessageId, proxiedTaskMessage.getTo(), proxiedTaskMessage, headers);
@@ -247,18 +261,20 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
 
         return workerName;
     }
-    
+
     /**
-     * 
+     *
      * @param resultSet
-     * @param callback
-     * @param queueMsgId
-     * @param context
+     * @param trackingPipe
+     * @throws Exception
      */
-    private void forwardAvailableJobs(ResultSet resultSet, WorkerCallback callback, String queueMsgId, Map<String, byte[]> context)
+    private void forwardAvailableJobs(ResultSet resultSet, String trackingPipe) throws Exception
     {
         // Walk the resultSet placing each returned job on the Rabbit Queue
         try {
+            //	Set up string for statusCheckUrl
+            String statusCheckUrlPrefix = System.getenv("CAF_WEBSERVICE_URL") +"/jobs/";
+
             while (resultSet != null && resultSet.next()) {
                 // Retrieve the Json Text and other necessary data which represents the Job to be
                 // place on the Rabbit Queue
@@ -271,21 +287,58 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
                 // 6. jtd.task_pipe
                 // 7. jtd.target_pipe
 
-                TaskMessage taskMessage = null;
-                String taskId = resultSet.getString(1);
-                String taskClassifier = resultSet.getString(2);
-                int taskApiVersion = resultSet.getInt(3);
-                String taskData = resultSet.getString(4); // This is changing to bytes
-                TaskStatus taskStatus = TaskStatus.NEW_TASK;
-                String to = null;
-                TrackingInfo trackingInfo = null;
-                
-                taskMessage = new TaskMessage(taskId, taskClassifier, taskApiVersion, taskData.getBytes(), taskStatus, context, to, trackingInfo);
-                
-                callback.send(queueMsgId, taskMessage);
+                //  Generate a random task id.
+                String taskId = UUID.randomUUID().toString();
+
+                String jobId = resultSet.getString(0);
+                String taskClassifier = resultSet.getString(1);
+                int taskApiVersion = resultSet.getInt(2);
+                byte[] taskData = resultSet.getBytes(3);
+                String taskPipe = resultSet.getString(5);
+                String targetPipe = resultSet.getString(6);
+
+                String statusCheckUrl = statusCheckUrlPrefix + URLEncoder.encode(jobId, "UTF-8") +"/isActive";
+
+                //  Construct the task message.
+                final TrackingInfo trackingInfo = new TrackingInfo(jobId, calculateStatusCheckDate(System.getenv("CAF_STATUS_CHECK_TIME")),
+                        statusCheckUrl, trackingPipe, targetPipe);
+
+                final TaskMessage taskMessage = new TaskMessage(
+                        taskId,
+                        taskClassifier,
+                        taskApiVersion,
+                        taskData,
+                        TaskStatus.NEW_TASK,
+                        null,
+                        taskPipe,
+                        trackingInfo);
+
+                QueueServices queueServices = QueueServicesFactory.create(taskPipe, this.getCodec());
+                queueServices.sendMessage(taskMessage);
+                queueServices.close();
+
             }
         } catch (SQLException e) {
             LOG.error("Error retrieving Dependent Job Info from the Job Service Database {}", e);
         }
     }
+
+    /**
+     * Calculates the date of the next status check to be performed.
+     */
+    private Date calculateStatusCheckDate(String statusCheckTime){
+        //make sure statusCheckTime is a valid long
+        long seconds = 0;
+        try{
+            seconds = Long.parseLong(statusCheckTime);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Please provide a valid integer for statusCheckTime in seconds. " +e);
+        }
+
+        //set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
+        Instant now = Instant.now();
+        Instant later = now.plusSeconds(seconds);
+        return java.util.Date.from( later );
+    }
+
 }

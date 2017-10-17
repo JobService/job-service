@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hpe.caf.services.job.queue;
+package com.hpe.caf.services.job.queue.services.queue;
 
 import com.hpe.caf.api.Codec;
-import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.job.queue.services.configuration.QueueServicesConfig;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 
 import com.rabbitmq.client.Channel;
@@ -33,16 +33,19 @@ public final class QueueServicesFactory {
     /**
      * Create a new QueueServices object.
      *
-     * @param   configuration       the app configuration
      * @param   targetQueue         the target queue
      * @param   codec               the serialization codec
      * @return  QueueServices       new QueueServices object
      * @throws  IOException         thrown if the connection cannot be created
      * @throws  TimeoutException    thrown if the connection cannot be created
      */
-    public static QueueServices create(final AppConfig configuration, final String targetQueue, final Codec codec) throws IOException, TimeoutException {
+    public static QueueServices create(final String targetQueue, final Codec codec) throws IOException, TimeoutException {
         //  Create connection and channel for publishing messages.
-        Connection connection = createConnection(configuration);
+        Connection connection = createConnection(QueueServicesConfig.getRabbitMQHost(),
+                QueueServicesConfig.getRabbitMQPort(),
+                QueueServicesConfig.getRabbitMQUsername(),
+                QueueServicesConfig.getRabbitMQPassword());
+
         Channel publishChannel = connection.createChannel();
 
         //  Declare target worker queue.
@@ -54,10 +57,9 @@ public final class QueueServicesFactory {
     /**
      * Creates a connection to rabbit messaging server.
      */
-    private static Connection createConnection(AppConfig configuration)
+    private static Connection createConnection(final String host, final int port, final String user, final String password)
             throws IOException, TimeoutException
     {
-        Connection connection = RabbitUtil.createRabbitConnection(configuration.getRabbitMQHost(), configuration.getRabbitMQPort(), configuration.getRabbitMQUsername(), configuration.getRabbitMQPassword());
-        return connection;
+        return RabbitUtil.createRabbitConnection(host, port, user, password);
     }
 }

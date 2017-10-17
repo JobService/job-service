@@ -29,8 +29,8 @@ import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import com.hpe.caf.services.job.queue.QueueServices;
-import com.hpe.caf.services.job.queue.QueueServicesFactory;
+import com.hpe.caf.services.job.queue.services.queue.QueueServices;
+import com.hpe.caf.services.job.queue.services.queue.QueueServicesFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,15 +70,17 @@ public final class JobsPutTest {
         newEnv.put("CAF_DATABASE_URL","testUrl");
         newEnv.put("CAF_DATABASE_USERNAME","testUserName");
         newEnv.put("CAF_DATABASE_PASSWORD","testPassword");
+        newEnv.put("CAF_WEBSERVICE_URL","http://localhost:8080/v1");
+        newEnv.put("CAF_STATUS_CHECK_TIME","1");
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         //  Mock QueueServices calls.
-        doNothing().when(mockQueueServices).sendMessage(any(), any(), any());
+        doNothing().when(mockQueueServices).sendMessage(any());
         PowerMockito.whenNew(QueueServices.class).withArguments(any(),any(),anyString(),any()).thenReturn(mockQueueServices);
 
         //  Mock QueueServicesFactory calls.
         PowerMockito.mockStatic(QueueServicesFactory.class);
-        PowerMockito.doReturn(mockQueueServices).when(QueueServicesFactory.class, "create", any(), anyString(), any());
+        PowerMockito.doReturn(mockQueueServices).when(QueueServicesFactory.class, "create", anyString(), any());
         
         testDataObjectMap = new HashMap<>();
         taskMessageParams = new HashMap<>();
@@ -120,7 +122,7 @@ public final class JobsPutTest {
 
         verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
         verify(mockDatabaseHelper, times(1)).createJob(anyString(),anyString(),anyString(),anyString(),anyInt());
-        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any());
+        verify(mockQueueServices, times(1)).sendMessage(any());
     }
 
     @Test
@@ -133,7 +135,7 @@ public final class JobsPutTest {
 
         verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
         verify(mockDatabaseHelper, times(0)).createJob(anyString(),anyString(),anyString(),anyString(),anyInt());
-        verify(mockQueueServices, times(0)).sendMessage(any(), any(), any());
+        verify(mockQueueServices, times(0)).sendMessage(any());
     }
 
     @Test(expected = BadRequestException.class)
@@ -204,7 +206,7 @@ public final class JobsPutTest {
         
         verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
         verify(mockDatabaseHelper, times(1)).createJob(anyString(),anyString(),anyString(),anyString(),anyInt());
-        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any());
+        verify(mockQueueServices, times(1)).sendMessage(any());
     }
     
     
