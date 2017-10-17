@@ -54,8 +54,8 @@ BEGIN
     RAISE EXCEPTION 'Job targetPipe has not been specified' USING ERRCODE = '02000'; -- sqlstate no data;
   END IF;
   
-  -- Create new row in job_task_table.
-  insert into public.job_task_table (job_id, task_classifier, task_api_version, task_data, task_pipe, target_pipe)
+  -- Create new row in job_task_data.
+  insert into public.job_task_data (job_id, task_classifier, task_api_version, task_data, task_pipe, target_pipe)
   values (in_job_id, in_task_classifier, in_task_api_version, in_task_data, in_task_pipe, in_target_pipe);
 
 END

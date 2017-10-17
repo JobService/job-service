@@ -344,7 +344,7 @@ public final class DatabaseHelper {
 
         boolean complete = false;
 
-        String rowExistsSQL = "select 1 as isComplete from job where job_id = ? and status IN 'Complete'";
+        String rowExistsSQL = "select 1 as isComplete from job where job_id = ? and status = 'Completed'";
 
         try (
                 Connection conn = getConnection();

@@ -35,9 +35,6 @@
                 <column name="task_data" type="TEXT">
                     <constraints nullable="false"/>
                 </column>
-                <column name="task_data_encoding" type="VARCHAR(32)">
-                    <constraints nullable="true"/>
-                </column>
                 <column name="task_pipe" type="VARCHAR(255)">
                     <constraints nullable="false"/>
                 </column>
