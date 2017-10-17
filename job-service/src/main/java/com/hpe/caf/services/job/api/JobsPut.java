@@ -16,33 +16,21 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.api.Codec;
-import com.hpe.caf.api.CodecException;
-import com.hpe.caf.api.worker.TaskMessage;
-import com.hpe.caf.api.worker.TaskStatus;
-import com.hpe.caf.api.worker.TrackingInfo;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
-import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import com.hpe.caf.services.job.queue.services.queue.QueueServices;
-import com.hpe.caf.services.job.queue.services.queue.QueueServicesFactory;
+import com.hpe.caf.services.job.queue.QueueServices;
+import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.util.ModuleLoader;
-import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
 
 public final class JobsPut {
 
@@ -156,12 +144,9 @@ public final class JobsPut {
 
                 //  Get database helper instance.
                 try {
-                    String targetQueue = job.getTask().getTaskPipe();
-                    QueueServices queueServices = QueueServicesFactory.create(targetQueue,codec);
-                    TaskMessage tm = buildTaskMessage(jobId, job.getTask(), config, job.getTask().getTaskPipe(),codec);
+                    QueueServices queueServices = QueueServicesFactory.create(config, job.getTask().getTaskPipe(),codec);
                     LOG.info("createOrUpdateJob: Sending task data to the target queue...");
-                    queueServices.sendMessage(tm);
-                    queueServices.close();
+                    queueServices.sendMessage(jobId, job.getTask(), config);
                 } catch(Exception ex) {
                     //  Failure adding job data to queue. Update the job with the failure details.
                     Failure f = new Failure();
@@ -192,76 +177,4 @@ public final class JobsPut {
             throw e;
         }
     }
-
-    /**
-     * Send task data message to the target queue.
-     */
-    private static TaskMessage buildTaskMessage(String jobId, WorkerAction workerAction, AppConfig config, String targetQueue, Codec codec) throws IOException
-    {
-        //  Generate a random task id.
-        String taskId = UUID.randomUUID().toString();
-
-        //  Serialise the data payload. Encoding type is provided in the WorkerAction.
-        byte[] taskData = null;
-
-        //Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
-        final Object taskDataObj = workerAction.getTaskData();
-
-        if (taskDataObj instanceof String) {
-            final String taskDataStr = (String) taskDataObj;
-            final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
-
-            if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
-                taskData = taskDataStr.getBytes(StandardCharsets.UTF_8);
-            } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
-                taskData = Base64.decodeBase64(taskDataStr);
-            } else {
-                throw new RuntimeException("Unknown taskDataEncoding");
-            }
-        } else if (taskDataObj instanceof Map<?, ?>) {
-            try {
-                taskData = codec.serialise(taskDataObj);
-            } catch (CodecException e) {
-                throw new RuntimeException("Failed to serialise TaskData", e);
-            }
-        } else {
-            throw new RuntimeException("The taskData is an unexpected type");
-        }
-
-        //set up string for statusCheckUrl
-        String statusCheckUrl = config.getWebserviceUrl() +"/jobs/" + URLEncoder.encode(jobId, "UTF-8") +"/isActive";
-
-        //  Construct the task message.
-        final TrackingInfo trackingInfo = new TrackingInfo(jobId, calculateStatusCheckDate(config.getStatusCheckTime()),
-                statusCheckUrl, config.getTrackingPipe(), workerAction.getTargetPipe());
-
-        return new TaskMessage(
-                taskId,
-                workerAction.getTaskClassifier(),
-                workerAction.getTaskApiVersion(),
-                taskData,
-                TaskStatus.NEW_TASK,
-                Collections.<String, byte[]>emptyMap(),
-                targetQueue,
-                trackingInfo);
-    }
-
-    /**
-     * Calculates the date of the next status check to be performed.
-     */
-    private static Date calculateStatusCheckDate(String statusCheckTime){
-        //make sure statusCheckTime is a valid long
-        long seconds = 0;
-        try{
-            seconds = Long.parseLong(statusCheckTime);
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Please provide a valid integer for statusCheckTime in seconds. " +e);
-        }
-
-        //set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
-        Instant now = Instant.now();
-        Instant later = now.plusSeconds(seconds);
-        return java.util.Date.from( later );
-    }
-
 }

@@ -17,16 +17,12 @@ package com.hpe.caf.worker.jobtracking;
 
 import com.hpe.caf.api.*;
 import com.hpe.caf.api.worker.*;
-import com.hpe.caf.services.job.queue.services.queue.QueueServices;
-import com.hpe.caf.services.job.queue.services.queue.QueueServicesFactory;
 import com.hpe.caf.util.rabbitmq.RabbitHeaders;
 import com.hpe.caf.worker.AbstractWorkerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
@@ -36,7 +32,6 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Factory class for creating a JobTrackingWorker.
@@ -130,13 +125,13 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
     public void determineForwardingAction(TaskMessage proxiedTaskMessage, String queueMessageId, Map<String, Object> headers, WorkerCallback callback) {
         
         ResultSet resultSet = reportProxiedTask(proxiedTaskMessage, headers);
-        // TODO (Greg) Forward any dependent jobs which are now available for processing
+
+        // Forward any dependent jobs which are now available for processing
         try {
-            forwardAvailableJobs(resultSet, proxiedTaskMessage.getTracking().getTrackingPipe());
+            forwardAvailableJobs(resultSet, callback, proxiedTaskMessage.getTracking().getTrackingPipe());
         } catch (Exception e) {
-            //  TODO
-            LOG.error("Error forwarding jobs to rabbitmq ...");
-            throw new RuntimeException("Error forwarding jobs to rabbitmq ...");
+            LOG.error("Failed to create dependent jobs.");
+            throw new RuntimeException("Failed to create dependent jobs.", e);
         }
 
         LOG.debug("Forwarding task {}", proxiedTaskMessage.getTaskId());
@@ -177,7 +172,7 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
             if (taskStatus == TaskStatus.NEW_TASK || taskStatus == TaskStatus.RESULT_SUCCESS || taskStatus == TaskStatus.RESULT_FAILURE) {
                 String toPipe = proxiedTaskMessage.getTo();
                 if (trackToPipe.equalsIgnoreCase(toPipe)) {
-                    // TODO (Greg) Now returns a ResultSet.  This ResultSet may or may not contain a list of dependent job info.
+                    // Now returns a ResultSet.  This ResultSet may or may not contain a list of dependent job info.
                     resultSet = reporter.reportJobTaskComplete(jobTaskId);
                 } else {
                     //TODO - FUTURE: supply an accurate estimatedPercentageCompleted
@@ -263,12 +258,14 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
     }
 
     /**
+     *  Start the list of jobs that are now available to be run.
      *
-     * @param resultSet
-     * @param trackingPipe
+     * @param resultSet containing any dependent jobs that are now available for processing
+     * @param callback worker callback to enact the forwarding action determined by the worker
+     * @param trackingPipe target pipe where dependent jobs should be forwarded to.
      * @throws Exception
      */
-    private void forwardAvailableJobs(ResultSet resultSet, String trackingPipe) throws Exception
+    private void forwardAvailableJobs(ResultSet resultSet, WorkerCallback callback, String trackingPipe) throws Exception
     {
         // Walk the resultSet placing each returned job on the Rabbit Queue
         try {
@@ -313,10 +310,7 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
                         taskPipe,
                         trackingInfo);
 
-                QueueServices queueServices = QueueServicesFactory.create(taskPipe, this.getCodec());
-                queueServices.sendMessage(taskMessage);
-                queueServices.close();
-
+                callback.send("-1", taskMessage);
             }
         } catch (SQLException e) {
             LOG.error("Error retrieving Dependent Job Info from the Job Service Database {}", e);
@@ -325,9 +319,12 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
 
     /**
      * Calculates the date of the next status check to be performed.
+     *
+     * @param statusCheckTime - This is the number of seconds after which it is appropriate to try to confirm that the
+     * task has not been cancelled or aborted.
      */
     private Date calculateStatusCheckDate(String statusCheckTime){
-        //make sure statusCheckTime is a valid long
+        //  Make sure statusCheckTime is a valid long
         long seconds = 0;
         try{
             seconds = Long.parseLong(statusCheckTime);
@@ -335,7 +332,7 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
             throw new RuntimeException("Please provide a valid integer for statusCheckTime in seconds. " +e);
         }
 
-        //set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
+        //  Set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
         Instant now = Instant.now();
         Instant later = now.plusSeconds(seconds);
         return java.util.Date.from( later );
