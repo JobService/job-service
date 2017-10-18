@@ -55,20 +55,13 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="create_procedure_createJobDependency_job_dependency_change" author="Connor Mulholland" >
-        <createProcedure path="v2.3.0/createJobDependency.sql"
-                         procedureName="create_job_dependency"
+    <changeSet id="create_procedure_createJob_job_dependency_change" author="Connor Mulholland" >
+        <createProcedure path="v2.3.0/createJob.sql"
+                         procedureName="create_job"
                          schemaName="public">
         </createProcedure>
     </changeSet>
-
-    <changeSet id="create_procedure_createJobTaskData_job_dependency_change" author="Connor Mulholland" >
-        <createProcedure path="v2.3.0/createJobTaskData.sql"
-                         procedureName="create_job_task_data"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
-
+	
     <changeSet id="create_procedure_reportProgress_job_dependency_change" author="Connor Mulholland" >
         <createProcedure path="v2.3.0/reportProgress.sql"
                          procedureName="report_progress"
