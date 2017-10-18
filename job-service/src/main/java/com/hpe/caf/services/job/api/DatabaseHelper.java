@@ -375,7 +375,7 @@ public final class DatabaseHelper {
     /**
      * Returns TRUE if the specified job id can be progressed, otherwise FALSE.
      */
-    public boolean canJobBeCompressed(final String jobId) throws Exception
+    public boolean canJobBeProgressed(final String jobId) throws Exception
     {
 
         boolean canBeProgressed = false;

@@ -159,7 +159,7 @@ public final class JobsPut {
 
                 // Check if job_task_data row exists for the specified job_id and if it does return 'accepted'
                 // and not 'created'.
-                if (!databaseHelper.canJobBeCompressed(jobId)) {
+                if (!databaseHelper.canJobBeProgressed(jobId)) {
                     return "accept";
                 }
 
