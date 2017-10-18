@@ -146,30 +146,21 @@ public final class JobsPut {
 
                 //  Create job in the database.
                 LOG.info("createOrUpdateJob: Creating job in the database...");
-                databaseHelper.createJob(jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
-
-                // TODO: if the job can be started then proceed as normal, else if a prereq job has not completed store the task data in the JobTaskData table. Store Dependency details in the JobDependency table. return 202 code if job cannot be started because one or more of the job.prereqJobs have not been completed yet
-                // All prerequisite jobs must be complete to start the job
                 if (job.getPrerequisiteJobIds() != null) {
-                    final List<String> prerequisiteJobIds = job.getPrerequisiteJobIds();
-                    for (final String prerequisiteJobId : prerequisiteJobIds) {
-                        // If the prerequisite job has not completed then store the task data in the JobTaskData table
-                        // and store dependency details in the JobDependency table
-                        if (!databaseHelper.isJobComplete(prerequisiteJobId)) {
+                    final WorkerAction jobTask = job.getTask();
+                    databaseHelper.createJobWithDependencies(jobId, job.getName(), job.getDescription(),
+                            job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
+                            getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
+                            job.getPrerequisiteJobIds());
 
-                            final WorkerAction jobTask = job.getTask();
-                            // Store the job task in the JobTaskData table
-                            databaseHelper.createJobTaskData(jobId, jobTask.getTaskClassifier(),
-                                    jobTask.getTaskApiVersion(), getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(),
-                                    jobTask.getTargetPipe());
+                } else {
+                    databaseHelper.createJob(jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
+                }
 
-                            // Store the dependency details of the job into the JobDependency table
-                            storeJobDependencies(jobId, databaseHelper, prerequisiteJobIds);
-
-                            // Return that the job was accepted
-                            return "accept";
-                        }
-                    }
+                // Check if job_task_data row exists for the specified job_id and if it does return 'accepted'
+                // and not 'created'.
+                if (!databaseHelper.canJobBeCompressed(jobId)) {
+                    return "accept";
                 }
 
                 //  Get database helper instance.
@@ -206,15 +197,6 @@ public final class JobsPut {
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());
             throw e;
-        }
-    }
-
-    private static void storeJobDependencies(final String jobId, final DatabaseHelper databaseHelper,
-                                             final List<String> prerequisiteJobIds) throws Exception
-    {
-        // Store prerequisiteJobIds into the JobDependency table
-        for (final String prerequisiteJobId : prerequisiteJobIds) {
-            databaseHelper.createJobDependency(jobId, prerequisiteJobId);
         }
     }
 

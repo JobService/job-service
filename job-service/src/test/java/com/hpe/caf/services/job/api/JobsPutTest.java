@@ -57,7 +57,6 @@ public final class JobsPutTest {
     private QueueServicesFactory mockQueueServicesFactory;
     
     private NewJob validJob;
-
     private HashMap <String,Object> testDataObjectMap;
     private HashMap <String,String> taskMessageParams;
    
@@ -65,6 +64,8 @@ public final class JobsPutTest {
     public void setup() throws Exception {
         //  Mock DatabaseHelper calls.
         doNothing().when(mockDatabaseHelper).createJob(anyString(),anyString(),anyString(),anyString(),anyInt());
+        doNothing().when(mockDatabaseHelper).createJobWithDependencies(anyString(),anyString(),anyString(),anyString(),anyInt(),
+                anyString(),anyInt(), any(), anyString(), anyString(), any());
         doNothing().when(mockDatabaseHelper).deleteJob(anyString());
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(any()).thenReturn(mockDatabaseHelper);
 
@@ -214,6 +215,7 @@ public final class JobsPutTest {
     {
         when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyInt())).thenReturn(false);
         when(mockDatabaseHelper.isJobComplete(anyString())).thenReturn(false);
+        when(mockDatabaseHelper.canJobBeCompressed(anyString())).thenReturn(false);
 
         NewJob job = new NewJob();
         WorkerAction action = new WorkerAction();
@@ -235,9 +237,8 @@ public final class JobsPutTest {
         assertEquals("accept", createOrUpdateJobReturnString);
 
         verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
-        verify(mockDatabaseHelper, times(1)).createJob(anyString(),anyString(),anyString(),anyString(),anyInt());
-        verify(mockDatabaseHelper, times(1)).createJobTaskData(anyString(),anyString(),anyInt(),anyObject(),anyString(),anyString());
-        verify(mockDatabaseHelper, times(2)).createJobDependency(anyString(),anyString());
+        verify(mockDatabaseHelper, times(1)).createJobWithDependencies(anyString(),anyString(),anyString(),anyString(),anyInt(),
+                anyString(),anyInt(), any(), anyString(), anyString(), any());
     }
     
     

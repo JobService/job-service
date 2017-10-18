@@ -242,33 +242,42 @@ public final class DatabaseHelper {
     }
 
     /**
-     * Creates the specified job task data.
+     * Creates the specified job.
      */
-    public void createJobTaskData(final String jobId, final String taskClassifier, final int taskApiVersion,
-                                  final byte[] taskData, final String taskPipe, final String targetPipe) throws Exception
-    {
+    public void createJobWithDependencies(final String jobId, final String name, final String description,
+                                          final String data, final int jobHash, final String taskClassifier,
+                                          final int taskApiVersion, final byte[] taskData, final String taskPipe,
+                                          final String targetPipe, final List<String> prerequisiteJobIds) throws Exception {
 
-        String createJobTaskDataFnCallSQL = "{call create_job_task_data(?,?,?,?,?,?)}";
+        String createJobFnCallSQL = "{call create_job(?,?,?,?,?,?,?,?,?,?,?)}";
 
         try (
                 Connection conn = getConnection();
-                CallableStatement stmt = conn.prepareCall(createJobTaskDataFnCallSQL)
+                CallableStatement stmt = conn.prepareCall(createJobFnCallSQL)
         ) {
-            stmt.setString(1,jobId);
-            stmt.setString(2,taskClassifier);
-            stmt.setInt(3,taskApiVersion);
-            stmt.setBytes(4,taskData);
-            stmt.setString(5,taskPipe);
-            stmt.setString(6,targetPipe);
+            final String[] prerequisiteJobIdStringArray = prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
+            Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar(48)", prerequisiteJobIdStringArray);
 
-            LOG.debug("Calling create_job_task_data() database function...");
+            stmt.setString(1,jobId);
+            stmt.setString(2,name);
+            stmt.setString(3,description);
+            stmt.setString(4,data);
+            stmt.setInt(5,jobHash);
+            stmt.setString(6,taskClassifier);
+            stmt.setInt(7,taskApiVersion);
+            stmt.setBytes(8,taskData);
+            stmt.setString(9,taskPipe);
+            stmt.setString(10,targetPipe);
+            stmt.setArray(11,prerequisiteJobIdSQLArray);
+
+            LOG.debug("Calling create_job() database function...");
             stmt.execute();
         } catch (SQLException se) {
             //  Determine source of SQL exception and throw appropriate error.
             String sqlState = se.getSQLState();
 
             if (sqlState.equals("02000")) {
-                //  A required parameter has not been provided.
+                //  Job id has not been provided.
                 throw new BadRequestException(se.getMessage());
             }
             else {
@@ -361,6 +370,33 @@ public final class DatabaseHelper {
         }
 
         return complete;
+    }
+
+    /**
+     * Returns TRUE if the specified job id can be progressed, otherwise FALSE.
+     */
+    public boolean canJobBeCompressed(final String jobId) throws Exception
+    {
+
+        boolean canBeProgressed = false;
+
+        String rowExistsSQL = "select 1 as taskDataExists from job_task_data where job_id = ?";
+
+        try (
+                Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(rowExistsSQL)
+        ) {
+            stmt.setString(1, jobId);
+
+            //  Execute a query to determine if the specified job is complete or not.
+            LOG.debug("Checking if the job is complete...");
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+                canBeProgressed = rs.getInt("taskDataExists") != 1;
+            }
+        }
+
+        return canBeProgressed;
     }
 
     /**
@@ -476,7 +512,7 @@ public final class DatabaseHelper {
      * Creates a connection to the PostgreSQL database.
      */
     private static Connection getConnection
-            () throws Exception {
+    () throws Exception {
 
         Connection conn;
 
@@ -517,31 +553,5 @@ public final class DatabaseHelper {
 
     }
 
-    public void createJobDependency(final String jobId, final String prerequisiteJobId) throws Exception
-    {
-        String createJobDependencyFnCallSQL = "{call create_job_dependency(?,?)}";
-
-        try (
-                Connection conn = getConnection();
-                CallableStatement stmt = conn.prepareCall(createJobDependencyFnCallSQL)
-        ) {
-            stmt.setString(1,jobId);
-            stmt.setString(2,prerequisiteJobId);
-
-            LOG.debug("Calling create_job_dependency() database function...");
-            stmt.execute();
-        } catch (SQLException se) {
-            //  Determine source of SQL exception and throw appropriate error.
-            String sqlState = se.getSQLState();
-
-            if (sqlState.equals("02000")) {
-                //  A required parameter has not been provided.
-                throw new BadRequestException(se.getMessage());
-            }
-            else {
-                throw se;
-            }
-        }
-    }
 }
 
