@@ -47,6 +47,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -155,6 +160,100 @@ public class JobServiceEndToEndIT {
             // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
             TestResult result = context.getTestResult();
             Assert.assertTrue(result.isSuccess());
+        }
+    }
+
+    @Test
+    public void testJobWithPrereqJobsWhichHaveNotCompleted() throws Exception
+    {
+        final String job1Id = generateJobId();
+
+        JobServiceEndToEndITExpectation job1Expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        job1Id,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        // Add a Prerequisite job 1 that should be completed
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            getTimer(context);
+            queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
+                    job1Expectation));
+
+            createJob(job1Id, true);
+
+            // Waits for the final result message to appear on the Example worker's output queue.
+            // When we read it from this queue it should have been processed fully and its status reported to the Job
+            // Database as Completed.
+            context.getTestResult();
+        }
+
+        final String job3Id = generateJobId();
+
+        // Add job that has prerequisite job 1 (completed) and job 2 (unknown)
+        final String job2Id = generateJobId();
+        createJobWithPrerequisites(job3Id, true, job1Id, job2Id);
+
+        try (final Connection dbConnection = getDbConnection()) {
+
+            //  Retrieve details of the job's task data from the job_task_data table
+            PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?");
+            st.setString(1, job3Id);
+            ResultSet rs = st.executeQuery();
+
+            // Validate content of the job's row from the job_task_data table
+            rs.next();
+            Assert.assertEquals(rs.getString(1), job3Id);
+            Assert.assertEquals(rs.getString(2), BatchWorkerConstants.WORKER_NAME);
+            Assert.assertEquals(rs.getInt(3), BatchWorkerConstants.WORKER_API_VERSION);
+            Assert.assertTrue(rs.getBytes(4).length > 0);
+            Assert.assertEquals(rs.getString(5), batchWorkerMessageInQueue);
+            Assert.assertEquals(rs.getString(6), exampleWorkerMessageOutQueue);
+            st.clearBatch();
+            rs.close();
+
+            //  Retrieve details of the job's dependencies the job_dependency table
+            st = dbConnection.prepareStatement("SELECT * FROM job_dependency WHERE job_id = ?");
+            st.setString(1, job3Id);
+            rs = st.executeQuery();
+
+            // Get and validate content of the job's rows from the job_dependency table
+            rs.next();
+            Assert.assertEquals(rs.getString(1), job3Id);
+            Assert.assertEquals(rs.getString(2), job1Id);
+            rs.next();
+            Assert.assertEquals(rs.getString(1), job3Id);
+            Assert.assertEquals(rs.getString(2), job2Id);
+            rs.close();
+            st.close();
+        }
+    }
+
+    public static Connection getDbConnection() throws SQLException
+    {
+        final String databaseUrl = System.getProperty("CAF_DATABASE_URL", System.getenv("CAF_DATABASE_URL"));
+        final String dbUser = System.getProperty("CAF_DATABASE_USERNAME", System.getenv("CAF_DATABASE_USERNAME"));
+        final String dbPass = System.getProperty("CAF_DATABASE_PASSWORD", System.getenv("CAF_DATABASE_PASSWORD"));
+        try {
+            final Connection conn;
+            final Properties myProp = new Properties();
+            myProp.put("user", dbUser);
+            myProp.put("password", dbPass);
+            LOG.info("Connecting to database " + databaseUrl + " with username " + dbUser + " and password " + dbPass);
+            conn = DriverManager.getConnection(databaseUrl, myProp);
+            LOG.info("Connected to database");
+            return conn;
+        } catch (final Exception e) {
+            LOG.error("ERROR connecting to database " + databaseUrl + " with username " + dbUser + " and password " + dbPass);
+            throw e;
         }
     }
 
@@ -411,6 +510,13 @@ public class JobServiceEndToEndIT {
      */
     private void createJob(final String jobId, final boolean useTaskDataObject) throws Exception {
         NewJob newJob = constructNewJob(jobId, useTaskDataObject);
+        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+    }
+
+    private void createJobWithPrerequisites(final String jobId, final boolean useTaskDataObject,
+                                            final String... prerequisiteJobs) throws Exception {
+        NewJob newJob = constructNewJob(jobId, useTaskDataObject);
+        newJob.setPrerequisiteJobIds(Arrays.asList(prerequisiteJobs));
         jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
     }
 
