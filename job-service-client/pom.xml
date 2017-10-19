@@ -30,7 +30,7 @@
     <parent>
         <groupId>com.github.cafapi</groupId>
         <artifactId>swagger-restapi-client-base</artifactId>
-        <version>1.9.0-197</version>
+        <version>1.14.0-1</version>
         <relativePath/>
     </parent>
     
