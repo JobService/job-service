@@ -68,7 +68,6 @@
                                 <artifactItem>
                                     <groupId>com.github.cafapi</groupId>
                                     <artifactId>swagger-ui</artifactId>
-									<version>1.0.0</version>
                                     <outputDirectory>${project.build.directory}/swagger-ui</outputDirectory>
                                     <excludes>**/META-INF/**</excludes>
                                 </artifactItem>

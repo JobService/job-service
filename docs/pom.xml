@@ -35,6 +35,20 @@
         <maven.install.skip>true</maven.install.skip>
         <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
     </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-contract</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
 
     <build>
         <finalName>${project.artifactId}</finalName>
@@ -84,6 +98,25 @@
                                                 </excludes>
                                             </fileSet>
                                         </fileSets>
+                                        <dependencySets>
+                                            <dependencySet>
+                                                <outputDirectory>pages/en-us/contract</outputDirectory>
+                                                <includes>
+                                                    <include>com.github.jobservice:job-service-contract</include>
+                                                </includes>
+                                                <useStrictFiltering>true</useStrictFiltering>
+                                                <useProjectArtifact>false</useProjectArtifact>
+                                                <unpack>true</unpack>
+                                                <unpackOptions>
+                                                    <excludes>
+                                                        <exclude>META-INF/**</exclude>
+                                                    </excludes>
+                                                    <lineEnding>lf</lineEnding>
+                                                    <useDefaultExcludes>false</useDefaultExcludes>
+                                                </unpackOptions>
+                                                <useTransitiveDependencies>false</useTransitiveDependencies>
+                                            </dependencySet>
+                                        </dependencySets>
                                     </inline>
                                 </assembly>
                                 <labels>
