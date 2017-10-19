@@ -146,7 +146,7 @@ public final class JobsPut {
 
                 //  Create job in the database.
                 LOG.info("createOrUpdateJob: Creating job in the database...");
-                if (job.getPrerequisiteJobIds() != null) {
+                if (job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) {
                     final WorkerAction jobTask = job.getTask();
                     databaseHelper.createJobWithDependencies(jobId, job.getName(), job.getDescription(),
                             job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),

@@ -256,7 +256,7 @@ public final class DatabaseHelper {
                 CallableStatement stmt = conn.prepareCall(createJobFnCallSQL)
         ) {
             final String[] prerequisiteJobIdStringArray = prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
-            Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar(48)", prerequisiteJobIdStringArray);
+            Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
 
             stmt.setString(1,jobId);
             stmt.setString(2,name);
@@ -378,7 +378,7 @@ public final class DatabaseHelper {
     public boolean canJobBeProgressed(final String jobId) throws Exception
     {
 
-        boolean canBeProgressed = false;
+        boolean canBeProgressed = true;
 
         String rowExistsSQL = "select 1 as taskDataExists from job_task_data where job_id = ?";
 
@@ -388,8 +388,7 @@ public final class DatabaseHelper {
         ) {
             stmt.setString(1, jobId);
 
-            //  Execute a query to determine if the specified job is complete or not.
-            LOG.debug("Checking if the job is complete...");
+            //  Execute a query to determine if the specified job can be progressed.
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
                 canBeProgressed = rs.getInt("taskDataExists") != 1;
