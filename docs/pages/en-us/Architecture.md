@@ -1,7 +1,6 @@
 ---
 layout: default
 title: Architecture
-last_updated: Last modified by Conal Smith on April 10, 2017
 
 banner:
     icon: 'assets/img/fork-lift.png'
@@ -100,6 +99,8 @@ When the job tracking worker receives a success message to be proxied (that is, 
 
 The job tracking worker recognizes failure and retry messages, which are being proxied, and updates the job database accordingly.
 
+The job tracking worker can also automatically forward on dependent jobs for execution.  A dependent job is a job which must wait until a specific job or list of jobs have completed before it, itself can be executed.  As the job tracking worker monitors a job's progress, should a job completed, the job tracking worker will receive a list of jobs which can now be executed as the job(s) which these jobs were dependent upon have now Completed.
+
 ## Job Database
 
 Job information is stored in a **PostgreSQL** database.
@@ -110,7 +111,7 @@ This table stores information on the jobs that are requested. Entries are added 
 
 | **Column**     | **Data Type** | **Nullable?** | **Primary Key?** |
 |----------------|---------------|---------------|------------------|
-| JobId          | String        | No            | Yes              |
+| Job_Id         | String        | No            | Yes              |
 | Name           | String        | Yes           |                  |
 | Description    | String        | Yes           |                  |
 | Data           | String        | Yes           |                  |
@@ -125,3 +126,26 @@ This table stores information on the jobs that are requested. Entries are added 
 The task tables have the same structure as the job table. Each job has one task table, which is created when the first subtask is reported, and deleted when the job completes successfully. If the job fails, the table is retained for a period of time for examination.
 
 When a task is marked complete, the system checks whether the parent task (or the job if it is the top level) can also be marked complete.
+
+### Job Dependency Table
+
+This table stories Ids of dependent jobs.  Jobs which must be completed before the job in question can be executed.
+
+| **Column**        | **Data Type** | **Nullable?** | **Primary Key?** |
+|-------------------|---------------|---------------|------------------|
+| Job_Id            | String        | No            | Yes              |
+| Dependent_Job_Id  | String        | No            |                  |
+
+### Job Task Data
+
+This table stores information on jobs which have dependent jobs and must waiting for execution.  The table contains enough information for the job tracking worker to forward on the job once it's dependent jobs have all completed.
+
+| **Column**        | **Data Type** | **Nullable?** | **Primary Key?** |
+|-------------------|---------------|---------------|------------------|
+| Job_Id            | String        | No            | Yes              |
+| Task_Classifier   | String        | No            |                  |
+| Task_Api_Version  | String        | No            |                  |
+| Task_Data         | String        | No            |                  |
+| Task_Pipe         | String        | No            |                  |
+| Target_Pipe       | String        | No            |                  |
+
