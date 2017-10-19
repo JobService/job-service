@@ -32,7 +32,7 @@
                 <column name="task_api_version" type="INT">
                     <constraints nullable="false"/>
                 </column>
-                <column name="task_data" type="TEXT">
+                <column name="task_data" type="BYTEA">
                     <constraints nullable="false"/>
                 </column>
                 <column name="task_pipe" type="VARCHAR(255)">
