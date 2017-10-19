@@ -39,7 +39,7 @@ The Job Service is particularly beneficial to the batch worker because it monito
 ### Dependent Jobs
 The Job Service has the ability to execute jobs in an order defined by a job having a dependency on another job.  The Job Service will not execute a job until all the jobs it is dependent upon have completed.  Once all dependent jobs have completed the Job Service will automatically execute the job which was previously waiting upon dependent jobs.
 
-#### Example Usages
+### Example Usages
 The combination of the Job Service and the batch worker is used in a number of document processing scenarios. Here are some examples of this:
 
 - Document Reprocessing: A set of documents that have already been ingested is put through the ingestion process again. For example, you might re-ingest because of some updates to the process).
