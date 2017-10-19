@@ -34,6 +34,7 @@ The pipes represent asynchronous message queues on RabbitMQ.
 9. The job tracking worker makes a decision:
  - If the `to` field is the same as the `trackTo` field, the task is marked complete in the database and sent to the target pipe without tracking information.
  - Otherwise, the task is sent to the target pipe with tracking information and processed by the worker consuming from the target pipe.
+ - If a job completes and has associated dependent jobs, the job tracking worker receives a list of jobs now available for execution. The job tracking worker forwards these jobs to the target pipe.
 10. A worker consumes messages from the target pipe and processes the task. In this case, the example worker consumes from worker-example-in.
 11. If tracking information is present, tasks are re-routed to the tracking pipe. Otherwise, the task has completed and the response is sent to the output queue, in this case, worker-example-out.
 
