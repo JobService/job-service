@@ -99,7 +99,7 @@ When the job tracking worker receives a success message to be proxied (that is, 
 
 The job tracking worker recognizes failure and retry messages, which are being proxied, and updates the job database accordingly.
 
-The job tracking worker can also automatically forward on dependent jobs for execution.  A dependent job is a job which must wait until a specific job or list of jobs have completed before it, itself can be executed.  As the job tracking worker monitors a job's progress, should a job complete, the job tracking worker will receive a list of jobs which can now be executed as the job(s) which these jobs were dependent upon have now Completed.
+The job tracking worker can also automatically forward on dependent jobs for execution.  A dependent job is a job which must wait until a specific job or list of jobs have completed before it can be executed.  The job tracking worker monitors a job's progress, when a job completes, the job tracking worker will receive a list of jobs which can now be executed as the job(s) which these jobs were dependent upon have now completed.
 
 ## Job Database
 
@@ -129,7 +129,7 @@ When a task is marked complete, the system checks whether the parent task (or th
 
 ### Job Dependency Table
 
-This table stories Ids of dependent jobs.  Jobs which must be completed before the job in question can be executed.
+This table stores Ids of dependent jobs i.e. jobs which must be completed before the job in question can be executed.
 
 | **Column**        | **Data Type** | **Nullable?** | **Primary Key?** |
 |-------------------|---------------|---------------|------------------|
@@ -138,7 +138,7 @@ This table stories Ids of dependent jobs.  Jobs which must be completed before t
 
 ### Job Task Data
 
-This table stores information on jobs which have dependent jobs and must waiting for execution.  The table contains enough information for the job tracking worker to forward on the job once it's dependent jobs have all completed.
+This table stores information on jobs which have dependent jobs and must wait for execution.  The table contains enough information for the job tracking worker to forward on the job, once it's dependent jobs have all completed.
 
 | **Column**        | **Data Type** | **Nullable?** | **Primary Key?** |
 |-------------------|---------------|---------------|------------------|
