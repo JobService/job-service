@@ -144,8 +144,8 @@ This table stores information on jobs which have dependent jobs and must wait fo
 |-------------------|---------------|---------------|------------------|
 | Job_Id            | String        | No            | Yes              |
 | Task_Classifier   | String        | No            |                  |
-| Task_Api_Version  | String        | No            |                  |
-| Task_Data         | String        | No            |                  |
+| Task_Api_Version  | Integer       | No            |                  |
+| Task_Data         | ByteA         | No            |                  |
 | Task_Pipe         | String        | No            |                  |
 | Target_Pipe       | String        | No            |                  |
 
