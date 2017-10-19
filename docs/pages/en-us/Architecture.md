@@ -99,7 +99,7 @@ When the job tracking worker receives a success message to be proxied (that is, 
 
 The job tracking worker recognizes failure and retry messages, which are being proxied, and updates the job database accordingly.
 
-The job tracking worker can also automatically forward on dependent jobs for execution.  A dependent job is a job which must wait until a specific job or list of jobs have completed before it can be executed.  The job tracking worker monitors a job's progress, when a job completes, the job tracking worker will receive a list of jobs which can now be executed as the job(s) which these jobs were dependent upon have now completed.
+The job tracking worker can also automatically forward on dependent jobs for execution.  A dependent job is a job which must wait until a specific job or list of jobs have completed before it can be executed.  The job tracking worker monitors a job's progress, when a job completes, the job tracking worker will receive a list of jobs which can now be executed.
 
 ## Job Database
 
@@ -134,7 +134,7 @@ This table stores Ids of dependent jobs i.e. jobs which must be completed before
 | **Column**        | **Data Type** | **Nullable?** | **Primary Key?** |
 |-------------------|---------------|---------------|------------------|
 | Job_Id            | String        | No            | Yes              |
-| Dependent_Job_Id  | String        | No            |                  |
+| Dependent_Job_Id  | String        | No            | Yes              |
 
 ### Job Task Data
 
