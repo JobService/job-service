@@ -21,7 +21,7 @@
  */
 DROP FUNCTION IF EXISTS report_progress(varchar(58),job_status);
 CREATE FUNCTION report_progress(in_task_id varchar(58), in_status job_status)
-  RETURNS TABLE (job_id VARCHAR(48), task_classifier VARCHAR(255), task_api_version INT, task_data TEXT,
+  RETURNS TABLE (job_id VARCHAR(48), task_classifier VARCHAR(255), task_api_version INT, task_data BYTEA,
     task_pipe VARCHAR(255), target_pipe VARCHAR(255)) AS $$
 #variable_conflict use_column  
 DECLARE
