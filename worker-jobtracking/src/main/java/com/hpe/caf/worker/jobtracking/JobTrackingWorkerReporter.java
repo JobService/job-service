@@ -26,8 +26,11 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.UUID;
 
 
 /**
@@ -98,14 +101,13 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * Reports the specified job task as complete.
      *
      * @param jobTaskId identifies the completed job task
+     * @return JobTrackingWorkerDependency list containing any dependent jobs that are now available for processing
      * @throws JobReportingException
      */
     @Override
-    public ResultSet reportJobTaskComplete(final String jobTaskId) throws JobReportingException {
+    public List<JobTrackingWorkerDependency> reportJobTaskComplete(final String jobTaskId) throws JobReportingException {
         try (Connection conn = getConnection()) {
-            ResultSet resultSet = report(conn, jobTaskId, JobStatus.Completed);
-            // TODO (Greg) return the ResultSet and deal with the returned results
-            return resultSet;
+            return report(conn, jobTaskId, JobStatus.Completed);
         } catch (SQLException se) {
             throw new JobReportingException(MessageFormat.format("Failed to report the completion of job task {0}. {1}", jobTaskId, se.getMessage()), se);
         }
@@ -194,18 +196,32 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * @param connection PostgreSQL connection to the Job Database
      * @param jobTaskId job task to be reported to the Job Database
      * @param status status of the job task
+     * @return JobTrackingWorkerDependency list containing any dependent jobs that are now available for processing
      * @throws SQLException
      */
-    private ResultSet report(Connection connection, final String jobTaskId, final JobStatus status) throws SQLException {
+    private List<JobTrackingWorkerDependency> report(Connection connection, final String jobTaskId, final JobStatus status) throws SQLException {
         String reportProgressFnCallSQL = "{call report_progress(?,?)}";
         try (CallableStatement stmt = connection.prepareCall(reportProgressFnCallSQL)) {
             stmt.setString(1, jobTaskId);
             stmt.setObject(2, status, Types.OTHER);
             LOG.info("Reporting progress of job task {} with status {} ...", jobTaskId, status.name());
             stmt.execute();
-            // TODO (Greg) get a ResultSet from this DB call
-            // reportJobTaskComplete() will need to deal with the returned ResultSet
-            return stmt.getResultSet();
+
+            List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<JobTrackingWorkerDependency>();
+            while (stmt.getResultSet() != null && stmt.getResultSet().next()) {
+
+                JobTrackingWorkerDependency dependency = new JobTrackingWorkerDependency();
+                dependency.setJobId(stmt.getResultSet().getString(1));
+                dependency.setTaskClassifier(stmt.getResultSet().getString(2));
+                dependency.setTaskApiVersion(stmt.getResultSet().getInt(3));
+                dependency.setTaskData(stmt.getResultSet().getBytes(4));
+                dependency.setTaskPipe(stmt.getResultSet().getString(5));
+                dependency.setTargetPipe(stmt.getResultSet().getString(6));
+
+                jobDependencyList.add(dependency);
+            }
+
+            return jobDependencyList;
         }
     }
 

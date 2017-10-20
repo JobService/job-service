@@ -29,7 +29,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -123,15 +125,16 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
      */
     @Override
     public void determineForwardingAction(TaskMessage proxiedTaskMessage, String queueMessageId, Map<String, Object> headers, WorkerCallback callback) {
-        
-        ResultSet resultSet = reportProxiedTask(proxiedTaskMessage, headers);
 
-        // Forward any dependent jobs which are now available for processing
-        try {
-            forwardAvailableJobs(resultSet, callback, proxiedTaskMessage.getTracking().getTrackingPipe());
-        } catch (Exception e) {
-            LOG.error("Failed to create dependent jobs.");
-            throw new RuntimeException("Failed to create dependent jobs.", e);
+        List<JobTrackingWorkerDependency> jobDependencyList = reportProxiedTask(proxiedTaskMessage, headers);
+        if (jobDependencyList != null && jobDependencyList.size() > 0) {
+            // Forward any dependent jobs which are now available for processing
+            try {
+                forwardAvailableJobs(jobDependencyList, callback, proxiedTaskMessage.getTracking().getTrackingPipe());
+            } catch (Exception e) {
+                LOG.error("Failed to create dependent jobs.");
+                throw new RuntimeException("Failed to create dependent jobs.", e);
+            }
         }
 
         LOG.debug("Forwarding task {}", proxiedTaskMessage.getTaskId());
@@ -143,11 +146,11 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
      *
      * @param proxiedTaskMessage the task to be reported
      * @param headers task headers such as if the task was rejected
-     * @return ResultSet containing any dependent jobs that are now available for processing else
+     * @return List<JobTrackingWorkerDependency> containing any dependent jobs that are now available for processing else
      *         returns null
      */
-    private ResultSet reportProxiedTask(final TaskMessage proxiedTaskMessage, Map<String, Object> headers) {
-        ResultSet resultSet = null;
+    private List<JobTrackingWorkerDependency> reportProxiedTask(final TaskMessage proxiedTaskMessage, Map<String, Object> headers) {
+        List<JobTrackingWorkerDependency> jobDependencyList = null;
         try {
             TrackingInfo tracking = proxiedTaskMessage.getTracking();
             if (tracking == null) {
@@ -172,13 +175,13 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
             if (taskStatus == TaskStatus.NEW_TASK || taskStatus == TaskStatus.RESULT_SUCCESS || taskStatus == TaskStatus.RESULT_FAILURE) {
                 String toPipe = proxiedTaskMessage.getTo();
                 if (trackToPipe.equalsIgnoreCase(toPipe)) {
-                    // Now returns a ResultSet.  This ResultSet may or may not contain a list of dependent job info.
-                    resultSet = reporter.reportJobTaskComplete(jobTaskId);
+                    // Now returns a JobTrackingWorkerDependency[].  This ResultSet may or may not contain a list of dependent job info.
+                    jobDependencyList = reporter.reportJobTaskComplete(jobTaskId);
                 } else {
                     //TODO - FUTURE: supply an accurate estimatedPercentageCompleted
                     reporter.reportJobTaskProgress(jobTaskId, 0);
                 }
-                return resultSet;
+                return jobDependencyList;
             }
 
             if (taskStatus == TaskStatus.RESULT_EXCEPTION || taskStatus == TaskStatus.INVALID_TASK) {
@@ -260,59 +263,42 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
     /**
      *  Start the list of jobs that are now available to be run.
      *
-     * @param resultSet containing any dependent jobs that are now available for processing
+     * @param jobDependencyList containing any dependent jobs that are now available for processing
      * @param callback worker callback to enact the forwarding action determined by the worker
      * @param trackingPipe target pipe where dependent jobs should be forwarded to.
      * @throws Exception
      */
-    private void forwardAvailableJobs(ResultSet resultSet, WorkerCallback callback, String trackingPipe) throws Exception
+    private void forwardAvailableJobs(final List<JobTrackingWorkerDependency> jobDependencyList, final WorkerCallback callback, final String trackingPipe) throws Exception
     {
         // Walk the resultSet placing each returned job on the Rabbit Queue
         try {
             //	Set up string for statusCheckUrl
-            String statusCheckUrlPrefix = System.getenv("CAF_WEBSERVICE_URL") +"/jobs/";
+            final String statusCheckUrlPrefix = System.getenv("CAF_WEBSERVICE_URL") +"/jobs/";
 
-            while (resultSet != null && resultSet.next()) {
-                // Retrieve the Json Text and other necessary data which represents the Job to be
-                // place on the Rabbit Queue
-                // Columns
-                // 1. jtd.job_id
-                // 2. jtd.task_classifier
-                // 3. jtd.task_api_version
-                // 4. jtd.task_data
-                // 5. jtd.task_data_encoding
-                // 6. jtd.task_pipe
-                // 7. jtd.target_pipe
-
+            for (JobTrackingWorkerDependency jobDependency : jobDependencyList) {
                 //  Generate a random task id.
-                String taskId = UUID.randomUUID().toString();
+                final String taskId = UUID.randomUUID().toString();
 
-                String jobId = resultSet.getString(0);
-                String taskClassifier = resultSet.getString(1);
-                int taskApiVersion = resultSet.getInt(2);
-                byte[] taskData = resultSet.getBytes(3);
-                String taskPipe = resultSet.getString(5);
-                String targetPipe = resultSet.getString(6);
-
-                String statusCheckUrl = statusCheckUrlPrefix + URLEncoder.encode(jobId, "UTF-8") +"/isActive";
+                final String statusCheckUrl = statusCheckUrlPrefix + URLEncoder.encode(jobDependency.getJobId(), "UTF-8") +"/isActive";
 
                 //  Construct the task message.
-                final TrackingInfo trackingInfo = new TrackingInfo(jobId, calculateStatusCheckDate(System.getenv("CAF_STATUS_CHECK_TIME")),
-                        statusCheckUrl, trackingPipe, targetPipe);
+                final TrackingInfo trackingInfo = new TrackingInfo(jobDependency.getJobId(), calculateStatusCheckDate(System.getenv("CAF_STATUS_CHECK_TIME")),
+                        statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
 
                 final TaskMessage taskMessage = new TaskMessage(
                         taskId,
-                        taskClassifier,
-                        taskApiVersion,
-                        taskData,
+                        jobDependency.getTaskClassifier(),
+                        jobDependency.getTaskApiVersion(),
+                        jobDependency.getTaskData(),
                         TaskStatus.NEW_TASK,
-                        null,
-                        taskPipe,
+                        Collections.<String, byte[]>emptyMap(),
+                        jobDependency.getTaskPipe(),
                         trackingInfo);
 
                 callback.send("-1", taskMessage);
+
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             LOG.error("Error retrieving Dependent Job Info from the Job Service Database {}", e);
         }
     }
