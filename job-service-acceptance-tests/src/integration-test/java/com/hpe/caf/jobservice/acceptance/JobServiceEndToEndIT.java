@@ -74,7 +74,7 @@ public class JobServiceEndToEndIT {
     private static ConfigurationSource configurationSource;
     private static RabbitWorkerQueueConfiguration rabbitConfiguration;
     private static JobsApi jobsApi;
-    private static final int numTestItemsToGenerate = 2;   // CAF-3677: This cannot be set any higher than 2 otherwise the job will not reach completion
+    private static int numTestItemsToGenerate = 50;   // CAF-3677: This cannot be set any higher than 2 otherwise the job will not reach completion. Change to final variable when fixed.
 
     private List<String> testItemAssetIds;
 
@@ -125,6 +125,7 @@ public class JobServiceEndToEndIT {
 
     @BeforeMethod
     public void testSetup() throws Exception {
+        numTestItemsToGenerate = 50;        // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();
     }
 
@@ -166,6 +167,8 @@ public class JobServiceEndToEndIT {
     @Test
     public void testJobWithPrereqJobsWhichHaveCompleted() throws Exception
     {
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
         final String job1Id = generateJobId();
 
         JobServiceEndToEndITExpectation job1Expectation =
@@ -216,7 +219,7 @@ public class JobServiceEndToEndIT {
             createJob(job2Id, true);
         }
 
-        Thread.sleep(1000); // Sleep for a second to allow previous jobs to complete
+        Thread.sleep(10000); // Sleep for a second to allow previous jobs to complete
 
         final String job3Id = generateJobId();
         // Add job that has prerequisite job 1 (completed) and job 2 (completed)
