@@ -346,33 +346,6 @@ public final class DatabaseHelper {
     }
 
     /**
-     * Returns TRUE if the specified job id is complete, otherwise FALSE.
-     */
-    public boolean isJobComplete(final String jobId) throws Exception
-    {
-
-        boolean complete = false;
-
-        String rowExistsSQL = "select 1 as isComplete from job where job_id = ? and status = 'Completed'";
-
-        try (
-                Connection conn = getConnection();
-                PreparedStatement stmt = conn.prepareStatement(rowExistsSQL)
-        ) {
-            stmt.setString(1, jobId);
-
-            //  Execute a query to determine if the specified job is complete or not.
-            LOG.debug("Checking if the job is complete...");
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
-                complete = rs.getInt("isComplete") > 0;
-            }
-        }
-
-        return complete;
-    }
-
-    /**
      * Returns TRUE if the specified job id can be progressed, otherwise FALSE.
      */
     public boolean canJobBeProgressed(final String jobId) throws Exception

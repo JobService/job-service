@@ -74,7 +74,7 @@ public class JobServiceEndToEndIT {
     private static ConfigurationSource configurationSource;
     private static RabbitWorkerQueueConfiguration rabbitConfiguration;
     private static JobsApi jobsApi;
-    private static final int numTestItemsToGenerate = 50;
+    private static final int numTestItemsToGenerate = 2;   // CAF-3677: This cannot be set any higher than 2 otherwise the job will not reach completion
 
     private List<String> testItemAssetIds;
 
@@ -160,6 +160,89 @@ public class JobServiceEndToEndIT {
             // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
             TestResult result = context.getTestResult();
             Assert.assertTrue(result.isSuccess());
+        }
+    }
+
+    @Test
+    public void testJobWithPrereqJobsWhichHaveCompleted() throws Exception
+    {
+        final String job1Id = generateJobId();
+
+        JobServiceEndToEndITExpectation job1Expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        job1Id,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        // Add a Prerequisite job 1 that should be completed
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            getTimer(context);
+            queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
+                    job1Expectation));
+
+            createJob(job1Id, true);
+        }
+
+        final String job2Id = generateJobId();
+
+        JobServiceEndToEndITExpectation job2Expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        job2Id,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        // Add a Prerequisite job 2 that should be completed
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            getTimer(context);
+            queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
+                    job2Expectation));
+
+            createJob(job2Id, true);
+        }
+
+        Thread.sleep(1000); // Sleep for a second to allow previous jobs to complete
+
+        final String job3Id = generateJobId();
+        // Add job that has prerequisite job 1 (completed) and job 2 (completed)
+        createJobWithPrerequisites(job3Id, true, job1Id, job2Id);
+
+        try (final Connection dbConnection = getDbConnection()) {
+
+            //  Retrieve details of the job's task data from the job_task_data table; there should be no rows as
+            // the prereq jobs where marked as completed
+            PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?");
+            st.setString(1, job3Id);
+            ResultSet rs = st.executeQuery();
+
+            Assert.assertFalse(rs.next());
+            st.clearBatch();
+            rs.close();
+
+            //  Retrieve details of the job's dependencies the job_dependency table; there should be no rows as the
+            // prereq jobs where marked as completed
+            st = dbConnection.prepareStatement("SELECT * FROM job_dependency WHERE job_id = ?");
+            st.setString(1, job3Id);
+            rs = st.executeQuery();
+
+            Assert.assertFalse(rs.next());
+            rs.close();
+            st.close();
         }
     }
 

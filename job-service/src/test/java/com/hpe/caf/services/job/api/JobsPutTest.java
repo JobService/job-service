@@ -216,7 +216,6 @@ public final class JobsPutTest {
     public void testJobCreationWithPrerequisites() throws Exception
     {
         when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyInt())).thenReturn(false);
-        when(mockDatabaseHelper.isJobComplete(anyString())).thenReturn(false);
         when(mockDatabaseHelper.canJobBeProgressed(anyString())).thenReturn(false);
 
         NewJob job = new NewJob();
