@@ -21,8 +21,8 @@
  */
 DROP FUNCTION IF EXISTS report_progress(varchar(58),job_status);
 CREATE FUNCTION report_progress(in_task_id varchar(58), in_status job_status)
-  RETURNS TABLE (job_id VARCHAR(48), task_classifier VARCHAR(255), task_api_version INT, task_data TEXT,
-  task_data_encoding VARCHAR(32), task_pipe VARCHAR(255), target_pipe VARCHAR(255)) AS $$
+  RETURNS TABLE (job_id VARCHAR(48), task_classifier VARCHAR(255), task_api_version INT, task_data BYTEA,
+  task_pipe VARCHAR(255), target_pipe VARCHAR(255)) AS $$
 #variable_conflict use_column  
 DECLARE
   v_job_id VARCHAR(48);
@@ -62,7 +62,7 @@ BEGIN
 
       -- Get list of jobs that can now be run.
       RETURN QUERY
-      SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_data_encoding, jtd.task_pipe, jtd.target_pipe
+      SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe
       FROM job_task_data jtd
       INNER JOIN job_dependency jd
         ON jd.job_id = jtd.job_id

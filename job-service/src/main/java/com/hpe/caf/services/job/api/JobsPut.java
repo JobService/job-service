@@ -16,20 +16,25 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.api.Codec;
+import com.hpe.caf.api.CodecException;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
+import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.util.ModuleLoader;
+import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public final class JobsPut {
@@ -138,9 +143,25 @@ public final class JobsPut {
             if (!rowExists){
                 targetOperation = "create";
 
+
                 //  Create job in the database.
                 LOG.info("createOrUpdateJob: Creating job in the database...");
-                databaseHelper.createJob(jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
+                if (job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) {
+                    final WorkerAction jobTask = job.getTask();
+                    databaseHelper.createJobWithDependencies(jobId, job.getName(), job.getDescription(),
+                            job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
+                            getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
+                            job.getPrerequisiteJobIds());
+
+                } else {
+                    databaseHelper.createJob(jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
+                }
+
+                // Check if job_task_data row exists for the specified job_id and if it does return 'accepted'
+                // and not 'created'.
+                if (!databaseHelper.canJobBeProgressed(jobId)) {
+                    return "accept";
+                }
 
                 //  Get database helper instance.
                 try {
@@ -177,6 +198,34 @@ public final class JobsPut {
             LOG.error("Error - '{}'", e.toString());
             throw e;
         }
+    }
+
+    private static byte[] getTaskDataBytes(final WorkerAction workerAction, final Codec codec)
+    {
+        final Object taskDataObj = workerAction.getTaskData();
+        final byte[] taskDataBytes;
+        if (taskDataObj instanceof String) {
+            final String taskDataStr = (String) taskDataObj;
+            final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
+
+            if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
+                taskDataBytes = taskDataStr.getBytes(StandardCharsets.UTF_8);
+            } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
+                taskDataBytes = Base64.decodeBase64(taskDataStr);
+            } else {
+                throw new RuntimeException("Unknown taskDataEncoding");
+            }
+        } else if (taskDataObj instanceof Map<?, ?>) {
+            try {
+                taskDataBytes = codec.serialise(taskDataObj);
+            } catch (CodecException e) {
+                throw new RuntimeException("Failed to serialise TaskData", e);
+            }
+        } else {
+            throw new RuntimeException("The taskData is an unexpected type");
+        }
+
+        return taskDataBytes;
     }
 
 }
