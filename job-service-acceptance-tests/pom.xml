@@ -155,6 +155,12 @@
             <version>1.2</version>
         </dependency>
         <!-- End Logging -->
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 
@@ -200,6 +206,9 @@
                         <CAF_JOB_SERVICE_CALLER_IMAGE>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</CAF_JOB_SERVICE_CALLER_IMAGE>
                         <CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>http://job-service:8080</CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>
                         <CAF_INTEGRATIONTESTS_FS_PATH>${caf.integrationtests.fs.path}</CAF_INTEGRATIONTESTS_FS_PATH>
+                        <CAF_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${job.database.name}</CAF_DATABASE_URL>
+                        <CAF_DATABASE_USERNAME>${job.database.username}</CAF_DATABASE_USERNAME>
+                        <CAF_DATABASE_PASSWORD>${job.database.password}</CAF_DATABASE_PASSWORD>
                     </environmentVariables>
                 </configuration>
             </plugin>

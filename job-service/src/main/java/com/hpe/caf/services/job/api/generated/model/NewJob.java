@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-03-03T15:07:30.523Z")
@@ -29,6 +31,7 @@ public class NewJob   {
     private String description = null;
     private String externalData = null;
     private WorkerAction task = null;
+    private List<String> prerequisiteJobIds = null;
 
 
     /**
@@ -105,6 +108,32 @@ public class NewJob   {
         this.task = task;
     }
 
+    /**
+     * List of job identifiers that must be complete prior to the start of this job.
+     * @return prerequisiteJobIds
+     **/
+    public NewJob prerequisiteJobIds(List<String> prerequisiteJobIds) {
+        this.prerequisiteJobIds = prerequisiteJobIds;
+        return this;
+    }
+
+    public NewJob addPrerequisiteJobIdsItem(String prerequisiteJobIdsItem) {
+        if (this.prerequisiteJobIds == null) {
+            this.prerequisiteJobIds = new ArrayList<String>();
+        }
+        this.prerequisiteJobIds.add(prerequisiteJobIdsItem);
+        return this;
+    }
+
+    @JsonProperty("prerequisiteJobIds")
+    @ApiModelProperty(value = "List of job identifiers that must be complete prior to the start of this job.")
+    public List<String> getPrerequisiteJobIds() {
+        return prerequisiteJobIds;
+    }
+
+    public void setPrerequisiteJobIds(List<String> prerequisiteJobIds) {
+        this.prerequisiteJobIds = prerequisiteJobIds;
+    }
 
 
     @Override
@@ -119,12 +148,13 @@ public class NewJob   {
         return Objects.equals(name, newJob.name) &&
                 Objects.equals(description, newJob.description) &&
                 Objects.equals(externalData, newJob.externalData) &&
-                Objects.equals(task, newJob.task);
+                Objects.equals(task, newJob.task) &&
+                Objects.equals(prerequisiteJobIds, newJob.prerequisiteJobIds);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, externalData, task);
+        return Objects.hash(name, description, externalData, task, prerequisiteJobIds);
     }
 
     @Override
@@ -136,6 +166,7 @@ public class NewJob   {
         sb.append("    description: ").append(toIndentedString(description)).append("\n");
         sb.append("    externalData: ").append(toIndentedString(externalData)).append("\n");
         sb.append("    task: ").append(toIndentedString(task)).append("\n");
+        sb.append("    prerequisiteJobIds: ").append(toIndentedString(prerequisiteJobIds)).append("\n");
         sb.append("}");
         return sb.toString();
     }

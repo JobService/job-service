@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.api;
 
 import static junit.framework.Assert.assertEquals;
 
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.anyInt;
@@ -40,6 +41,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 @RunWith(PowerMockRunner.class)
@@ -55,7 +57,6 @@ public final class JobsPutTest {
     private QueueServicesFactory mockQueueServicesFactory;
     
     private NewJob validJob;
-
     private HashMap <String,Object> testDataObjectMap;
     private HashMap <String,String> taskMessageParams;
    
@@ -63,6 +64,8 @@ public final class JobsPutTest {
     public void setup() throws Exception {
         //  Mock DatabaseHelper calls.
         doNothing().when(mockDatabaseHelper).createJob(anyString(),anyString(),anyString(),anyString(),anyInt());
+        doNothing().when(mockDatabaseHelper).createJobWithDependencies(anyString(),anyString(),anyString(),anyString(),anyInt(),
+                anyString(),anyInt(), any(), anyString(), anyString(), any());
         doNothing().when(mockDatabaseHelper).deleteJob(anyString());
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(any()).thenReturn(mockDatabaseHelper);
 
@@ -114,6 +117,7 @@ public final class JobsPutTest {
     public void testCreateJob_Success_NoMatchingJobRow() throws Exception {
 
         when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyInt())).thenReturn(false);
+        when(mockDatabaseHelper.canJobBeProgressed(anyString())).thenReturn(true);
 
         //  Test successful run of job creation when no matching job row exists.
         JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", validJob);
@@ -186,6 +190,7 @@ public final class JobsPutTest {
     public void testJobCreationWithTaskData_Object() throws Exception
     {
         when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyInt())).thenReturn(false);
+        when(mockDatabaseHelper.canJobBeProgressed(anyString())).thenReturn(true);
         
         NewJob job = new NewJob();
         WorkerAction action = new WorkerAction();
@@ -205,6 +210,37 @@ public final class JobsPutTest {
         verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
         verify(mockDatabaseHelper, times(1)).createJob(anyString(),anyString(),anyString(),anyString(),anyInt());
         verify(mockQueueServices, times(1)).sendMessage(any(), any(), any());
+    }
+
+    @Test
+    public void testJobCreationWithPrerequisites() throws Exception
+    {
+        when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyInt())).thenReturn(false);
+        when(mockDatabaseHelper.canJobBeProgressed(anyString())).thenReturn(false);
+
+        NewJob job = new NewJob();
+        WorkerAction action = new WorkerAction();
+        job.setName("TestName");
+        job.setDescription("TestDescription");
+        job.setExternalData("TestExternalData");
+        action.setTaskClassifier("TestTaskClassifier");
+        action.setTaskApiVersion(1);
+        action.setTaskData(testDataObjectMap);
+        action.setTaskPipe("TaskQueue");
+        action.setTargetPipe("JobServiceQueue");
+        job.setTask(action);
+        job.setPrerequisiteJobIds(Arrays.asList(new String[]{"J1", "J2"}));
+
+        //  Test acceptance of job when no matching job row exists and job has prereqs that have not been completed.
+        final String createOrUpdateJobReturnString = JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00",
+                job);
+
+        assertEquals("accept", createOrUpdateJobReturnString);
+
+        verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
+        verify(mockDatabaseHelper, times(1)).createJobWithDependencies(anyString(),anyString(),anyString(),anyString(),anyInt(),
+                anyString(),anyInt(), any(), anyString(), anyString(), any());
+        verify(mockDatabaseHelper, times(1)).canJobBeProgressed(anyString());
     }
     
     

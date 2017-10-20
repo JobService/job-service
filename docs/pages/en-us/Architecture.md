@@ -1,7 +1,6 @@
 ---
 layout: default
 title: Architecture
-last_updated: Last modified by Conal Smith on April 10, 2017
 
 banner:
     icon: 'assets/img/fork-lift.png'
@@ -35,6 +34,7 @@ The pipes represent asynchronous message queues on RabbitMQ.
 9. The job tracking worker makes a decision:
  - If the `to` field is the same as the `trackTo` field, the task is marked complete in the database and sent to the target pipe without tracking information.
  - Otherwise, the task is sent to the target pipe with tracking information and processed by the worker consuming from the target pipe.
+ - If a job completes and has associated dependent jobs, the job tracking worker receives a list of jobs now available for execution. The job tracking worker forwards these jobs to the target pipe.
 10. A worker consumes messages from the target pipe and processes the task. In this case, the example worker consumes from worker-example-in.
 11. If tracking information is present, tasks are re-routed to the tracking pipe. Otherwise, the task has completed and the response is sent to the output queue, in this case, worker-example-out.
 
@@ -100,6 +100,8 @@ When the job tracking worker receives a success message to be proxied (that is, 
 
 The job tracking worker recognizes failure and retry messages, which are being proxied, and updates the job database accordingly.
 
+The job tracking worker can also automatically forward on dependent jobs for execution.  A dependent job is a job which must wait until a specific job or list of jobs have completed before it can be executed.  The job tracking worker monitors a job's progress, when a job completes, the job tracking worker will receive a list of jobs which can now be executed.
+
 ## Job Database
 
 Job information is stored in a **PostgreSQL** database.
@@ -110,7 +112,7 @@ This table stores information on the jobs that are requested. Entries are added 
 
 | **Column**     | **Data Type** | **Nullable?** | **Primary Key?** |
 |----------------|---------------|---------------|------------------|
-| JobId          | String        | No            | Yes              |
+| Job_Id         | String        | No            | Yes              |
 | Name           | String        | Yes           |                  |
 | Description    | String        | Yes           |                  |
 | Data           | String        | Yes           |                  |
@@ -125,3 +127,26 @@ This table stores information on the jobs that are requested. Entries are added 
 The task tables have the same structure as the job table. Each job has one task table, which is created when the first subtask is reported, and deleted when the job completes successfully. If the job fails, the table is retained for a period of time for examination.
 
 When a task is marked complete, the system checks whether the parent task (or the job if it is the top level) can also be marked complete.
+
+### Job Dependency Table
+
+This table stores Ids of dependent jobs i.e. jobs which must be completed before the job in question can be executed.
+
+| **Column**        | **Data Type** | **Nullable?** | **Primary Key?** |
+|-------------------|---------------|---------------|------------------|
+| Job_Id            | String        | No            | Yes              |
+| Dependent_Job_Id  | String        | No            | Yes              |
+
+### Job Task Data
+
+This table stores information on jobs which have dependent jobs and must wait for execution.  The table contains enough information for the job tracking worker to forward on the job, once it's dependent jobs have all completed.
+
+| **Column**        | **Data Type** | **Nullable?** | **Primary Key?** |
+|-------------------|---------------|---------------|------------------|
+| Job_Id            | String        | No            | Yes              |
+| Task_Classifier   | String        | No            |                  |
+| Task_Api_Version  | Integer       | No            |                  |
+| Task_Data         | ByteA         | No            |                  |
+| Task_Pipe         | String        | No            |                  |
+| Target_Pipe       | String        | No            |                  |
+

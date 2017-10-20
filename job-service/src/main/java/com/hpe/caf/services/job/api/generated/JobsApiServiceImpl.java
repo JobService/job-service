@@ -67,6 +67,9 @@ public class JobsApiServiceImpl extends JobsApiService {
             if (createOrUpdate.equals("create")) {
                 //  Return HTTP 201 for successful create.
                 return Response.created(uriInfo.getRequestUri()).build();
+            } else if (createOrUpdate.equals("accept")) {
+                //  Return HTTP 202 for accepted.
+                return Response.status(Response.Status.ACCEPTED).location(uriInfo.getRequestUri()).build();
             } else {
                 //  Must be update - return HTTP 204 for successful update.
                 return Response.noContent().build();

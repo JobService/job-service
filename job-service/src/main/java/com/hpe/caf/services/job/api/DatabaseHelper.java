@@ -242,6 +242,52 @@ public final class DatabaseHelper {
     }
 
     /**
+     * Creates the specified job.
+     */
+    public void createJobWithDependencies(final String jobId, final String name, final String description,
+                                          final String data, final int jobHash, final String taskClassifier,
+                                          final int taskApiVersion, final byte[] taskData, final String taskPipe,
+                                          final String targetPipe, final List<String> prerequisiteJobIds) throws Exception {
+
+        String createJobFnCallSQL = "{call create_job(?,?,?,?,?,?,?,?,?,?,?)}";
+
+        try (
+                Connection conn = getConnection();
+                CallableStatement stmt = conn.prepareCall(createJobFnCallSQL)
+        ) {
+            final String[] prerequisiteJobIdStringArray = prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
+            Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
+
+            stmt.setString(1,jobId);
+            stmt.setString(2,name);
+            stmt.setString(3,description);
+            stmt.setString(4,data);
+            stmt.setInt(5,jobHash);
+            stmt.setString(6,taskClassifier);
+            stmt.setInt(7,taskApiVersion);
+            stmt.setBytes(8,taskData);
+            stmt.setString(9,taskPipe);
+            stmt.setString(10,targetPipe);
+            stmt.setArray(11,prerequisiteJobIdSQLArray);
+
+            LOG.debug("Calling create_job() database function...");
+            stmt.execute();
+        } catch (SQLException se) {
+            //  Determine source of SQL exception and throw appropriate error.
+            String sqlState = se.getSQLState();
+
+            if (sqlState.equals("02000")) {
+                //  Job id has not been provided.
+                throw new BadRequestException(se.getMessage());
+            }
+            else {
+                throw se;
+            }
+        }
+
+    }
+
+    /**
      * Deletes the specified job.
      */
     public void deleteJob(String jobId) throws Exception {
@@ -297,6 +343,32 @@ public final class DatabaseHelper {
         }
 
         return exists;
+    }
+
+    /**
+     * Returns TRUE if the specified job id can be progressed, otherwise FALSE.
+     */
+    public boolean canJobBeProgressed(final String jobId) throws Exception
+    {
+
+        boolean canBeProgressed = true;
+
+        String rowExistsSQL = "select 1 as taskDataExists from job_task_data where job_id = ?";
+
+        try (
+                Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(rowExistsSQL)
+        ) {
+            stmt.setString(1, jobId);
+
+            //  Execute a query to determine if the specified job can be progressed.
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+                canBeProgressed = rs.getInt("taskDataExists") != 1;
+            }
+        }
+
+        return canBeProgressed;
     }
 
     /**
@@ -412,7 +484,7 @@ public final class DatabaseHelper {
      * Creates a connection to the PostgreSQL database.
      */
     private static Connection getConnection
-            () throws Exception {
+    () throws Exception {
 
         Connection conn;
 
