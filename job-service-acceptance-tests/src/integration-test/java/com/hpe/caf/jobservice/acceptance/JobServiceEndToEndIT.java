@@ -134,8 +134,38 @@ public class JobServiceEndToEndIT {
 //        testJobCompletion(true);
 //    }
 
+    private void testJobCompletion(final boolean useTaskDataObject) throws Exception {
+        final String jobId = generateJobId();
+
+        JobServiceEndToEndITExpectation expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        jobId,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            Timer timer = getTimer(context);
+            Thread thread = queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context, expectation));
+
+            createJob(jobId, useTaskDataObject);
+
+            // Waits for the final result message to appear on the Example worker's output queue.
+            // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
+            TestResult result = context.getTestResult();
+            Assert.assertTrue(result.isSuccess());
+        }
+    }
+
     @Test
-    public void testJobWithNoPrerequisiteJobs(final boolean useTaskDataObject) throws Exception {
+    public void testJobWithNoPrerequisiteJobs() throws Exception {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
         final String jobId = generateJobId();
@@ -158,7 +188,7 @@ public class JobServiceEndToEndIT {
             Timer timer = getTimer(context);
             Thread thread = queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context, expectation));
 
-            createJob(jobId, useTaskDataObject);
+            createJob(jobId, true);
 
             // Waits for the final result message to appear on the Example worker's output queue.
             // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
