@@ -224,15 +224,17 @@ public class JobServiceEndToEndIT {
             createJob(job2Id, true);
         }
 
-        Thread.sleep(10000); // Sleep for a second to allow previous jobs to complete
+        Thread.sleep(1000); // Add short delay to allow previous jobs to complete
 
         // Add job that has prerequisite job 1 (completed) and job 2 (completed)
         createJobWithPrerequisites(job3Id, true, job1Id, job2Id);
 
+        Thread.sleep(1000); // Add short delay to allow previous job to complete
+
         //  Verify job 3 has completed and no job dependency rows exist.
-        assertJobStatus(job3Id, "completed");
-        assertJobDependencyRowsDoNotExist(job3Id, job1Id);
-        assertJobDependencyRowsDoNotExist(job3Id, job2Id);
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job1Id);
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
 
     @Test
@@ -274,12 +276,14 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
+        Thread.sleep(1000); // Add short delay to allow previous job to complete
+
         // Add job that has prerequisite job 1 (completed) and job 2 (unknown)
         createJobWithPrerequisites(job3Id, true, job1Id, job2Id);
 
         // Verify job 3 is in waiting status and dependency rows exist as expected.
-        assertJobStatus(job3Id, "waiting");
-        assertJobDependencyRowsExist(job3Id, job2Id);
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
     }
 
     @Test
@@ -302,18 +306,18 @@ public class JobServiceEndToEndIT {
         //      -> J4
         createJobWithPrerequisites(job2Id, true, job1Id);
         //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
-        assertJobStatus(job2Id, "waiting");
-        assertJobDependencyRowsExist(job2Id, job1Id);
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
 
         createJobWithPrerequisites(job3Id, true, job2Id);
         //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
-        assertJobStatus(job3Id, "waiting");
-        assertJobDependencyRowsExist(job3Id, job2Id);
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
 
         createJobWithPrerequisites(job4Id, true, job2Id);
         //  Verify J4 is in 'waiting' state and job dependency rows exist as expected.
-        assertJobStatus(job4Id, "waiting");
-        assertJobDependencyRowsExist(job4Id, job2Id);
+        JobServiceDatabaseUtil.assertJobStatus(job4Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
 
         //  Add a Prerequisite job 1 that should be completed. This should trigger the completion of all
         //  other jobs.
@@ -344,110 +348,17 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        Thread.sleep(2000); // Sleep to allow dependent jobs to complete
+        Thread.sleep(2000); // Add short delay to allow previous jobs to complete
 
         //  Now that J1 has completed, verify this has triggered the completion of other jobs created
         //  with a prerequisite.
-        assertJobStatus(job2Id, "completed");
-        assertJobDependencyRowsDoNotExist(job2Id, job1Id);
-        assertJobStatus(job3Id, "completed");
-        assertJobDependencyRowsDoNotExist(job3Id, job2Id);
-        assertJobStatus(job4Id, "completed");
-        assertJobDependencyRowsDoNotExist(job4Id, job2Id);
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job2Id, job1Id);
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
+        JobServiceDatabaseUtil.assertJobStatus(job4Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job4Id, job2Id);
     }
-
-    private void assertJobStatus(final String jobId, final String expectedStatus) throws SQLException
-    {
-        try (final Connection dbConnection = getDbConnection()) {
-
-            //  Verify job status matches that expected.
-            final PreparedStatement st = dbConnection.prepareStatement("SELECT status FROM job WHERE job_id = ?");
-            st.setString(1, jobId);
-            final ResultSet jobRS = st.executeQuery();
-            jobRS.next();
-            Assert.assertEquals(jobRS.getString(1).toLowerCase(), expectedStatus);
-            jobRS.close();
-
-            st.close();
-        }
-    }
-
-    private void assertJobDependencyRowsExist(final String jobId, final String dependentJobId) throws SQLException
-    {
-        try (final Connection dbConnection = getDbConnection()) {
-
-            //  Verify job task data row exists.
-            PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?");
-            st.setString(1, jobId);
-            final ResultSet jobTaskDataRS = st.executeQuery();
-            jobTaskDataRS.next();
-            Assert.assertEquals(jobTaskDataRS.getString(1), jobId);
-            Assert.assertEquals(jobTaskDataRS.getString(2), BatchWorkerConstants.WORKER_NAME);
-            Assert.assertEquals(jobTaskDataRS.getInt(3), BatchWorkerConstants.WORKER_API_VERSION);
-            Assert.assertTrue(jobTaskDataRS.getBytes(4).length > 0);
-            Assert.assertEquals(jobTaskDataRS.getString(5), batchWorkerMessageInQueue);
-            Assert.assertEquals(jobTaskDataRS.getString(6), exampleWorkerMessageOutQueue);
-            Assert.assertTrue(!jobTaskDataRS.next());
-            st.clearBatch();
-            jobTaskDataRS.close();
-
-            //  Verify job dependency row exists.
-            st = dbConnection.prepareStatement("SELECT * FROM job_dependency WHERE job_id = ?");
-            st.setString(1, jobId);
-            final ResultSet jobDependencyRS = st.executeQuery();
-            jobDependencyRS.next();
-            Assert.assertEquals(jobDependencyRS.getString(1), jobId);
-            Assert.assertEquals(jobDependencyRS.getString(2), dependentJobId);
-            Assert.assertTrue(!jobDependencyRS.next());
-            jobDependencyRS.close();
-
-            st.close();
-        }
-    }
-
-    private void assertJobDependencyRowsDoNotExist(final String jobId, final String dependentJobId) throws SQLException
-    {
-        try (final Connection dbConnection = getDbConnection()) {
-
-            //  Verify job task data row has been removed.
-            PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?");
-            st.setString(1, jobId);
-            final ResultSet jobTaskDataRS = st.executeQuery();
-            Assert.assertTrue(!jobTaskDataRS.next());
-            jobTaskDataRS.close();
-
-            //  Verify job dependency row does not exist.
-            st = dbConnection.prepareStatement("SELECT * FROM job_dependency WHERE job_id = ? AND dependent_job_id = ?");
-            st.setString(1, jobId);
-            st.setString(2, dependentJobId);
-            final ResultSet jobDependencyRS = st.executeQuery();
-            Assert.assertTrue(!jobDependencyRS.next());
-            jobDependencyRS.close();
-
-            st.close();
-        }
-    }
-
-    public static Connection getDbConnection() throws SQLException
-    {
-        final String databaseUrl = System.getProperty("CAF_DATABASE_URL", System.getenv("CAF_DATABASE_URL"));
-        final String dbUser = System.getProperty("CAF_DATABASE_USERNAME", System.getenv("CAF_DATABASE_USERNAME"));
-        final String dbPass = System.getProperty("CAF_DATABASE_PASSWORD", System.getenv("CAF_DATABASE_PASSWORD"));
-        try {
-            final Connection conn;
-            final Properties myProp = new Properties();
-            myProp.put("user", dbUser);
-            myProp.put("password", dbPass);
-            LOG.info("Connecting to database " + databaseUrl + " with username " + dbUser + " and password " + dbPass);
-            conn = DriverManager.getConnection(databaseUrl, myProp);
-            LOG.info("Connected to database");
-            return conn;
-        } catch (final Exception e) {
-            LOG.error("ERROR connecting to database " + databaseUrl + " with username " + dbUser + " and password " + dbPass);
-            throw e;
-        }
-    }
-
 
     @Test
     public void testJobCancellation() throws Exception {
