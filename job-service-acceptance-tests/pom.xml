@@ -201,6 +201,7 @@
                         <CAF_JOB_SERVICE_IMAGE>${dockerJobServiceOrg}job-service${dockerProjectVersion}</CAF_JOB_SERVICE_IMAGE>
                         <CAF_JOB_SERVICE_ADMIN_PORT>${jobservice.adminport}</CAF_JOB_SERVICE_ADMIN_PORT>
                         <CAF_WEBSERVICE_URL>http://${docker.host.address}:${jobservice.adminport}/job-service/v1</CAF_WEBSERVICE_URL>
+                        <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
                         <CAF_DOCKER_HOST>http://${docker.host.address}:2375</CAF_DOCKER_HOST>
                         <CAF_DOCKER_VERSION>1.22</CAF_DOCKER_VERSION>
                         <CAF_JOB_SERVICE_CALLER_IMAGE>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</CAF_JOB_SERVICE_CALLER_IMAGE>
@@ -537,6 +538,8 @@
                                 <env>
                                     <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
                                     <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
+                                    <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
+                                    <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
                                     <JOB_DATABASE_URL>${job.database.url}</JOB_DATABASE_URL>
                                     <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
                                     <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
