@@ -33,7 +33,7 @@ public final class QueueServicesFactory {
     /**
      * Create a new QueueServices object.
      *
-     * @param   configuration       the app configuration
+     * @param   configuration       the AppConfig
      * @param   targetQueue         the target queue
      * @param   codec               the serialization codec
      * @return  QueueServices       new QueueServices object
@@ -43,6 +43,7 @@ public final class QueueServicesFactory {
     public static QueueServices create(final AppConfig configuration, final String targetQueue, final Codec codec) throws IOException, TimeoutException {
         //  Create connection and channel for publishing messages.
         Connection connection = createConnection(configuration);
+
         Channel publishChannel = connection.createChannel();
 
         //  Declare target worker queue.

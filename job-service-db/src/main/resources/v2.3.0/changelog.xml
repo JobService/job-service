@@ -69,4 +69,11 @@
         </createProcedure>
     </changeSet>
 
+    <changeSet id="create_procedure_reportTaskCompletion_job_dependency_change" author="Connor Mulholland" >
+        <createProcedure path="v2.3.0/reportTaskCompletion.sql"
+                         procedureName="internal_report_task_completion"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
 </databaseChangeLog>

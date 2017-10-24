@@ -165,12 +165,50 @@ public class JobServiceEndToEndIT {
     }
 
     @Test
-    public void testJobWithPrereqJobsWhichHaveCompleted() throws Exception
+    public void testJobWithNoPrerequisiteJobs() throws Exception {
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+        final String jobId = generateJobId();
+
+        JobServiceEndToEndITExpectation expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        jobId,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            Timer timer = getTimer(context);
+            Thread thread = queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context, expectation));
+
+            createJob(jobId, true);
+
+            // Waits for the final result message to appear on the Example worker's output queue.
+            // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
+            TestResult result = context.getTestResult();
+            Assert.assertTrue(result.isSuccess());
+        }
+    }
+
+    @Test
+    public void testJobWithPrerequisiteJobsWhichHaveCompleted() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
-        final String job1Id = generateJobId();
 
+        //  Generate job identifiers for test.
+        final String job1Id = generateJobId();
+        final String job2Id = generateJobId();
+        final String job3Id = generateJobId();
+
+        // Add a Prerequisite job 1 that should be completed
         JobServiceEndToEndITExpectation job1Expectation =
                 new JobServiceEndToEndITExpectation(
                         false,
@@ -183,7 +221,6 @@ public class JobServiceEndToEndIT {
                         ExampleWorkerStatus.COMPLETED,
                         testItemAssetIds);
 
-        // Add a Prerequisite job 1 that should be completed
         try (QueueManager queueManager = getFinalQueueManager()) {
             ExecutionContext context = new ExecutionContext(false);
             context.initializeContext();
@@ -194,8 +231,7 @@ public class JobServiceEndToEndIT {
             createJob(job1Id, true);
         }
 
-        final String job2Id = generateJobId();
-
+        // Add a Prerequisite job 2 that should be completed
         JobServiceEndToEndITExpectation job2Expectation =
                 new JobServiceEndToEndITExpectation(
                         false,
@@ -208,7 +244,6 @@ public class JobServiceEndToEndIT {
                         ExampleWorkerStatus.COMPLETED,
                         testItemAssetIds);
 
-        // Add a Prerequisite job 2 that should be completed
         try (QueueManager queueManager = getFinalQueueManager()) {
             ExecutionContext context = new ExecutionContext(false);
             context.initializeContext();
@@ -219,35 +254,18 @@ public class JobServiceEndToEndIT {
             createJob(job2Id, true);
         }
 
-        Thread.sleep(10000); // Sleep for a second to allow previous jobs to complete
+        Thread.sleep(1000); // Add short delay to allow previous jobs to complete
 
-        final String job3Id = generateJobId();
         // Add job that has prerequisite job 1 (completed) and job 2 (completed). Also supply blank, null and empty
         // prereq job ids that should not hold the job back.
         createJobWithPrerequisites(job3Id, true, job1Id, job2Id, "", null, "           ");
 
-        try (final Connection dbConnection = getDbConnection()) {
+        Thread.sleep(1000); // Add short delay to allow previous job to complete
 
-            //  Retrieve details of the job's task data from the job_task_data table; there should be no rows as
-            // the prereq jobs where marked as completed
-            PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?");
-            st.setString(1, job3Id);
-            ResultSet rs = st.executeQuery();
-
-            Assert.assertFalse(rs.next());
-            st.clearBatch();
-            rs.close();
-
-            //  Retrieve details of the job's dependencies the job_dependency table; there should be no rows as the
-            // prereq jobs where marked as completed
-            st = dbConnection.prepareStatement("SELECT * FROM job_dependency WHERE job_id = ?");
-            st.setString(1, job3Id);
-            rs = st.executeQuery();
-
-            Assert.assertFalse(rs.next());
-            rs.close();
-            st.close();
-        }
+        //  Verify job 3 has completed and no job dependency rows exist.
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job1Id);
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
 
     @Test
@@ -288,10 +306,17 @@ public class JobServiceEndToEndIT {
     }
 
     @Test
-    public void testJobWithPrereqJobsWhichHaveNotCompleted() throws Exception
+    public void testJobWithPrerequisiteJobsWithOneNotCompleted() throws Exception
     {
-        final String job1Id = generateJobId();
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
 
+        //  Generate job identifiers for test.
+        final String job1Id = generateJobId();
+        final String job3Id = generateJobId();
+        final String job2Id = generateJobId();
+
+        // Add a Prerequisite job 1 that should be completed
         JobServiceEndToEndITExpectation job1Expectation =
                 new JobServiceEndToEndITExpectation(
                         false,
@@ -304,7 +329,6 @@ public class JobServiceEndToEndIT {
                         ExampleWorkerStatus.COMPLETED,
                         testItemAssetIds);
 
-        // Add a Prerequisite job 1 that should be completed
         try (QueueManager queueManager = getFinalQueueManager()) {
             ExecutionContext context = new ExecutionContext(false);
             context.initializeContext();
@@ -320,67 +344,89 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        final String job3Id = generateJobId();
+        Thread.sleep(1000); // Add short delay to allow previous job to complete
 
         // Add job that has prerequisite job 1 (completed) and job 2 (unknown)
-        final String job2Id = generateJobId();
         createJobWithPrerequisites(job3Id, true, job1Id, job2Id);
 
-        try (final Connection dbConnection = getDbConnection()) {
-
-            //  Retrieve details of the job's task data from the job_task_data table
-            PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?");
-            st.setString(1, job3Id);
-            ResultSet rs = st.executeQuery();
-
-            // Validate content of the job's row from the job_task_data table
-            rs.next();
-            Assert.assertEquals(rs.getString(1), job3Id);
-            Assert.assertEquals(rs.getString(2), BatchWorkerConstants.WORKER_NAME);
-            Assert.assertEquals(rs.getInt(3), BatchWorkerConstants.WORKER_API_VERSION);
-            Assert.assertTrue(rs.getBytes(4).length > 0);
-            Assert.assertEquals(rs.getString(5), batchWorkerMessageInQueue);
-            Assert.assertEquals(rs.getString(6), exampleWorkerMessageOutQueue);
-            st.clearBatch();
-            rs.close();
-
-            //  Retrieve details of the job's dependencies the job_dependency table
-            st = dbConnection.prepareStatement("SELECT * FROM job_dependency WHERE job_id = ?");
-            st.setString(1, job3Id);
-            rs = st.executeQuery();
-
-            // Get and validate content of the job's rows from the job_dependency table
-            rs.next();
-            Assert.assertEquals(rs.getString(1), job3Id);
-            Assert.assertEquals(rs.getString(2), job1Id);
-            rs.next();
-            Assert.assertEquals(rs.getString(1), job3Id);
-            Assert.assertEquals(rs.getString(2), job2Id);
-            rs.close();
-            st.close();
-        }
+        // Verify job 3 is in waiting status and dependency rows exist as expected.
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
     }
 
-    public static Connection getDbConnection() throws SQLException
+    @Test
+    public void testJobWithPrerequisiteJobs() throws Exception
     {
-        final String databaseUrl = System.getProperty("CAF_DATABASE_URL", System.getenv("CAF_DATABASE_URL"));
-        final String dbUser = System.getProperty("CAF_DATABASE_USERNAME", System.getenv("CAF_DATABASE_USERNAME"));
-        final String dbPass = System.getProperty("CAF_DATABASE_PASSWORD", System.getenv("CAF_DATABASE_PASSWORD"));
-        try {
-            final Connection conn;
-            final Properties myProp = new Properties();
-            myProp.put("user", dbUser);
-            myProp.put("password", dbPass);
-            LOG.info("Connecting to database " + databaseUrl + " with username " + dbUser + " and password " + dbPass);
-            conn = DriverManager.getConnection(databaseUrl, myProp);
-            LOG.info("Connected to database");
-            return conn;
-        } catch (final Exception e) {
-            LOG.error("ERROR connecting to database " + databaseUrl + " with username " + dbUser + " and password " + dbPass);
-            throw e;
-        }
-    }
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
 
+        //  Generate job identifiers for test.
+        final String job1Id = generateJobId();
+        final String job2Id = generateJobId();
+        final String job3Id = generateJobId();
+        final String job4Id = generateJobId();
+
+        //  Create job hierarchy.
+        //
+        //  J1
+        //  -> J2
+        //      -> J3
+        //      -> J4
+        createJobWithPrerequisites(job2Id, true, job1Id);
+        //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+
+        createJobWithPrerequisites(job3Id, true, job2Id);
+        //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+
+        createJobWithPrerequisites(job4Id, true, job2Id);
+        //  Verify J4 is in 'waiting' state and job dependency rows exist as expected.
+        JobServiceDatabaseUtil.assertJobStatus(job4Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+
+        //  Add a Prerequisite job 1 that should be completed. This should trigger the completion of all
+        //  other jobs.
+        JobServiceEndToEndITExpectation job1Expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        job2Id,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            getTimer(context);
+            queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
+                    job1Expectation));
+
+            createJob(job1Id, true);
+
+            // Waits for the final result message to appear on the Example worker's output queue.
+            // When we read it from this queue it should have been processed fully and its status reported to the Job
+            // Database as Completed.
+            context.getTestResult();
+        }
+
+        Thread.sleep(2000); // Add short delay to allow previous jobs to complete
+
+        //  Now that J1 has completed, verify this has triggered the completion of other jobs created
+        //  with a prerequisite.
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job2Id, job1Id);
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
+        JobServiceDatabaseUtil.assertJobStatus(job4Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job4Id, job2Id);
+    }
 
     @Test
     public void testJobCancellation() throws Exception {
