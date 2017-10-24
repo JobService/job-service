@@ -154,7 +154,7 @@ public final class JobsPut {
                             job.getPrerequisiteJobIds());
 
                 } else {
-                databaseHelper.createJob(jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
+                    databaseHelper.createJob(jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
                 }
 
                 // Check if job_task_data row exists for the specified job_id and if it does return 'accepted'
