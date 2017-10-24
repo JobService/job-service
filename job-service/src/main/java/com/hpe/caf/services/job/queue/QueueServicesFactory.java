@@ -33,6 +33,7 @@ public final class QueueServicesFactory {
     /**
      * Create a new QueueServices object.
      *
+     * @param   configuration       the AppConfig
      * @param   targetQueue         the target queue
      * @param   codec               the serialization codec
      * @return  QueueServices       new QueueServices object
