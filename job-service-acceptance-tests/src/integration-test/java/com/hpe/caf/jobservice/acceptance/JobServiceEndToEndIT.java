@@ -256,8 +256,9 @@ public class JobServiceEndToEndIT {
 
         Thread.sleep(1000); // Add short delay to allow previous jobs to complete
 
-        // Add job that has prerequisite job 1 (completed) and job 2 (completed)
-        createJobWithPrerequisites(job3Id, true, job1Id, job2Id);
+        // Add job that has prerequisite job 1 (completed) and job 2 (completed). Also supply blank, null and empty
+        // prereq job ids that should not hold the job back.
+        createJobWithPrerequisites(job3Id, true, job1Id, job2Id, "", null, "           ");
 
         Thread.sleep(1000); // Add short delay to allow previous job to complete
 
@@ -265,6 +266,43 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job1Id);
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
+    }
+
+    @Test
+    public void testJobWithNullAndBlankAndEmptyPrereqJobsShouldComplete() throws Exception
+    {
+        numTestItemsToGenerate = 1;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+        final String job1Id = generateJobId();
+
+        JobServiceEndToEndITExpectation job1Expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        job1Id,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        // Add a Prerequisite job 1 that should be completed
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            getTimer(context);
+            queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
+                    job1Expectation));
+
+            // Add job that has prerequisite jobs that are empty, null and blank
+            createJobWithPrerequisites(job1Id, true, "", null, "           ");
+
+            // Waits for the final result message to appear on the Example worker's output queue.
+            // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
+            TestResult result = context.getTestResult();
+            Assert.assertTrue(result.isSuccess());
+        }
     }
 
     @Test
