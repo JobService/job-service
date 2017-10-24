@@ -34,8 +34,8 @@ import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class JobsPut {
 
@@ -143,6 +143,12 @@ public final class JobsPut {
             if (!rowExists){
                 targetOperation = "create";
 
+                // Remove all null or blank prerequisite job ids from the job's list of prerequisiteJobIds
+                if (job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) {
+                    job.setPrerequisiteJobIds(job.getPrerequisiteJobIds().stream()
+                            .filter(prereqJobId -> prereqJobId != null && !prereqJobId.trim().isEmpty())
+                            .collect(Collectors.toList()));
+                }
 
                 //  Create job in the database.
                 LOG.info("createOrUpdateJob: Creating job in the database...");
