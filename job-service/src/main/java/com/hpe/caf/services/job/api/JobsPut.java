@@ -168,7 +168,6 @@ public final class JobsPut {
                     QueueServices queueServices = QueueServicesFactory.create(config, job.getTask().getTaskPipe(),codec);
                     LOG.info("createOrUpdateJob: Sending task data to the target queue...");
                     queueServices.sendMessage(jobId, job.getTask(), config);
-                    queueServices.close();
                 } catch(Exception ex) {
                     //  Failure adding job data to queue. Update the job with the failure details.
                     Failure f = new Failure();
@@ -199,7 +198,6 @@ public final class JobsPut {
             throw e;
         }
     }
-
     private static byte[] getTaskDataBytes(final WorkerAction workerAction, final Codec codec)
     {
         final Object taskDataObj = workerAction.getTaskData();

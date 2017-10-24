@@ -125,7 +125,8 @@ BEGIN
 
     --  If status is completed, then rollup task completion status to parent(s).
     IF in_status = 'Completed' THEN
-      PERFORM internal_report_task_completion(v_parent_table_name);
+	  RETURN QUERY
+      SELECT * FROM internal_report_task_completion(v_parent_table_name);
     END IF;
 
   END IF;
