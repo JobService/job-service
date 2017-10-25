@@ -117,6 +117,7 @@ public final class JobsPutTest {
     public void testCreateJob_Success_NoMatchingJobRow() throws Exception {
 
         when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyInt())).thenReturn(false);
+        when(mockDatabaseHelper.canJobBeProgressed(anyString())).thenReturn(true);
 
         //  Test successful run of job creation when no matching job row exists.
         JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", validJob);
@@ -189,6 +190,7 @@ public final class JobsPutTest {
     public void testJobCreationWithTaskData_Object() throws Exception
     {
         when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyInt())).thenReturn(false);
+        when(mockDatabaseHelper.canJobBeProgressed(anyString())).thenReturn(true);
         
         NewJob job = new NewJob();
         WorkerAction action = new WorkerAction();
@@ -214,6 +216,7 @@ public final class JobsPutTest {
     public void testJobCreationWithPrerequisites() throws Exception
     {
         when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyInt())).thenReturn(false);
+        when(mockDatabaseHelper.canJobBeProgressed(anyString())).thenReturn(false);
 
         NewJob job = new NewJob();
         WorkerAction action = new WorkerAction();
@@ -237,6 +240,7 @@ public final class JobsPutTest {
         verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(anyString(),anyString(),anyString(),anyString(),anyInt(),
                 anyString(),anyInt(), any(), anyString(), anyString(), any());
+        verify(mockDatabaseHelper, times(1)).canJobBeProgressed(anyString());
     }
     
     
