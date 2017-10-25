@@ -21,15 +21,15 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
-    <changeSet id="createJob_create_date_in_utc" author="Conal Smith" >
-        <createProcedure path="v1.9.0/createJob.sql"
+    <changeSet id="createJob_create_date_in_utc" runOnChange="true" author="Conal Smith" >
+        <createProcedure path="procedures/createJob.sql"
                          procedureName="create_job"
                          schemaName="public">
         </createProcedure>
     </changeSet>
 
-    <changeSet id="report_progress_date_in_utc" author="Conal Smith" >
-        <createProcedure path="v1.9.0/reportProgress.sql"
+    <changeSet id="report_progress_date_in_utc" runOnChange="true" author="Conal Smith" >
+        <createProcedure path="procedures/reportProgress.sql"
                          procedureName="report_progress"
                          schemaName="public">
         </createProcedure>

@@ -21,15 +21,15 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
-    <changeSet id="create_procedure_createTaskTable_toRegClass_arg_type_change" author="Connor Mulholland" >
-        <createProcedure path="v2.1.0/createTaskTable.sql"
+    <changeSet id="create_procedure_createTaskTable_toRegClass_arg_type_change" runOnChange="true" author="Connor Mulholland" >
+        <createProcedure path="procedures/createTaskTable.sql"
                          procedureName="internal_create_task_table"
                          schemaName="public">
         </createProcedure>
     </changeSet>
 
-    <changeSet id="create_procedure_toRegClass_arg_type_change" author="Connor Mulholland" >
-        <createProcedure path="v2.1.0/toRegClass.sql"
+    <changeSet id="create_procedure_toRegClass_arg_type_change" runOnChange="true" author="Connor Mulholland" >
+        <createProcedure path="procedures/toRegClass.sql"
                          procedureName="internal_to_regclass"
                          schemaName="public">
         </createProcedure>

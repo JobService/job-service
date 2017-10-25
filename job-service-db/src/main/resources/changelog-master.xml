@@ -23,9 +23,9 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog 
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
-   <include file="changelog.xml" />
-   <include file="v1.3.0/changelog.xml" />
-   <include file="v1.9.0/changelog.xml" />
-   <include file="v2.1.0/changelog.xml" />
-   <include file="v2.3.0/changelog.xml" />
+   <include file="changelog.xml" relativeToChangelogFile="true"/>
+   <include file="v1.3.0/changelog.xml" relativeToChangelogFile="true" />
+   <include file="v1.9.0/changelog.xml" relativeToChangelogFile="true" />
+   <include file="v2.1.0/changelog.xml" relativeToChangelogFile="true" />
+   <include file="v2.3.0/changelog.xml" relativeToChangelogFile="true" />
 </databaseChangeLog>
