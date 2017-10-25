@@ -163,12 +163,6 @@ public final class JobsPut {
                     databaseHelper.createJob(jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
                 }
 
-                // Check if job_task_data row exists for the specified job_id and if it does return 'accepted'
-                // and not 'created'.
-                if (!databaseHelper.canJobBeProgressed(jobId)) {
-                    return "accept";
-                }
-
                 //  Get database helper instance.
                 try {
                     QueueServices queueServices = QueueServicesFactory.create(config, job.getTask().getTaskPipe(),codec);

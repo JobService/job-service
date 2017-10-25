@@ -131,8 +131,6 @@ paths:
       responses:
         201:
           description: Indicates that the job was successfully created.
-        202:
-          description: Indicates that the job was accepted but cannot be progressed as one or more prerequisite jobs have not yet completed.
         204:
           description: Indicates that the job was successfully updated.
         400:
