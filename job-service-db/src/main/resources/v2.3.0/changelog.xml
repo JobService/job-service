@@ -62,6 +62,13 @@
         </createProcedure>
     </changeSet>
 	
+    <changeSet id="create_procedure_deleteJob_job_dependency_change" author="Connor Mulholland" >
+        <createProcedure path="v2.3.0/deleteJob.sql"
+                         procedureName="delete_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+	
     <changeSet id="create_procedure_reportProgress_job_dependency_change" author="Connor Mulholland" >
         <createProcedure path="v2.3.0/reportProgress.sql"
                          procedureName="report_progress"
