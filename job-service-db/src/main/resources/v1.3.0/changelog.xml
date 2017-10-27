@@ -21,22 +21,22 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
-    <changeSet id="create_procedure_createTaskTable_1" author="Connor Mulholland" >
-        <createProcedure path="v1.3.0/createTaskTable.sql"
+    <changeSet id="create_procedure_createTaskTable_1" runOnChange="true" author="Connor Mulholland" >
+        <createProcedure path="procedures/createTaskTable.sql"
                          procedureName="internal_create_task_table"
                          schemaName="public">
         </createProcedure>
     </changeSet>
 
-    <changeSet id="create_procedure_getJobs_2" author="Jason Albert" >
-        <createProcedure path="v1.3.0/getJobs.sql"
+    <changeSet id="create_procedure_getJobs_2" runOnChange="true" author="Jason Albert" >
+        <createProcedure path="procedures/getJobs.sql"
                          procedureName="get_jobs"
                          schemaName="public">
         </createProcedure>
     </changeSet>
 
-    <changeSet id="create_procedure_getJobsCount_3" author="Jason Albert" >
-        <createProcedure path="v1.3.0/getJobsCount.sql"
+    <changeSet id="create_procedure_getJobsCount_3" runOnChange="true" author="Jason Albert" >
+        <createProcedure path="procedures/getJobsCount.sql"
                          procedureName="get_jobs_count"
                          schemaName="public">
         </createProcedure>

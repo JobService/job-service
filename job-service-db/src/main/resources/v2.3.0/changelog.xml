@@ -55,29 +55,29 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="create_procedure_createJob_job_dependency_change" author="Connor Mulholland" >
-        <createProcedure path="v2.3.0/createJob.sql"
+    <changeSet id="create_procedure_createJob_job_dependency_change" runOnChange="true" author="Connor Mulholland" >
+        <createProcedure path="procedures/createJobForDependencies.sql"
                          procedureName="create_job"
                          schemaName="public">
         </createProcedure>
     </changeSet>
 	
     <changeSet id="create_procedure_deleteJob_job_dependency_change" author="Connor Mulholland" >
-        <createProcedure path="v2.3.0/deleteJob.sql"
+        <createProcedure path="procedures/deleteJob.sql"
                          procedureName="delete_job"
                          schemaName="public">
         </createProcedure>
     </changeSet>
 	
     <changeSet id="create_procedure_reportProgress_job_dependency_change" author="Connor Mulholland" >
-        <createProcedure path="v2.3.0/reportProgress.sql"
+        <createProcedure path="procedures/reportProgress.sql"
                          procedureName="report_progress"
                          schemaName="public">
         </createProcedure>
     </changeSet>
 
-    <changeSet id="create_procedure_reportTaskCompletion_job_dependency_change" author="Connor Mulholland" >
-        <createProcedure path="v2.3.0/reportTaskCompletion.sql"
+    <changeSet id="create_procedure_reportTaskCompletion_job_dependency_change" runOnChange="true" author="Connor Mulholland" >
+        <createProcedure path="procedures/reportTaskCompletion.sql"
                          procedureName="internal_report_task_completion"
                          schemaName="public">
         </createProcedure>

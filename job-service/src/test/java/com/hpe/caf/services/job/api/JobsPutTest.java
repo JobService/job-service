@@ -231,11 +231,11 @@ public final class JobsPutTest {
         job.setTask(action);
         job.setPrerequisiteJobIds(Arrays.asList(new String[]{"J1", "J2"}));
 
-        //  Test acceptance of job when no matching job row exists and job has prereqs that have not been completed.
+        //  Test creation of job when no matching job row exists and job has prereqs that have not been completed.
         final String createOrUpdateJobReturnString = JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00",
                 job);
 
-        assertEquals("accept", createOrUpdateJobReturnString);
+        assertEquals("create", createOrUpdateJobReturnString);
 
         verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(anyString(),anyString(),anyString(),anyString(),anyInt(),
