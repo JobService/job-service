@@ -50,6 +50,39 @@ public class JobServiceDatabaseUtil
         }
     }
 
+    public static void assertJobRowExists(final String jobId) throws SQLException
+    {
+        try (final Connection dbConnection = getDbConnection()) {
+
+            //  Verify a job row exists.
+            PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job WHERE job_id = ?");
+            st.setString(1, jobId);
+            final ResultSet jobRS = st.executeQuery();
+            jobRS.next();
+            Assert.assertEquals(jobRS.getString(1), jobId);
+            Assert.assertTrue(!jobRS.next());
+            st.clearBatch();
+            jobRS.close();
+
+            st.close();
+        }
+    }
+
+    public static void assertJobRowDoesNotExist(final String jobId) throws SQLException
+    {
+        try (final Connection dbConnection = getDbConnection()) {
+
+            //  Verify the job row has been removed.
+            PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job WHERE job_id = ?");
+            st.setString(1, jobId);
+            final ResultSet jobRS = st.executeQuery();
+            Assert.assertTrue(!jobRS.next());
+            jobRS.close();
+
+            st.close();
+        }
+    }
+
     public static void assertJobDependencyRowsExist(final String jobId, final String dependentJobId,
                                                     final String batchWorkerMessageInQueue,
                                                     final String exampleWorkerMessageOutQueue) throws SQLException

@@ -646,6 +646,89 @@ public class JobServiceEndToEndIT {
         LOG.debug("Finished testJobServiceCaller_Failure().");
     }
 
+    @Test
+    public void testJobDeletion() throws Exception {
+        testJobDeletion(false);
+    }
+
+    @Test
+    public void testJobDeletionWithTaskDataObject() throws Exception {
+        testJobDeletion(true);
+    }
+
+    private void testJobDeletion(final boolean useTaskDataObject) throws Exception {
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+
+        final String jobId = generateJobId();
+
+        JobServiceEndToEndITExpectation expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        jobId,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            Timer timer = getTimer(context);
+            Thread thread = queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context, expectation));
+
+            createJob(jobId, useTaskDataObject);
+            JobServiceDatabaseUtil.assertJobRowExists(jobId);
+
+            TestResult result = context.getTestResult();
+            Assert.assertTrue(result.isSuccess());
+        }
+
+        deleteJob(jobId);
+        JobServiceDatabaseUtil.assertJobRowDoesNotExist(jobId);
+    }
+
+    @Test
+    public void testJobDeletionWithPrerequisiteJobs() throws Exception
+    {
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+
+        //  Generate job identifiers for test.
+        final String job1Id = generateJobId();
+        final String job2Id = generateJobId();
+        final String job3Id = generateJobId();
+        final String job4Id = generateJobId();
+
+        //  Create job hierarchy.
+        //
+        //  J1
+        //  -> J2
+        //      -> J3
+        //      -> J4
+        createJobWithPrerequisites(job2Id, true, job1Id);
+        createJobWithPrerequisites(job3Id, true, job2Id);
+        createJobWithPrerequisites(job4Id, true, job2Id);
+
+        //  Delete J2.
+        deleteJob(job2Id);
+
+        //  Verify J2 rows have been removed.
+        JobServiceDatabaseUtil.assertJobRowDoesNotExist(job2Id);
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job2Id, job1Id);
+
+        //  Verify rows for J3 & J4 still exist.
+        JobServiceDatabaseUtil.assertJobRowExists(job3Id);
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+        JobServiceDatabaseUtil.assertJobRowExists(job4Id);
+        JobServiceDatabaseUtil.assertJobStatus(job4Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+    }
+
     private List<String> generateWorkerBatch() throws DataStoreException {
         List<String> assetIds = new ArrayList<>();
         String containerId = getContainerId();
@@ -695,6 +778,9 @@ public class JobServiceEndToEndIT {
         jobsApi.cancelJob(jobId, jobCorrelationId);
     }
 
+    private void deleteJob(final String jobId) throws Exception {
+        jobsApi.deleteJob(jobId, jobCorrelationId);
+    }
 
     private NewJob constructNewJob(String jobId, final boolean useTaskDataObject) throws Exception {
         WorkerAction batchWorkerAction = constructBatchWorkerAction(useTaskDataObject);
