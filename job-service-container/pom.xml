@@ -32,7 +32,7 @@
     </parent>
 
     <properties>
-        <tomcatBaseImage>tomcat:jre8</tomcatBaseImage>
+        <tomcatBaseImage>cafinternal/prereleases:opensuse-tomcat-1.1.0-SNAPSHOT</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
@@ -49,12 +49,6 @@
             <artifactId>job-service</artifactId>
             <version>${project.version}</version>
             <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>com.github.krallin</groupId>
-            <artifactId>tini</artifactId>
-            <scope>runtime</scope>
-            <type>exe</type>
         </dependency>
         <!-- Swagger UI -->
         <dependency>
@@ -411,15 +405,8 @@
                                 <ports>
                                     <port>8080</port>
                                 </ports>
-                                <entryPoint>
-                                    <exec>
-                                        <args>/maven/tini-${tini.version}.exe</args>
-                                        <args>-v</args>
-                                        <args>--</args>
-                                    </exec>
-                                </entryPoint>
                                 <runCmds>
-                                    <runCmd>mv /opt/*.war $CATALINA_HOME/webapps</runCmd>
+                                    <runCmd>mv /opt/*.war /usr/share/tomcat/webapps</runCmd>
                                 </runCmds>
                                 <cmd>/start.sh</cmd>
                                 <assembly>
@@ -451,14 +438,6 @@
                                                 </includes>
                                                 <outputDirectory>/opt</outputDirectory>
                                                 <outputFileNameMapping>${swaggerUIWarName}.war</outputFileNameMapping>
-                                            </dependencySet>
-                                            <dependencySet>
-                                                <useProjectArtifact>false</useProjectArtifact>
-                                                <fileMode>0755</fileMode>
-                                                <includes>
-                                                    <include>com.github.krallin:tini</include>
-                                                </includes>
-                                                <outputDirectory>/maven</outputDirectory>
                                             </dependencySet>
                                             <dependencySet>
                                                 <useProjectArtifact>false</useProjectArtifact>

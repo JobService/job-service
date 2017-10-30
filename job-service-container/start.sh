@@ -22,4 +22,4 @@ then
     /container-cert-script/setup-tomcat-ssl-cert.sh
 fi
 
-$CATALINA_HOME/bin/catalina.sh run
+/usr/share/tomcat/bin/catalina.sh run
