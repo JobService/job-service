@@ -32,7 +32,7 @@
     </parent>
 
     <properties>
-        <tomcatBaseImage>cafinternal/prereleases:opensuse-tomcat-1.1.0-SNAPSHOT</tomcatBaseImage>
+        <tomcatBaseImage>cafinternal/prereleases:opensuse-tomcat-2.0.0-SNAPSHOT</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
@@ -102,12 +102,6 @@
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-store-fs</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.cafapi</groupId>
-            <artifactId>container-cert-script</artifactId>
-            <type>tar.gz</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -402,67 +396,31 @@
                                     <Git.Branch>${git.branch}</Git.Branch>
                                     <Git.Commit>${git.revision}</Git.Commit>
                                 </labels>
-                                <ports>
-                                    <port>8080</port>
-                                </ports>
-                                <runCmds>
-                                    <runCmd>mv /opt/*.war /usr/share/tomcat/webapps</runCmd>
-                                </runCmds>
-                                <cmd>/start.sh</cmd>
+                                <healthCheck>
+                                    <mode>none</mode>
+                                </healthCheck>
                                 <assembly>
-                                    <basedir>/</basedir>
+                                    <basedir>/usr/share/tomcat</basedir>
                                     <mode>tar</mode>
                                     <inline>
-                                        <fileSets>
-                                            <fileSet>
-                                                <lineEnding>unix</lineEnding>
-                                                <includes>
-                                                    <include>*.sh</include>
-                                                </includes>
-                                                <fileMode>0755</fileMode>
-                                            </fileSet>
-                                        </fileSets>
                                         <dependencySets>
                                             <dependencySet>
-                                                <useProjectArtifact>false</useProjectArtifact>
+                                                <outputDirectory>webapps/job-service</outputDirectory>
                                                 <includes>
                                                     <include>com.github.jobservice:job-service</include>
                                                 </includes>
-                                                <outputDirectory>/opt</outputDirectory>
-                                                <outputFileNameMapping>${webserviceWarName}.war</outputFileNameMapping>
+                                                <unpack>true</unpack>
+                                                <useProjectArtifact>false</useProjectArtifact>
                                             </dependencySet>
                                             <dependencySet>
-                                                <useProjectArtifact>false</useProjectArtifact>
+                                                <outputDirectory>webapps/job-service-ui</outputDirectory>
                                                 <includes>
                                                     <include>com.github.jobservice:job-service-ui</include>
                                                 </includes>
-                                                <outputDirectory>/opt</outputDirectory>
-                                                <outputFileNameMapping>${swaggerUIWarName}.war</outputFileNameMapping>
-                                            </dependencySet>
-                                            <dependencySet>
-                                                <useProjectArtifact>false</useProjectArtifact>
-                                                <scope>runtime</scope>
-                                                <useTransitiveDependencies>true</useTransitiveDependencies>
-                                                <useTransitiveFiltering>true</useTransitiveFiltering>
-                                                <excludes>
-                                                    <exclude>com.github.cafapi:container-cert-script</exclude>
-                                                </excludes>
-                                            </dependencySet>
-                                            <dependencySet>
-                                                <includes>
-                                                    <include>com.github.cafapi:container-cert-script</include>
-                                                </includes>
-                                                <useProjectArtifact>false</useProjectArtifact>
-                                                <useTransitiveFiltering>true</useTransitiveFiltering>
                                                 <unpack>true</unpack>
+                                                <useProjectArtifact>false</useProjectArtifact>
                                             </dependencySet>
                                         </dependencySets>
-                                        <files>
-                                            <file>
-                                                <source>src/main/resources/server.xml</source>
-                                                <outputDirectory>/usr/local/tomcat/conf</outputDirectory>
-                                            </file>
-                                        </files>
                                     </inline>
                                 </assembly>
                             </build>
