@@ -32,7 +32,7 @@
     </parent>
 
     <properties>
-        <tomcatBaseImage>tomcat:jre8</tomcatBaseImage>
+        <tomcatBaseImage>cafapi/opensuse-tomcat:2.0</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
@@ -49,12 +49,6 @@
             <artifactId>job-service</artifactId>
             <version>${project.version}</version>
             <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>com.github.krallin</groupId>
-            <artifactId>tini</artifactId>
-            <scope>runtime</scope>
-            <type>exe</type>
         </dependency>
         <!-- Swagger UI -->
         <dependency>
@@ -108,12 +102,6 @@
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-store-fs</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.cafapi</groupId>
-            <artifactId>container-cert-script</artifactId>
-            <type>tar.gz</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -408,82 +396,31 @@
                                     <Git.Branch>${git.branch}</Git.Branch>
                                     <Git.Commit>${git.revision}</Git.Commit>
                                 </labels>
-                                <ports>
-                                    <port>8080</port>
-                                </ports>
-                                <entryPoint>
-                                    <exec>
-                                        <args>/maven/tini-${tini.version}.exe</args>
-                                        <args>-v</args>
-                                        <args>--</args>
-                                    </exec>
-                                </entryPoint>
-                                <runCmds>
-                                    <runCmd>mv /opt/*.war $CATALINA_HOME/webapps</runCmd>
-                                </runCmds>
-                                <cmd>/start.sh</cmd>
+                                <healthCheck>
+                                    <mode>none</mode>
+                                </healthCheck>
                                 <assembly>
-                                    <basedir>/</basedir>
+                                    <basedir>/usr/share/tomcat</basedir>
                                     <mode>tar</mode>
                                     <inline>
-                                        <fileSets>
-                                            <fileSet>
-                                                <lineEnding>unix</lineEnding>
-                                                <includes>
-                                                    <include>*.sh</include>
-                                                </includes>
-                                                <fileMode>0755</fileMode>
-                                            </fileSet>
-                                        </fileSets>
                                         <dependencySets>
                                             <dependencySet>
-                                                <useProjectArtifact>false</useProjectArtifact>
+                                                <outputDirectory>webapps/job-service</outputDirectory>
                                                 <includes>
                                                     <include>com.github.jobservice:job-service</include>
                                                 </includes>
-                                                <outputDirectory>/opt</outputDirectory>
-                                                <outputFileNameMapping>${webserviceWarName}.war</outputFileNameMapping>
+                                                <unpack>true</unpack>
+                                                <useProjectArtifact>false</useProjectArtifact>
                                             </dependencySet>
                                             <dependencySet>
-                                                <useProjectArtifact>false</useProjectArtifact>
+                                                <outputDirectory>webapps/job-service-ui</outputDirectory>
                                                 <includes>
                                                     <include>com.github.jobservice:job-service-ui</include>
                                                 </includes>
-                                                <outputDirectory>/opt</outputDirectory>
-                                                <outputFileNameMapping>${swaggerUIWarName}.war</outputFileNameMapping>
-                                            </dependencySet>
-                                            <dependencySet>
-                                                <useProjectArtifact>false</useProjectArtifact>
-                                                <fileMode>0755</fileMode>
-                                                <includes>
-                                                    <include>com.github.krallin:tini</include>
-                                                </includes>
-                                                <outputDirectory>/maven</outputDirectory>
-                                            </dependencySet>
-                                            <dependencySet>
-                                                <useProjectArtifact>false</useProjectArtifact>
-                                                <scope>runtime</scope>
-                                                <useTransitiveDependencies>true</useTransitiveDependencies>
-                                                <useTransitiveFiltering>true</useTransitiveFiltering>
-                                                <excludes>
-                                                    <exclude>com.github.cafapi:container-cert-script</exclude>
-                                                </excludes>
-                                            </dependencySet>
-                                            <dependencySet>
-                                                <includes>
-                                                    <include>com.github.cafapi:container-cert-script</include>
-                                                </includes>
-                                                <useProjectArtifact>false</useProjectArtifact>
-                                                <useTransitiveFiltering>true</useTransitiveFiltering>
                                                 <unpack>true</unpack>
+                                                <useProjectArtifact>false</useProjectArtifact>
                                             </dependencySet>
                                         </dependencySets>
-                                        <files>
-                                            <file>
-                                                <source>src/main/resources/server.xml</source>
-                                                <outputDirectory>/usr/local/tomcat/conf</outputDirectory>
-                                            </file>
-                                        </files>
                                     </inline>
                                 </assembly>
                             </build>
