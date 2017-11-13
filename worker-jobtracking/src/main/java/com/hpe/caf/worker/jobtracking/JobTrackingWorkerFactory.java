@@ -282,7 +282,12 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
                 final String statusCheckUrl = statusCheckUrlPrefix + URLEncoder.encode(jobDependency.getJobId(), "UTF-8") +"/isActive";
 
                 //  Construct the task message.
-                final TrackingInfo trackingInfo = new TrackingInfo(jobDependency.getJobId(), calculateStatusCheckDate(System.getenv("CAF_STATUS_CHECK_TIME")),
+                String statusCheckTime = System.getenv("CAF_STATUS_CHECK_TIME");
+                if (null == statusCheckTime) {
+                 // Default to 5 if the environment variable is not present.  This is to avoid introducing a breaking change.
+                    statusCheckTime = "5";
+                }
+                final TrackingInfo trackingInfo = new TrackingInfo(jobDependency.getJobId(), calculateStatusCheckDate(statusCheckTime),
                         statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
 
                 final TaskMessage taskMessage = new TaskMessage(
