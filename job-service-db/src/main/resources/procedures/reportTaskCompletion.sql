@@ -72,25 +72,9 @@ BEGIN
 	  --  Remove task tables associated with the job.
       PERFORM internal_delete_task_table(v_job_id, false);
 	  
-      -- Get list of jobs that can now be run.
+      -- Get a list of jobs that can run immediately and update the eligibility run date for others.
       RETURN QUERY
-      SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe
-      FROM job_task_data jtd
-      INNER JOIN job_dependency jd
-        ON jd.job_id = jtd.job_id
-      WHERE jd.dependent_job_id = v_job_id
-      AND NOT EXISTS (SELECT jd2.job_id
-                      FROM job_dependency jd2
-                      INNER JOIN job j
-                        ON j.job_Id = jd2.dependent_job_id
-                      WHERE jd2.job_id = jd.job_Id
-                      AND jd2.dependent_job_id <> v_job_id
-                      AND j.status <> 'Completed');
-
-      -- Remove corresponding dependency related rows.
-      DELETE FROM job_dependency jd WHERE jd.job_id = v_job_id;
-      DELETE FROM job_task_data jtd WHERE jtd.job_id = v_job_id;
-	  
+	  SELECT * FROM internal_process_dependent_jobs(v_job_id);	  
 	END IF;
 
   ELSE

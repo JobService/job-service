@@ -21,6 +21,21 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
+	<changeSet id="update_job_table_add_column_job_dependency_change" author="Connor Mulholland">
+		<addColumn tableName="job">
+			<column name="delay" type="INT" defaultValueNumeric="0">
+				<constraints nullable="true"/>
+			</column>
+		</addColumn>
+	</changeSet>
+
+	<changeSet id="update_job_table_add_not_null_job_dependency_change" author="Connor Mulholland">
+		<addNotNullConstraint columnDataType="INT"
+				columnName="delay"
+				defaultNullValue="0"
+				tableName="job"/>
+	</changeSet>
+
     <changeSet id="create_job_task_data_table_job_dependency_change" author="Connor Mulholland">
             <createTable tableName="job_task_data">
                 <column name="job_id" type="VARCHAR(48)">
@@ -41,6 +56,9 @@
                 <column name="target_pipe" type="VARCHAR(255)">
                     <constraints nullable="false"/>
                 </column>
+				<column name="eligible_to_run_date" type="TIMESTAMP">
+					<constraints nullable="true"/>
+				</column>				
             </createTable>
     </changeSet>
 
@@ -68,7 +86,21 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
-	
+
+    <changeSet id="create_procedure_getDependentJobs_job_dependency_change" author="Connor Mulholland" >
+        <createProcedure path="procedures/getDependentJobs.sql"
+                         procedureName="get_dependent_jobs"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_processDependentJobs_job_dependency_change" author="Connor Mulholland" >
+        <createProcedure path="procedures/processDependentJobs.sql"
+                         procedureName="internal_process_dependent_jobs"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
     <changeSet id="create_procedure_reportProgress_job_dependency_change" author="Connor Mulholland" >
         <createProcedure path="procedures/reportProgress.sql"
                          procedureName="report_progress"
