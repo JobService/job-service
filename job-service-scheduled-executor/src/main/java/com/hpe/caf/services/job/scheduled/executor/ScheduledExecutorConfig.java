@@ -59,4 +59,13 @@ public class ScheduledExecutorConfig {
     public static String getWebserviceUrl() {
         return System.getProperty("CAF_WEBSERVICE_URL", System.getenv("CAF_WEBSERVICE_URL"));
     }
+
+    public static int getScheduledExecutorPeriod() {
+        //  Default to 10 seconds if CAF_SCHEDULED_EXECUTOR_PERIOD not specified.
+        String  scheduledExecutorPeriod = System.getProperty("CAF_SCHEDULED_EXECUTOR_PERIOD", System.getenv("CAF_SCHEDULED_EXECUTOR_PERIOD"));
+        if (null == scheduledExecutorPeriod || scheduledExecutorPeriod.isEmpty()) {
+            return 10;
+        }
+        return Integer.parseInt(scheduledExecutorPeriod);
+    }
 }

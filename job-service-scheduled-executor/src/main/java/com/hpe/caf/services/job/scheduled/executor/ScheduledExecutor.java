@@ -45,8 +45,9 @@ public class ScheduledExecutor {
             }
         };
 
-        //  Poll the Job Service database every 10 seconds. Use scheduleWithFixedDelay as we cannot predict
-        //  the duration of the scheduled task.
-        scheduler.scheduleWithFixedDelay(task, 0, 10, TimeUnit.SECONDS);
+        //  Poll the Job Service database using the specified polling period configuration to specify how often the
+        //  scheduled task is run.
+        scheduler.scheduleWithFixedDelay(task, 0, ScheduledExecutorConfig.getScheduledExecutorPeriod(),
+                TimeUnit.SECONDS);
     }
 }
