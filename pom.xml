@@ -72,6 +72,8 @@
         <module>job-service-container</module>
         <module>job-service-client</module>
         <module>job-service-html</module>
+        <module>job-service-scheduled-executor</module>
+        <module>job-service-scheduled-executor-container</module>
         <module>worker-jobtracking</module>
         <module>worker-jobtracking-shared</module>
         <module>worker-jobtracking-container</module>
