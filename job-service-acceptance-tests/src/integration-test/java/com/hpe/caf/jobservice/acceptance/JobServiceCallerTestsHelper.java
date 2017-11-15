@@ -289,16 +289,19 @@ public final class JobServiceCallerTestsHelper {
                 for (Object objPort: ports) {
                     JSONObject port = (JSONObject)objPort;
 
-                    String portValue = Long.toString((Long)port.get("PublicPort"));
-                    if (portValue.equals(jobServiceAdminPort)) {
-                        LOG.debug("getJobDefinitionContainerName: Found matching job web service image ...");
+                    final Long publicPort = (Long) port.get("PublicPort");
+                    if (publicPort != null) {
+                        String portValue = Long.toString(publicPort);
+                        if (portValue.equals(jobServiceAdminPort)) {
+                            LOG.debug("getJobDefinitionContainerName: Found matching job web service image ...");
 
-                        //  Match found. Use the container Names section to generate a link name.
-                        List<String> names = (List<String>)container.get("Names");
+                            //  Match found. Use the container Names section to generate a link name.
+                            List<String> names = (List<String>) container.get("Names");
 
-                        //  Remove first character from container name (i.e. '/').
-                        jobServiceContainerName = removeFirst(names.get(0)) + ":job-service";
-                        break;
+                            //  Remove first character from container name (i.e. '/').
+                            jobServiceContainerName = removeFirst(names.get(0)) + ":job-service";
+                            break;
+                        }
                     }
                 }
             }
