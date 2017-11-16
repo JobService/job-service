@@ -49,10 +49,10 @@ BEGIN
                   FROM job_dependency jd2
                   INNER JOIN job j2
                     ON j2.job_Id = jd2.dependent_job_id
-                  2.job_id = jd.job_Id
+                  WHERE jd2.job_id = jd.job_Id
                   AND jd2.dependent_job_id <> in_job_id
                   AND j2.status <> 'Completed');
-	  
+
   RETURN QUERY
   SELECT * FROM tmp_dependent_jobs_ready_to_run;
 
