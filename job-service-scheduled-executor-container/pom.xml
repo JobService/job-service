@@ -89,6 +89,16 @@
                                 </healthCheck>
                                 <assembly>
                                     <mode>tar</mode>
+                                    <inline>
+                                        <fileSets>
+                                            <fileSet>
+                                                <includes>
+                                                    <include>*.sh</include>
+                                                </includes>
+                                                <fileMode>0755</fileMode>
+                                            </fileSet>
+                                        </fileSets>
+                                    </inline>
                                 </assembly>
                             </build>
                         </image>
