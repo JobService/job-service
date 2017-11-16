@@ -99,6 +99,33 @@
                     "autoscale.interval": "30",
                     "autoscale.backoff": "10"
 				}
+			},{
+				"id": "job-service-scheduled-executor",
+				"cpus": 0.25,
+				"mem": 512,
+				"instances": 1,
+				"container": {
+					"docker": {
+						"image": "jobservice/job-service-scheduled-executor:${project.version}",
+						"network": "BRIDGE"
+						"forcePullImage": true
+					},
+					"type": "DOCKER"
+				},
+				"env": {
+					"_JAVA_OPTIONS": "-Xms512m -Xmx512m",
+					"CAF_DATABASE_URL": "jdbc:postgresql://${POSTGRES_DB_HOSTNAME}:${POSTGRES_DB_PORT}/jobservice",
+					"CAF_DATABASE_USERNAME": "${POSTGRES_JOB_SERVICE_DB_USER}",
+					"CAF_DATABASE_PASSWORD": "${POSTGRES_JOB_SERVICE_DB_PASSWORD}",
+					"CAF_TRACKING_PIPE": "jobtracking-in",
+					"CAF_STATUS_CHECK_TIME": "5",
+					"CAF_WEBSERVICE_URL": "http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1",
+					"CAF_RABBITMQ_HOST": "${CAF_RABBITMQ_HOST}",
+					"CAF_RABBITMQ_PORT": "${CAF_RABBITMQ_PORT}",
+					"CAF_RABBITMQ_USERNAME": "${CAF_RABBITMQ_USERNAME}",
+					"CAF_RABBITMQ_PASSWORD": "${CAF_RABBITMQ_PASSWORD}",
+					"CAF_SCHEDULED_EXECUTOR_PERIOD": "10"
+				}]
 			}]
 	}]
 }

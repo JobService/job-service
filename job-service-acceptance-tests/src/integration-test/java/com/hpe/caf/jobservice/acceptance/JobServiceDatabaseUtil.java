@@ -54,13 +54,11 @@ public class JobServiceDatabaseUtil
     {
         try (final Connection dbConnection = getDbConnection()) {
 
-            int delay = 0;
-
             final PreparedStatement st = dbConnection.prepareStatement("SELECT delay FROM job WHERE job_id = ?");
             st.setString(1, jobId);
             final ResultSet jobRS = st.executeQuery();
             jobRS.next();
-            delay = jobRS.getInt(1);
+            final int delay = jobRS.getInt(1);
             jobRS.close();
             st.close();
 
@@ -72,13 +70,11 @@ public class JobServiceDatabaseUtil
     {
         try (final Connection dbConnection = getDbConnection()) {
 
-            String eligibleRunDate = null;
-
             final PreparedStatement st = dbConnection.prepareStatement("SELECT eligible_to_run_date FROM job_task_data WHERE job_id = ?");
             st.setString(1, jobId);
             final ResultSet jobRS = st.executeQuery();
             jobRS.next();
-            eligibleRunDate = jobRS.getString(1);
+            final String eligibleRunDate = jobRS.getString(1);
             jobRS.close();
             st.close();
 

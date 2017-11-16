@@ -35,12 +35,15 @@ The Docker Compose file contains the following services:
 4. Job Tracking Worker  
     For simplicity the Job Tracking Worker is not shown on the diagram above.  The diagram shows messages passing directly between the workers, but in reality the messages are passed through the Job Tracking Worker, which acts as a proxy for them.  It routes them to their intended destination but it also updates the Job Service Database with the progress.  This means that the Job Service is able to provide accurate progress reports when they are requested.
 
-5. GlobFilter Worker  
+5. Job Service Scheduled Executor  
+    This is a polling service that identifies jobs in the system that depend on other jobs which are now complete. It is an ExecutorService which schedules a task to execute repeatedly identifying jobs which are ready to run. For simplicity, this service is not shown in the diagram but for each job identified, a message is then published on RabbitMQ in order to start the job.
+
+6. GlobFilter Worker  
     This is a simple worker developed just for this demonstration.  It is a Batch Worker which takes in a glob-pattern as the Batch Definition.  Glob-patterns are generally fairly simple.  For example, `*.txt` means "all text files in the input folder".  Even more complex patterns like `**/t*.txt`, which means "all text files which start with the letter 't' and are in the input folder or in any subfolders of the input folder", are fairly easy to understand.  The worker produces a separate task for each file which matches the glob-pattern.
 
     By default the input folder is `./input-files`, which is a directory in this repository which contains a few sample text files in different languages.  A different input folder can be used by setting the `JOB_SERVICE_DEMO_INPUT_DIR` environment variable.
 
-6. Language Detection Worker  
+7. Language Detection Worker  
     This worker reads text files and determines what language or languages they are written in.  Typically it would return the result to another worker but for this demonstration it is configured to output the results to a folder.
 
     By default the output folder used is `./output-files`, but a different folder can be used by setting the `JOB_SERVICE_DEMO_OUTPUT_DIR` environment variable.
