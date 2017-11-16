@@ -81,7 +81,7 @@
                                 </labels>
                                 <cmd>
                                     <exec>
-                                        <args>/maven/start.sh</args>
+                                        <args>start.sh</args>
                                     </exec>
                                 </cmd>
                                 <healthCheck>
