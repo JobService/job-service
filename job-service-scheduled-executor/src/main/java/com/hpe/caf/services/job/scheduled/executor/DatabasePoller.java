@@ -78,7 +78,6 @@ public class DatabasePoller
                         queueServices = QueueServicesFactory.create(jtd.getTaskPipe(),codec);
                         LOG.debug(MessageFormat.format("Sending task data to the target queue {0} ...", workerAction.toString()));
                         queueServices.sendMessage(jtd.getJobId(), workerAction);
-                        queueServices.close();
                     } catch(final Exception ex) {
                         //  TODO - in future we need to consider consequence of reaching here as this means we have
                         //  deleted job_task_data rows from the database. For now we will log details as part of
