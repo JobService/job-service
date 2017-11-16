@@ -91,7 +91,7 @@ services:
       CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
       CAF_SCHEDULED_EXECUTOR_PERIOD: 10
     image: jobservice/job-service-scheduled-executor:${project.version}
-	  
+
 volumes:
   job-service-db:
   rabbitmq:

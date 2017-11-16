@@ -27,24 +27,24 @@ CREATE FUNCTION get_dependent_jobs()
 DECLARE
 BEGIN
 
-	CREATE TEMPORARY TABLE tmp_dependent_jobs 
-		ON COMMIT DROP
-	AS
-	SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe
-	FROM job_task_data jtd
-	LEFT JOIN job_dependency jd
-		ON jd.job_id = jtd.job_id
-	WHERE jtd.eligible_to_run_date IS NOT NULL 	 
-	AND jtd.eligible_to_run_date <= now()		-- now eligible for running
-	AND jd.job_id IS NULL;						-- no other dependencies to wait on.
+  CREATE TEMPORARY TABLE tmp_dependent_jobs
+    ON COMMIT DROP
+  AS
+  SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe
+  FROM job_task_data jtd
+  LEFT JOIN job_dependency jd
+    ON jd.job_id = jtd.job_id
+  WHERE jtd.eligible_to_run_date IS NOT NULL
+  AND jtd.eligible_to_run_date <= now()		-- now eligible for running
+  AND jd.job_id IS NULL;						-- no other dependencies to wait on.
   
-	-- Get list of jobs that can now be run.
-	RETURN QUERY
-		SELECT *
-		FROM tmp_dependent_jobs;
+  -- Get list of jobs that can now be run.
+  RETURN QUERY
+    SELECT *
+    FROM tmp_dependent_jobs;
 
-	-- Remove corresponding task data rows.
-	DELETE FROM job_task_data jtd
+  -- Remove corresponding task data rows.
+  DELETE FROM job_task_data jtd
     USING tmp_dependent_jobs tdj
     WHERE tdj.job_id = jtd.job_id;
 

@@ -69,13 +69,13 @@ BEGIN
 
     --  If job has completed, then remove task tables and return any jobs that can now be run.
     IF v_percentage_completed = 100.00 THEN
-	  --  Remove task tables associated with the job.
+      --  Remove task tables associated with the job.
       PERFORM internal_delete_task_table(v_job_id, false);
-	  
+
       -- Get a list of jobs that can run immediately and update the eligibility run date for others.
       RETURN QUERY
-	  SELECT * FROM internal_process_dependent_jobs(v_job_id);	  
-	END IF;
+      SELECT * FROM internal_process_dependent_jobs(v_job_id);
+  END IF;
 
   ELSE
     v_parent_table_name = substring(in_task_table_name, 1, internal_get_last_position(in_task_table_name, '.')-1);

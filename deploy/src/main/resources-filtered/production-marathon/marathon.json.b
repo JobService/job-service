@@ -107,7 +107,7 @@
 				"container": {
 					"docker": {
 						"image": "jobservice/job-service-scheduled-executor:${project.version}",
-						"network": "BRIDGE"
+						"network": "BRIDGE",
 						"forcePullImage": true
 					},
 					"type": "DOCKER"
@@ -125,7 +125,7 @@
 					"CAF_RABBITMQ_USERNAME": "${CAF_RABBITMQ_USERNAME}",
 					"CAF_RABBITMQ_PASSWORD": "${CAF_RABBITMQ_PASSWORD}",
 					"CAF_SCHEDULED_EXECUTOR_PERIOD": "10"
-				}]
+				}
 			}]
 	}]
 }

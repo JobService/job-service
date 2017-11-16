@@ -62,7 +62,7 @@ BEGIN
 
       -- Get a list of jobs that can run immediately and update the eligibility run date for others.
       RETURN QUERY
-	  SELECT * FROM internal_process_dependent_jobs(v_job_id);	  	  
+      SELECT * FROM internal_process_dependent_jobs(v_job_id);
     END IF;
 
   ELSE
@@ -109,7 +109,7 @@ BEGIN
 
     --  If status is completed, then rollup task completion status to parent(s).
     IF in_status = 'Completed' THEN
-	  RETURN QUERY
+      RETURN QUERY
       SELECT * FROM internal_report_task_completion(v_parent_table_name);
     END IF;
 
