@@ -66,4 +66,4 @@ services:
           memory: 512M
       update_config:
         parallelism: 1
-        delay: 10s		
+        delay: 10s
