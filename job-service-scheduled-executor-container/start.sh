@@ -16,4 +16,5 @@
 #
 
 
+cd /maven
 java -cp "*" com.hpe.caf.services.job.scheduled.executor.ScheduledExecutor

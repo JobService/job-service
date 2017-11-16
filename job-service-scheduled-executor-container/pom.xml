@@ -84,9 +84,6 @@
                                         <args>/maven/start.sh</args>
                                     </exec>
                                 </cmd>
-                                <healthCheck>
-                                    <mode>none</mode>
-                                </healthCheck>
                                 <assembly>
                                     <mode>tar</mode>
                                     <inline>
@@ -98,6 +95,12 @@
                                                 <fileMode>0755</fileMode>
                                             </fileSet>
                                         </fileSets>
+                                        <dependencySets>
+                                            <dependencySet>
+                                                <useProjectArtifact>false</useProjectArtifact>
+                                                <scope>runtime</scope>
+                                            </dependencySet>
+                                        </dependencySets>
                                     </inline>
                                 </assembly>
                             </build>
