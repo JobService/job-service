@@ -45,9 +45,9 @@ public final class QueueServicesFactory
     public static QueueServices create(final String targetQueue, final Codec codec) throws IOException, TimeoutException {
         //  Create connection and channel for publishing messages.
         LOG.debug("Creating connection ...");
-        Connection connection = createConnection();
+        final Connection connection = createConnection();
         LOG.debug("Creating channel ...");
-        Channel publishChannel = connection.createChannel();
+        final Channel publishChannel = connection.createChannel();
 
         //  Declare target worker queue.
         LOG.debug("Declaring target worker queue ...");

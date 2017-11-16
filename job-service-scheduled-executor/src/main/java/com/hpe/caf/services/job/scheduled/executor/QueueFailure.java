@@ -18,6 +18,11 @@ package com.hpe.caf.services.job.scheduled.executor;
 import java.util.Date;
 import java.util.Objects;
 
+/**
+ * This class is used to register a failure in publishing a message on to RabbitMQ.
+ * NOTE - best to keep this in synch with
+ * job-service\src\main\java\com\hpe\caf\services\job\api\generated\model\Failure.java
+ */
 public class QueueFailure
 {
     private String failureId = null;
@@ -25,7 +30,7 @@ public class QueueFailure
     private String failureSource = null;
     private String failureMessage = null;
 
-    public QueueFailure failureId(String failureId) {
+    public QueueFailure failureId(final String failureId) {
         this.failureId = failureId;
         return this;
     }
@@ -33,11 +38,11 @@ public class QueueFailure
     public String getFailureId() {
         return failureId;
     }
-    public void setFailureId(String failureId) {
+    public void setFailureId(final String failureId) {
         this.failureId = failureId;
     }
 
-    public QueueFailure failureTime(Date failureTime) {
+    public QueueFailure failureTime(final Date failureTime) {
         this.failureTime = failureTime;
         return this;
     }
@@ -45,11 +50,11 @@ public class QueueFailure
     public Date getFailureTime() {
         return failureTime;
     }
-    public void setFailureTime(Date failureTime) {
+    public void setFailureTime(final Date failureTime) {
         this.failureTime = failureTime;
     }
 
-    public QueueFailure failureSource(String failureSource) {
+    public QueueFailure failureSource(final String failureSource) {
         this.failureSource = failureSource;
         return this;
     }
@@ -57,11 +62,11 @@ public class QueueFailure
     public String getFailureSource() {
         return failureSource;
     }
-    public void setFailureSource(String failureSource) {
+    public void setFailureSource(final String failureSource) {
         this.failureSource = failureSource;
     }
 
-    public QueueFailure failureMessage(String failureMessage) {
+    public QueueFailure failureMessage(final String failureMessage) {
         this.failureMessage = failureMessage;
         return this;
     }
@@ -69,19 +74,19 @@ public class QueueFailure
     public String getFailureMessage() {
         return failureMessage;
     }
-    public void setFailureMessage(String failureMessage) {
+    public void setFailureMessage(final String failureMessage) {
         this.failureMessage = failureMessage;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        QueueFailure failure = (QueueFailure) o;
+        final QueueFailure failure = (QueueFailure) o;
         return Objects.equals(failureId, failure.failureId) &&
                 Objects.equals(failureSource, failure.failureSource) &&
                 Objects.equals(failureTime, failure.failureTime) &&
@@ -95,7 +100,7 @@ public class QueueFailure
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append("class Failure {\n");
 
         sb.append("    failureId: ").append(toIndentedString(failureId)).append("\n");
@@ -110,7 +115,7 @@ public class QueueFailure
      * Convert the given object to string with each line indented by 4 spaces
      * (except the first line).
      */
-    private String toIndentedString(Object o) {
+    private String toIndentedString(final Object o) {
         if (o == null) {
             return "null";
         }

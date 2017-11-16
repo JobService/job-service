@@ -21,25 +21,22 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class ScheduledExecutor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ScheduledExecutor.class);
 
-    private static ScheduledFuture<?> future;
-
-    public static void main(String[] args)
+    public static void main(final String[] args)
     {
         // Create a scheduler with one thread to process the pollDatabaseForJobsToRun() scheduled task.
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         LOG.info("Starting Job Service Scheduled Executor service ...");
-        Runnable task = () -> {
+        final Runnable task = () -> {
             try {
                 DatabasePoller.pollDatabaseForJobsToRun();
-            } catch ( Throwable t ) {   // Catch Exceptions and Errors to prevent scheduler stoppage.
+            } catch (final Throwable t ) {   // Catch Exceptions and Errors to prevent scheduler stoppage.
                 LOG.error("Caught exception while polling the Job Service database. Message:\n" + t.getMessage()
                         + "StackTrace:\n" + Arrays.toString(t.getStackTrace()));
             }
@@ -47,7 +44,7 @@ public class ScheduledExecutor {
 
         //  Poll the Job Service database using the specified polling period configuration to specify how often the
         //  scheduled task is run.
-        scheduler.scheduleWithFixedDelay(task, 10, ScheduledExecutorConfig.getScheduledExecutorPeriod(),
+        scheduler.scheduleWithFixedDelay(task, 20, ScheduledExecutorConfig.getScheduledExecutorPeriod(),
                 TimeUnit.SECONDS);
     }
 }

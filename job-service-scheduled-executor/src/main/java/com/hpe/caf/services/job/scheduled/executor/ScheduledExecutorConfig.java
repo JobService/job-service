@@ -21,51 +21,58 @@ package com.hpe.caf.services.job.scheduled.executor;
 public class ScheduledExecutorConfig {
 
     public static String getDatabaseURL(){
-        return System.getProperty("CAF_DATABASE_URL", System.getenv("CAF_DATABASE_URL"));
+        return getPropertyOrEnvVar("CAF_DATABASE_URL");
     }
 
     public static String getDatabaseUsername(){
-        return System.getProperty("CAF_DATABASE_USERNAME", System.getenv("CAF_DATABASE_USERNAME"));
+        return getPropertyOrEnvVar("CAF_DATABASE_USERNAME");
     }
 
     public static String getDatabasePassword(){
-        return System.getProperty("CAF_DATABASE_PASSWORD", System.getenv("CAF_DATABASE_PASSWORD"));
+        return getPropertyOrEnvVar("CAF_DATABASE_PASSWORD");
     }
 
     public static String getRabbitMQHost(){
-        return System.getProperty("CAF_RABBITMQ_HOST", System.getenv("CAF_RABBITMQ_HOST"));
+        return getPropertyOrEnvVar("CAF_RABBITMQ_HOST");
     }
 
     public static int getRabbitMQPort(){
-        return Integer.parseInt(System.getProperty("CAF_RABBITMQ_PORT", System.getenv("CAF_RABBITMQ_PORT")));
+        return Integer.parseInt(getPropertyOrEnvVar("CAF_RABBITMQ_PORT"));
     }
 
     public static String getRabbitMQUsername(){
-        return System.getProperty("CAF_RABBITMQ_USERNAME", System.getenv("CAF_RABBITMQ_USERNAME"));
+        return getPropertyOrEnvVar("CAF_RABBITMQ_USERNAME");
     }
 
     public static String getRabbitMQPassword(){
-        return System.getProperty("CAF_RABBITMQ_PASSWORD", System.getenv("CAF_RABBITMQ_PASSWORD"));
+        return getPropertyOrEnvVar("CAF_RABBITMQ_PASSWORD");
     }
 
     public static String getTrackingPipe() {
-        return System.getProperty("CAF_TRACKING_PIPE", System.getenv("CAF_TRACKING_PIPE"));
+        return getPropertyOrEnvVar("CAF_TRACKING_PIPE");
     }
 
     public static String getStatusCheckTime() {
-        return System.getProperty("CAF_STATUS_CHECK_TIME", System.getenv("CAF_STATUS_CHECK_TIME"));
+        return getPropertyOrEnvVar("CAF_STATUS_CHECK_TIME");
     }
 
     public static String getWebserviceUrl() {
-        return System.getProperty("CAF_WEBSERVICE_URL", System.getenv("CAF_WEBSERVICE_URL"));
+        return getPropertyOrEnvVar("CAF_WEBSERVICE_URL");
     }
 
     public static int getScheduledExecutorPeriod() {
         //  Default to 10 seconds if CAF_SCHEDULED_EXECUTOR_PERIOD not specified.
-        String  scheduledExecutorPeriod = System.getProperty("CAF_SCHEDULED_EXECUTOR_PERIOD", System.getenv("CAF_SCHEDULED_EXECUTOR_PERIOD"));
+        final String  scheduledExecutorPeriod = getPropertyOrEnvVar("CAF_SCHEDULED_EXECUTOR_PERIOD");
         if (null == scheduledExecutorPeriod || scheduledExecutorPeriod.isEmpty()) {
             return 10;
         }
         return Integer.parseInt(scheduledExecutorPeriod);
     }
+
+    private static String getPropertyOrEnvVar(final String key)
+    {
+        final String propertyValue = System.getProperty(key);
+        return (propertyValue != null) ? propertyValue : System.getenv(key);
+    }
+
 }

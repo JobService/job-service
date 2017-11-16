@@ -40,7 +40,7 @@ public class JobTaskData
         return jobId;
     }
 
-    public void setJobId(String jobId) {
+    public void setJobId(final String jobId) {
         this.jobId = Objects.requireNonNull(jobId);
     }
 
@@ -48,7 +48,7 @@ public class JobTaskData
         return taskClassifier;
     }
 
-    public void setTaskClassifier(String taskClassifier) {
+    public void setTaskClassifier(final String taskClassifier) {
         this.taskClassifier = Objects.requireNonNull(taskClassifier);
     }
 
@@ -56,7 +56,7 @@ public class JobTaskData
         return taskApiVersion;
     }
 
-    public void setTaskApiVersion(int taskApiVersion) {
+    public void setTaskApiVersion(final int taskApiVersion) {
         this.taskApiVersion = Objects.requireNonNull(taskApiVersion);
     }
 
@@ -64,7 +64,7 @@ public class JobTaskData
         return taskData;
     }
 
-    public void setTaskData(byte[] taskData) {
+    public void setTaskData(final byte[] taskData) {
         this.taskData = Objects.requireNonNull(taskData);
     }
 
@@ -72,7 +72,7 @@ public class JobTaskData
         return taskPipe;
     }
 
-    public void setTaskPipe(String taskPipe) {
+    public void setTaskPipe(final String taskPipe) {
         this.taskPipe = Objects.requireNonNull(taskPipe);
     }
 
@@ -80,7 +80,7 @@ public class JobTaskData
         return targetPipe;
     }
 
-    public void setTargetPipe(String targetPipe) {
+    public void setTargetPipe(final String targetPipe) {
         this.targetPipe = Objects.requireNonNull(targetPipe);
     }
 }

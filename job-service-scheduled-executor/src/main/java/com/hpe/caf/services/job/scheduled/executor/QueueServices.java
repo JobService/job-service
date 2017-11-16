@@ -49,7 +49,7 @@ public final class QueueServices
     private final String targetQueue;
     private final Codec codec;
 
-    public QueueServices(Connection connection, Channel publisherChannel, String targetQueue, Codec codec) {
+    public QueueServices(final Connection connection, final Channel publisherChannel, final String targetQueue, final Codec codec) {
 
         this.connection = connection;
         this.publisherChannel = publisherChannel;
@@ -64,14 +64,14 @@ public final class QueueServices
      * @param   workerAction        the worker task details
      * @throws IOException          thrown if message cannot be sent
      */
-    public void sendMessage(String jobId, WorkerAction workerAction) throws IOException
+    public void sendMessage(final String jobId, final WorkerAction workerAction) throws IOException
     {
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
-        String taskId = UUID.randomUUID().toString();
+        final String taskId = UUID.randomUUID().toString();
 
         //  Serialise the data payload. Encoding type is provided in the WorkerAction.
-        byte[] taskData = null;
+        final byte[] taskData;
 
         //  Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
         LOG.debug("Validating the task data ...");
@@ -93,7 +93,7 @@ public final class QueueServices
         } else if (taskDataObj instanceof Map<?, ?>) {
             try {
                 taskData = codec.serialise(taskDataObj);
-            } catch (CodecException e) {
+            } catch (final CodecException e) {
                 final String errorMessage = "Failed to serialise TaskData";
                 LOG.error(errorMessage);
                 throw new RuntimeException(errorMessage, e);
@@ -105,7 +105,7 @@ public final class QueueServices
         }
 
         //  Set up string for statusCheckUrl
-        String statusCheckUrl = ScheduledExecutorConfig.getWebserviceUrl() +"/jobs/" + URLEncoder.encode(jobId, "UTF-8") +"/isActive";
+        final String statusCheckUrl = ScheduledExecutorConfig.getWebserviceUrl() +"/jobs/" + URLEncoder.encode(jobId, "UTF-8") +"/isActive";
 
         //  Construct the task message.
         LOG.debug("Constructing the task message ...");
@@ -128,7 +128,7 @@ public final class QueueServices
         try {
             LOG.debug("Serialise the task message ...");
             taskMessageBytes = codec.serialise(taskMessage);
-        } catch (CodecException e) {
+        } catch (final CodecException e) {
             LOG.error(e.getMessage());
             throw new RuntimeException(e);
         }
@@ -142,21 +142,21 @@ public final class QueueServices
     /**
      * Calculates the date of the next status check to be performed.
      */
-    private Date calculateStatusCheckDate(String statusCheckTime){
+    private Date calculateStatusCheckDate(final String statusCheckTime){
         //make sure statusCheckTime is a valid long
-        long seconds = 0;
+        final long seconds;
         try{
             seconds = Long.parseLong(statusCheckTime);
-        } catch (NumberFormatException e) {
-            final String errorMessage = "Please provide a valid integer for statusCheckTime in seconds. " +e;
+        } catch (final NumberFormatException e) {
+            final String errorMessage = "Please provide a valid integer for statusCheckTime in seconds. " + e;
             LOG.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
 
         //set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
-        Instant now = Instant.now();
-        Instant later = now.plusSeconds(seconds);
-        return java.util.Date.from( later );
+        final Instant now = Instant.now();
+        final Instant later = now.plusSeconds(seconds);
+        return Date.from( later );
     }
 
     /**

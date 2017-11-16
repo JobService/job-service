@@ -2,5 +2,5 @@
 
 This docker image contains the [Job Service Scheduled Executor](../job-service-scheduled-executor).
 
-[Job-service-deploy](https://github.com/JobService/job-service-deploy) can be used to deploy this container on Docker.
+[Job Service Deploy](https://github.com/JobService/job-service/tree/deploy) can be used to deploy this container on Docker.
 

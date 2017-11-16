@@ -17,6 +17,11 @@ package com.hpe.caf.services.job.scheduled.executor;
 
 import java.util.Objects;
 
+/**
+ * This class is used to publish messages on to RabbitMQ.
+ * NOTE - best to keep this in synch with
+ * job-service\src\main\java\com\hpe\caf\services\job\api\generated\model\WorkerAction.java
+ */
 public class WorkerAction
 {
     private String taskClassifier = null;
@@ -30,7 +35,7 @@ public class WorkerAction
 
         private String value;
 
-        TaskDataEncodingEnum(String value) {
+        TaskDataEncodingEnum(final String value) {
             this.value = value;
         }
 
@@ -44,7 +49,7 @@ public class WorkerAction
     private String taskPipe = null;
     private String targetPipe = null;
 
-    public WorkerAction taskClassifier(String taskClassifier) {
+    public WorkerAction taskClassifier(final String taskClassifier) {
         this.taskClassifier = taskClassifier;
         return this;
     }
@@ -52,11 +57,11 @@ public class WorkerAction
     public String getTaskClassifier() {
         return taskClassifier;
     }
-    public void setTaskClassifier(String taskClassifier) {
+    public void setTaskClassifier(final String taskClassifier) {
         this.taskClassifier = taskClassifier;
     }
 
-    public WorkerAction taskApiVersion(Integer taskApiVersion) {
+    public WorkerAction taskApiVersion(final Integer taskApiVersion) {
         this.taskApiVersion = taskApiVersion;
         return this;
     }
@@ -64,11 +69,11 @@ public class WorkerAction
     public Integer getTaskApiVersion() {
         return taskApiVersion;
     }
-    public void setTaskApiVersion(Integer taskApiVersion) {
+    public void setTaskApiVersion(final Integer taskApiVersion) {
         this.taskApiVersion = taskApiVersion;
     }
 
-    public WorkerAction taskData(Object taskData) {
+    public WorkerAction taskData(final Object taskData) {
         this.taskData = taskData;
         return this;
     }
@@ -76,11 +81,11 @@ public class WorkerAction
     public Object getTaskData() {
         return taskData;
     }
-    public void setTaskData(Object taskData) {
+    public void setTaskData(final Object taskData) {
         this.taskData = taskData;
     }
 
-    public WorkerAction taskDataEncoding(TaskDataEncodingEnum taskDataEncoding) {
+    public WorkerAction taskDataEncoding(final TaskDataEncodingEnum taskDataEncoding) {
         this.taskDataEncoding = taskDataEncoding;
         return this;
     }
@@ -88,11 +93,11 @@ public class WorkerAction
     public TaskDataEncodingEnum getTaskDataEncoding() {
         return taskDataEncoding;
     }
-    public void setTaskDataEncoding(TaskDataEncodingEnum taskDataEncoding) {
+    public void setTaskDataEncoding(final TaskDataEncodingEnum taskDataEncoding) {
         this.taskDataEncoding = taskDataEncoding;
     }
 
-    public WorkerAction taskPipe(String taskPipe) {
+    public WorkerAction taskPipe(final String taskPipe) {
         this.taskPipe = taskPipe;
         return this;
     }
@@ -100,11 +105,11 @@ public class WorkerAction
     public String getTaskPipe() {
         return taskPipe;
     }
-    public void setTaskPipe(String taskPipe) {
+    public void setTaskPipe(final String taskPipe) {
         this.taskPipe = taskPipe;
     }
 
-    public WorkerAction targetPipe(String targetPipe) {
+    public WorkerAction targetPipe(final String targetPipe) {
         this.targetPipe = targetPipe;
         return this;
     }
@@ -112,19 +117,19 @@ public class WorkerAction
     public String getTargetPipe() {
         return targetPipe;
     }
-    public void setTargetPipe(String targetPipe) {
+    public void setTargetPipe(final String targetPipe) {
         this.targetPipe = targetPipe;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        WorkerAction workerAction = (WorkerAction) o;
+        final WorkerAction workerAction = (WorkerAction) o;
         return Objects.equals(taskClassifier, workerAction.taskClassifier) &&
                 Objects.equals(taskApiVersion, workerAction.taskApiVersion) &&
                 Objects.equals(taskData, workerAction.taskData) &&
@@ -140,7 +145,7 @@ public class WorkerAction
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append("class WorkerAction {\n");
 
         sb.append("    taskClassifier: ").append(toIndentedString(taskClassifier)).append("\n");
@@ -157,7 +162,7 @@ public class WorkerAction
      * Convert the given object to string with each line indented by 4 spaces
      * (except the first line).
      */
-    private String toIndentedString(Object o) {
+    private String toIndentedString(final Object o) {
         if (o == null) {
             return "null";
         }
