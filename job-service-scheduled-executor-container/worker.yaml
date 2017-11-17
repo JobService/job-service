@@ -1,4 +1,3 @@
-#!/bin/sh
 #
 # Copyright 2015-2017 EntIT Software LLC, a Micro Focus company.
 #
@@ -15,6 +14,7 @@
 # limitations under the License.
 #
 
-
-cd /maven
-java -cp "*" com.hpe.caf.services.job.scheduled.executor.ScheduledExecutor
+logging:
+  level: ${CAF_LOG_LEVEL:-INFO}
+  loggers:
+    com.hpe.caf: ${CAF_LOG_LEVEL:-INFO}
