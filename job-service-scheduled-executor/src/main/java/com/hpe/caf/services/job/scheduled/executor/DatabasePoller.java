@@ -50,7 +50,7 @@ public class DatabasePoller
     public static void pollDatabaseForJobsToRun() {
         try {
             //  Poll database for prerequisite jobs that are now available to be run.
-            LOG.info("Polling Job Service database for jobs to run ...");
+            LOG.debug("Polling Job Service database for jobs to run ...");
             final List<JobTaskData> jobsToRun = getDependentJobsToRun();
 
             //  Determine if there are any jobs to run.
