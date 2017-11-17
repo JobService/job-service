@@ -297,19 +297,20 @@
      objecttolerance="10"
      gridtolerance="10"
      guidetolerance="10"
-     inkscape:pageopacity="0"
+     inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:window-width="1920"
-     inkscape:window-height="1058"
+     inkscape:window-height="1018"
      id="namedview4845"
      showgrid="false"
      inkscape:zoom="1.1791667"
      inkscape:cx="480"
      inkscape:cy="393.92226"
-     inkscape:window-x="1912"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g4841" />
+     inkscape:current-layer="g4841"
+     inkscape:pagecheckerboard="false" />
   <clipPath
      id="p.0">
     <path
@@ -1412,7 +1413,7 @@
     <path
        inkscape:connector-curvature="0"
        style="fill-rule:evenodd;stroke:#000000;stroke-width:1.29255319;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:11.10000038;stroke-dasharray:1.29255317, 1.29255317;stroke-dashoffset:0;marker-start:url(#TriangleInM);marker-end:url(#TriangleOutM);paint-order:markers stroke fill"
-       d="M 702.19299,193.75162 756.019,154.39923"
+       d="M 704.42749,191.56656 758.2535,152.21417"
        id="path4576-7" />
     <path
        style="opacity:0;stroke-width:1.37952757;stroke-linejoin:miter;stroke-miterlimit:11.10000038;stroke-dasharray:none;stroke-dashoffset:0;paint-order:markers stroke fill"
@@ -1472,7 +1473,7 @@
          sodipodi:role="line"
          id="tspan5321"
          x="721.69611"
-         y="581.43292"></tspan></text>
+         y="581.43292" /></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.66666698px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
