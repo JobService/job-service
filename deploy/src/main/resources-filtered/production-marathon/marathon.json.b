@@ -1,5 +1,5 @@
 {
-	"id": "caf",
+	"id": "jobservice",
 	"groups": [{
 		"id": "jobservice",
 		"apps": [{
