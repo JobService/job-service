@@ -30,16 +30,92 @@
         <version>2.3.0-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <maven.install.skip>true</maven.install.skip>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.github.cafdataprocessing</groupId>
+                <artifactId>worker-document-framework</artifactId>
+                <version>${caf.worker-document-framework.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>standard-worker-container</artifactId>
+            <type>pom</type>
+        </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-scheduled-executor</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.cafdataprocessing</groupId>
+            <artifactId>worker-document</artifactId>
+        </dependency>
     </dependencies>
 	
     <build>
         <plugins>
+            <!-- Unpack the base worker configuration files -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process-config-files</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.github.workerframework</groupId>
+                                    <artifactId>worker-default-configs</artifactId>
+                                    <outputDirectory>${project.build.directory}/config-files</outputDirectory>
+                                    <excludes>META-INF/**</excludes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Process the local configuration files -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>process-config-files</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/config-files</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/config</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Build the Docker image -->
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
@@ -64,7 +140,7 @@
                     <verbose>true</verbose>
                     <watchInterval>500</watchInterval>
                     <logDate>default</logDate>
-                    <autoPull>on</autoPull>
+                    <autoPull>always</autoPull>
                     <images>
                         <!-- Job Service Scheduled Executor image.-->
                         <image>
@@ -74,6 +150,7 @@
                                 <maintainer>connor.mulholland@hpe.com</maintainer>
                                 <from>cafapi/opensuse-jre8:1.2</from>
                                 <labels>
+                                    <caf.worker-document-framework.version>${caf.worker-document-framework.version}</caf.worker-document-framework.version>
                                     <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
                                     <Git.Branch>${git.branch}</Git.Branch>
@@ -81,7 +158,7 @@
                                 </labels>
                                 <cmd>
                                     <exec>
-                                        <args>/maven/start.sh</args>
+                                        <args>/maven/worker.sh</args>
                                     </exec>
                                 </cmd>
                                 <assembly>
@@ -89,10 +166,21 @@
                                     <inline>
                                         <fileSets>
                                             <fileSet>
+                                                <lineEnding>unix</lineEnding>
                                                 <includes>
-                                                    <include>*.sh</include>
+                                                    <include>worker.sh</include>
                                                 </includes>
                                                 <fileMode>0755</fileMode>
+                                            </fileSet>
+                                            <fileSet>
+                                                <lineEnding>unix</lineEnding>
+                                                <includes>
+                                                    <include>worker.yaml</include>
+                                                </includes>
+                                            </fileSet>
+                                            <fileSet>
+                                                <directory>${project.build.directory}/config-files</directory>
+                                                <outputDirectory>config</outputDirectory>
                                             </fileSet>
                                         </fileSets>
                                         <dependencySets>
