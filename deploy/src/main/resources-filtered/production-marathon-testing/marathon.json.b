@@ -1,6 +1,4 @@
 {
-	"id": "jobservice",
-	"groups": [{
 		"id": "jobservice-testing",
 		"apps": [{
 				"id": "worker-globfilter",
@@ -72,5 +70,4 @@
 					"CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER": "${CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER}"
 				}
 			}]
-	}]
 }

@@ -1,6 +1,4 @@
 {
-	"id": "jobservice",
-	"groups": [{
 		"id": "jobservice",
 		"apps": [{
 				"id": "job-service",
@@ -100,5 +98,4 @@
                     "autoscale.backoff": "10"
 				}
 			}]
-	}]
 }
