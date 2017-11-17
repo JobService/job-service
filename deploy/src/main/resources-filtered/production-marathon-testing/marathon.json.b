@@ -17,7 +17,7 @@
 					"volumes": [
                         {
                             "containerPath": "/mnt/caf-datastore-root",
-                            "hostPath": "worker-datastore",
+                            "hostPath": "${WORKER_STORAGE_HOST_DATA_DIRECTORY}",
                             "mode": "RW"
                         },
 						{
@@ -52,13 +52,13 @@
 					"volumes": [
                         {
                             "containerPath": "/mnt/caf-datastore-root",
-                            "hostPath": "worker-datastore",
+                            "hostPath": "${WORKER_STORAGE_HOST_DATA_DIRECTORY}",
                             "mode": "RW"
                         },
 						{
                             "containerPath": "/mnt/caf-worker-input-dir",
                             "hostPath": "${JOB_SERVICE_DEMO_OUTPUT_DIR}",
-                            "mode": "RO"
+                            "mode": "RW"
                         }
                     ]
 				},

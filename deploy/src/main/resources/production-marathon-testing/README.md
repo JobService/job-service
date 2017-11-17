@@ -51,12 +51,63 @@ The `marathon.json.b` deployment template file specifies default values for a nu
 
 2. Deploy the Production Marathon services as described [here](../production-marathon/README.md).
 
-3. Deploy the testing Docker containers for Job Service
+3. Deploy the testing Docker containers for Job Service by issuing the following command from the 'production-marathon-testing' directory:
 
-In order to deploy the testing Docker containers, issue the following command from the 'production-marathon' directory:
+		source ./marathon.env ; \
+	     	cat marathon.json.b \
+	     	| perl -pe 's/\$\{(\w+)\}/(exists $ENV{$1} && length $ENV{$1} > 0 ? $ENV{$1} : "NOT_SET_$1")/eg' \
+	     	| curl -H "Content-Type: application/json" -d @- http://localhost:8080/v2/groups/
 
-	source ./marathon.env ; \
-	     cat marathon.json.b \
-	     | perl -pe 's/\$\{(\w+)\}/(exists $ENV{$1} && length $ENV{$1} > 0 ? $ENV{$1} : "NOT_SET_$1")/eg' \
-	     | curl -H "Content-Type: application/json" -d @- http://localhost:8080/v2/groups/
+4. Navigate to the Job Service UI  
+    The Job Service is a RESTful Web Service and is primarily intended for programmatic access, however it also ships with a Swagger-generated user-interface.
 
+    Using a browser, navigate to the `/job-service-ui` endpoint on the Job Service:  
+
+        http://<DOCKER-HOST>:<JOB-SERVICE-PORT>/job-service-ui
+
+    Adjust '<DOCKER-HOST>` and `<JOB-SERVICE-PORT>' to be the name of your own environment.
+
+5. Try the `GET /jobStats/count` operation  
+    Click on this operation and then click on the 'Try it out!' button.
+
+    You should see the response is zero as you have not yet created any jobs.
+
+6. Create a Job  
+    Go to the `PUT /jobs/{jobId}` operation.
+
+    - Choose a Job Id, for example, `DemoJob`, and set it in the `jobId` parameter.
+    - Enter the following Job Definition into the `newJob` parameter:
+
+        <pre><code>{
+          "name": "Some job name",
+          "description": "The description of the job",
+          "task": {
+            "taskClassifier": "BatchWorker",
+            "taskApiVersion": 1,
+            "taskData": {
+              "batchType": "GlobPattern",
+              "batchDefinition": "*.txt",
+              "taskMessageType": "DocumentMessage",
+              "taskMessageParams": {
+                "field:binaryFile": "CONTENT",
+                "field:fileName": "FILE_NAME",
+                "cd:outputSubfolder": "subDir"
+              },
+              "targetPipe": "languageidentification-in"
+            },
+            "taskPipe": "globfilter-in",
+            "targetPipe": "languageidentification-out"
+          }
+        }</code></pre>
+
+7. Check on the Job's progress  
+    Go to the `GET /jobs/{jobId}` operation.
+
+    - Enter the Job Id that you chose when creating the job.
+    - Click on the 'Try it out!' button.
+
+    You should see a response returned from the Job Service.
+    - If the job is still in progress then the `status` field will be `Active` and the `percentageComplete` field will indicate the progress of the job.
+    - If the job has finished then the `status` field will be `Completed`.
+
+    Given that the Language Detection Worker is configured to output the results to files in a folder you should see that these files have been created in the output folder.  If you examine the output files you should see that they contain the details of what languages were detected in the corresponding input files.
