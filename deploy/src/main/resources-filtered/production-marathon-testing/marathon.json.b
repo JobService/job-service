@@ -44,7 +44,7 @@
 				"instances": 1,
 				"container": {
 					"docker": {
-						"image": "cafdataprocessing/worker-languagedetect:${worker-langdetect.version}",
+						"image": "cafdataprocessing/worker-languagedetection:${worker-langdetect.version}",
 						"network": "BRIDGE",
 						"forcePullImage": true
 					},
