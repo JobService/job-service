@@ -37,13 +37,15 @@
 						"network": "BRIDGE",
 						"portMappings": [{
 							"containerPort": 5672,
-							"hostPort": ${CAF_RABBITMQ_PORT},
-							"protocol": "tcp"
+							"hostPort": 0,
+							"protocol": "tcp",
+							"servicePort": ${CAF_RABBITMQ_PORT}
 						},
 						{
 							"containerPort": 15672,
-							"hostPort": ${CAF_RABBITMQ_MANAGEMENT_PORT},
-							"protocol": "tcp"
+							"hostPort": 0,
+							"protocol": "tcp",
+							"servicePort": ${CAF_RABBITMQ_MANAGEMENT_PORT}
 						}],
 						"forcePullImage": true
 					},
@@ -56,6 +58,6 @@
                         }
                     ]
 				}
-			},]
+			}]
 	}]
 }
