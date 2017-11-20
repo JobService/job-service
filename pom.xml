@@ -43,6 +43,7 @@
 
     <properties>
         <caf.worker-framework.version>2.3.1-301</caf.worker-framework.version>
+        <caf.worker-document-framework.version>3.1.1-71</caf.worker-document-framework.version>
         <dockerHubOrganization>jobservice</dockerHubOrganization>
         <dockerJobServiceOrg>${dockerImagePrefix}${dockerHubOrganization}${dockerOrgSeperator}</dockerJobServiceOrg>
         <dockerProjectVersion>${dockerVersionSeperator}${project.version}</dockerProjectVersion>
@@ -72,6 +73,8 @@
         <module>job-service-container</module>
         <module>job-service-client</module>
         <module>job-service-html</module>
+        <module>job-service-scheduled-executor</module>
+        <module>job-service-scheduled-executor-container</module>
         <module>worker-jobtracking</module>
         <module>worker-jobtracking-shared</module>
         <module>worker-jobtracking-container</module>

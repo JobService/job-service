@@ -65,7 +65,7 @@ public final class JobsPutTest {
         //  Mock DatabaseHelper calls.
         doNothing().when(mockDatabaseHelper).createJob(anyString(),anyString(),anyString(),anyString(),anyInt());
         doNothing().when(mockDatabaseHelper).createJobWithDependencies(anyString(),anyString(),anyString(),anyString(),anyInt(),
-                anyString(),anyInt(), any(), anyString(), anyString(), any());
+                anyString(),anyInt(), any(), anyString(), anyString(), any(), anyInt());
         doNothing().when(mockDatabaseHelper).deleteJob(anyString());
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(any()).thenReturn(mockDatabaseHelper);
 
@@ -230,6 +230,7 @@ public final class JobsPutTest {
         action.setTargetPipe("JobServiceQueue");
         job.setTask(action);
         job.setPrerequisiteJobIds(Arrays.asList(new String[]{"J1", "J2"}));
+        job.setDelay(0);
 
         //  Test creation of job when no matching job row exists and job has prereqs that have not been completed.
         final String createOrUpdateJobReturnString = JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00",
@@ -239,7 +240,7 @@ public final class JobsPutTest {
 
         verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(anyString(),anyString(),anyString(),anyString(),anyInt(),
-                anyString(),anyInt(), any(), anyString(), anyString(), any());
+                anyString(),anyInt(), any(), anyString(), anyString(), any(), anyInt());
         verify(mockDatabaseHelper, times(1)).canJobBeProgressed(anyString());
     }
     

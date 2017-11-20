@@ -19,7 +19,7 @@
  *
  *  Description:  Modify status of task and propagate progress state to subsequent parent task and job rows.
  */
-DROP FUNCTION IF EXISTS report_progress(varchar(58),job_status);
+DROP FUNCTION IF EXISTS report_progress(in_task_id varchar(58), in_status job_status);
 CREATE FUNCTION report_progress(in_task_id varchar(58), in_status job_status)
   RETURNS TABLE (job_id VARCHAR(48), task_classifier VARCHAR(255), task_api_version INT, task_data BYTEA,
   task_pipe VARCHAR(255), target_pipe VARCHAR(255)) AS $$
@@ -60,25 +60,9 @@ BEGIN
       --  If job is completed, then remove task tables associated with the job.
       PERFORM internal_delete_task_table(v_job_id,false);
 
-      -- Get list of jobs that can now be run.
+      -- Get a list of jobs that can run immediately and update the eligibility run date for others.
       RETURN QUERY
-      SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe
-      FROM job_task_data jtd
-      INNER JOIN job_dependency jd
-        ON jd.job_id = jtd.job_id
-      WHERE jd.dependent_job_id = v_job_id
-      AND NOT EXISTS (SELECT jd2.job_id
-                      FROM job_dependency jd2
-                      INNER JOIN job j
-                        ON j.job_Id = jd2.dependent_job_id
-                      WHERE jd2.job_id = jd.job_Id
-                      AND jd2.dependent_job_id <> v_job_id
-                      AND j.status <> 'Completed');
-
-      -- Remove corresponding dependency related rows.
-      DELETE FROM job_dependency jd WHERE jd.job_id = v_job_id;
-      DELETE FROM job_task_data jtd WHERE jtd.job_id = v_job_id;
-
+      SELECT * FROM internal_process_dependent_jobs(v_job_id);
     END IF;
 
   ELSE
@@ -125,7 +109,7 @@ BEGIN
 
     --  If status is completed, then rollup task completion status to parent(s).
     IF in_status = 'Completed' THEN
-	  RETURN QUERY
+      RETURN QUERY
       SELECT * FROM internal_report_task_completion(v_parent_table_name);
     END IF;
 

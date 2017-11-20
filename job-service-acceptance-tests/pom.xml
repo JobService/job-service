@@ -645,6 +645,34 @@
                             <name>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</name>
                         </image>
 
+                        <!-- Run the Job Service Scheduled Executor -->
+                        <image>
+                            <alias>job-service-scheduled-executor</alias>
+                            <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
+                            <run>
+                                <env>
+                                    <CAF_DATABASE_URL>${job.database.url}</CAF_DATABASE_URL>
+                                    <CAF_DATABASE_USERNAME>${job.database.username}</CAF_DATABASE_USERNAME>
+                                    <CAF_DATABASE_PASSWORD>${job.database.password}</CAF_DATABASE_PASSWORD>
+                                    <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
+                                    <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
+                                    <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
+                                    <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
+                                    <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
+                                    <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
+                                    <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
+                                    <CAF_SCHEDULED_EXECUTOR_PERIOD>2</CAF_SCHEDULED_EXECUTOR_PERIOD>
+                                </env>
+                                <links>
+                                    <link>rabbitmq</link>
+                                    <link>${job.database.host}</link>
+                                </links>
+                                <log>
+                                    <enabled>true</enabled>
+                                </log>
+                            </run>
+                        </image>
+
                     </images>
                 </configuration>
             </plugin>

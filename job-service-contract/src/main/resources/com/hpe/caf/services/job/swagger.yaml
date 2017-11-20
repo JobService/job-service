@@ -265,6 +265,11 @@ definitions:
         items:
           type: string
         description: List of job identifiers that must be complete prior to the start of this job.
+      delay:
+        type: integer
+        format: int32
+        default: 0		
+        description: The time in seconds after the prerequisite job identifiers have completed before this job is eligible for running. 
   worker-action:
     type: object
     required:

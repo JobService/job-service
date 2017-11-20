@@ -29,8 +29,8 @@ BEGIN
   END IF;
 
   -- Create new row in job and return the job_id.
-  insert into public.job (job_id, name, description, data, create_date, status, percentage_complete, failure_details, job_hash)
-  values (in_job_id, in_name, in_description, in_data, now() AT TIME ZONE 'UTC', 'Waiting', 0.00, null, in_job_hash);
+  insert into public.job (job_id, name, description, data, create_date, status, percentage_complete, failure_details, delay, job_hash)
+  values (in_job_id, in_name, in_description, in_data, now() AT TIME ZONE 'UTC', 'Waiting', 0.00, null, 0, in_job_hash);
 
 END
 $$ LANGUAGE plpgsql;

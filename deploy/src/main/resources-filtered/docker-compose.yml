@@ -76,6 +76,23 @@ services:
       - worker-datastore:/mnt/caf-datastore-root
       - ${JOB_SERVICE_DEMO_OUTPUT_DIR:-./output-files}:/mnt/caf-worker-output-dir
 
+  jobservicescheduledexecutor:
+    depends_on:
+      - rabbitmq
+      - jobservicedb
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_WORKER_INPUT_QUEUE: jobservicescheduler-in
+      CAF_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
+      CAF_DATABASE_USERNAME: postgres
+      CAF_DATABASE_PASSWORD: root
+      CAF_STATUS_CHECK_TIME: 5
+      CAF_TRACKING_PIPE: jobtracking-in
+      CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
+      CAF_SCHEDULED_EXECUTOR_PERIOD: 10
+    image: jobservice/job-service-scheduled-executor:${project.version}
+
 volumes:
   job-service-db:
   rabbitmq:
