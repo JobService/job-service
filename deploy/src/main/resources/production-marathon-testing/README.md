@@ -25,14 +25,14 @@ The `marathon.env` file supports configurable property settings necessary for se
 
 - `CAF_WORKER_GLOBFILTER_INPUT_QUEUE`: The RabbitMQ queue on which the Glob Filter worker listens
 - `CAF_BATCH_WORKER_ERROR_QUEUE`: The RabbitMQ queue where failed Glob Filter worker messages go
-- `CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER`: The directory where the test files are located
+- `CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER`: The location of the mounted directory inside the container where the test files are located
 
 - `CAF_WORKER_LANGDETECT_INPUT_QUEUE`: The RabbitMQ queue on which the Language Detection worker listens
 - `CAF_WORKER_LANGDETECT_OUTPUT_QUEUE`: The RabbitMQ queue on which the Language Detection worker outputs messages
 - `CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER`: The folder in which the Language Detection worker places result files
 
-- `JOB_SERVICE_DEMO_INPUT_DIR`: The directory where the test files are located
-- `JOB_SERVICE_DEMO_OUTPUT_DIR`: The output directory for test results
+- `JOB_SERVICE_DEMO_INPUT_DIR`: The directory where the test files are located on the host
+- `JOB_SERVICE_DEMO_OUTPUT_DIR`: The output directory for test results on the host
 
 - `WORKER_STORAGE_HOST_DATA_DIRECTORY`: The directory for Glob Filter and Language Detection workers to use as a datastore  
 
