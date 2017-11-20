@@ -49,6 +49,7 @@ services:
     env_file:
       - ./rabbitmq.env
     environment:
+      CAF_WORKER_INPUT_QUEUE: jobservicescheduler-in
       CAF_DATABASE_URL: "jdbc:postgresql://${JOB_SERVICE_DB_HOST}:${JOB_SERVICE_DB_PORT}/jobservice"
       CAF_DATABASE_USERNAME: "${CAF_DATABASE_USERNAME}"
       CAF_DATABASE_PASSWORD: "${CAF_DATABASE_PASSWORD}"
