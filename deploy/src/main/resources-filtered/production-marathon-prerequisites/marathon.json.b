@@ -1,6 +1,4 @@
 {
-	"id": "JobService",
-	"groups": [{
 		"id": "jobservice-prerequisite",
 		"apps": [{
 				"id": "job-service-db",
@@ -59,5 +57,4 @@
 					]
 				}
 			}]
-	}]
 }
