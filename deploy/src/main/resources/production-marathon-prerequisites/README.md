@@ -1,6 +1,6 @@
 # Production Marathon Prerequisites
 
-The Production Marathon Prerequisites deployment supports the deployment of the Job Service Database on Mesos/Marathon. This folder contains the marathon environment and template files that are required to deploy the Job Service Database.
+The Production Marathon Prerequisites deployment supports the deployment of the Job Service Database on Mesos/Marathon. This folder contains the marathon environment and template files that are required to deploy the Job Service Database and RabbitMQ.
 
 ## Service Configuration
 
@@ -10,11 +10,11 @@ The `marathon.json.b` template file describes the marathon deployment informatio
 ### Marathon Environment
 The `marathon.env` file supports configurable property settings necessary for service deployment. These include:
 
-- `POSTGRES_JOB_SERVICE_DB_SERVICE_PORT`: This configures the external port number on the host machine that will be forwarded to the Job Service Database containers internal 5432 port. This port is used to connect to the Job Service Database.
+- `JOB_SERVICE_DB_PORT`: This configures the external port number on the host machine that will be forwarded to the Job Service Database containers internal 5432 port. This port is used to connect to the Job Service Database.
 
-- `POSTGRES_JOB_SERVICE_DB_USER`: The username for the Postgres database.
+- `JOB_SERVICE_DB_USER`: The username for the Postgres database.
 
-- `POSTGRES_JOB_SERVICE_DB_PASSWORD`: The password for the Postgres database.
+- `JOB_SERVICE_DB_PASSWORD`: The password for the Postgres database.
 
 ### Additional Marathon Configuration
 The `marathon.json.b` deployment template file specifies default values for a number of additional settings which you may choose to modify directly for your custom deployment. These include:

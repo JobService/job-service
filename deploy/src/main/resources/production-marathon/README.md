@@ -18,13 +18,13 @@ The `marathon.env` file supports configurable property settings necessary for se
 
 - `JOB_TRACKING_8081_SERVICE_PORT`: This configures the external port number on the host machine that will be forwarded to the Job Tracking workers internal 8081 port. This port is used to retrieve metrics from the worker.
 
-- `POSTGRES_DB_HOSTNAME`: This configures the host name for the Postgres database.
+- `JOB_SERVICE_DB_HOSTNAME`: This configures the host name for the Postgres database.
 
-- `POSTGRES_DB_PORT`: This configures the port for the Postgres database.
+- `JOB_SERVICE_DB_PORT`: This configures the port for the Postgres database.
 
-- `POSTGRES_JOB_SERVICE_DB_USER`: The username for the Postgres database.
+- `JOB_SERVICE_DB_USER`: The username for the Postgres database.
 
-- `POSTGRES_JOB_SERVICE_DB_PASSWORD`: The password for the Postgres database.
+- `JOB_SERVICE_DB_PASSWORD`: The password for the Postgres database.
 
 - `CAF_RABBITMQ_HOST`: This configures the host address for RabbitMQ.
 
