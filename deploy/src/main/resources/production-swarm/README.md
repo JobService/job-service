@@ -5,7 +5,7 @@ The Production Docker Stack Deployment supports the deployment of the Job Servic
 ## Service Configuration
 
 ### Docker Stack
-The `docker-stack.yml` file describes the Docker deployment information required for the Job Service and Job Tracking Worker. The file uses property substitution to retrieve values from Environment variables. A number of these Environment variables are **required** for the Job Service deployment. These Environment variables are configurable in the `environment.sh` file.
+The `docker-stack.yml` file describes the Docker deployment information required for the Job Service, Job Service Scheduled Executor and Job Tracking Worker. The file uses property substitution to retrieve values from Environment variables. A number of these Environment variables are **required** for the Job Service deployment. These Environment variables are configurable in the `environment.sh` file.
 
 ### Docker Environment
 
@@ -61,13 +61,13 @@ The **Deploy** section of the `docker-stack.yml` contains a number of important 
 ## Execution
 
 To deploy the stack:
-* Edit `environment.sh` to ensure the Job Service and the Job Tracking Worker are pointing at the correct Postgres DB instance
-* Edit `environemnt.sh` to ensure the RabbitMQ configuration shared across both Job Service and Job Tracking Worker is correct
+* Edit `environment.sh` to ensure the Job Service, Job Service Scheduled Executor and the Job Tracking Worker are pointing at the correct Postgres DB instance
+* Edit `environemnt.sh` to ensure the RabbitMQ configuration shared across the Job Service, Job Service Scheduled Executor and Job Tracking Worker is correct
 * Ensure the Job Service DB has been created in your Postgres instance. For more info see [here](https://github.com/JobService/job-service/tree/develop/job-service-postgres-container#external-job-service-database-install)
-* Ensure the versions of Job Service and Job Tracking Worker in `docker-stack.yml` are the correct version to be deployed
+* Ensure the versions of Job Service, Job Service Scheduled Executor and Job Tracking Worker in `docker-stack.yml` are the correct version to be deployed
 * Execute `source environment.sh`
 * Execute `docker stack deploy --compose-file=docker-stack.yml jobServiceStack`
-* The Job Service and Job Tracking Worker containers will start up
+* The Job Service, Job Service Scheduled Executor and Job Tracking Worker containers will start up
 
 To tear down the stack:
 * Execute `docker stack rm jobServiceStack`

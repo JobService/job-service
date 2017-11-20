@@ -258,7 +258,7 @@ public class JobServiceEndToEndIT {
 
         // Add job that has prerequisite job 1 (completed) and job 2 (completed). Also supply blank, null and empty
         // prereq job ids that should not hold the job back.
-        createJobWithPrerequisites(job3Id, true, job1Id, job2Id, "", null, "           ");
+        createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id, "", null, "           ");
 
         Thread.sleep(1000); // Add short delay to allow previous job to complete
 
@@ -296,7 +296,7 @@ public class JobServiceEndToEndIT {
                     job1Expectation));
 
             // Add job that has prerequisite jobs that are empty, null and blank
-            createJobWithPrerequisites(job1Id, true, "", null, "           ");
+            createJobWithPrerequisites(job1Id, true, 0, "", null, "           ");
 
             // Waits for the final result message to appear on the Example worker's output queue.
             // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
@@ -347,7 +347,7 @@ public class JobServiceEndToEndIT {
         Thread.sleep(1000); // Add short delay to allow previous job to complete
 
         // Add job that has prerequisite job 1 (completed) and job 2 (unknown)
-        createJobWithPrerequisites(job3Id, true, job1Id, job2Id);
+        createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id);
 
         // Verify job 3 is in waiting status and dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
@@ -372,17 +372,17 @@ public class JobServiceEndToEndIT {
         //  -> J2
         //      -> J3
         //      -> J4
-        createJobWithPrerequisites(job2Id, true, job1Id);
+        createJobWithPrerequisites(job2Id, true, 0, job1Id);
         //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
 
-        createJobWithPrerequisites(job3Id, true, job2Id);
+        createJobWithPrerequisites(job3Id, true, 0, job2Id);
         //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
 
-        createJobWithPrerequisites(job4Id, true, job2Id);
+        createJobWithPrerequisites(job4Id, true, 0, job2Id);
         //  Verify J4 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job4Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
@@ -426,6 +426,83 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
         JobServiceDatabaseUtil.assertJobStatus(job4Id, "completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job4Id, job2Id);
+    }
+
+    @Test
+    public void testJobWithPrerequisiteJobsAndDelays() throws Exception
+    {
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+
+        //  Generate job identifiers for test.
+        final String job1Id = generateJobId();
+        final String job2Id = generateJobId();
+        final String job3Id = generateJobId();
+
+        //  Create job hierarchy.
+        //
+        //  J1
+        //  -> J2 (delay=2s)
+        //      -> J3 (delay=10s)
+        createJobWithPrerequisites(job2Id, true, 2, job1Id);
+        //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job2Id) == 2);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job2Id) == null);
+
+        createJobWithPrerequisites(job3Id, true, 10, job2Id);
+        //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job3Id) == 10);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) == null);
+
+        //  Add a Prerequisite job 1 that should be completed. This should trigger the completion of all
+        //  other jobs eventually after all the delays have been respected.
+        JobServiceEndToEndITExpectation job1Expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        job2Id,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            getTimer(context);
+            queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
+                    job1Expectation));
+
+            createJob(job1Id, true);
+
+            // Waits for the final result message to appear on the Example worker's output queue.
+            // When we read it from this queue it should have been processed fully and its status reported to the Job
+            // Database as Completed.
+            context.getTestResult();
+        }
+
+        Thread.sleep(5000); // Add short delay to allow J1 + J2 to complete.
+
+        //  Verify J2 is complete but J3 is still waiting.
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) != null);
+
+        Thread.sleep(15000); // Add short delay to allow J3 to complete
+
+        //  Verify J3 is complete.
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
+
+        //  Verify dependency rows do not exist.
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job2Id, job1Id);
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
 
     @Test
@@ -709,9 +786,9 @@ public class JobServiceEndToEndIT {
         //  -> J2
         //      -> J3
         //      -> J4
-        createJobWithPrerequisites(job2Id, true, job1Id);
-        createJobWithPrerequisites(job3Id, true, job2Id);
-        createJobWithPrerequisites(job4Id, true, job2Id);
+        createJobWithPrerequisites(job2Id, true, 0, job1Id);
+        createJobWithPrerequisites(job3Id, true, 0, job2Id);
+        createJobWithPrerequisites(job4Id, true, 0, job2Id);
 
         //  Delete J2.
         deleteJob(job2Id);
@@ -766,10 +843,11 @@ public class JobServiceEndToEndIT {
         jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
     }
 
-    private void createJobWithPrerequisites(final String jobId, final boolean useTaskDataObject,
+    private void createJobWithPrerequisites(final String jobId, final boolean useTaskDataObject, final int delay,
                                             final String... prerequisiteJobs) throws Exception {
         NewJob newJob = constructNewJob(jobId, useTaskDataObject);
         newJob.setPrerequisiteJobIds(Arrays.asList(prerequisiteJobs));
+        newJob.setDelay(delay);
         jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
     }
 

@@ -1,11 +1,11 @@
 # Production Marathon Deployment
 
-The Production Marathon deployment supports the deployment of the Job Service on Mesos/Marathon. This folder contains the marathon environment and template files that are required to deploy both the Job Service and Job Tracking Worker.
+The Production Marathon deployment supports the deployment of the Job Service on Mesos/Marathon. This folder contains the marathon environment and template files that are required to deploy the Job Service, Job Service Scheduled Executor and Job Tracking Worker.
 
 ## Service Configuration
 
 ### Marathon Template
-The `marathon.json.b` template file describes the marathon deployment information required for starting both the Job Service and Job Tracking Worker. The template file uses property substitution to get values for configurable properties **required** for service deployment. These properties are configured in the marathon environment file `marathon.env`.
+The `marathon.json.b` template file describes the marathon deployment information required for starting the Job Service, Job Service Scheduled Executor and Job Tracking Worker. The template file uses property substitution to get values for configurable properties **required** for service deployment. These properties are configured in the marathon environment file `marathon.env`.
 
 ### Marathon Environment
 The `marathon.env` file supports configurable property settings necessary for service deployment. These include:
@@ -45,7 +45,7 @@ The `marathon.json.b` deployment template file specifies default values for a nu
 
 - `mem`: This configures the amount of RAM of each Job Service and Job Tracking container. Note that this property does not configure the amount of RAM available to the container but is instead an upper limit. If the container's RAM exceeds this value it will cause docker to destroy and restart the container. **Default Value: 1024**
 
-- `instances`: This setting specifies the number of instances of the Job Service and Job Tracking containers to start on launch. **Default value: 1.**
+- `instances`: This setting specifies the number of instances of the Job Service, Job Service Scheduled Executor and Job Tracking containers to start on launch. **Default value: 1.**
 
 
 ## Service Deployment

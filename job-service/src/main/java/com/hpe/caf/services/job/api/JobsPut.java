@@ -157,7 +157,7 @@ public final class JobsPut {
                     databaseHelper.createJobWithDependencies(jobId, job.getName(), job.getDescription(),
                             job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                             getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
-                            job.getPrerequisiteJobIds());
+                            job.getPrerequisiteJobIds(), job.getDelay());
 
                 } else {
                     databaseHelper.createJob(jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);

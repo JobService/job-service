@@ -11,6 +11,8 @@ Manifest of the components which make up the Job Service:
 * [job-service-postgres-container](job-service-postgres-container)
 * [job-service-html](job-service-html)
 * [job-service-ui](job-service-ui)
+* [job-service-scheduled-executor](job-service-scheduled-executor)
+* [job-service-scheduled-executor-container](job-service-scheduled-executor-container)
 * [worker-jobtracking](worker-jobtracking)
 * [worker-jobtracking-container](worker-jobtracking-container)
 * [worker-jobtracking-shared](worker-jobtracking-shared)

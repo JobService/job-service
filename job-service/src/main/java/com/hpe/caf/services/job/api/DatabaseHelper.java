@@ -247,9 +247,10 @@ public final class DatabaseHelper {
     public void createJobWithDependencies(final String jobId, final String name, final String description,
                                           final String data, final int jobHash, final String taskClassifier,
                                           final int taskApiVersion, final byte[] taskData, final String taskPipe,
-                                          final String targetPipe, final List<String> prerequisiteJobIds) throws Exception {
+                                          final String targetPipe, final List<String> prerequisiteJobIds,
+                                          final int delay) throws Exception {
 
-        String createJobFnCallSQL = "{call create_job(?,?,?,?,?,?,?,?,?,?,?)}";
+        String createJobFnCallSQL = "{call create_job(?,?,?,?,?,?,?,?,?,?,?,?)}";
 
         try (
                 Connection conn = getConnection();
@@ -269,6 +270,7 @@ public final class DatabaseHelper {
             stmt.setString(9,taskPipe);
             stmt.setString(10,targetPipe);
             stmt.setArray(11,prerequisiteJobIdSQLArray);
+            stmt.setInt(12,delay);
 
             LOG.debug("Calling create_job() database function...");
             stmt.execute();

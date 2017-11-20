@@ -32,7 +32,7 @@ public class NewJob   {
     private String externalData = null;
     private WorkerAction task = null;
     private List<String> prerequisiteJobIds = null;
-
+    private Integer delay = 0;
 
     /**
      * The name of the job
@@ -135,6 +135,18 @@ public class NewJob   {
         this.prerequisiteJobIds = prerequisiteJobIds;
     }
 
+    /**
+     * The time in seconds after the prerequisite job identifiers have completed before this job is eligible for running.
+     **/
+
+    @ApiModelProperty(value = "The time in seconds after the prerequisite job identifiers have completed before this job is eligible for running.")
+    @JsonProperty("delay")
+    public Integer getDelay() {
+        return delay;
+    }
+    public void setDelay(Integer delay) {
+        this.delay = delay;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -149,12 +161,13 @@ public class NewJob   {
                 Objects.equals(description, newJob.description) &&
                 Objects.equals(externalData, newJob.externalData) &&
                 Objects.equals(task, newJob.task) &&
-                Objects.equals(prerequisiteJobIds, newJob.prerequisiteJobIds);
+                Objects.equals(prerequisiteJobIds, newJob.prerequisiteJobIds) &&
+                Objects.equals(delay, newJob.delay);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, externalData, task, prerequisiteJobIds);
+        return Objects.hash(name, description, externalData, task, prerequisiteJobIds, delay);
     }
 
     @Override
@@ -167,6 +180,7 @@ public class NewJob   {
         sb.append("    externalData: ").append(toIndentedString(externalData)).append("\n");
         sb.append("    task: ").append(toIndentedString(task)).append("\n");
         sb.append("    prerequisiteJobIds: ").append(toIndentedString(prerequisiteJobIds)).append("\n");
+        sb.append("    delay: ").append(toIndentedString(delay)).append("\n");
         sb.append("}");
         return sb.toString();
     }

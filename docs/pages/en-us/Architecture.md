@@ -37,6 +37,7 @@ The pipes represent asynchronous message queues on RabbitMQ.
  - If a job completes and has associated dependent jobs, the job tracking worker receives a list of jobs now available for execution. The job tracking worker forwards these jobs to the target pipe.
 10. A worker consumes messages from the target pipe and processes the task. In this case, the example worker consumes from worker-example-in.
 11. If tracking information is present, tasks are re-routed to the tracking pipe. Otherwise, the task has completed and the response is sent to the output queue, in this case, worker-example-out.
+12. The Job Service Scheduled Executor repeatedly polls the Job Service database looking for dependent jobs now ready for execution.
 
 ## Job Service
 
@@ -102,25 +103,32 @@ The job tracking worker recognizes failure and retry messages, which are being p
 
 The job tracking worker can also automatically forward on dependent jobs for execution.  A dependent job is a job which must wait until a specific job or list of jobs have completed before it can be executed.  The job tracking worker monitors a job's progress, when a job completes, the job tracking worker will receive a list of jobs which can now be executed.
 
+## Job Service Scheduled Executor
+
+The Job Service Scheduled Executor is a polling service responsible for identifying and forwarding on dependent jobs for execution which could not be progressed by the Job Tracking Worker because the job had to wait a specified length of time after the jobs it depended on were complete.
+
+The Job Service Scheduled Executor is an ExecutorService which schedules a task to execute repeatedly identifying dependent jobs ready for execution. For each job identified, a message is published on to RabbitMQ to start the job.
+
 ## Job Database
 
 Job information is stored in a **PostgreSQL** database.
 
 ### Job Table
 
-This table stores information on the jobs that are requested. Entries are added by the Job Service and updated by the job tracking worker.
+This table stores information on the jobs that are requested. Entries are added by the Job Service and updated by the Job Tracking Worker.
 
-| **Column**     | **Data Type** | **Nullable?** | **Primary Key?** |
-|----------------|---------------|---------------|------------------|
-| Job_Id         | String        | No            | Yes              |
-| Name           | String        | Yes           |                  |
-| Description    | String        | Yes           |                  |
-| Data           | String        | Yes           |                  |
-| Create_Date    | DateTime      | No            |                  |
-| JobStatus      | job_status    | No            |                  |
-| FailureDetails | ---           | Yes           |                  |
-| IsComplete     | Boolean       | Yes           |                  |
-| Job_Hash       | Integer       | Yes           |                  |
+| **Column**           | **Data Type** | **Nullable?** | **Primary Key?** |
+|----------------------|---------------|---------------|------------------|
+| job_id               | varchar(48)   | No            | Yes              |
+| name                 | varchar(255)  | Yes           |                  |
+| description          | text          | Yes           |                  |
+| data                 | text          | Yes           |                  |
+| create_date          | timestamp     | No            |                  |
+| status               | job_status    | No            |                  |
+| percentage_complete  | double        | No            |                  |
+| failure_details      | text          | Yes           |                  |
+| job_hash             | integer       | Yes           |                  |
+| delay     	       | integer       | Yes           |                  |
 
 ### Task Tables
 
@@ -132,21 +140,22 @@ When a task is marked complete, the system checks whether the parent task (or th
 
 This table stores Ids of dependent jobs i.e. jobs which must be completed before the job in question can be executed.
 
-| **Column**        | **Data Type** | **Nullable?** | **Primary Key?** |
-|-------------------|---------------|---------------|------------------|
-| Job_Id            | String        | No            | Yes              |
-| Dependent_Job_Id  | String        | No            | Yes              |
+| **Column**           | **Data Type** | **Nullable?** | **Primary Key?** |
+|----------------------|---------------|---------------|------------------|
+| job_id               | varchar(48)   | No            | Yes              |
+| dependent_job_id     | varchar(48)   | No            | Yes              |
 
 ### Job Task Data
 
-This table stores information on jobs which have dependent jobs and must wait for execution.  The table contains enough information for the job tracking worker to forward on the job, once it's dependent jobs have all completed.
+This table stores information on jobs which have dependent jobs and must wait for execution.  The table contains enough information for the Job Tracking Worker and Job Service Scheduled Executor to forward on the job, once it's dependent jobs have all completed.
 
-| **Column**        | **Data Type** | **Nullable?** | **Primary Key?** |
-|-------------------|---------------|---------------|------------------|
-| Job_Id            | String        | No            | Yes              |
-| Task_Classifier   | String        | No            |                  |
-| Task_Api_Version  | Integer       | No            |                  |
-| Task_Data         | ByteA         | No            |                  |
-| Task_Pipe         | String        | No            |                  |
-| Target_Pipe       | String        | No            |                  |
+| **Column**           | **Data Type** | **Nullable?** | **Primary Key?** |
+|----------------------|---------------|---------------|------------------|
+| job_id               | varchar(48)   | No            | Yes              |
+| task_classifier      | varchar(255)  | No            |                  |
+| task_api_version     | integer       | No            |                  |
+| task_data            | byteA         | No            |                  |
+| task_pipe            | varchar(255)  | No            |                  |
+| target_pipe          | varchar(255)  | No            |                  |
+| eligible_to_run_date | timestamp     | Yes           |                  |
 
