@@ -34,7 +34,7 @@ The `marathon.env` file supports configurable property settings necessary for se
 - `JOB_SERVICE_DEMO_INPUT_DIR`: The directory where the test files are located on the host
 - `JOB_SERVICE_DEMO_OUTPUT_DIR`: The output directory for test results on the host
 
-- `WORKER_STORAGE_HOST_DATA_DIRECTORY`: The directory for Glob Filter and Language Detection workers to use as a datastore  
+- `WORKER_STORAGE_HOST_DATA_DIRECTORY`: The directory on the host that the Glob Filter and Language Detection workers can use as a datastore  
 
 ### Additional Marathon Configuration
 The `marathon.json.b` deployment template file specifies default values for a number of additional settings which you may choose to modify directly for your custom deployment. These include:
