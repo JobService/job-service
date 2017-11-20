@@ -13,7 +13,7 @@
 							"containerPort": 5432,
 							"hostPort": 0,
 							"protocol": "tcp",
-							"servicePort": ${JOB_SERVICE_DB_SERVICE_PORT}
+							"servicePort": ${POSTGRES_JOB_SERVICE_DB_SERVICE_PORT}
 						}],
 						"forcePullImage": true
 					},
