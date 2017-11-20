@@ -1,5 +1,5 @@
 {
-	"id": "jobservice",
+	"id": "JobService",
 	"groups": [{
 		"id": "jobservice-prerequisite",
 		"apps": [{
@@ -51,12 +51,12 @@
 					},
 					"type": "DOCKER",
 					"volumes": [
-                        {
-                            "containerPath": "/var/lib/rabbitmq",
-                            "hostPath": "rabbitmq",
-                            "mode": "RW"
-                        }
-                    ]
+						{
+							"containerPath": "/var/lib/rabbitmq",
+							"hostPath": "rabbitmq",
+							"mode": "RW"
+						}
+					]
 				}
 			}]
 	}]

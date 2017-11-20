@@ -1,5 +1,5 @@
 {
-	"id": "jobservice",
+	"id": "JobService",
 	"groups": [{
 		"id": "jobservice",
 		"apps": [{
@@ -91,13 +91,13 @@
 					"timeoutSeconds": 20
 				}],
 				"labels": {
-                    "autoscale.metric": "rabbitmq",
-                    "autoscale.scalingtarget": "jobtracking-in",
-                    "autoscale.scalingprofile": "default",
-                    "autoscale.maxinstances": "4",
-                    "autoscale.mininstances": "0",
-                    "autoscale.interval": "30",
-                    "autoscale.backoff": "10"
+					"autoscale.metric": "rabbitmq",
+					"autoscale.scalingtarget": "jobtracking-in",
+					"autoscale.scalingprofile": "default",
+					"autoscale.maxinstances": "4",
+					"autoscale.mininstances": "0",
+					"autoscale.interval": "30",
+					"autoscale.backoff": "10"
 				}
 			}]
 	}]
