@@ -120,9 +120,9 @@
             "env": {
                 "_JAVA_OPTIONS": "-Xms512m -Xmx512m",
                 "CAF_WORKER_INPUT_QUEUE": "jobservicescheduler-in",
-                "CAF_DATABASE_URL": "jdbc:postgresql://${POSTGRES_DB_HOSTNAME}:${POSTGRES_DB_PORT}/jobservice",
-                "CAF_DATABASE_USERNAME": "${POSTGRES_JOB_SERVICE_DB_USER}",
-                "CAF_DATABASE_PASSWORD": "${POSTGRES_JOB_SERVICE_DB_PASSWORD}",
+                "CAF_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice",
+                "CAF_DATABASE_USERNAME": "${JOB_SERVICE_DB_USER}",
+                "CAF_DATABASE_PASSWORD": "${JOB_SERVICE_DB_PASSWORD}",
                 "CAF_TRACKING_PIPE": "jobtracking-in",
                 "CAF_STATUS_CHECK_TIME": "5",
                 "CAF_WEBSERVICE_URL": "http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1",
