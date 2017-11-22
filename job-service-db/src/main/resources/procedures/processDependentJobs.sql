@@ -84,7 +84,7 @@ BEGIN
                   AND j2.status <> 'Completed');
 
   UPDATE job_task_data jtd
-  SET eligible_to_run_date = now() + (j.delay * interval '1 second')
+  SET eligible_to_run_date = now() AT TIME ZONE 'UTC' + (j.delay * interval '1 second')
   FROM job j
   INNER JOIN tmp_dependent_jobs_with_delay tdjwd
     ON tdjwd.job_id = j.job_id

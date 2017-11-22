@@ -102,7 +102,7 @@ BEGIN
         UPDATE %1$I SET status = %2$L, percentage_complete = CASE WHEN %2$L = ''Completed'' THEN 100.00 ELSE percentage_complete END WHERE task_id = %3$L RETURNING *
       )
       INSERT INTO %1$I (task_id, create_date, status, percentage_complete, failure_details, is_final)
-        SELECT %3$L, now(), %2$L, 0.00, null, %4$L
+        SELECT %3$L, now() AT TIME ZONE ''UTC'', %2$L, 0.00, null, %4$L
         WHERE NOT EXISTS (SELECT * FROM upsert)
       ',
       v_parent_table_name, in_status, in_task_id, v_is_final_task);

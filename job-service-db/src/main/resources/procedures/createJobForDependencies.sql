@@ -63,7 +63,7 @@ BEGIN
 
   -- Create new row in job and return the job_id.
   INSERT INTO public.job (job_id, name, description, data, create_date, status, percentage_complete, failure_details, delay, job_hash)
-  VALUES (in_job_id, in_name, in_description, in_data, now(), 'Waiting', 0.00, null, in_delay, in_job_hash);
+  VALUES (in_job_id, in_name, in_description, in_data, now() AT TIME ZONE 'UTC', 'Waiting', 0.00, null, in_delay, in_job_hash);
 
   -- Store task data and job dependency rows if any of the prerequisite job identifiers are not yet complete.
   PERFORM 1 FROM public.job j
