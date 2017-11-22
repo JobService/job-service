@@ -37,3 +37,8 @@ services:
     ports:
       - "9456:5005"
       - "9457:8081"
+
+  # Increase log level of Job Service Scheduled Executor
+  jobservicescheduledexecutor:
+    environment:
+      CAF_LOG_LEVEL: DEBUG
