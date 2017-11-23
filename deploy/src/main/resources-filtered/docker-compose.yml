@@ -53,7 +53,6 @@ services:
       - ./rabbitmq.env
     environment:
       CAF_STATUS_CHECK_TIME: 5
-      CAF_TRACKING_PIPE: jobtracking-in
       CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
       CAF_WORKER_INPUT_QUEUE: jobtracking-in
       CAF_WORKER_OUTPUT_QUEUE: jobtracking-out

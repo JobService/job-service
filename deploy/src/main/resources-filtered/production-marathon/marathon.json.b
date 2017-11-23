@@ -74,6 +74,7 @@
                 "JOB_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice",
                 "JOB_DATABASE_USERNAME": "${JOB_SERVICE_DB_USER}",
                 "JOB_DATABASE_PASSWORD": "${JOB_SERVICE_DB_PASSWORD}",
+                "CAF_WEBSERVICE_URL": "http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1",
                 "CAF_RABBITMQ_HOST": "${CAF_RABBITMQ_HOST}",
                 "CAF_RABBITMQ_PORT": "${CAF_RABBITMQ_PORT}",
                 "CAF_RABBITMQ_USERNAME": "${CAF_RABBITMQ_USERNAME}",

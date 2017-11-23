@@ -33,6 +33,7 @@ services:
       JOB_DATABASE_URL: "jdbc:postgresql://${JOB_SERVICE_DB_HOST}:${JOB_SERVICE_DB_PORT}/jobservice"
       JOB_DATABASE_USERNAME: "${CAF_DATABASE_USERNAME}"
       JOB_DATABASE_PASSWORD: "${CAF_DATABASE_PASSWORD}"
+      CAF_WEBSERVICE_URL: "http://${JOB_SERVICE_DOCKER_HOST}:${JOB_SERVICE_PORT}/job-service/v1"
     image: jobservice/worker-jobtracking:${project.version}
     deploy:
       mode: replicated
