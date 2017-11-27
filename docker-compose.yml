@@ -13,7 +13,7 @@ services:
       CAF_STATUS_CHECK_TIME: 5
       CAF_TRACKING_PIPE: jobtracking-in
       CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
-    image: jobservice/job-service:2.2
+    image: jobservice/job-service:2.3.0
     ports:
       - "${JOB_SERVICE_PORT:-9411}:8080"
 
@@ -21,7 +21,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
-    image: jobservice/job-service-postgres:2.2
+    image: jobservice/job-service-postgres:2.3.0
     volumes:
       - job-service-db:/var/lib/postgresql/data
 
@@ -52,12 +52,14 @@ services:
     env_file:
       - ./rabbitmq.env
     environment:
+      CAF_STATUS_CHECK_TIME: 5
+      CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
       CAF_WORKER_INPUT_QUEUE: jobtracking-in
       CAF_WORKER_OUTPUT_QUEUE: jobtracking-out
       JOB_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
       JOB_DATABASE_USERNAME: postgres
       JOB_DATABASE_PASSWORD: root
-    image: jobservice/worker-jobtracking:2.2
+    image: jobservice/worker-jobtracking:2.3.0
 
   worker-langdetect:
     depends_on:
@@ -72,6 +74,23 @@ services:
     volumes:
       - worker-datastore:/mnt/caf-datastore-root
       - ${JOB_SERVICE_DEMO_OUTPUT_DIR:-./output-files}:/mnt/caf-worker-output-dir
+
+  jobservicescheduledexecutor:
+    depends_on:
+      - rabbitmq
+      - jobservicedb
+    env_file:
+      - ./rabbitmq.env
+    environment:
+      CAF_WORKER_INPUT_QUEUE: jobservicescheduler-in
+      CAF_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
+      CAF_DATABASE_USERNAME: postgres
+      CAF_DATABASE_PASSWORD: root
+      CAF_STATUS_CHECK_TIME: 5
+      CAF_TRACKING_PIPE: jobtracking-in
+      CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
+      CAF_SCHEDULED_EXECUTOR_PERIOD: 10
+    image: jobservice/job-service-scheduled-executor:2.3.0
 
 volumes:
   job-service-db:
