@@ -1,7 +1,6 @@
 ---
 layout: default
 title: Features
-last_updated: Last modified by Conal Smith on April 10, 2017
 
 banner:
     icon: 'assets/img/fork-lift.png'
@@ -25,6 +24,10 @@ The Job Service splits large batches of work into smaller batches, until the ind
 ## Elastic Scaling
 
 The process of batch splitting is scaled with the autoscaler. Sub-batches can be processed in parallel. Workers also scale up and down depending on the type of work to be performed on the item, which makes maximum use of the available resources.
+
+## Dependent Jobs
+
+The Job Service can accept a job and a list of dependent jobs.  The Job Service causes the job to wait until all dependent jobs have completed before automatically executing the job.
 
 
 

@@ -36,7 +36,10 @@ The batch worker takes batches of work, recursively breaks them down into ever s
 
 The Job Service is particularly beneficial to the batch worker because it monitors the progress of the batch as a whole. Even if the size of the batch is not known in advance, using the Job Service makes it possible to monitor the overall progress of the entire batch, as well as making other operations available, such as the capability to cancel the batch.
 
-#### Example Usages
+### Dependent Jobs
+The Job Service has the ability to execute jobs in an order defined by a job having a dependency on another job.  The Job Service will not execute a job until all the jobs it is dependent upon have completed.  The job can be configured to wait for a specified length of time after all the jobs it is dependent upon have completed before itself is executed. By default, once all dependent jobs have completed the Job Service will automatically execute the job.
+
+### Example Usages
 The combination of the Job Service and the batch worker is used in a number of document processing scenarios. Here are some examples of this:
 
 - Document Reprocessing: A set of documents that have already been ingested is put through the ingestion process again. For example, you might re-ingest because of some updates to the process).

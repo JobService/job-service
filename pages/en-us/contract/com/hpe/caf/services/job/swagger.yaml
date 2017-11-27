@@ -1,3 +1,19 @@
+#
+# Copyright 2015-2017 EntIT Software LLC, a Micro Focus company.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 swagger: "2.0"
 info:
   title: "Job Service"
@@ -29,6 +45,33 @@ paths:
         description: |
           An identifier that correlates events 
           across different services.
+      - name: jobIdStartsWith
+        in: query
+        type: string
+        required: false
+        description: Only those results whose job id starts with this value will be returned
+      - name: statusType
+        in: query
+        type: string
+        required: false
+        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned.
+        enum:
+          - All
+          - NotCompleted
+          - Completed
+          - Inactive
+      - name: limit
+        in: query
+        type: integer
+        format: int32
+        required: false
+        description: The maximum results to return (i.e. page size)
+      - name: offset
+        in: query
+        type: integer
+        format: int32
+        required: false
+        description: The starting position from which to return results (useful for paging)
     get:
       tags:
         - Jobs
@@ -161,6 +204,41 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         404:
           description: The specified job is not found.
+  /jobStats/count:
+    parameters:
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that correlates events
+          across different services.
+      - name: jobIdStartsWith
+        in: query
+        type: string
+        required: false
+        description: Only those results whose job id starts with this value will be returned
+      - name: statusType
+        in: query
+        type: string
+        required: false
+        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned.
+        enum:
+          - All
+          - NotCompleted
+          - Completed
+          - Inactive
+    get:
+      tags:
+        - Jobs
+      summary: Gets the count of jobs
+      description: Returns the count of job definitions defined in the system.
+      operationId: getJobsCount
+      responses:
+        200:
+          description: Returns the count of jobs.
+          schema:
+            type: integer
+            format: int64
 definitions:
   newJob:
     type: object
@@ -182,6 +260,16 @@ definitions:
           components.
       task:
         $ref: "#/definitions/worker-action"
+      prerequisiteJobIds:
+        type: array
+        items:
+          type: string
+        description: List of job identifiers that must be complete prior to the start of this job.
+      delay:
+        type: integer
+        format: int32
+        default: 0		
+        description: The time in seconds after the prerequisite job identifiers have completed before this job is eligible for running. 
   worker-action:
     type: object
     required:
@@ -197,10 +285,9 @@ definitions:
         type: integer
         format: int32
       taskData:
-        type: string
+        type: object
       taskDataEncoding:
         type: string
-        default: utf8
         enum:
           - utf8
           - base64
