@@ -42,7 +42,7 @@
     </organization>
 
     <properties>
-        <caf.worker-framework.version>2.3.1-301</caf.worker-framework.version>
+        <caf.worker-framework.version>2.4.0-SNAPSHOT</caf.worker-framework.version>
         <caf.worker-document-framework.version>3.1.1-71</caf.worker-document-framework.version>
         <dockerHubOrganization>jobservice</dockerHubOrganization>
         <dockerJobServiceOrg>${dockerImagePrefix}${dockerHubOrganization}${dockerOrgSeperator}</dockerJobServiceOrg>
