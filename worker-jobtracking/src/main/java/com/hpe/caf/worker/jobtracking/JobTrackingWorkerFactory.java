@@ -164,15 +164,9 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
                 return null;
             }
 
-            //  Support scenario where 'trackTo' and task message 'to' pipes can be null.
-            final String trackToPipe = tracking.getTrackTo();
-            if (trackToPipe == null && (proxiedTaskMessage.getTo() != null)) {
-                LOG.warn("Cannot evaluate job task progress for job task {} in worker task {} - the tracking info has no trackTo pipe", jobTaskId, proxiedTaskMessage.getTaskId());
-                return null;
-            }
-
             final TaskStatus taskStatus = proxiedTaskMessage.getTaskStatus();
             if (taskStatus == TaskStatus.NEW_TASK || taskStatus == TaskStatus.RESULT_SUCCESS || taskStatus == TaskStatus.RESULT_FAILURE) {
+                final String trackToPipe = tracking.getTrackTo();
                 final String toPipe = proxiedTaskMessage.getTo();
 
                 if ((toPipe == null && trackToPipe == null) || (trackToPipe != null && trackToPipe.equalsIgnoreCase(toPipe))) {
