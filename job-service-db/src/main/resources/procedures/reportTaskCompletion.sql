@@ -95,6 +95,12 @@ BEGIN
       ',
       v_parent_table_name, v_percentage_completed, v_task_id);
 
+    --  If all the rows in the current task table are complete, then delete it.
+    IF v_percentage_completed = 100.00 THEN
+      --  Drop the table.
+      EXECUTE format('DROP TABLE %I', in_task_table_name);
+    END IF;
+
     -- Recursively call the same function for the specified v_parent_table_name
     RETURN QUERY
     SELECT * FROM internal_report_task_completion(v_parent_table_name);
