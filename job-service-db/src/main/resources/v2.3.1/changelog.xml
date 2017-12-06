@@ -25,6 +25,11 @@
         <createProcedure path="procedures/createTaskTable.sql"
                          procedureName="internal_create_task_table"
                          schemaName="public">
+
+    <changeSet id="update_procedure_internal_report_task_completion_clean_up_tables_change" runOnChange="true" author="Connor Mulholland" >
+        <createProcedure path="procedures/reportTaskCompletion.sql"
+                         procedureName="internal_report_task_completion"
+                         schemaName="public">
         </createProcedure>
     </changeSet>
 
