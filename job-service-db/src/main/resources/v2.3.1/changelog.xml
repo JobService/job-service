@@ -19,14 +19,13 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
-                                       http://www.liquibase.org/xml/ns/dbchangelog 
-                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
-   <include file="changelog.xml" relativeToChangelogFile="true"/>
-   <include file="v1.3.0/changelog.xml" relativeToChangelogFile="true" />
-   <include file="v1.9.0/changelog.xml" relativeToChangelogFile="true" />
-   <include file="v2.1.0/changelog.xml" relativeToChangelogFile="true" />
-   <include file="v2.3.0/changelog.xml" relativeToChangelogFile="true" />
-   <include file="v2.3.1/changelog.xml" relativeToChangelogFile="true" />
+    <changeSet id="update_procedure_internal_report_task_completion_clean_up_tables_change" runOnChange="true" author="Connor Mulholland" >
+        <createProcedure path="procedures/reportTaskCompletion.sql"
+                         procedureName="internal_report_task_completion"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
 </databaseChangeLog>
