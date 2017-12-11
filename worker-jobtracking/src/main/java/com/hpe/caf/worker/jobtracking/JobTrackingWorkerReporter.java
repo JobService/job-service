@@ -89,12 +89,40 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      */
     @Override
     public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException {
-        try (Connection conn = getConnection()) {
-            //TODO - FUTURE: pass estimatedPercentageCompleted to the database function
-            report(conn, jobTaskId, JobStatus.Active);
-        } catch (SQLException se) {
-            throw new JobReportingException(MessageFormat.format("Failed to report the progress of job task {0}. {1}", jobTaskId, se.getMessage()), se);
+
+        int retryCount = 0;
+        final int maxRetries = 5;
+
+        while(true) {
+            try (Connection conn = getConnection()) {
+                //TODO - FUTURE: pass estimatedPercentageCompleted to the database function
+                report(conn, jobTaskId, JobStatus.Active);
+                break;
+            } catch (final SQLException se) {
+                final String errorMessage = "Failed to report the progress of job task {0}. {1}";
+
+                //  Allow for retries in the event that the source of the error is from concurrent sessions
+                //  attempting table and/or index creation at the same time.
+                if (retryCount++ == maxRetries) {
+                    LOG.error(MessageFormat.format(errorMessage, jobTaskId, se.getMessage()));
+                    throw new JobReportingException(
+                            MessageFormat.format(errorMessage, jobTaskId,
+                                    se.getMessage()), se);
+                } else {
+                    if (se.getMessage().contains("duplicate key value violates unique constraint") ||
+                            se.getMessage().matches("(?s).*(relation|type).*already exists.*")) {
+                        LOG.info(MessageFormat.format("Retrying reportJobTaskProgress() call for job task {0}. Retry count {1}.",
+                                jobTaskId, retryCount));
+                    } else {
+                        LOG.error(MessageFormat.format(errorMessage, jobTaskId, se.getMessage()));
+                        throw new JobReportingException(
+                                MessageFormat.format(errorMessage, jobTaskId,
+                                        se.getMessage()), se);
+                    }
+                }
+            }
         }
+
     }
 
     /**
