@@ -34,7 +34,7 @@ BEGIN
   END IF;
 
   --  Identify task tables associated with the specified job.
-  EXECUTE 'SELECT ARRAY(SELECT relname FROM pg_class WHERE relname LIKE $1)' INTO v_tables_to_delete  USING 'task_' || in_job_id || '%';
+  EXECUTE 'SELECT ARRAY(SELECT relname FROM pg_class WHERE relname LIKE $1 AND relkind = ''r'')' INTO v_tables_to_delete  USING 'task_' || in_job_id || '%';
 
   --  Loop through each task table.
   FOREACH v_table_name IN ARRAY v_tables_to_delete
