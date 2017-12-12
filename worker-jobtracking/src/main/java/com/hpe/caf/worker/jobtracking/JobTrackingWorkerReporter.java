@@ -109,7 +109,6 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                     LOG.info(MessageFormat.format("Retrying reportJobTaskProgress() call for job task {0}. Retry count {1}.",
                             jobTaskId, retryCount));
                 } else {
-                    LOG.error(MessageFormat.format(errorMessage, jobTaskId, se.getMessage()));
                     throw new JobReportingException(
                             MessageFormat.format(errorMessage, jobTaskId,
                                     se.getMessage()), se);
