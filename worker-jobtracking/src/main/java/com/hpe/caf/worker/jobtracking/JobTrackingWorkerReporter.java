@@ -103,22 +103,16 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
                 //  Allow for retries in the event that the source of the error is from concurrent sessions
                 //  attempting table and/or index creation at the same time.
-                if (retryCount++ == maxRetries) {
+                if (retryCount++ < maxRetries &&
+                        (se.getMessage().contains("duplicate key value violates unique constraint") ||
+                                se.getMessage().matches("(?s).*(relation|type).*already exists.*"))) {
+                    LOG.info(MessageFormat.format("Retrying reportJobTaskProgress() call for job task {0}. Retry count {1}.",
+                            jobTaskId, retryCount));
+                } else {
                     LOG.error(MessageFormat.format(errorMessage, jobTaskId, se.getMessage()));
                     throw new JobReportingException(
                             MessageFormat.format(errorMessage, jobTaskId,
                                     se.getMessage()), se);
-                } else {
-                    if (se.getMessage().contains("duplicate key value violates unique constraint") ||
-                            se.getMessage().matches("(?s).*(relation|type).*already exists.*")) {
-                        LOG.info(MessageFormat.format("Retrying reportJobTaskProgress() call for job task {0}. Retry count {1}.",
-                                jobTaskId, retryCount));
-                    } else {
-                        LOG.error(MessageFormat.format(errorMessage, jobTaskId, se.getMessage()));
-                        throw new JobReportingException(
-                                MessageFormat.format(errorMessage, jobTaskId,
-                                        se.getMessage()), se);
-                    }
                 }
             }
         }
