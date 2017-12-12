@@ -91,7 +91,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException {
 
         int retryCount = 0;
-        final int maxRetries = 5;
+        final int maxRetries = 1;
 
         while(true) {
             try (Connection conn = getConnection()) {

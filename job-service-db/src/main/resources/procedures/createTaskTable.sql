@@ -23,7 +23,8 @@
 CREATE OR REPLACE FUNCTION internal_create_task_table(in_table_name varchar(63))
 RETURNS VOID AS $$
 DECLARE
-  v_index_name VARCHAR(63);
+  v_status_index_name VARCHAR(63);
+  v_is_final_index_name VARCHAR(63);
 BEGIN
 
   --  Raise exception if task table name has not been specified.
@@ -45,8 +46,11 @@ BEGIN
   )', in_table_name, 'pk_' || in_table_name);
 
   -- Create indexes.
-  EXECUTE format('CREATE INDEX ON %1$I (%2$I)', in_table_name, 'status');
-  EXECUTE format('CREATE INDEX ON %1$I (%2$I)', in_table_name, 'is_final');
+  SELECT 'idx_' || MD5(random()::text) || '_status' INTO v_status_index_name;
+  EXECUTE format('CREATE INDEX %1$I ON %2$I (%3$I)',v_status_index_name, in_table_name, 'status');
+
+  SELECT 'idx_' || MD5(random()::text) || '_is_final' INTO v_is_final_index_name;
+  EXECUTE format('CREATE INDEX %1$I ON %2$I (%3$I)',v_is_final_index_name, in_table_name, 'is_final');
 
 END
 $$ LANGUAGE plpgsql;
