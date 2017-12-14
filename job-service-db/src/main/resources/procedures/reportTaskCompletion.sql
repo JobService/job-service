@@ -31,7 +31,10 @@ DECLARE
   v_task_id VARCHAR(58);
   v_job_id VARCHAR(48);
   v_temp SMALLINT;
-  v_final_task_received SMALLINT;
+  v_final_task_id varchar(58);
+  v_sub_task_count_starting_position INT;
+  v_sub_tasks_to_expect INT;
+  v_sub_tasks_received INT;
 BEGIN
 
   --  Raise exception if task identifier has not been specified.
@@ -41,11 +44,27 @@ BEGIN
 
   --  Identify percentage of rows in current table with status Completed.
   --  Percentage will need adjusted though if final sub-task has not yet arrived.
-  EXECUTE format('SELECT 1 FROM %1$I WHERE is_final = true', in_task_table_name) INTO v_final_task_received;
-  IF v_final_task_received IS NOT NULL THEN
-    EXECUTE format('
-    SELECT round(((select count(task_id) from %1$I WHERE status = ''Completed'') * 100)::numeric / (select count(*) from %1$I), 2) AS completed_percentage',
-                   in_task_table_name) INTO v_percentage_completed;
+  EXECUTE format('SELECT task_id FROM %1$I WHERE is_final = true', in_task_table_name) INTO v_final_task_id;
+  IF v_final_task_id IS NOT NULL THEN
+    --  The final sub-task has arrived but before we calculate percentage of sub-tasks complete,
+    --  we need to identify how many sub-tasks have arrived in total given we know how many to expect.
+    SELECT internal_get_last_position(v_final_task_id, '.') + 1 INTO v_sub_task_count_starting_position;
+    v_sub_tasks_to_expect = CAST(substring(v_final_task_id, v_sub_task_count_starting_position,
+            length(v_final_task_id) - v_sub_task_count_starting_position) AS INT);
+    EXECUTE format('SELECT COUNT(task_id) FROM %1$I', in_task_table_name) INTO v_sub_tasks_received;
+
+    --  Check if the number of sub tasks received matches the number expected.
+    IF (v_sub_tasks_to_expect = v_sub_tasks_received) THEN
+      -- The number of sub tasks received matches the number expected.
+      EXECUTE format('
+      SELECT round(((select count(task_id) from %1$I WHERE status = ''Completed'') * 100)::numeric / (select count(*) from %1$I), 2) AS completed_percentage',
+                     in_task_table_name) INTO v_percentage_completed;
+    ELSE
+      -- Not all sub tasks have arrived. Base percentage completed on the number of sub tasks expected.
+      EXECUTE format('
+      SELECT round(((select count(task_id) from %1$I WHERE status = ''Completed'') * 100)::numeric / (%2$s), 2) AS completed_percentage',
+                     in_task_table_name, v_sub_tasks_to_expect) INTO v_percentage_completed;
+    END IF;
   ELSE
     --  Final sub-task has not yet arrived. Adjust percentage to allow for one more entry to arrive.
     EXECUTE format('
