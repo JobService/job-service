@@ -67,7 +67,7 @@
                             <name>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</name>
                             <build>
                                 <maintainer>adam.pau.rogan@hpe.com</maintainer>
-                                <from>cafinternal/prereleases:opensuse-python2-1.0.0-python_install-SNAPSHOT</from>
+                                <from>cafinternal/prereleases:opensuse-python2-1.0.0-SNAPSHOT</from>
                                 <labels>
                                     <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
