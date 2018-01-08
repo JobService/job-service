@@ -28,6 +28,7 @@ DECLARE
   v_job_id VARCHAR(48);
   v_parent VARCHAR(58);
   v_parent_table_name VARCHAR(63);
+  v_topmost_parent_table_name VARCHAR(63);
   v_temp SMALLINT;
   v_is_final_task BOOLEAN = false;
 BEGIN
@@ -79,6 +80,15 @@ BEGIN
     --  Check if this is the final sub task (i.e. task id end withs *).
     IF substr(in_task_id, length(in_task_id), 1) = '*' THEN
       v_is_final_task = true;
+    END IF;
+
+    --  If status is completed then take a table lock on top most parent table as soon as possible in the transaction
+    --  in order to prevent concurrent updates when rolling up to parents later.
+    IF in_status = 'Completed' THEN
+      -- Take a table level lock on top most parent table in order to prevent concurrent updates when rolling up
+      -- to parents.
+      v_topmost_parent_table_name = 'task_' || substring(in_task_id, 1, position('.' IN in_task_id)-1);
+      EXECUTE format('LOCK TABLE %I IN EXCLUSIVE MODE', v_topmost_parent_table_name);
     END IF;
 
     --  This could be the first progress report against a job task. Make sure the job

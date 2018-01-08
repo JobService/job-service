@@ -21,11 +21,24 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
-    <changeSet id="update_procedure_internal_report_task_completion_clean_up_tables_change" runOnChange="true" author="Connor Mulholland" >
-        <createProcedure path="procedures/reportTaskCompletion.sql"
-                         procedureName="internal_report_task_completion"
+    <changeSet id="update_procedure_internal_create_task_table_index_name_change" runOnChange="true" author="Connor Mulholland" >
+        <createProcedure path="procedures/createTaskTable.sql"
+                         procedureName="internal_create_task_table"
                          schemaName="public">
         </createProcedure>
     </changeSet>
 
+    <changeSet id="update_procedure_internal_delete_task_table_index_name_change" runOnChange="true" author="Connor Mulholland" >
+        <createProcedure path="procedures/deleteTaskTable.sql"
+                         procedureName="internal_delete_task_table"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="update_procedure_report_progress_lock_table_change" runOnChange="true" author="Connor Mulholland" >
+        <createProcedure path="procedures/reportProgress.sql"
+                         procedureName="report_progress"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
 </databaseChangeLog>
