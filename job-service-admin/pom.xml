@@ -46,11 +46,6 @@
             <version>4.3.8.Final</version>
         </dependency>
         <dependency>
-            <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <!--Use SLF4j as our logging api-->
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -58,6 +53,24 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>util-rabbitmq</artifactId>
+            <version>2.3.1-301</version>
+        </dependency>
+
+        <!-- PostgreSQL database driver -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

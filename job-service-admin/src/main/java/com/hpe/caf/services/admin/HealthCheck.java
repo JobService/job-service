@@ -15,16 +15,11 @@
  */
 package com.hpe.caf.services.admin;
 
-//import com.google.gson.Gson;
-//import com.hpe.darwin.tag.client.ApiClient;
-//import com.hpe.darwin.tag.client.ApiException;
-//import com.hpe.darwin.tag.client.api.StatusApi;
-//import com.hpe.darwin.tag.client.model.StatusResponse;
-//import com.hpe.darwin.tag.service.common.loggers.LogManager;
-//import com.hpe.darwin.tag.service.common.loggers.Logger;
-
 import com.google.gson.Gson;
-import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.util.rabbitmq.RabbitUtil;
+import com.rabbitmq.client.Channel;
+import net.jodah.lyra.ConnectionOptions;
+import net.jodah.lyra.config.Config;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.jdbc.Work;
@@ -40,17 +35,14 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 public class HealthCheck extends HttpServlet
 {
-    private SessionFactory sessionFactory;
-    private static Logger LOG = LoggerFactory.getLogger(HealthCheck.class);
 
-    private static final String CAF_TAG_WEBSERVICE_URL = "CAF_TAG_WEBSERVICE_URL";
+    private static Logger LOG = LoggerFactory.getLogger(HealthCheck.class);
 
     @Override
     public void doGet(final HttpServletRequest req, final HttpServletResponse res) throws IOException
@@ -58,51 +50,12 @@ public class HealthCheck extends HttpServlet
         LOG.debug("Database Health Check: Starting...");
 
         //  Construct response payload.
-        final Map<String, String> statusResponseMap = new HashMap<>();
+        final Map<String, Map<String, String>> statusResponseMap = new HashMap<>();
+
         // Health check that the DB can be contacted
         performDBHealthCheck(statusResponseMap);
-
-
-        // TODO: Health check that RabbitMQ can be contacted
-            // TODO: Build URL for RabbitMQ
-            // TODO: Check how other services healthcheck the RabbitMQ endpoint
-
-        // TODO: Health check that the GetJobs API operation returns a 200 code
-            // TODO: Build URL for the API
-            // TODO: Check how the integration tests communicate with the API
-
-
-
-        //  Get handle a to the Tag Service Api client.
-//        LOGGER.debug("Getting handle to the Api client ...");
-//        final StatusApi statusApi = new StatusApi(getApiClient());
-//
-//        final StatusResponse statusResponse;
-//        int statusCode = 200;   // Assume (200) indicating the request succeeded normally.
-//        String responseBody;
-//
-//        try {
-//            //  Use the Api client to return the service status.
-//            LOGGER.debug("Checking CAF Tag Service status ...");
-//            statusResponse = statusApi.getTagServiceStatus();
-//
-//            //  Construct response payload.
-//            final Map<String, Map<String, String>> statusResponseMap = new HashMap<>();
-//            for (final Map.Entry e : statusResponse.entrySet()) {
-//                statusResponseMap.put(e.getKey().toString(), (Map<String, String>) e.getValue());
-//            }
-//            final Gson gson = new Gson();
-//            responseBody = gson.toJson(statusResponseMap);
-//
-//        } catch (final ApiException e) {
-//            //  The swagger generated code will throw ApiExceptions for tag service 500 and 503 responses.
-//            //  Need to capture the relevant status code and response body from the exception details and
-//            //  construct appropriate response from these.
-//            LOGGER.error(MessageFormat.format("ApiException thrown when checking CAF Tag Service status. {0}", e.getMessage()));
-//            LOGGER.debug("Capturing status code and response body from the ApiException details ...");
-//            statusCode = e.getCode();
-//            responseBody = e.getResponseBody();
-//        }
+        // Health check that RabbitMQ can be contacted
+        performRabbitMQHealthCheck(statusResponseMap);
 
         final Gson gson = new Gson();
         final String responseBody = gson.toJson(statusResponseMap);
@@ -118,7 +71,7 @@ public class HealthCheck extends HttpServlet
         res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
         //  Set status code.
-        res.setStatus(statusCode);
+        res.setStatus(200);
 
         //  Output response body.
         try (ServletOutputStream out = res.getOutputStream())
@@ -126,53 +79,102 @@ public class HealthCheck extends HttpServlet
             out.write(responseBodyBytes);
             out.flush();
         }
-
     }
 
-    private void performDBHealthCheck(Map<String, String> statusResponseMap) {
-        sessionFactory = HibernateUtil.getSessionFactory(new AppConfig());
-        final Session session = sessionFactory.openSession();
+    private void performRabbitMQHealthCheck(final Map<String, Map<String, String>> statusResponseMap) throws IOException
+    {
+        final com.rabbitmq.client.Connection conn;
+        final Channel channel;
 
+        // Attempt to create a connection and channel to RabbitMQ. If an error occurs update the statueResponseMap and
+        // return.
         try {
+            conn = createConnection();
+            channel = conn.createChannel();
+        } catch (IOException | TimeoutException e) {
+            LOG.error("RabbitMQ Health Check: Unhealthy, " + e.toString());
+            updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "queue");
+            return;
+        }
+
+        // Attempt to create a open a connection and channel to RabbitMQ. If an error occurs update the
+        // statueResponseMap and return.
+        try {
+            if (!conn.isOpen()) {
+                LOG.error("RabbitMQ Health Check: Unhealthy, unable to open connection");
+                updateStatusResponseWithHealthOfComponent(statusResponseMap, false,
+                        "Attempt to open connection to RabbitMQ failed", "queue");
+                return;
+            } else if (!channel.isOpen()) {
+                LOG.error("RabbitMQ Health Check: Unhealthy, unable to open channel");
+                updateStatusResponseWithHealthOfComponent(statusResponseMap, false,
+                        "Attempt to open channel to RabbitMQ failed", "queue");
+                return;
+            }
+        } catch (final Exception e) {
+            LOG.error("RabbitMQ Health Check: Unhealthy, " + e.toString());
+            updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "queue");
+            return;
+        } finally {
+            conn.close();
+        }
+
+        // There where no issues in attempting to create and open a connection and channel to RabbitMQ.
+        updateStatusResponseWithHealthOfComponent(statusResponseMap, true, null, "queue");
+    }
+
+    private static void updateStatusResponseWithHealthOfComponent(
+            final Map<String, Map<String, String>> statusResponseMap, final boolean isHealthy, final String message,
+            final String component)
+    {
+        final Map<String, String> healthMap = new HashMap<>();
+        if (isHealthy) {
+            healthMap.put("healthy", "true");
+        } else {
+            healthMap.put("healthy", "false");
+        }
+        if (message != null) {
+            healthMap.put("message", message);
+        }
+        statusResponseMap.put(component, healthMap);
+    }
+
+    private static com.rabbitmq.client.Connection createConnection() throws IOException, TimeoutException
+    {
+        final ConnectionOptions lyraOpts = RabbitUtil.createLyraConnectionOptions(System.getenv("CAF_RABBITMQ_HOST"),
+                Integer.parseInt(System.getenv("CAF_RABBITMQ_PORT")),
+                System.getenv("CAF_RABBITMQ_USERNAME"),
+                System.getenv("CAF_RABBITMQ_PASSWORD"));
+        final Config lyraConfig = RabbitUtil.createLyraConfig(1, 30, -1);
+        return RabbitUtil.createRabbitConnection(lyraOpts, lyraConfig);
+    }
+
+    private void performDBHealthCheck(final Map<String, Map<String, String>> statusResponseMap)
+    {
+        Session session = null;
+        try {
+            final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+            session = sessionFactory.openSession();
+
             session.doWork(new Work()
             {
-                public void execute(Connection connection) throws SQLException
+                public void execute(final Connection connection) throws SQLException
                 {
                     LOG.debug("Database Health Check: Attempting to Contact Database");
-                    Statement stmt = connection.createStatement();
+                    final Statement stmt = connection.createStatement();
                     stmt.execute("SELECT 1");
                     LOG.debug("Database Health Check: Connection to Database Achieved");
                 }
             });
             LOG.debug("Database Health Check: Healthy");
-            statusResponseMap.put("DB Connection", "Healthy");
-        } catch (Exception e) {
+            updateStatusResponseWithHealthOfComponent(statusResponseMap, true, null, "database");
+        } catch (final Throwable e) {
             LOG.error("Database Health Check: Unhealthy : " + e.toString());
-            statusResponseMap.put("DB Connection", "Unhealthy");
+            updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "database");
         } finally {
             if (session != null) {
                 session.close();
             }
         }
     }
-
-//    private static ApiClient getApiClient()
-//    {
-//        //  Create new instance of the Api client.
-//        final ApiClient apiClient = new ApiClient();
-//
-//        //  Set base path on which the Tag Service API is served. This is relative to the host.
-//        LOGGER.debug(CAF_TAG_WEBSERVICE_URL + ": " + System.getenv(CAF_TAG_WEBSERVICE_URL));
-//        String cafTagWebserviceUrl = System.getenv(CAF_TAG_WEBSERVICE_URL);
-//        if (null == cafTagWebserviceUrl || cafTagWebserviceUrl.isEmpty()) {
-//            cafTagWebserviceUrl = "http://localhost:8080/tag-service/v1";
-//        }
-//        apiClient.setBasePath(cafTagWebserviceUrl);
-//
-//        //  Set the date format used to parse/format date parameters.
-//        apiClient.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
-//
-//        return apiClient;
-//    }
-
 }

@@ -50,6 +50,12 @@
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
+        <dependency>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-admin</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
         <!-- Swagger UI -->
         <dependency>
             <groupId>com.github.jobservice</groupId>
@@ -224,6 +230,7 @@
                         <CAF_INTEGRATIONTESTS_FS_PATH>${caf.integrationtests.fs.path}</CAF_INTEGRATIONTESTS_FS_PATH>
                         <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
+                        <healthcheckurl>http://${docker.host.address}:${webservice.healthcheckport}/healthcheck</healthcheckurl>
                         <webserviceurlhttps>https://${docker.host.address}:${webservice.https.adminport}/job-service/v1</webserviceurlhttps>
                     </environmentVariables>
                 </configuration>
@@ -420,6 +427,15 @@
                                                 <unpack>true</unpack>
                                                 <useProjectArtifact>false</useProjectArtifact>
                                             </dependencySet>
+                                            <!-- Including the healthcheck web application. -->
+                                            <dependencySet>
+                                                <outputDirectory>adminapps/ROOT/</outputDirectory>
+                                                <includes>
+                                                    <include>com.github.jobservice:job-service-admin</include>
+                                                </includes>
+                                                <unpack>true</unpack>
+                                                <useProjectArtifact>false</useProjectArtifact>
+                                            </dependencySet>
                                         </dependencySets>
                                     </inline>
                                 </assembly>
@@ -428,6 +444,7 @@
                                 <ports>
                                     <port>${webservice.adminport}:8080</port>
                                     <port>${webservice.https.adminport}:8443</port>
+                                    <port>${webservice.healthcheckport}:8081</port>
                                 </ports>
                                 <env>
                                     <!-- When the container is deployed in Marathon it will use the environment variable values specified in the container json. -->

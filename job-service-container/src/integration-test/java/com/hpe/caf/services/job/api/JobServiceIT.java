@@ -32,6 +32,9 @@ import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +43,19 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.HttpClients;
+import org.junit.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * Integration tests for the functionality of the Job Service.
@@ -95,6 +109,65 @@ public class JobServiceIT {
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
         rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
         rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
+    }
+
+    @Test
+    public void testHealthCheck() throws NoSuchAlgorithmException, KeyManagementException, IOException
+    {
+        final String getRequestUrl = SettingsProvider.defaultProvider.getSetting("healthcheckurl");
+        final HttpGet request = new HttpGet(getRequestUrl);
+
+        // Set up a trust-all cert manager implementation
+        final TrustManager[] trustAllCertsManager = new TrustManager[]{
+                new X509TrustManager()
+                {
+                    @Override
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers()
+                    {
+                        System.out.println("Trust All TrustManager getAcceptedIssuers() called");
+                        return null;
+                    }
+
+                    @Override
+                    public void checkClientTrusted(
+                            java.security.cert.X509Certificate[] certs, String authType)
+                    {
+                        System.out.println("Trust All TrustManager checkClientTrusted() called");
+                    }
+
+                    @Override
+                    public void checkServerTrusted(
+                            java.security.cert.X509Certificate[] certs, String authType)
+                    {
+                        System.out.println("Trust All TrustManager CheckServerTrusted() called");
+                    }
+                }
+        };
+
+        // Instantiate an SSLContext object which employs the trust-all cert manager.
+        final SSLContext sslContext = SSLContext.getInstance("SSL");
+        sslContext.init(null, trustAllCertsManager, new java.security.SecureRandom());
+
+        // Set our HttpClient's Hostname Verifier to the no-op hostname verifier which turns hostname verification off.
+        final HttpClient httpClient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                .setSSLContext(sslContext).build();
+
+        System.out.println("Sending GET to HealthCheck url: " + getRequestUrl);
+        final HttpResponse response = httpClient.execute(request);
+        request.releaseConnection();
+
+        if (response.getEntity() == null) {
+            Assert.fail("There was no content returned from the HealthCheck HTTP Get Request");
+        }
+
+        final String expectedHealthCheckResponseContent =
+                "{\"database\":{\"healthy\":\"true\"},\"queue\":{\"healthy\":\"true\"}}";
+        Assert.assertEquals("Expected HealthCheck response should match the actual response",
+                expectedHealthCheckResponseContent,
+                IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset()));
+
+        System.out.println("Response code from the HealthCheck request: " + response.getStatusLine().getStatusCode());
+        Assert.assertTrue(response.getStatusLine().getStatusCode() == 200);
     }
 
     @Test
