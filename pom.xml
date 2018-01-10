@@ -69,6 +69,8 @@
         <module>job-service-caller</module>
         <module>job-service-ui</module>
         <module>job-service-contract</module>
+        <module>job-service-config</module>
+        <module>job-service-db-client</module>
         <module>job-service</module>
         <module>job-service-admin</module>
         <module>job-service-container</module>

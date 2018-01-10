@@ -116,41 +116,8 @@ public class JobServiceIT {
     {
         final String getRequestUrl = SettingsProvider.defaultProvider.getSetting("healthcheckurl");
         final HttpGet request = new HttpGet(getRequestUrl);
-
-        // Set up a trust-all cert manager implementation
-        final TrustManager[] trustAllCertsManager = new TrustManager[]{
-                new X509TrustManager()
-                {
-                    @Override
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers()
-                    {
-                        System.out.println("Trust All TrustManager getAcceptedIssuers() called");
-                        return null;
-                    }
-
-                    @Override
-                    public void checkClientTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType)
-                    {
-                        System.out.println("Trust All TrustManager checkClientTrusted() called");
-                    }
-
-                    @Override
-                    public void checkServerTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType)
-                    {
-                        System.out.println("Trust All TrustManager CheckServerTrusted() called");
-                    }
-                }
-        };
-
-        // Instantiate an SSLContext object which employs the trust-all cert manager.
-        final SSLContext sslContext = SSLContext.getInstance("SSL");
-        sslContext.init(null, trustAllCertsManager, new java.security.SecureRandom());
-
-        // Set our HttpClient's Hostname Verifier to the no-op hostname verifier which turns hostname verification off.
-        final HttpClient httpClient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                .setSSLContext(sslContext).build();
+        // Set up HttpClient
+        final HttpClient httpClient = HttpClients.createDefault();
 
         System.out.println("Sending GET to HealthCheck url: " + getRequestUrl);
         final HttpResponse response = httpClient.execute(request);
@@ -164,7 +131,7 @@ public class JobServiceIT {
                 "{\"database\":{\"healthy\":\"true\"},\"queue\":{\"healthy\":\"true\"}}";
         Assert.assertEquals("Expected HealthCheck response should match the actual response",
                 expectedHealthCheckResponseContent,
-                IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset()));
+                IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
 
         System.out.println("Response code from the HealthCheck request: " + response.getStatusLine().getStatusCode());
         Assert.assertTrue(response.getStatusLine().getStatusCode() == 200);

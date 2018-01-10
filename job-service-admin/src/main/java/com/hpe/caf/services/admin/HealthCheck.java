@@ -16,13 +16,13 @@
 package com.hpe.caf.services.admin;
 
 import com.google.gson.Gson;
+import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.configuration.AppConfigProvider;
+import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 import com.rabbitmq.client.Channel;
 import net.jodah.lyra.ConnectionOptions;
 import net.jodah.lyra.config.Config;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.jdbc.Work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +41,7 @@ import java.util.concurrent.TimeoutException;
 public class HealthCheck extends HttpServlet
 {
 
-    private static Logger LOG = LoggerFactory.getLogger(HealthCheck.class);
+    private final static Logger LOG = LoggerFactory.getLogger(HealthCheck.class);
 
     @Override
     public void doGet(final HttpServletRequest req, final HttpServletResponse res) throws IOException
@@ -151,30 +150,19 @@ public class HealthCheck extends HttpServlet
 
     private void performDBHealthCheck(final Map<String, Map<String, String>> statusResponseMap)
     {
-        Session session = null;
         try {
-            final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-            session = sessionFactory.openSession();
+            final Connection conn = DatabaseConnectionProvider.getConnection(
+                    AppConfigProvider.getAppConfigProperties());
 
-            session.doWork(new Work()
-            {
-                public void execute(final Connection connection) throws SQLException
-                {
-                    LOG.debug("Database Health Check: Attempting to Contact Database");
-                    final Statement stmt = connection.createStatement();
-                    stmt.execute("SELECT 1");
-                    LOG.debug("Database Health Check: Connection to Database Achieved");
-                }
-            });
+            LOG.debug("Database Health Check: Attempting to Contact Database");
+            final Statement stmt = conn.createStatement();
+            stmt.execute("SELECT 1");
+
             LOG.debug("Database Health Check: Healthy");
             updateStatusResponseWithHealthOfComponent(statusResponseMap, true, null, "database");
-        } catch (final Throwable e) {
+        } catch (final Exception e) {
             LOG.error("Database Health Check: Unhealthy : " + e.toString());
             updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "database");
-        } finally {
-            if (session != null) {
-                session.close();
-            }
         }
     }
 }

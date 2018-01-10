@@ -15,7 +15,7 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import junit.framework.Assert;
 import org.junit.Before;

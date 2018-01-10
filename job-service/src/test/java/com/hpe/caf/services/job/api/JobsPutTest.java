@@ -17,7 +17,6 @@ package com.hpe.caf.services.job.api;
 
 import static junit.framework.Assert.assertEquals;
 
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.anyInt;
@@ -28,7 +27,7 @@ import static org.mockito.Mockito.times;
 
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
-import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;

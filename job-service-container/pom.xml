@@ -159,6 +159,7 @@
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
                 <postgres.db.port>5432</postgres.db.port>
+                <webservice.healthcheckport>8081</webservice.healthcheckport>
                 <!--<CAF_JOBSERVICE_PORT>8080</CAF_JOBSERVICE_PORT>-->
                 <!--<db.connection>jdbc:postgresql://${docker.host.address}:${postgres.db.port}</db.connection>-->
             </properties>
@@ -404,7 +405,14 @@
                                     <Git.Commit>${git.revision}</Git.Commit>
                                 </labels>
                                 <healthCheck>
-                                    <mode>none</mode>
+                                    <!-- Check every 10 seconds -->
+                                    <interval>10s</interval>
+                                    <!-- Fail if no response after 3 seconds -->
+                                    <timeout>3s</timeout>
+                                    <!-- Fail 3 times until the container is considerd unhealthy -->
+                                    <retries>3</retries>
+                                    <!-- Command to execute in shell form -->
+                                    <cmd>curl -f http://localhost:8081/healthcheck || exit 1</cmd>
                                 </healthCheck>
                                 <assembly>
                                     <basedir>/usr/share/tomcat</basedir>
@@ -429,7 +437,7 @@
                                             </dependencySet>
                                             <!-- Including the healthcheck web application. -->
                                             <dependencySet>
-                                                <outputDirectory>adminapps/ROOT/</outputDirectory>
+                                                <outputDirectory>adminapps/ROOT</outputDirectory>
                                                 <includes>
                                                     <include>com.github.jobservice:job-service-admin</include>
                                                 </includes>

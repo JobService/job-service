@@ -17,10 +17,11 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
+import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
-import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
@@ -130,7 +131,7 @@ public final class JobsPut {
 
             //  Get app config settings.
             LOG.debug("createOrUpdateJob: Reading database and RabbitMQ connection properties...");
-            AppConfig config = ApiServiceUtil.getAppConfigProperties();
+            AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
             DatabaseHelper databaseHelper = new DatabaseHelper(config);

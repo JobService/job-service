@@ -68,8 +68,8 @@ public class HealthCheckTest {
 
         healthCheck.doGet(null, httpServletResponse);
 
-        final String expectedResponse = "{\"database\":{\"healthy\":\"false\"" +
-                ",\"message\":\"java.lang.ExceptionInInitializerError\"}," +
+        final String expectedResponse = "{\"database\":{\"healthy\":\"false\"," +
+                "\"message\":\"org.postgresql.util.PSQLException: The connection attempt failed.\"}," +
                 "\"queue\":{\"healthy\":\"false\"," +
                 "\"message\":\"java.net.UnknownHostException: unknown-rabbitmq-host\"}}";
 

@@ -21,7 +21,7 @@ import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.api.worker.TrackingInfo;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
-import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.configuration.AppConfig;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.MessageProperties;
