@@ -18,7 +18,6 @@ package com.hpe.caf.services.job.api;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigException;
 import com.hpe.caf.services.configuration.AppConfigProvider;
-import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,7 +59,7 @@ public final class ApiServiceUtilTest {
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         //  Test expected failure call to class method because of missing properties/
-        AppConfig configProps = AppConfigProvider.getAppConfigProperties();
+        AppConfigProvider.getAppConfigProperties();
     }
 
     @Test

@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.api;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
+import static org.testng.FileAssert.fail;
 
 import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
@@ -47,15 +48,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 /**
  * Integration tests for the functionality of the Job Service.
@@ -124,17 +119,16 @@ public class JobServiceIT {
         request.releaseConnection();
 
         if (response.getEntity() == null) {
-            Assert.fail("There was no content returned from the HealthCheck HTTP Get Request");
+            fail("There was no content returned from the HealthCheck HTTP Get Request");
         }
 
         final String expectedHealthCheckResponseContent =
                 "{\"database\":{\"healthy\":\"true\"},\"queue\":{\"healthy\":\"true\"}}";
-        Assert.assertEquals("Expected HealthCheck response should match the actual response",
-                expectedHealthCheckResponseContent,
-                IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")));
+        assertEquals(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")),
+                expectedHealthCheckResponseContent, "Expected HealthCheck response should match the actual response");
 
         System.out.println("Response code from the HealthCheck request: " + response.getStatusLine().getStatusCode());
-        Assert.assertTrue(response.getStatusLine().getStatusCode() == 200);
+        assertTrue(response.getStatusLine().getStatusCode() == 200);
     }
 
     @Test

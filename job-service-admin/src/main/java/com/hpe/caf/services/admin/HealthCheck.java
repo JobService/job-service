@@ -16,7 +16,6 @@
 package com.hpe.caf.services.admin;
 
 import com.google.gson.Gson;
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;

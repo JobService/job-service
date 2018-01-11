@@ -15,12 +15,6 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-
 /**
  * Utility class for shared functionality.
  */
