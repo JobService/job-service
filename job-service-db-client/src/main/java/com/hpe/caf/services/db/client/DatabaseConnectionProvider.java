@@ -35,6 +35,10 @@ public final class DatabaseConnectionProvider
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseConnectionProvider.class);
 
+    private DatabaseConnectionProvider()
+    {
+    }
+
     /**
      * Creates a connection to the PostgreSQL database.
      */

@@ -19,10 +19,14 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
-public class AppConfigProvider
+public final class AppConfigProvider
 {
     private static final String ERR_MSG_DB_CONNECTION_PROPS_MISSING = "One or more PostgreSQL database connection " +
             "properties have not been provided.";
+
+    private AppConfigProvider()
+    {
+    }
 
     /**
      * Load required inputs from config.properties or environment variables.
