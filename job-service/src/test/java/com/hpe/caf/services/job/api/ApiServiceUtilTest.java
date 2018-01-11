@@ -15,8 +15,9 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.job.configuration.AppConfig;
-import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.configuration.AppConfigException;
+import com.hpe.caf.services.configuration.AppConfigProvider;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,13 +43,13 @@ public final class ApiServiceUtilTest {
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         //  Test successful call to class method.
-        AppConfig configProps = ApiServiceUtil.getAppConfigProperties();
+        AppConfig configProps = AppConfigProvider.getAppConfigProperties();
         Assert.assertEquals(configProps.getDatabaseURL(),"testUrl");
         Assert.assertEquals(configProps.getDatabaseUsername(),"testUserName");
         Assert.assertEquals(configProps.getDatabasePassword(),"testPassword");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expected = AppConfigException.class)
     public void testGetAppConfigPropertiesFailure_MissingDBProps () throws Exception {
 
         //  Set-up test database connection properties.
@@ -58,7 +59,7 @@ public final class ApiServiceUtilTest {
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         //  Test expected failure call to class method because of missing properties/
-        AppConfig configProps = ApiServiceUtil.getAppConfigProperties();
+        AppConfigProvider.getAppConfigProperties();
     }
 
     @Test

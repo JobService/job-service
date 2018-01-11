@@ -82,6 +82,16 @@
   </build>
   <dependencies>
     <dependency>
+      <groupId>com.github.jobservice</groupId>
+      <artifactId>job-service-config</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.jobservice</groupId>
+      <artifactId>job-service-db-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-jersey-jaxrs</artifactId>
       <version>${swagger-core-version}</version>
@@ -126,11 +136,6 @@
       <artifactId>jersey-client</artifactId>
       <version>${jersey-version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <version>4.0.5.RELEASE</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
