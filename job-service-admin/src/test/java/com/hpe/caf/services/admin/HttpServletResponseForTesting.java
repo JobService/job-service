@@ -33,6 +33,7 @@ public class HttpServletResponseForTesting implements HttpServletResponse
     @Override
     public void addCookie(Cookie cookie)
     {
+
     }
 
     /**
