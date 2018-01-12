@@ -75,5 +75,7 @@ public class HealthCheckTest {
 
         Assert.assertEquals("Expected Health Check response should match actual response", expectedResponse,
                 new String(httpServletResponse.getContent()));
+
+        Assert.assertEquals("Status code set should be 500", 500, httpServletResponse.getStatus());
     }
 }

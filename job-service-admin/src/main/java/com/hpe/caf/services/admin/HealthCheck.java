@@ -42,8 +42,6 @@ public class HealthCheck extends HttpServlet
 
     private final static Logger LOG = LoggerFactory.getLogger(HealthCheck.class);
 
-    private static boolean unhealthyWorker = false;
-
     @Override
     public void doGet(final HttpServletRequest req, final HttpServletResponse res) throws IOException
     {
@@ -51,10 +49,10 @@ public class HealthCheck extends HttpServlet
         //  Construct response payload.
         final Map<String, Map<String, String>> statusResponseMap = new HashMap<>();
 
-        // Health check that the DB can be contacted
-        performDBHealthCheck(statusResponseMap);
-        // Health check that RabbitMQ can be contacted
-        performRabbitMQHealthCheck(statusResponseMap);
+        // Health check that the DB and RabbitMQ can be contacted
+        final boolean isDBHealthy = performDBHealthCheck(statusResponseMap);
+        final boolean isRabbitMQHealthy = performRabbitMQHealthCheck(statusResponseMap);
+        final boolean isHealthy = isDBHealthy && isRabbitMQHealthy;
 
         final Gson gson = new Gson();
         final String responseBody = gson.toJson(statusResponseMap);
@@ -70,10 +68,10 @@ public class HealthCheck extends HttpServlet
         res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
         //  Set status code.
-        if (unhealthyWorker) {
-            res.setStatus(500);
-        } else {
+        if (isHealthy) {
             res.setStatus(200);
+        } else {
+            res.setStatus(500);
         }
 
         //  Output response body.
@@ -84,7 +82,7 @@ public class HealthCheck extends HttpServlet
         }
     }
 
-    private void performRabbitMQHealthCheck(final Map<String, Map<String, String>> statusResponseMap) throws IOException
+    private boolean performRabbitMQHealthCheck(final Map<String, Map<String, String>> statusResponseMap) throws IOException
     {
         LOG.debug("RabbitMQ Health Check: Starting...");
 
@@ -98,8 +96,7 @@ public class HealthCheck extends HttpServlet
             channel = conn.createChannel();
         } catch (IOException | TimeoutException e) {
             LOG.error("RabbitMQ Health Check: Unhealthy, " + e.toString());
-            updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "queue");
-            return;
+            return updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "queue");
         }
 
         // Attempt to create a open a connection and channel to RabbitMQ. If an error occurs update the
@@ -107,28 +104,25 @@ public class HealthCheck extends HttpServlet
         try {
             if (!conn.isOpen()) {
                 LOG.error("RabbitMQ Health Check: Unhealthy, unable to open connection");
-                updateStatusResponseWithHealthOfComponent(statusResponseMap, false,
+                return updateStatusResponseWithHealthOfComponent(statusResponseMap, false,
                         "Attempt to open connection to RabbitMQ failed", "queue");
-                return;
             } else if (!channel.isOpen()) {
                 LOG.error("RabbitMQ Health Check: Unhealthy, unable to open channel");
-                updateStatusResponseWithHealthOfComponent(statusResponseMap, false,
+                return updateStatusResponseWithHealthOfComponent(statusResponseMap, false,
                         "Attempt to open channel to RabbitMQ failed", "queue");
-                return;
             }
         } catch (final Exception e) {
             LOG.error("RabbitMQ Health Check: Unhealthy, " + e.toString());
-            updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "queue");
-            return;
+            return updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "queue");
         } finally {
             conn.close();
         }
 
         // There where no issues in attempting to create and open a connection and channel to RabbitMQ.
-        updateStatusResponseWithHealthOfComponent(statusResponseMap, true, null, "queue");
+        return updateStatusResponseWithHealthOfComponent(statusResponseMap, true, null, "queue");
     }
 
-    private static void updateStatusResponseWithHealthOfComponent(
+    private static boolean updateStatusResponseWithHealthOfComponent(
             final Map<String, Map<String, String>> statusResponseMap, final boolean isHealthy, final String message,
             final String component)
     {
@@ -137,12 +131,12 @@ public class HealthCheck extends HttpServlet
             healthMap.put("healthy", "true");
         } else {
             healthMap.put("healthy", "false");
-            unhealthyWorker = true;
         }
         if (message != null) {
             healthMap.put("message", message);
         }
         statusResponseMap.put(component, healthMap);
+        return isHealthy;
     }
 
     private static com.rabbitmq.client.Connection createConnection() throws IOException, TimeoutException
@@ -155,7 +149,7 @@ public class HealthCheck extends HttpServlet
         return RabbitUtil.createRabbitConnection(lyraOpts, lyraConfig);
     }
 
-    private void performDBHealthCheck(final Map<String, Map<String, String>> statusResponseMap)
+    private boolean performDBHealthCheck(final Map<String, Map<String, String>> statusResponseMap)
     {
         LOG.debug("Database Health Check: Starting...");
         try {
@@ -167,10 +161,10 @@ public class HealthCheck extends HttpServlet
             stmt.execute("SELECT 1");
 
             LOG.debug("Database Health Check: Healthy");
-            updateStatusResponseWithHealthOfComponent(statusResponseMap, true, null, "database");
+            return updateStatusResponseWithHealthOfComponent(statusResponseMap, true, null, "database");
         } catch (final Exception e) {
             LOG.error("Database Health Check: Unhealthy : " + e.toString());
-            updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "database");
+            return updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "database");
         }
     }
 }
