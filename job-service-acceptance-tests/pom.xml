@@ -533,9 +533,11 @@
                             <name>${dockerJobServiceOrg}worker-jobtracking${dockerProjectVersion}</name>
                             <run>
                                 <ports>
+                                    <port>5005:5005</port>
                                     <port>${jobtracking-worker.adminport}:8081</port>
                                 </ports>
                                 <env>
+                                    <_JAVA_OPTIONS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</_JAVA_OPTIONS>
                                     <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
                                     <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
                                     <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
