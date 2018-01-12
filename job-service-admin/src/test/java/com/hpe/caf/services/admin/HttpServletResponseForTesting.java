@@ -26,6 +26,8 @@ public class HttpServletResponseForTesting implements HttpServletResponse
 {
     private byte[] content;
 
+    private int statusCode;
+
     /**
      * Method unused during testing.
      * @param cookie
@@ -198,7 +200,16 @@ public class HttpServletResponseForTesting implements HttpServletResponse
     @Override
     public void setStatus(int sc)
     {
+        statusCode = sc;
+    }
 
+    /**
+     * Return the status code.
+     * @return
+     */
+    public int getStatus()
+    {
+        return statusCode;
     }
 
     /**
