@@ -42,10 +42,11 @@ public class HealthCheck extends HttpServlet
 
     private final static Logger LOG = LoggerFactory.getLogger(HealthCheck.class);
 
+    private static boolean unhealthyWorker = false;
+
     @Override
     public void doGet(final HttpServletRequest req, final HttpServletResponse res) throws IOException
     {
-        LOG.debug("Database Health Check: Starting...");
 
         //  Construct response payload.
         final Map<String, Map<String, String>> statusResponseMap = new HashMap<>();
@@ -69,7 +70,11 @@ public class HealthCheck extends HttpServlet
         res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
         //  Set status code.
-        res.setStatus(200);
+        if (unhealthyWorker) {
+            res.setStatus(500);
+        } else {
+            res.setStatus(200);
+        }
 
         //  Output response body.
         try (ServletOutputStream out = res.getOutputStream())
@@ -81,6 +86,8 @@ public class HealthCheck extends HttpServlet
 
     private void performRabbitMQHealthCheck(final Map<String, Map<String, String>> statusResponseMap) throws IOException
     {
+        LOG.debug("RabbitMQ Health Check: Starting...");
+
         final com.rabbitmq.client.Connection conn;
         final Channel channel;
 
@@ -130,6 +137,7 @@ public class HealthCheck extends HttpServlet
             healthMap.put("healthy", "true");
         } else {
             healthMap.put("healthy", "false");
+            unhealthyWorker = true;
         }
         if (message != null) {
             healthMap.put("message", message);
@@ -149,6 +157,7 @@ public class HealthCheck extends HttpServlet
 
     private void performDBHealthCheck(final Map<String, Map<String, String>> statusResponseMap)
     {
+        LOG.debug("Database Health Check: Starting...");
         try {
             final Connection conn = DatabaseConnectionProvider.getConnection(
                     AppConfigProvider.getAppConfigProperties());
