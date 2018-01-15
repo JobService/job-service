@@ -128,7 +128,8 @@ The Docker Compose file contains the following services:
               "taskMessageParams": {
                 "field:binaryFile": "CONTENT",
                 "field:fileName": "FILE_NAME",
-                "cd:outputSubfolder": "subDir"
+                "cd:outputSubfolder": "subDir",
+                "cd:resultFormat": "COMPLEX"
               },
               "targetPipe": "languageidentification-in"
             },
