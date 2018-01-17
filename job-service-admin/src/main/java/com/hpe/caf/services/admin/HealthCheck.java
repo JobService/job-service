@@ -152,9 +152,8 @@ public class HealthCheck extends HttpServlet
     private boolean performDBHealthCheck(final Map<String, Map<String, String>> statusResponseMap)
     {
         LOG.debug("Database Health Check: Starting...");
-        try {
-            final Connection conn = DatabaseConnectionProvider.getConnection(
-                    AppConfigProvider.getAppConfigProperties());
+        try (final Connection conn = DatabaseConnectionProvider.getConnection(
+                AppConfigProvider.getAppConfigProperties())) {
 
             LOG.debug("Database Health Check: Attempting to Contact Database");
             final Statement stmt = conn.createStatement();
