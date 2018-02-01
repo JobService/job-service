@@ -10,7 +10,7 @@ services:
       CAF_STATUS_CHECK_TIME: 5
       CAF_TRACKING_PIPE: jobtracking-in
       CAF_WEBSERVICE_URL: "http://${JOB_SERVICE_DOCKER_HOST}:${JOB_SERVICE_PORT}/job-service/v1"
-    image: jobservice/job-service:2.3.0
+    image: jobservice/job-service:2.4.0
     deploy:
       mode: replicated
       replicas: 2
@@ -34,7 +34,7 @@ services:
       JOB_DATABASE_USERNAME: "${CAF_DATABASE_USERNAME}"
       JOB_DATABASE_PASSWORD: "${CAF_DATABASE_PASSWORD}"
       CAF_WEBSERVICE_URL: "http://${JOB_SERVICE_DOCKER_HOST}:${JOB_SERVICE_PORT}/job-service/v1"
-    image: jobservice/worker-jobtracking:2.3.0
+    image: jobservice/worker-jobtracking:2.4.0
     deploy:
       mode: replicated
       replicas: 2
@@ -58,7 +58,7 @@ services:
       CAF_TRACKING_PIPE: jobtracking-in
       CAF_WEBSERVICE_URL: "http://${JOB_SERVICE_DOCKER_HOST}:${JOB_SERVICE_PORT}/job-service/v1"
       CAF_SCHEDULED_EXECUTOR_PERIOD: 10	  
-    image: jobservice/job-service-scheduled-executor:2.3.0
+    image: jobservice/job-service-scheduled-executor:2.4.0
     deploy:
       mode: replicated
       replicas: 2

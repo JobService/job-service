@@ -7,7 +7,7 @@
             "instances": 1,
             "container": {
                 "docker": {
-                    "image": "jobservice/worker-globfilter:2.1.0",
+                    "image": "jobservice/worker-globfilter:2.2.0",
                     "network": "BRIDGE",
                     "forcePullImage": true
                 },
@@ -42,7 +42,7 @@
             "instances": 1,
             "container": {
                 "docker": {
-                    "image": "cafdataprocessing/worker-languagedetection:2.0.0",
+                    "image": "cafdataprocessing/worker-languagedetection:2.5.0",
                     "network": "BRIDGE",
                     "forcePullImage": true
                 },
