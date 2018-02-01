@@ -89,7 +89,7 @@
                                     </inline>
                                 </assembly>
                                 <runCmds>
-                                    <run>pip install --proxy=http://web-proxy.sdc.hpecorp.net:8080 requests</run>
+                                    <run>http_proxy=${env.HTTP_PROXY} https_proxy=${env.HTTPS_PROXY} pip install requests</run>
                                 </runCmds>
                                 <entryPoint>
                                     <exec>
