@@ -1,5 +1,5 @@
 {
-        "workerVersion": "2.3.0-159",
+        "workerVersion": "1.9.1-SNAPSHOT",
 		"outputQueue": "jobtrackingworker-test-output-1",
         "threads": 1
 }
