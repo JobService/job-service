@@ -359,7 +359,7 @@
                             <alias>config</alias>
                             <name>${project.artifactId}-test-config:${project.version}</name>
                             <build>
-                                <maintainer>conal.smith@hpe.com</maintainer>
+                                <maintainer>conal.smith@microfocus.com</maintainer>
                                 <assembly>
                                     <basedir>/config</basedir>
                                     <inline>
@@ -382,7 +382,7 @@
                             <name>${project.artifactId}-keystore:${project.version}</name>
                             <build>
                                 <from>java:8</from>
-                                <maintainer>conal.smith@hpe.com</maintainer>
+                                <maintainer>conal.smith@microfocus.com</maintainer>
                                 <runCmds>
                                     <runCmd>mkdir /test-keystore</runCmd>
                                     <runCmd>$JAVA_HOME/bin/keytool -genkey -noprompt -alias tomcat -dname "CN=myname, OU=myorganisational.unit, O=myorganisation, L=mycity, S=myprovince, C=GB" -keystore /test-keystore/tomcat.keystore -storepass changeit -keypass changeit -keyalg RSA</runCmd>
@@ -396,7 +396,7 @@
                             <alias>job-service</alias>
                             <name>${dockerJobServiceOrg}job-service${dockerProjectVersion}</name>
                             <build>
-                                <maintainer>conal.smith@hpe.com</maintainer>
+                                <maintainer>conal.smith@microfocus.com</maintainer>
                                 <from>${tomcatBaseImage}</from>
                                 <labels>
                                     <Build.Number>${project.version}</Build.Number>

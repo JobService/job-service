@@ -75,7 +75,7 @@
                             <alias>job-service-postgres</alias>
                             <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <build>
-                                <maintainer>connor.mulholland@hpe.com</maintainer>
+                                <maintainer>connor.mulholland@microfocus.com</maintainer>
                                 <from>cafapi/java-postgres:1.0</from>
                                 <labels>
                                     <Build.Number>${project.version}</Build.Number>
