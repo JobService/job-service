@@ -147,7 +147,7 @@
                             <alias>job-service-scheduled-executor</alias>
                             <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
                             <build>
-                                <maintainer>connor.mulholland@hpe.com</maintainer>
+                                <maintainer>connor.mulholland@microfocus.com</maintainer>
                                 <from>cafapi/opensuse-jre8:1.2</from>
                                 <labels>
                                     <caf.worker-document-framework.version>${caf.worker-document-framework.version}</caf.worker-document-framework.version>
