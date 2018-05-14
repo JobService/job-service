@@ -91,7 +91,7 @@ public final class JobsPut {
             }
 
             //  Make sure the target queue name has been provided.
-            if (!ApiServiceUtil.isNotNullOrEmpty(job.getTask().getTargetPipe())) {
+            if ("".equals(job.getTask().getTargetPipe())) {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TARGET_QUEUE_NOT_SPECIFIED);
                 throw new BadRequestException(ERR_MSG_TARGET_QUEUE_NOT_SPECIFIED);
             }
