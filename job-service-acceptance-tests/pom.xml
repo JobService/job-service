@@ -533,7 +533,7 @@
                             <name>${dockerJobServiceOrg}worker-jobtracking${dockerProjectVersion}</name>
                             <run>
                                 <ports>
-                                    <port>5005:5005</port>
+                                    <port>${jobtracking-worker.debugport}:5005</port>
                                     <port>${jobtracking-worker.adminport}:8081</port>
                                 </ports>
                                 <env>
@@ -688,6 +688,7 @@
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
                 <postgres.db.port>5432</postgres.db.port>
+                <jobtracking-worker.debugport>5005</jobtracking-worker.debugport>
             </properties>
         </profile>
     </profiles>
