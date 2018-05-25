@@ -130,7 +130,6 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
-      <version>4.12</version>
     </dependency>
     <dependency>
       <groupId>com.sun.jersey</groupId>
@@ -138,7 +137,6 @@
       <version>${jersey-version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
@@ -247,7 +245,6 @@
       <version>1.2</version>
     </dependency>
     <!-- End Logging -->
-
   </dependencies>
 
   <properties>

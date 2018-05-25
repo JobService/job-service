@@ -52,6 +52,18 @@
 
     <dependencyManagement>
         <dependencies>
+            <!--
+   Workaround apparent issue in dependencyManagement section of org.jdbi:jdbi3-parent:3.1.0
+   whereby Spring dependencies are declared optional
+-->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>4.2.4.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-framework</artifactId>
