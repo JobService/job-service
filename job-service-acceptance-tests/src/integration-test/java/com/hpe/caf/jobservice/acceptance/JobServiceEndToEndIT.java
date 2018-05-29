@@ -488,13 +488,13 @@ public class JobServiceEndToEndIT {
         }
          LOG.info("Before sleep " + job2Id);
         Thread.sleep(30000); // Add short delay to allow J1 + J2 to complete.
-         LOG.info("After sleep " + job2Id)
+         LOG.info("After sleep " + job2Id);
         //  Verify J2 is complete but J3 is still waiting.
 
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
-        LOG.info("JOB 2 status " + job2Id)
+        LOG.info("JOB 2 status " + job2Id);
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
-        LOG.info("JOB 3 status " + job3Id)
+        LOG.info("JOB 3 status " + job3Id);
         Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) != null);
 
         Thread.sleep(15000); // Add short delay to allow J3 to complete
