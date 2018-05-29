@@ -470,10 +470,10 @@
         <profile>
             <id>use-default-fixed-ports</id>
             <properties>
-                <worker.adminport>8081</worker.adminport>
-                <rabbitmq.node.port>5672</rabbitmq.node.port>
-                <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
-                <postgres.db.port>5432</postgres.db.port>
+                <worker.adminport>38081</worker.adminport>
+                <rabbitmq.node.port>35672</rabbitmq.node.port>
+                <rabbitmq.ctrl.port>35673</rabbitmq.ctrl.port>
+                <postgres.db.port>35432</postgres.db.port>
             </properties>
         </profile>
         <profile>
