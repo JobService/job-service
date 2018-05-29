@@ -69,17 +69,17 @@
             <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-module-junit4</artifactId>
-                <version>1.7.3</version>
+                <version>1.6.4</version>
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-api-mockito</artifactId>
-                <version>1.7.3</version>
+                <version>1.6.4</version>
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-api-mockito</artifactId>
-                <version>1.7.3</version>
+                <version>1.6.4</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
