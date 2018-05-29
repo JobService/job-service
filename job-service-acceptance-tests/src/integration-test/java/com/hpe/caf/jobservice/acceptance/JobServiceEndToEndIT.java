@@ -490,7 +490,11 @@ public class JobServiceEndToEndIT {
         Thread.sleep(10000); // Add short delay to allow J1 + J2 to complete.
 
         //  Verify J2 is complete but J3 is still waiting.
-        JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
+        try {
+            JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
+        }
+        catch (Exception e){
+            LOG.error("Status of Job2 ", e);
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
         Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) != null);
 
