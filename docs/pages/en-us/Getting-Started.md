@@ -92,7 +92,7 @@ The message output to the Language Detection Worker output queue, `languageident
 	"tracking": null,
 	"sourceInfo": {
 		"name": "worker-languagedetection",
-		"version": "1.0.0-SNAPSHOT"
+		"version": "2.5.0-85"
 	}
 }
 ```

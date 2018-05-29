@@ -15,7 +15,8 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public final class JobsCancel {
 
             //  Get app config settings.
             LOG.debug("cancel: Reading database connection properties...");
-            AppConfig config = ApiServiceUtil.getAppConfigProperties();
+            AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
             DatabaseHelper databaseHelper = new DatabaseHelper(config);

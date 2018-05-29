@@ -16,7 +16,7 @@
 package com.hpe.caf.services.job.queue;
 
 import com.hpe.caf.api.Codec;
-import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 
 import com.rabbitmq.client.Channel;
