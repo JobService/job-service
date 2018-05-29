@@ -431,8 +431,8 @@ public class JobServiceEndToEndIT {
     @Test
     public void testJobWithPrerequisiteJobsAndDelays() throws Exception
     {
-        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
-        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+        //numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        //testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
 
         //  Generate job identifiers for test.
         final String job1Id = generateJobId();
@@ -487,7 +487,7 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
          LOG.info("Before sleep " + job2Id);
-        Thread.sleep(10000); // Add short delay to allow J1 + J2 to complete.
+        Thread.sleep(30000); // Add short delay to allow J1 + J2 to complete.
          LOG.info("After sleep " + job2Id)
         //  Verify J2 is complete but J3 is still waiting.
 
