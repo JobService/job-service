@@ -769,8 +769,8 @@ public class JobServiceEndToEndIT {
     @Test
     public void testJobDeletionWithPrerequisiteJobs() throws Exception
     {
-        //numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
-        //testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
 
         //  Generate job identifiers for test.
         final String job1Id = generateJobId();
