@@ -151,7 +151,6 @@
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
       <scope>test</scope>
-    <!--  <version>1.6.6</version> -->
     </dependency>
 
     <!-- Codec serialization. -->

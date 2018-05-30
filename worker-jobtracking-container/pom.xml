@@ -472,7 +472,7 @@
             <properties>
                 <worker.adminport>8081</worker.adminport>
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
-                <rabbitmq.ctrl.port>5673</rabbitmq.ctrl.port>
+                <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
                 <postgres.db.port>5432</postgres.db.port>
             </properties>
         </profile>
