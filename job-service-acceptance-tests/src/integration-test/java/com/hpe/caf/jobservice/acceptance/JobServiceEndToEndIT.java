@@ -486,7 +486,7 @@ public class JobServiceEndToEndIT {
             // Database as Completed.
             context.getTestResult();
         }
-        Thread.sleep(10000); // Add short delay to allow J1 + J2 to complete.
+        Thread.sleep(6000); // Add short delay to allow J1 + J2 to complete.
         //  Verify J2 is complete but J3 is still waiting.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
