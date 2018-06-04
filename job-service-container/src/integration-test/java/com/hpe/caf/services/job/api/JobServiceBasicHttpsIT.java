@@ -37,6 +37,9 @@ public class JobServiceBasicHttpsIT
     private SSLContext sslContext;
     private HttpClient httpClient;
 
+    /**
+     * SCMOD-3454 - FALSE POSITIVE on FORTIFY SCAN. SSL verification is disabled on purpose.
+     */
     @BeforeTest
     public void setup() throws NoSuchAlgorithmException, KeyManagementException
     {

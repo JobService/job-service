@@ -119,6 +119,12 @@
             <version>1.6.0-181</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20180130</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
