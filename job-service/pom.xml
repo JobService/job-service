@@ -241,6 +241,7 @@
       <version>1.2</version>
     </dependency>
     <!-- End Logging -->
+
   </dependencies>
 
   <properties>
