@@ -533,13 +533,9 @@
                             <name>${dockerJobServiceOrg}worker-jobtracking${dockerProjectVersion}</name>
                             <run>
                                 <ports>
-                                    <port>${jobtracking-worker.debugport}:5005</port>
                                     <port>${jobtracking-worker.adminport}:8081</port>
                                 </ports>
                                 <env>
-                                    <_JAVA_OPTIONS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</_JAVA_OPTIONS>
-                                    <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
-                                    <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
                                     <CAF_RABBITMQ_BACKOFF_INTERVAL>1</CAF_RABBITMQ_BACKOFF_INTERVAL>
                                     <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
                                     <CAF_RABBITMQ_MAX_ATTEMPTS>20</CAF_RABBITMQ_MAX_ATTEMPTS>
@@ -696,7 +692,6 @@
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
                 <postgres.db.port>5432</postgres.db.port>
-                <jobtracking-worker.debugport>5005</jobtracking-worker.debugport>
             </properties>
         </profile>
     </profiles>
