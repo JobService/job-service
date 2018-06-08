@@ -1,5 +1,13 @@
 version: '3'
 services:
+  # Expose Job Service debug and admin ports.
+  jobservice:
+      environment:
+        CATALINA_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+      ports:
+        - "9412:5005"
+        - "9413:8081"
+
   # Expose the Job Service Database so that an external Database tool like DbVisualizer
   # can be used to connect to it.
   jobservicedb:

@@ -15,9 +15,10 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
-import com.hpe.caf.services.job.configuration.AppConfig;
+import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
 import org.codehaus.jettison.json.JSONObject;
@@ -30,16 +31,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * The DatabaseHelper class is responsible for database operations.
  */
-public final class DatabaseHelper {
-
-    private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
-    private static final String JDBC_DRIVER = "org.postgresql.Driver";
-    private static final String ERR_MSG_DB_URL_FORMAT_INVALID = "Invalid database url string format - must start with jdbc:postgresql:";
+public final class DatabaseHelper
+{
     private static final String FAILURE_PROPERTY_MISSING = "Unknown";
 
     private static AppConfig appConfig;
@@ -65,7 +62,7 @@ public final class DatabaseHelper {
         String getJobsFnCallSQL = "{call get_jobs(?,?,?,?)}";
 
         try (
-                Connection conn = getConnection();
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall(getJobsFnCallSQL)
         ) {
             if (jobIdStartsWith == null) {
@@ -126,7 +123,7 @@ public final class DatabaseHelper {
         String getJobsCountFnCallSQL = "{call get_jobs_count(?,?)}";
 
         try (
-                Connection conn = getConnection();
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall(getJobsCountFnCallSQL)
         ) {
             if (jobIdStartsWith == null) {
@@ -162,7 +159,7 @@ public final class DatabaseHelper {
         String getJobFnCallSQL = "{call get_job(?)}";
 
         try (
-                Connection conn = getConnection();
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall(getJobFnCallSQL)
         ) {
             stmt.setString(1,jobId);
@@ -215,7 +212,7 @@ public final class DatabaseHelper {
         String createJobFnCallSQL = "{call create_job(?,?,?,?,?)}";
 
         try (
-                Connection conn = getConnection();
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall(createJobFnCallSQL)
         ) {
             stmt.setString(1,jobId);
@@ -253,7 +250,7 @@ public final class DatabaseHelper {
         String createJobFnCallSQL = "{call create_job(?,?,?,?,?,?,?,?,?,?,?,?)}";
 
         try (
-                Connection conn = getConnection();
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall(createJobFnCallSQL)
         ) {
             final String[] prerequisiteJobIdStringArray = prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
@@ -297,7 +294,7 @@ public final class DatabaseHelper {
         String deleteJobFnCallSQL = "{call delete_job(?)}";
 
         try (
-                Connection conn = getConnection();
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall(deleteJobFnCallSQL)
         ) {
             stmt.setString(1,jobId);
@@ -330,7 +327,7 @@ public final class DatabaseHelper {
         String rowExistsSQL = "select 1 as rowExists from job where job_id = ? and job_hash=?";
 
         try (
-                Connection conn = getConnection();
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 PreparedStatement stmt = conn.prepareStatement(rowExistsSQL)
         ) {
             stmt.setString(1, jobId);
@@ -358,7 +355,7 @@ public final class DatabaseHelper {
         String rowExistsSQL = "select 1 as taskDataExists from job_task_data where job_id = ?";
 
         try (
-                Connection conn = getConnection();
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 PreparedStatement stmt = conn.prepareStatement(rowExistsSQL)
         ) {
             stmt.setString(1, jobId);
@@ -383,7 +380,7 @@ public final class DatabaseHelper {
         String rowExistsSQL = "select 1 as isActive from job where job_id = ? and status IN ('Active', 'Waiting')";
 
         try (
-                Connection conn = getConnection();
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 PreparedStatement stmt = conn.prepareStatement(rowExistsSQL)
         ) {
             stmt.setString(1, jobId);
@@ -407,7 +404,7 @@ public final class DatabaseHelper {
         String cancelJobFnCallSQL = "{call cancel_job(?)}";
 
         try (
-                Connection conn = getConnection();
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall(cancelJobFnCallSQL)
         ) {
             stmt.setString(1,jobId);
@@ -438,7 +435,7 @@ public final class DatabaseHelper {
         String reportFailureFnCallSQL = "{call report_failure(?,?)}";
 
         try (
-                Connection conn = getConnection();
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall(reportFailureFnCallSQL)
         ) {
             stmt.setString(1,jobId);
@@ -480,41 +477,6 @@ public final class DatabaseHelper {
 
         return failures;
 
-    }
-
-    /**
-     * Creates a connection to the PostgreSQL database.
-     */
-    private static Connection getConnection
-    () throws Exception {
-
-        Connection conn;
-
-        // Only JDBC/PostgreSQL connections supported.
-        final String dbURL = appConfig.getDatabaseURL().toLowerCase();
-        if ( !dbURL.startsWith(JDBC_POSTGRESQL_PREFIX) )
-        {
-            throw new BadRequestException(ERR_MSG_DB_URL_FORMAT_INVALID);
-        }
-
-        try{
-            // Register JDBC driver.
-            LOG.debug("Registering JDBC driver...");
-            Class.forName(JDBC_DRIVER);
-
-            // Open a connection.
-            Properties myProp = new Properties();
-            myProp.put("user", appConfig.getDatabaseUsername());
-            myProp.put("password", appConfig.getDatabasePassword());
-
-            LOG.debug("Connecting to database...");
-            conn = DriverManager.getConnection(dbURL, myProp);
-        } catch(Exception ex){
-            LOG.error("Cannot get connection");
-            throw ex;
-        }
-
-        return conn;
     }
 
     /**

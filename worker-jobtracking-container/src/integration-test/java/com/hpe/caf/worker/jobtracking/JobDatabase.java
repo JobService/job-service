@@ -15,14 +15,19 @@
  */
 package com.hpe.caf.worker.jobtracking;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.Properties;
 import java.util.Random;
+import org.json.JSONObject;
 
 /**
  * Provides methods wrapping access to the (PostgreSQL) Job Database.
@@ -87,16 +92,15 @@ public class JobDatabase {
                     //  Parse JSON failure sub-strings.
                     String failureDetails = rs.getString("failure_details");
                     if (failureDetails != null && !failureDetails.isEmpty()) {
-                        ObjectMapper mapper = new ObjectMapper();
-                        JobTrackingWorkerFailure objFailure = mapper.readValue(failureDetails, JobTrackingWorkerFailure.class);
-                        assertHasValue(jobTaskId, "failureId", objFailure.getFailureId(), jobReportingExpectation.getFailureDetailsIdPresent());
-                        assertHasValue(jobTaskId, "failureTime", objFailure.getFailureTime().toString(), jobReportingExpectation.getFailureDetailsTimePresent());
-                        assertHasValue(jobTaskId, "failureSource", objFailure.getFailureSource(), jobReportingExpectation.getFailureDetailsSourcePresent());
-                        assertHasValue(jobTaskId, "failureMessage", objFailure.getFailureMessage(), jobReportingExpectation.getFailureDetailsMessagePresent());
-                        }
+                        JSONObject json = new JSONObject(failureDetails);
+                        assertHasValue(jobTaskId, "failureId", json.getString("failureId"), jobReportingExpectation.getFailureDetailsIdPresent());
+                        assertHasValue(jobTaskId, "failureTime", new Date(json.getLong("failureTime")).toString(), jobReportingExpectation.getFailureDetailsTimePresent());
+                        assertHasValue(jobTaskId, "failureSource", json.getString("failureSource"), jobReportingExpectation.getFailureDetailsSourcePresent());
+                        assertHasValue(jobTaskId, "failureMessage", json.getString("failureMessage"), jobReportingExpectation.getFailureDetailsMessagePresent());
                     }
                 }
             }
+        }
     }
 
 

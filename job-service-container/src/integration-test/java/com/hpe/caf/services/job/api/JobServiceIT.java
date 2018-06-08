@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.api;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
+import static org.testng.FileAssert.fail;
 
 import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
@@ -32,6 +33,9 @@ import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +44,11 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -95,6 +104,31 @@ public class JobServiceIT {
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
         rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
         rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
+    }
+
+    @Test
+    public void testHealthCheck() throws NoSuchAlgorithmException, KeyManagementException, IOException
+    {
+        final String getRequestUrl = SettingsProvider.defaultProvider.getSetting("healthcheckurl");
+        final HttpGet request = new HttpGet(getRequestUrl);
+        // Set up HttpClient
+        final HttpClient httpClient = HttpClients.createDefault();
+
+        System.out.println("Sending GET to HealthCheck url: " + getRequestUrl);
+        final HttpResponse response = httpClient.execute(request);
+        request.releaseConnection();
+
+        if (response.getEntity() == null) {
+            fail("There was no content returned from the HealthCheck HTTP Get Request");
+        }
+
+        final String expectedHealthCheckResponseContent =
+                "{\"database\":{\"healthy\":\"true\"},\"queue\":{\"healthy\":\"true\"}}";
+        assertEquals(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")),
+                expectedHealthCheckResponseContent, "Expected HealthCheck response should match the actual response");
+
+        System.out.println("Response code from the HealthCheck request: " + response.getStatusLine().getStatusCode());
+        assertTrue(response.getStatusLine().getStatusCode() == 200);
     }
 
     @Test

@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>2.4.0-SNAPSHOT</version>
+        <version>2.5.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -537,18 +537,26 @@
                                     <port>${jobtracking-worker.adminport}:8081</port>
                                 </ports>
                                 <env>
+                                    <CAF_RABBITMQ_BACKOFF_INTERVAL>1</CAF_RABBITMQ_BACKOFF_INTERVAL>
+                                    <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
+                                    <CAF_RABBITMQ_MAX_ATTEMPTS>20</CAF_RABBITMQ_MAX_ATTEMPTS>
+                                    <CAF_RABBITMQ_MAX_BACKOFF_INTERVAL>30</CAF_RABBITMQ_MAX_BACKOFF_INTERVAL>
+                                    <CAF_RABBITMQ_PREFETCH_BUFFER>0</CAF_RABBITMQ_PREFETCH_BUFFER>
                                     <_JAVA_OPTIONS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</_JAVA_OPTIONS>
                                     <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
                                     <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
                                     <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
                                     <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
+                                    <CAF_WORKER_INPUT_QUEUE>jobtrackingworker-test-input-1</CAF_WORKER_INPUT_QUEUE>
+                                    <CAF_WORKER_OUTPUT_QUEUE>jobtrackingworker-test-output-1</CAF_WORKER_OUTPUT_QUEUE>
+                                    <CAF_WORKER_RETRY_LIMIT>1</CAF_WORKER_RETRY_LIMIT>
+                                    <CAF_WORKER_THREADS>1</CAF_WORKER_THREADS>
                                     <JOB_DATABASE_URL>${job.database.url}</JOB_DATABASE_URL>
                                     <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
                                     <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
                                 </env>
                                 <volumes>
                                     <from>
-                                        <image>config</image>
                                         <image>webdav</image>
                                     </from>
                                 </volumes>
