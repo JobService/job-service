@@ -41,6 +41,12 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
     private static final String JDBC_DRIVER = "org.postgresql.Driver";
 
+    private static final String FAILED_TO_CONNECT = "Failed to connect to database {}. ";
+    private static final String FAILED_TO_REPORT_PROGRESS = "Failed to report the progress of job task {0}. {1}";
+    private static final String FAILED_TO_REPORT_COMPLETION = "Failed to report the completion of job task {0}. {1}";
+    private static final String FAILED_TO_REPORT_RETRY = "Failed to report the failure and retry of job task {0}. {1}";
+    private static final String FAILED_TO_REPORT_REJECTION = "Failed to report the failure and rejection of job task {0}. {1}";
+
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerReporter.class);
 
     @NotNull
@@ -98,9 +104,10 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 //TODO - FUTURE: pass estimatedPercentageCompleted to the database function
                 report(conn, jobTaskId, JobStatus.Active);
                 break;
+            } catch (final SQLTransientException | JobReportingTransientException te) {
+                throw new JobReportingTransientException(
+                        MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId, te.getMessage()), te);
             } catch (final SQLException se) {
-                final String errorMessage = "Failed to report the progress of job task {0}. {1}";
-
                 //  Allow for retries in the event that the source of the error is from concurrent sessions
                 //  attempting table and/or index creation at the same time.
                 if (retryCount++ < maxRetries &&
@@ -110,12 +117,11 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                             jobTaskId, retryCount));
                 } else {
                     throw new JobReportingException(
-                            MessageFormat.format(errorMessage, jobTaskId,
+                            MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId,
                                     se.getMessage()), se);
                 }
             }
         }
-
     }
 
     /**
@@ -129,8 +135,12 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     public List<JobTrackingWorkerDependency> reportJobTaskComplete(final String jobTaskId) throws JobReportingException {
         try (Connection conn = getConnection()) {
             return report(conn, jobTaskId, JobStatus.Completed);
-        } catch (SQLException se) {
-            throw new JobReportingException(MessageFormat.format("Failed to report the completion of job task {0}. {1}", jobTaskId, se.getMessage()), se);
+        } catch (final SQLTransientException | JobReportingTransientException te) {
+            throw new JobReportingTransientException(
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
+        } catch (final SQLException se) {
+            throw new JobReportingException(
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
         }
     }
 
@@ -146,8 +156,12 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         try (Connection conn = getConnection()) {
             //TODO - Is there no way to report retryDetails?
             report(conn, jobTaskId, JobStatus.Active);
-        } catch (SQLException se) {
-            throw new JobReportingException(MessageFormat.format("Failed to report the failure and retry of job task {0}. {1}", jobTaskId, se.getMessage()), se);
+        } catch (final SQLTransientException | JobReportingTransientException te) {
+            throw new JobReportingTransientException(
+                    MessageFormat.format(FAILED_TO_REPORT_RETRY, jobTaskId, te.getMessage()), te);
+        } catch (final SQLException se) {
+            throw new JobReportingException(
+                    MessageFormat.format(FAILED_TO_REPORT_RETRY, jobTaskId, se.getMessage()), se);
         }
     }
 
@@ -162,15 +176,19 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     public void reportJobTaskRejected(final String jobTaskId, final JobTrackingWorkerFailure rejectionDetails) throws JobReportingException {
         try (Connection conn = getConnection()) {
 
-            ObjectMapper mapper = new ObjectMapper();
+            final ObjectMapper mapper = new ObjectMapper();
             final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
             mapper.setDateFormat(df);
 
             reportFailure(conn, jobTaskId, mapper.writeValueAsString(rejectionDetails));
 
-        } catch (SQLException se) {
-            throw new JobReportingException(MessageFormat.format("Failed to report the failure and rejection of job task {0}. {1}", jobTaskId, se.getMessage()), se);
-        } catch (JsonProcessingException e) {
+        } catch (final SQLTransientException | JobReportingTransientException te) {
+            throw new JobReportingTransientException(
+                    MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId, te.getMessage()), te);
+        } catch (final SQLException se) {
+            throw new JobReportingException(
+                    MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId, se.getMessage()), se);
+        } catch (final JsonProcessingException e) {
             throw new JobReportingException("Cannot serialize job task failure details.",e);
         }
     }
@@ -194,16 +212,18 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * Creates a connection to the (PostgreSQL) Job Database.
      */
     private Connection getConnection () throws JobReportingException {
-        Connection conn;
-
+        final Connection conn;
         try{
             LOG.debug("Connecting to database {} ...", jobDatabaseURL);
-            Properties myProp = new Properties();
+            final Properties myProp = new Properties();
             myProp.put("user", jobDatabaseUsername);
             myProp.put("password", jobDatabasePassword);
             conn = DriverManager.getConnection(jobDatabaseURL, myProp);
-        } catch(Exception e){
-            LOG.error("Failed to connect to database {}. ", jobDatabaseURL, e);
+        } catch(final SQLTransientException e){
+            LOG.error(FAILED_TO_CONNECT, jobDatabaseURL, e);
+            throw new JobReportingTransientException(e.getMessage(), e);
+        } catch(final Exception e){
+            LOG.error(FAILED_TO_CONNECT, jobDatabaseURL, e);
             throw new JobReportingException(e.getMessage(), e);
         }
 

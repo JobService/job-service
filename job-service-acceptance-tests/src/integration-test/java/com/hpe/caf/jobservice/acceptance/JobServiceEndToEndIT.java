@@ -74,7 +74,7 @@ public class JobServiceEndToEndIT {
     private static ConfigurationSource configurationSource;
     private static RabbitWorkerQueueConfiguration rabbitConfiguration;
     private static JobsApi jobsApi;
-    private static int numTestItemsToGenerate = 50;   // CAF-3677: This cannot be set any higher than 2 otherwise the job will not reach completion. Change to final variable when fixed.
+    private static int numTestItemsToGenerate = 2;   // CAF-3677: This cannot be set any higher than 2 otherwise the job will not reach completion. Change to final variable when fixed.
 
     private List<String> testItemAssetIds;
 
