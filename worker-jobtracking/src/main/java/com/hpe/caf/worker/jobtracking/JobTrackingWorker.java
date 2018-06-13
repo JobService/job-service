@@ -35,8 +35,10 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
     /**
      * Constructor called by the JobTrackingWorkerFactory.
      */
-    public JobTrackingWorker(final JobTrackingWorkerTask task, final String outputQueue, final Codec codec, final JobTrackingReporter reporter) throws InvalidTaskException {
-        super(task, outputQueue, codec);
+    public JobTrackingWorker(final JobTrackingWorkerTask task, final String outputQueue, final Codec codec,
+                             final JobTrackingReporter reporter, final WorkerTaskData workerTaskData) throws InvalidTaskException
+    {
+        super(task, outputQueue, codec, workerTaskData);
         this.reporter = Objects.requireNonNull(reporter);
     }
 

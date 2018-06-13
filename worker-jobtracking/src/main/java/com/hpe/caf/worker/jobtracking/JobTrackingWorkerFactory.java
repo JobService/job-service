@@ -109,7 +109,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 final byte[] data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
                 final JobTrackingWorkerTask jobTrackingWorkerTask
                         = TaskValidator.deserialiseAndValidateTask(codec, JobTrackingWorkerTask.class, data);
-                return createWorker(jobTrackingWorkerTask);
+                return createWorker(jobTrackingWorkerTask, workerTask);
             }
             default:
                 throw new InvalidTaskException("Task of type " + taskClassifier + " found on queue for " + workerName);
@@ -185,8 +185,8 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     /**
      * Create a worker to process the given JobTrackingWorkerTask task.
      */
-    private Worker createWorker(final JobTrackingWorkerTask task) throws TaskRejectedException, InvalidTaskException {
-        return new JobTrackingWorker(task, configuration.getOutputQueue(), codec, reporter);
+    private Worker createWorker(final JobTrackingWorkerTask task, final WorkerTaskData workerTaskData) throws TaskRejectedException, InvalidTaskException {
+        return new JobTrackingWorker(task, configuration.getOutputQueue(), codec, reporter, workerTaskData);
     }
 
     /**

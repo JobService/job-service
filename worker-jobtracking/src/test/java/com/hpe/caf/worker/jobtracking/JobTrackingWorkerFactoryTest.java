@@ -209,7 +209,8 @@ public class JobTrackingWorkerFactoryTest {
         JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
         //Create the worker subject to testing
-        JobTrackingWorker worker = new JobTrackingWorker(createTrackedTask(jobTaskId), outputQueue, codec, reporter);
+        JobTrackingWorker worker = new JobTrackingWorker(createTrackedTask(jobTaskId), outputQueue, codec, reporter,
+                                                         Mockito.mock(WorkerTaskData.class));
 
         //Test
         WorkerResponse response = worker.doWork();

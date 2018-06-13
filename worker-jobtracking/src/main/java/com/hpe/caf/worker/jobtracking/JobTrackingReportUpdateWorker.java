@@ -50,7 +50,7 @@ public class JobTrackingReportUpdateWorker extends AbstractWorker<TrackingReport
                                          final String outputQueue, final Codec codec,
                                          final JobTrackingReporter reporter) throws InvalidTaskException
     {
-        super(trackingReportTask, outputQueue, codec);
+        super(trackingReportTask, outputQueue, codec, workerTask);
         this.reporter = Objects.requireNonNull(reporter);
         this.workerTask = Objects.requireNonNull(workerTask);
     }

@@ -74,6 +74,11 @@
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
+                <artifactId>worker-tracking-report</artifactId>
+                <version>${caf.worker-framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-framework</artifactId>
                 <version>${caf.worker-framework.version}</version>
                 <type>pom</type>
