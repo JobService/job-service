@@ -542,9 +542,6 @@
                                     <CAF_RABBITMQ_MAX_ATTEMPTS>20</CAF_RABBITMQ_MAX_ATTEMPTS>
                                     <CAF_RABBITMQ_MAX_BACKOFF_INTERVAL>30</CAF_RABBITMQ_MAX_BACKOFF_INTERVAL>
                                     <CAF_RABBITMQ_PREFETCH_BUFFER>0</CAF_RABBITMQ_PREFETCH_BUFFER>
-                                    <_JAVA_OPTIONS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</_JAVA_OPTIONS>
-                                    <CAF_APPNAME>test/worker-jobtracking</CAF_APPNAME>
-                                    <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
                                     <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
                                     <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
                                     <CAF_WORKER_INPUT_QUEUE>jobtrackingworker-test-input-1</CAF_WORKER_INPUT_QUEUE>

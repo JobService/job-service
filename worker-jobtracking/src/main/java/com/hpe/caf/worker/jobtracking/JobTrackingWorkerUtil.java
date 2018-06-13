@@ -28,8 +28,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
-public class JobTrackingWorkerUtil
+public final class JobTrackingWorkerUtil
 {
+    private JobTrackingWorkerUtil(){}
+
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerUtil.class);
 
     /**

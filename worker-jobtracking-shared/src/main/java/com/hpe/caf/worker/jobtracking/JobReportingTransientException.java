@@ -18,7 +18,7 @@ package com.hpe.caf.worker.jobtracking;
 /**
  * Thrown when a transient failure occurs.
  */
-public class JobReportingTransientException extends JobReportingException {
+public final class JobReportingTransientException extends JobReportingException {
     public JobReportingTransientException() {
         super();
     }

@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class JobTrackingReportUpdateWorker extends AbstractWorker<TrackingReportTask, JobTrackingWorkerResult> {
+public final class JobTrackingReportUpdateWorker extends AbstractWorker<TrackingReportTask, JobTrackingWorkerResult> {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingReportUpdateWorker.class);
 
