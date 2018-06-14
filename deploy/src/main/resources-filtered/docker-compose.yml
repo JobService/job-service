@@ -55,7 +55,7 @@ services:
       CAF_STATUS_CHECK_TIME: 5
       CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
       CAF_WORKER_INPUT_QUEUE: jobtracking-in
-      CAF_WORKER_OUTPUT_QUEUE: jobtracking-out
+      CAF_WORKER_ERROR_QUEUE: jobtracking-err
       JOB_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
       JOB_DATABASE_USERNAME: postgres
       JOB_DATABASE_PASSWORD: root

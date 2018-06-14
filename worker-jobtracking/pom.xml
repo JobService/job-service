@@ -37,6 +37,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-tracking-report</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>worker-jobtracking-shared</artifactId>
             <version>${project.version}</version>

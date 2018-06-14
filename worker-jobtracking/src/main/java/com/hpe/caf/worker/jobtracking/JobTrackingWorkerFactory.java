@@ -18,22 +18,22 @@ package com.hpe.caf.worker.jobtracking;
 import com.hpe.caf.api.*;
 import com.hpe.caf.api.worker.*;
 import com.hpe.caf.util.rabbitmq.RabbitHeaders;
-import com.hpe.caf.worker.AbstractWorkerFactory;
+import com.hpe.caf.worker.tracking.report.TrackingReportConstants;
+import com.hpe.caf.worker.tracking.report.TrackingReportTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.time.Instant;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Factory class for creating a JobTrackingWorker.
@@ -46,9 +46,14 @@ import java.util.UUID;
  * The Job Tracking Worker reports the progress of the task to the Job Database and, if the job is active,
  * it will be forwarded to the correct destination pipe.
  */
-public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingWorkerConfiguration, JobTrackingWorkerTask> implements TaskMessageForwardingEvaluator {
+public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwardingEvaluator {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerFactory.class);
+
+    private final DataStore dataStore;
+    private final JobTrackingWorkerConfiguration configuration;
+    private final Codec codec;
+    private final Class<JobTrackingWorkerTask> taskClass;
 
     @NotNull
     private JobTrackingReporter reporter;
@@ -56,49 +61,151 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
     /**
      * Constructor for JobTrackingWorkerFactory called by JobTrackingWorkerFactoryProvider
      */
-    public JobTrackingWorkerFactory(ConfigurationSource configSource, DataStore store, Codec codec) throws WorkerException {
-        super(configSource, store, codec, JobTrackingWorkerConfiguration.class, JobTrackingWorkerTask.class);
+    public JobTrackingWorkerFactory(final ConfigurationSource configSource, final DataStore store, final Codec codec)
+            throws WorkerException {
+        this.codec = Objects.requireNonNull(codec);
+        this.taskClass = Objects.requireNonNull(JobTrackingWorkerTask.class);
+        this.dataStore = Objects.requireNonNull(store);
+        try {
+            this.configuration = configSource.getConfiguration(JobTrackingWorkerConfiguration.class);
+        } catch (ConfigurationException e) {
+            throw new WorkerException("Failed to create worker factory", e);
+        }
         this.reporter = createReporter();
     }
 
     /**
      * Constructor for JobTrackingWorkerFactory called by JobTrackingWorkerFactoryProvider
      */
-    public JobTrackingWorkerFactory(ConfigurationSource configSource, DataStore store, Codec codec, JobTrackingReporter reporter) throws WorkerException {
-        super(configSource, store, codec, JobTrackingWorkerConfiguration.class, JobTrackingWorkerTask.class);
+    public JobTrackingWorkerFactory(final ConfigurationSource configSource, final DataStore store, final Codec codec,
+                                    final JobTrackingReporter reporter) throws WorkerException {
+        this.codec = Objects.requireNonNull(codec);
+        this.taskClass = Objects.requireNonNull(JobTrackingWorkerTask.class);
+        this.dataStore = Objects.requireNonNull(store);
+        try {
+            this.configuration = configSource.getConfiguration(JobTrackingWorkerConfiguration.class);
+        } catch (ConfigurationException e) {
+            throw new WorkerException("Failed to create worker factory", e);
+        }
         this.reporter = reporter;
     }
 
-
     @Override
+    public final Worker getWorker(final WorkerTaskData workerTask) throws TaskRejectedException, InvalidTaskException {
+
+        // Reject tasks of the wrong type and tasks that require a newer version
+        final String taskClassifier = workerTask.getClassifier();
+        final String workerName = JobTrackingWorkerConstants.WORKER_NAME;
+
+        switch (taskClassifier) {
+            case TrackingReportConstants.TRACKING_REPORT_TASK_NAME: {
+                final byte[] data = validateVersionAndData(workerTask,
+                        TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
+                final TrackingReportTask jobTrackingWorkerTask
+                        = TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, data);
+                return createWorker(jobTrackingWorkerTask, workerTask);
+            }
+            case JobTrackingWorkerConstants.WORKER_NAME: {
+                final byte[] data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
+                final JobTrackingWorkerTask jobTrackingWorkerTask
+                        = TaskValidator.deserialiseAndValidateTask(codec, JobTrackingWorkerTask.class, data);
+                return createWorker(jobTrackingWorkerTask, workerTask);
+            }
+            default:
+                throw new InvalidTaskException("Task of type " + taskClassifier + " found on queue for " + workerName);
+        }
+
+    }
+
+    private static byte[] validateVersionAndData(final WorkerTaskData workerTask, final int workerApiVersion)
+            throws InvalidTaskException, TaskRejectedException
+    {
+        final int version = workerTask.getVersion();
+        if (workerApiVersion < version) {
+            throw new TaskRejectedException("Found task version " + version + ", which is newer than " +
+                    workerApiVersion);
+        }
+
+        final byte[] data = workerTask.getData();
+        if (data == null) {
+            throw new InvalidTaskException("Invalid input message: task not specified");
+        }
+
+        return data;
+    }
+
+    /**
+     * The purpose of this static nested class is just to delay the creation of the validator object until it is
+     * required.
+     */
+    private static class TaskValidator
+    {
+        /**
+         * Used to validate that the message being processed complies with the constraints that are declared.
+         */
+        private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+        /**
+         * Deserialise the given data into the specified class, and validate that any constraints specified have
+         * been met.
+         */
+        public static <T> T deserialiseAndValidateTask(final Codec codec, final Class<T> taskType, final byte[] data)
+                throws InvalidTaskException
+        {
+            final T jobTrackingWorkerTask;
+            try {
+                jobTrackingWorkerTask = codec.deserialise(data, taskType, DecodeMethod.STRICT);
+            } catch (final CodecException e) {
+                throw new InvalidTaskException("Invalid input message", e);
+            }
+
+            if (jobTrackingWorkerTask == null) {
+                throw new InvalidTaskException("Invalid input message: no result from deserialisation");
+            }
+
+            final Set<ConstraintViolation<T>> violations = validator.validate(jobTrackingWorkerTask);
+            if (violations.size() > 0) {
+                LOG.error("Task of type {} failed validation due to: {}", taskType.getSimpleName(), violations);
+                throw new InvalidTaskException("Task failed validation");
+            }
+
+            return jobTrackingWorkerTask;
+        }
+    }
+
     protected String getWorkerName() {
         return JobTrackingWorkerConstants.WORKER_NAME;
     }
 
 
-    @Override
     protected int getWorkerApiVersion() {
         return JobTrackingWorkerConstants.WORKER_API_VER;
     }
 
     /**
-     * Create a worker to process the given task.
+     * Create a worker to process the given JobTrackingWorkerTask task.
      */
-    @Override
-    public Worker createWorker(JobTrackingWorkerTask task) throws TaskRejectedException, InvalidTaskException {
-        return new JobTrackingWorker(task, getConfiguration().getOutputQueue(), getCodec(), reporter);
+    private Worker createWorker(final JobTrackingWorkerTask task, final WorkerTaskData workerTaskData) throws TaskRejectedException, InvalidTaskException {
+        return new JobTrackingWorker(task, configuration.getOutputQueue(), codec, reporter, workerTaskData);
     }
 
+    /**
+     * Create a worker to process the given TrackingReportTask task.
+     */
+    private Worker createWorker(final TrackingReportTask task, final WorkerTaskData workerTask)
+            throws TaskRejectedException, InvalidTaskException {
+        return new JobTrackingReportUpdateWorker(task, workerTask, configuration.getOutputQueue(), codec, reporter);
+    }
 
     @Override
     public String getInvalidTaskQueue() {
-        return getConfiguration().getOutputQueue();
+        return configuration.getOutputQueue();
     }
 
 
     @Override
     public int getWorkerThreads() {
-        return getConfiguration().getThreads();
+        return configuration.getThreads();
     }
 
     /**
@@ -111,7 +218,8 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
             JobTrackingWorkerHealthCheck healthCheck = new JobTrackingWorkerHealthCheck(reporter);
             return healthCheck.healthCheck();
         } catch (Exception e) {
-            return new HealthResult(HealthStatus.UNHEALTHY, "Failed to perform Job Tracking Worker health check. " + e.getMessage());
+            return new HealthResult(HealthStatus.UNHEALTHY, "Failed to perform Job Tracking Worker health check. " +
+                    e.getMessage());
         }
     }
 
@@ -124,7 +232,8 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
      * @param callback worker callback to enact the forwarding action determined by the worker
      */
     @Override
-    public void determineForwardingAction(TaskMessage proxiedTaskMessage, String queueMessageId, Map<String, Object> headers, WorkerCallback callback) {
+    public void determineForwardingAction(TaskMessage proxiedTaskMessage, String queueMessageId,
+                                          Map<String, Object> headers, WorkerCallback callback) {
 
         List<JobTrackingWorkerDependency> jobDependencyList = reportProxiedTask(proxiedTaskMessage, headers);
         if (jobDependencyList != null && jobDependencyList.size() > 0) {
@@ -146,10 +255,11 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
      *
      * @param proxiedTaskMessage the task to be reported
      * @param headers task headers such as if the task was rejected
-     * @return List<JobTrackingWorkerDependency> containing any dependent jobs that are now available for processing else
-     *         returns null
+     * @return List<JobTrackingWorkerDependency> containing any dependent jobs that are now available for processing
+     *         else returns null
      */
-    private List<JobTrackingWorkerDependency> reportProxiedTask(final TaskMessage proxiedTaskMessage, Map<String, Object> headers) {
+    private List<JobTrackingWorkerDependency> reportProxiedTask(final TaskMessage proxiedTaskMessage,
+                                                                Map<String, Object> headers) {
         List<JobTrackingWorkerDependency> jobDependencyList = null;
         try {
             TrackingInfo tracking = proxiedTaskMessage.getTracking();
@@ -267,61 +377,13 @@ public class JobTrackingWorkerFactory extends AbstractWorkerFactory<JobTrackingW
     {
         // Walk the resultSet placing each returned job on the Rabbit Queue
         try {
-            //	Set up string for statusCheckUrl
-            final String statusCheckUrlPrefix = System.getenv("CAF_WEBSERVICE_URL") +"/jobs/";
-
-            for (JobTrackingWorkerDependency jobDependency : jobDependencyList) {
-                //  Generate a random task id.
-                final String taskId = UUID.randomUUID().toString();
-
-                final String statusCheckUrl = statusCheckUrlPrefix + URLEncoder.encode(jobDependency.getJobId(), "UTF-8") +"/isActive";
-
-                //  Construct the task message.
-                String statusCheckTime = System.getenv("CAF_STATUS_CHECK_TIME");
-                if (null == statusCheckTime) {
-                 // Default to 5 if the environment variable is not present.  This is to avoid introducing a breaking change.
-                    statusCheckTime = "5";
-                }
-                final TrackingInfo trackingInfo = new TrackingInfo(jobDependency.getJobId(), calculateStatusCheckDate(statusCheckTime),
-                        statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
-
-                final TaskMessage taskMessage = new TaskMessage(
-                        taskId,
-                        jobDependency.getTaskClassifier(),
-                        jobDependency.getTaskApiVersion(),
-                        jobDependency.getTaskData(),
-                        TaskStatus.NEW_TASK,
-                        Collections.<String, byte[]>emptyMap(),
-                        jobDependency.getTaskPipe(),
-                        trackingInfo);
-
-                callback.send("-1", taskMessage);
-
+            for (final JobTrackingWorkerDependency jobDependency : jobDependencyList) {
+                final TaskMessage dependentJobTaskMessage =
+                        JobTrackingWorkerUtil.createDependentJobTaskMessage(jobDependency, trackingPipe);
+                callback.send("-1", dependentJobTaskMessage);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.error("Error retrieving Dependent Job Info from the Job Service Database {}", e);
         }
     }
-
-    /**
-     * Calculates the date of the next status check to be performed.
-     *
-     * @param statusCheckTime - This is the number of seconds after which it is appropriate to try to confirm that the
-     * task has not been cancelled or aborted.
-     */
-    private Date calculateStatusCheckDate(String statusCheckTime){
-        //  Make sure statusCheckTime is a valid long
-        long seconds = 0;
-        try{
-            seconds = Long.parseLong(statusCheckTime);
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Please provide a valid integer for statusCheckTime in seconds. " +e);
-        }
-
-        //  Set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
-        Instant now = Instant.now();
-        Instant later = now.plusSeconds(seconds);
-        return java.util.Date.from( later );
-    }
-
 }

@@ -31,6 +31,9 @@ import com.hpe.caf.worker.example.ExampleWorkerStatus;
 import com.hpe.caf.worker.example.ExampleWorkerTask;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
+import com.hpe.caf.worker.tracking.report.TrackingReport;
+import com.hpe.caf.worker.tracking.report.TrackingReportStatus;
+import com.hpe.caf.worker.tracking.report.TrackingReportTask;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -73,6 +76,46 @@ public class JobTrackingWorkerIT {
         jobDatabase = new JobDatabase();
     }
 
+
+    /**
+     * Tests reporting of an in-progress task. This test creates a task suitable for input to the Job Tracking worker. The Job Tracking
+     * Worker should report the progress of this task to the Job Database, reporting it as active; the test verifies this by querying the
+     * database directly.
+     */
+    @Test
+    public void testTrackingReportTasks() throws Exception
+    {
+        final String jobTaskId = jobDatabase.createJobTask("testProxiedActiveMessage");
+        for (int i = 0; i <= 4; i++) {
+            final JobStatus status = i < 4 ? JobStatus.Active : JobStatus.Completed;
+            final TrackingReportStatus trackingReportStatus = i < 4 ? TrackingReportStatus.Progress : TrackingReportStatus.Complete;
+            final TaskMessage taskMessage = getExampleTrackingReportMessage(jobTaskId, trackingReportStatus);
+            final JobReportingExpectation expectation = getExpectation(jobTaskId, status);
+            publishAndVerify(taskMessage, jobTaskId, expectation);
+        }
+    }
+
+    private JobReportingExpectation getExpectation(final String jobTaskId, final JobStatus status){
+        final int percentageCompleted = status.equals(JobStatus.Completed) ? 100 : 0;
+        return new JobReportingExpectation(jobTaskId, status, percentageCompleted, false, false, false, false, false);
+    }
+
+    private synchronized void publishAndVerify(final TaskMessage taskMessage, final String jobTaskId,
+                                  final JobReportingExpectation expectation) throws Exception
+    {
+        try (final QueueManager queueManager = getQueueManager(jobTrackingWorkerInputQueue)) {
+            final ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            Timer timer = getTimer(context);
+            Thread thread = queueManager.start(new JobTaskWorkerOutputDeliveryHandler(jobDatabase, context,
+                                                                                      new JobTrackingWorkerITExpectation(
+                                                                                          jobTaskId, jobTaskId, true, expectation)));
+            queueManager.publish(taskMessage);
+            final JobDatabase database = new JobDatabase();
+            wait(1000);
+            database.verifyJobStatus(jobTaskId, expectation);
+        }
+    }
 
     /**
      * Tests reporting of an in-progress task.
@@ -222,6 +265,30 @@ public class JobTrackingWorkerIT {
                 context,
                 to,
                 tracking);
+    }
+
+    private TaskMessage getExampleTrackingReportMessage(final String jobTaskId, final TrackingReportStatus status) 
+        throws CodecException
+    {
+        final TrackingReportTask exampleTask = new TrackingReportTask();
+        exampleTask.trackingReports = new ArrayList<>();
+        final TrackingReport report = new TrackingReport();
+        report.jobTaskId = jobTaskId;
+        report.estimatedPercentageCompleted = status.equals(TrackingReportStatus.Complete) ? 100 : 0;
+        report.failure = null;
+        report.retries = null;
+        report.status = status;
+        exampleTask.trackingReports.add(report);
+        // Wrap the Example task in a TaskMessage with tracking info
+        final String taskId = UUID.randomUUID().toString();
+        return new TaskMessage(
+            taskId,
+            "TrackingReportTask",
+            ExampleWorkerConstants.WORKER_API_VER,
+            workerServices.getCodec().serialise(exampleTask),
+            TaskStatus.NEW_TASK,
+            new HashMap<>(),
+            jobTrackingWorkerInputQueue);
     }
 
 

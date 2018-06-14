@@ -35,8 +35,10 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
     /**
      * Constructor called by the JobTrackingWorkerFactory.
      */
-    public JobTrackingWorker(final JobTrackingWorkerTask task, final String outputQueue, final Codec codec, final JobTrackingReporter reporter) throws InvalidTaskException {
-        super(task, outputQueue, codec);
+    public JobTrackingWorker(final JobTrackingWorkerTask task, final String outputQueue, final Codec codec,
+                             final JobTrackingReporter reporter, final WorkerTaskData workerTaskData) throws InvalidTaskException
+    {
+        super(task, outputQueue, codec, workerTaskData);
         this.reporter = Objects.requireNonNull(reporter);
     }
 
@@ -96,17 +98,8 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
             return workerResult;
         } catch (JobReportingException e) {
             LOG.warn("Error reporting task progress to the Job Database: ", e);
-            return createErrorResult(JobTrackingWorkerStatus.PROGRESS_UPDATE_FAILED);
+            return JobTrackingWorkerUtil.createErrorResult(JobTrackingWorkerStatus.PROGRESS_UPDATE_FAILED);
         }
     }
 
-
-    /**
-     * If an error in the worker occurs, create a new JobTrackingWorkerResult with the corresponding worker failure status.
-     */
-    private JobTrackingWorkerResult createErrorResult(JobTrackingWorkerStatus status){
-        JobTrackingWorkerResult workerResult = new JobTrackingWorkerResult();
-        workerResult.setStatus(status);
-        return workerResult;
-    }
 }
