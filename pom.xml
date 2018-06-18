@@ -39,6 +39,8 @@
     <properties>
         <caf.worker-framework.version>3.0.0-SNAPSHOT</caf.worker-framework.version>
         <caf.worker-document-framework.version>4.0.0-SNAPSHOT</caf.worker-document-framework.version>
+        <copyrightYear>2017</copyrightYear>
+        <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} ${project.organization.name}.</copyrightNotice>
         <dockerHubOrganization>jobservice</dockerHubOrganization>
         <dockerJobServiceOrg>${dockerImagePrefix}${dockerHubOrganization}${dockerOrgSeperator}</dockerJobServiceOrg>
         <dockerProjectVersion>${dockerVersionSeperator}${project.version}</dockerProjectVersion>
