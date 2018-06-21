@@ -416,7 +416,7 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        Thread.sleep(2000); // Add short delay to allow previous jobs to complete
+        Thread.sleep(3000); // Add short delay to allow previous jobs to complete
 
         //  Now that J1 has completed, verify this has triggered the completion of other jobs created
         //  with a prerequisite.
