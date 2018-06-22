@@ -73,7 +73,7 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
     public WorkerResponse doWork() throws InterruptedException, TaskRejectedException {
         JobTrackingWorkerResult result = processTrackingEvent();
         if (result.getStatus() == JobTrackingWorkerStatus.COMPLETED){
-            return createSuccessResult(result);
+            return createSuccessNoOutputToQueue();
         } else {
             return createFailureResult(result);
         }
