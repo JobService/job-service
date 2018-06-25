@@ -218,9 +218,7 @@ public class JobTrackingWorkerFactoryTest {
         //verify results
         Mockito.verify(reporter, Mockito.times(1)).reportJobTaskProgress(Mockito.eq(jobTaskId), Mockito.anyInt());
         Assert.assertEquals(TaskStatus.RESULT_SUCCESS, response.getTaskStatus());
-        JobTrackingWorkerResult workerResult = codec.deserialise(response.getData(), JobTrackingWorkerResult.class);
-        Assert.assertNotNull(workerResult);
-        Assert.assertEquals(JobTrackingWorkerStatus.COMPLETED, workerResult.getStatus());
+        Assert.assertArrayEquals(response.getData(), new byte[]{});
     }
 
 
