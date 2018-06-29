@@ -55,6 +55,12 @@ BEGIN
     v_parent = substring(in_task_id, 1, internal_get_last_position(in_task_id, '.')-1);
     v_parent_table_name = 'task_' || v_parent;
 
+    --  Create parent task table if it does not exist.
+    IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_parent_table_name )
+    THEN
+      PERFORM internal_create_task_table(v_parent_table_name);
+    END IF;
+
     --  Insert row into parent table for the specified task id.
     EXECUTE format('SELECT 1 FROM %I WHERE task_id = %L FOR UPDATE', v_parent_table_name, in_task_id) INTO v_temp;
     EXECUTE format('
