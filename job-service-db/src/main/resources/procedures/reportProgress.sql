@@ -106,13 +106,22 @@ BEGIN
 
 
     --  Insert row into parent table for the specified task id.
-    --  If an 'Active' message is received after the 'Completed' message, leave status as 'Completed'.
+    --  If any message is received after the 'Completed'/'Failed' message, leave status as it was.
     EXECUTE format('SELECT 1 FROM %1$I WHERE task_id = %2$L FOR UPDATE', v_parent_table_name, in_task_id) INTO v_temp;
     EXECUTE format('
       WITH upsert AS
       (
-        UPDATE %1$I SET status = CASE WHEN status = ''Completed'' THEN ''Completed''::job_status ELSE %2$L END,
-        percentage_complete = CASE WHEN %2$L = ''Completed'' THEN 100.00 ELSE percentage_complete END
+        UPDATE %1$I SET status =
+            CASE
+                WHEN status = ''Completed'' THEN ''Completed''::job_status
+                WHEN status = ''Failed'' THEN ''Failed''::job_status
+                ELSE %2$L
+            END,
+        percentage_complete =
+            CASE
+                WHEN (%2$L = ''Completed'') OR (status = ''Completed'') THEN 100.00
+                ELSE percentage_complete
+            END
         WHERE task_id = %3$L RETURNING *
       )
       INSERT INTO %1$I (task_id, create_date, status, percentage_complete, failure_details, is_final)

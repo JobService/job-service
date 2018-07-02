@@ -26,6 +26,7 @@ DECLARE
   v_parent VARCHAR(58);
   v_parent_table_name VARCHAR(63);
   v_temp SMALLINT;
+  v_is_final_task BOOLEAN = false;
 BEGIN
 
   --  Raise exception if task identifier has not been specified.
@@ -55,6 +56,11 @@ BEGIN
     v_parent = substring(in_task_id, 1, internal_get_last_position(in_task_id, '.')-1);
     v_parent_table_name = 'task_' || v_parent;
 
+    --  Check if this is the final sub task (i.e. task id end with *).
+    IF substr(in_task_id, length(in_task_id), 1) = '*' THEN
+      v_is_final_task = true;
+    END IF;
+
     --  Create parent task table if it does not exist.
     IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_parent_table_name )
     THEN
@@ -64,9 +70,15 @@ BEGIN
     --  Insert row into parent table for the specified task id.
     EXECUTE format('SELECT 1 FROM %I WHERE task_id = %L FOR UPDATE', v_parent_table_name, in_task_id) INTO v_temp;
     EXECUTE format('
-      UPDATE %I SET status = ''Failed'', failure_details = concat(failure_details, %L || chr(10)) WHERE task_id = %L;
+      WITH upsert AS
+      (
+        UPDATE %1$I SET status = ''Failed'', failure_details = concat(failure_details, %L || chr(10)) WHERE task_id = %L; RETURNING *
+      )
+      INSERT INTO %1$I (task_id, create_date, status, percentage_complete, failure_details, is_final)
+        SELECT %3$L, now() AT TIME ZONE ''UTC'', ''Failed'', 0.00, %2$L, %4$L
+        WHERE NOT EXISTS (SELECT * FROM upsert)
       ',
-      v_parent_table_name, in_failure_details, in_task_id);
+      v_parent_table_name, in_failure_details, in_task_id, v_is_final_task);
 
     --  Propagate failure details up to subsequent parent(s).
     PERFORM internal_report_task_failure(v_parent_table_name, in_failure_details);
