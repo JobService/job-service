@@ -33,7 +33,7 @@
         <version>1.14.0-1</version>
         <relativePath/>
     </parent>
-
+    
     <organization>
         <name>EntIT Software LLC, a Micro Focus company</name>
         <url>https://www.microfocus.com</url>

@@ -35,7 +35,7 @@
         <maven.install.skip>true</maven.install.skip>
         <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
     </properties>
-
+    
     <dependencies>
         <dependency>
             <groupId>com.github.jobservice</groupId>
@@ -76,7 +76,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <autoPull>on</autoPull>
+                    <autoPull>always</autoPull>
                     <images>
                         <!-- Used to provide the source code to the compiler -->
                         <image>
