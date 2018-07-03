@@ -77,9 +77,15 @@ BEGIN
       RAISE EXCEPTION 'A job for the specified task does not exist.';
     END IF;
 
-    --  Check if this is the final sub task (i.e. task id end withs *).
+    --  Check if this is the final sub task (i.e. task id end with *).
     IF substr(in_task_id, length(in_task_id), 1) = '*' THEN
       v_is_final_task = true;
+    END IF;
+
+    --  Create parent task table if it does not exist.
+    IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_parent_table_name )
+    THEN
+      PERFORM internal_create_task_table(v_parent_table_name);
     END IF;
 
     --  If status is completed then take a table lock on top most parent table as soon as possible in the transaction
@@ -98,18 +104,25 @@ BEGIN
     SET status = 'Active'
     WHERE job_id = v_job_id AND status = 'Waiting';
 
-    --  Create parent task table if it does not exist.
-    IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_parent_table_name )
-    THEN
-      PERFORM internal_create_task_table(v_parent_table_name);
-    END IF;
 
     --  Insert row into parent table for the specified task id.
+    --  If any message is received after the 'Completed'/'Failed' message, leave status as it was.
     EXECUTE format('SELECT 1 FROM %1$I WHERE task_id = %2$L FOR UPDATE', v_parent_table_name, in_task_id) INTO v_temp;
     EXECUTE format('
       WITH upsert AS
       (
-        UPDATE %1$I SET status = %2$L, percentage_complete = CASE WHEN %2$L = ''Completed'' THEN 100.00 ELSE percentage_complete END WHERE task_id = %3$L RETURNING *
+        UPDATE %1$I SET status =
+            CASE
+                WHEN status = ''Completed'' THEN ''Completed''::job_status
+                WHEN status = ''Failed'' THEN ''Failed''::job_status
+                ELSE %2$L
+            END,
+        percentage_complete =
+            CASE
+                WHEN (%2$L = ''Completed'') OR (status = ''Completed'') THEN 100.00
+                ELSE percentage_complete
+            END
+        WHERE task_id = %3$L RETURNING *
       )
       INSERT INTO %1$I (task_id, create_date, status, percentage_complete, failure_details, is_final)
         SELECT %3$L, now() AT TIME ZONE ''UTC'', %2$L, 0.00, null, %4$L

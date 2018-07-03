@@ -18,7 +18,7 @@
  *  Name: internal_create_task_table
  *
  *  Description:  Create a new task table when the first sub-task is reported for a job.
- *                Internal - used in report_progress().
+ *                Internal - used in report_progress() and report_failure().
  */
 CREATE OR REPLACE FUNCTION internal_create_task_table(in_table_name varchar(63))
 RETURNS VOID AS $$
