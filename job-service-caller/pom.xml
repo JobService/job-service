@@ -60,7 +60,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <autoPull>on</autoPull>
+                    <autoPull>always</autoPull>
                     <images>
                         <image>
                             <alias>job-service-caller-image</alias>
