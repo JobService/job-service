@@ -69,7 +69,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <autoPull>always</autoPull>
+                    <autoPull>on</autoPull>
                     <images>
                         <image>
                             <alias>job-service-postgres</alias>
