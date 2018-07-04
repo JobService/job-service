@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2015-2017 EntIT Software LLC, a Micro Focus company.
+    Copyright 2015-2018 Micro Focus or one of its affiliates.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@
     </organization>
 
     <properties>
-        <copyrightYear>2017</copyrightYear>
-        <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} ${project.organization.name}.</copyrightNotice>
+        <copyrightYear>2018</copyrightYear>
+        <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Micro Focus or one of its affiliates.</copyrightNotice>
         <swagger-contract-artifactId>job-service-contract</swagger-contract-artifactId>
         <swagger-contract-version>${project.version}</swagger-contract-version>
         <swagger-codegen-inputSpec>/com/hpe/caf/services/job/swagger.yaml</swagger-codegen-inputSpec>

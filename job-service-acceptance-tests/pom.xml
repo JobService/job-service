@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2015-2017 EntIT Software LLC, a Micro Focus company.
+    Copyright 2015-2018 Micro Focus or one of its affiliates.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -423,6 +423,7 @@
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
                                 </ports>
+                                <cmd>postgres -c log_min_messages=DEBUG5</cmd>
                                 <env>
                                     <POSTGRES_PASSWORD>${job.database.password}</POSTGRES_PASSWORD>
                                     <POSTGRES_USER>${job.database.username}</POSTGRES_USER>
