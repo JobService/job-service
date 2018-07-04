@@ -108,7 +108,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 throw new JobReportingTransientException(
                         MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId, te.getMessage()), te);
             } catch (final SQLException se) {
-                LOG.error("Error in reportJobTaskProgress for jobTaskId '{}'", jobTaskId, se);
+                LOG.warn("Error in reportJobTaskProgress for jobTaskId '{}'", jobTaskId, se);
                 //  Allow for retries in the event that the source of the error is from concurrent sessions
                 //  attempting table and/or index creation at the same time.
                 if (retryCount++ < maxRetries &&
