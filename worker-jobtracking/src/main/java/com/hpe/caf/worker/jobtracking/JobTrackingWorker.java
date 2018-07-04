@@ -98,7 +98,7 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
             return workerResult;
         } catch (JobReportingException e) {
             LOG.warn("Error reporting task progress to the Job Database: ", e);
-            return JobTrackingWorkerUtil.createErrorResult(JobTrackingWorkerStatus.PROGRESS_UPDATE_FAILED);
+            return JobTrackingWorkerUtil.createErrorResult(JobTrackingWorkerStatus.PROGRESS_UPDATE_FAILED, e.getMessage());
         }
     }
 

@@ -82,11 +82,26 @@ public final class JobTrackingWorkerUtil
      * If an error in the worker occurs, create a new JobTrackingWorkerResult with the corresponding worker
      * failure status.
      *
-     * @param status indicates whether or not the worker processed the task or not.
+     * @param status indicates whether or not the worker processed the task.
      */
     public static JobTrackingWorkerResult createErrorResult(final JobTrackingWorkerStatus status){
         final JobTrackingWorkerResult workerResult = new JobTrackingWorkerResult();
         workerResult.setStatus(status);
+        return workerResult;
+    }
+
+    /**
+     * If an error in the worker occurs, create a new JobTrackingWorkerResult with the corresponding worker
+     * failure status and message.
+     *
+     * @param status indicates whether or not the worker processed the task.
+     * @param message a note about the result.
+     */
+    public static JobTrackingWorkerResult createErrorResult(final JobTrackingWorkerStatus status,
+                                                            final String message){
+        final JobTrackingWorkerResult workerResult = new JobTrackingWorkerResult();
+        workerResult.setStatus(status);
+        workerResult.setMessage(message);
         return workerResult;
     }
 

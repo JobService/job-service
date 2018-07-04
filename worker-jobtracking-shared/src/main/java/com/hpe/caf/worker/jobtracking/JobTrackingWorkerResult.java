@@ -31,6 +31,11 @@ public class JobTrackingWorkerResult {
     @NotNull
     private JobTrackingWorkerStatus status;
 
+    /**
+     * Return message.
+     */
+    private String message;
+
 
     public JobTrackingWorkerStatus getStatus() {
         return status;
@@ -48,5 +53,21 @@ public class JobTrackingWorkerResult {
 
     public JobTrackingWorkerResult(JobTrackingWorkerStatus status) {
         this.status = Objects.requireNonNull(status);
+    }
+
+
+    public JobTrackingWorkerResult(JobTrackingWorkerStatus status, final String message) {
+        this.status = Objects.requireNonNull(status);
+        this.message = message;
+    }
+
+
+    public String getMessage() {
+        return message;
+    }
+
+
+    public void setMessage(final String message) {
+        this.message = message;
     }
 }
