@@ -113,7 +113,7 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
             throw new TaskRejectedException("Failed to report progress on the list of job tasks specified.");
         } catch (final JobReportingException e) {
             LOG.warn("Error reporting task progress to the Job Database: ", e);
-            return JobTrackingWorkerUtil.createErrorResult(JobTrackingWorkerStatus.PROGRESS_UPDATE_FAILED);
+            return JobTrackingWorkerUtil.createErrorResult(JobTrackingWorkerStatus.PROGRESS_UPDATE_FAILED, e.getMessage());
         }
 
         //  As a result of reporting completion of job tasks, a number of dependent jobs
