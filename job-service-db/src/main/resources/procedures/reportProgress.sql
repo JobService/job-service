@@ -94,6 +94,11 @@ BEGIN
       -- Take a table level lock on top most parent table in order to prevent concurrent updates when rolling up
       -- to parents.
       v_topmost_parent_table_name = 'task_' || substring(in_task_id, 1, position('.' IN in_task_id)-1);
+      --  Create top most parent table if it does not exist.
+      IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_topmost_parent_table_name )
+      THEN
+          PERFORM internal_create_task_table(v_topmost_parent_table_name);
+      END IF;
       EXECUTE format('LOCK TABLE %I IN EXCLUSIVE MODE', v_topmost_parent_table_name);
     END IF;
 
