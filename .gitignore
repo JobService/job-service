@@ -18,3 +18,8 @@ hs_err_pid*
 /*/target/
 .idea/
 job-service/docs/caf-templates/
+
+# Eclipse
+**/.settings
+**/.project
+**/.classpath
