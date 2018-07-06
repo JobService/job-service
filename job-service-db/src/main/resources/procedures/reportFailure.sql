@@ -72,7 +72,7 @@ BEGIN
     EXECUTE format('
       WITH upsert AS
       (
-        UPDATE %1$I SET status = ''Failed'', failure_details = concat(failure_details, %L || chr(10)) WHERE task_id = %L; RETURNING *
+        UPDATE %1$I SET status = ''Failed'', failure_details = concat(failure_details, %L || chr(10)) WHERE task_id = %L RETURNING *
       )
       INSERT INTO %1$I (task_id, create_date, status, percentage_complete, failure_details, is_final)
         SELECT %3$L, now() AT TIME ZONE ''UTC'', ''Failed'', 0.00, %2$L, %4$L
