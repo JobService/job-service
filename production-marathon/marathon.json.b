@@ -7,7 +7,7 @@
             "instances": 1,
             "container": {
                 "docker": {
-                    "image": "jobservice/job-service:2.4.0",
+                    "image": "jobservice/job-service:2.5.0",
                     "network": "BRIDGE",
                     "portMappings": [{
                         "containerPort": 8080,
@@ -49,7 +49,7 @@
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "jobservice/worker-jobtracking:2.4.0",
+                    "image": "jobservice/worker-jobtracking:2.5.0",
                     "network": "BRIDGE",
                     "forcePullImage": true,
                     "portMappings": [{
@@ -70,7 +70,7 @@
             "env": {
                 "_JAVA_OPTIONS": "-Xms512m -Xmx512m",
                 "CAF_WORKER_INPUT_QUEUE": "jobtracking-in",
-                "CAF_WORKER_OUTPUT_QUEUE": "jobtracking-out",
+                "CAF_WORKER_ERROR_QUEUE": "jobtracking-err",
                 "JOB_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice",
                 "JOB_DATABASE_USERNAME": "${JOB_SERVICE_DB_USER}",
                 "JOB_DATABASE_PASSWORD": "${JOB_SERVICE_DB_PASSWORD}",
@@ -107,7 +107,7 @@
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "jobservice/job-service-scheduled-executor:2.4.0",
+                    "image": "jobservice/job-service-scheduled-executor:2.5.0",
                     "network": "BRIDGE",
                     "forcePullImage": true,
                     "portMappings": [{
