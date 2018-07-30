@@ -101,7 +101,7 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
      */
     private JobTrackingWorkerResult processTrackingEvent() throws InterruptedException, TaskRejectedException
     {
-        LOG.info("Starting report update work");
+        LOG.debug("Starting report update work");
         checkIfInterrupted();
 
         // Report progress on the report updates specified in task.
