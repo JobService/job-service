@@ -109,22 +109,22 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 throw new JobReportingTransientException(
                         MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId, te.getMessage()), te);
             } catch (final SQLException se) {
-                if (se.getMessage().contains("duplicate key value violates unique constraint")) {
+                final boolean sqlConcurrencyError = (se.getMessage().contains("duplicate key value violates unique constraint")
+                    || se.getMessage().matches("(?s).*(relation|type).*already exists.*"));
+                if (sqlConcurrencyError) {
                     LOG.debug(Thread.currentThread() + ": Error in reportJobTaskProgress for jobTaskId '{}'", jobTaskId, se);
                 } else {
                     LOG.warn(Thread.currentThread() + ": Error in reportJobTaskProgress for jobTaskId '{}'", jobTaskId, se);
                 }
                 //  Allow for retries in the event that the source of the error is from concurrent sessions
                 //  attempting table and/or index creation at the same time.
-                if (retryCount++ < maxRetries &&
-                        (se.getMessage().contains("duplicate key value violates unique constraint") ||
-                                se.getMessage().matches("(?s).*(relation|type).*already exists.*"))) {
+                if (retryCount++ < maxRetries && sqlConcurrencyError) {
                     LOG.info(MessageFormat.format("Retrying reportJobTaskProgress() call for job task {0}. Retry count {1}.",
-                            jobTaskId, retryCount));
+                                                  jobTaskId, retryCount));
                 } else {
                     throw new JobReportingException(
-                            MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId,
-                                    se.getMessage()), se);
+                        MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId,
+                                             se.getMessage()), se);
                 }
             }
         }
