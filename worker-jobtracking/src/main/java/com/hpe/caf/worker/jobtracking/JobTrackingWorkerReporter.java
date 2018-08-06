@@ -120,11 +120,11 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 //  attempting table and/or index creation at the same time.
                 if (retryCount++ < maxRetries && sqlConcurrencyError) {
                     LOG.info(MessageFormat.format("Retrying reportJobTaskProgress() call for job task {0}. Retry count {1}.",
-                                                  jobTaskId, retryCount));
+                            jobTaskId, retryCount));
                 } else {
                     throw new JobReportingException(
-                        MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId,
-                                             se.getMessage()), se);
+                            MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId,
+                                    se.getMessage()), se);
                 }
             }
         }
@@ -164,8 +164,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                         + "Retry count {1}.", jobTaskId, retryCount));
                 } else {
                     throw new JobReportingException(
-                        MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId,
-                                             se.getMessage()), se);
+                            MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId,
+                                    se.getMessage()), se);
                 }
             }
         }
@@ -204,8 +204,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                     + "Retry count {1}.", jobTaskId, retryCount));
             } else {
                 throw new JobReportingException(
-                    MessageFormat.format(FAILED_TO_REPORT_RETRY, jobTaskId,
-                                         se.getMessage()), se);
+                        MessageFormat.format(FAILED_TO_REPORT_RETRY, jobTaskId,
+                                se.getMessage()), se);
             }
         }
     }
@@ -242,11 +242,11 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 //  attempting table and/or index creation at the same time.
                 if (retryCount++ < maxRetries && sqlConcurrencyError) {
                     LOG.info(MessageFormat.format(Thread.currentThread() + ": Retrying reportJobTaskRejected() call for job task {0}. Retry count {1}.",
-                                                  jobTaskId, retryCount));
+                            jobTaskId, retryCount));
                 } else {
                     throw new JobReportingException(
-                        MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId,
-                                             se.getMessage()), se);
+                            MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId,
+                                    se.getMessage()), se);
                 }
             } catch (final JsonProcessingException e) {
                 throw new JobReportingException("Cannot serialize job task failure details.",e);
