@@ -150,16 +150,16 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 throw new JobReportingTransientException(
                     MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
             } catch (final SQLException se) {
-                if (se.getMessage().contains("duplicate key value violates unique constraint")) { 
-                    LOG.debug(Thread.currentThread() + ": Error in reportJobTaskComplete for jobTaskId '{}'", jobTaskId, se); 
-                } else { 
-                    LOG.warn(Thread.currentThread() + ": Error in reportJobTaskComplete for jobTaskId '{}'", jobTaskId, se); 
-                } 
+                final boolean sqlConcurrencyError = (se.getMessage().contains("duplicate key value violates unique constraint")
+                    || se.getMessage().matches("(?s).*(relation|type).*already exists.*"));
+                if (sqlConcurrencyError) {
+                    LOG.debug(Thread.currentThread() + ": Error in reportJobTaskComplete for jobTaskId '{}'", jobTaskId, se);
+                } else {
+                    LOG.warn(Thread.currentThread() + ": Error in reportJobTaskComplete for jobTaskId '{}'", jobTaskId, se);
+                }
                 //  Allow for retries in the event that the source of the error is from concurrent sessions
                 //  attempting table and/or index creation at the same time.
-                if (retryCount++ < maxRetries
-                    && (se.getMessage().contains("duplicate key value violates unique constraint")
-                    || se.getMessage().matches("(?s).*(relation|type).*already exists.*"))) {
+                if (retryCount++ < maxRetries && sqlConcurrencyError) {
                     LOG.info(MessageFormat.format(Thread.currentThread() + ": Retrying reportJobTaskComplete() call for job task {0}. "
                         + "Retry count {1}.", jobTaskId, retryCount));
                 } else {
@@ -190,16 +190,16 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             throw new JobReportingTransientException(
                 MessageFormat.format(FAILED_TO_REPORT_RETRY, jobTaskId, te.getMessage()), te);
         } catch (final SQLException se) {
-            if (se.getMessage().contains("duplicate key value violates unique constraint")) {
+            final boolean sqlConcurrencyError = (se.getMessage().contains("duplicate key value violates unique constraint")
+                || se.getMessage().matches("(?s).*(relation|type).*already exists.*"));
+            if (sqlConcurrencyError) {
                 LOG.debug(Thread.currentThread() + ": Error in reportJobTaskRetry for jobTaskId '{}'", jobTaskId, se);
             } else {
                 LOG.warn(Thread.currentThread() + ": Error in reportJobTaskRetry for jobTaskId '{}'", jobTaskId, se);
             }
             //  Allow for retries in the event that the source of the error is from concurrent sessions
             //  attempting table and/or index creation at the same time.
-            if (retryCount++ < maxRetries
-                && (se.getMessage().contains("duplicate key value violates unique constraint")
-                || se.getMessage().matches("(?s).*(relation|type).*already exists.*"))) {
+            if (retryCount++ < maxRetries && sqlConcurrencyError) {
                 LOG.info(MessageFormat.format(Thread.currentThread() + ": Retrying reportJobTaskRetry() call for job task {0}. "
                     + "Retry count {1}.", jobTaskId, retryCount));
             } else {
@@ -231,22 +231,22 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 throw new JobReportingTransientException(
                         MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId, te.getMessage()), te);
             } catch (final SQLException se) {
-                if (se.getMessage().contains("duplicate key value violates unique constraint")) {
+                final boolean sqlConcurrencyError = (se.getMessage().contains("duplicate key value violates unique constraint")
+                    || se.getMessage().matches("(?s).*(relation|type).*already exists.*"));
+                if (sqlConcurrencyError) {
                     LOG.debug(Thread.currentThread() + ": Error in reportJobTaskRejected for jobTaskId '{}'", jobTaskId, se);
                 } else {
                     LOG.warn(Thread.currentThread() + ": Error in reportJobTaskRejected for jobTaskId '{}'", jobTaskId, se);
                 }
                 //  Allow for retries in the event that the source of the error is from concurrent sessions
                 //  attempting table and/or index creation at the same time.
-                if (retryCount++ < maxRetries &&
-                        (se.getMessage().contains("duplicate key value violates unique constraint") ||
-                                se.getMessage().matches("(?s).*(relation|type).*already exists.*"))) {
+                if (retryCount++ < maxRetries && sqlConcurrencyError) {
                     LOG.info(MessageFormat.format(Thread.currentThread() + ": Retrying reportJobTaskRejected() call for job task {0}. Retry count {1}.",
-                            jobTaskId, retryCount));
+                                                  jobTaskId, retryCount));
                 } else {
                     throw new JobReportingException(
-                            MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId,
-                                    se.getMessage()), se);
+                        MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId,
+                                             se.getMessage()), se);
                 }
             } catch (final JsonProcessingException e) {
                 throw new JobReportingException("Cannot serialize job task failure details.",e);
