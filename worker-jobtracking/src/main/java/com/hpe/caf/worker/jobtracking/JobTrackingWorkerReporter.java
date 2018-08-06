@@ -144,7 +144,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 return report(conn, jobTaskId, JobStatus.Completed);
             } catch (final SQLTransientException | JobReportingTransientException te) {
                 throw new JobReportingTransientException(
-                    MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId, te.getMessage()), te);
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
             } catch (final SQLException se) {
                 if (se.getMessage().contains("duplicate key value violates unique constraint")) { 
                     LOG.debug(Thread.currentThread() + ": Error in reportJobTaskComplete for jobTaskId '{}'", jobTaskId, se); 
