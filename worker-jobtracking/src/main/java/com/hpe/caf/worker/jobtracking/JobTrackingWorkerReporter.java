@@ -164,8 +164,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                         + "Retry count {1}.", jobTaskId, retryCount));
                 } else {
                     throw new JobReportingException(
-                            MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId,
-                                    se.getMessage()), se);
+                        MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId,
+                                             se.getMessage()), se);
                 }
             }
         }
@@ -204,8 +204,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                     + "Retry count {1}.", jobTaskId, retryCount));
             } else {
                 throw new JobReportingException(
-                        MessageFormat.format(FAILED_TO_REPORT_RETRY, jobTaskId,
-                                se.getMessage()), se);
+                    MessageFormat.format(FAILED_TO_REPORT_RETRY, jobTaskId,
+                                         se.getMessage()), se);
             }
         }
     }
