@@ -301,7 +301,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         try (CallableStatement stmt = connection.prepareCall(reportProgressFnCallSQL)) {
             stmt.setString(1, jobTaskId);
             stmt.setObject(2, status, Types.OTHER);
-            LOG.info(Thread.currentThread() + ": Reporting progress of job task {} with status {} ...", jobTaskId, status.name());
+            LOG.debug(Thread.currentThread() + ": Reporting progress of job task {} with status {} ...", jobTaskId, status.name());
             stmt.execute();
 
             List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<JobTrackingWorkerDependency>();
