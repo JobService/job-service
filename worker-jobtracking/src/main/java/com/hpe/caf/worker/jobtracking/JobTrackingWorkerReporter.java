@@ -95,31 +95,32 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * @throws JobReportingException
      */
     @Override
-    public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException
-    {
+    public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException {
+
         int retryCount = 0;
         final int maxRetries = 1;
 
-        while (true) {
+        while(true) {
             try (Connection conn = getConnection()) {
                 //TODO - FUTURE: pass estimatedPercentageCompleted to the database function
                 report(conn, jobTaskId, JobStatus.Active);
                 break;
             } catch (final SQLTransientException | JobReportingTransientException te) {
                 throw new JobReportingTransientException(
-                    MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId, te.getMessage()), te);
+                        MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId, te.getMessage()), te);
             } catch (final SQLException se) {
-                LOG.warn(Thread.currentThread() + ": Error in reportJobTaskProgress for jobTaskId '{}'", jobTaskId, se);
+                LOG.warn("Error in reportJobTaskProgress for jobTaskId '{}'", jobTaskId, se);
                 //  Allow for retries in the event that the source of the error is from concurrent sessions
                 //  attempting table and/or index creation at the same time.
-                if (retryCount++ < maxRetries
-                    && (se.getMessage().contains("duplicate key value violates unique constraint")
-                    || se.getMessage().matches("(?s).*(relation|type).*already exists.*"))) {
-                    LOG.info(MessageFormat.format(Thread.currentThread() + ": Retrying reportJobTaskProgress() call for job task {0}. "
-                        + "Retry count {1}.", jobTaskId, retryCount));
+                if (retryCount++ < maxRetries &&
+                        (se.getMessage().contains("duplicate key value violates unique constraint") ||
+                                se.getMessage().matches("(?s).*(relation|type).*already exists.*"))) {
+                    LOG.info(MessageFormat.format("Retrying reportJobTaskProgress() call for job task {0}. Retry count {1}.",
+                            jobTaskId, retryCount));
                 } else {
                     throw new JobReportingException(
-                        MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId, se.getMessage()), se);
+                            MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId,
+                                    se.getMessage()), se);
                 }
             }
         }
