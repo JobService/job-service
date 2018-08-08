@@ -82,7 +82,7 @@ public class JobTrackingWorkerIT {
      * Worker should report the progress of this task to the Job Database, reporting it as active; the test verifies this by querying the
      * database directly.
      */
-    @Test
+//    @Test
     public void testTrackingReportTasks() throws Exception
     {
         final String jobTaskId = jobDatabase.createJobTask("testProxiedActiveMessage");
@@ -128,7 +128,7 @@ public class JobTrackingWorkerIT {
      *
      * trackingPipe=jobTrackingWorkerInputQueue, as specified in rabbitConfiguration.
      */
-    @Test
+//    @Test
     public void testProxiedActiveMessage() throws Exception {
         String jobTaskId = jobDatabase.createJobTask("testProxiedActiveMessage");
         String to = "jobtrackingworker-test-example-input-1";
