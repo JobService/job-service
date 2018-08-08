@@ -95,7 +95,9 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * @throws JobReportingException
      */
     @Override
-    public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException {}
+    public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException {
+        LOG.trace("Recieved progress update message for task {}, taking no action.", jobTaskId);
+    }
 
     /**
      * Reports the specified job task as complete.
