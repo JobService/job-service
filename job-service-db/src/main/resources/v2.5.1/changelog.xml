@@ -19,15 +19,20 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
-                                       http://www.liquibase.org/xml/ns/dbchangelog 
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                                       http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
-
-   <include file="changelog.xml" relativeToChangelogFile="true"/>
-   <include file="v1.3.0/changelog.xml" relativeToChangelogFile="true" />
-   <include file="v1.9.0/changelog.xml" relativeToChangelogFile="true" />
-   <include file="v2.1.0/changelog.xml" relativeToChangelogFile="true" />
-   <include file="v2.3.0/changelog.xml" relativeToChangelogFile="true" />
-   <include file="v2.3.1/changelog.xml" relativeToChangelogFile="true" />
-   <include file="v2.5.1/changelog.xml" relativeToChangelogFile="true" />
+    <changeSet id="update_procedure_report_progress_scmod_4348" runOnChange="true" author="Kusuma Ghosh Dastidar">
+        <createProcedure path="procedures/reportProgress.sql"
+                         procedureName="report_progress"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="update_procedure_report_failure_scmod_4348" runOnChange="true" author="Kusuma Ghosh Dastidar">
+        <createProcedure path="procedures/reportFailure.sql"
+                         procedureName="report_failure"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
 </databaseChangeLog>
