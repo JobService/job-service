@@ -87,6 +87,7 @@ BEGIN
     THEN
       PERFORM internal_create_task_table(v_parent_table_name);
     END IF;
+    EXECUTE format('LOCK TABLE %I IN EXCLUSIVE MODE', v_parent_table_name);
 
     --  If status is completed then take a table lock on top most parent table as soon as possible in the transaction
     --  in order to prevent concurrent updates when rolling up to parents later.
@@ -109,10 +110,6 @@ BEGIN
     SET status = 'Active'
     WHERE job_id = v_job_id AND status = 'Waiting';
 
-
-    --  Insert row into parent table for the specified task id.
-    --  If any message is received after the 'Completed'/'Failed' message, leave status as it was.
-    EXECUTE format('SELECT 1 FROM %1$I WHERE task_id = %2$L FOR UPDATE', v_parent_table_name, in_task_id) INTO v_temp;
     EXECUTE format('
       WITH upsert AS
       (
