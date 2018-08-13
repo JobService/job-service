@@ -218,9 +218,10 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             LOG.error(FAILED_TO_CONNECT, jobDatabaseURL, ex);
 
             // Declare error code for issues like not enough connections, memory, disk, etc.
+            final String CONNECTION_EXCEPTION = "08";
             final String INSUFFICIENT_RESOURCES = "53";
 
-            if (isSqlState(ex, INSUFFICIENT_RESOURCES)) {
+            if (isSqlStateIn(ex, CONNECTION_EXCEPTION, INSUFFICIENT_RESOURCES)) {
                 throw new JobReportingTransientException(ex.getMessage(), ex);
             } else {
                 throw new JobReportingException(ex.getMessage(), ex);
@@ -247,12 +248,23 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * The SQL Error Code should be a 5 letter code - the first 2 characters denote the class of the error and the final 3 indicate the
      * specific condition.
      */
-    private static boolean isSqlState(final SQLException ex, final String errorClass)
+    private static boolean isSqlStateIn(final SQLException ex, final String... errorClasses)
     {
         final String sqlState = ex.getSQLState();
 
-        return sqlState != null
-            && sqlState.length() == 5
-            && sqlState.startsWith(errorClass);
+        if (sqlState == null || sqlState.length() != 5) {
+            return false;
+        }
+
+        for (final String errorClass : errorClasses) {
+            assert errorClass != null
+                && errorClass.length() == 2;
+
+            if (sqlState.startsWith(errorClass)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
