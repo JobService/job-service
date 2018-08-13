@@ -23,13 +23,7 @@
 CREATE OR REPLACE FUNCTION internal_to_regclass(rel_name varchar(63))
 RETURNS regclass AS $$
 BEGIN
-
-    -- Add backwards compatibility support for to_regclass argument type change introduced in Postgres 9.6.
-    IF current_setting('server_version_num')::integer < 90600 THEN
-        RETURN to_regclass(rel_name::cstring);
-    ELSE
-        RETURN to_regclass(rel_name::text);
-    END IF;
-
+    -- UNUSED
+    RAISE EXCEPTION 'Procedure internal_to_regclass() no longer supported';
 END
 $$ LANGUAGE plpgsql;

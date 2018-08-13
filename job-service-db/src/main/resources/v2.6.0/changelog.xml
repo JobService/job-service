@@ -47,4 +47,16 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="update_procedure_internal_to_regclass_unused" runOnChange="true">
+        <createProcedure path="procedures/toRegClass.sql"
+                         procedureName="internal_to_regclass"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="update_procedure_get_status_unused" runOnChange="true">
+        <createProcedure path="procedures/getStatus.sql"
+                         procedureName="get_status"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
 </databaseChangeLog>
