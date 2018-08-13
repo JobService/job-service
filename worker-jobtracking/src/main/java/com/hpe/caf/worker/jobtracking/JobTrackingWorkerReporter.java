@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.UUID;
-
 
 /**
  * Implementation of job reporting to a job-tracking Job Database, specifically supporting only JDBC/PostgreSQL connections.
@@ -42,9 +40,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     private static final String JDBC_DRIVER = "org.postgresql.Driver";
 
     private static final String FAILED_TO_CONNECT = "Failed to connect to database {}. ";
-    private static final String FAILED_TO_REPORT_PROGRESS = "Failed to report the progress of job task {0}. {1}";
     private static final String FAILED_TO_REPORT_COMPLETION = "Failed to report the completion of job task {0}. {1}";
-    private static final String FAILED_TO_REPORT_RETRY = "Failed to report the failure and retry of job task {0}. {1}";
     private static final String FAILED_TO_REPORT_REJECTION = "Failed to report the failure and rejection of job task {0}. {1}";
 
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerReporter.class);
@@ -95,39 +91,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * @throws JobReportingException
      */
     @Override
-    public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException {
-
-        int retryCount = 0;
-        final int maxRetries = 1;
-
-        while(true) {
-            try (Connection conn = getConnection()) {
-                //TODO - FUTURE: pass estimatedPercentageCompleted to the database function
-                report(conn, jobTaskId, JobStatus.Active);
-                break;
-            } catch (final SQLTransientException | JobReportingTransientException te) {
-                throw new JobReportingTransientException(
-                        MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId, te.getMessage()), te);
-            } catch (final SQLException se) {
-                final boolean sqlConcurrencyError = (se.getMessage().contains("duplicate key value violates unique constraint")
-                    || se.getMessage().matches("(?s).*(relation|type).*already exists.*"));
-                if (sqlConcurrencyError) {
-                    LOG.debug(Thread.currentThread() + ": Error in reportJobTaskProgress for jobTaskId '{}'", jobTaskId, se);
-                } else {
-                    LOG.warn(Thread.currentThread() + ": Error in reportJobTaskProgress for jobTaskId '{}'", jobTaskId, se);
-                }
-                //  Allow for retries in the event that the source of the error is from concurrent sessions
-                //  attempting table and/or index creation at the same time.
-                if (retryCount++ < maxRetries && sqlConcurrencyError) {
-                    LOG.info(MessageFormat.format("Retrying reportJobTaskProgress() call for job task {0}. Retry count {1}.",
-                            jobTaskId, retryCount));
-                } else {
-                    throw new JobReportingException(
-                            MessageFormat.format(FAILED_TO_REPORT_PROGRESS, jobTaskId,
-                                    se.getMessage()), se);
-                }
-            }
-        }
+    public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException
+    {
     }
 
     /**
@@ -140,34 +105,39 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public List<JobTrackingWorkerDependency> reportJobTaskComplete(final String jobTaskId) throws JobReportingException
     {
-        int retryCount = 0;
-        final int maxRetries = 1;
+        LOG.debug(Thread.currentThread() + ": Reporting completion of job task {}...", jobTaskId);
 
-        while (true) {
-            try (final Connection conn = getConnection()) {
-                return report(conn, jobTaskId, JobStatus.Completed);
-            } catch (final SQLTransientException | JobReportingTransientException te) {
-                throw new JobReportingTransientException(
-                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
-            } catch (final SQLException se) {
-                final boolean sqlConcurrencyError = (se.getMessage().contains("duplicate key value violates unique constraint")
-                    || se.getMessage().matches("(?s).*(relation|type).*already exists.*"));
-                if (sqlConcurrencyError) {
-                    LOG.debug(Thread.currentThread() + ": Error in reportJobTaskComplete for jobTaskId '{}'", jobTaskId, se);
-                } else {
-                    LOG.warn(Thread.currentThread() + ": Error in reportJobTaskComplete for jobTaskId '{}'", jobTaskId, se);
+        final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
+
+        try (final Connection conn = getConnection()) {
+            try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?)}")) {
+                stmt.setString(1, jobTaskId);
+                stmt.execute();
+
+                final ResultSet resultSet = stmt.getResultSet();
+
+                if (resultSet != null) {
+                    while (resultSet.next()) {
+                        final JobTrackingWorkerDependency dependency = new JobTrackingWorkerDependency();
+                        dependency.setJobId(stmt.getResultSet().getString(1));
+                        dependency.setTaskClassifier(stmt.getResultSet().getString(2));
+                        dependency.setTaskApiVersion(stmt.getResultSet().getInt(3));
+                        dependency.setTaskData(stmt.getResultSet().getBytes(4));
+                        dependency.setTaskPipe(stmt.getResultSet().getString(5));
+                        dependency.setTargetPipe(stmt.getResultSet().getString(6));
+
+                        jobDependencyList.add(dependency);
+                    }
                 }
-                //  Allow for retries in the event that the source of the error is from concurrent sessions
-                //  attempting table and/or index creation at the same time.
-                if (retryCount++ < maxRetries && sqlConcurrencyError) {
-                    LOG.info(MessageFormat.format(Thread.currentThread() + ": Retrying reportJobTaskComplete() call for job task {0}. "
-                        + "Retry count {1}.", jobTaskId, retryCount));
-                } else {
-                    throw new JobReportingException(
-                        MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId,
-                                             se.getMessage()), se);
-                }
+
+                return jobDependencyList;
             }
+        } catch (final SQLTransientException te) {
+            throw new JobReportingTransientException(
+                MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
+        } catch (final SQLException se) {
+            throw new JobReportingException(
+                MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
         }
     }
 
@@ -181,33 +151,6 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public void reportJobTaskRetry(final String jobTaskId, final String retryDetails) throws JobReportingException
     {
-        int retryCount = 0;
-        final int maxRetries = 1;
-        try (final Connection conn = getConnection()) {
-            //TODO - Is there no way to report retryDetails?
-            report(conn, jobTaskId, JobStatus.Active);
-        } catch (final SQLTransientException | JobReportingTransientException te) {
-            throw new JobReportingTransientException(
-                MessageFormat.format(FAILED_TO_REPORT_RETRY, jobTaskId, te.getMessage()), te);
-        } catch (final SQLException se) {
-            final boolean sqlConcurrencyError = (se.getMessage().contains("duplicate key value violates unique constraint")
-                || se.getMessage().matches("(?s).*(relation|type).*already exists.*"));
-            if (sqlConcurrencyError) {
-                LOG.debug(Thread.currentThread() + ": Error in reportJobTaskRetry for jobTaskId '{}'", jobTaskId, se);
-            } else {
-                LOG.warn(Thread.currentThread() + ": Error in reportJobTaskRetry for jobTaskId '{}'", jobTaskId, se);
-            }
-            //  Allow for retries in the event that the source of the error is from concurrent sessions
-            //  attempting table and/or index creation at the same time.
-            if (retryCount++ < maxRetries && sqlConcurrencyError) {
-                LOG.info(MessageFormat.format(Thread.currentThread() + ": Retrying reportJobTaskRetry() call for job task {0}. "
-                    + "Retry count {1}.", jobTaskId, retryCount));
-            } else {
-                throw new JobReportingException(
-                    MessageFormat.format(FAILED_TO_REPORT_RETRY, jobTaskId,
-                                         se.getMessage()), se);
-            }
-        }
     }
 
     /**
@@ -218,39 +161,26 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * @throws JobReportingException
      */
     @Override
-    public void reportJobTaskRejected(final String jobTaskId, final JobTrackingWorkerFailure rejectionDetails) throws JobReportingException {
-        final ObjectMapper mapper = new ObjectMapper();
-        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        mapper.setDateFormat(df);
+    public void reportJobTaskRejected(final String jobTaskId, final JobTrackingWorkerFailure rejectionDetails)
+        throws JobReportingException
+    {
+        LOG.info(Thread.currentThread() + ": Reporting failure of job task {} ...", jobTaskId);
 
-        int retryCount = 0;
-        final int maxRetries = 1;
-            try (final Connection conn = getConnection()) {
-                reportFailure(conn, jobTaskId, mapper.writeValueAsString(rejectionDetails));
-            } catch (final SQLTransientException | JobReportingTransientException te) {
-                throw new JobReportingTransientException(
-                        MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId, te.getMessage()), te);
-            } catch (final SQLException se) {
-                final boolean sqlConcurrencyError = (se.getMessage().contains("duplicate key value violates unique constraint")
-                    || se.getMessage().matches("(?s).*(relation|type).*already exists.*"));
-                if (sqlConcurrencyError) {
-                    LOG.debug(Thread.currentThread() + ": Error in reportJobTaskRejected for jobTaskId '{}'", jobTaskId, se);
-                } else {
-                    LOG.warn(Thread.currentThread() + ": Error in reportJobTaskRejected for jobTaskId '{}'", jobTaskId, se);
-                }
-                //  Allow for retries in the event that the source of the error is from concurrent sessions
-                //  attempting table and/or index creation at the same time.
-                if (retryCount++ < maxRetries && sqlConcurrencyError) {
-                    LOG.info(MessageFormat.format(Thread.currentThread() + ": Retrying reportJobTaskRejected() call for job task {0}. Retry count {1}.",
-                            jobTaskId, retryCount));
-                } else {
-                    throw new JobReportingException(
-                            MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId,
-                                    se.getMessage()), se);
-                }
-            } catch (final JsonProcessingException e) {
-                throw new JobReportingException("Cannot serialize job task failure details.",e);
+        final String failureDetails = getFailureDetailsString(rejectionDetails);
+
+        try (final Connection conn = getConnection()) {
+            try (final CallableStatement stmt = conn.prepareCall("{call report_failure(?, ?)}")) {
+                stmt.setString(1, jobTaskId);
+                stmt.setString(2, failureDetails);
+                stmt.execute();
             }
+        } catch (final SQLTransientException te) {
+            throw new JobReportingTransientException(
+                MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId, te.getMessage()), te);
+        } catch (final SQLException se) {
+            throw new JobReportingException(
+                MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId, se.getMessage()), se);
+        }
     }
 
 
@@ -271,77 +201,58 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     /**
      * Creates a connection to the (PostgreSQL) Job Database.
      */
-    private Connection getConnection () throws JobReportingException {
-        final Connection conn;
-        try{
-            LOG.debug("Connecting to database {} ...", jobDatabaseURL);
-            final Properties myProp = new Properties();
-            myProp.put("user", jobDatabaseUsername);
-            myProp.put("password", jobDatabasePassword);
-            conn = DriverManager.getConnection(jobDatabaseURL, myProp);
-        } catch(final SQLTransientException e){
-            LOG.error(FAILED_TO_CONNECT, jobDatabaseURL, e);
-            throw new JobReportingTransientException(e.getMessage(), e);
-        } catch(final Exception e){
-            LOG.error(FAILED_TO_CONNECT, jobDatabaseURL, e);
-            throw new JobReportingException(e.getMessage(), e);
-        }
+    private Connection getConnection() throws JobReportingException
+    {
+        LOG.debug("Connecting to database {} ...", jobDatabaseURL);
 
-        return conn;
-    }
+        final Properties connectionProps = new Properties();
+        connectionProps.put("user", jobDatabaseUsername);
+        connectionProps.put("password", jobDatabasePassword);
 
+        try {
+            return DriverManager.getConnection(jobDatabaseURL, connectionProps);
+        } catch (final SQLTransientException ex) {
+            LOG.error(FAILED_TO_CONNECT, jobDatabaseURL, ex);
+            throw new JobReportingTransientException(ex.getMessage(), ex);
+        } catch (final SQLException ex) {
+            LOG.error(FAILED_TO_CONNECT, jobDatabaseURL, ex);
 
-    /**
-     * Reports the status of the specified job task using the supplied Job Database connection.
-     * Failure status should not be reported using this method - instead use the reportFailure method.
-     * @param connection PostgreSQL connection to the Job Database
-     * @param jobTaskId job task to be reported to the Job Database
-     * @param status status of the job task
-     * @return JobTrackingWorkerDependency list containing any dependent jobs that are now available for processing
-     * @throws SQLException
-     */
-    private List<JobTrackingWorkerDependency> report(Connection connection, final String jobTaskId, final JobStatus status) throws SQLException {
-        String reportProgressFnCallSQL = "{call report_progress(?,?)}";
-        try (CallableStatement stmt = connection.prepareCall(reportProgressFnCallSQL)) {
-            stmt.setString(1, jobTaskId);
-            stmt.setObject(2, status, Types.OTHER);
-            LOG.debug(Thread.currentThread() + ": Reporting progress of job task {} with status {} ...", jobTaskId, status.name());
-            stmt.execute();
+            // Declare error code for issues like not enough connections, memory, disk, etc.
+            final String INSUFFICIENT_RESOURCES = "53";
 
-            List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<JobTrackingWorkerDependency>();
-            while (stmt.getResultSet() != null && stmt.getResultSet().next()) {
-
-                JobTrackingWorkerDependency dependency = new JobTrackingWorkerDependency();
-                dependency.setJobId(stmt.getResultSet().getString(1));
-                dependency.setTaskClassifier(stmt.getResultSet().getString(2));
-                dependency.setTaskApiVersion(stmt.getResultSet().getInt(3));
-                dependency.setTaskData(stmt.getResultSet().getBytes(4));
-                dependency.setTaskPipe(stmt.getResultSet().getString(5));
-                dependency.setTargetPipe(stmt.getResultSet().getString(6));
-
-                jobDependencyList.add(dependency);
+            if (isSqlState(ex, INSUFFICIENT_RESOURCES)) {
+                throw new JobReportingTransientException(ex.getMessage(), ex);
+            } else {
+                throw new JobReportingException(ex.getMessage(), ex);
             }
-
-            return jobDependencyList;
         }
     }
 
+    private static String getFailureDetailsString(final JobTrackingWorkerFailure rejectionDetails) throws JobReportingException
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        mapper.setDateFormat(df);
+
+        try {
+            return mapper.writeValueAsString(rejectionDetails);
+        } catch (JsonProcessingException ex) {
+            throw new JobReportingException("Cannot serialize job task failure details.", ex);
+        }
+    }
 
     /**
-     * Reports the failure of the specified job task using the supplied Job Database connection.
-     * @param connection PostgreSQL connection to the Job Database
-     * @param jobTaskId the failed job task to be reported to the Job Database
-     * @param failureDetails description of the failure
-     * @throws SQLException
+     * Checks wheter the "SQLSTATE" is the specified error condition.
+     * <p>
+     * The SQL Error Code should be a 5 letter code - the first 2 characters denote the class of the error and the final 3 indicate the
+     * specific condition.
      */
-    private void reportFailure(final Connection connection, final String jobTaskId, final String failureDetails) throws SQLException {
-        String reportFailureFnCallSQL = "{call report_failure(?,?)}";
-        try (CallableStatement stmt = connection.prepareCall(reportFailureFnCallSQL)) {
-            stmt.setString(1, jobTaskId);
-            stmt.setString(2, failureDetails);
-            LOG.info(Thread.currentThread() + ": Reporting failure of job task {} ...", jobTaskId);
-            stmt.execute();
-        }
-    }
+    private static boolean isSqlState(final SQLException ex, final String errorClass)
+    {
+        final String sqlState = ex.getSQLState();
 
+        return sqlState != null
+            && sqlState.length() == 5
+            && sqlState.startsWith(errorClass);
+    }
 }
