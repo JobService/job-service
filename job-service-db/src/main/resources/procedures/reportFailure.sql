@@ -45,7 +45,7 @@ BEGIN
     END IF;
 
     -- If dot separator exists then we are dealing with a task, otherwise a job
-    IF position('.' in in_task_id) = 0 THEN
+    IF internal_is_job_id(in_task_id) THEN
         v_job_id = in_task_id;
 
         -- Modify job row

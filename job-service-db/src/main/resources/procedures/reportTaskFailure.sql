@@ -47,7 +47,7 @@ BEGIN
 
     -- Identify parent table to target from task table name
     -- If dot separator does not exist though in the specified task table name then we are dealing with the job table
-    IF position('.' in in_task_table_name) = 0 THEN
+    IF internal_is_job_id(in_task_table_name) THEN
         --  Extract job id from task table name (i.e. strip task_ prefix).
         v_job_id = substring(in_task_table_name from 6);
 

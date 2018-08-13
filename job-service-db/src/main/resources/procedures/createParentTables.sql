@@ -26,7 +26,7 @@ DECLARE
 
 BEGIN
     v_job_id = in_job_id;
-    LOOP EXIT WHEN position('.' in v_job_id) = 0;
+    LOOP EXIT WHEN internal_is_job_id(v_job_id);
         v_parent = substring(v_job_id, 1, internal_get_last_position(v_job_id, '.') - 1);
         v_parent_table_name = 'task_' || v_parent;
         IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_parent_table_name )
