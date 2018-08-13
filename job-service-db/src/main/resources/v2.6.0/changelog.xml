@@ -20,9 +20,24 @@
                    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
-    <changeSet id="update_procedure_report_progress_lock_table_change" runOnChange="true" author="Anthony McGreevy" >
-        <createProcedure path="procedures/reportProgress.sql"
-                         procedureName="report_progress"
+
+    <changeSet id="create_procedure_createParentTables" runOnChange="true" author="Anthony McGreevy" >
+        <createProcedure path="procedures/createParentTables.sql"
+                         procedureName="createParentTables"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="create_procedure_createParentTables" runOnChange="true" author="Anthony McGreevy" >
+        <createProcedure path="procedures/createParentTables.sql"
+                         procedureName="createParentTables"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+
+    <changeSet id="update_procedure_report_task_completion" runOnChange="true" author="Anthony McGreevy" >
+        <createProcedure path="procedures/report_task_completion.sql"
+                         procedureName="report_task_completion"
                          schemaName="public">
         </createProcedure>
     </changeSet>

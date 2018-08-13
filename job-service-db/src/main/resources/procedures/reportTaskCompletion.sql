@@ -32,6 +32,7 @@ DECLARE
   v_job_id VARCHAR(48);
   v_temp SMALLINT;
   v_final_task_id varchar(58);
+  v_is_final_task BOOLEAN = false;
   v_sub_task_count_starting_position INT;
   v_sub_tasks_to_expect INT;
 BEGIN
@@ -88,21 +89,36 @@ BEGIN
 
   ELSE
     v_parent_table_name = substring(in_task_table_name, 1, internal_get_last_position(in_task_table_name, '.')-1);
-
+    --  Check if this is the final sub task (i.e. task id end with *).
+    IF substr(v_parent_table_name, length(v_parent_table_name), 1) = '*' THEN
+      v_is_final_task = true;
+    END IF;
     --  Identify task id from task table name (i.e. strip task_ prefix) to determine which row in the parent table to target.
     v_task_id = substring(in_task_table_name from 6);
 
     --  Modify parent target table and update it's status and % completed.
     EXECUTE format('SELECT 1 FROM %1$I WHERE task_id = %2$L FOR UPDATE', v_parent_table_name, v_task_id) INTO v_temp;
     EXECUTE format('
-      UPDATE %1$I
-      SET percentage_complete = %2$L,
-          status =  CASE WHEN %2$L = 100.00 THEN ''Completed''
-                    ELSE status
-                    END
-      WHERE task_id = %3$L
+      WITH upsert AS
+      (
+        UPDATE %1$I SET status =
+            CASE
+                WHEN status = ''Completed'' THEN ''Completed''::job_status
+                WHEN status = ''Failed'' THEN ''Failed''::job_status
+                ELSE %2$L
+            END,
+        percentage_complete =
+            CASE
+                WHEN (%2$L = ''Completed'') OR (status = ''Completed'') THEN 100.00
+                ELSE percentage_complete
+            END
+        WHERE task_id = %4$L RETURNING *
+      )
+      INSERT INTO %1$I (task_id, create_date, status, percentage_complete, failure_details, is_final)
+        SELECT %4$L, now() AT TIME ZONE ''UTC'', %2$L, %3$L, null, %5$L
+        WHERE NOT EXISTS (SELECT * FROM upsert)
       ',
-      v_parent_table_name, v_percentage_completed, v_task_id);
+      v_parent_table_name, 'Completed', v_percentage_completed, v_task_id, v_is_final_task);
 
     --  If all the rows in the current task table are complete, then delete it.
     IF v_percentage_completed = 100.00 THEN

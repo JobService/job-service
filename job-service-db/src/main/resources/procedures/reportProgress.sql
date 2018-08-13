@@ -67,6 +67,7 @@ BEGIN
     END IF;
 
   ELSE
+    PERFORM createParentTables(in_task_id);
     --  Extract job id and parent task details from the specified task id.
     v_job_id = substring(in_task_id, 1, position('.' IN in_task_id)-1);
     v_parent = substring(in_task_id, 1, internal_get_last_position(in_task_id, '.')-1);
@@ -82,24 +83,12 @@ BEGIN
       v_is_final_task = true;
     END IF;
 
-    --  Create parent task table if it does not exist.
-    IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_parent_table_name )
-    THEN
-      PERFORM internal_create_task_table(v_parent_table_name);
-    END IF;
-    EXECUTE format('LOCK TABLE %I IN EXCLUSIVE MODE', v_parent_table_name);
-
     --  If status is completed then take a table lock on top most parent table as soon as possible in the transaction
     --  in order to prevent concurrent updates when rolling up to parents later.
     IF in_status = 'Completed' THEN
       -- Take a table level lock on top most parent table in order to prevent concurrent updates when rolling up
       -- to parents.
       v_topmost_parent_table_name = 'task_' || substring(in_task_id, 1, position('.' IN in_task_id)-1);
-      --  Create top most parent table if it does not exist.
-      IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_topmost_parent_table_name )
-      THEN
-          PERFORM internal_create_task_table(v_topmost_parent_table_name);
-      END IF;
       EXECUTE format('LOCK TABLE %I IN EXCLUSIVE MODE', v_topmost_parent_table_name);
     END IF;
 
@@ -110,6 +99,10 @@ BEGIN
     SET status = 'Active'
     WHERE job_id = v_job_id AND status = 'Waiting';
 
+
+    --  Insert row into parent table for the specified task id.
+    --  If any message is received after the 'Completed'/'Failed' message, leave status as it was.
+    EXECUTE format('SELECT 1 FROM %1$I WHERE task_id = %2$L FOR UPDATE', v_parent_table_name, in_task_id) INTO v_temp;
     EXECUTE format('
       WITH upsert AS
       (
