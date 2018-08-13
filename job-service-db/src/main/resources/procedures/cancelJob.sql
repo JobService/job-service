@@ -24,7 +24,7 @@ RETURNS VOID
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    v_cancel_supported INT;
+    v_cancel_supported BOOLEAN;
 
 BEGIN
     -- Raise exception if job identifier has not been specified
@@ -33,13 +33,7 @@ BEGIN
     END IF;
 
     -- Only support Cancel operation on jobs with current status 'Waiting', 'Active' or 'Paused'
-    SELECT CASE
-            WHEN status = 'Waiting' THEN 1
-            WHEN status = 'Active' THEN 1
-            WHEN status = 'Paused' THEN 1
-            ELSE 0
-           END
-    INTO v_cancel_supported
+    SELECT status IN ('Active', 'Paused', 'Waiting') INTO v_cancel_supported
     FROM job
     WHERE job_id = in_job_id
     FOR UPDATE;
@@ -48,7 +42,7 @@ BEGIN
         RAISE EXCEPTION 'job_id {%} not found', in_job_id USING ERRCODE = 'P0002'; -- sqlstate no_data_found
     END IF;
 
-    IF v_cancel_supported = 0 THEN
+    IF NOT v_cancel_supported THEN
         RAISE EXCEPTION 'job_id {%} cannot be cancelled', in_job_id USING ERRCODE = '02000';
     END IF;
 
