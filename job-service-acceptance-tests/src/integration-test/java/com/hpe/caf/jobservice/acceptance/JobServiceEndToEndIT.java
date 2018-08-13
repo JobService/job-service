@@ -55,6 +55,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
+import org.apache.commons.io.FileUtils;
 
 
 /**
@@ -129,7 +130,7 @@ public class JobServiceEndToEndIT {
         testItemAssetIds = generateWorkerBatch();
     }
 
-//    @Test
+//    //@Test
 //    public void testJobCompletionWithTaskDataObject() throws Exception {
 //        testJobCompletion(true);
 //    }
@@ -164,7 +165,7 @@ public class JobServiceEndToEndIT {
         }
     }
 
-    @Test
+    //@Test
     public void testJobWithNoPrerequisiteJobs() throws Exception {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
@@ -197,7 +198,7 @@ public class JobServiceEndToEndIT {
         }
     }
 
-    @Test
+    //@Test
     public void testJobWithPrerequisiteJobsWhichHaveCompleted() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
@@ -268,7 +269,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
 
-    @Test
+    //@Test
     public void testJobWithNullAndBlankAndEmptyPrereqJobsShouldComplete() throws Exception
     {
         numTestItemsToGenerate = 1;                 // CAF-3677: Remove this on fix
@@ -305,7 +306,7 @@ public class JobServiceEndToEndIT {
         }
     }
 
-    @Test
+    //@Test
     public void testJobWithPrerequisiteJobsWithOneNotCompleted() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
@@ -372,17 +373,17 @@ public class JobServiceEndToEndIT {
         //  -> J2
         //      -> J3
         //      -> J4
-        createJobWithPrerequisites(job2Id, true, 0, job1Id);
+        createJobWithPrerequisites(job2Id, true, 1, job1Id);
         //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
 
-        createJobWithPrerequisites(job3Id, true, 0, job2Id);
+        createJobWithPrerequisites(job3Id, true, 1, job2Id);
         //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
 
-        createJobWithPrerequisites(job4Id, true, 0, job2Id);
+        createJobWithPrerequisites(job4Id, true, 1, job2Id);
         //  Verify J4 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job4Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
@@ -416,7 +417,7 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        Thread.sleep(3000); // Add short delay to allow previous jobs to complete
+        Thread.sleep(10000); // Add short delay to allow previous jobs to complete
 
         //  Now that J1 has completed, verify this has triggered the completion of other jobs created
         //  with a prerequisite.
@@ -428,7 +429,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job4Id, job2Id);
     }
 
-    @Test
+    //@Test
     public void testJobWithPrerequisiteJobsAndDelays() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
@@ -505,12 +506,12 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
 
-    @Test
+    //@Test
     public void testJobCancellation() throws Exception {
         testJobCancellation(false);
     }
 
-    @Test
+    //@Test
     public void testJobCancellationWithTaskDataObject() throws Exception {
         testJobCancellation(true);
     }
@@ -545,7 +546,7 @@ public class JobServiceEndToEndIT {
         }
     }
 
-    @Test
+    //@Test
     @SuppressWarnings("unchecked")
     public void testJobServiceCaller_Success() throws ParseException, IOException, TimeoutException {
 
@@ -648,7 +649,7 @@ public class JobServiceEndToEndIT {
         LOG.debug("Finished testJobServiceCaller_Success().");
     }
 
-    @Test
+    //@Test
     @SuppressWarnings("unchecked")
     public void testJobServiceCaller_Failure() throws ParseException, IOException, TimeoutException {
         LOG.debug("Starting testJobServiceCaller_Failure() ...");
@@ -723,12 +724,12 @@ public class JobServiceEndToEndIT {
         LOG.debug("Finished testJobServiceCaller_Failure().");
     }
 
-    @Test
+    //@Test
     public void testJobDeletion() throws Exception {
         testJobDeletion(false);
     }
 
-    @Test
+    //@Test
     public void testJobDeletionWithTaskDataObject() throws Exception {
         testJobDeletion(true);
     }
@@ -768,7 +769,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobRowDoesNotExist(jobId);
     }
 
-    @Test
+    //@Test
     public void testJobDeletionWithPrerequisiteJobs() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
