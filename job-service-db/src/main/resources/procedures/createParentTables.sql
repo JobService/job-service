@@ -20,21 +20,23 @@ DECLARE
   v_job_id VARCHAR(48);
   v_parent VARCHAR(58);
   v_parent_table_name VARCHAR(63);
+  v_root_parent_table_name VARCHAR(63);
 BEGIN
   v_job_id = in_job_id;
   LOOP
   EXIT WHEN position('.' in v_job_id) = 0 ;
     v_parent = substring(v_job_id, 1, internal_get_last_position(v_job_id, '.')-1);
     v_parent_table_name = 'task_' || v_parent;
-    IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_job_id )
+    IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_parent_table_name )
     THEN
-    PERFORM internal_create_task_table(v_job_id);
+    PERFORM internal_create_task_table(v_parent_table_name);
     END IF;
     v_job_id = v_parent;
   END LOOP;
-  IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_job_id )
+  v_root_parent_table_name = 'task_' || v_job_id;
+  IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_root_parent_table_name )
   THEN
-  PERFORM internal_create_task_table(v_job_id);
+  PERFORM internal_create_task_table(v_root_parent_table_name);
   END IF;
 END
 $$ LANGUAGE PLPGSQL;

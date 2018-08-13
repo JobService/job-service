@@ -373,17 +373,17 @@ public class JobServiceEndToEndIT {
         //  -> J2
         //      -> J3
         //      -> J4
-        createJobWithPrerequisites(job2Id, true, 1, job1Id);
+        createJobWithPrerequisites(job2Id, true, 0, job1Id);
         //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
 
-        createJobWithPrerequisites(job3Id, true, 1, job2Id);
+        createJobWithPrerequisites(job3Id, true, 0, job2Id);
         //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
 
-        createJobWithPrerequisites(job4Id, true, 1, job2Id);
+        createJobWithPrerequisites(job4Id, true, 0, job2Id);
         //  Verify J4 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job4Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
@@ -417,7 +417,7 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        Thread.sleep(10000); // Add short delay to allow previous jobs to complete
+        Thread.sleep(3000); // Add short delay to allow previous jobs to complete
 
         //  Now that J1 has completed, verify this has triggered the completion of other jobs created
         //  with a prerequisite.
