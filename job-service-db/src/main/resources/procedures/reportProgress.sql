@@ -67,7 +67,7 @@ BEGIN
     END IF;
 
   ELSE
-    PERFORM createParentTables(in_task_id);
+    PERFORM internal_create_parent_tables(in_task_id);
     --  Extract job id and parent task details from the specified task id.
     v_job_id = substring(in_task_id, 1, position('.' IN in_task_id)-1);
     v_parent = substring(in_task_id, 1, internal_get_last_position(in_task_id, '.')-1);

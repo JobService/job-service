@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
-CREATE OR REPLACE FUNCTION createParentTables(in_job_id VARCHAR(48)) 
+CREATE OR REPLACE FUNCTION internal_create_parent_tables(in_job_id VARCHAR(48))
 RETURNS VOID AS $$
 DECLARE
   v_job_id VARCHAR(48);
