@@ -152,11 +152,4 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
-
-    <changeSet id="create_procedure_createParentTables" runOnChange="true" author="Anthony McGreevy" >
-        <createProcedure path="procedures/createParentTables.sql"
-                         procedureName="createParentTables"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
 </databaseChangeLog>
