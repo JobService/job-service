@@ -47,8 +47,8 @@ BEGIN
 
   -- Remove job dependency and job task data rows.
   IF EXISTS (SELECT 1 FROM job_task_data jtd WHERE jtd.job_id = in_job_id) THEN
-	  DELETE FROM job_dependency jd WHERE jd.job_id = in_job_id;
-	  DELETE FROM job_task_data jtd WHERE jtd.job_id = in_job_id;
+      DELETE FROM job_dependency jd WHERE jd.job_id = in_job_id;
+      DELETE FROM job_task_data jtd WHERE jtd.job_id = in_job_id;
   END IF;
   
   --  Remove row from the job table.

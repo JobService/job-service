@@ -90,7 +90,7 @@ BEGIN
     ON tdjwd.job_id = j.job_id
   WHERE jtd.job_id = j.job_id;
 
-  --	Remove job_dependency rows for jobs awaiting delay as they no longer serve any purpose.
+  -- Remove job_dependency rows for jobs awaiting delay as they no longer serve any purpose.
   DELETE FROM job_dependency jd
   USING tmp_dependent_jobs_with_delay tdjwd
   WHERE tdjwd.job_id = jd.job_id;

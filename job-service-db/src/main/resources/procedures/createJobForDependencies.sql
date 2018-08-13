@@ -28,7 +28,7 @@ CREATE OR REPLACE FUNCTION create_job(in_job_id VARCHAR(48), in_name VARCHAR(255
 BEGIN
   --  Raise exception if job identifier has not been specified.
   IF in_job_id IS NULL OR in_job_id = '' THEN
-		RAISE EXCEPTION 'Job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data;
+        RAISE EXCEPTION 'Job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data;
   END IF;
 
   --  Raise exception if job taskClassifier has not been specified.
