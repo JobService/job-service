@@ -311,27 +311,6 @@
                             </run>
                         </image>
 
-                        <!-- Run jobservice db installer. -->
-                        <image>
-                            <alias>job-service-liquibase-container</alias>
-                            <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
-                            <run>
-                                <links>
-                                    <link>jobservice-integrationtests-postgres</link>
-                                </links>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                                <cmd>
-                                    ./install_job_service_db.sh -fd -db.connection jdbc:postgresql://jobservice-integrationtests-postgres:5432 -db.name ${db.name} -db.user postgres -db.pass root -log debug
-                                </cmd>
-                                <wait>
-                                    <log>DB update finished.</log>
-                                    <time>120000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                            </run>
-                        </image>
                         <!--Run rabbitmq for tests. -->
                         <image>
                             <alias>rabbitmq</alias>
@@ -406,12 +385,20 @@
                                     <Git.Commit>${git.revision}</Git.Commit>
                                 </labels>
                                 <assembly>
-                                    <basedir>/usr/share/tomcat</basedir>
+                                    <basedir>/</basedir>
                                     <mode>tar</mode>
                                     <inline>
+                                        <fileSets>
+                                            <fileSet>
+                                                <fileMode>0755</fileMode>
+                                                <lineEnding>unix</lineEnding>
+                                                <directory>src/main/scripts/</directory>
+                                                <outputDirectory>startup/startup.d/</outputDirectory>
+                                            </fileSet>
+                                        </fileSets>
                                         <dependencySets>
                                             <dependencySet>
-                                                <outputDirectory>webapps/job-service</outputDirectory>
+                                                <outputDirectory>usr/share/tomcat/webapps/job-service</outputDirectory>
                                                 <includes>
                                                     <include>com.github.jobservice:job-service</include>
                                                 </includes>
@@ -419,7 +406,7 @@
                                                 <useProjectArtifact>false</useProjectArtifact>
                                             </dependencySet>
                                             <dependencySet>
-                                                <outputDirectory>webapps/job-service-ui</outputDirectory>
+                                                <outputDirectory>usr/share/tomcat/webapps/job-service-ui</outputDirectory>
                                                 <includes>
                                                     <include>com.github.jobservice:job-service-ui</include>
                                                 </includes>
@@ -428,12 +415,20 @@
                                             </dependencySet>
                                             <!-- Including the healthcheck web application. -->
                                             <dependencySet>
-                                                <outputDirectory>adminapps/ROOT</outputDirectory>
+                                                <outputDirectory>usr/share/tomcat/adminapps/ROOT</outputDirectory>
                                                 <includes>
                                                     <include>com.github.jobservice:job-service-admin</include>
                                                 </includes>
                                                 <unpack>true</unpack>
                                                 <useProjectArtifact>false</useProjectArtifact>
+                                            </dependencySet>
+                                            <dependencySet>
+                                                <useProjectArtifact>false</useProjectArtifact>
+                                                <includes>
+                                                    <include>com.hpe.caf:job-service-db</include>
+                                                </includes>
+                                                <outputDirectory>database</outputDirectory>
+                                                <outputFileNameMapping>job-service-db.jar</outputFileNameMapping>
                                             </dependencySet>
                                         </dependencySets>
                                     </inline>
