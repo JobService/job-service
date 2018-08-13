@@ -171,7 +171,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         final String failureDetails = getFailureDetailsString(rejectionDetails);
 
         try (final Connection conn = getConnection()) {
-            try (final CallableStatement stmt = conn.prepareCall("{call report_failure(?, ?)}")) {
+            try (final CallableStatement stmt = conn.prepareCall("{call report_failure(?,?)}")) {
                 stmt.setString(1, jobTaskId);
                 stmt.setString(2, failureDetails);
                 stmt.execute();

@@ -59,11 +59,10 @@ public final class DatabaseHelper
     public Job[] getJobs(String jobIdStartsWith, String statusType, Integer limit, Integer offset) throws Exception {
 
         List<Job> jobs=new ArrayList<>();
-        String getJobsFnCallSQL = "{call get_jobs(?,?,?,?)}";
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall(getJobsFnCallSQL)
+                CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -120,11 +119,10 @@ public final class DatabaseHelper
     public long getJobsCount(String jobIdStartsWith, String statusType) throws Exception {
 
         long jobsCount = 0;
-        String getJobsCountFnCallSQL = "{call get_jobs_count(?,?)}";
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall(getJobsCountFnCallSQL)
+                CallableStatement stmt = conn.prepareCall("{call get_jobs_count(?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -156,11 +154,9 @@ public final class DatabaseHelper
 
         Job job = null;
 
-        String getJobFnCallSQL = "{call get_job(?)}";
-
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall(getJobFnCallSQL)
+                CallableStatement stmt = conn.prepareCall("{call get_job(?)}")
         ) {
             stmt.setString(1,jobId);
 
@@ -209,11 +205,9 @@ public final class DatabaseHelper
      */
     public void createJob(String jobId, String name, String description, String data, int jobHash) throws Exception {
 
-        String createJobFnCallSQL = "{call create_job(?,?,?,?,?)}";
-
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall(createJobFnCallSQL)
+                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?)}")
         ) {
             stmt.setString(1,jobId);
             stmt.setString(2,name);
@@ -247,11 +241,9 @@ public final class DatabaseHelper
                                           final String targetPipe, final List<String> prerequisiteJobIds,
                                           final int delay) throws Exception {
 
-        String createJobFnCallSQL = "{call create_job(?,?,?,?,?,?,?,?,?,?,?,?)}";
-
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall(createJobFnCallSQL)
+                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
             final String[] prerequisiteJobIdStringArray = prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
             Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
@@ -291,11 +283,9 @@ public final class DatabaseHelper
      */
     public void deleteJob(String jobId) throws Exception {
 
-        String deleteJobFnCallSQL = "{call delete_job(?)}";
-
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall(deleteJobFnCallSQL)
+                CallableStatement stmt = conn.prepareCall("{call delete_job(?)}")
         ) {
             stmt.setString(1,jobId);
             LOG.debug("Calling delete_job() database function...");
@@ -401,11 +391,9 @@ public final class DatabaseHelper
      */
     public void cancelJob(String jobId) throws Exception {
 
-        String cancelJobFnCallSQL = "{call cancel_job(?)}";
-
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall(cancelJobFnCallSQL)
+                CallableStatement stmt = conn.prepareCall("{call cancel_job(?)}")
         ) {
             stmt.setString(1,jobId);
             LOG.debug("Calling cancel_job() database function...");
@@ -432,11 +420,9 @@ public final class DatabaseHelper
      */
     public void reportFailure(String jobId, String failureDetails) throws Exception {
 
-        String reportFailureFnCallSQL = "{call report_failure(?,?)}";
-
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall(reportFailureFnCallSQL)
+                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?)}")
         ) {
             stmt.setString(1,jobId);
             stmt.setString(2,failureDetails);

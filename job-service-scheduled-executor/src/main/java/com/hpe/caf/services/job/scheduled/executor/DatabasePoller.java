@@ -126,10 +126,9 @@ public class DatabasePoller
      */
     private static List<JobTaskData> getDependentJobsToRun() throws ScheduledExecutorException
     {
-        final String getDependentJobsFnCallSQL = "{call get_dependent_jobs()}";
         try (
                 Connection connection = getConnection();
-                CallableStatement stmt = connection.prepareCall(getDependentJobsFnCallSQL)
+                CallableStatement stmt = connection.prepareCall("{call get_dependent_jobs()}")
         ) {
             LOG.debug("Calling get_dependent_jobs() database function ...");
             stmt.execute();
@@ -161,11 +160,9 @@ public class DatabasePoller
      */
     private static void reportFailure(final String jobId, final String failureDetails) throws ScheduledExecutorException {
 
-        final String reportFailureFnCallSQL = "{call report_failure(?,?)}";
-
         try (
                 Connection conn = getConnection();
-                CallableStatement stmt = conn.prepareCall(reportFailureFnCallSQL)
+                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?)}")
         ) {
             stmt.setString(1,jobId);
             stmt.setString(2,failureDetails);

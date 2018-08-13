@@ -55,10 +55,9 @@ public class JobDatabase {
         String description = MessageFormat.format("{0}_{1} description", jobDescriptor, jobId);
         String data = MessageFormat.format("{0}_{1} data", jobDescriptor, jobId);
         int jobHash = random.nextInt();
-        String createJobFnCallSQL = "{call create_job(?,?,?,?,?)}";
 
         try(Connection connection = getConnection();
-            CallableStatement stmt = connection.prepareCall(createJobFnCallSQL)) {
+            CallableStatement stmt = connection.prepareCall("{call create_job(?,?,?,?,?)}")) {
             stmt.setString(1, jobId);
             stmt.setString(2, name);
             stmt.setString(3, description);
@@ -74,10 +73,8 @@ public class JobDatabase {
 
 
     public void verifyJobStatus(String jobTaskId, JobReportingExpectation jobReportingExpectation) throws Exception {
-        String getJobFnCallSQL = "{call get_job(?)}";
-
         try(Connection connection = getConnection();
-            CallableStatement stmt = connection.prepareCall(getJobFnCallSQL)) {
+            CallableStatement stmt = connection.prepareCall("{call get_job(?)}")) {
 
             stmt.setString(1, jobTaskId);
             LOG.info("Calling get_job for job task {}", jobTaskId);
