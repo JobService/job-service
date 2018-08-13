@@ -19,14 +19,17 @@
  *
  *  Description: Marks the specified task complete.
  */
-DROP FUNCTION IF EXISTS report_complete(in_task_id varchar(58));
-CREATE FUNCTION report_complete(in_task_id varchar(58))
-    RETURNS TABLE(job_id VARCHAR(48),
-                  task_classifier VARCHAR(255),
-                  task_api_version INT,
-                  task_data BYTEA,
-                  task_pipe VARCHAR(255),
-                  target_pipe VARCHAR(255)) AS $$
+CREATE OR REPLACE FUNCTION report_complete(in_task_id VARCHAR(58))
+RETURNS TABLE(
+    job_id VARCHAR(48),
+    task_classifier VARCHAR(255),
+    task_api_version INT,
+    task_data BYTEA,
+    task_pipe VARCHAR(255),
+    target_pipe VARCHAR(255)
+)
+LANGUAGE plpgsql
+AS $$
 #variable_conflict use_column
 DECLARE
     v_job_id VARCHAR(48);
@@ -34,10 +37,9 @@ DECLARE
     v_parent_table_name VARCHAR(63);
     v_topmost_parent_table_name VARCHAR(63);
     v_temp SMALLINT;
-    v_is_final_task BOOLEAN = false;
+    v_is_final_task BOOLEAN = FALSE;
 
 BEGIN
-
     -- Raise exception if task identifier has not been specified
     IF in_task_id IS NULL OR in_task_id = '' THEN
         RAISE EXCEPTION 'Task identifier has not been specified';
@@ -55,7 +57,7 @@ BEGIN
         WHERE job_id = v_job_id;
 
         -- If job is completed, then remove task tables associated with the job
-        PERFORM internal_delete_task_table(v_job_id, false);
+        PERFORM internal_delete_task_table(v_job_id, FALSE);
 
         -- Get a list of jobs that can run immediately and update the eligibility run date for others
         RETURN QUERY
@@ -77,7 +79,7 @@ BEGIN
 
         -- Check if this is the final sub task (i.e. task id end with *)
         IF substr(in_task_id, length(in_task_id), 1) = '*' THEN
-            v_is_final_task = true;
+            v_is_final_task = TRUE;
         END IF;
 
         -- Take a table lock on top most parent table as soon as possible in the transaction
@@ -101,10 +103,11 @@ BEGIN
                     ELSE 'Completed'::job_status
                 END,
                     percentage_complete = 100.00
-                WHERE task_id = %2$L RETURNING *
+                WHERE task_id = %2$L
+                RETURNING *
             )
             INSERT INTO %1$I (task_id, create_date, status, percentage_complete, failure_details, is_final)
-            SELECT %2$L, now() AT TIME ZONE 'UTC', 'Completed'::job_status, 0.00, null, %3$L
+            SELECT %2$L, now() AT TIME ZONE 'UTC', 'Completed'::job_status, 0.00, NULL, %3$L
             WHERE NOT EXISTS (SELECT * FROM upsert)
         $FORMAT_STR$, v_parent_table_name, in_task_id, v_is_final_task);
 
@@ -113,6 +116,5 @@ BEGIN
         SELECT * FROM internal_report_task_completion(v_parent_table_name);
 
     END IF;
-
 END
-$$ LANGUAGE plpgsql;
+$$;

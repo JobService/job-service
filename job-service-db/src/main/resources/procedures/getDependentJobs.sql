@@ -19,34 +19,38 @@
  *
  *  Description:  Returns a list of dependent jobs that are now eligible to run.
  */
-DROP FUNCTION IF EXISTS get_dependent_jobs();
-CREATE FUNCTION get_dependent_jobs()
-  RETURNS TABLE (job_id VARCHAR(48), task_classifier VARCHAR(255), task_api_version INT, task_data BYTEA,
-  task_pipe VARCHAR(255), target_pipe VARCHAR(255)) AS $$
-#variable_conflict use_column  
-DECLARE
+CREATE OR REPLACE FUNCTION get_dependent_jobs()
+RETURNS TABLE(
+    job_id VARCHAR(48),
+    task_classifier VARCHAR(255),
+    task_api_version INT,
+    task_data BYTEA,
+    task_pipe VARCHAR(255),
+    target_pipe VARCHAR(255)
+)
+LANGUAGE plpgsql
+AS $$
+#variable_conflict use_column
 BEGIN
+    CREATE TEMPORARY TABLE tmp_dependent_jobs
+        ON COMMIT DROP
+    AS
+        SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe
+        FROM job_task_data jtd
+        LEFT JOIN job_dependency jd
+            ON jd.job_id = jtd.job_id
+        WHERE jtd.eligible_to_run_date IS NOT NULL
+            AND jtd.eligible_to_run_date <= now() AT TIME ZONE 'UTC'  -- now eligible for running
+            AND jd.job_id IS NULL;  -- no other dependencies to wait on
 
-  CREATE TEMPORARY TABLE tmp_dependent_jobs
-    ON COMMIT DROP
-  AS
-  SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe
-  FROM job_task_data jtd
-  LEFT JOIN job_dependency jd
-    ON jd.job_id = jtd.job_id
-  WHERE jtd.eligible_to_run_date IS NOT NULL
-  AND jtd.eligible_to_run_date <= now() AT TIME ZONE 'UTC'  -- now eligible for running
-  AND jd.job_id IS NULL;  -- no other dependencies to wait on.
-  
-  -- Get list of jobs that can now be run.
-  RETURN QUERY
+    -- Get list of jobs that can now be run
+    RETURN QUERY
     SELECT *
     FROM tmp_dependent_jobs;
 
-  -- Remove corresponding task data rows.
-  DELETE FROM job_task_data jtd
+    -- Remove corresponding task data rows
+    DELETE FROM job_task_data jtd
     USING tmp_dependent_jobs tdj
     WHERE tdj.job_id = jtd.job_id;
-
 END
-$$ LANGUAGE plpgsql;
+$$;

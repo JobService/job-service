@@ -20,10 +20,12 @@
  *  Description:  Returns the object identifier of the named relation.
  *                Internal - used in internal_create_task_table().
  */
-CREATE OR REPLACE FUNCTION internal_to_regclass(rel_name varchar(63))
-RETURNS regclass AS $$
+CREATE OR REPLACE FUNCTION internal_to_regclass(rel_name VARCHAR(63))
+RETURNS regclass
+LANGUAGE plpgsql
+AS $$
 BEGIN
     -- UNUSED
     RAISE EXCEPTION 'Procedure internal_to_regclass() no longer supported';
 END
-$$ LANGUAGE plpgsql;
+$$;
