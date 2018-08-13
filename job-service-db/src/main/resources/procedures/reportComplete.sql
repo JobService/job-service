@@ -28,8 +28,91 @@ CREATE FUNCTION report_complete(in_task_id varchar(58))
                   task_pipe VARCHAR(255),
                   target_pipe VARCHAR(255)) AS $$
 #variable_conflict use_column
+DECLARE
+    v_job_id VARCHAR(48);
+    v_parent VARCHAR(58);
+    v_parent_table_name VARCHAR(63);
+    v_topmost_parent_table_name VARCHAR(63);
+    v_temp SMALLINT;
+    v_is_final_task BOOLEAN = false;
+
 BEGIN
-    RETURN QUERY
-    SELECT * FROM report_progress(in_task_id, 'Completed'::job_status);
+
+    -- Raise exception if task identifier has not been specified
+    IF in_task_id IS NULL OR in_task_id = '' THEN
+        RAISE EXCEPTION 'Task identifier has not been specified';
+    END IF;
+
+    -- If dot separator exists then we are dealing with a task, otherwise a job
+    IF position('.' in in_task_id) = 0 THEN
+
+        v_job_id = in_task_id;
+
+        -- Modify job row but need to disallow cancelled jobs from being reactivated
+        PERFORM 1 FROM job WHERE job_id = v_job_id FOR UPDATE;
+        UPDATE job
+        SET status = 'Completed', percentage_complete = 100.00
+        WHERE job_id = v_job_id;
+
+        -- If job is completed, then remove task tables associated with the job
+        PERFORM internal_delete_task_table(v_job_id, false);
+
+        -- Get a list of jobs that can run immediately and update the eligibility run date for others
+        RETURN QUERY
+        SELECT * FROM internal_process_dependent_jobs(v_job_id);
+
+    ELSE
+
+        PERFORM internal_create_parent_tables(in_task_id);
+
+        -- Extract job id and parent task details from the specified task id
+        v_job_id = substring(in_task_id, 1, position('.' IN in_task_id) - 1);
+        v_parent = substring(in_task_id, 1, internal_get_last_position(in_task_id, '.') - 1);
+        v_parent_table_name = 'task_' || v_parent;
+
+        -- Make sure the job actually exists before we register/update the task
+        IF NOT EXISTS (SELECT 1 FROM job WHERE job_id = v_job_id) THEN
+            RAISE EXCEPTION 'A job for the specified task does not exist.';
+        END IF;
+
+        -- Check if this is the final sub task (i.e. task id end with *)
+        IF substr(in_task_id, length(in_task_id), 1) = '*' THEN
+            v_is_final_task = true;
+        END IF;
+
+        -- Take a table lock on top most parent table as soon as possible in the transaction
+        -- in order to prevent concurrent updates when rolling up to parents later.
+        v_topmost_parent_table_name = 'task_' || substring(in_task_id, 1, position('.' IN in_task_id) - 1);
+        EXECUTE format('LOCK TABLE %I IN EXCLUSIVE MODE', v_topmost_parent_table_name);
+
+        -- This could be the first progress report against a job task. Make sure the job
+        -- status is made Active if currently in state 'Waiting'
+        PERFORM 1 FROM job WHERE job_id = v_job_id AND status = 'Waiting' FOR UPDATE;
+        UPDATE job
+        SET status = 'Active'
+        WHERE job_id = v_job_id AND status = 'Waiting';
+
+        EXECUTE format($FORMAT_STR$
+            WITH upsert AS
+            (
+                UPDATE %1$I
+                SET status = CASE
+                    WHEN status = 'Failed' THEN 'Failed'::job_status
+                    ELSE 'Completed'::job_status
+                END,
+                    percentage_complete = 100.00
+                WHERE task_id = %2$L RETURNING *
+            )
+            INSERT INTO %1$I (task_id, create_date, status, percentage_complete, failure_details, is_final)
+            SELECT %2$L, now() AT TIME ZONE 'UTC', 'Completed'::job_status, 0.00, null, %3$L
+            WHERE NOT EXISTS (SELECT * FROM upsert)
+        $FORMAT_STR$, v_parent_table_name, in_task_id, v_is_final_task);
+
+        -- Rollup task completion status to parent(s)
+        RETURN QUERY
+        SELECT * FROM internal_report_task_completion(v_parent_table_name);
+
+    END IF;
+
 END
 $$ LANGUAGE plpgsql;
