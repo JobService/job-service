@@ -17,7 +17,7 @@
 
 
 cd /database
-java -jar job-service-db.jar \
+java -jar job-service-db-installer.jar \
      -db.user $POSTGRES_USER \
      -db.pass $POSTGRES_PASSWORD \
      -db.name ${POSTGRES_DB:-jobservice} \
