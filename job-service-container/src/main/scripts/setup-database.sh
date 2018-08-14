@@ -18,7 +18,6 @@
 
 cd /database
 java -jar job-service-db-installer.jar \
-     -db.user $POSTGRES_USER \
-     -db.pass $POSTGRES_PASSWORD \
-     -db.name ${POSTGRES_DB:-jobservice} \
-     -db.connection jdbc:postgresql://127.0.0.1:5432
+     -db.user "${CAF_DATABASE_USERNAME}" \
+     -db.pass "${CAF_DATABASE_PASSWORD}" \
+     -db.connection "${CAF_DATABASE_URL}"
