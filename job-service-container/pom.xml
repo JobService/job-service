@@ -433,10 +433,10 @@
                                             <dependencySet>
                                                 <useProjectArtifact>false</useProjectArtifact>
                                                 <includes>
-                                                    <include>com.hpe.caf:job-service-db</include>
+                                                    <include>com.github.jobservice:job-service-db</include>
                                                 </includes>
                                                 <outputDirectory>database</outputDirectory>
-                                                <outputFileNameMapping>job-service-db.jar</outputFileNameMapping>
+                                                <outputFileNameMapping>job-service-db-installer.jar</outputFileNameMapping>
                                             </dependencySet>
                                         </dependencySets>
                                     </inline>
