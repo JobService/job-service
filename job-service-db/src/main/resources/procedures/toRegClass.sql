@@ -25,7 +25,11 @@ RETURNS regclass
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- UNUSED
-    RAISE EXCEPTION 'Procedure internal_to_regclass() no longer supported';
+    -- Add backwards compatibility support for to_regclass argument type change introduced in Postgres 9.6.
+    IF current_setting('server_version_num')::INT < 90600 THEN
+        RETURN to_regclass(rel_name::cstring);
+    ELSE
+        RETURN to_regclass(rel_name::text);
+    END IF;
 END
 $$;
