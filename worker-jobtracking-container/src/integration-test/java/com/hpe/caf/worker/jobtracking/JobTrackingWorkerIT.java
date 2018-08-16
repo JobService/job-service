@@ -87,7 +87,7 @@ public class JobTrackingWorkerIT {
     {
         final String jobTaskId = jobDatabase.createJobTask("testProxiedActiveMessage");
         for (int i = 0; i <= 4; i++) {
-            final JobStatus status = i < 4 ? JobStatus.Active : JobStatus.Completed;
+            final JobStatus status = i < 4 ? JobStatus.Waiting : JobStatus.Completed;
             final TrackingReportStatus trackingReportStatus = i < 4 ? TrackingReportStatus.Progress : TrackingReportStatus.Complete;
             final TaskMessage taskMessage = getExampleTrackingReportMessage(jobTaskId, trackingReportStatus);
             final JobReportingExpectation expectation = getExpectation(jobTaskId, status);
