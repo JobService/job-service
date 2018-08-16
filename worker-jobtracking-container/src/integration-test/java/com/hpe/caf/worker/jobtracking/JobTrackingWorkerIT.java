@@ -117,32 +117,6 @@ public class JobTrackingWorkerIT {
         }
     }
 
-    /**
-     * Tests reporting of an in-progress task.
-     * This test creates a task suitable for input to the Example worker complete with tracking info which should divert
-     * the message to the Job Tracking Worker - i.e. the TrackingInfo.trackingPipe is the input queue of the
-     * Job Tracking Worker under test.
-     * The Job Tracking Worker should report the progress of this task to the Job Database, reporting it as active;
-     * the test verifies this by querying the database directly.
-     * The Job Tracking Worker should then forward the task to the queue specified as the 'to' field in the message.
-     *
-     * trackingPipe=jobTrackingWorkerInputQueue, as specified in rabbitConfiguration.
-     */
-    @Test
-    public void testProxiedActiveMessage() throws Exception {
-        String jobTaskId = jobDatabase.createJobTask("testProxiedActiveMessage");
-        String to = "jobtrackingworker-test-example-input-1";
-        String trackTo = "jobtrackingworker-test-example-output-1";
-        TaskMessage taskMessage = getExampleTaskMessage(jobTaskId, to, trackTo);
-        JobTrackingWorkerITExpectation expectation =
-                new JobTrackingWorkerITExpectation(
-                        jobTaskId,
-                        to,
-                        true,
-                        new JobReportingExpectation(jobTaskId, JobStatus.Active, 0, false, false, false, false, false));
-        testProxiedMessageReporting(taskMessage, expectation);
-    }
-
 
     /**
      * Tests reporting of a completed task.
