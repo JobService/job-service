@@ -15,11 +15,14 @@
 --
 
 /*
- *  Name: internal_report_task_failure
+ *  Name: internal_get_job_id
  *
- *  REMOVED
+ *  Description:
+ *  Checks if the specified task id looks like a job id
  */
-DROP FUNCTION IF EXISTS internal_report_task_failure(
-    in_task_table_name VARCHAR(63),
-    in_failure_details TEXT
-);
+CREATE OR REPLACE FUNCTION internal_get_job_id(in_task_id VARCHAR(58))
+RETURNS VARCHAR(48)
+LANGUAGE SQL
+AS $$
+SELECT SUBSTRING(in_task_id FROM '^[^\.]*');
+$$;

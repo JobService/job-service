@@ -17,11 +17,6 @@
 /*
  *  Name: internal_get_last_position
  *
- *  Description:  Returns the location of the last char in the specified text.
+ *  REMOVED
  */
-CREATE OR REPLACE FUNCTION internal_get_last_position(TEXT, CHAR)
-RETURNS INT
-LANGUAGE SQL
-AS $$
-SELECT LENGTH($1) - POSITION($2 IN REVERSE($1)) + 1;
-$$;
+DROP FUNCTION IF EXISTS internal_get_last_position(TEXT, CHAR);

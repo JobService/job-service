@@ -25,22 +25,17 @@ RETURNS VOID
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Raise exception if task table name has not been specified
-    IF in_table_name IS NULL OR in_table_name = '' THEN
-        RAISE EXCEPTION 'Task table name has not been specified';
-    END IF;
-
     -- Create a new task table
     EXECUTE format($FORMAT_STR$
         CREATE TABLE IF NOT EXISTS %I
         (
-            task_id VARCHAR(58) NOT NULL,
+            subtask_id INT NOT NULL,
             create_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
             status job_status NOT NULL DEFAULT 'Waiting'::job_status,
             percentage_complete DOUBLE PRECISION NOT NULL DEFAULT 0.00,
             failure_details TEXT,
             is_final BOOLEAN NOT NULL DEFAULT FALSE,
-            CONSTRAINT %I PRIMARY KEY (task_id)
+            CONSTRAINT %I PRIMARY KEY (subtask_id)
         )
     $FORMAT_STR$, in_table_name, 'pk_' || in_table_name);
 END

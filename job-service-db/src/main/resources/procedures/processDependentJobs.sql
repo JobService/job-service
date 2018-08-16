@@ -20,7 +20,8 @@
  *  Description:
  *  Return a list of jobs that can run immediately. Update the eligibility run date for others.
  */
-CREATE OR REPLACE FUNCTION internal_process_dependent_jobs(in_job_id VARCHAR(58))
+DROP FUNCTION IF EXISTS internal_process_dependent_jobs(in_job_id VARCHAR(58));
+CREATE OR REPLACE FUNCTION internal_process_dependent_jobs(in_job_id VARCHAR(48))
 RETURNS TABLE(
     job_id VARCHAR(48),
     task_classifier VARCHAR(255),
@@ -31,13 +32,7 @@ RETURNS TABLE(
 )
 LANGUAGE plpgsql
 AS $$
-#variable_conflict use_column
 BEGIN
-    -- Raise exception if job identifier has not been specified
-    IF in_job_id IS NULL OR in_job_id = '' THEN
-        RAISE EXCEPTION 'Job identifier has not been specified';
-    END IF;
-
     -- Get a list of jobs that can be processed without delay
     CREATE TEMPORARY TABLE tmp_dependent_jobs_ready_to_run
         ON COMMIT DROP
@@ -51,11 +46,11 @@ BEGIN
         WHERE j.delay = 0
             AND jd.dependent_job_id = in_job_id
             AND NOT EXISTS(
-                SELECT jd2.job_id
+                SELECT NULL
                 FROM job_dependency jd2
                 INNER JOIN job j2
                     ON j2.job_Id = jd2.dependent_job_id
-                WHERE jd2.job_id = jd.job_Id
+                WHERE jd2.job_id = jd.job_id
                     AND jd2.dependent_job_id <> in_job_id
                     AND j2.status <> 'Completed');
 
@@ -82,11 +77,11 @@ BEGIN
         WHERE j.delay <> 0
             AND jd.dependent_job_id = in_job_id
             AND NOT EXISTS(
-                SELECT jd2.job_id
+                SELECT NULL
                 FROM job_dependency jd2
                 INNER JOIN job j2
                     ON j2.job_Id = jd2.dependent_job_id
-                WHERE jd2.job_id = jd.job_Id
+                WHERE jd2.job_id = jd.job_id
                     AND jd2.dependent_job_id <> in_job_id
                     AND j2.status <> 'Completed');
 

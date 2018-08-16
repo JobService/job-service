@@ -80,45 +80,19 @@ BEGIN
     VALUES (in_job_id, in_name, in_description, in_data, now() AT TIME ZONE 'UTC', 'Waiting', 0.00, NULL, in_delay, in_job_hash);
 
     -- Store task data and job dependency rows if any of the prerequisite job identifiers are not yet complete
-    PERFORM 1 FROM public.job j
-    INNER JOIN unnest(in_prerequisite_job_ids) prerequisite_job_id
-        ON j.job_id = prerequisite_job_id AND j.status <> 'Completed' FOR UPDATE;
 
-    IF EXISTS(SELECT 1 FROM(
-        SELECT prerequisite_job_id
-        FROM public.job j
-        INNER JOIN unnest(in_prerequisite_job_ids) prerequisite_job_id
-          ON j.job_id = prerequisite_job_id
-        AND j.status <> 'Completed'
-        UNION ALL
-        SELECT prerequisite_job_id
-        FROM unnest(in_prerequisite_job_ids) prerequisite_job_id
-        LEFT JOIN public.job j on j.job_id = prerequisite_job_id
-        WHERE j.job_id IS NULL
-        ) dependencies)
-    THEN
-        -- Store task data
+    -- Store dependency rows for those prerequisite job identifiers not yet complete
+    -- Include prerequisite job identifiers not yet in the system
+    INSERT INTO public.job_dependency(job_id, dependent_job_id)
+    SELECT in_job_id, prerequisite_job_id
+    FROM public.job j
+    RIGHT OUTER JOIN unnest(in_prerequisite_job_ids) prerequisite_job_id ON j.job_id = prerequisite_job_id
+    WHERE j.status IS NULL OR j.status <> 'Completed';
+
+    IF FOUND THEN
         INSERT INTO public.job_task_data(
             job_id, task_classifier, task_api_version, task_data, task_pipe, target_pipe, eligible_to_run_date)
         VALUES (in_job_id, in_task_classifier, in_task_api_version, in_task_data, in_task_pipe, in_target_pipe, NULL);
-
-        -- Store dependency rows for those prerequisite job identifiers not yet complete
-        -- Include prerequisite job identifiers not yet in the system
-        INSERT INTO public.job_dependency (job_id, dependent_job_id)
-
-        -- Return list of existing jobs not yet completed
-        SELECT in_job_id, prerequisite_job_id
-        FROM public.job j
-        INNER JOIN unnest(in_prerequisite_job_ids) prerequisite_job_id
-            ON j.job_id = prerequisite_job_id
-            AND j.status <> 'Completed'
-        UNION ALL
-        -- Return list of jobs not yet in the system
-        SELECT in_job_id, prerequisite_job_id
-        FROM unnest(in_prerequisite_job_ids) prerequisite_job_id
-        LEFT JOIN public.job j
-            ON j.job_id = prerequisite_job_id
-        WHERE j.job_id IS NULL;
     END IF;
 END
 $$;

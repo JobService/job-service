@@ -15,11 +15,14 @@
 --
 
 /*
- *  Name: internal_report_task_failure
+ *  Name: internal_does_table_exist
  *
- *  REMOVED
+ *  Description:
+ *  Checks if there is a table with the specified name
  */
-DROP FUNCTION IF EXISTS internal_report_task_failure(
-    in_task_table_name VARCHAR(63),
-    in_failure_details TEXT
-);
+CREATE OR REPLACE FUNCTION internal_does_table_exist(in_table_name VARCHAR(63))
+RETURNS BOOLEAN
+LANGUAGE SQL
+AS $$
+SELECT internal_to_regclass(quote_ident(in_table_name)) IS NOT NULL;
+$$;

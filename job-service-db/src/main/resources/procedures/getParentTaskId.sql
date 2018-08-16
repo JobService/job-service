@@ -15,11 +15,14 @@
 --
 
 /*
- *  Name: internal_report_task_failure
+ *  Name: internal_get_parent_task_id
  *
- *  REMOVED
+ *  Description:
+ *  Returns the parent of the current task, or NULL if this is the id of the top-level task (i.e. the job)
  */
-DROP FUNCTION IF EXISTS internal_report_task_failure(
-    in_task_table_name VARCHAR(63),
-    in_failure_details TEXT
-);
+CREATE OR REPLACE FUNCTION internal_get_parent_task_id(in_task_id VARCHAR(58))
+RETURNS VARCHAR(58)
+LANGUAGE SQL
+AS $$
+SELECT SUBSTRING(in_task_id FROM '^(.*)\.');
+$$;

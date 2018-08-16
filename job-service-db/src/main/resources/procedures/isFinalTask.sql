@@ -15,11 +15,14 @@
 --
 
 /*
- *  Name: internal_report_task_failure
+ *  Name: internal_is_final_task
  *
- *  REMOVED
+ *  Description:
+ *  Checks if the specified task id is the final one out of a group of subtasks
  */
-DROP FUNCTION IF EXISTS internal_report_task_failure(
-    in_task_table_name VARCHAR(63),
-    in_failure_details TEXT
-);
+CREATE OR REPLACE FUNCTION internal_is_final_task(in_task_id VARCHAR(58))
+RETURNS BOOLEAN
+LANGUAGE SQL
+AS $$
+SELECT SUBSTRING(in_task_id FROM '\..*\*$') IS NOT NULL;
+$$;

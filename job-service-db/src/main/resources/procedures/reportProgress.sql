@@ -17,25 +17,9 @@
 /*
  *  Name: report_progress
  *
- *  Description:  Modify status of task and propagate progress state to subsequent parent task and job rows.
+ *  REMOVED
  */
-CREATE OR REPLACE FUNCTION report_progress(
+DROP FUNCTION IF EXISTS report_progress(
     in_task_id VARCHAR(58),
     in_status job_status
-)
-RETURNS TABLE(
-    job_id VARCHAR(48),
-    task_classifier VARCHAR(255),
-    task_api_version INT,
-    task_data BYTEA,
-    task_pipe VARCHAR(255),
-    target_pipe VARCHAR(255)
-)
-LANGUAGE plpgsql
-AS $$
-#variable_conflict use_column
-BEGIN
-    -- UNUSED
-    RAISE EXCEPTION 'Procedure report_progress() no longer supported';
-END
-$$;
+);

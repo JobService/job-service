@@ -17,17 +17,6 @@
 /*
  *  Name: get_status
  *
- *  Description:  Returns the status and percentage complete values for the specified job.
+ *  REMOVED
  */
-CREATE OR REPLACE FUNCTION get_status(in_job_id VARCHAR(48))
-RETURNS TABLE(
-    job_status job_status,
-    percentage_complete DOUBLE PRECISION
-)
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    -- UNUSED
-    RAISE EXCEPTION 'Procedure get_status() no longer supported';
-END
-$$;
+DROP FUNCTION IF EXISTS get_status(in_job_id VARCHAR(48));

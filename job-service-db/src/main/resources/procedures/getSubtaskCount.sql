@@ -15,14 +15,30 @@
 --
 
 /*
- *  Name: internal_is_job_id
+ *  Name: internal_get_subtask_count
  *
  *  Description:
- *  Checks if the specified task id looks like a job id
+ *  Returns the number of subtasks that should be or will be in the specified task table, or NULL if it is not yet known.
  */
-CREATE OR REPLACE FUNCTION internal_is_job_id(in_task_id VARCHAR(58))
-RETURNS BOOLEAN
-LANGUAGE SQL
+CREATE OR REPLACE FUNCTION internal_get_subtask_count(
+    in_task_table_name VARCHAR(63)
+)
+RETURNS INT
+LANGUAGE plpgsql
 AS $$
-SELECT POSITION('.' IN in_task_id) = 0;
+DECLARE
+    subtask_count INT;
+
+BEGIN
+    EXECUTE format($FORMAT_STR$
+        SELECT(
+            SELECT subtask_id
+            FROM %1$I
+            WHERE is_final
+        )
+    $FORMAT_STR$, in_task_table_name)
+    INTO STRICT subtask_count;
+
+    RETURN subtask_count;
+END
 $$;

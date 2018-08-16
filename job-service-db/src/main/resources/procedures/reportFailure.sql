@@ -29,10 +29,7 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     v_job_id VARCHAR(48);
-    v_parent VARCHAR(58);
-    v_parent_table_name VARCHAR(63);
-    v_temp SMALLINT;
-    v_is_final_task BOOLEAN = FALSE;
+    v_job_status job_status;
 
 BEGIN
     -- Raise exception if task identifier has not been specified
@@ -45,53 +42,22 @@ BEGIN
         RAISE EXCEPTION 'Failure details have not been specified';
     END IF;
 
-    -- If dot separator exists then we are dealing with a task, otherwise a job
-    IF internal_is_job_id(in_task_id) THEN
-        v_job_id = in_task_id;
+    -- Get the job id
+    v_job_id = internal_get_job_id(in_task_id);
 
-        -- Modify job row
-        PERFORM 1 FROM job WHERE job_id = v_job_id FOR UPDATE;
-        UPDATE job
-        SET status = 'Failed',
-            failure_details = concat(failure_details, in_failure_details || chr(10))
-        WHERE job_id = v_job_id;
+    -- Get the job status
+    -- And take out an exclusive update lock on the job row
+    SELECT status INTO v_job_status
+    FROM job
+    WHERE job_id = v_job_id
+    FOR UPDATE;
 
-    ELSE
-        -- Extract job id and parent task details from the specified task id
-        v_job_id = substring(in_task_id, 1, position('.' IN in_task_id)-1);
-        v_parent = substring(in_task_id, 1, internal_get_last_position(in_task_id, '.') - 1);
-        v_parent_table_name = 'task_' || v_parent;
+    -- Check that the job hasn't been deleted, cancelled or completed
+    IF NOT FOUND OR v_job_status IN ('Cancelled', 'Completed') THEN
+        RETURN;
+    END IF;
 
-        -- Check if this is the final sub task (i.e. task id end with *)
-        IF substr(in_task_id, length(in_task_id), 1) = '*' THEN
-            v_is_final_task = TRUE;
-        END IF;
-
-        -- Create parent task table if it does not exist
-        IF NOT EXISTS (SELECT 1 FROM pg_class where relname = v_parent_table_name)
-        THEN
-            PERFORM internal_create_task_table(v_parent_table_name);
-        END IF;
-
-        -- Insert row into parent table for the specified task id
-        EXECUTE format('SELECT 1 FROM %I WHERE task_id = %L FOR UPDATE', v_parent_table_name, in_task_id) INTO v_temp;
-        EXECUTE format($FORMAT_STR$
-            WITH upsert AS
-            (
-                UPDATE %1$I
-                SET status = 'Failed',
-                    failure_details = concat(failure_details, %L || chr(10))
-                WHERE task_id = %L
-                RETURNING *
-            )
-            INSERT INTO %1$I (task_id, create_date, status, percentage_complete, failure_details, is_final)
-            SELECT %3$L, now() AT TIME ZONE 'UTC', 'Failed', 0.00, %2$L, %4$L
-            WHERE NOT EXISTS (SELECT * FROM upsert)
-        $FORMAT_STR$, v_parent_table_name, in_failure_details, in_task_id, v_is_final_task);
-
-    -- Propagate failure details up to subsequent parent(s)
-    PERFORM internal_report_task_failure(v_parent_table_name, in_failure_details);
-
-  END IF;
+    -- Update the task statuses in the tables
+    PERFORM internal_report_task_status(in_task_id, 'Failed', 0.00, in_failure_details);
 END
 $$;

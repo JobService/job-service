@@ -25,7 +25,7 @@ RETURNS VOID
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    v_cancel_supported BOOLEAN;
+    v_is_finished BOOLEAN;
 
 BEGIN
     -- Raise exception if job identifier has not been specified
@@ -34,7 +34,8 @@ BEGIN
     END IF;
 
     -- Only support Cancel operation on jobs with current status 'Waiting', 'Active' or 'Paused'
-    SELECT status IN ('Active', 'Paused', 'Waiting') INTO v_cancel_supported
+    -- And take out an exclusive update lock on the job row
+    SELECT status IN ('Completed', 'Failed') INTO v_is_finished
     FROM job
     WHERE job_id = in_job_id
     FOR UPDATE;
@@ -43,16 +44,16 @@ BEGIN
         RAISE EXCEPTION 'job_id {%} not found', in_job_id USING ERRCODE = 'P0002'; -- sqlstate no_data_found
     END IF;
 
-    IF NOT v_cancel_supported THEN
+    IF v_is_finished THEN
         RAISE EXCEPTION 'job_id {%} cannot be cancelled', in_job_id USING ERRCODE = '02000';
     END IF;
 
-    -- Delete task tables belonging to the specified job
-    PERFORM internal_delete_task_table(in_job_id, TRUE);
-
-    -- Update the job row to 'Cancelled'
+    -- Mark the job calcelled in the job table
     UPDATE job
     SET status = 'Cancelled'
     WHERE job_id = in_job_id;
+
+    -- Drop any task tables relating to the job
+    PERFORM internal_drop_task_tables(in_job_id);
 END
 $$;

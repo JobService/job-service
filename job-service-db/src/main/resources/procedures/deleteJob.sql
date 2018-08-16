@@ -34,30 +34,25 @@ BEGIN
         RAISE EXCEPTION 'The job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data
     END IF;
 
-    -- Raise exception if no matching job identifier has not been found
-    IF NOT EXISTS (SELECT 1 FROM job where job_id = in_job_id) THEN
+    -- Take out an exclusive update lock on the job row
+    PERFORM NULL
+    FROM job
+    WHERE job_id = in_job_id
+    FOR UPDATE;
+
+    -- Raise exception if no matching job identifier has been found
+    IF NOT FOUND THEN
         RAISE EXCEPTION 'job_id {%} not found', in_job_id USING ERRCODE = 'P0002'; -- sqlstate no_data_found
     END IF;
 
-    -- Identify task tables associated with the specified job
-    EXECUTE 'SELECT ARRAY(SELECT relname FROM pg_class WHERE relname LIKE $1)'
-    INTO v_tables_to_delete
-    USING 'task_' || in_job_id || '%';
-
-    -- Loop through each task table
-    FOREACH v_table_name IN ARRAY v_tables_to_delete
-    LOOP
-        -- Drop the table
-        EXECUTE format('DROP TABLE %I', v_table_name);
-    END LOOP;
+    -- Drop the task tables associated with the specified job
+    PERFORM internal_drop_task_tables(in_job_id);
 
     -- Remove job dependency and job task data rows
-    IF EXISTS (SELECT 1 FROM job_task_data jtd WHERE jtd.job_id = in_job_id) THEN
-        DELETE FROM job_dependency jd WHERE jd.job_id = in_job_id;
-        DELETE FROM job_task_data jtd WHERE jtd.job_id = in_job_id;
-    END IF;
+    DELETE FROM job_dependency jd WHERE jd.job_id = in_job_id;
+    DELETE FROM job_task_data jtd WHERE jtd.job_id = in_job_id;
 
     -- Remove row from the job table
-    DELETE FROM job WHERE job_id =  in_job_id;
+    DELETE FROM job WHERE job_id = in_job_id;
 END
 $$;
