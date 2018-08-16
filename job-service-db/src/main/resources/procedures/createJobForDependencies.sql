@@ -17,7 +17,8 @@
 /*
  *  Name: create_job
  *
- *  Description:  Create a new row in the job table.
+ *  Description:
+ *  Create a new row in the job table.
  *  The function also stores task data and job dependency details if any of
  *  the specified prerequisite job identifiers are not yet complete.
  */

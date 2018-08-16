@@ -17,7 +17,8 @@
 /*
  *  Name: cancel_job
  *
- *  Description:  Cancels the specified job.
+ *  Description:
+ *  Cancels the specified job.
  */
 CREATE OR REPLACE FUNCTION cancel_job(in_job_id VARCHAR(48))
 RETURNS VOID

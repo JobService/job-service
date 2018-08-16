@@ -17,7 +17,8 @@
 /*
  *  Name: delete_job
  *
- *  Description:  Deletes the job row and corresponding task tables.
+ *  Description:
+ *  Deletes the job row and corresponding task tables.
  */
 CREATE OR REPLACE FUNCTION delete_job(in_job_id VARCHAR(48))
 RETURNS VOID

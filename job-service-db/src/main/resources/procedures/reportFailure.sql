@@ -17,7 +17,8 @@
 /*
  *  Name: report_failure
  *
- *  Description:  Update the specified task and subsequent parent tasks/job with the failure details.
+ *  Description:
+ *  Update the specified task and subsequent parent tasks/job with the failure details.
  */
 CREATE OR REPLACE FUNCTION report_failure(
     in_task_id VARCHAR(58),

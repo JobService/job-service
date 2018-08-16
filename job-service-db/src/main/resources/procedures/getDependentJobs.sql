@@ -17,7 +17,8 @@
 /*
  *  Name: get_dependent_jobs
  *
- *  Description:  Returns a list of dependent jobs that are now eligible to run.
+ *  Description:
+ *  Returns a list of dependent jobs that are now eligible to run.
  */
 CREATE OR REPLACE FUNCTION get_dependent_jobs()
 RETURNS TABLE(

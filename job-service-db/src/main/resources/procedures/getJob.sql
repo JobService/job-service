@@ -17,7 +17,8 @@
 /*
  *  Name: get_job
  *
- *  Description:  Returns the job definition for the specified job.
+ *  Description:
+ *  Returns the job definition for the specified job.
  */
 CREATE OR REPLACE FUNCTION get_job(in_job_id VARCHAR(48))
 RETURNS TABLE(

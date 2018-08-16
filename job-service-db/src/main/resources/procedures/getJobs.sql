@@ -17,7 +17,8 @@
 /*
  *  Name: get_jobs
  *
- *  Description:  Returns the list of job definitions in the system.
+ *  Description:
+ *  Returns the list of job definitions in the system.
  */
 CREATE OR REPLACE FUNCTION get_jobs(
     in_job_id_starts_with VARCHAR(48),

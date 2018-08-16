@@ -17,7 +17,8 @@
 /*
  *  Name: report_complete
  *
- *  Description: Marks the specified task complete.
+ *  Description:
+ *  Marks the specified task complete.
  */
 CREATE OR REPLACE FUNCTION report_complete(in_task_id VARCHAR(58))
 RETURNS TABLE(

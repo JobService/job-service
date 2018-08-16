@@ -17,7 +17,8 @@
 /*
  *  Name: get_jobs_count
  *
- *  Description:  Returns the number of job definitions in the system matching whatever criteria is specified.
+ *  Description:
+ *  Returns the number of job definitions in the system matching whatever criteria is specified.
  */
 CREATE OR REPLACE FUNCTION get_jobs_count(
     in_job_id_starts_with VARCHAR(48),

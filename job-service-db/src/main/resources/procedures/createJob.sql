@@ -17,7 +17,8 @@
 /*
  *  Name: create_job
  *
- *  Description:  Create a new row in the job table.
+ *  Description:
+ *  Create a new row in the job table.
  */
 CREATE OR REPLACE FUNCTION create_job(
     in_job_id VARCHAR(48),

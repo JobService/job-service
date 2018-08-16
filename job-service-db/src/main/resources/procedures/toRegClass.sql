@@ -17,8 +17,8 @@
 /*
  *  Name: internal_to_regclass
  *
- *  Description:  Returns the object identifier of the named relation.
- *                Internal - used in internal_create_task_table().
+ *  Description:
+ *  Returns the object identifier of the named relation.
  */
 CREATE OR REPLACE FUNCTION internal_to_regclass(rel_name VARCHAR(63))
 RETURNS regclass

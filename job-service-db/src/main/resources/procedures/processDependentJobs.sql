@@ -17,8 +17,8 @@
 /*
  *  Name: internal_process_dependent_jobs
  *
- *  Description:  Return a list of jobs that can run immediately. Update the eligibility run date for others.
- *                Internal - used in report_progress() and internal_report_task_completion.
+ *  Description:
+ *  Return a list of jobs that can run immediately. Update the eligibility run date for others.
  */
 CREATE OR REPLACE FUNCTION internal_process_dependent_jobs(in_job_id VARCHAR(58))
 RETURNS TABLE(
