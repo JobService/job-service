@@ -400,7 +400,7 @@
                                             <fileSet>
                                                 <fileMode>0755</fileMode>
                                                 <lineEnding>unix</lineEnding>
-                                                <directory>src/main/startup.d/scripts/</directory>
+                                                <directory>src/main/startup.d/</directory>
                                                 <outputDirectory>startup/startup.d/</outputDirectory>
                                             </fileSet>
                                         </fileSets>
