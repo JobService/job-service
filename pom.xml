@@ -38,7 +38,7 @@
 
     <properties>
         <caf.worker-framework.version>3.1.0-SNAPSHOT</caf.worker-framework.version>
-        <caf.worker-document-framework.version>4.0.0-200</caf.worker-document-framework.version>
+        <caf.worker-document-framework.version>4.1.0-SNAPSHOT</caf.worker-document-framework.version>
         <copyrightYear>2018</copyrightYear>
         <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Micro Focus or one of its affiliates.</copyrightNotice>
         <dockerHubOrganization>jobservice</dockerHubOrganization>
