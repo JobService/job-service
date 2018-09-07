@@ -43,20 +43,22 @@ Adjust 'docker-host' to be the name of your own Docker Host and adjust the port 
 	* `name`: name of the job. <br>
 	* `description`: description of the job. <br>
 	* `externalData`: external data (i.e. information that you want associated with the job but that has no effect on it). <br>
-	* `taskClassifier`: specifies the type of message being sent. <br>
+	* `taskClassifier`: specifies the type of message being sent. Worker feeding off `taskPipe` queue should be able to process this message. <br>
 	* `taskApiVersion`: API version of the task. <br>
 	* `taskData`: data of the task to be sent. This can be presented in a string format or in a more readable and friendly object format. <br>
 	* `taskDataEncoding`: encoding of the `taskData` field value e.g. `utf8`. Only required if `taskData` field is specified in string format. <br>
 	* `taskPipe`: name of the RabbitMQ queue feeding messages to the first worker. <br>
 	* `targetPipe`: name of the final worker's RabbitMQ output queue where tracking will stop. <br><br>
 
-	![Add Job](images/JobServiceUIAddJob.PNG)
-
 5. Press `Try it out!`. The resulting code will show whether the addition of the job succeeds or not. 
    - 201, if the job is successfully added
    - 204, if the job is successfully updated
 
-#### Job Definition
+#### Example Job Definition
+Sample this:
+
+![Add Job](images/JobServiceUIAddJob.PNG)
+
 In the example job definition used above, task data is sent to the GlobFilter Worker which is a Batch Worker. This takes in a glob filter as the batch definition, filters a given directory for matches and creates items of work from those matches. These items are then forwarded to the Language Detection Worker which will extract the file content from the work item and identify languages in it's text data.
 
 ##### Batch Worker Fields
