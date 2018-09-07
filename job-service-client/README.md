@@ -9,5 +9,5 @@ This project builds a Java library that can be used to make calls to the Job Ser
 	<dependency>
 		<groupId>com.github.jobservice</groupId>
 		<artifactId>job-service-client</artifactId>
-		<version>1.0</version>
+		<version>2.6.0-SNAPSHOT</version>
 	</dependency>
