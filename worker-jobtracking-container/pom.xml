@@ -87,6 +87,14 @@
             <artifactId>worker-jobtracking</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-db</artifactId>
+            <version>2.6.0-SNAPSHOT</version>
+            <classifier>jar-with-dependencies</classifier>
+            <scope>runtime</scope>
+            <type>jar</type>
+        </dependency>
         <!--Test dependencies.-->
         <dependency>
             <groupId>junit</groupId>
@@ -326,28 +334,6 @@
                             </run>
                         </image>
 
-                        <!-- Run jobservice postgres container against postgres database to install jobservice schema. -->
-                        <image>
-                            <alias>job-service-liquibase-container</alias>
-                            <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
-                            <run>
-                                <links>
-                                    <link>${job.database.host}</link>
-                                </links>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                                <cmd>
-                                    ./install_job_service_db.sh -fd -db.connection jdbc:postgresql://${job.database.host}:5432 -db.name ${job.database.name} -db.user ${job.database.username} -db.pass ${job.database.password} -log debug
-                                </cmd>
-                                <wait>
-                                    <log>DB update finished.</log>
-                                    <time>120000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                            </run>
-                        </image>
-
                         <!--Run RabbitMQ.-->
                         <image>
                             <alias>rabbitmq</alias>
@@ -394,6 +380,7 @@
                                 </healthCheck>
                                 <cmd>/maven/worker.sh</cmd>
                                 <assembly>
+                                    <basedir>/</basedir>
                                     <mode>tar</mode>
                                     <inline>
                                         <fileSets>
@@ -403,22 +390,39 @@
                                                     <include>*.sh</include>
                                                 </includes>
                                                 <fileMode>0755</fileMode>
+                                                <outputDirectory>maven/</outputDirectory>
                                             </fileSet>
                                             <fileSet>
                                                 <lineEnding>unix</lineEnding>
                                                 <includes>
                                                     <include>*.yaml</include>
                                                 </includes>
+                                                <outputDirectory>maven/</outputDirectory>
                                             </fileSet>
                                             <fileSet>
                                                 <directory>${project.build.directory}/config-files</directory>
-                                                <outputDirectory>config</outputDirectory>
+                                                <outputDirectory>maven/config</outputDirectory>
+                                            </fileSet>
+                                            <fileSet>
+                                                <fileMode>0755</fileMode>
+                                                <lineEnding>unix</lineEnding>
+                                                <directory>src/main/startup.d/</directory>
+                                                <outputDirectory>startup/startup.d/</outputDirectory>
                                             </fileSet>
                                         </fileSets>
                                         <dependencySets>
                                             <dependencySet>
                                                 <useProjectArtifact>false</useProjectArtifact>
                                                 <scope>runtime</scope>
+                                                <outputDirectory>/maven</outputDirectory>
+                                            </dependencySet>
+                                            <dependencySet>
+                                                <useProjectArtifact>false</useProjectArtifact>
+                                                <includes>
+                                                    <include>com.github.jobservice:job-service-db</include>
+                                                </includes>
+                                                <outputDirectory>database</outputDirectory>
+                                                <outputFileNameMapping>job-service-db-installer.jar</outputFileNameMapping>
                                             </dependencySet>
                                         </dependencySets>
                                     </inline>

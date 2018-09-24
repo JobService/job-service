@@ -440,26 +440,6 @@
                             </run>
                         </image>
 
-                        <!-- Run jobservice postgres container against PostgreSQL database to install jobservice schema -->
-                        <image>
-                            <alias>job-service-liquibase-container</alias>
-                            <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
-                            <run>
-                                <links>
-                                    <link>${job.database.host}</link>
-                                </links>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                                <cmd>./install_job_service_db.sh -fd -db.connection jdbc:postgresql://${job.database.host}:5432 -db.name ${job.database.name} -db.user ${job.database.username} -db.pass ${job.database.password} -log debug</cmd>
-                                <wait>
-                                    <log>DB update finished.</log>
-                                    <time>120000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                            </run>
-                        </image>
-
                         <!-- Run RabbitMQ -->
                         <image>
                             <alias>rabbitmq</alias>
