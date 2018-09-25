@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2015-2018 Micro Focus or one of its affiliates.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.jobservice</groupId>
+    <artifactId>job-service-client2</artifactId>
+    <version>2.6.0-SNAPSHOT</version>
+
+    <parent>
+        <groupId>com.github.cafapi</groupId>
+        <artifactId>swagger-restapi-client-base2</artifactId>
+        <version>1.16.0-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+
+    <organization>
+        <name>EntIT Software LLC, a Micro Focus company</name>
+        <url>https://www.microfocus.com</url>
+    </organization>
+
+    <properties>
+        <copyrightYear>2018</copyrightYear>
+        <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Micro Focus or one of its affiliates.</copyrightNotice>
+        <swagger-contract-artifactId>job-service-contract</swagger-contract-artifactId>
+        <swagger-contract-version>${project.version}</swagger-contract-version>
+        <swagger-codegen-inputSpec>/com/hpe/caf/services/job/swagger.yaml</swagger-codegen-inputSpec>
+        <swagger-codegen-modelPackage>com.hpe.caf.services.job.client.model</swagger-codegen-modelPackage>
+        <swagger-codegen-apiPackage>com.hpe.caf.services.job.client.api</swagger-codegen-apiPackage>
+        <swagger-codegen-invokerPackage>com.hpe.caf.services.job.client</swagger-codegen-invokerPackage>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>${swagger-contract-artifactId}</artifactId>
+            <version>${swagger-contract-version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <version>2.3.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.github.jobservice</groupId>
+                        <artifactId>${swagger-contract-artifactId}</artifactId>
+                        <version>${swagger-contract-version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>generate-java-client-code</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${swagger-codegen-inputSpec}</inputSpec>
+                            <language>java</language>
+                            <modelPackage>${swagger-codegen-modelPackage}</modelPackage>
+                            <apiPackage>${swagger-codegen-apiPackage}</apiPackage>
+                            <invokerPackage>${swagger-codegen-invokerPackage}</invokerPackage>
+                            <configOptions>
+                                <groupId>${project.groupId}</groupId>
+                                <artifactId>${project.artifactId}</artifactId>
+                                <artifactVersion>${project.version}</artifactVersion>
+                                <dateLibrary>joda</dateLibrary>
+                            </configOptions>
+                            <library>jersey2</library>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <inlineHeader>
+<![CDATA[
+${copyrightNotice}
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+]]>
+                    </inlineHeader>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
