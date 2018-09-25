@@ -5,7 +5,7 @@ users to see what operations the web service exposes as well as documentation re
 
 ## Usage
 
-To get started, deploy the [Job Service Postgres Container](../job-service-postgres-container) and deploy the [Job Service Docker Container](../job-service-container).
+To get started deploy the [Job Service Docker Container](../job-service-container).
 The web service UI can then be accessed at the following URL:
 
 	http://<docker.ip.address>:<port>/job-service-ui
