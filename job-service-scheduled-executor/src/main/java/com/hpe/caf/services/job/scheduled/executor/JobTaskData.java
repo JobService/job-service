@@ -81,6 +81,6 @@ public class JobTaskData
     }
 
     public void setTargetPipe(final String targetPipe) {
-        this.targetPipe = Objects.requireNonNull(targetPipe);
+        this.targetPipe = targetPipe;
     }
 }

@@ -65,11 +65,6 @@ BEGIN
         RAISE EXCEPTION 'Job taskPipe has not been specified' USING ERRCODE = '02000'; -- sqlstate no data
     END IF;
 
-    -- Raise exception if job targetPipe has not been specified
-    IF in_target_pipe IS NULL OR in_target_pipe = '' THEN
-        RAISE EXCEPTION 'Job targetPipe has not been specified' USING ERRCODE = '02000'; -- sqlstate no data
-    END IF;
-
     -- Set default value for delay if no value provided
     IF in_delay IS NULL THEN
         in_delay = 0;

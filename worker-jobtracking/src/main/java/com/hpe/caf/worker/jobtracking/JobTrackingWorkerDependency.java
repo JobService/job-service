@@ -81,6 +81,6 @@ public class JobTrackingWorkerDependency
     }
 
     public void setTargetPipe(String targetPipe) {
-        this.targetPipe = Objects.requireNonNull(targetPipe);
+        this.targetPipe = targetPipe;
     }
 }
