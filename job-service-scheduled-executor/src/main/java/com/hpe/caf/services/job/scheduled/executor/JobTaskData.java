@@ -81,6 +81,9 @@ public class JobTaskData
     }
 
     public void setTargetPipe(final String targetPipe) {
+        //Raise exception if targetPipe is empty. Null targetPipe is valid
+        if (targetPipe.isEmpty())
+            throw new IllegalArgumentException("Target Pipe is empty");
         this.targetPipe = targetPipe;
     }
 }

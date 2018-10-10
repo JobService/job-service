@@ -90,6 +90,12 @@ public final class JobsPut {
                 throw new BadRequestException(ERR_MSG_TASK_API_VERSION_NOT_SPECIFIED);
             }
 
+            //  Make sure the target queue name is not empty. Null targetPipe is valid
+            if ("".equals(job.getTask().getTargetPipe())) {
+                LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TARGET_QUEUE_NOT_SPECIFIED);
+                throw new BadRequestException(ERR_MSG_TARGET_QUEUE_NOT_SPECIFIED);
+            }
+
             //  Make sure the task queue name has been provided.
             if (!ApiServiceUtil.isNotNullOrEmpty(job.getTask().getTaskPipe())) {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_QUEUE_NOT_SPECIFIED);
