@@ -24,6 +24,7 @@ import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.config.system.SystemBootstrapConfiguration;
 import com.hpe.caf.naming.ServicePath;
 import com.hpe.caf.services.job.client.ApiClient;
+import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.services.job.client.model.NewJob;
 import com.hpe.caf.services.job.client.model.WorkerAction;
@@ -65,7 +66,7 @@ import java.util.concurrent.TimeoutException;
 public class JobServiceEndToEndIT {
     private static final String batchWorkerMessageInQueue = "batchworker-test-input-1";
     private static final String exampleWorkerMessageInQueue = "exampleworker-test-input-1";
-    private static final String exampleWorkerMessageOutQueue = "exampleworker-test-output-1";
+    private static String exampleWorkerMessageOutQueue;
     private static final String datastoreContainerId = "datastore.container.id";
     private static final String jobCorrelationId = "1";
     private static final long defaultTimeOutMs = 600000; // 10 minutes
@@ -110,8 +111,8 @@ public class JobServiceEndToEndIT {
         jobServiceCallerContainerJSON = JobServiceCallerTestsHelper.getJSONFromFile(CREATE_JOB_SERVICE_CALLER_CONTAINER_JSON_FILENAME);
         jobServiceCallerImage = System.getenv("CAF_JOB_SERVICE_CALLER_IMAGE");
         jobServiceCallerWebServiceLinkURL = System.getenv("CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL");
+        exampleWorkerMessageOutQueue="exampleworker-test-output-1";
     }
-
 
     private static JobsApi createJobsApi() {
         String connectionString = System.getenv("CAF_WEBSERVICE_URL");
@@ -162,6 +163,97 @@ public class JobServiceEndToEndIT {
             TestResult result = context.getTestResult();
             Assert.assertTrue(result.isSuccess());
         }
+    }
+
+    @Test
+    public void testTargetPipeNull()throws Exception{
+        //Set null output queue. Which is valid.
+        testTargetPipeForJobWithNoAndWithCompletedPrerequisiteJobs(null);
+    }
+    @Test
+    public void testTargetPipeEmpty()throws Exception{
+        //Set empty output queue. Which is invalid.
+        try {
+            testTargetPipeForJobWithNoAndWithCompletedPrerequisiteJobs("");
+        }catch (ApiException apiEx){
+            Assert.assertEquals(apiEx.getMessage(), "{\"message\":\"The target queue name has not been specified.\"}");
+        }
+    }
+    public void testTargetPipeForJobWithNoAndWithCompletedPrerequisiteJobs(final String targetPipe) throws Exception{
+
+        //set output queue
+        exampleWorkerMessageOutQueue=targetPipe;
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+
+        //  Generate job identifiers for test.
+        final String job1Id = generateJobId();
+        final String job2Id = generateJobId();
+        final String job3Id = generateJobId();
+
+        // Add a Prerequisite job 1 that should be completed
+        JobServiceEndToEndITExpectation job1Expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        job1Id,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            getTimer(context);
+            queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
+                    job1Expectation));
+
+            createJob(job1Id, true);
+
+            // Waits for the final result message to appear on the Example worker's output queue.
+            // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
+            /*TestResult result = context.getTestResult();
+            Assert.assertTrue(result.isSuccess());*/
+        }
+
+        // Add a Prerequisite job 2 that should be completed
+        JobServiceEndToEndITExpectation job2Expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        job2Id,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            getTimer(context);
+            queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
+                    job2Expectation));
+
+            createJob(job2Id, true);
+        }
+
+        Thread.sleep(1000); // Add short delay to allow previous jobs to complete
+
+        // Add job that has prerequisite job 1 (completed) and job 2 (completed). Also supply blank, null and emptyrahul
+        // prereq job ids that should not hold the job back.
+        createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id, "", null, "           ");
+
+        Thread.sleep(1000); // Add short delay to allow previous job to complete
+
+        //  Verify job 3 has completed and no job dependency rows exist.
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job1Id);
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
 
     @Test
