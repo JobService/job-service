@@ -209,4 +209,7 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="dropNotNullConstraint_target_pipe_job_task_data" author="Gamma Team">
+        <dropNotNullConstraint tableName="job_task_data" columnName="target_pipe" schemaName="public"/>
+    </changeSet>
 </databaseChangeLog>
