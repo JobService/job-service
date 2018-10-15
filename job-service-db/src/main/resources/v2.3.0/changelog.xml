@@ -45,7 +45,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="target_pipe" type="VARCHAR(255)">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="eligible_to_run_date" type="TIMESTAMP">
                 <constraints nullable="true"/>
