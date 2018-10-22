@@ -65,8 +65,8 @@ BEGIN
         RAISE EXCEPTION 'Job taskPipe has not been specified' USING ERRCODE = '02000'; -- sqlstate no data
     END IF;
 
-    -- Raise exception if job targetPipe has not been specified
-    IF in_target_pipe IS NULL OR in_target_pipe = '' THEN
+    -- Raise exception if job targetPipe is empty. Null targetPipe is valid
+    IF in_target_pipe = '' THEN
         RAISE EXCEPTION 'Job targetPipe has not been specified' USING ERRCODE = '02000'; -- sqlstate no data
     END IF;
 

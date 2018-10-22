@@ -81,6 +81,9 @@ public class JobTrackingWorkerDependency
     }
 
     public void setTargetPipe(String targetPipe) {
-        this.targetPipe = Objects.requireNonNull(targetPipe);
+        //Raise exception if targetPipe is empty. Null targetPipe is valid
+        if (targetPipe != null && targetPipe.isEmpty())
+            throw new IllegalArgumentException("Target Pipe is empty");
+        this.targetPipe = targetPipe;
     }
 }
