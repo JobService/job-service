@@ -130,11 +130,6 @@ public class JobServiceEndToEndIT {
         testItemAssetIds = generateWorkerBatch();
     }
 
-//    @Test
-//    public void testJobCompletionWithTaskDataObject() throws Exception {
-//        testJobCompletion(true);
-//    }
-
     private void testJobCompletion(final boolean useTaskDataObject) throws Exception {
         final String jobId = generateJobId();
 
@@ -212,11 +207,6 @@ public class JobServiceEndToEndIT {
                     job1Expectation));
 
             createJob(job1Id, true);
-
-            // Waits for the final result message to appear on the Example worker's output queue.
-            // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
-            /*TestResult result = context.getTestResult();
-            Assert.assertTrue(result.isSuccess());*/
         }
 
         // Add a Prerequisite job 2 that should be completed
@@ -244,7 +234,7 @@ public class JobServiceEndToEndIT {
 
         Thread.sleep(1000); // Add short delay to allow previous jobs to complete
 
-        // Add job that has prerequisite job 1 (completed) and job 2 (completed). Also supply blank, null and emptyrahul
+        // Add job that has prerequisite job 1 (completed) and job 2 (completed). Also supply blank, null and empty
         // prereq job ids that should not hold the job back.
         createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id, "", null, "           ");
 
