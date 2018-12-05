@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.github.cafapi</groupId>
         <artifactId>swagger-restapi-client-base2</artifactId>
-        <version>1.16.0-SNAPSHOT</version>
+        <version>1.16.0-118</version>
         <relativePath/>
     </parent>
 
