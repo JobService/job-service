@@ -7,7 +7,7 @@
             "instances": 1,
             "container": {
                 "docker": {
-                    "image": "jobservice/job-service-postgres:2.5.0",
+                    "image": "jobservice/job-service-postgres:2.6.0-383",
                     "network": "BRIDGE",
                     "portMappings": [{
                         "containerPort": 5432,
