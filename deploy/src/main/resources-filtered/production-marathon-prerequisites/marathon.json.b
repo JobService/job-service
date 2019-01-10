@@ -1,7 +1,7 @@
 {
     "id": "/jobservice/jobservice-prerequisites",
     "apps": [{
-            "id": "/jobservice/jobservice-prerequisites/postgres",
+            "id": "/jobservice/jobservice-prerequisites/jobservice-db",
             "cpus": 0.5,
             "mem": 1024,
             "instances": 1,
