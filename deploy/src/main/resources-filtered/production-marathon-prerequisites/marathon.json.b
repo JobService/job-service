@@ -1,13 +1,13 @@
 {
     "id": "jobservice-prerequisite",
     "apps": [{
-            "id": "job-service-db",
+            "id": "postgres",
             "cpus": 0.5,
             "mem": 1024,
             "instances": 1,
             "container": {
                 "docker": {
-                    "image": "jobservice/job-service-postgres:${project.version}",
+                    "image": "postgres:9.6",
                     "network": "BRIDGE",
                     "portMappings": [{
                         "containerPort": 5432,
