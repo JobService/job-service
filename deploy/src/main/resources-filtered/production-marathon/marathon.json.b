@@ -1,7 +1,7 @@
 {
-    "id": "jobservice",
+    "id": "/jobservice",
     "apps": [{
-            "id": "job-service",
+            "id": "/jobservice/job-service",
             "cpus": 0.5,
             "mem": 1024,
             "instances": 1,
@@ -42,7 +42,7 @@
             }]
         },
         {
-            "id": "jobtracking",
+            "id": "/jobservice/jobtracking",
             "cpus": 0.5,
             "mem": 1024,
             "instances": 1,
@@ -100,7 +100,7 @@
             }
         },
         {
-            "id": "job-service-scheduled-executor",
+            "id": "/jobservice/job-service-scheduled-executor",
             "cpus": 0.25,
             "mem": 512,
             "instances": 1,
