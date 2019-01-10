@@ -1,7 +1,7 @@
 {
-    "id": "jobservice-prerequisite",
+    "id": "/jobservice/jobservice-prerequisites",
     "apps": [{
-            "id": "postgres",
+            "id": "/jobservice/jobservice-prerequisites/postgres",
             "cpus": 0.5,
             "mem": 1024,
             "instances": 1,
@@ -25,7 +25,7 @@
             }
         },
         {
-            "id": "rabbitmq",
+            "id": "/jobservice/jobservice-prerequisites/rabbitmq",
             "cpus": 0.4,
             "mem": 1024,
             "instances": 1,
