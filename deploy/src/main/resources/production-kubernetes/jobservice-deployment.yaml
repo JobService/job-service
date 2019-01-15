@@ -1,0 +1,170 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: jobservice
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: jobservice
+    spec:
+      containers:
+      - name: jobservice
+        image: cafinternal/prereleases:job-service-2.7.0-SNAPSHOT
+        imagePullPolicy: Never
+        env:
+          - name: CAF_DATABASE_PASSWORD
+            value: root
+          - name: CAF_DATABASE_URL
+            value: jdbc:postgresql://192.168.99.108:15432/jobservice
+          - name: CAF_DATABASE_USERNAME
+            value: postgres
+          - name: CAF_RABBITMQ_HOST
+            valueFrom:
+              configMapKeyRef:
+                key: CAF_RABBITMQ_HOST
+                name: jobservice-rabbitmq-env
+          - name: CAF_RABBITMQ_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                key: CAF_RABBITMQ_PASSWORD
+                name: jobservice-rabbitmq-env
+          - name: CAF_RABBITMQ_PORT
+            valueFrom:
+              configMapKeyRef:
+                key: CAF_RABBITMQ_PORT
+                name: jobservice-rabbitmq-env
+          - name: CAF_RABBITMQ_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                key: CAF_RABBITMQ_USERNAME
+                name: jobservice-rabbitmq-env
+          - name: CAF_STATUS_CHECK_TIME
+            value: "5"
+          - name: CAF_TRACKING_PIPE
+            value: jobtracking-in
+          - name: CAF_WEBSERVICE_URL
+            value: http://jobservice:8080/job-service/v1
+        ports:
+        - containerPort: 8080
+          hostPort: 9411
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: jobtrackingworker
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: jobtrackingworker
+    spec:
+      containers:
+      - name: worker-jobtracking
+        image: cafinternal/prereleases:worker-jobtracking-2.7.0-SNAPSHOT
+        imagePullPolicy: Never
+        env:
+          - name: CAF_RABBITMQ_HOST
+            valueFrom:
+              configMapKeyRef:
+                key: CAF_RABBITMQ_HOST
+                name: jobservice-rabbitmq-env
+          - name: CAF_RABBITMQ_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                key: CAF_RABBITMQ_PASSWORD
+                name: jobservice-rabbitmq-env
+          - name: CAF_RABBITMQ_PORT
+            valueFrom:
+              configMapKeyRef:
+                key: CAF_RABBITMQ_PORT
+                name: jobservice-rabbitmq-env
+          - name: CAF_RABBITMQ_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                key: CAF_RABBITMQ_USERNAME
+                name: jobservice-rabbitmq-env
+          - name: CAF_STATUS_CHECK_TIME
+            value: "5"
+          - name: CAF_WEBSERVICE_URL
+            value: http://jobservice:8080/job-service/v1
+          - name: CAF_WORKER_ERROR_QUEUE
+            value: jobtracking-err
+          - name: CAF_WORKER_INPUT_QUEUE
+            value: jobtracking-in
+          - name: JOB_DATABASE_PASSWORD
+            value: root
+          - name: JOB_DATABASE_URL
+            value: jdbc:postgresql://192.168.99.108:15432/jobservice
+          - name: JOB_DATABASE_USERNAME
+            value: postgres
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: jobservicescheduledexecutor
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: jobservicescheduledexecutor
+    spec:
+      containers:
+      - name: jobservicescheduledexecutor
+        image: cafinternal/prereleases:job-service-scheduled-executor-2.7.0-SNAPSHOT
+        imagePullPolicy: Never
+        env:
+          - name: CAF_DATABASE_PASSWORD
+            value: root
+          - name: CAF_DATABASE_URL
+            value: jdbc:postgresql://192.168.99.108:15432/jobservice
+          - name: CAF_DATABASE_USERNAME
+            value: postgres
+          - name: CAF_RABBITMQ_HOST
+            valueFrom:
+              configMapKeyRef:
+                key: CAF_RABBITMQ_HOST
+                name: jobservice-rabbitmq-env
+          - name: CAF_RABBITMQ_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                key: CAF_RABBITMQ_PASSWORD
+                name: jobservice-rabbitmq-env
+          - name: CAF_RABBITMQ_PORT
+            valueFrom:
+              configMapKeyRef:
+                key: CAF_RABBITMQ_PORT
+                name: jobservice-rabbitmq-env
+          - name: CAF_RABBITMQ_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                key: CAF_RABBITMQ_USERNAME
+                name: jobservice-rabbitmq-env
+          - name: CAF_SCHEDULED_EXECUTOR_PERIOD
+            value: "10"
+          - name: CAF_STATUS_CHECK_TIME
+            value: "5"
+          - name: CAF_TRACKING_PIPE
+            value: jobtracking-in
+          - name: CAF_WEBSERVICE_URL
+            value: http://jobservice:8080/job-service/v1
+          - name: CAF_WORKER_INPUT_QUEUE
+            value: jobservicescheduler-in
+        resources: {}
+      restartPolicy: Always
+status: {}

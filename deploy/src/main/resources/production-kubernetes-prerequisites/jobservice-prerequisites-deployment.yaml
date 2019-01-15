@@ -1,0 +1,68 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: jobservicedb
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: jobservicedb
+    spec:
+      containers:
+      - name: jobservicedb
+        image: postgres:9.6
+        env:
+        - name: POSTGRES_PASSWORD
+          value: root
+        - name: POSTGRES_USER
+          value: postgres
+        resources: {}
+        volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: job-service-db
+        ports:
+        - containerPort: 5432
+          hostPort: 15432
+      restartPolicy: Always
+      volumes:
+      - name: job-service-db
+        persistentVolumeClaim:
+          claimName: job-service-db
+status: {}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rabbitmq
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3-management
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/lib/rabbitmq
+          name: rabbitmq
+        ports:
+        - containerPort: 15672
+          hostPort: 15672
+        - containerPort: 5672
+          hostPort: 5672
+      restartPolicy: Always
+      volumes:
+      - name: rabbitmq
+        persistentVolumeClaim:
+          claimName: rabbitmq
+status: {}

@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  CAF_RABBITMQ_HOST: 192.168.99.108
+  CAF_RABBITMQ_PASSWORD: guest
+  CAF_RABBITMQ_PORT: "5672"
+  CAF_RABBITMQ_USERNAME: guest
+kind: ConfigMap
+metadata:
+  name: jobservice-rabbitmq-env

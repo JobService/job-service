@@ -1,0 +1,122 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: worker-globfilter
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: worker-globfilter
+    spec:
+      containers:
+      - name: worker-globfilter
+        image: jobservice/worker-globfilter:2.2.0
+        env:
+        - name: CAF_BATCH_WORKER_ERROR_QUEUE
+          value: globfilter-err
+        - name: CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER
+          value: /mnt/caf-worker-input-dir
+        - name: CAF_RABBITMQ_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: CAF_RABBITMQ_HOST
+              name: jobservice-rabbitmq-env
+        - name: CAF_RABBITMQ_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: CAF_RABBITMQ_PASSWORD
+              name: jobservice-rabbitmq-env
+        - name: CAF_RABBITMQ_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: CAF_RABBITMQ_PORT
+              name: jobservice-rabbitmq-env
+        - name: CAF_RABBITMQ_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              key: CAF_RABBITMQ_USERNAME
+              name: jobservice-rabbitmq-env
+        - name: CAF_WORKER_INPUT_QUEUE
+          value: globfilter-in
+        resources: {}
+        volumeMounts:
+          - mountPath: /mnt/caf-datastore-root
+            name: worker-datastore
+          - mountPath: /mnt/caf-worker-input-dir
+            name: job-service-demo-input-dir
+      volumes:
+      - name: worker-datastore
+        persistentVolumeClaim:
+          claimName: worker-datastore
+      - name: job-service-demo-input-dir
+        hostPath:
+          path: /vagrant/input-files
+      - name: job-service-demo-output-dir
+        hostPath:
+         path: /vagrant/output-files
+status: {}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: worker-langdetect
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: worker-globfilter
+    spec:
+      containers:
+      - name: worker-langdetect
+        image: cafdataprocessing/worker-languagedetection:2.5.0
+        env:
+        - name: CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER
+          value: /mnt/caf-worker-output-dir
+        - name: CAF_RABBITMQ_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: CAF_RABBITMQ_HOST
+              name: jobservice-rabbitmq-env
+        - name: CAF_RABBITMQ_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: CAF_RABBITMQ_PASSWORD
+              name: jobservice-rabbitmq-env
+        - name: CAF_RABBITMQ_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: CAF_RABBITMQ_PORT
+              name: jobservice-rabbitmq-env
+        - name: CAF_RABBITMQ_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              key: CAF_RABBITMQ_USERNAME
+              name: jobservice-rabbitmq-env
+        - name: CAF_WORKER_INPUT_QUEUE
+          value: languageidentification-in
+        - name: CAF_WORKER_OUTPUT_QUEUE
+          value: languageidentification-out
+        resources: {}
+        volumeMounts:
+          - mountPath: /mnt/caf-datastore-root
+            name: worker-datastore
+          - mountPath: /mnt/caf-worker-output-dir
+            name: job-service-demo-output-dir
+      volumes:
+      - name: worker-datastore
+        persistentVolumeClaim:
+          claimName: worker-datastore
+      - name: job-service-demo-input-dir
+        hostPath:
+          path: /vagrant/input-files
+      - name: job-service-demo-output-dir
+        hostPath:
+         path: /vagrant/output-files
+status: {}
+
