@@ -2,14 +2,6 @@
 
 The Production Marathon Testing deployment supports the deployment of the components required to smoke test a Job Service deployment on Mesos/Marathon. This folder contains the marathon environment and template files that are required to deploy the Glob Filter and Language Detection Workers.
 
-## Prerequisites
-
-### Docker login
-Before attempting to perform the Marathon deployments, a `docker login` command must be issued in order to make it possible to pull the required images from Docker Hub. The generic username and password for this are as follows:
-
-- **Username:** hpeemployee
-- **Password:** tomicrofocusandbeyond 
-
 ## Service Configuration
 
 ### Marathon Template
