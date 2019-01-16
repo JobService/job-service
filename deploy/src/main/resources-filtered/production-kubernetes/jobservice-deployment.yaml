@@ -19,17 +19,17 @@ spec:
           - name: CAF_DATABASE_URL
             value: jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice
           - name: CAF_DATABASE_USERNAME
-            value: $(JOB_SERVICE_DB_USER)
+            value: ${JOB_SERVICE_DB_USER}
           - name: CAF_DATABASE_PASSWORD
-            value: $(JOB_SERVICE_DB_PASSWORD)
+            value: ${JOB_SERVICE_DB_PASSWORD}
           - name: CAF_RABBITMQ_HOST
-            value: $(CAF_RABBITMQ_HOST)
+            value: ${CAF_RABBITMQ_HOST}
           - name: CAF_RABBITMQ_PORT
-            value: $(CAF_RABBITMQ_PORT)
+            value: ${CAF_RABBITMQ_PORT}
           - name: CAF_RABBITMQ_USERNAME
-            valueF: $(CAF_RABBITMQ_USERNAME)
+            valueF: ${CAF_RABBITMQ_USERNAME}
           - name: CAF_RABBITMQ_PASSWORD
-            value: $(CAF_RABBITMQ_PASSWORD)
+            value: ${CAF_RABBITMQ_PASSWORD}
           - name: CAF_STATUS_CHECK_TIME
             value: "5"
           - name: CAF_TRACKING_PIPE
@@ -38,7 +38,7 @@ spec:
             value: http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1
         ports:
         - containerPort: 8080
-          hostPort: $(JOB_SERVICE_8080_SERVICE_PORT)
+          hostPort: ${JOB_SERVICE_8080_SERVICE_PORT}
         resources: {}
       restartPolicy: Always
 status: {}
@@ -62,13 +62,13 @@ spec:
         imagePullPolicy: Never
         env:
           - name: CAF_RABBITMQ_HOST
-            value: $(CAF_RABBITMQ_HOST)
+            value: ${CAF_RABBITMQ_HOST}
           - name: CAF_RABBITMQ_PORT
-            value: $(CAF_RABBITMQ_PORT)
+            value: ${CAF_RABBITMQ_PORT}
           - name: CAF_RABBITMQ_USERNAME
-            valueF: $(CAF_RABBITMQ_USERNAME)
+            valueF: ${CAF_RABBITMQ_USERNAME}
           - name: CAF_RABBITMQ_PASSWORD
-            value: $(CAF_RABBITMQ_PASSWORD)
+            value: ${CAF_RABBITMQ_PASSWORD}
           - name: CAF_STATUS_CHECK_TIME
             value: "5"
           - name: CAF_WEBSERVICE_URL
@@ -80,14 +80,14 @@ spec:
           - name: JOB_DATABASE_URL
             value: jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice
           - name: JOB_DATABASE_USERNAME
-            value: $(JOB_SERVICE_DB_USER)
+            value: ${JOB_SERVICE_DB_USER}
           - name: JOB_DATABASE_PASSWORD
-            value: $(JOB_SERVICE_DB_PASSWORD)
+            value: ${JOB_SERVICE_DB_PASSWORD}
         ports:
         - containerPort: 8080
-          hostPort: $(JOB_TRACKING_8080_SERVICE_PORT)
+          hostPort: ${JOB_TRACKING_8080_SERVICE_PORT}
         - containerPort: 8081
-          hostPort: $(JOB_TRACKING_8081_SERVICE_PORT)
+          hostPort: ${JOB_TRACKING_8081_SERVICE_PORT}
         resources: {}
       restartPolicy: Always
 status: {}
@@ -113,17 +113,17 @@ spec:
           - name: CAF_DATABASE_URL
             value: jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice
           - name: CAF_DATABASE_USERNAME
-            value: $(JOB_SERVICE_DB_USER)
+            value: ${JOB_SERVICE_DB_USER}
           - name: CAF_DATABASE_PASSWORD
-            value: $(JOB_SERVICE_DB_PASSWORD)
+            value: ${JOB_SERVICE_DB_PASSWORD}
           - name: CAF_RABBITMQ_HOST
-            value: $(CAF_RABBITMQ_HOST)
+            value: ${CAF_RABBITMQ_HOST}
           - name: CAF_RABBITMQ_PORT
-            value: $(CAF_RABBITMQ_PORT)
+            value: ${CAF_RABBITMQ_PORT}
           - name: CAF_RABBITMQ_USERNAME
-            valueF: $(CAF_RABBITMQ_USERNAME)
+            valueF: ${CAF_RABBITMQ_USERNAME}
           - name: CAF_RABBITMQ_PASSWORD
-            value: $(CAF_RABBITMQ_PASSWORD)
+            value: ${CAF_RABBITMQ_PASSWORD}
           - name: CAF_SCHEDULED_EXECUTOR_PERIOD
             value: "10"
           - name: CAF_STATUS_CHECK_TIME
@@ -136,7 +136,7 @@ spec:
             value: jobservicescheduler-in
         ports:
         - containerPort: 8081
-          hostPort: $(JOB_SCHEDULED_EXECUTOR_8081_SERVICE_PORT)
+          hostPort: ${JOB_SCHEDULED_EXECUTOR_8081_SERVICE_PORT}
         resources: {}
       restartPolicy: Always
 status: {}

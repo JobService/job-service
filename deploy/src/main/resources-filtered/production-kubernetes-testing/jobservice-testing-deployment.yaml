@@ -16,19 +16,19 @@ spec:
         image: ${worker-globfilter.version}
         env:
         - name: CAF_BATCH_WORKER_ERROR_QUEUE
-          value: $(CAF_BATCH_WORKER_ERROR_QUEUE)
+          value: ${CAF_BATCH_WORKER_ERROR_QUEUE}
         - name: CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER
-          value: $(CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER)
+          value: ${CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER}
         - name: CAF_RABBITMQ_HOST
-          value: $(CAF_RABBITMQ_HOST)
+          value: ${CAF_RABBITMQ_HOST}
         - name: CAF_RABBITMQ_PORT
-          value: $(CAF_RABBITMQ_PORT)
+          value: ${CAF_RABBITMQ_PORT}
         - name: CAF_RABBITMQ_PASSWORD
-          value: $(CAF_RABBITMQ_PASSWORD)
+          value: ${CAF_RABBITMQ_PASSWORD}
         - name: CAF_RABBITMQ_USERNAME
-          value: $(CAF_RABBITMQ_USERNAME)
+          value: ${CAF_RABBITMQ_USERNAME}
         - name: CAF_WORKER_INPUT_QUEUE
-          value: $(CAF_WORKER_GLOBFILTER_INPUT_QUEUE)
+          value: ${CAF_WORKER_GLOBFILTER_INPUT_QUEUE}
         resources: {}
         volumeMounts:
           - mountPath: /mnt/caf-datastore-root
@@ -62,13 +62,13 @@ spec:
         image: ${worker-langdetect.version}
         env:
         - name: CAF_RABBITMQ_HOST
-          value: $(CAF_RABBITMQ_HOST)
+          value: ${CAF_RABBITMQ_HOST}
         - name: CAF_RABBITMQ_PORT
-          value: $(CAF_RABBITMQ_PORT)
+          value: ${CAF_RABBITMQ_PORT}
         - name: CAF_RABBITMQ_PASSWORD
-          value: $(CAF_RABBITMQ_PASSWORD)
+          value: ${CAF_RABBITMQ_PASSWORD}
         - name: CAF_RABBITMQ_USERNAME
-          value: $(CAF_RABBITMQ_USERNAME)
+          value: ${CAF_RABBITMQ_USERNAME}
         - name: CAF_WORKER_INPUT_QUEUE
           value: ${CAF_WORKER_LANGDETECT_INPUT_QUEUE}
         - name: CAF_WORKER_OUTPUT_QUEUE

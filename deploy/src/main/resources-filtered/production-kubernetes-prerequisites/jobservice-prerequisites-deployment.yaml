@@ -17,16 +17,16 @@ spec:
         image: postgres:9.6
         env:
         - name: POSTGRES_PASSWORD
-          value: $(JOB_SERVICE_DB_PASSWORD)
+          value: ${JOB_SERVICE_DB_PASSWORD}
         - name: POSTGRES_USER
-          value: $(JOB_SERVICE_DB_USER)
+          value: ${JOB_SERVICE_DB_USER}
         resources: {}
         volumeMounts:
           - mountPath: /var/lib/postgresql/data
             name: job-service-db
         ports:
         - containerPort: 5432
-          hostPort: $(JOB_SERVICE_DB_PORT)
+          hostPort: ${JOB_SERVICE_DB_PORT}
       restartPolicy: Always
       volumes:
       - name: job-service-db
@@ -57,9 +57,9 @@ spec:
           name: rabbitmq
         ports:
         - containerPort: 5672
-          hostPort: $(CAF_RABBITMQ_PORT)
+          hostPort: ${CAF_RABBITMQ_PORT}
         - containerPort: 15672
-          hostPort: $(CAF_RABBITMQ_MANAGEMENT_PORT)
+          hostPort: ${CAF_RABBITMQ_MANAGEMENT_PORT}
       restartPolicy: Always
       volumes:
       - name: rabbitmq
