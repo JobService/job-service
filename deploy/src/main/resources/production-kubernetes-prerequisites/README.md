@@ -29,4 +29,4 @@ To deploy the database and RabbitMQ, issue the following command from the `produ
     source ./kubernetes.env \
             ; cat jobservice-prerequisites-deployment.yaml \
             | perl -pe 's/\$\{(\w+)\}/(exists $ENV{$1} && length $ENV{$1} > 0 ? $ENV{$1} : "NOT_SET_$1")/eg' \
-            | kubectl create -f jobservice-prerequisites-deployment.yaml
+            | kubectl create -f -

@@ -41,7 +41,7 @@ The `kubernetes.env` file supports configurable property settings necessary for 
 		source ./kubernetes.env \
             ; cat jobservice-testing-deployment.yaml \
             | perl -pe 's/\$\{(\w+)\}/(exists $ENV{$1} && length $ENV{$1} > 0 ? $ENV{$1} : "NOT_SET_$1")/eg' \
-            | kubectl create -f jobservice-testing-deployment.yaml
+            | kubectl create -f -
 
 5. Navigate to the Job Service UI  
     The Job Service is a RESTful Web Service and is primarily intended for programmatic access, however it also ships with a Swagger-generated user-interface.

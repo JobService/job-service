@@ -40,4 +40,4 @@ In order to deploy the service application, issue the following command from the
 	source ./kubernetes.env \
             ; cat jobservice-deployment.yaml \
             | perl -pe 's/\$\{(\w+)\}/(exists $ENV{$1} && length $ENV{$1} > 0 ? $ENV{$1} : "NOT_SET_$1")/eg' \
-            | kubectl create -f jobservice-deployment.yaml
+            | kubectl create -f -
