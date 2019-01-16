@@ -10,14 +10,12 @@ The Job Service is a RESTful Web Service and provides a simple API.  It tracks t
 ## Deployment Repository
 This repository provides the necessary files to easily get started using the Job Service.
 
-The only pre-requisite required to get started is that [Docker](https://www.docker.com/) must be available on the system.
-
-The deployment files are in Docker Compose v3 format, and they are compatible with both [Docker Compose](https://docs.docker.com/compose/) and [Docker Stack](https://docs.docker.com/engine/reference/commandline/stack_deploy/).
+The pre-requisites required to get started is that [Docker](https://www.docker.com/) must be available on the system and either Marathon/Mesos or Kubernetes.
 
 As well as the Job Service and the Job Service Database the deployment files reference several other services.  These are just simple workers, built using the Worker Framework, that are included to provide a simple but complete demonstration of the Job Service.
 
 ## Demonstration
-The Docker Compose file contains the following services:
+The deployment files contain the following services:
 
 ![](images/job-service-deploy.png)
 
@@ -48,180 +46,28 @@ The Docker Compose file contains the following services:
 
     By default the output folder used is `./output-files`, but a different folder can be used by setting the `JOB_SERVICE_DEMO_OUTPUT_DIR` environment variable.
 
-## Usage
-1. Download the files from this repository  
-    You can clone this repository using Git or else you can simply download the files as a Zip using the following link:  
-    [https://github.com/JobService/job-service-deploy/archive/develop.zip](https://github.com/JobService/job-service-deploy/archive/develop.zip)
+## Production Deployment
 
-2. Configure the external parameters if required  
-    The following parameters may be set:
+### Production-Marathon
 
-    <table>
-      <tr>
-        <th>Environment Variable</th>
-        <th>Default</th>
-        <th>Description</th>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_PORT</td>
-        <td>9411</td>
-        <td>This is the port that the Job Service is configured to listen on.</td>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_DEMO_INPUT_DIR</td>
-        <td>./input&#8209;files</td>
-        <td>This directory is made available as a source for input files which may be read. The glob-pattern is passed in as a parameter but this is the base directory that it starts from; it cannot read any files which are outside this directory.</td>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_DEMO_OUTPUT_DIR</td>
-        <td>./output&#8209;files</td>
-        <td>This directory is used for storing the output from the Language Detection operation.</td>
-      </tr>
-    </table>
+The [production-marathon](production-marathon) folder contains a set of template files for the configuration and deployment of the Job Service on Mesos/Marathon. This folder contains the marathon environment and template files that are required to deploy the Job Service, Job Service Scheduled Executor and Job Tracking Worker.
 
-    In order to run multiple instances of the demonstration stack simultaneously it would be necessary to set the `JOB_SERVICE_PORT` parameter to different values for each instance.
+### Production-Marathon-Prerequisites
 
-3. Deploy the services  
-    First navigate to the folder where you have downloaded the files to and then run one of the following commands, depending on whether you are using Docker Compose or Docker Stack:
+The [production-marathon-prerequisites](production-marathon-prerequisites) folder is used for testing the production templates in a non-production environment. It contains Marathon templates that are required to deploy the Job Service Database and RabbitMQ. **Note:** templates are provided to run a PostgreSQL database in Marathon, whereas in a real production environment the PostgreSQL database should be set up independently, following its own production standards.
 
-    <table>
-      <tr>
-        <td><b>Docker Compose</b></td>
-        <td>docker-compose up</td>
-      </tr>
-      <tr>
-        <td><b>Docker Stack</b></td>
-        <td>docker stack deploy --compose-file=docker-compose.yml jobservicedemo</td>
-      </tr>
-    </table>
+### Production-Marathon-Testing
 
-4. Navigate to the Job Service UI  
-    The Job Service is a RESTful Web Service and is primarily intended for programmatic access, however it also ships with a Swagger-generated user-interface.
+The [production-marathon-testing](production-marathon-testing) deployment supports the deployment of the components required to smoke test a Job Service deployment on Mesos/Marathon. This folder contains the marathon environment and template files that are required to deploy the Glob Filter and Language Detection Workers.
 
-    Using a browser, navigate to the `/job-service-ui` endpoint on the Job Service:  
+### Production-Kubernetes
 
-        http://docker-host:9411/job-service-ui
+The [production-kubernetes](production-kubernetes) folder contains a set of template files for the configuration and deployment of the Job Service on Kubernetes. This folder contains the marathon environment and template files that are required to deploy the Job Service, Job Service Scheduled Executor and Job Tracking Worker.
 
-    Adjust 'docker-host' to be the name of your own Docker Host and adjust the port if you are not using the default.
+### Production-Kubernetes-Prerequisites
 
-5. Try the `GET /jobStats/count` operation  
-    Click on this operation and then click on the 'Try it out!' button.
+The [production-kubernetes-prerequisites](production-kubernetes-prerequisites) folder is used for testing the production templates in a non-production environment. It contains Kubernetes templates that are required to deploy the Job Service Database and RabbitMQ. **Note:** templates are provided to run a PostgreSQL database in Kubernetes, whereas in a real production environment the PostgreSQL database should be set up independently, following its own production standards.
 
-    You should see the response is zero as you have not yet created any jobs.
+### Production-Kubernetes-Testing
 
-6. Create a Job  
-    Go to the `PUT /jobs/{jobId}` operation.
-
-    - Choose a Job Id, for example, `DemoJob`, and set it in the `jobId` parameter.
-    - Enter the following Job Definition into the `newJob` parameter:
-
-        <pre><code>{
-          "name": "Some job name",
-          "description": "The description of the job",
-          "task": {
-            "taskClassifier": "BatchWorker",
-            "taskApiVersion": 1,
-            "taskData": {
-              "batchType": "GlobPattern",
-              "batchDefinition": "*.txt",
-              "taskMessageType": "DocumentMessage",
-              "taskMessageParams": {
-                "field:binaryFile": "CONTENT",
-                "field:fileName": "FILE_NAME",
-                "cd:outputSubfolder": "subDir",
-                "cd:resultFormat": "COMPLEX"
-              },
-              "targetPipe": "languageidentification-in"
-            },
-            "taskPipe": "globfilter-in",
-            "targetPipe": "languageidentification-out"
-          }
-        }</code></pre>
-
-7. Check on the Job's progress  
-    Go to the `GET /jobs/{jobId}` operation.
-
-    - Enter the Job Id that you chose when creating the job.
-    - Click on the 'Try it out!' button.
-
-    You should see a response returned from the Job Service.
-    - If the job is still in progress then the `status` field will be `Active` and the `percentageComplete` field will indicate the progress of the job.
-    - If the job has finished then the `status` field will be `Completed`.
-
-    Given that the Language Detection Worker is configured to output the results to files in a folder you should see that these files have been created in the output folder.  If you examine the output files you should see that they contain the details of what languages were detected in the corresponding input files.
-
-## Override Files
-Docker Compose supports the concept of Override Files which can be used to modify the service definitions in the main Docker Compose files, or to add extra service definitions.
-
-The following override files are supplied alongside the main Docker Compose file for the service:
-
-<table>
-  <tr>
-    <th>Override File</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td>docker&#8209;compose.debug.yml</td>
-    <td>This override file can be used by developers to help with debugging. It increases the logging levels, puts the services into a mode where a Java debugger can be attached to them, and exposes endpoints which are not normally exposed outside of the internal network.<p>
-    <p>        
-    The following additional endpoints are exposed to the external network:<p>
-    <ol>
-      <li>Job Service Database Connection Port</li>
-      <li>RabbitMQ UI Port</li>
-      <li>Java Debugging Port for all Workers</li>
-      <li>Admin / HealthCheck Port for all Workers</li>
-    </ol>
-    <p>
-    The override file itself can be examined to check which ports these internal ports are exposed on. The external ports are not used for the normal operation of the services so they can be safely modified if they clash with any other services running on the host.</td>
-  </tr>
-  <tr>
-    <td>docker&#8209;compose.https.yml</td>
-    <td>This override file can be used to activate a HTTPS port in the Job Service which can be used for secure communication.<p>
-    <p>
-    You must provide a keystore file either at the default path (./keystore/.keystore) or a custom path and set the JOB_SERVICE_KEYSTORE environment variable.<p>
-    <p>
-    The default port exposed for HTTPS communication is 9412 but this can be overridden by supplying the environment variable JOB_SERVICE_PORT_HTTPS.</td>
-  </tr>
-</table>
-
-Use the -f switch to apply override files.  For example, to start the services with the docker-compose.debug.yml file applied run the following command:
-
-    docker-compose -f docker-compose.yml -f docker-compose.debug.yml up
-
-### Activating HTTPS endpoint
-
-Optionally, the `docker-compose.https.yml` override can be used to activate a HTTPS endpoint for secure communication with the Job Service.
-
-You can generate a default keystore setting both the keystore password and key password as `changeit` by running the following command:
-
-`keytool -genkey -alias tomcat -keystore .keystore -keyalg RSA`
-
-Generating a custom keystore with your own password/alias/protocol is not currently supported. For more information on generating keystores see these [instructions](https://tomcat.apache.org/tomcat-7.0-doc/ssl-howto.html).
-
-Place this keystore file in a folder called `keystore` in job-service-deploy. Name it `.keystore` or else provide your own custom path by setting `JOB_SERVICE_KEYSTORE` (e.g. `./mykeystore/ks.p12`).
-
-You can optionally override the default HTTPS port (9412) by providing the environment variable <code>JOB_SERVICE_PORT_HTTPS</code>.
-
-Run the following command:
-
-`docker-compose -f docker-compose.yml -f docker-compose.https.yml up`.
-
-Additional override parameters can be set and their function is described below.
-
-<table>
-  <tr>
-    <th>Environment Variable</th>
-    <th>Default</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td>JOB_SERVICE_PORT_HTTPS</td>
-    <td>9412</td>
-    <td>This is the HTTPS port to be exposed in the Job Service to allow secure communication. Unless a keystore is provided, the HTTPS port will not be active.</td>
-  </tr>
-  <tr>
-    <td>JOB_SERVICE_KEYSTORE</td>
-    <td>./keystore/.keystore</td>
-    <td>If you are activating the HTTPS port, you can override the default keystore location to provide your own keystore as a volume. This is the path of the keystore file (i.e. `./mykeystore/ks.p12`).</td>
-  </tr>
-</table>
+The [production-kubernetes-testing](production-kubernetes-testing) deployment supports the deployment of the components required to smoke test a Job Service deployment on Kubernetes. This folder contains the marathon environment and template files that are required to deploy the Glob Filter and Language Detection Workers.

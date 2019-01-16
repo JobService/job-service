@@ -13,34 +13,22 @@ spec:
     spec:
       containers:
       - name: worker-globfilter
-        image: jobservice/worker-globfilter:2.2.0
+        image: ${worker-globfilter.version}
         env:
         - name: CAF_BATCH_WORKER_ERROR_QUEUE
-          value: globfilter-err
+          value: $(CAF_BATCH_WORKER_ERROR_QUEUE)
         - name: CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER
-          value: /mnt/caf-worker-input-dir
+          value: $(CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER)
         - name: CAF_RABBITMQ_HOST
-          valueFrom:
-            configMapKeyRef:
-              key: CAF_RABBITMQ_HOST
-              name: jobservice-rabbitmq-env
-        - name: CAF_RABBITMQ_PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              key: CAF_RABBITMQ_PASSWORD
-              name: jobservice-rabbitmq-env
+          value: $(CAF_RABBITMQ_HOST)
         - name: CAF_RABBITMQ_PORT
-          valueFrom:
-            configMapKeyRef:
-              key: CAF_RABBITMQ_PORT
-              name: jobservice-rabbitmq-env
+          value: $(CAF_RABBITMQ_PORT)
+        - name: CAF_RABBITMQ_PASSWORD
+          value: $(CAF_RABBITMQ_PASSWORD)
         - name: CAF_RABBITMQ_USERNAME
-          valueFrom:
-            configMapKeyRef:
-              key: CAF_RABBITMQ_USERNAME
-              name: jobservice-rabbitmq-env
+          value: $(CAF_RABBITMQ_USERNAME)
         - name: CAF_WORKER_INPUT_QUEUE
-          value: globfilter-in
+          value: $(CAF_WORKER_GLOBFILTER_INPUT_QUEUE)
         resources: {}
         volumeMounts:
           - mountPath: /mnt/caf-datastore-root
@@ -53,10 +41,7 @@ spec:
           claimName: worker-datastore
       - name: job-service-demo-input-dir
         hostPath:
-          path: /vagrant/input-files
-      - name: job-service-demo-output-dir
-        hostPath:
-         path: /vagrant/output-files
+          path: ${JOB_SERVICE_DEMO_INPUT_DIR}
 status: {}
 ---
 apiVersion: extensions/v1beta1
@@ -74,34 +59,22 @@ spec:
     spec:
       containers:
       - name: worker-langdetect
-        image: cafdataprocessing/worker-languagedetection:2.5.0
+        image: ${worker-langdetect.version}
         env:
-        - name: CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER
-          value: /mnt/caf-worker-output-dir
         - name: CAF_RABBITMQ_HOST
-          valueFrom:
-            configMapKeyRef:
-              key: CAF_RABBITMQ_HOST
-              name: jobservice-rabbitmq-env
-        - name: CAF_RABBITMQ_PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              key: CAF_RABBITMQ_PASSWORD
-              name: jobservice-rabbitmq-env
+          value: $(CAF_RABBITMQ_HOST)
         - name: CAF_RABBITMQ_PORT
-          valueFrom:
-            configMapKeyRef:
-              key: CAF_RABBITMQ_PORT
-              name: jobservice-rabbitmq-env
+          value: $(CAF_RABBITMQ_PORT)
+        - name: CAF_RABBITMQ_PASSWORD
+          value: $(CAF_RABBITMQ_PASSWORD)
         - name: CAF_RABBITMQ_USERNAME
-          valueFrom:
-            configMapKeyRef:
-              key: CAF_RABBITMQ_USERNAME
-              name: jobservice-rabbitmq-env
+          value: $(CAF_RABBITMQ_USERNAME)
         - name: CAF_WORKER_INPUT_QUEUE
-          value: languageidentification-in
+          value: ${CAF_WORKER_LANGDETECT_INPUT_QUEUE}
         - name: CAF_WORKER_OUTPUT_QUEUE
-          value: languageidentification-out
+          value: ${CAF_WORKER_LANGDETECT_OUTPUT_QUEUE}
+        - name: CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER
+          value: ${CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER}
         resources: {}
         volumeMounts:
           - mountPath: /mnt/caf-datastore-root
@@ -112,11 +85,8 @@ spec:
       - name: worker-datastore
         persistentVolumeClaim:
           claimName: worker-datastore
-      - name: job-service-demo-input-dir
-        hostPath:
-          path: /vagrant/input-files
       - name: job-service-demo-output-dir
         hostPath:
-         path: /vagrant/output-files
+         path: ${JOB_SERVICE_DEMO_OUTPUT_DIR}
 status: {}
 
