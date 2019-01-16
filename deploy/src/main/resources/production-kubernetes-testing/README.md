@@ -34,7 +34,7 @@ The `kubernetes.env` file supports configurable property settings necessary for 
 
 3. Deploy the persistent volume, issue the following command from the `production-kubernetes-testing` directory:
 
-    kubectl create -f worker-datastore-persistentvolumeclaim.yaml
+        kubectl create -f worker-datastore-persistentvolumeclaim.yaml
 
 4. Deploy the testing Docker containers for Job Service by issuing the following command from the `production-kubernetes-testing` directory:
 

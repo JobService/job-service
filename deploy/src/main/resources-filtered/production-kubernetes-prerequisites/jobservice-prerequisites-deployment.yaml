@@ -17,9 +17,9 @@ spec:
         image: postgres:9.6
         env:
         - name: POSTGRES_PASSWORD
-          value: ${JOB_SERVICE_DB_PASSWORD}
+          value: "${JOB_SERVICE_DB_PASSWORD}"
         - name: POSTGRES_USER
-          value: ${JOB_SERVICE_DB_USER}
+          value: "${JOB_SERVICE_DB_USER}"
         resources: {}
         volumeMounts:
           - mountPath: /var/lib/postgresql/data
