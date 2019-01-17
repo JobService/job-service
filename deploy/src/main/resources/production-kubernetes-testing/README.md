@@ -1,11 +1,11 @@
 # Production Kubernetes Testing
 
-The Production Kubernetes Testing deployment supports the deployment of the components required to smoke test a Job Service deployment on Kubernetes. This folder contains the kubernetes environment and template files that are required to deploy the Glob Filter and Language Detection Workers.
+The Production Kubernetes Testing deployment supports the deployment of the components required to smoke test a Job Service deployment on Kubernetes. This folder contains the Kubernetes environment and template files that are required to deploy the Glob Filter and Language Detection Workers.
 
 ## Service Configuration
 
 ### Kubernetes Template
-The `marathon.json.b` template file describes the Kubernetes deployment information required for starting the Glob Filter and Language Detection Workers. The template file uses property substitution to get values for configurable properties **required** for service deployment. These properties are configured in the kubernetes environment file `kubernetes.env`.
+The `jobservice-testing-deployment.yaml` template file describes the Kubernetes deployment information required for starting the Glob Filter and Language Detection Workers. The template file uses property substitution to get values for configurable properties **required** for service deployment. These properties are configured in the Kubernetes environment file `kubernetes.env`.
 
 ### Kubernetes Environment
 The `kubernetes.env` file supports configurable property settings necessary for service deployment. These include:
@@ -14,15 +14,12 @@ The `kubernetes.env` file supports configurable property settings necessary for 
 - `CAF_RABBITMQ_PORT`: The port for the RabbitMQ instance
 - `CAF_RABBITMQ_PASSWORD`: The password for the RabbitMQ instance
 - `CAF_RABBITMQ_USERNAME`: The username for the RabbitMQ instance
-
 - `CAF_WORKER_GLOBFILTER_INPUT_QUEUE`: The RabbitMQ queue on which the Glob Filter worker listens
 - `CAF_BATCH_WORKER_ERROR_QUEUE`: The RabbitMQ queue where failed Glob Filter worker messages go
 - `CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER`: The location of the mounted directory inside the container where the test files are located
-
 - `CAF_WORKER_LANGDETECT_INPUT_QUEUE`: The RabbitMQ queue on which the Language Detection worker listens
 - `CAF_WORKER_LANGDETECT_OUTPUT_QUEUE`: The RabbitMQ queue on which the Language Detection worker outputs messages
 - `CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER`: The folder in which the Language Detection worker places result files
-
 - `JOB_SERVICE_DEMO_INPUT_DIR`: The directory where the test files are located on the host
 - `JOB_SERVICE_DEMO_OUTPUT_DIR`: The output directory for test results on the host
 
@@ -32,18 +29,20 @@ The `kubernetes.env` file supports configurable property settings necessary for 
 
 2. Deploy the Production Kubernetes services as described [here](../production-kubernetes/README.md).
 
-3. Deploy the persistent volume, issue the following command from the `production-kubernetes-testing` directory:
+3. Edit the `kubernetes.env` file adding relevant values for all the environment variables.
+
+4. Deploy the persistent volume, issue the following command from the `production-kubernetes-testing` directory:
 
         kubectl create -f worker-datastore-persistentvolumeclaim.yaml
 
-4. Deploy the testing Docker containers for Job Service by issuing the following command from the `production-kubernetes-testing` directory:
+5. Deploy the testing containers for Job Service by issuing the following command from the `production-kubernetes-testing` directory:
 
 		source ./kubernetes.env \
             ; cat jobservice-testing-deployment.yaml \
             | perl -pe 's/\$\{(\w+)\}/(exists $ENV{$1} && length $ENV{$1} > 0 ? $ENV{$1} : "NOT_SET_$1")/eg' \
             | kubectl create -f -
 
-5. Navigate to the Job Service UI  
+6. Navigate to the Job Service UI  
     The Job Service is a RESTful Web Service and is primarily intended for programmatic access, however it also ships with a Swagger-generated user-interface.
 
     Using a browser, navigate to the `/job-service-ui` endpoint on the Job Service:  
@@ -52,12 +51,12 @@ The `kubernetes.env` file supports configurable property settings necessary for 
 
     Adjust '<DOCKER-HOST>` and `<JOB-SERVICE-PORT>' to be the name of your own environment.
 
-6. Try the `GET /jobStats/count` operation  
+7. Try the `GET /jobStats/count` operation  
     Click on this operation and then click on the 'Try it out!' button.
 
     You should see the response is zero as you have not yet created any jobs.
 
-7. Create a Job  
+8. Create a Job  
     Go to the `PUT /jobs/{jobId}` operation.
 
     - Choose a Job Id, for example, `DemoJob`, and set it in the `jobId` parameter.
@@ -85,7 +84,7 @@ The `kubernetes.env` file supports configurable property settings necessary for 
           }
         }</code></pre>
 
-8. Check on the Job's progress  
+9. Check on the Job's progress  
     Go to the `GET /jobs/{jobId}` operation.
 
     - Enter the Job Id that you chose when creating the job.
