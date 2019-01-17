@@ -7,6 +7,8 @@ The Production Kubernetes Testing deployment supports the deployment of the comp
 ### Kubernetes Template
 The `jobservice-testing-deployment.yaml` template file describes the Kubernetes deployment information required for starting the Glob Filter and Language Detection Workers. The template file uses property substitution to get values for configurable properties **required** for service deployment. These properties are configured in the Kubernetes environment file `kubernetes.env`.
 
+The `worker-datastore-persistentvolumeclaim.yaml` template file describes the Kubernetes persistent volume information required by the Glob Filter and Language Detection Workers.
+
 ### Kubernetes Environment
 The `kubernetes.env` file supports configurable property settings necessary for service deployment. These include:
 
