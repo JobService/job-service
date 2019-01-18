@@ -4,16 +4,18 @@ metadata:
   name: worker-globfilter
 spec:
   replicas: 1
-  strategy: {}
+  strategy:
+    type: Recreate
   template:
     metadata:
-      creationTimestamp: null
+      creationTimestamp: ${maven.build.timestamp}
       labels:
         io.kompose.service: worker-globfilter
     spec:
       containers:
       - name: worker-globfilter
         image: ${worker-globfilter.version}
+        imagePullPolicy: Always
         env:
         - name: CAF_BATCH_WORKER_ERROR_QUEUE
           value: "${CAF_BATCH_WORKER_ERROR_QUEUE}"
@@ -29,7 +31,6 @@ spec:
           value: "${CAF_RABBITMQ_USERNAME}"
         - name: CAF_WORKER_INPUT_QUEUE
           value: "${CAF_WORKER_GLOBFILTER_INPUT_QUEUE}"
-        resources: {}
         volumeMounts:
           - mountPath: /mnt/caf-datastore-root
             name: worker-datastore
@@ -42,7 +43,7 @@ spec:
       - name: job-service-demo-input-dir
         hostPath:
           path: ${JOB_SERVICE_DEMO_INPUT_DIR}
-status: {}
+          type: DirectoryOrCreate
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -50,16 +51,18 @@ metadata:
   name: worker-langdetect
 spec:
   replicas: 1
-  strategy: {}
+  strategy:
+    type: Recreate
   template:
     metadata:
-      creationTimestamp: null
+      creationTimestamp: ${maven.build.timestamp}
       labels:
-        io.kompose.service: worker-globfilter
+        io.kompose.service: worker-langdetect
     spec:
       containers:
       - name: worker-langdetect
         image: ${worker-langdetect.version}
+        imagePullPolicy: Always
         env:
         - name: CAF_RABBITMQ_HOST
           value: "${CAF_RABBITMQ_HOST}"
@@ -75,7 +78,6 @@ spec:
           value: "${CAF_WORKER_LANGDETECT_OUTPUT_QUEUE}"
         - name: CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER
           value: "${CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER}"
-        resources: {}
         volumeMounts:
           - mountPath: /mnt/caf-datastore-root
             name: worker-datastore
@@ -87,6 +89,5 @@ spec:
           claimName: worker-datastore
       - name: job-service-demo-output-dir
         hostPath:
-         path: ${JOB_SERVICE_DEMO_OUTPUT_DIR}
-status: {}
-
+          path: ${JOB_SERVICE_DEMO_OUTPUT_DIR}
+          type: DirectoryOrCreate

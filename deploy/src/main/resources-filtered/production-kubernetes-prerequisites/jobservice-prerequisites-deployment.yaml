@@ -15,24 +15,22 @@ spec:
       containers:
       - name: jobservicedb
         image: postgres:9.6
+        imagePullPolicy: Always
         env:
         - name: POSTGRES_PASSWORD
           value: "${JOB_SERVICE_DB_PASSWORD}"
         - name: POSTGRES_USER
           value: "${JOB_SERVICE_DB_USER}"
-        resources: {}
         volumeMounts:
           - mountPath: /var/lib/postgresql/data
             name: job-service-db
         ports:
         - containerPort: 5432
           hostPort: ${JOB_SERVICE_DB_PORT}
-      restartPolicy: Always
       volumes:
       - name: job-service-db
         persistentVolumeClaim:
           claimName: job-service-db
-status: {}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -51,6 +49,7 @@ spec:
       containers:
       - name: rabbitmq
         image: rabbitmq:3-management
+        imagePullPolicy: Always
         resources: {}
         volumeMounts:
         - mountPath: /var/lib/rabbitmq
@@ -60,9 +59,7 @@ spec:
           hostPort: ${CAF_RABBITMQ_PORT}
         - containerPort: 15672
           hostPort: ${CAF_RABBITMQ_MANAGEMENT_PORT}
-      restartPolicy: Always
       volumes:
       - name: rabbitmq
         persistentVolumeClaim:
           claimName: rabbitmq
-status: {}

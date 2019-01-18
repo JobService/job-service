@@ -4,17 +4,18 @@ metadata:
   name: jobservice
 spec:
   replicas: 1
-  strategy: {}
+  strategy:
+    type: Recreate
   template:
     metadata:
-      creationTimestamp: null
+      creationTimestamp: ${maven.build.timestamp}
       labels:
         io.kompose.service: jobservice
     spec:
       containers:
       - name: jobservice
         image: jobservice/job-service:${project.version}
-        imagePullPolicy: Never
+        imagePullPolicy: Always
         env:
           - name: CAF_DATABASE_URL
             value: "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice"
@@ -39,9 +40,6 @@ spec:
         ports:
         - containerPort: 8080
           hostPort: ${JOB_SERVICE_8080_SERVICE_PORT}
-        resources: {}
-      restartPolicy: Always
-status: {}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -49,17 +47,18 @@ metadata:
   name: jobtrackingworker
 spec:
   replicas: 1
-  strategy: {}
+  strategy:
+    type: Recreate
   template:
     metadata:
-      creationTimestamp: null
+      creationTimestamp: ${maven.build.timestamp}
       labels:
         io.kompose.service: jobtrackingworker
     spec:
       containers:
       - name: worker-jobtracking
         image: jobservice/worker-jobtracking:${project.version}
-        imagePullPolicy: Never
+        imagePullPolicy: Always
         env:
           - name: CAF_RABBITMQ_HOST
             value: "${CAF_RABBITMQ_HOST}"
@@ -88,9 +87,6 @@ spec:
           hostPort: ${JOB_TRACKING_8080_SERVICE_PORT}
         - containerPort: 8081
           hostPort: ${JOB_TRACKING_8081_SERVICE_PORT}
-        resources: {}
-      restartPolicy: Always
-status: {}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -98,17 +94,18 @@ metadata:
   name: jobservicescheduledexecutor
 spec:
   replicas: 1
-  strategy: {}
+  strategy:
+    type: Recreate
   template:
     metadata:
-      creationTimestamp: null
+      creationTimestamp: ${maven.build.timestamp}
       labels:
         io.kompose.service: jobservicescheduledexecutor
     spec:
       containers:
       - name: jobservicescheduledexecutor
         image: jobservice/job-service-scheduled-executor:${project.version}
-        imagePullPolicy: Never
+        imagePullPolicy: Always
         env:
           - name: CAF_DATABASE_URL
             value: "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice"
@@ -137,6 +134,3 @@ spec:
         ports:
         - containerPort: 8081
           hostPort: ${JOB_SCHEDULED_EXECUTOR_8081_SERVICE_PORT}
-        resources: {}
-      restartPolicy: Always
-status: {}
