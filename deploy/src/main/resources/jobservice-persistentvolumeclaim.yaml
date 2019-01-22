@@ -8,7 +8,6 @@ spec:
   resources:
     requests:
       storage: 100Mi
-status: {}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -20,4 +19,14 @@ spec:
   resources:
     requests:
       storage: 100Mi
-status: {}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: worker-datastore
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

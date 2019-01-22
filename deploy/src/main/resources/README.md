@@ -10,9 +10,7 @@ The Job Service is a RESTful Web Service and provides a simple API.  It tracks t
 ## Deployment Repository
 This repository provides the necessary files to easily get started using the Job Service.
 
-The only pre-requisite required to get started is that [Docker](https://www.docker.com/) must be available on the system.
-
-The deployment files are in Docker Compose v3 format, and they are compatible with both [Docker Compose](https://docs.docker.com/compose/) and [Docker Stack](https://docs.docker.com/engine/reference/commandline/stack_deploy/).
+The deployment files are in [Kubernetes](https://kubernetes.io/) format. If you are new to Kubernetes then a quick way to get started is to use [Minikube](https://kubernetes.io/docs/setup/minikube/).
 
 As well as the Job Service the deployment files reference several other services.  These are just simple workers, built using the Worker Framework, that are included to provide a simple but complete demonstration of the Job Service.
 
@@ -23,8 +21,6 @@ The deployment files contain the following services:
 
 1. Job Service  
     This is the Job Service itself.  As discussed it is a RESTful Web Service and is the primary service being demonstrated here.
-
-    By default port 9411 is used to communicate with the Job Service but if that port is not available then the `JOB_SERVICE_PORT` environment variable can be set to have a different port used.
 
 2. RabbitMQ  
     The Worker Framework is a pluggable infrastructure and technically it can use different messaging systems.  However it is most common for RabbitMQ to be used for messaging, and that is what is used here.
@@ -38,101 +34,137 @@ The deployment files contain the following services:
 5. GlobFilter Worker  
     This is a simple worker developed just for this demonstration.  It is a Batch Worker which takes in a glob-pattern as the Batch Definition.  Glob-patterns are generally fairly simple.  For example, `*.txt` means "all text files in the input folder".  Even more complex patterns like `**/t*.txt`, which means "all text files which start with the letter 't' and are in the input folder or in any subfolders of the input folder", are fairly easy to understand.  The worker produces a separate task for each file which matches the glob-pattern.
 
-    By default the input folder is `./input-files`, which is a directory in this repository which contains a few sample text files in different languages.  A different input folder can be used by setting the `JOB_SERVICE_DEMO_INPUT_DIR` environment variable.
+    The input folder can be defined by setting the `JOB_SERVICE_DEMO_INPUT_DIR` environment variable. This should be a directory in which contains a few sample text files in different languages. A few example files are contained in this repository `./input-files` directory.
 
 6. Language Detection Worker  
     This worker reads text files and determines what language or languages they are written in.  Typically it would return the result to another worker but for this demonstration it is configured to output the results to a folder.
 
-    By default the output folder used is `./output-files`, but a different folder can be used by setting the `JOB_SERVICE_DEMO_OUTPUT_DIR` environment variable.
+    The output folder can be defined by setting the `JOB_SERVICE_DEMO_OUTPUT_DIR` environment variable.
 
 ## Usage
 1. Download the files from this repository  
     You can clone this repository using Git or else you can simply download the files as a Zip using the following link:  
     [https://github.com/JobService/job-service-deploy/archive/develop.zip](https://github.com/JobService/job-service-deploy/archive/develop.zip)
 
-2. If you do not have a postgreSQL database available that can be used by the Job Service you can start a docker container with postgreSQL by running the following command:
-
-	```docker run -p <JOB_SERVICE_DB_PORT>:5432 -e POSTGRES_USER=<JOB_SERVICE_DB_USERNAME> -e POSTGRES_PASSWORD=<JOB_SERVICE_DB_PASSWORD> -d postgres:9.6```
-
-	The ```JOB_SERVICE_DB_PORT```, ```POSTGRES_USER``` and ```POSTGRES_PASSWORD``` should be set to relevant values.
-
-3. Configure the external parameters using the following Environment Variables:
+2. Edit the `kubernetes.env` file adding relevant values for the following Environment Variables:
 
     <table>
       <tr>
         <th>Environment Variable</th>
-        <th>Default</th>
-        <th>Mandatory</th>
         <th>Description</th>
       </tr>
       <tr>
-        <td>JOB_SERVICE_DB_HOST</td>
-        <td></td>
-        <td>Yes</td>
-        <td>This is the hostname of the postgreSQL instance where the Job Service can be installed.</td>
+        <td>JOB_SERVICE_DB_HOSTNAME</td>
+        <td>This configures the host name for the PostgreSQL database.</td>
       </tr>
       <tr>
         <td>JOB_SERVICE_DB_PORT</td>
-        <td></td>
-        <td>Yes</td>
-        <td>This is the port of the postgreSQL instance where the Job Service can be installed.</td>
+        <td>This configures the port for the PostgreSQL database.</td>
       </tr>
       <tr>
-        <td>JOB_SERVICE_DB_USERNAME</td>
-        <td></td>
-        <td>Yes</td>
-        <td>This is the username of the postgreSQL instance where the Job Service can be installed.</td>
+        <td>JOB_SERVICE_DB_USER</td>
+        <td>The username for the PostgreSQL database.</td>
       </tr>
       <tr>
         <td>JOB_SERVICE_DB_PASSWORD</td>
-        <td></td>
-        <td>Yes</td>
-        <td>This is the password for the postgreSQL instance where the Job Service can be installed.</td>
+        <td>The password for the PostgreSQL database.</td>
       </tr>
       <tr>
-        <td>JOB_SERVICE_PORT</td>
-        <td>9411</td>
-        <td>No</td>
-        <td>This is the port that the Job Service is configured to listen on.</td>
+        <td>CAF_RABBITMQ_HOST</td>
+        <td>This configures the host address for RabbitMQ.</td>
+      </tr>
+      <tr>
+        <td>CAF_RABBITMQ_PORT</td>
+        <td>This configures the port where RabbitMQ is accepting messages.</td>
+      </tr>
+      <tr>
+        <td>CAF_RABBITMQ_MANAGEMENT_PORT</td>
+        <td>This configures the management port for the RabbitMQ UI.</td>
+      </tr>
+      <tr>
+        <td>CAF_RABBITMQ_USERNAME</td>
+        <td>This configures the username for RabbitMQ.</td>
+      </tr>
+      <tr>
+        <td>CAF_RABBITMQ_PASSWORD</td>
+        <td>This configures the password for RabbitMQ.</td>
+      </tr>
+      <tr>
+        <td>JOB_SERVICE_HOST</td>
+        <td>This configures the host name for the `CAF_WEBSERVICE_URL`.</td>
+      </tr>
+      <tr>
+        <td>JOB_SERVICE_8080_SERVICE_PORT</td>
+        <td>This configures the external port number on the host machine that will be forwarded to the Job Service containers internal 8080 port. This port is used to call the Job Service web service.</td>
+      </tr>
+      <tr>
+        <td>JOB_TRACKING_8080_SERVICE_PORT</td>
+        <td>This configures the external port number on the host machine that will be forwarded to the Job Tracking workers internal 8080 port. This port is used to call the workers health check.</td>
+      </tr>
+      <tr>
+        <td>JOB_TRACKING_8081_SERVICE_PORT</td>
+        <td>This configures the external port number on the host machine that will be forwarded to the Job Tracking workers internal 8081 port. This port is used to retrieve metrics from the worker.</td>
+      </tr>
+      <tr>
+        <td>JOB_SCHEDULED_EXECUTOR_8081_SERVICE_PORT</td>
+        <td>This configures the external port number on the host machine that will be forwarded to the Job Scheduled Executors internal 8081 port.</td>
+      </tr>
+      <tr>
+        <td>CAF_WORKER_GLOBFILTER_INPUT_QUEUE</td>
+        <td>The RabbitMQ queue on which the Glob Filter worker listens.</td>
+      </tr>
+      <tr>
+        <td>CAF_BATCH_WORKER_ERROR_QUEUE</td>
+        <td>The RabbitMQ queue where failed Glob Filter worker messages are sent.</td>
+      </tr>
+      <tr>
+        <td>CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER</td>
+        <td>The location of the mounted directory inside the container where the test files are located.</td>
+      </tr>
+      <tr>
+        <td>CAF_WORKER_LANGDETECT_INPUT_QUEUE</td>
+        <td>The RabbitMQ queue on which the Language Detection worker listens.</td>
+      </tr>
+      <tr>
+        <td>CAF_WORKER_LANGDETECT_OUTPUT_QUEUE</td>
+        <td>The RabbitMQ queue on which the Language Detection worker outputs messages.</td>
+      </tr>
+      <tr>
+        <td>CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER</td>
+        <td>The folder in which the Language Detection worker places result files.</td>
       </tr>
       <tr>
         <td>JOB_SERVICE_DEMO_INPUT_DIR</td>
-        <td>./input&#8209;files</td>
-        <td>No</td>
-        <td>This directory is made available as a source for input files which may be read. The glob-pattern is passed in as a parameter but this is the base directory that it starts from; it cannot read any files which are outside this directory.</td>
+        <td>The directory where the test files are located on the host.</td>
       </tr>
       <tr>
         <td>JOB_SERVICE_DEMO_OUTPUT_DIR</td>
-        <td>./output&#8209;files</td>
-        <td>No</td>
-        <td>This directory is used for storing the output from the Language Detection operation.</td>
+        <td>The output directory for test results on the host.</td>
       </tr>
     </table>
-
-    In order to run multiple instances of the demonstration stack simultaneously it would be necessary to set the `JOB_SERVICE_PORT` parameter to different values for each instance.
 
 4. Deploy the services  
-    First navigate to the folder where you have downloaded the files to and then run one of the following commands, depending on whether you are using Docker Compose or Docker Stack:
+	Deploy the persistent volume by issuing the following command from the directory where you have downloaded the files to:
 
-    <table>
-      <tr>
-        <td><b>Docker Compose</b></td>
-        <td>docker-compose up</td>
-      </tr>
-      <tr>
-        <td><b>Docker Stack</b></td>
-        <td>docker stack deploy --compose-file=docker-compose.yml jobservicedemo</td>
-      </tr>
-    </table>
+    `kubectl create -f jobservice-persistentvolumeclaim.yaml`
+
+	Deploy the database and RabbitMQ by issuing the following command from the directory where you have downloaded the files to:
+
+    ```
+	source ./kubernetes.env \
+            ; cat jobservice-deployment.yaml \
+            | perl -pe 's/\$\{(\w+)\}/(exists $ENV{$1} && length $ENV{$1} > 0 ? $ENV{$1} : "NOT_SET_$1")/eg' \
+            | kubectl create -f -
+	```
 
 5. Navigate to the Job Service UI  
     The Job Service is a RESTful Web Service and is primarily intended for programmatic access, however it also ships with a Swagger-generated user-interface.
 
     Using a browser, navigate to the `/job-service-ui` endpoint on the Job Service:  
 
-        http://docker-host:9411/job-service-ui
+        http://<docker-host>:<JOB_SERVICE_8080_SERVICE_PORT>/job-service-ui
 
-    Adjust 'docker-host' to be the name of your own Docker Host and adjust the port if you are not using the default.
+    Adjust `docker-host` to be the name of your own Docker Host and adjust the `JOB_SERVICE_8080_SERVICE_PORT` to match what you set it to in the `kubernetes.env` file.
 
 6. Try the `GET /jobStats/count` operation  
     Click on this operation and then click on the 'Try it out!' button.
@@ -269,14 +301,6 @@ The [production-marathon-prerequisites](production-marathon-prerequisites) folde
 
 The [production-marathon-testing](production-marathon-testing) deployment supports the deployment of the components required to smoke test a Job Service deployment on Mesos/Marathon. This folder contains the marathon environment and template files that are required to deploy the Glob Filter and Language Detection Workers.
 
-### Production-Kubernetes
+### Production Docker Swarm Deployment
 
-The [production-kubernetes](production-kubernetes) folder contains a set of template files for the configuration and deployment of the Job Service on Kubernetes. This folder contains the marathon environment and template files that are required to deploy the Job Service, Job Service Scheduled Executor and Job Tracking Worker.
-
-### Production-Kubernetes-Prerequisites
-
-The [production-kubernetes-prerequisites](production-kubernetes-prerequisites) folder is used for testing the production templates in a non-production environment. It contains Kubernetes templates that are required to deploy the Job Service Database and RabbitMQ. **Note:** templates are provided to run a PostgreSQL database in Kubernetes, whereas in a real production environment the PostgreSQL database should be set up independently, following its own production standards.
-
-### Production-Kubernetes-Testing
-
-The [production-kubernetes-testing](production-kubernetes-testing) deployment supports the deployment of the components required to smoke test a Job Service deployment on Kubernetes. This folder contains the marathon environment and template files that are required to deploy the Glob Filter and Language Detection Workers.
+The [Production Docker Stack](production-swarm) Deployment supports the deployment of the Job Service on Docker Swarm.
