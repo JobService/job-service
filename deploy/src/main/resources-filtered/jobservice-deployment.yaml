@@ -2,6 +2,8 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: jobservicedb
+  labels:
+    io.kompose.service: jobservicedb
 spec:
   replicas: 1
   strategy:
@@ -17,16 +19,22 @@ spec:
         image: postgres:9.6
         imagePullPolicy: Always
         env:
-        - name: POSTGRES_PASSWORD
-          value: "${JOB_SERVICE_DB_PASSWORD}"
-        - name: POSTGRES_USER
-          value: "${JOB_SERVICE_DB_USER}"
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: JOB_SERVICE_DB_PASSWORD
+          - name: POSTGRES_USER
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: JOB_SERVICE_DB_USER
         volumeMounts:
           - mountPath: /var/lib/postgresql/data
             name: job-service-db
         ports:
         - containerPort: 5432
-          hostPort: ${JOB_SERVICE_DB_PORT}
+          hostPort: 5432
       volumes:
       - name: job-service-db
         persistentVolumeClaim:
@@ -56,9 +64,8 @@ spec:
           name: rabbitmq
         ports:
         - containerPort: 5672
-          hostPort: ${CAF_RABBITMQ_PORT}
         - containerPort: 15672
-          hostPort: ${CAF_RABBITMQ_MANAGEMENT_PORT}
+          hostPort: 15672
       volumes:
       - name: rabbitmq
         persistentVolumeClaim:
@@ -84,28 +91,52 @@ spec:
         imagePullPolicy: Always
         env:
           - name: CAF_DATABASE_URL
-            value: "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_DATABASE_URL
           - name: CAF_DATABASE_USERNAME
-            value: "${JOB_SERVICE_DB_USER}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: JOB_SERVICE_DB_USER
           - name: CAF_DATABASE_PASSWORD
-            value: "${JOB_SERVICE_DB_PASSWORD}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: JOB_SERVICE_DB_PASSWORD
           - name: CAF_RABBITMQ_HOST
-            value: "${CAF_RABBITMQ_HOST}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_HOST
           - name: CAF_RABBITMQ_PORT
-            value: "${CAF_RABBITMQ_PORT}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_PORT
           - name: CAF_RABBITMQ_USERNAME
-            value: "${CAF_RABBITMQ_USERNAME}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_USERNAME
           - name: CAF_RABBITMQ_PASSWORD
-            value: "${CAF_RABBITMQ_PASSWORD}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_PASSWORD
           - name: CAF_STATUS_CHECK_TIME
             value: "5"
           - name: CAF_TRACKING_PIPE
             value: "jobtracking-in"
           - name: CAF_WEBSERVICE_URL
-            value: "http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_WEBSERVICE_URL
         ports:
         - containerPort: 8080
-          hostPort: ${JOB_SERVICE_8080_SERVICE_PORT}
+          hostPort: 9411
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -127,32 +158,54 @@ spec:
         imagePullPolicy: Always
         env:
           - name: CAF_RABBITMQ_HOST
-            value: "${CAF_RABBITMQ_HOST}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_HOST
           - name: CAF_RABBITMQ_PORT
-            value: "${CAF_RABBITMQ_PORT}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_PORT
           - name: CAF_RABBITMQ_USERNAME
-            value: "${CAF_RABBITMQ_USERNAME}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_USERNAME
           - name: CAF_RABBITMQ_PASSWORD
-            value: "${CAF_RABBITMQ_PASSWORD}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_PASSWORD
           - name: CAF_STATUS_CHECK_TIME
             value: "5"
           - name: CAF_WEBSERVICE_URL
-            value: "http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_WEBSERVICE_URL
           - name: CAF_WORKER_ERROR_QUEUE
             value: "jobtracking-err"
           - name: CAF_WORKER_INPUT_QUEUE
             value: "jobtracking-in"
           - name: JOB_DATABASE_URL
-            value: "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_DATABASE_URL
           - name: JOB_DATABASE_USERNAME
-            value: "${JOB_SERVICE_DB_USER}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: JOB_SERVICE_DB_USER
           - name: JOB_DATABASE_PASSWORD
-            value: "${JOB_SERVICE_DB_PASSWORD}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: JOB_SERVICE_DB_PASSWORD
         ports:
         - containerPort: 8080
-          hostPort: ${JOB_TRACKING_8080_SERVICE_PORT}
         - containerPort: 8081
-          hostPort: ${JOB_TRACKING_8081_SERVICE_PORT}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -174,19 +227,40 @@ spec:
         imagePullPolicy: Always
         env:
           - name: CAF_DATABASE_URL
-            value: "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_DATABASE_URL
           - name: CAF_DATABASE_USERNAME
-            value: "${JOB_SERVICE_DB_USER}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: JOB_SERVICE_DB_USER
           - name: CAF_DATABASE_PASSWORD
-            value: "${JOB_SERVICE_DB_PASSWORD}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: JOB_SERVICE_DB_PASSWORD
           - name: CAF_RABBITMQ_HOST
-            value: "${CAF_RABBITMQ_HOST}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_HOST
           - name: CAF_RABBITMQ_PORT
-            value: "${CAF_RABBITMQ_PORT}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_PORT
           - name: CAF_RABBITMQ_USERNAME
-            value: "${CAF_RABBITMQ_USERNAME}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_USERNAME
           - name: CAF_RABBITMQ_PASSWORD
-            value: "${CAF_RABBITMQ_PASSWORD}"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_PASSWORD
           - name: CAF_SCHEDULED_EXECUTOR_PERIOD
             value: "10"
           - name: CAF_STATUS_CHECK_TIME
@@ -194,12 +268,14 @@ spec:
           - name: CAF_TRACKING_PIPE
             value: "jobtracking-in"
           - name: CAF_WEBSERVICE_URL
-            value: "http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1"
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_WEBSERVICE_URL
           - name: CAF_WORKER_INPUT_QUEUE
             value: "jobservicescheduler-in"
         ports:
         - containerPort: 8081
-          hostPort: ${JOB_SCHEDULED_EXECUTOR_8081_SERVICE_PORT}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -220,20 +296,32 @@ spec:
         image: ${worker-globfilter.version}
         imagePullPolicy: Always
         env:
-        - name: CAF_BATCH_WORKER_ERROR_QUEUE
-          value: "${CAF_BATCH_WORKER_ERROR_QUEUE}"
-        - name: CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER
-          value: "${CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER}"
-        - name: CAF_RABBITMQ_HOST
-          value: "${CAF_RABBITMQ_HOST}"
-        - name: CAF_RABBITMQ_PORT
-          value: "${CAF_RABBITMQ_PORT}"
-        - name: CAF_RABBITMQ_PASSWORD
-          value: "${CAF_RABBITMQ_PASSWORD}"
-        - name: CAF_RABBITMQ_USERNAME
-          value: "${CAF_RABBITMQ_USERNAME}"
-        - name: CAF_WORKER_INPUT_QUEUE
-          value: "${CAF_WORKER_GLOBFILTER_INPUT_QUEUE}"
+          - name: CAF_BATCH_WORKER_ERROR_QUEUE
+            value: "globfilter-err"
+          - name: CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER
+            value: "/mnt/caf-worker-input-dir"
+          - name: CAF_RABBITMQ_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_HOST
+          - name: CAF_RABBITMQ_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_PORT
+          - name: CAF_RABBITMQ_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_USERNAME
+          - name: CAF_RABBITMQ_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_PASSWORD
+          - name: CAF_WORKER_INPUT_QUEUE
+            value: "globfilter-in"
         volumeMounts:
           - mountPath: /mnt/caf-datastore-root
             name: worker-datastore
@@ -245,7 +333,7 @@ spec:
           claimName: worker-datastore
       - name: job-service-demo-input-dir
         hostPath:
-          path: ${JOB_SERVICE_DEMO_INPUT_DIR}
+          path: /job-service-test/input-files
           type: DirectoryOrCreate
 ---
 apiVersion: extensions/v1beta1
@@ -267,20 +355,32 @@ spec:
         image: ${worker-langdetect.version}
         imagePullPolicy: Always
         env:
-        - name: CAF_RABBITMQ_HOST
-          value: "${CAF_RABBITMQ_HOST}"
-        - name: CAF_RABBITMQ_PORT
-          value: "${CAF_RABBITMQ_PORT}"
-        - name: CAF_RABBITMQ_PASSWORD
-          value: "${CAF_RABBITMQ_PASSWORD}"
-        - name: CAF_RABBITMQ_USERNAME
-          value: "${CAF_RABBITMQ_USERNAME}"
-        - name: CAF_WORKER_INPUT_QUEUE
-          value: "${CAF_WORKER_LANGDETECT_INPUT_QUEUE}"
-        - name: CAF_WORKER_OUTPUT_QUEUE
-          value: "${CAF_WORKER_LANGDETECT_OUTPUT_QUEUE}"
-        - name: CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER
-          value: "${CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER}"
+          - name: CAF_RABBITMQ_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_HOST
+          - name: CAF_RABBITMQ_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_PORT
+          - name: CAF_RABBITMQ_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_USERNAME
+          - name: CAF_RABBITMQ_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_RABBITMQ_PASSWORD
+          - name: CAF_WORKER_INPUT_QUEUE
+            value: "languageidentification-in"
+          - name: CAF_WORKER_OUTPUT_QUEUE
+            value: "languageidentification-out"
+          - name: CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER
+            value: "/mnt/caf-worker-output-dir"
         volumeMounts:
           - mountPath: /mnt/caf-datastore-root
             name: worker-datastore
@@ -292,5 +392,5 @@ spec:
           claimName: worker-datastore
       - name: job-service-demo-output-dir
         hostPath:
-          path: ${JOB_SERVICE_DEMO_OUTPUT_DIR}
+          path: /job-service-test/output-files
           type: DirectoryOrCreate
