@@ -333,7 +333,7 @@ spec:
           claimName: worker-datastore
       - name: job-service-demo-input-dir
         hostPath:
-          path: /job-service-test/input-files
+          path: "/job-service-test/input-files"
           type: DirectoryOrCreate
 ---
 apiVersion: extensions/v1beta1
@@ -392,5 +392,5 @@ spec:
           claimName: worker-datastore
       - name: job-service-demo-output-dir
         hostPath:
-          path: /job-service-test/output-files
+          path: "/job-service-test/output-files"
           type: DirectoryOrCreate

@@ -33,145 +33,62 @@ The deployment files contain the following services:
 
 5. GlobFilter Worker  
     This is a simple worker developed just for this demonstration.  It is a Batch Worker which takes in a glob-pattern as the Batch Definition.  Glob-patterns are generally fairly simple.  For example, `*.txt` means "all text files in the input folder".  Even more complex patterns like `**/t*.txt`, which means "all text files which start with the letter 't' and are in the input folder or in any subfolders of the input folder", are fairly easy to understand.  The worker produces a separate task for each file which matches the glob-pattern.
+    
+    The input folder has been set to `/job-service-test/input-files` for the purposes of this demonstration.  This directory will be created on your Kubernetes Cluster when the Job Service components have been deployed.
+    
+    This should be a directory that contains a few sample text files in different languages. A few example files are contained in this repository `./input-files` directory. To test with these files they need to be moved into the `/job-service-test/input-files` directory on your Kubernetes Cluster.
+    
+    To do this in Minikube you can use `scp` to copy the files, for example:
 
-    The input folder can be defined by setting the `JOB_SERVICE_DEMO_INPUT_DIR` environment variable. This should be a directory in which contains a few sample text files in different languages. A few example files are contained in this repository `./input-files` directory.
+    `scp -i ~/.minikube/machines/minikube/id_rsa -r ./input-files docker@<KUBERNETES_CLUSTER>:/home/docker`
+    
+    Make sure that you replace `<KUBERNETES_CLUSTER>` with the IP address of your Kubernetes cluster. If you are using Minikube you can get this with the `minikube ip` command. The `scp` command will copy the files into the `/home/docker` directory so these will need to be moved to `/job-service-test/input-files` by running the following command when connected to the Minikube machine via `minikube ssh`:
+
+    `sudo mv /home/docker/input-files/ /job-service-test/`
 
 6. Language Detection Worker  
     This worker reads text files and determines what language or languages they are written in.  Typically it would return the result to another worker but for this demonstration it is configured to output the results to a folder.
 
-    The output folder can be defined by setting the `JOB_SERVICE_DEMO_OUTPUT_DIR` environment variable.
+    The output folder has been set to `/job-service-test/output-files` for the purposes of this demonstration. This directory will be created on your Kubernetes Cluster when the Job Service components have been deployed.
 
 ## Usage
 1. Download the files from this repository  
     You can clone this repository using Git or else you can simply download the files as a Zip using the following link:  
     [https://github.com/JobService/job-service-deploy/archive/develop.zip](https://github.com/JobService/job-service-deploy/archive/develop.zip)
 
-2. Edit the `kubernetes.env` file adding relevant values for the following Environment Variables:
+2. Create the Config Map by issuing the following command from the directory where you have downloaded the files to:
+ 
+	`kubectl create -f jobservice-config.yaml`
 
-    <table>
-      <tr>
-        <th>Environment Variable</th>
-        <th>Description</th>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_DB_HOSTNAME</td>
-        <td>This configures the host name for the PostgreSQL database.</td>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_DB_PORT</td>
-        <td>This configures the port for the PostgreSQL database.</td>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_DB_USER</td>
-        <td>The username for the PostgreSQL database.</td>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_DB_PASSWORD</td>
-        <td>The password for the PostgreSQL database.</td>
-      </tr>
-      <tr>
-        <td>CAF_RABBITMQ_HOST</td>
-        <td>This configures the host address for RabbitMQ.</td>
-      </tr>
-      <tr>
-        <td>CAF_RABBITMQ_PORT</td>
-        <td>This configures the port where RabbitMQ is accepting messages.</td>
-      </tr>
-      <tr>
-        <td>CAF_RABBITMQ_MANAGEMENT_PORT</td>
-        <td>This configures the management port for the RabbitMQ UI.</td>
-      </tr>
-      <tr>
-        <td>CAF_RABBITMQ_USERNAME</td>
-        <td>This configures the username for RabbitMQ.</td>
-      </tr>
-      <tr>
-        <td>CAF_RABBITMQ_PASSWORD</td>
-        <td>This configures the password for RabbitMQ.</td>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_HOST</td>
-        <td>This configures the host name for the `CAF_WEBSERVICE_URL`.</td>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_8080_SERVICE_PORT</td>
-        <td>This configures the external port number on the host machine that will be forwarded to the Job Service containers internal 8080 port. This port is used to call the Job Service web service.</td>
-      </tr>
-      <tr>
-        <td>JOB_TRACKING_8080_SERVICE_PORT</td>
-        <td>This configures the external port number on the host machine that will be forwarded to the Job Tracking workers internal 8080 port. This port is used to call the workers health check.</td>
-      </tr>
-      <tr>
-        <td>JOB_TRACKING_8081_SERVICE_PORT</td>
-        <td>This configures the external port number on the host machine that will be forwarded to the Job Tracking workers internal 8081 port. This port is used to retrieve metrics from the worker.</td>
-      </tr>
-      <tr>
-        <td>JOB_SCHEDULED_EXECUTOR_8081_SERVICE_PORT</td>
-        <td>This configures the external port number on the host machine that will be forwarded to the Job Scheduled Executors internal 8081 port.</td>
-      </tr>
-      <tr>
-        <td>CAF_WORKER_GLOBFILTER_INPUT_QUEUE</td>
-        <td>The RabbitMQ queue on which the Glob Filter worker listens.</td>
-      </tr>
-      <tr>
-        <td>CAF_BATCH_WORKER_ERROR_QUEUE</td>
-        <td>The RabbitMQ queue where failed Glob Filter worker messages are sent.</td>
-      </tr>
-      <tr>
-        <td>CAF_GLOB_WORKER_BINARY_DATA_INPUT_FOLDER</td>
-        <td>The location of the mounted directory inside the container where the test files are located.</td>
-      </tr>
-      <tr>
-        <td>CAF_WORKER_LANGDETECT_INPUT_QUEUE</td>
-        <td>The RabbitMQ queue on which the Language Detection worker listens.</td>
-      </tr>
-      <tr>
-        <td>CAF_WORKER_LANGDETECT_OUTPUT_QUEUE</td>
-        <td>The RabbitMQ queue on which the Language Detection worker outputs messages.</td>
-      </tr>
-      <tr>
-        <td>CAF_LANG_DETECT_WORKER_OUTPUT_FOLDER</td>
-        <td>The folder in which the Language Detection worker places result files.</td>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_DEMO_INPUT_DIR</td>
-        <td>The directory where the test files are located on the host.</td>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_DEMO_OUTPUT_DIR</td>
-        <td>The output directory for test results on the host.</td>
-      </tr>
-    </table>
+3. Create the Persistent Volumes by issuing the following command from the directory where you have downloaded the files to:
+ 
+	`kubectl create -f jobservice-pv.yaml`
 
-4. Deploy the services  
-	Deploy the persistent volume by issuing the following command from the directory where you have downloaded the files to:
+4. Create the Services by issuing the following command from the directory where you have downloaded the files to:
+ 
+	`kubectl create -f jobservice-service.yaml`
 
-    `kubectl create -f jobservice-persistentvolumeclaim.yaml`
+5. Deploy the Job Service and other required components by issuing the following command from the directory where you have downloaded the files to:
 
-	Deploy the database and RabbitMQ by issuing the following command from the directory where you have downloaded the files to:
+    `kubectl create -f jobservice-deployment.yaml`
 
-    ```
-	source ./kubernetes.env \
-            ; cat jobservice-deployment.yaml \
-            | perl -pe 's/\$\{(\w+)\}/(exists $ENV{$1} && length $ENV{$1} > 0 ? $ENV{$1} : "NOT_SET_$1")/eg' \
-            | kubectl create -f -
-	```
+    **Note:** By default the database is configured to run on port 5432, the Rabbit UI is configured to run on port 15672 and the Job Service is configured to run on port 9411 on the Kubernetes cluster, if these are in use you can edit the `jobservice-deployment.yaml` and change the `hostPort` values before deploying.
 
-5. Navigate to the Job Service UI  
+6. Navigate to the Job Service UI  
     The Job Service is a RESTful Web Service and is primarily intended for programmatic access, however it also ships with a Swagger-generated user-interface.
 
     Using a browser, navigate to the `/job-service-ui` endpoint on the Job Service:  
 
-        http://<docker-host>:<JOB_SERVICE_8080_SERVICE_PORT>/job-service-ui
+        http://<KUBERNETES_CLUSTER>:9411/job-service-ui
 
-    Adjust `docker-host` to be the name of your own Docker Host and adjust the `JOB_SERVICE_8080_SERVICE_PORT` to match what you set it to in the `kubernetes.env` file.
+    Replace `<KUBERNETES_CLUSTER>` with the IP address of your own Kubernetes cluster. If you changed the `hostPort` values in step 5 then you should replace `9411` with the port you configured.
 
-6. Try the `GET /jobStats/count` operation  
+7. Try the `GET /jobStats/count` operation  
     Click on this operation and then click on the 'Try it out!' button.
 
     You should see the response is zero as you have not yet created any jobs.
 
-7. Create a Job  
+8. Create a Job  
     Go to the `PUT /jobs/{jobId}` operation.
 
     - Choose a Job Id, for example, `DemoJob`, and set it in the `jobId` parameter.
@@ -200,7 +117,7 @@ The deployment files contain the following services:
           }
         }</code></pre>
 
-8. Check on the Job's progress  
+9. Check on the Job's progress  
     Go to the `GET /jobs/{jobId}` operation.
 
     - Enter the Job Id that you chose when creating the job.
