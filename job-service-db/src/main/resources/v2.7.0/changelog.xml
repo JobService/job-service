@@ -24,8 +24,7 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
     <changeSet id="alter_functions_stable" runOnChange="true" author="Gamma Team">
-        <sql dbms="postgres"
-             endDelimiter=";">
+        <sql>
             ALTER FUNCTION get_job(varchar) STABLE;
             ALTER FUNCTION get_jobs(varchar, varchar, int, int) STABLE;
             ALTER FUNCTION get_jobs_count(varchar, varchar) STABLE;
@@ -36,8 +35,7 @@
         </sql>  
     </changeSet>
     <changeSet id="alter_functions_immutable" runOnChange="true" author="Gamma Team">
-        <sql dbms="postgres"
-             endDelimiter=";">
+        <sql>
             ALTER FUNCTION internal_get_parent_task_id(varchar) IMMUTABLE;
             ALTER FUNCTION internal_to_regclass(varchar) IMMUTABLE;
             ALTER FUNCTION internal_get_job_id(varchar) IMMUTABLE;
