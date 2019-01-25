@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright 2015-2018 Micro Focus or one of its affiliates.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                                       http://www.liquibase.org/xml/ns/dbchangelog
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+    <changeSet id="alter_functions_stable" runOnChange="true" author="Gamma Team">
+        <sql dbms="postgres"
+             endDelimiter=";">
+            ALTER FUNCTION get_job(varchar) STABLE;
+            ALTER FUNCTION get_jobs(varchar, varchar, int, int) STABLE;
+            ALTER FUNCTION get_jobs_count(varchar, varchar) STABLE;
+            ALTER FUNCTION internal_does_table_exist(varchar) STABLE;
+            ALTER FUNCTION internal_get_subtask_count(varchar) STABLE;
+            ALTER FUNCTION internal_get_task_status(varchar) STABLE;
+            ALTER FUNCTION internal_is_task_completed(varchar) STABLE;
+        </sql>  
+    </changeSet>
+    <changeSet id="alter_functions_immutable" runOnChange="true" author="Gamma Team">
+        <sql dbms="postgres"
+             endDelimiter=";">
+            ALTER FUNCTION internal_get_parent_task_id(varchar) IMMUTABLE;
+            ALTER FUNCTION internal_to_regclass(varchar) IMMUTABLE;
+            ALTER FUNCTION internal_get_job_id(varchar) IMMUTABLE;
+            ALTER FUNCTION internal_get_subtask_id(varchar) IMMUTABLE;
+            ALTER FUNCTION internal_is_final_task(varchar) IMMUTABLE;
+            ALTER FUNCTION internal_resolve_status(job_status, job_status) IMMUTABLE;
+        </sql>  
+    </changeSet>
+</databaseChangeLog>
