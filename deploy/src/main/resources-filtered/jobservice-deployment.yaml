@@ -326,15 +326,14 @@ spec:
           - mountPath: /mnt/caf-datastore-root
             name: worker-datastore
           - mountPath: /mnt/caf-worker-input-dir
-            name: job-service-demo-input-dir
+            name: jobservice-test-input-files
       volumes:
       - name: worker-datastore
         persistentVolumeClaim:
           claimName: worker-datastore
-      - name: job-service-demo-input-dir
-        hostPath:
-          path: "/job-service-test/input-files"
-          type: DirectoryOrCreate
+      - name: jobservice-test-input-files
+        persistentVolumeClaim:
+          claimName: jobservice-test-input-files
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -385,12 +384,47 @@ spec:
           - mountPath: /mnt/caf-datastore-root
             name: worker-datastore
           - mountPath: /mnt/caf-worker-output-dir
-            name: job-service-demo-output-dir
+            name: jobservice-test-output-files
       volumes:
       - name: worker-datastore
         persistentVolumeClaim:
           claimName: worker-datastore
-      - name: job-service-demo-output-dir
-        hostPath:
-          path: "/job-service-test/output-files"
-          type: DirectoryOrCreate
+      - name: jobservice-test-output-files
+        persistentVolumeClaim:
+          claimName: jobservice-test-output-files
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: filebrowser
+  labels:
+    io.kompose.service: filebrowser
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: ${maven.build.timestamp}
+      labels:
+        io.kompose.service: filebrowser
+    spec:
+      containers:
+      - name: filebrowser
+        image: filebrowser/filebrowser:v2.0.2
+        imagePullPolicy: Always
+        volumeMounts:
+          - mountPath: /srv/input-files
+            name: jobservice-test-input-files
+          - mountPath: /srv/output-files
+            name: jobservice-test-output-files
+        ports:
+        - containerPort: 80
+          hostPort: 9415
+      volumes:
+      - name: jobservice-test-input-files
+        persistentVolumeClaim:
+          claimName: jobservice-test-input-files
+      - name: jobservice-test-output-files
+        persistentVolumeClaim:
+          claimName: jobservice-test-output-files

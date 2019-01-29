@@ -22,6 +22,9 @@ The deployment files contain the following services:
 1. Job Service  
     This is the Job Service itself.  As discussed it is a RESTful Web Service and is the primary service being demonstrated here.
 
+2. PostgreSQL  
+    PostgreSQL 9.6 container used to store the Job Service database.
+
 2. RabbitMQ  
     The Worker Framework is a pluggable infrastructure and technically it can use different messaging systems.  However it is most common for RabbitMQ to be used for messaging, and that is what is used here.
 
@@ -51,6 +54,9 @@ The deployment files contain the following services:
 
     The output folder has been set to `/job-service-test/output-files` for the purposes of this demonstration. This directory will be created on your Kubernetes Cluster when the Job Service components have been deployed.
 
+7. FileBrowser  
+    This is a web-based file browser provided here to store the input and output test files for demonstration purposes. 
+
 ## Usage
 1. Download the files from this repository  
     You can clone this repository using Git or else you can simply download the files as a Zip using the following link:  
@@ -72,9 +78,24 @@ The deployment files contain the following services:
 
     `kubectl create -f jobservice-deployment.yaml`
 
-    **Note:** By default the database is configured to run on port 5432, the Rabbit UI is configured to run on port 15672 and the Job Service is configured to run on port 9411 on the Kubernetes cluster, if these are in use you can edit the `jobservice-deployment.yaml` and change the `hostPort` values before deploying.
+    **Note:** By default the database is configured to run on port 5432, the Rabbit UI is configured to run on port 15672, the Job Service is configured to run on port 9411 and FileBrowser is configured to run on port 9415 on the Kubernetes cluster, if these are in use you can edit the `jobservice-deployment.yaml` and change the `hostPort` values before deploying.
 
-6. Navigate to the Job Service UI  
+6. Navigate to the FileBrowser UI  
+    Using a browser, navigate to the following URL to access FileBrowser:
+
+        http://<KUBERNETES_CLUSTER>:9415
+
+    Replace `<KUBERNETES_CLUSTER>` with the IP address of your own Kubernetes cluster. If you changed the `hostPort` values in step 5 then you should replace `9415` with the port you configured.
+
+7. Upload the test files for the demonstration to FileBrowser  
+    When prompted login to FileBrowser using:
+
+        USERNAME: admin
+        PASSWORD: admin
+    
+    Click into the `input-files` directory and click the `Upload` button at the top-right of the screen. Then browse to the `input-files` directory of the repository files on your machine and upload all `txt` files.
+
+7. Navigate to the Job Service UI  
     The Job Service is a RESTful Web Service and is primarily intended for programmatic access, however it also ships with a Swagger-generated user-interface.
 
     Using a browser, navigate to the `/job-service-ui` endpoint on the Job Service:  
@@ -83,12 +104,12 @@ The deployment files contain the following services:
 
     Replace `<KUBERNETES_CLUSTER>` with the IP address of your own Kubernetes cluster. If you changed the `hostPort` values in step 5 then you should replace `9411` with the port you configured.
 
-7. Try the `GET /jobStats/count` operation  
+8. Try the `GET /jobStats/count` operation  
     Click on this operation and then click on the 'Try it out!' button.
 
     You should see the response is zero as you have not yet created any jobs.
 
-8. Create a Job  
+9. Create a Job  
     Go to the `PUT /jobs/{jobId}` operation.
 
     - Choose a Job Id, for example, `DemoJob`, and set it in the `jobId` parameter.
@@ -117,7 +138,7 @@ The deployment files contain the following services:
           }
         }</code></pre>
 
-9. Check on the Job's progress  
+10. Check on the Job's progress  
     Go to the `GET /jobs/{jobId}` operation.
 
     - Enter the Job Id that you chose when creating the job.
@@ -127,7 +148,8 @@ The deployment files contain the following services:
     - If the job is still in progress then the `status` field will be `Active` and the `percentageComplete` field will indicate the progress of the job.
     - If the job has finished then the `status` field will be `Completed`.
 
-    Given that the Language Detection Worker is configured to output the results to files in a folder you should see that these files have been created in the output folder.  If you examine the output files you should see that they contain the details of what languages were detected in the corresponding input files.
+11. Check the results  
+    The Language Detection Worker is configured to output the results to files and you should see that these files have been created in the `output-files` directory in FileBrowser. If you examine the files via FileBrowser you should see that they contain the details of what languages were detected in the corresponding input files.
 
 ## Production Deployment
 
