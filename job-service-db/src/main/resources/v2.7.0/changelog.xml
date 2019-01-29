@@ -23,6 +23,10 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
                                        http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+    <changeSet id="drop_jobid_status_index" author="Gamma Team">
+        <dropIndex indexName="idx_job_jobid_status"
+                   tableName="job"/>
+    </changeSet>
     <changeSet id="alter_functions_stable" runOnChange="true" author="Gamma Team">
         <sql>
             ALTER FUNCTION get_job(varchar) STABLE;
