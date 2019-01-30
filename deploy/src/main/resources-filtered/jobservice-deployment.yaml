@@ -35,6 +35,11 @@ spec:
         ports:
         - containerPort: 5432
           hostPort: 5432
+        readinessProbe:
+          exec:
+            command: ["psql", "-U", "postgres", "-d", "postgres", "-c", "SELECT 1"]
+          initialDelaySeconds: 5
+          periodSeconds: 2
       volumes:
       - name: job-service-db
         persistentVolumeClaim:

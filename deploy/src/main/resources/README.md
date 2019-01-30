@@ -25,16 +25,16 @@ The deployment files contain the following services:
 2. PostgreSQL  
     PostgreSQL 9.6 container used to store the Job Service database.
 
-2. RabbitMQ  
+3. RabbitMQ  
     The Worker Framework is a pluggable infrastructure and technically it can use different messaging systems.  However it is most common for RabbitMQ to be used for messaging, and that is what is used here.
 
-3. Job Tracking Worker  
+4. Job Tracking Worker  
     For simplicity the Job Tracking Worker is not shown on the diagram above.  The diagram shows messages passing directly between the workers, but in reality the messages are passed through the Job Tracking Worker, which acts as a proxy for them.  It routes them to their intended destination but it also updates the Job Service Database with the progress.  This means that the Job Service is able to provide accurate progress reports when they are requested.
 
-4. Job Service Scheduled Executor  
+5. Job Service Scheduled Executor  
     This is a polling service that identifies jobs in the system that depend on other jobs which are now complete. It is an ExecutorService which schedules a task to execute repeatedly identifying jobs which are ready to run. For simplicity, this service is not shown in the diagram but for each job identified, a message is then published on RabbitMQ in order to start the job.
 
-5. GlobFilter Worker  
+6. GlobFilter Worker  
     This is a simple worker developed just for this demonstration.  It is a Batch Worker which takes in a glob-pattern as the Batch Definition.  Glob-patterns are generally fairly simple.  For example, `*.txt` means "all text files in the input folder".  Even more complex patterns like `**/t*.txt`, which means "all text files which start with the letter 't' and are in the input folder or in any subfolders of the input folder", are fairly easy to understand.  The worker produces a separate task for each file which matches the glob-pattern.
     
     The input folder has been set to `/job-service-test/input-files` for the purposes of this demonstration.  This directory will be created on your Kubernetes Cluster when the Job Service components have been deployed.
@@ -49,12 +49,12 @@ The deployment files contain the following services:
 
     `sudo mv /home/docker/input-files/ /job-service-test/`
 
-6. Language Detection Worker  
+7. Language Detection Worker  
     This worker reads text files and determines what language or languages they are written in.  Typically it would return the result to another worker but for this demonstration it is configured to output the results to a folder.
 
     The output folder has been set to `/job-service-test/output-files` for the purposes of this demonstration. This directory will be created on your Kubernetes Cluster when the Job Service components have been deployed.
 
-7. FileBrowser  
+8. FileBrowser  
     This is a web-based file browser provided here to store the input and output test files for demonstration purposes. 
 
 ## Usage
@@ -95,7 +95,7 @@ The deployment files contain the following services:
     
     Click into the `input-files` directory and click the `Upload` button at the top-right of the screen. Then browse to the `input-files` directory of the repository files on your machine and upload all `txt` files.
 
-7. Navigate to the Job Service UI  
+8. Navigate to the Job Service UI  
     The Job Service is a RESTful Web Service and is primarily intended for programmatic access, however it also ships with a Swagger-generated user-interface.
 
     Using a browser, navigate to the `/job-service-ui` endpoint on the Job Service:  
@@ -104,12 +104,12 @@ The deployment files contain the following services:
 
     Replace `<KUBERNETES_CLUSTER>` with the IP address of your own Kubernetes cluster. If you changed the `hostPort` values in step 5 then you should replace `9411` with the port you configured.
 
-8. Try the `GET /jobStats/count` operation  
+9. Try the `GET /jobStats/count` operation  
     Click on this operation and then click on the 'Try it out!' button.
 
     You should see the response is zero as you have not yet created any jobs.
 
-9. Create a Job  
+10. Create a Job  
     Go to the `PUT /jobs/{jobId}` operation.
 
     - Choose a Job Id, for example, `DemoJob`, and set it in the `jobId` parameter.
@@ -138,7 +138,7 @@ The deployment files contain the following services:
           }
         }</code></pre>
 
-10. Check on the Job's progress  
+11. Check on the Job's progress  
     Go to the `GET /jobs/{jobId}` operation.
 
     - Enter the Job Id that you chose when creating the job.
@@ -148,7 +148,7 @@ The deployment files contain the following services:
     - If the job is still in progress then the `status` field will be `Active` and the `percentageComplete` field will indicate the progress of the job.
     - If the job has finished then the `status` field will be `Completed`.
 
-11. Check the results  
+12. Check the results  
     The Language Detection Worker is configured to output the results to files and you should see that these files have been created in the `output-files` directory in FileBrowser. If you examine the files via FileBrowser you should see that they contain the details of what languages were detected in the corresponding input files.
 
 ## Production Deployment
