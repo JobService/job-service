@@ -40,10 +40,6 @@
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-tracking-report</artifactId>
         </dependency>
-        <!--        <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-core</artifactId>
-        </dependency>-->
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>worker-jobtracking-shared</artifactId>
@@ -56,18 +52,10 @@
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-api</artifactId>
         </dependency>
-        <!--        <dependency>
-            <groupId>com.github.cafapi.util</groupId>
-            <artifactId>util-moduleloader</artifactId>
-        </dependency>-->
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>util-rabbitmq</artifactId>
         </dependency>
-        <!--        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>-->
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
@@ -76,7 +64,6 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.1.1</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

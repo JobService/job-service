@@ -52,7 +52,6 @@
 
     <dependencyManagement>
         <dependencies>
-          
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>
                 <artifactId>util-liquibase-installer</artifactId>

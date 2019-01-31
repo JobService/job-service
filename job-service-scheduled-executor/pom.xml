@@ -52,14 +52,9 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-<!--            <version>9.1-901.jdbc4</version>-->
         </dependency>
 
         <!-- RabbitMQ queuing services support -->
-<!--        <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-queue-rabbit</artifactId>
-        </dependency>-->
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>util-rabbitmq</artifactId>
