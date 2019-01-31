@@ -36,23 +36,9 @@ The deployment files contain the following services:
 
 6. GlobFilter Worker  
     This is a simple worker developed just for this demonstration.  It is a Batch Worker which takes in a glob-pattern as the Batch Definition.  Glob-patterns are generally fairly simple.  For example, `*.txt` means "all text files in the input folder".  Even more complex patterns like `**/t*.txt`, which means "all text files which start with the letter 't' and are in the input folder or in any subfolders of the input folder", are fairly easy to understand.  The worker produces a separate task for each file which matches the glob-pattern.
-    
-    The input folder has been set to `/job-service-test/input-files` for the purposes of this demonstration.  This directory will be created on your Kubernetes Cluster when the Job Service components have been deployed.
-    
-    This should be a directory that contains a few sample text files in different languages. A few example files are contained in this repository `./input-files` directory. To test with these files they need to be moved into the `/job-service-test/input-files` directory on your Kubernetes Cluster.
-    
-    To do this in Minikube you can use `scp` to copy the files, for example:
-
-    `scp -i ~/.minikube/machines/minikube/id_rsa -r ./input-files docker@<KUBERNETES_CLUSTER>:/home/docker`
-    
-    Make sure that you replace `<KUBERNETES_CLUSTER>` with the IP address of your Kubernetes cluster. If you are using Minikube you can get this with the `minikube ip` command. The `scp` command will copy the files into the `/home/docker` directory so these will need to be moved to `/job-service-test/input-files` by running the following command when connected to the Minikube machine via `minikube ssh`:
-
-    `sudo mv /home/docker/input-files/ /job-service-test/`
 
 7. Language Detection Worker  
     This worker reads text files and determines what language or languages they are written in.  Typically it would return the result to another worker but for this demonstration it is configured to output the results to a folder.
-
-    The output folder has been set to `/job-service-test/output-files` for the purposes of this demonstration. This directory will be created on your Kubernetes Cluster when the Job Service components have been deployed.
 
 8. FileBrowser  
     This is a web-based file browser provided here to store the input and output test files for demonstration purposes. 
