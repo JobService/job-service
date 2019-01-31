@@ -10,24 +10,20 @@ The Job Service is a RESTful Web Service and provides a simple API.  It tracks t
 ## Deployment Repository
 This repository provides the necessary files to easily get started using the Job Service.
 
-The only pre-requisite required to get started is that [Docker](https://www.docker.com/) must be available on the system.
+The deployment files are in [Kubernetes](https://kubernetes.io/) format. If you are new to Kubernetes then a quick way to get started is to use [Minikube](https://kubernetes.io/docs/setup/minikube/).
 
-The deployment files are in Docker Compose v3 format, and they are compatible with both [Docker Compose](https://docs.docker.com/compose/) and [Docker Stack](https://docs.docker.com/engine/reference/commandline/stack_deploy/).
-
-As well as the Job Service and the Job Service Database the deployment files reference several other services.  These are just simple workers, built using the Worker Framework, that are included to provide a simple but complete demonstration of the Job Service.
+As well as the Job Service the deployment files reference several other services.  These are just simple workers, built using the Worker Framework, that are included to provide a simple but complete demonstration of the Job Service.
 
 ## Demonstration
-The Docker Compose file contains the following services:
+The deployment files contain the following services:
 
 ![](images/job-service-deploy.png)
 
 1. Job Service  
     This is the Job Service itself.  As discussed it is a RESTful Web Service and is the primary service being demonstrated here.
 
-    By default port 9411 is used to communicate with the Job Service but if that port is not available then the `JOB_SERVICE_PORT` environment variable can be set to have a different port used.
-
-2. Job Service Database  
-    Internally the Job Service uses a PostgreSQL Database to store the Job Status information.  When the stack is started a `job-service-db` volume will be created to store the database files.
+2. PostgreSQL  
+    PostgreSQL 9.6 container used to store the Job Service database.
 
 3. RabbitMQ  
     The Worker Framework is a pluggable infrastructure and technically it can use different messaging systems.  However it is most common for RabbitMQ to be used for messaging, and that is what is used here.
@@ -40,76 +36,80 @@ The Docker Compose file contains the following services:
 
 6. GlobFilter Worker  
     This is a simple worker developed just for this demonstration.  It is a Batch Worker which takes in a glob-pattern as the Batch Definition.  Glob-patterns are generally fairly simple.  For example, `*.txt` means "all text files in the input folder".  Even more complex patterns like `**/t*.txt`, which means "all text files which start with the letter 't' and are in the input folder or in any subfolders of the input folder", are fairly easy to understand.  The worker produces a separate task for each file which matches the glob-pattern.
+    
+    The input folder has been set to `/job-service-test/input-files` for the purposes of this demonstration.  This directory will be created on your Kubernetes Cluster when the Job Service components have been deployed.
+    
+    This should be a directory that contains a few sample text files in different languages. A few example files are contained in this repository `./input-files` directory. To test with these files they need to be moved into the `/job-service-test/input-files` directory on your Kubernetes Cluster.
+    
+    To do this in Minikube you can use `scp` to copy the files, for example:
 
-    By default the input folder is `./input-files`, which is a directory in this repository which contains a few sample text files in different languages.  A different input folder can be used by setting the `JOB_SERVICE_DEMO_INPUT_DIR` environment variable.
+    `scp -i ~/.minikube/machines/minikube/id_rsa -r ./input-files docker@<KUBERNETES_CLUSTER>:/home/docker`
+    
+    Make sure that you replace `<KUBERNETES_CLUSTER>` with the IP address of your Kubernetes cluster. If you are using Minikube you can get this with the `minikube ip` command. The `scp` command will copy the files into the `/home/docker` directory so these will need to be moved to `/job-service-test/input-files` by running the following command when connected to the Minikube machine via `minikube ssh`:
+
+    `sudo mv /home/docker/input-files/ /job-service-test/`
 
 7. Language Detection Worker  
     This worker reads text files and determines what language or languages they are written in.  Typically it would return the result to another worker but for this demonstration it is configured to output the results to a folder.
 
-    By default the output folder used is `./output-files`, but a different folder can be used by setting the `JOB_SERVICE_DEMO_OUTPUT_DIR` environment variable.
+    The output folder has been set to `/job-service-test/output-files` for the purposes of this demonstration. This directory will be created on your Kubernetes Cluster when the Job Service components have been deployed.
+
+8. FileBrowser  
+    This is a web-based file browser provided here to store the input and output test files for demonstration purposes. 
 
 ## Usage
 1. Download the files from this repository  
     You can clone this repository using Git or else you can simply download the files as a Zip using the following link:  
     [https://github.com/JobService/job-service-deploy/archive/develop.zip](https://github.com/JobService/job-service-deploy/archive/develop.zip)
 
-2. Configure the external parameters if required  
-    The following parameters may be set:
+2. Create the Config Map by issuing the following command from the directory where you have downloaded the files to:
+ 
+	`kubectl create -f jobservice-config.yaml`
 
-    <table>
-      <tr>
-        <th>Environment Variable</th>
-        <th>Default</th>
-        <th>Description</th>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_PORT</td>
-        <td>9411</td>
-        <td>This is the port that the Job Service is configured to listen on.</td>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_DEMO_INPUT_DIR</td>
-        <td>./input&#8209;files</td>
-        <td>This directory is made available as a source for input files which may be read. The glob-pattern is passed in as a parameter but this is the base directory that it starts from; it cannot read any files which are outside this directory.</td>
-      </tr>
-      <tr>
-        <td>JOB_SERVICE_DEMO_OUTPUT_DIR</td>
-        <td>./output&#8209;files</td>
-        <td>This directory is used for storing the output from the Language Detection operation.</td>
-      </tr>
-    </table>
+3. Create the Persistent Volumes by issuing the following command from the directory where you have downloaded the files to:
+ 
+	`kubectl create -f jobservice-pv.yaml`
 
-    In order to run multiple instances of the demonstration stack simultaneously it would be necessary to set the `JOB_SERVICE_PORT` parameter to different values for each instance.
+4. Create the Services by issuing the following command from the directory where you have downloaded the files to:
+ 
+	`kubectl create -f jobservice-service.yaml`
 
-3. Deploy the services  
-    First navigate to the folder where you have downloaded the files to and then run one of the following commands, depending on whether you are using Docker Compose or Docker Stack:
+5. Deploy the Job Service and other required components by issuing the following command from the directory where you have downloaded the files to:
 
-    <table>
-      <tr>
-        <td><b>Docker Compose</b></td>
-        <td>docker-compose up</td>
-      </tr>
-      <tr>
-        <td><b>Docker Stack</b></td>
-        <td>docker stack deploy --compose-file=docker-compose.yml jobservicedemo</td>
-      </tr>
-    </table>
+    `kubectl create -f jobservice-deployment.yaml`
 
-4. Navigate to the Job Service UI  
+    **Note:** By default the database is configured to run on port 5432, the Rabbit UI is configured to run on port 15672, the Job Service is configured to run on port 9411 and FileBrowser is configured to run on port 9415 on the Kubernetes cluster, if these are in use you can edit the `jobservice-deployment.yaml` and change the `hostPort` values before deploying.
+
+6. Navigate to the FileBrowser UI  
+    Using a browser, navigate to the following URL to access FileBrowser:
+
+        http://<KUBERNETES_CLUSTER>:9415
+
+    Replace `<KUBERNETES_CLUSTER>` with the IP address of your own Kubernetes cluster. If you changed the `hostPort` values in step 5 then you should replace `9415` with the port you configured.
+
+7. Upload the test files for the demonstration to FileBrowser  
+    When prompted login to FileBrowser using:
+
+        USERNAME: admin
+        PASSWORD: admin
+    
+    Click into the `input-files` directory and click the `Upload` button at the top-right of the screen. Then browse to the `input-files` directory of the repository files on your machine and upload all `txt` files.
+
+8. Navigate to the Job Service UI  
     The Job Service is a RESTful Web Service and is primarily intended for programmatic access, however it also ships with a Swagger-generated user-interface.
 
     Using a browser, navigate to the `/job-service-ui` endpoint on the Job Service:  
 
-        http://docker-host:9411/job-service-ui
+        http://<KUBERNETES_CLUSTER>:9411/job-service-ui
 
-    Adjust 'docker-host' to be the name of your own Docker Host and adjust the port if you are not using the default.
+    Replace `<KUBERNETES_CLUSTER>` with the IP address of your own Kubernetes cluster. If you changed the `hostPort` values in step 5 then you should replace `9411` with the port you configured.
 
-5. Try the `GET /jobStats/count` operation  
+9. Try the `GET /jobStats/count` operation  
     Click on this operation and then click on the 'Try it out!' button.
 
     You should see the response is zero as you have not yet created any jobs.
 
-6. Create a Job  
+10. Create a Job  
     Go to the `PUT /jobs/{jobId}` operation.
 
     - Choose a Job Id, for example, `DemoJob`, and set it in the `jobId` parameter.
@@ -138,7 +138,7 @@ The Docker Compose file contains the following services:
           }
         }</code></pre>
 
-7. Check on the Job's progress  
+11. Check on the Job's progress  
     Go to the `GET /jobs/{jobId}` operation.
 
     - Enter the Job Id that you chose when creating the job.
@@ -148,80 +148,23 @@ The Docker Compose file contains the following services:
     - If the job is still in progress then the `status` field will be `Active` and the `percentageComplete` field will indicate the progress of the job.
     - If the job has finished then the `status` field will be `Completed`.
 
-    Given that the Language Detection Worker is configured to output the results to files in a folder you should see that these files have been created in the output folder.  If you examine the output files you should see that they contain the details of what languages were detected in the corresponding input files.
+12. Check the results  
+    The Language Detection Worker is configured to output the results to files and you should see that these files have been created in the `output-files` directory in FileBrowser. If you examine the files via FileBrowser you should see that they contain the details of what languages were detected in the corresponding input files.
 
-## Override Files
-Docker Compose supports the concept of Override Files which can be used to modify the service definitions in the main Docker Compose files, or to add extra service definitions.
+## Production Deployment
 
-The following override files are supplied alongside the main Docker Compose file for the service:
+### Production-Marathon
 
-<table>
-  <tr>
-    <th>Override File</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td>docker&#8209;compose.debug.yml</td>
-    <td>This override file can be used by developers to help with debugging. It increases the logging levels, puts the services into a mode where a Java debugger can be attached to them, and exposes endpoints which are not normally exposed outside of the internal network.<p>
-    <p>        
-    The following additional endpoints are exposed to the external network:<p>
-    <ol>
-      <li>Job Service Database Connection Port</li>
-      <li>RabbitMQ UI Port</li>
-      <li>Java Debugging Port for all Workers</li>
-      <li>Admin / HealthCheck Port for all Workers</li>
-    </ol>
-    <p>
-    The override file itself can be examined to check which ports these internal ports are exposed on. The external ports are not used for the normal operation of the services so they can be safely modified if they clash with any other services running on the host.</td>
-  </tr>
-  <tr>
-    <td>docker&#8209;compose.https.yml</td>
-    <td>This override file can be used to activate a HTTPS port in the Job Service which can be used for secure communication.<p>
-    <p>
-    You must provide a keystore file either at the default path (./keystore/.keystore) or a custom path and set the JOB_SERVICE_KEYSTORE environment variable.<p>
-    <p>
-    The default port exposed for HTTPS communication is 9412 but this can be overridden by supplying the environment variable JOB_SERVICE_PORT_HTTPS.</td>
-  </tr>
-</table>
+The [production-marathon](production-marathon) folder contains a set of template files for the configuration and deployment of the Job Service on Mesos/Marathon. This folder contains the marathon environment and template files that are required to deploy the Job Service, Job Service Scheduled Executor and Job Tracking Worker.
 
-Use the -f switch to apply override files.  For example, to start the services with the docker-compose.debug.yml file applied run the following command:
+### Production-Marathon-Prerequisites
 
-    docker-compose -f docker-compose.yml -f docker-compose.debug.yml up
+The [production-marathon-prerequisites](production-marathon-prerequisites) folder is used for testing the production templates in a non-production environment. It contains Marathon templates that are required to deploy the Job Service Database and RabbitMQ. **Note:** templates are provided to run a PostgreSQL database in Marathon, whereas in a real production environment the PostgreSQL database should be set up independently, following its own production standards.
 
-### Activating HTTPS endpoint
+### Production-Marathon-Testing
 
-Optionally, the `docker-compose.https.yml` override can be used to activate a HTTPS endpoint for secure communication with the Job Service.
+The [production-marathon-testing](production-marathon-testing) deployment supports the deployment of the components required to smoke test a Job Service deployment on Mesos/Marathon. This folder contains the marathon environment and template files that are required to deploy the Glob Filter and Language Detection Workers.
 
-You can generate a default keystore setting both the keystore password and key password as `changeit` by running the following command:
+### Production Docker Swarm Deployment
 
-`keytool -genkey -alias tomcat -keystore .keystore -keyalg RSA`
-
-Generating a custom keystore with your own password/alias/protocol is not currently supported. For more information on generating keystores see these [instructions](https://tomcat.apache.org/tomcat-7.0-doc/ssl-howto.html).
-
-Place this keystore file in a folder called `keystore` in job-service-deploy. Name it `.keystore` or else provide your own custom path by setting `JOB_SERVICE_KEYSTORE` (e.g. `./mykeystore/ks.p12`).
-
-You can optionally override the default HTTPS port (9412) by providing the environment variable <code>JOB_SERVICE_PORT_HTTPS</code>.
-
-Run the following command:
-
-`docker-compose -f docker-compose.yml -f docker-compose.https.yml up`.
-
-Additional override parameters can be set and their function is described below.
-
-<table>
-  <tr>
-    <th>Environment Variable</th>
-    <th>Default</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td>JOB_SERVICE_PORT_HTTPS</td>
-    <td>9412</td>
-    <td>This is the HTTPS port to be exposed in the Job Service to allow secure communication. Unless a keystore is provided, the HTTPS port will not be active.</td>
-  </tr>
-  <tr>
-    <td>JOB_SERVICE_KEYSTORE</td>
-    <td>./keystore/.keystore</td>
-    <td>If you are activating the HTTPS port, you can override the default keystore location to provide your own keystore as a volume. This is the path of the keystore file (i.e. `./mykeystore/ks.p12`).</td>
-  </tr>
-</table>
+The [Production Docker Stack](production-swarm) Deployment supports the deployment of the Job Service on Docker Swarm.
