@@ -47,20 +47,17 @@
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service</artifactId>
-            <version>${project.version}</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-admin</artifactId>
-            <version>${project.version}</version>
             <type>war</type>
         </dependency>
         <!-- Swagger UI -->
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-ui</artifactId>
-            <version>${project.version}</version>
             <type>war</type>
         </dependency>
         <dependency>
@@ -76,7 +73,6 @@
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-client</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -117,10 +113,8 @@
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-db</artifactId>
-            <version>2.7.0-SNAPSHOT</version>
             <classifier>jar-with-dependencies</classifier>
             <scope>runtime</scope>
-            <type>jar</type>
         </dependency>
     </dependencies>
 

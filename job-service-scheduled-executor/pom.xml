@@ -50,16 +50,16 @@
 
         <!-- PostgreSQL database -->
         <dependency>
-            <groupId>postgresql</groupId>
+            <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.1-901.jdbc4</version>
+<!--            <version>9.1-901.jdbc4</version>-->
         </dependency>
 
         <!-- RabbitMQ queuing services support -->
-        <dependency>
+<!--        <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-queue-rabbit</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>util-rabbitmq</artifactId>
@@ -92,6 +92,26 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cafapi</groupId>
+            <artifactId>caf-api</artifactId>
         </dependency>
     </dependencies>
 

@@ -56,7 +56,6 @@
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-scheduled-executor</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.cafdataprocessing</groupId>

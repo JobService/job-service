@@ -40,14 +40,13 @@
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-tracking-report</artifactId>
         </dependency>
-        <dependency>
+        <!--        <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-core</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>worker-jobtracking-shared</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
@@ -57,18 +56,18 @@
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-api</artifactId>
         </dependency>
-        <dependency>
+        <!--        <dependency>
             <groupId>com.github.cafapi.util</groupId>
             <artifactId>util-moduleloader</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>util-rabbitmq</artifactId>
         </dependency>
-        <dependency>
+        <!--        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
@@ -79,6 +78,22 @@
             <artifactId>postgresql</artifactId>
             <version>42.1.1</version>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cafapi</groupId>
+            <artifactId>caf-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -104,10 +119,6 @@
             <groupId>javax.el</groupId>
             <artifactId>javax.el-api</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
         </dependency>
     </dependencies>
 
