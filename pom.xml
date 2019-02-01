@@ -45,10 +45,174 @@
         <dockerJobServiceOrg>${dockerImagePrefix}${dockerHubOrganization}${dockerOrgSeperator}</dockerJobServiceOrg>
         <dockerProjectVersion>${dockerVersionSeperator}${project.version}</dockerProjectVersion>
         <gitRepo>https://github.com/JobService/job-service</gitRepo>
+        <enforceCorrectDependencies>true</enforceCorrectDependencies>
+        <swagger-core-version>1.5.4</swagger-core-version>
+        <jersey-version>1.19</jersey-version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.github.workerframework</groupId>
+                <artifactId>worker-framework</artifactId>
+                <version>${caf.worker-framework.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cafapi.util</groupId>
+                <artifactId>util-liquibase-installer</artifactId>
+                <version>1.16.0-118</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jobservice</groupId>
+                <artifactId>job-service</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jobservice</groupId>
+                <artifactId>job-service-admin</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jobservice</groupId>
+                <artifactId>job-service-client</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jobservice</groupId>
+                <artifactId>job-service-config</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jobservice</groupId>
+                <artifactId>job-service-contract</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jobservice</groupId>
+                <artifactId>job-service-db</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+                <classifier>jar-with-dependencies</classifier>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jobservice</groupId>
+                <artifactId>job-service-db-client</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jobservice</groupId>
+                <artifactId>job-service-scheduled-executor</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jobservice</groupId>
+                <artifactId>job-service-ui</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jobservice</groupId>
+                <artifactId>worker-batch-shared</artifactId>
+                <version>2.0.0-9</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jobservice</groupId>
+                <artifactId>worker-jobtracking</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jobservice</groupId>
+                <artifactId>worker-jobtracking-shared</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.workerframework</groupId>
+                <artifactId>worker-example-shared</artifactId>
+                <version>1.8.0-249</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.workerframework</groupId>
+                <artifactId>worker-tracking-report</artifactId>
+                <version>${caf.worker-framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.googlecode.json-simple</groupId>
+                <artifactId>json-simple</artifactId>
+                <version>1.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hpe.caf.worker.batch</groupId>
+                <artifactId>worker-batch-test-plugin</artifactId>
+                <version>1.11.0-16</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rabbitmq</groupId>
+                <artifactId>amqp-client</artifactId>
+                <version>3.5.3</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>${jersey-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-server</artifactId>
+                <version>${jersey-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-servlet</artifactId>
+                <version>${jersey-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>1.5.4</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-jersey-jaxrs</artifactId>
+                <version>${swagger-core-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>jsr311-api</artifactId>
+                <version>1.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.2.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>2.0-rc2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>1.9.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jettison</groupId>
+                <artifactId>jettison</artifactId>
+                <version>1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>20180130</version>
+            </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
@@ -60,9 +224,9 @@
                 <version>1.10.19</version>
             </dependency>
             <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-junit4</artifactId>
-                <version>1.6.4</version>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
@@ -70,16 +234,14 @@
                 <version>1.6.4</version>
             </dependency>
             <dependency>
-                <groupId>com.github.workerframework</groupId>
-                <artifactId>worker-tracking-report</artifactId>
-                <version>${caf.worker-framework.version}</version>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-core</artifactId>
+                <version>1.6.4</version>
             </dependency>
             <dependency>
-                <groupId>com.github.workerframework</groupId>
-                <artifactId>worker-framework</artifactId>
-                <version>${caf.worker-framework.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>1.6.4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

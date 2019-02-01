@@ -31,18 +31,10 @@
         <version>2.7.0-SNAPSHOT</version>
     </parent>
 
-    <properties>
-        <swagger.contract.groupId>com.github.jobservice</swagger.contract.groupId>
-        <swagger.contract.artifactId>job-service-contract</swagger.contract.artifactId>
-        <swagger.contract.version>${project.version}</swagger.contract.version>
-        <swagger.contract.path>/com/hpe/caf/services/job</swagger.contract.path>
-    </properties>
-
     <dependencies>
         <dependency>
-            <groupId>${swagger.contract.groupId}</groupId>
-            <artifactId>${swagger.contract.artifactId}</artifactId>
-            <version>${swagger.contract.version}</version>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-contract</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -62,9 +54,9 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>${swagger.contract.groupId}</groupId>
-                                    <artifactId>${swagger.contract.artifactId}</artifactId>
-                                    <version>${swagger.contract.version}</version>
+                                    <groupId>com.github.jobservice</groupId>
+                                    <artifactId>job-service-contract</artifactId>
+                                    <version>2.7.0-SNAPSHOT</version>
                                     <outputDirectory>${project.build.directory}/swagger-contract</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
@@ -86,7 +78,7 @@
                             <goal>process-swagger</goal>
                         </goals>
                         <configuration>
-                            <inputDirectory>${project.build.directory}/swagger-contract${swagger.contract.path}</inputDirectory>
+                            <inputDirectory>${project.build.directory}/swagger-contract/com/hpe/caf/services/job</inputDirectory>
                             <outputDirectory>${project.build.directory}/generated-docs/asciidoc</outputDirectory>
                             <markupLanguage>asciidoc</markupLanguage>
                         </configuration>

@@ -34,7 +34,6 @@
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-config</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

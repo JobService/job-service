@@ -61,8 +61,6 @@
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
@@ -83,38 +81,14 @@
         <dependency>
             <groupId>com.hpe.caf.worker.batch</groupId>
             <artifactId>worker-batch-test-plugin</artifactId>
-            <version>1.11.0-16</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-client</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>worker-batch-shared</artifactId>
-            <version>2.0.0-9</version>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-example-shared</artifactId>
-            <version>1.8.0-249</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-testing-util</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-testing-integration</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <!-- Logging -->
@@ -122,21 +96,18 @@
             <!--Required at runtime for log4j output-->
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <!--Required at runtime for log4j output-->
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <!--ADAPTER (not bridge) that allows slf4j api to route to the log4j implm-->
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.0-rc2</version>
             <scope>runtime</scope>
             <exclusions>
                 <exclusion>
@@ -152,13 +123,32 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.2</version>
         </dependency>
         <!-- End Logging -->
 
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-testing-util</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-testing-integration</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-client</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -310,7 +300,7 @@
                     <logDate>default</logDate>
                     <autoPull>on</autoPull>
                     <images>
-                         WebDav image 
+                        WebDav image 
                         <image>
                             <alias>webdav</alias>
                             <name>cloudesire/webdav</name>

@@ -42,19 +42,13 @@
     <properties>
         <copyrightYear>2018</copyrightYear>
         <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Micro Focus or one of its affiliates.</copyrightNotice>
-        <swagger-contract-artifactId>job-service-contract</swagger-contract-artifactId>
-        <swagger-contract-version>${project.version}</swagger-contract-version>
-        <swagger-codegen-inputSpec>/com/hpe/caf/services/job/swagger.yaml</swagger-codegen-inputSpec>
-        <swagger-codegen-modelPackage>com.hpe.caf.services.job.client.model</swagger-codegen-modelPackage>
-        <swagger-codegen-apiPackage>com.hpe.caf.services.job.client.api</swagger-codegen-apiPackage>
-        <swagger-codegen-invokerPackage>com.hpe.caf.services.job.client</swagger-codegen-invokerPackage>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.jobservice</groupId>
-            <artifactId>${swagger-contract-artifactId}</artifactId>
-            <version>${swagger-contract-version}</version>
+            <artifactId>job-service-contract</artifactId>
+            <version>2.7.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -68,8 +62,8 @@
                 <dependencies>
                     <dependency>
                         <groupId>com.github.jobservice</groupId>
-                        <artifactId>${swagger-contract-artifactId}</artifactId>
-                        <version>${swagger-contract-version}</version>
+                        <artifactId>job-service-contract</artifactId>
+                        <version>2.7.0-SNAPSHOT</version>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -79,11 +73,11 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${swagger-codegen-inputSpec}</inputSpec>
+                            <inputSpec>/com/hpe/caf/services/job/swagger.yaml</inputSpec>
                             <language>java</language>
-                            <modelPackage>${swagger-codegen-modelPackage}</modelPackage>
-                            <apiPackage>${swagger-codegen-apiPackage}</apiPackage>
-                            <invokerPackage>${swagger-codegen-invokerPackage}</invokerPackage>
+                            <modelPackage>com.hpe.caf.services.job.client.model</modelPackage>
+                            <apiPackage>com.hpe.caf.services.job.client.api</apiPackage>
+                            <invokerPackage>com.hpe.caf.services.job.client</invokerPackage>
                             <configOptions>
                                 <groupId>${project.groupId}</groupId>
                                 <artifactId>${project.artifactId}</artifactId>
