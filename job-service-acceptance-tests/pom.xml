@@ -45,12 +45,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.krallin</groupId>
-            <artifactId>tini</artifactId>
-            <scope>runtime</scope>
-            <type>exe</type>
-        </dependency>
-        <dependency>
             <groupId>com.github.cafapi.config</groupId>
             <artifactId>config-file</artifactId>
         </dependency>
