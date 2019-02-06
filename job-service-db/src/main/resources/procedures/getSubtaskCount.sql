@@ -24,7 +24,7 @@ CREATE OR REPLACE FUNCTION internal_get_subtask_count(
     in_task_table_name VARCHAR(63)
 )
 RETURNS INT
-LANGUAGE plpgsql
+LANGUAGE plpgsql STABLE
 AS $$
 DECLARE
     subtask_count INT;

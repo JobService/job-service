@@ -22,7 +22,7 @@
  */
 CREATE OR REPLACE FUNCTION internal_does_table_exist(in_table_name VARCHAR(63))
 RETURNS BOOLEAN
-LANGUAGE SQL
+LANGUAGE SQL STABLE
 AS $$
 SELECT internal_to_regclass(quote_ident(in_table_name)) IS NOT NULL;
 $$;

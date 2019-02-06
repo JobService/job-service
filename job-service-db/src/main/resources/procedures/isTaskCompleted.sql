@@ -24,7 +24,7 @@ CREATE OR REPLACE FUNCTION internal_is_task_completed(
     in_task_id VARCHAR(58)
 )
 RETURNS BOOLEAN
-LANGUAGE plpgsql
+LANGUAGE plpgsql STABLE
 AS $$
 DECLARE
     v_parent_task_id VARCHAR(58);

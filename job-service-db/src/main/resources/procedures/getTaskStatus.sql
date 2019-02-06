@@ -28,7 +28,7 @@ RETURNS TABLE(
     percentage_complete DOUBLE PRECISION,
     failure_details TEXT
 )
-LANGUAGE plpgsql
+LANGUAGE plpgsql STABLE
 AS $$
 DECLARE
     v_subtask_count INT;

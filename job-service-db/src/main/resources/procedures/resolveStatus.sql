@@ -25,7 +25,7 @@ CREATE OR REPLACE FUNCTION internal_resolve_status(
     in_proposed_job_status job_status
 )
 RETURNS job_status
-LANGUAGE SQL
+LANGUAGE SQL IMMUTABLE
 AS $$
     WITH priority_tbl(priority, status) AS
     (

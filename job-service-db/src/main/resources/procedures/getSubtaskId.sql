@@ -22,7 +22,7 @@
  */
 CREATE OR REPLACE FUNCTION internal_get_subtask_id(in_task_id VARCHAR(58))
 RETURNS INT
-LANGUAGE SQL
+LANGUAGE SQL IMMUTABLE
 AS $$
 SELECT CAST(SUBSTRING(in_task_id FROM '\.(\d*)\*?$') AS INT);
 $$;

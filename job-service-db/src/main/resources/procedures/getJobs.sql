@@ -37,7 +37,7 @@ RETURNS TABLE(
     failure_details TEXT,
     actionType CHAR(6)
 )
-LANGUAGE plpgsql
+LANGUAGE plpgsql STABLE
 AS $$
 DECLARE
     sql VARCHAR;

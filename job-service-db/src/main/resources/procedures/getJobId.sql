@@ -22,7 +22,7 @@
  */
 CREATE OR REPLACE FUNCTION internal_get_job_id(in_task_id VARCHAR(58))
 RETURNS VARCHAR(48)
-LANGUAGE SQL
+LANGUAGE SQL IMMUTABLE
 AS $$
 SELECT SUBSTRING(in_task_id FROM '^[^\.]*');
 $$;

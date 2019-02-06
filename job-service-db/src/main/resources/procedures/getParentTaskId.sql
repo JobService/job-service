@@ -22,7 +22,7 @@
  */
 CREATE OR REPLACE FUNCTION internal_get_parent_task_id(in_task_id VARCHAR(58))
 RETURNS VARCHAR(58)
-LANGUAGE SQL
+LANGUAGE SQL IMMUTABLE
 AS $$
 SELECT SUBSTRING(in_task_id FROM '^(.*)\.');
 $$;
