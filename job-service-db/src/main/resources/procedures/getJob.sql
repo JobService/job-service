@@ -32,7 +32,7 @@ RETURNS TABLE(
     failure_details TEXT,
     actionType CHAR(6)
 )
-LANGUAGE plpgsql
+LANGUAGE plpgsql STABLE
 AS $$
 BEGIN
     -- Raise exception if the job identifier has not been specified

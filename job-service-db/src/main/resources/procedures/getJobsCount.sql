@@ -27,7 +27,7 @@ CREATE OR REPLACE FUNCTION get_jobs_count(
 RETURNS TABLE(
     row_count BIGINT
 )
-LANGUAGE plpgsql
+LANGUAGE plpgsql STABLE
 AS $$
 DECLARE
     sql VARCHAR;

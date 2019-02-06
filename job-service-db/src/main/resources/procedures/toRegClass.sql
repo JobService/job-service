@@ -22,7 +22,7 @@
  */
 CREATE OR REPLACE FUNCTION internal_to_regclass(rel_name VARCHAR(63))
 RETURNS regclass
-LANGUAGE plpgsql
+LANGUAGE plpgsql STABLE
 AS $$
 BEGIN
     -- Add backwards compatibility support for to_regclass argument type change introduced in Postgres 9.6.
