@@ -49,9 +49,8 @@ public class JobDatabase {
     }
 
 
-    public String createJobTask(final String jobDescriptor) throws Exception {
+    public void createJobTask(final String jobId, final String jobDescriptor) throws Exception {
         // For jobtracking worker integration tests a simple job will do - no need for a task to be created too.
-        String jobId = createJobId();
         String name = MessageFormat.format("{0}_{1}", jobDescriptor, jobId);
         String description = MessageFormat.format("{0}_{1} description", jobDescriptor, jobId);
         String data = MessageFormat.format("{0}_{1} data", jobDescriptor, jobId);
@@ -69,7 +68,6 @@ public class JobDatabase {
         }
 
         LOG.info("Created job {}", jobId);
-        return jobId;
     }
 
     /**
@@ -117,7 +115,7 @@ public class JobDatabase {
     }
 
 
-    private String createJobId() throws InterruptedException {
+    public String createJobId() throws InterruptedException {
         Thread.sleep(10);
         return new StringBuilder("J").append(System.currentTimeMillis()).toString();
     }

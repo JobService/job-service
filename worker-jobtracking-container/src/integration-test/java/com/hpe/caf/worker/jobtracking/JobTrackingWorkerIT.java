@@ -85,7 +85,8 @@ public class JobTrackingWorkerIT {
     @Test
     public void testTrackingReportTasks() throws Exception
     {
-        final String jobTaskId = jobDatabase.createJobTask("testProxiedActiveMessage");
+        final String jobTaskId = jobDatabase.createJobId();
+        jobDatabase.createJobTask(jobTaskId, "testProxiedActiveMessage");
         for (int i = 0; i <= 4; i++) {
             final JobStatus status = i < 4 ? JobStatus.Waiting : JobStatus.Completed;
             final TrackingReportStatus trackingReportStatus = i < 4 ? TrackingReportStatus.Progress : TrackingReportStatus.Complete;
@@ -134,7 +135,8 @@ public class JobTrackingWorkerIT {
      */
     @Test
     public void testProxiedCompletedMessage() throws Exception {
-        String jobTaskId = jobDatabase.createJobTask("testProxiedCompletedMessage");
+        String jobTaskId = jobDatabase.createJobId();
+        jobDatabase.createJobTask(jobTaskId, "testProxiedCompletedMessage");
         String to = "jobtrackingworker-test-example-input-2";
         String trackTo = to;
         TaskMessage taskMessage = getExampleTaskMessage(jobTaskId, to, trackTo);
@@ -170,7 +172,8 @@ public class JobTrackingWorkerIT {
      */
     @Test
     public void testProxiedFailureMessage() throws Exception {
-        String jobTaskId = jobDatabase.createJobTask("testProxiedFailureMessage");
+        String jobTaskId = jobDatabase.createJobId();
+        jobDatabase.createJobTask(jobTaskId, "testProxiedFailureMessage");
         String to = "jobtrackingworker-test-example-output-3";
         String trackTo = to;
         TaskMessage taskMessage = getExampleTaskMessage(jobTaskId, to, trackTo);
@@ -186,6 +189,33 @@ public class JobTrackingWorkerIT {
         final DBJob jobFromDb = jobDatabase.getJob(jobTaskId);
         Assert.assertTrue(jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate()),
             "last-update-time should be updated on fail");
+    }
+
+    /**
+     * Create a job with 2 subtasks and send a complete message for 1 of the subtasks.  This should
+     * update the last-update-time and completion percentage.
+     */
+    @Test
+    public void testCompleteWithParent() throws Exception {
+        final String parentId = jobDatabase.createJobId();
+        final String child1Id = parentId + ".1";
+        final String child2Id = parentId + ".2";
+        jobDatabase.createJobTask(parentId, "testCompleteWithParent-parent");
+        jobDatabase.createJobTask(child1Id, "testCompleteWithParent-child1");
+        jobDatabase.createJobTask(child2Id, "testCompleteWithParent-child2");
+
+        // send a message for the completion of 1 of the 2 child tasks
+        final String queue = "jobtrackingworker-test-example-input";
+        final TaskMessage child1CompleteMessage = getExampleTaskMessage(child1Id, queue, queue);
+        final JobTrackingWorkerITExpectation expectation =
+            new JobTrackingWorkerITExpectation(parentId, queue, false,
+                new JobReportingExpectation(
+                    parentId, JobStatus.Active, 50, false, false, false, false, false));
+        testProxiedMessageReporting(child1CompleteMessage, expectation);
+
+        final DBJob jobFromDb = jobDatabase.getJob(parentId);
+        Assert.assertTrue(jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate()),
+            "last-update-time should be updated on subtask complete");
     }
 
 
