@@ -165,6 +165,8 @@ public class JobServiceIT {
         assertEquals(retrievedJob.getName(), newJob.getName());
         assertEquals(retrievedJob.getDescription(), newJob.getDescription());
         assertEquals(retrievedJob.getExternalData(), newJob.getExternalData());
+        assertEquals(retrievedJob.getCreateTime(), retrievedJob.getLastUpdateTime(),
+            "initial last-update-time should be create-time");
     }
 
     @Test
@@ -357,11 +359,56 @@ public class JobServiceIT {
 
         jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
 
+        final Job initialJob = jobsApi.getJob(jobId, jobCorrelationId);
+
         jobsApi.cancelJob(jobId, jobCorrelationId);
 
-        Job retrievedJob = jobsApi.getJob(jobId, jobCorrelationId);
+        Job cancelledJob = jobsApi.getJob(jobId, jobCorrelationId);
 
-        assertEquals(retrievedJob.getStatus(), Job.StatusEnum.CANCELLED);
+        assertEquals(cancelledJob.getStatus(), Job.StatusEnum.CANCELLED);
+        assertTrue(cancelledJob.getLastUpdateTime().after(initialJob.getLastUpdateTime()),
+            "last-update-time should be updated on cancel");
+    }
+
+    /**
+     * This tests cancelling the same job twice, which should succeed without changing the status.
+     */
+    @Test
+    public void testCancelJobTwice() throws ApiException {
+        String jobId = UUID.randomUUID().toString();
+        String jobName = "Job_" + jobId;
+        String jobDesc = jobName + " Descriptive Text.";
+        String jobCorrelationId = "1";
+        String jobExternalData = jobName +" External data.";
+        int taskApiVer = 1;
+
+        WorkerAction workerActionTask = new WorkerAction();
+        workerActionTask.setTaskClassifier(jobName + "_testCancelJobTwice");
+        workerActionTask.setTaskApiVersion(taskApiVer);
+        workerActionTask.setTaskData(jobName + "_TaskClassifier Sample Test Task Data.");
+        workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
+        workerActionTask.setTargetPipe("Queue_" + jobId);
+
+        NewJob newJob = new NewJob();
+        newJob.setName(jobName);
+        newJob.setDescription(jobDesc);
+        newJob.setExternalData(jobExternalData);
+        newJob.setTask(workerActionTask);
+
+        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+        final Job initialJob = jobsApi.getJob(jobId, jobCorrelationId);
+
+        jobsApi.cancelJob(jobId, jobCorrelationId);
+        final Job cancelledJob = jobsApi.getJob(jobId, jobCorrelationId);
+
+        jobsApi.cancelJob(jobId, jobCorrelationId); // shouldn't throw
+        final Job cancelledAgainJob = jobsApi.getJob(jobId, jobCorrelationId);
+
+        assertEquals(cancelledJob.getStatus(), Job.StatusEnum.CANCELLED,
+            "status should remain cancelled");
+        assertEquals(cancelledJob.getLastUpdateTime(), cancelledAgainJob.getLastUpdateTime(),
+            "last-update-time should not be updated on second cancel");
     }
 
     /**

@@ -34,6 +34,7 @@ public class Job   {
     private String description = null;
     private String externalData = null;
     private Date createTime = null;
+    private Date lastUpdateTime = null;
 
 
     public enum StatusEnum {
@@ -156,6 +157,22 @@ public class Job   {
         this.createTime = createTime;
     }
 
+    /**
+     * The time the job status or progress last changed
+     **/
+    public Job lastUpdateTime(Date lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
+        return this;
+    }
+
+    @ApiModelProperty(value = "The time the job status or progress last changed")
+    public Date getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    public void setLastUpdateTime(Date lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
+    }
 
     /**
      * The status of the job
@@ -229,6 +246,7 @@ public class Job   {
                 Objects.equals(description, job.description) &&
                 Objects.equals(externalData, job.externalData) &&
                 Objects.equals(createTime, job.createTime) &&
+                Objects.equals(this.lastUpdateTime, job.lastUpdateTime) &&
                 Objects.equals(status, job.status) &&
                 Objects.equals(percentageComplete, job.percentageComplete) &&
                 Objects.equals(failures, job.failures);
@@ -236,7 +254,7 @@ public class Job   {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, externalData, createTime, status, percentageComplete, failures);
+        return Objects.hash(id, name, description, externalData, createTime, lastUpdateTime, status, percentageComplete, failures);
     }
 
     @Override
@@ -249,6 +267,7 @@ public class Job   {
         sb.append("    description: ").append(toIndentedString(description)).append("\n");
         sb.append("    externalData: ").append(toIndentedString(externalData)).append("\n");
         sb.append("    createTime: ").append(toIndentedString(createTime)).append("\n");
+        sb.append("    lastUpdateTime: ").append(toIndentedString(lastUpdateTime)).append("\n");
         sb.append("    status: ").append(toIndentedString(status)).append("\n");
         sb.append("    percentageComplete: ").append(toIndentedString(percentageComplete)).append("\n");
         sb.append("    failures: ").append(toIndentedString(failures)).append("\n");

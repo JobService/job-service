@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Random;
@@ -48,9 +49,8 @@ public class JobDatabase {
     }
 
 
-    public String createJobTask(final String jobDescriptor) throws Exception {
+    public void createJobTask(final String jobId, final String jobDescriptor) throws Exception {
         // For jobtracking worker integration tests a simple job will do - no need for a task to be created too.
-        String jobId = createJobId();
         String name = MessageFormat.format("{0}_{1}", jobDescriptor, jobId);
         String description = MessageFormat.format("{0}_{1} description", jobDescriptor, jobId);
         String data = MessageFormat.format("{0}_{1} data", jobDescriptor, jobId);
@@ -68,40 +68,54 @@ public class JobDatabase {
         }
 
         LOG.info("Created job {}", jobId);
-        return jobId;
     }
 
-
-    public void verifyJobStatus(String jobTaskId, JobReportingExpectation jobReportingExpectation) throws Exception {
+    /**
+     * Retrieve the job with the given ID from the job-service database.
+     */
+    public DBJob getJob(final String jobTaskId) throws SQLException {
+        final DBJob jobStatus = new DBJob();
         try(Connection connection = getConnection();
             CallableStatement stmt = connection.prepareCall("{call get_job(?)}")) {
 
             stmt.setString(1, jobTaskId);
             LOG.info("Calling get_job for job task {}", jobTaskId);
             try (ResultSet rs = stmt.executeQuery()) {
-                LOG.info("Called get_job for job task {}. Verifying results against expectations...", jobTaskId);
-                while (rs.next()) {
-                    assertEquals(jobTaskId, rs, "job_id", jobReportingExpectation.getJobId());
-                    assertEquals(jobTaskId, rs, "status", jobReportingExpectation.getStatus());
-                    assertEquals(jobTaskId, rs, "percentage_complete", jobReportingExpectation.getPercentageComplete());
-                    assertHasValue(jobTaskId, rs, "failure_details", jobReportingExpectation.getFailureDetailsPresent());
+                rs.next(); // expect exactly 1 record
 
-                    //  Parse JSON failure sub-strings.
-                    String failureDetails = rs.getString("failure_details");
-                    if (failureDetails != null && !failureDetails.isEmpty()) {
-                        JSONObject json = new JSONObject(failureDetails);
-                        assertHasValue(jobTaskId, "failureId", json.getString("failureId"), jobReportingExpectation.getFailureDetailsIdPresent());
-                        assertHasValue(jobTaskId, "failureTime", new Date(json.getLong("failureTime")).toString(), jobReportingExpectation.getFailureDetailsTimePresent());
-                        assertHasValue(jobTaskId, "failureSource", json.getString("failureSource"), jobReportingExpectation.getFailureDetailsSourcePresent());
-                        assertHasValue(jobTaskId, "failureMessage", json.getString("failureMessage"), jobReportingExpectation.getFailureDetailsMessagePresent());
-                    }
-                }
+                jobStatus.setJobId(rs.getString("job_id"));
+                jobStatus.setStatus(JobStatus.valueOf(rs.getString("status")));
+                jobStatus.setPercentageComplete(rs.getFloat("percentage_complete"));
+                jobStatus.setCreateDate(Instant.parse(rs.getString("create_date")));
+                jobStatus.setLastUpdateDate(Instant.parse(rs.getString("last_update_date")));
+                jobStatus.setFailureDetails(rs.getString("failure_details"));
+
             }
+        }
+        return jobStatus;
+    }
+
+    public void verifyJobStatus(String jobTaskId, JobReportingExpectation jobReportingExpectation) throws Exception {
+        final DBJob job = getJob(jobTaskId);
+        LOG.info("Called get_job for job task {}. Verifying results against expectations...", jobTaskId);
+        assertEquals(jobTaskId, "job_id", job.getJobId(), jobReportingExpectation.getJobId());
+        assertEquals(jobTaskId, "status", job.getStatus(), jobReportingExpectation.getStatus());
+        assertEquals(jobTaskId, "percentage_complete", job.getPercentageComplete(), jobReportingExpectation.getPercentageComplete());
+        assertHasValue(jobTaskId, "failure_details", job.getFailureDetails(), jobReportingExpectation.getFailureDetailsPresent());
+
+        //  Parse JSON failure sub-strings.
+        String failureDetails = job.getFailureDetails();
+        if (failureDetails != null && !failureDetails.isEmpty()) {
+            JSONObject json = new JSONObject(failureDetails);
+            assertHasValue(jobTaskId, "failureId", json.getString("failureId"), jobReportingExpectation.getFailureDetailsIdPresent());
+            assertHasValue(jobTaskId, "failureTime", new Date(json.getLong("failureTime")).toString(), jobReportingExpectation.getFailureDetailsTimePresent());
+            assertHasValue(jobTaskId, "failureSource", json.getString("failureSource"), jobReportingExpectation.getFailureDetailsSourcePresent());
+            assertHasValue(jobTaskId, "failureMessage", json.getString("failureMessage"), jobReportingExpectation.getFailureDetailsMessagePresent());
         }
     }
 
 
-    private String createJobId() throws InterruptedException {
+    public String createJobId() throws InterruptedException {
         Thread.sleep(10);
         return new StringBuilder("J").append(System.currentTimeMillis()).toString();
     }
@@ -124,8 +138,7 @@ public class JobDatabase {
     }
 
 
-    private void assertEquals(final String jobTaskId, ResultSet rs, final String column, final String expected) throws Exception {
-        String actual = rs.getString(column);
+    private void assertEquals(final String jobTaskId, final String column, final String actual, final String expected) throws Exception {
         LOG.info("Job task {} has {} = {}", jobTaskId, column, actual == null ? "null" : actual);
         if (!expected.equals(actual)) {
             LOG.error("Job task {} does not have the expected {} in the Job Database. Expected {}. Found {}.", jobTaskId, column, expected, actual);
@@ -134,8 +147,7 @@ public class JobDatabase {
     }
 
 
-    private void assertEquals(final String jobTaskId, ResultSet rs, final String column, final float expected) throws Exception {
-        float actual = rs.getFloat(column);
+    private void assertEquals(final String jobTaskId, final String column, final float actual, final float expected) throws Exception {
         LOG.info("Job task {} has {} = {}", jobTaskId, column, actual);
         if (expected != actual) {
             LOG.error("Job task {} does not have the expected {} in the Job Database. Expected {}. Found {}.", jobTaskId, column, expected, actual);
@@ -144,8 +156,7 @@ public class JobDatabase {
     }
 
 
-    private void assertEquals(final String jobTaskId, ResultSet rs, final String column, final JobStatus expected) throws Exception {
-        JobStatus actual = JobStatus.valueOf(rs.getString(column));
+    private void assertEquals(final String jobTaskId, final String column, final JobStatus actual, final JobStatus expected) throws Exception {
         LOG.info("Job task {} has {} = {}", jobTaskId, column, actual);
         if (expected != actual) {
             LOG.error("Job task {} does not have the expected {} in the Job Database. Expected {}. Found {}.", jobTaskId, column, expected, actual);
@@ -154,17 +165,7 @@ public class JobDatabase {
     }
 
 
-    private void assertHasValue(final String jobTaskId, ResultSet rs, final String column, final boolean expectedHasValue) throws Exception {
-        String actual = rs.getString(column);
-        LOG.info("Job task {} has {} = {}", jobTaskId, column, actual == null ? "null" : actual);
-        boolean actualHasValue = (actual != null) && !actual.isEmpty();
-        if (expectedHasValue != actualHasValue) {
-            LOG.error("Job task {} does not have the expected {} in the Job Database. Expected {}. Found \"{}\".", jobTaskId, column, expectedHasValue ? "a value" : "no value", actual == null ? "null" : actual);
-            throw new Exception(MessageFormat.format("Job task {0} does not have the expected {1} in the Job Database. Expected {2}. Found \"{3}\".", jobTaskId, column, expectedHasValue ? "a value" : "no value", actual == null ? "null" : actual));
-        }
-    }
-
-    private void assertHasValue(final String jobTaskId, final  String column, final String actual, final boolean expectedHasValue) throws Exception {
+    private void assertHasValue(final String jobTaskId, final String column, final String actual, final boolean expectedHasValue) throws Exception {
         LOG.info("Job task {} has {} = {}", jobTaskId, column, actual == null ? "null" : actual);
         boolean actualHasValue = (actual != null) && !actual.isEmpty();
         if (expectedHasValue != actualHasValue) {

@@ -48,10 +48,10 @@ BEGIN
         RAISE EXCEPTION 'job_id {%} cannot be cancelled', in_job_id USING ERRCODE = '02000';
     END IF;
 
-    -- Mark the job calcelled in the job table
+    -- Mark the job cancelled in the job table
     UPDATE job
-    SET status = 'Cancelled'
-    WHERE job_id = in_job_id;
+    SET status = 'Cancelled', last_update_date = now() AT TIME ZONE 'UTC'
+    WHERE job_id = in_job_id AND status != 'Cancelled';
 
     -- Drop any task tables relating to the job
     PERFORM internal_drop_task_tables(in_job_id);
