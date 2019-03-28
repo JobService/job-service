@@ -167,11 +167,11 @@ public class Job   {
 
     @ApiModelProperty(value = "The time the job status or progress last changed")
     public Date getLastUpdateTime() {
-      return lastUpdateTime;
+        return lastUpdateTime;
     }
 
     public void setLastUpdateTime(Date lastUpdateTime) {
-      this.lastUpdateTime = lastUpdateTime;
+        this.lastUpdateTime = lastUpdateTime;
     }
 
     /**
@@ -246,15 +246,15 @@ public class Job   {
                 Objects.equals(description, job.description) &&
                 Objects.equals(externalData, job.externalData) &&
                 Objects.equals(createTime, job.createTime) &&
-        Objects.equals(this.lastUpdateTime, job.lastUpdateTime) &&
-        Objects.equals(status, job.status) &&
+                Objects.equals(this.lastUpdateTime, job.lastUpdateTime) &&
+                Objects.equals(status, job.status) &&
                 Objects.equals(percentageComplete, job.percentageComplete) &&
                 Objects.equals(failures, job.failures);
     }
 
     @Override
     public int hashCode() {
-    return Objects.hash(id, name, description, externalData, createTime, lastUpdateTime, status, percentageComplete, failures);
+        return Objects.hash(id, name, description, externalData, createTime, lastUpdateTime, status, percentageComplete, failures);
     }
 
     @Override
