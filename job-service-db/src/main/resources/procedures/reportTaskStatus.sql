@@ -53,7 +53,8 @@ BEGIN
         UPDATE job
         SET status = internal_resolve_status(status, in_status),
             percentage_complete = round(in_percentage_complete::numeric, 2),
-            failure_details = in_failure_details
+            failure_details = in_failure_details,
+            last_update_date = now() AT TIME ZONE 'UTC'
         WHERE job_id = in_task_id;
     ELSE
         -- Put together the parent task table name

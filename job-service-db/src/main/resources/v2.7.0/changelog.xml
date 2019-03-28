@@ -105,4 +105,47 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="update_procedure_get_job_last_update_time" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/getJob.sql"
+                         procedureName="get_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="update_procedure_get_jobs_last_update_time" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/getJobs.sql"
+                         procedureName="get_jobs"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="update_procedure_create_job_last_update_time" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/createJob.sql"
+                         procedureName="create_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="update_procedure_cancel_job_last_update_time" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/cancelJob.sql"
+                         procedureName="cancel_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="update_procedure_create_job_for_dependencies_last_update_time" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/createJobForDependencies.sql"
+                         procedureName="create_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="update_procedure_internal_report_task_status_last_update_time" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/reportTaskStatus.sql"
+                         procedureName="internal_report_task_status"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="update_job_table_add_column_last_update_time" author="Gamma Team">
+        <addColumn tableName="job">
+            <column name="last_update_date" type="TIMESTAMP" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

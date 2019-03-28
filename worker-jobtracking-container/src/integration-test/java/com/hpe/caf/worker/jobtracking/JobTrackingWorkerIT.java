@@ -145,6 +145,10 @@ public class JobTrackingWorkerIT {
                         false,
                         new JobReportingExpectation(jobTaskId, JobStatus.Completed, 100, false, false, false, false, false));
         testProxiedMessageReporting(taskMessage, expectation);
+
+        final DBJob jobFromDb = jobDatabase.getJob(jobTaskId);
+        Assert.assertTrue(jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate()),
+            "last-update-time should be updated on complete");
     }
 
 
@@ -178,6 +182,10 @@ public class JobTrackingWorkerIT {
                         false,
                         new JobReportingExpectation(jobTaskId, JobStatus.Completed, 100, false, true, true, true, true));
         testProxiedMessageReporting(failureMessage, expectation);
+
+        final DBJob jobFromDb = jobDatabase.getJob(jobTaskId);
+        Assert.assertTrue(jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate()),
+            "last-update-time should be updated on fail");
     }
 
 

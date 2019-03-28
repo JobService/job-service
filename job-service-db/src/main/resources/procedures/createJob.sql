@@ -37,7 +37,30 @@ BEGIN
     END IF;
 
     -- Create new row in job and return the job_id
-    INSERT INTO public.job(job_id, name, description, data, create_date, status, percentage_complete, failure_details, delay, job_hash)
-    VALUES(in_job_id, in_name, in_description, in_data, now() AT TIME ZONE 'UTC', 'Waiting', 0.00, NULL, 0, in_job_hash);
+    INSERT INTO public.job(
+        job_id,
+        name,
+        description,
+        data,
+        create_date,
+        last_update_date,
+        status,
+        percentage_complete,
+        failure_details,
+        delay,
+        job_hash
+    ) VALUES (
+        in_job_id,
+        in_name,
+        in_description,
+        in_data,
+        now() AT TIME ZONE 'UTC',
+        now() AT TIME ZONE 'UTC',
+        'Waiting',
+        0.00,
+        NULL,
+        0,
+        in_job_hash
+    );
 END
 $$;

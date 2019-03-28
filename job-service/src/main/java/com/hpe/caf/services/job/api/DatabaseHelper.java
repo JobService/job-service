@@ -92,6 +92,7 @@ public final class DatabaseHelper
                 job.setDescription(rs.getString("description"));
                 job.setExternalData(rs.getString("data"));
                 job.setCreateTime(getDate(rs.getString("create_date")));
+                job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
                 job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase()));
                 job.setPercentageComplete(rs.getFloat("percentage_complete"));
 
@@ -171,6 +172,7 @@ public final class DatabaseHelper
                 job.setDescription(rs.getString("description"));
                 job.setExternalData(rs.getString("data"));
                 job.setCreateTime(getDate(rs.getString("create_date")));
+                job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
                 job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase()));
                 job.setPercentageComplete(rs.getFloat("percentage_complete"));
 

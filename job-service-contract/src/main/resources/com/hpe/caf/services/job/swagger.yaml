@@ -316,6 +316,10 @@ definitions:
         type: string
         format: date-time
         description: The time the job was created
+      lastUpdateTime:
+        type: string
+        format: date-time
+        description: The time the job status or progress last changed
       status:
         type: string
         description: The status of the job

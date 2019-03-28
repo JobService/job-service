@@ -32,6 +32,7 @@ RETURNS TABLE(
     description TEXT,
     data TEXT,
     create_date TEXT,
+    last_update_date TEXT,
     status job_status,
     percentage_complete DOUBLE PRECISION,
     failure_details TEXT,
@@ -55,8 +56,18 @@ BEGIN
     --      Anything else returns all statuses.
     -- Also accepts in_limit and in_offset params to support paging and limiting the number of rows returned.
     -- 'WORKER' is the only supported action type for now and this is returned.
-    sql := $q$SELECT job.job_id, job.name, job.description, job.data, to_char(job.create_date, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-                job.status, job.percentage_complete, job.failure_details, CAST('WORKER' AS CHAR(6)) AS actionType FROM job$q$;
+    sql := $q$
+        SELECT job.job_id,
+               job.name,
+               job.description,
+               job.data,
+               to_char(job.create_date, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+               to_char(job.last_update_date, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+               job.status,
+               job.percentage_complete,
+               job.failure_details,
+               CAST('WORKER' AS CHAR(6)) AS actionType
+        FROM job$q$;
 
     IF in_job_id_starts_with IS NOT NULL AND in_job_id_starts_with != '' THEN
         escapedJobIdStartsWith = replace(replace(quote_literal(in_job_id_starts_with), '_', '\_'), '%', '\%');
