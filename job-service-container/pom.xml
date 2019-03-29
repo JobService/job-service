@@ -162,6 +162,7 @@
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
                 <postgres.db.port>5432</postgres.db.port>
                 <webservice.healthcheckport>8081</webservice.healthcheckport>
+                <webdav.apache.port>32775</webdav.apache.port>
                 <!--<CAF_JOBSERVICE_PORT>8080</CAF_JOBSERVICE_PORT>-->
                 <!--<db.connection>jdbc:postgresql://${docker.host.address}:${postgres.db.port}</db.connection>-->
             </properties>

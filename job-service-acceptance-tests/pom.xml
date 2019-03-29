@@ -657,6 +657,7 @@
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
                 <postgres.db.port>5432</postgres.db.port>
+                <webdav.apache.port>32775</webdav.apache.port>
             </properties>
         </profile>
     </profiles>
