@@ -95,9 +95,9 @@ paths:
           across different services.
       - name: jobId
         in: path
-        type: string
         required: true
-        description: The identifier of the job
+        schema:
+          $ref: '#/definitions/jobId'
     get:
       tags:
         - Jobs
@@ -188,9 +188,9 @@ paths:
           across different CAF services
       - name: jobId
         in: path
-        type: string
         required: true
-        description: The identifier of the job
+        schema:
+          $ref: '#/definitions/jobId'
     post:
       tags:
         - Jobs
@@ -240,6 +240,10 @@ paths:
             type: integer
             format: int64
 definitions:
+  jobId:
+    type: string
+    format: '^[^.,:;*?!|()]{1,48}$'
+    description: The job identifier
   newJob:
     type: object
     properties:
@@ -299,8 +303,7 @@ definitions:
     type: object
     properties:
       id:
-        type: string
-        description: The job identifier
+        $ref: '#/definitions/jobId'
       name:
         type: string
         description: The name of the job
