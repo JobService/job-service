@@ -36,6 +36,16 @@ consumes:
   - application/json
 produces:
   - application/json
+
+parameters:
+  jobId:
+    name: jobId
+    in: path
+    type: string
+    required: true
+    description: The identifier of the job
+    pattern: '^[^.,:;*?!|()]{1,48}$'
+
 paths:
   /jobs:
     parameters:
@@ -93,11 +103,7 @@ paths:
         description: |
           An identifier that correlates events 
           across different services.
-      - name: jobId
-        in: path
-        type: string
-        required: true
-        description: The identifier of the job
+      - $ref: '#/parameters/jobId'
     get:
       tags:
         - Jobs
@@ -156,11 +162,7 @@ paths:
         description: |
           An identifier that correlates events 
           across different services.
-      - name: jobId
-        in: path
-        type: string
-        required: true
-        description: The identifier of the job
+      - $ref: '#/parameters/jobId'
     get:
       tags:
         - Jobs
@@ -186,11 +188,7 @@ paths:
         description: |
           An identifier that correlates events 
           across different CAF services
-      - name: jobId
-        in: path
-        type: string
-        required: true
-        description: The identifier of the job
+      - $ref: '#/parameters/jobId'
     post:
       tags:
         - Jobs
