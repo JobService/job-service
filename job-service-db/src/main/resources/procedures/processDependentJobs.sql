@@ -57,6 +57,17 @@ BEGIN
                         SELECT job_dependency.job_id FROM job_dependency
                             WHERE job_dependency.job_id = job_task_data.job_id);
 
+
+    -- delete the tasks
+    DELETE 
+        FROM  job_task_data jtd 
+        WHERE jtd.job_id IN (
+            SELECT jtd.job_id
+            FROM job_task_data jtd
+                INNER JOIN  tmp_dependent_jobs dp
+                    ON dp.job_id = jtd.job_id	
+            WHERE dp.delay = 0 );
+
     --Return jobs with no delay that we can now run
     RETURN QUERY SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe
     FROM job_task_data jtd
@@ -66,16 +77,7 @@ BEGIN
             WHERE job_dependency.job_id = dp.job_id
     );
 
-    -- delete the tasks
-    DELETE FROM job_task_data jtd
-    WHERE EXISTS(
-        SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe
-    FROM job_task_data jtd
-        LEFT JOIN tmp_dependent_jobs dp ON dp.job_id = jtd.job_id	
-    WHERE dp.delay = 0 AND NOT EXISTS (
-        SELECT job_dependency.job_id FROM job_dependency 
-            WHERE job_dependency.job_id = dp.job_id
-    ));
+    
 
 END
 $$;
