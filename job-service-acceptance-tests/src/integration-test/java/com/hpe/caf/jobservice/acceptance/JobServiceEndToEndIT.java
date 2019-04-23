@@ -509,8 +509,10 @@ public class JobServiceEndToEndIT {
         //  with a prerequisite.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job2Id, job1Id);
+        Thread.sleep(3000);
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
+        Thread.sleep(3000);
         JobServiceDatabaseUtil.assertJobStatus(job4Id, "completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job4Id, job2Id);
     }
