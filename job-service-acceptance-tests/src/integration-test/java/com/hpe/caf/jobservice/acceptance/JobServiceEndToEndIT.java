@@ -444,14 +444,20 @@ public class JobServiceEndToEndIT {
     @Test
     public void testJobWithPrerequisiteJobs() throws Exception
     {
+        LOG.info("===== I am inside testJobWithPrerequisiteJobs");
+        
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+        
+        LOG.info("===== testItemAssetIds: " + Arrays.toString(testItemAssetIds.toArray()));
 
         //  Generate job identifiers for test.
         final String job1Id = generateJobId();
         final String job2Id = generateJobId();
         final String job3Id = generateJobId();
         final String job4Id = generateJobId();
+        
+        LOG.info("===== jobids: job1: " + job1Id + ", job2: " + job2Id + ", job3: " + job3Id + ", job4: " + job4Id);
 
         //  Create job hierarchy.
         //
@@ -487,6 +493,8 @@ public class JobServiceEndToEndIT {
                         TaskStatus.RESULT_SUCCESS,
                         ExampleWorkerStatus.COMPLETED,
                         testItemAssetIds);
+        
+        LOG.info("===== job1Expectation: " + job1Expectation);
 
         try (QueueManager queueManager = getFinalQueueManager()) {
             ExecutionContext context = new ExecutionContext(false);
@@ -503,13 +511,14 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        Thread.sleep(3000); // Add short delay to allow previous jobs to complete
-
+        Thread.sleep(30000); // Add short delay to allow previous jobs to complete
+        JobServiceDatabaseUtil.assertJobStatus(job1Id, "completed");
         //  Now that J1 has completed, verify this has triggered the completion of other jobs created
         //  with a prerequisite.
+        Thread.sleep(30000);
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job2Id, job1Id);
-        Thread.sleep(3000);
+        Thread.sleep(30000);
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
         Thread.sleep(3000);
