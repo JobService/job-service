@@ -147,10 +147,11 @@ BEGIN
     SELECT in_job_id, prerequisite_job_id
     FROM all_incomplete_prereqs;
 
-    IF FOUND THEN
+    IF FOUND OR in_delay > 0 THEN
         INSERT INTO public.job_task_data(
             job_id, task_classifier, task_api_version, task_data, task_pipe, target_pipe, eligible_to_run_date)
-        VALUES (in_job_id, in_task_classifier, in_task_api_version, in_task_data, in_task_pipe, in_target_pipe, NULL);
+        VALUES (in_job_id, in_task_classifier, in_task_api_version, in_task_data, in_task_pipe, in_target_pipe,
+                CASE WHEN NOT FOUND THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') END);
     END IF;
 END
 $$;
