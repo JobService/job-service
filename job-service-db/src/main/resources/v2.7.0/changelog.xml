@@ -148,6 +148,24 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="add_procedure_internal_get_options" author="Gamma Team">
+        <createProcedure path="procedures/getOptions.sql"
+                         procedureName="internal_get_options"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="add_procedure_internal_get_prereq_job_id_options" author="Gamma Team">
+        <createProcedure path="procedures/getPrereqJobIdOptions.sql"
+                         procedureName="internal_get_prereq_job_id_options"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="update_procedure_create_job_for_dependencies_precreated" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/createJobForDependencies.sql"
+                         procedureName="create_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="update_procedure_internal_process_dependent_jobs_locking_rows" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/processDependentJobs.sql"
                          procedureName="internal_process_dependent_jobs"
