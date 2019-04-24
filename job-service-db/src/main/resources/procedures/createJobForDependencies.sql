@@ -33,7 +33,7 @@ CREATE OR REPLACE FUNCTION create_job(
     in_task_data BYTEA,
     in_task_pipe VARCHAR(255),
     in_target_pipe VARCHAR(255),
-    in_prerequisite_job_ids VARCHAR(48)[],
+    in_prerequisite_job_ids VARCHAR(128)[],
     in_delay INT
 )
 RETURNS VOID
@@ -106,11 +106,46 @@ BEGIN
 
     -- Store dependency rows for those prerequisite job identifiers not yet complete
     -- Include prerequisite job identifiers not yet in the system
+    WITH prereqs_with_opts(job_id_with_opts) AS
+    (
+        SELECT unnest(in_prerequisite_job_ids)::VARCHAR(128)
+    ),
+    prereqs AS
+    (
+        -- Remove any duplicate pre-requisites, and if a pre-req is mentioned multiple times then merge the options
+        SELECT job_id, precreated FROM
+        (
+            SELECT ROW_NUMBER() OVER (PARTITION BY job_id ORDER BY precreated DESC), job_id, precreated
+            FROM prereqs_with_opts
+            CROSS JOIN internal_get_prereq_job_id_options(job_id_with_opts)
+        ) tbl
+        WHERE row_number = 1
+    ),
+    prereqs_created_but_not_complete AS
+    (
+        -- These job rows are being locked (in job id order) so that they don't complete whilst they are being registered as reasons that
+        -- this job is blocked from starting. Shared locks are being used as the rows themselves will not be updated by the operation.
+        -- This means that there will be no contention when simultaneously creating multiple jobs which have the same pre-requisites.
+        SELECT * FROM job
+        WHERE job_id IN (SELECT job_id FROM prereqs) AND status <> 'Completed'
+        ORDER BY job_id
+        FOR SHARE
+    ),
+    prereqs_not_created_yet AS
+    (
+        SELECT * FROM prereqs
+        WHERE NOT precreated AND job_id NOT IN (SELECT job_id FROM job)
+    ),
+    all_incomplete_prereqs(prerequisite_job_id) AS
+    (
+        SELECT job_id FROM prereqs_created_but_not_complete
+        UNION
+        SELECT job_id FROM prereqs_not_created_yet
+    )
+
     INSERT INTO public.job_dependency(job_id, dependent_job_id)
     SELECT in_job_id, prerequisite_job_id
-    FROM public.job j
-    RIGHT OUTER JOIN unnest(in_prerequisite_job_ids) prerequisite_job_id ON j.job_id = prerequisite_job_id
-    WHERE j.status IS NULL OR j.status <> 'Completed';
+    FROM all_incomplete_prereqs;
 
     IF FOUND THEN
         INSERT INTO public.job_task_data(
