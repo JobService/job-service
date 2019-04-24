@@ -42,7 +42,7 @@ BEGIN
 		LEFT JOIN job j ON j.job_id = jd.job_id
 		WHERE jd.dependent_job_id = in_job_id;
 
-    PERFORM NULL FROM public.job WHERE job.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs) FOR UPDATE;
+    PERFORM NULL FROM public.job WHERE job.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs) ORDER BY job.job_id ASC FOR UPDATE;
 
     -- Remove corresponding dependency related rows for jobs that can be processed immediately
     DELETE
