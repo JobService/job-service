@@ -1,26 +1,30 @@
 #### Version Number
-
 ${version-number}
 
 #### New Features
+- [SCMOD-6182](https://portal.digitalsafe.net/browse/SCMOD-6182): Last Updated Time field  
+	When retrieving the status of a job a new `lastUpdateTime` field is returned which provides the last time any activity happened on the job, such as when it was last progressed or completed.
 
-- [SCMOD-6182](https://portal.digitalsafe.net/browse/SCMOD-6182): Add last-update-time to job
-- [SCMOD-5074](https://portal.digitalsafe.net/browse/SCMOD-5074), [SCMOD-5834](https://portal.digitalsafe.net/browse/SCMOD-5834), [SCMOD-6265](https://portal.digitalsafe.net/browse/SCMOD-6265): Resolve Fortify version mismatches
-- [SCMOD-4900](https://portal.digitalsafe.net/browse/SCMOD-4900): Set volatility at the DB procedure level
-- [SCMOD-5725](https://portal.digitalsafe.net/browse/SCMOD-5725): The Quick Start guide now uses Kubernetes deployment files.
-- [SCMOD-5211](https://portal.digitalsafe.net/browse/SCMOD-5211): The project "job-service-postgres" which built a test utility docker image containing a pre-installed database has been removed.
-- [SCMOD-6351](https://portal.digitalsafe.net/browse/SCMOD-6351): Prerequisite jobs can now be declared as having been pre-created  
+- [SCMOD-6351](https://portal.digitalsafe.net/browse/SCMOD-6351): Prerequisite jobs pre-created declaration  
 	Previously when a job was created with a prerequisite, and that prerequisite job was not found in the system, then it was assumed that the job was yet to be created.  This remains the default behavior, but now an options string can be specified as a suffix with the prerequisite jobs ids, and if one of the options is "`,pc`" (i.e. precreated), then if the job is not found then instead of assuming that it is yet to be created the assumption will be that it was previously created, has completed successfully, and has been deleted. This means that the prerequisite can be effectively ignored.
+
+- [SCMOD-5725](https://portal.digitalsafe.net/browse/SCMOD-5725): Kubernetes Quick Start  
+	A Quick Start guide has been added for using the Job Service with Kubernetes.
 
 #### Bug Fixes
 
-- Delay no longer ignored  
+- [SCMOD-6216](https://portal.digitalsafe.net/browse/SCMOD-6216): Prerequisite jobs could be ignored  
+	Previously a job which had multiple prerequisite jobs might have been erroneously started before all of the prerequisite jobs had been completed.  In particular this could happen if some of the prerequisite jobs had not yet been created.  This has been corrected.
+
+- Specified delay could be ignored  
 	Previously if a delay was specified then it was ignored if there were no prerequisite jobs or if they were already complete.  This has been corrected.
 
-#### Known Issues
-
-- None
-
 #### Deprecated Features
+- [SCMOD-4883](https://portal.digitalsafe.net/browse/SCMOD-4883): Pre-installed PostgreSQL Docker Image  
+	Previous versions contained a PostgreSQL Docker Image which had the Job Service pre-installed.  This of course was never useful for production but was useful for testing.  It is not available for this release.  It may or may not be re-introduced in the future.
 
-- [SCMOD-5725](https://portal.digitalsafe.net/browse/SCMOD-5725): The Quick Start guide in docker-compose format has been removed in favour of Kubernetes.
+- [SCMOD-5725](https://portal.digitalsafe.net/browse/SCMOD-5725): Docker Compose Quick Start  
+	The Docker Compose Quick Start guide has been removed.  The Job Service can of course still be used with Docker Compose and this is still supported.  The Docker Compose Quick Start guide may be re-introduced in the future.
+
+#### Known Issues
+- None
