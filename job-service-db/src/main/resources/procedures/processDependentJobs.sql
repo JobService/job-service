@@ -39,12 +39,12 @@ BEGIN
     AS
         SELECT j.job_id, j.delay
         FROM job_dependency jd
-        LEFT JOIN job j ON j.job_id = jd.job_id
+        INNER JOIN job j ON j.job_id = jd.job_id
         WHERE jd.dependent_job_id = in_job_id;
 
     -- lock rows
-    PERFORM NULL FROM public.job WHERE job.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs) 
-            ORDER BY job.job_id ASC FOR UPDATE;
+--     PERFORM NULL FROM public.job WHERE job.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs)
+--             ORDER BY job.job_id ASC FOR UPDATE;
 
     -- Remove corresponding dependency related rows for jobs that can be processed immediately
     DELETE
@@ -62,29 +62,21 @@ BEGIN
         AND NOT EXISTS (
                         SELECT job_dependency.job_id FROM job_dependency
                             WHERE job_dependency.job_id = job_task_data.job_id);
-
-
-    --Return jobs with no delay that we can now run
-    RETURN QUERY SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe
-    FROM job_task_data jtd
-        LEFT JOIN tmp_dependent_jobs dp ON dp.job_id = jtd.job_id    
-    WHERE dp.delay = 0 AND NOT EXISTS (
-        SELECT job_dependency.job_id FROM job_dependency 
-            WHERE job_dependency.job_id = dp.job_id
-    );
     
-    -- delete the tasks
+    -- Return jobs with no delay that we can now run and delete the tasks
     DELETE 
-        FROM  job_task_data jtd 
+        FROM job_task_data jtd
         WHERE jtd.job_id IN (
             SELECT jtd.job_id
                 FROM job_task_data jtd
-                    LEFT JOIN tmp_dependent_jobs dp ON dp.job_id = jtd.job_id    
+                    INNER JOIN tmp_dependent_jobs dp ON dp.job_id = jtd.job_id
                 WHERE dp.delay = 0 AND NOT EXISTS (
                     SELECT job_dependency.job_id 
                         FROM job_dependency 
                         WHERE job_dependency.job_id = dp.job_id
-    ));   
+                )
+        )
+        RETURNING jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe;
 
 END
 $$;
