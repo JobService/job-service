@@ -38,9 +38,9 @@ BEGIN
         ON COMMIT DROP
     AS
         SELECT j.job_id, j.delay
-		FROM job_dependency jd
-		LEFT JOIN job j ON j.job_id = jd.job_id
-		WHERE jd.dependent_job_id = in_job_id;
+        FROM job_dependency jd
+        LEFT JOIN job j ON j.job_id = jd.job_id
+        WHERE jd.dependent_job_id = in_job_id;
 
     -- lock rows
     PERFORM NULL FROM public.job WHERE job.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs) 
@@ -48,16 +48,16 @@ BEGIN
 
     -- Remove corresponding dependency related rows for jobs that can be processed immediately
     DELETE
-	FROM job_dependency
-	WHERE dependent_job_id = in_job_id;
+    FROM job_dependency
+    WHERE dependent_job_id = in_job_id;
 
     --Set the eligible_to_run_date for jobs with a delay, these will be picked up by scheduled executor
     UPDATE job_task_data
     SET eligible_to_run_date = now() AT TIME ZONE 'UTC' + (tmp_dependent_jobs.delay * interval '1 second')
     FROM tmp_dependent_jobs 
         WHERE 
-		job_task_data.eligible_to_run_date IS NULL
-		AND tmp_dependent_jobs.job_id = job_task_data.job_id 
+        job_task_data.eligible_to_run_date IS NULL
+        AND tmp_dependent_jobs.job_id = job_task_data.job_id 
         AND tmp_dependent_jobs.delay <> 0 
         AND NOT EXISTS (
                         SELECT job_dependency.job_id FROM job_dependency
@@ -67,23 +67,23 @@ BEGIN
     --Return jobs with no delay that we can now run
     RETURN QUERY SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe
     FROM job_task_data jtd
-        LEFT JOIN tmp_dependent_jobs dp ON dp.job_id = jtd.job_id	
+        LEFT JOIN tmp_dependent_jobs dp ON dp.job_id = jtd.job_id    
     WHERE dp.delay = 0 AND NOT EXISTS (
         SELECT job_dependency.job_id FROM job_dependency 
             WHERE job_dependency.job_id = dp.job_id
     );
-	
+    
     -- delete the tasks
     DELETE 
         FROM  job_task_data jtd 
         WHERE jtd.job_id IN (
-			SELECT jtd.job_id
-			    FROM job_task_data jtd
-        			LEFT JOIN tmp_dependent_jobs dp ON dp.job_id = jtd.job_id	
-    			WHERE dp.delay = 0 AND NOT EXISTS (
-        			SELECT job_dependency.job_id 
-						FROM job_dependency 
-            			WHERE job_dependency.job_id = dp.job_id
+            SELECT jtd.job_id
+                FROM job_task_data jtd
+                    LEFT JOIN tmp_dependent_jobs dp ON dp.job_id = jtd.job_id    
+                WHERE dp.delay = 0 AND NOT EXISTS (
+                    SELECT job_dependency.job_id 
+                        FROM job_dependency 
+                        WHERE job_dependency.job_id = dp.job_id
     ));   
 
 END
