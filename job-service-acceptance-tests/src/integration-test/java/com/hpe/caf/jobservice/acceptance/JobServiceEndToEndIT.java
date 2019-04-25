@@ -446,13 +446,13 @@ public class JobServiceEndToEndIT {
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
-        
+
         //  Generate job identifiers for test.
         final String job1Id = generateJobId();
         final String job2Id = generateJobId();
         final String job3Id = generateJobId();
         final String job4Id = generateJobId();
-        
+
         //  Create job hierarchy.
         //
         //  J1
@@ -487,7 +487,7 @@ public class JobServiceEndToEndIT {
                         TaskStatus.RESULT_SUCCESS,
                         ExampleWorkerStatus.COMPLETED,
                         testItemAssetIds);
-        
+
         try (QueueManager queueManager = getFinalQueueManager()) {
             ExecutionContext context = new ExecutionContext(false);
             context.initializeContext();
@@ -504,7 +504,7 @@ public class JobServiceEndToEndIT {
         }
 
         Thread.sleep(3000); // Add short delay to allow previous jobs to complete
-        
+
         //  Now that J1 has completed, verify this has triggered the completion of other jobs created
         //  with a prerequisite.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
