@@ -33,68 +33,50 @@ RETURNS TABLE(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Get a list of jobs that can be processed without delay
-    CREATE TEMPORARY TABLE tmp_dependent_jobs_ready_to_run
-        ON COMMIT DROP
-    AS
-        SELECT jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe
-        FROM job_task_data jtd
-        INNER JOIN job j
-            ON j.job_id = jtd.job_id
-        INNER JOIN job_dependency jd
-            ON jd.job_id = jtd.job_id
-        WHERE j.delay = 0
-            AND jd.dependent_job_id = in_job_id
-            AND NOT EXISTS(
-                SELECT NULL
-                FROM job_dependency jd2
-                INNER JOIN job j2
-                    ON j2.job_Id = jd2.dependent_job_id
-                WHERE jd2.job_id = jd.job_id
-                    AND jd2.dependent_job_id <> in_job_id
-                    AND j2.status <> 'Completed');
-
-    RETURN QUERY
-    SELECT * FROM tmp_dependent_jobs_ready_to_run;
-
-    -- Remove corresponding dependency related rows for jobs that can be processed immediately
-    DELETE FROM job_dependency jd
-    USING tmp_dependent_jobs_ready_to_run tdjrtr
-    WHERE tdjrtr.job_id = jd.job_id;
-
-    DELETE FROM job_task_data jtd
-    USING tmp_dependent_jobs_ready_to_run tdjrtr
-    WHERE tdjrtr.job_id = jtd.job_id;
-
-    -- For jobs awaiting a delay, update their eligibility run dates
-    CREATE TEMPORARY TABLE tmp_dependent_jobs_with_delay
+    -- Get a list of jobs that depend on in_job_id
+    CREATE TEMPORARY TABLE tmp_dependent_jobs
         ON COMMIT DROP
     AS
         SELECT j.job_id, j.delay
-        FROM job j
-        INNER JOIN job_dependency jd
-            ON jd.job_id = j.job_id
-        WHERE j.delay <> 0
-            AND jd.dependent_job_id = in_job_id
-            AND NOT EXISTS(
-                SELECT NULL
-                FROM job_dependency jd2
-                INNER JOIN job j2
-                    ON j2.job_Id = jd2.dependent_job_id
-                WHERE jd2.job_id = jd.job_id
-                    AND jd2.dependent_job_id <> in_job_id
-                    AND j2.status <> 'Completed');
+        FROM job_dependency jd
+        INNER JOIN job j ON j.job_id = jd.job_id
+        WHERE jd.dependent_job_id = in_job_id;
 
-    UPDATE job_task_data jtd
-    SET eligible_to_run_date = now() AT TIME ZONE 'UTC' + (j.delay * interval '1 second')
-    FROM job j
-    INNER JOIN tmp_dependent_jobs_with_delay tdjwd
-        ON tdjwd.job_id = j.job_id
-    WHERE jtd.job_id = j.job_id;
+    -- lock rows
+--     PERFORM NULL FROM public.job WHERE job.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs)
+--             ORDER BY job.job_id ASC FOR UPDATE;
 
-    -- Remove job_dependency rows for jobs awaiting delay as they no longer serve any purpose
-    DELETE FROM job_dependency jd
-    USING tmp_dependent_jobs_with_delay tdjwd
-    WHERE tdjwd.job_id = jd.job_id;
+    -- Remove corresponding dependency related rows for jobs that can be processed immediately
+    DELETE
+    FROM job_dependency
+    WHERE dependent_job_id = in_job_id;
+
+    --Set the eligible_to_run_date for jobs with a delay, these will be picked up by scheduled executor
+    UPDATE job_task_data
+    SET eligible_to_run_date = now() AT TIME ZONE 'UTC' + (tmp_dependent_jobs.delay * interval '1 second')
+    FROM tmp_dependent_jobs 
+        WHERE 
+        job_task_data.eligible_to_run_date IS NULL
+        AND tmp_dependent_jobs.job_id = job_task_data.job_id 
+        AND tmp_dependent_jobs.delay <> 0 
+        AND NOT EXISTS (
+                        SELECT job_dependency.job_id FROM job_dependency
+                            WHERE job_dependency.job_id = job_task_data.job_id);
+    
+    -- Return jobs with no delay that we can now run and delete the tasks
+    DELETE 
+        FROM job_task_data jtd
+        WHERE jtd.job_id IN (
+            SELECT jtd.job_id
+                FROM job_task_data jtd
+                    INNER JOIN tmp_dependent_jobs dp ON dp.job_id = jtd.job_id
+                WHERE dp.delay = 0 AND NOT EXISTS (
+                    SELECT job_dependency.job_id 
+                        FROM job_dependency 
+                        WHERE job_dependency.job_id = dp.job_id
+                )
+        )
+        RETURNING jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe;
+
 END
 $$;
