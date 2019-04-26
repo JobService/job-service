@@ -64,7 +64,8 @@ BEGIN
                             WHERE job_dependency.job_id = job_task_data.job_id);
     
     -- Return jobs with no delay that we can now run and delete the tasks
-    DELETE 
+    RETURN QUERY
+    WITH del_result AS (DELETE 
         FROM job_task_data jtd
         WHERE jtd.job_id IN (
             SELECT jtd.job_id
@@ -76,7 +77,9 @@ BEGIN
                         WHERE job_dependency.job_id = dp.job_id
                 )
         )
-        RETURNING jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe;
+        RETURNING jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe)
+    SELECT del_result.job_id, del_result.task_classifier, del_result.task_api_version, del_result.task_data, del_result.task_pipe, del_result.target_pipe
+    FROM del_result;
 
 END
 $$;
