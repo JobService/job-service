@@ -11,6 +11,8 @@ ${version-number}
 - [SCMOD-5725](https://portal.digitalsafe.net/browse/SCMOD-5725): Kubernetes Quick Start  
 	A Quick Start guide has been added for using the Job Service with Kubernetes.
 
+- [SCMOD-4900](https://portal.digitalsafe.net/browse/SCMOD-4900): Added volatility classifications for Job service Database.
+
 #### Bug Fixes
 
 - [SCMOD-6216](https://portal.digitalsafe.net/browse/SCMOD-6216): Prerequisite jobs could be ignored  
@@ -25,6 +27,8 @@ ${version-number}
 
 - [SCMOD-5725](https://portal.digitalsafe.net/browse/SCMOD-5725): Docker Compose Quick Start  
 	The Docker Compose Quick Start guide has been removed.  The Job Service can of course still be used with Docker Compose and this is still supported.  The Docker Compose Quick Start guide may be re-introduced in the future.
+
+- [SCMOD-5211](https://portal.digitalsafe.net/browse/SCMOD-5211): The project "job-service-postgres" which built a test utility docker image containing a pre-installed job-service database has been removed.
 
 #### Known Issues
 - None
