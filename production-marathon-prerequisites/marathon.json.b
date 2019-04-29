@@ -1,13 +1,13 @@
 {
-    "id": "jobservice-prerequisite",
+    "id": "/jobservice/jobservice-prerequisites",
     "apps": [{
-            "id": "job-service-db",
+            "id": "/jobservice/jobservice-prerequisites/jobservice-db",
             "cpus": 0.5,
             "mem": 1024,
             "instances": 1,
             "container": {
                 "docker": {
-                    "image": "jobservice/job-service-postgres:2.6.0-383",
+                    "image": "postgres:9.6",
                     "network": "BRIDGE",
                     "portMappings": [{
                         "containerPort": 5432,
@@ -25,7 +25,7 @@
             }
         },
         {
-            "id": "rabbitmq",
+            "id": "/jobservice/jobservice-prerequisites/rabbitmq",
             "cpus": 0.4,
             "mem": 1024,
             "instances": 1,

@@ -1,7 +1,7 @@
 {
-    "id": "jobservice-testing",
+    "id": "/jobservice/jobservice-testing",
     "apps": [{
-            "id": "worker-globfilter",
+            "id": "/jobservice/jobservice-testing/worker-globfilter",
             "cpus": 0.5,
             "mem": 1024,
             "instances": 1,
@@ -36,7 +36,7 @@
             }
         },
         {
-            "id": "worker-langdetect",
+            "id": "/jobservice/jobservice-testing/worker-langdetect",
             "cpus": 0.5,
             "mem": 1024,
             "instances": 1,

@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jobservicedb
+  labels:
+    io.kompose.service: jobservicedb
+spec:
+  ports:
+    - port: 5432
+  selector:
+    io.kompose.service: jobservicedb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: rabbitmq
+  name: rabbitmq
+spec:
+  ports:
+  - name: "rabbitmq-ctrl-port"
+    port: 15672
+  - name: "rabbitmq-node-port"
+    port: 5672
+  selector:
+    io.kompose.service: rabbitmq
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jobservice
+  labels:
+    io.kompose.service: jobservice
+spec:
+  ports:
+    - name: "jobservice-8080-port"
+      port: 8080
+    - name: "jobservice-8081-port"
+      port: 8081
+  selector:
+    io.kompose.service: jobservice
