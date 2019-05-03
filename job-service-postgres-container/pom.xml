@@ -49,30 +49,6 @@
 
     <build>
         <plugins>
-            <!--Run integration tests.-->
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven.failsafe.version}</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>test-db-installed</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                        </goals>
-                        <configuration>
-                            <skip>false</skip>
-                            <environmentVariables>
-                                <JS_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${js.database.name}</JS_DATABASE_URL>
-                                <JS_DATABASE_USERNAME>${js.database.username}</JS_DATABASE_USERNAME>
-                                <JS_DATABASE_PASSWORD>${js.database.password}</JS_DATABASE_PASSWORD>
-                            </environmentVariables>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
@@ -92,7 +68,6 @@
                         <id>start</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>build</goal>
                             <goal>start</goal>
                         </goals>
                     </execution>
