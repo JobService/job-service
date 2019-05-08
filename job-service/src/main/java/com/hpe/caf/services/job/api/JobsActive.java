@@ -45,12 +45,13 @@ public final class JobsActive {
      * @return  active      job activity status object
      * @throws  Exception   exceptions thrown by bad request or database exceptions
      */
-    public static JobsActiveResult isJobActive(String jobId) throws Exception {
+    public static JobsActiveResult isJobActive(final String partition, String jobId) throws Exception {
         boolean active;
         int statusCheckIntervalMillis;
 
         try {
             LOG.info("isJobActive: Starting...");
+            ApiServiceUtil.validatePartition(partition);
 
             //  Make sure the job id has been provided.
             if (!ApiServiceUtil.isNotNullOrEmpty(jobId)) {
@@ -76,7 +77,7 @@ public final class JobsActive {
 
             //  Check if the specified job is active or not.
             LOG.info("isJobActive: Checking job status...");
-            active = databaseHelper.isJobActive(jobId);
+            active = databaseHelper.isJobActive(partition, jobId);
 
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());

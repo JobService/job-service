@@ -21,6 +21,7 @@
  *  Returns the number of job definitions in the system matching whatever criteria is specified.
  */
 CREATE OR REPLACE FUNCTION get_jobs_count(
+    in_partition VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),
     in_status_type VARCHAR(20)
 )
@@ -44,6 +45,9 @@ BEGIN
     --      Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned;
     --      Anything else returns all statuses.
     sql := $q$SELECT COUNT(job.job_id) FROM job$q$;
+
+    sql := sql || whereOrAnd || ' partition = ' || quote_literal(in_partition);
+    whereOrAnd := andConst;
 
     IF in_job_id_starts_with IS NOT NULL AND in_job_id_starts_with != '' THEN
         escapedJobIdStartsWith = replace(replace(quote_literal(in_job_id_starts_with), '_', '\_'), '%', '\%');

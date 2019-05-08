@@ -21,6 +21,7 @@
  *  Update the specified task and subsequent parent tasks/job with the failure details.
  */
 CREATE OR REPLACE FUNCTION report_failure(
+    in_partition VARCHAR(40),
     in_task_id VARCHAR(58),
     in_failure_details TEXT
 )
@@ -49,7 +50,8 @@ BEGIN
     -- And take out an exclusive update lock on the job row
     SELECT status INTO v_job_status
     FROM job
-    WHERE job_id = v_job_id
+    WHERE j.partition = in_partition
+        AND j.job_id = v_job_id
     FOR UPDATE;
 
     -- Check that the job hasn't been deleted, cancelled or completed
@@ -58,6 +60,6 @@ BEGIN
     END IF;
 
     -- Update the task statuses in the tables
-    PERFORM internal_report_task_status(in_task_id, 'Failed', 0.00, in_failure_details);
+    PERFORM internal_report_task_status(in_partition, in_task_id, 'Failed', 0.00, in_failure_details);
 END
 $$;

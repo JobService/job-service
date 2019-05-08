@@ -56,13 +56,13 @@ public final class DatabaseHelper
     /**
      * Returns a list of job definitions in the system.
      */
-    public Job[] getJobs(String jobIdStartsWith, String statusType, Integer limit, Integer offset) throws Exception {
+    public Job[] getJobs(final String partition, String jobIdStartsWith, String statusType, Integer limit, Integer offset) throws Exception {
 
         List<Job> jobs=new ArrayList<>();
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -76,10 +76,11 @@ public final class DatabaseHelper
             if (offset == null) {
                 offset = 0;
             }
-            stmt.setString(1, jobIdStartsWith);
-            stmt.setString(2, statusType);
-            stmt.setInt(3, limit);
-            stmt.setInt(4, offset);
+            stmt.setString(1, partition);
+            stmt.setString(2, jobIdStartsWith);
+            stmt.setString(3, statusType);
+            stmt.setInt(4, limit);
+            stmt.setInt(5, offset);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
@@ -117,13 +118,13 @@ public final class DatabaseHelper
     /**
      * Returns the number of job definitions in the system.
      */
-    public long getJobsCount(String jobIdStartsWith, String statusType) throws Exception {
+    public long getJobsCount(final String partition, String jobIdStartsWith, String statusType) throws Exception {
 
         long jobsCount = 0;
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_jobs_count(?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call get_jobs_count(?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -131,8 +132,9 @@ public final class DatabaseHelper
             if (statusType == null) {
                 statusType = "";
             }
-            stmt.setString(1, jobIdStartsWith);
-            stmt.setString(2, statusType);
+            stmt.setString(1, partition);
+            stmt.setString(2, jobIdStartsWith);
+            stmt.setString(3, statusType);
 
             //  Execute a query to return a count of all job definitions in the system.
             LOG.debug("Calling get_jobs_count() database function...");
@@ -151,15 +153,16 @@ public final class DatabaseHelper
     /**
      * Returns the job definition for the specified job.
      */
-    public Job getJob(String jobId) throws Exception {
+    public Job getJob(final String partition, String jobId) throws Exception {
 
         Job job = null;
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_job(?)}")
+                CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")
         ) {
-            stmt.setString(1,jobId);
+            stmt.setString(1, partition);
+            stmt.setString(2,jobId);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_job() database function...");
@@ -205,17 +208,18 @@ public final class DatabaseHelper
     /**
      * Creates the specified job.
      */
-    public void createJob(String jobId, String name, String description, String data, int jobHash) throws Exception {
+    public void createJob(final String partition, String jobId, String name, String description, String data, int jobHash) throws Exception {
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?)}")
         ) {
-            stmt.setString(1,jobId);
-            stmt.setString(2,name);
-            stmt.setString(3,description);
-            stmt.setString(4,data);
-            stmt.setInt(5,jobHash);
+            stmt.setString(1, partition);
+            stmt.setString(2,jobId);
+            stmt.setString(3,name);
+            stmt.setString(4,description);
+            stmt.setString(5,data);
+            stmt.setInt(6,jobHash);
 
             LOG.debug("Calling create_job() database function...");
             stmt.execute();
@@ -237,7 +241,7 @@ public final class DatabaseHelper
     /**
      * Creates the specified job.
      */
-    public void createJobWithDependencies(final String jobId, final String name, final String description,
+    public void createJobWithDependencies(final String partition, final String jobId, final String name, final String description,
                                           final String data, final int jobHash, final String taskClassifier,
                                           final int taskApiVersion, final byte[] taskData, final String taskPipe,
                                           final String targetPipe, final List<String> prerequisiteJobIds,
@@ -245,23 +249,24 @@ public final class DatabaseHelper
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
             final String[] prerequisiteJobIdStringArray = prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
             Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
 
-            stmt.setString(1,jobId);
-            stmt.setString(2,name);
-            stmt.setString(3,description);
-            stmt.setString(4,data);
-            stmt.setInt(5,jobHash);
-            stmt.setString(6,taskClassifier);
-            stmt.setInt(7,taskApiVersion);
-            stmt.setBytes(8,taskData);
-            stmt.setString(9,taskPipe);
-            stmt.setString(10,targetPipe);
-            stmt.setArray(11,prerequisiteJobIdSQLArray);
-            stmt.setInt(12,delay);
+            stmt.setString(1, partition);
+            stmt.setString(2,jobId);
+            stmt.setString(3,name);
+            stmt.setString(4,description);
+            stmt.setString(5,data);
+            stmt.setInt(6,jobHash);
+            stmt.setString(7,taskClassifier);
+            stmt.setInt(8,taskApiVersion);
+            stmt.setBytes(9,taskData);
+            stmt.setString(10,taskPipe);
+            stmt.setString(11,targetPipe);
+            stmt.setArray(12,prerequisiteJobIdSQLArray);
+            stmt.setInt(13,delay);
 
             LOG.debug("Calling create_job() database function...");
             stmt.execute();
@@ -283,13 +288,14 @@ public final class DatabaseHelper
     /**
      * Deletes the specified job.
      */
-    public void deleteJob(String jobId) throws Exception {
+    public void deleteJob(final String partition, String jobId) throws Exception {
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call delete_job(?)}")
+                CallableStatement stmt = conn.prepareCall("{call delete_job(?,?)}")
         ) {
-            stmt.setString(1,jobId);
+            stmt.setString(1, partition);
+            stmt.setString(2,jobId);
             LOG.debug("Calling delete_job() database function...");
             stmt.execute();
         } catch (SQLException se) {
@@ -312,24 +318,23 @@ public final class DatabaseHelper
     /**
      * Check if a matching job identifier with the specified hash already exists.
      */
-    public boolean doesJobAlreadyExist(String jobId, int jobHash) throws Exception {
+    public boolean doesJobAlreadyExist(final String partition, String jobId, int jobHash) throws Exception {
 
         boolean exists = false;
 
-        String rowExistsSQL = "select 1 as rowExists from job where job_id = ? and job_hash=?";
-
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                PreparedStatement stmt = conn.prepareStatement(rowExistsSQL)
+                CallableStatement stmt = conn.prepareCall("{call get_job_exists(?,?,?)}")
         ) {
-            stmt.setString(1, jobId);
-            stmt.setLong(2, jobHash);
+            stmt.setString(1, partition);
+            stmt.setString(2, jobId);
+            stmt.setInt(3, jobHash);
 
             //  Execute a query to determine if a matching job row already exists.
-            LOG.debug("Checking if a row in the job table with a matching job_id and job_hash already exists...");
+            LOG.debug("Calling get_job_exists() database function...");
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
-                exists = rs.getInt("rowExists") > 0;
+                exists = rs.getBoolean("job_exists");
             }
         }
 
@@ -339,23 +344,30 @@ public final class DatabaseHelper
     /**
      * Returns TRUE if the specified job id can be progressed, otherwise FALSE.
      */
-    public boolean canJobBeProgressed(final String jobId) throws Exception
+    public boolean canJobBeProgressed(final String partition, final String jobId) throws Exception
     {
 
         boolean canBeProgressed = true;
 
-        String rowExistsSQL = "select 1 as taskDataExists from job_task_data where job_id = ?";
-
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                PreparedStatement stmt = conn.prepareStatement(rowExistsSQL)
+                CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")
         ) {
-            stmt.setString(1, jobId);
+            stmt.setString(1, partition);
+            stmt.setString(2, jobId);
 
             //  Execute a query to determine if the specified job can be progressed.
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
-                canBeProgressed = rs.getInt("taskDataExists") != 1;
+                canBeProgressed = rs.getBoolean("can_be_progressed");
+            }
+
+        } catch (SQLException e) {
+            final String sqlState = e.getSQLState();
+            if (sqlState.equals("P0002")) {
+                // job missing - return false
+            } else {
+                throw e;
             }
         }
 
@@ -365,23 +377,32 @@ public final class DatabaseHelper
     /**
      * Returns TRUE if the specified job id is active, otherwise FALSE.
      */
-    public boolean isJobActive(String jobId) throws Exception {
+    public boolean isJobActive(final String partition, String jobId) throws Exception {
 
         boolean active = false;
 
-        String rowExistsSQL = "select 1 as isActive from job where job_id = ? and status IN ('Active', 'Waiting')";
-
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                PreparedStatement stmt = conn.prepareStatement(rowExistsSQL)
+                CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")
         ) {
-            stmt.setString(1, jobId);
+            stmt.setString(1, partition);
+            stmt.setString(2, jobId);
 
             //  Execute a query to determine if the specified job is active or not.
-            LOG.debug("Checking if the job is active...");
+            LOG.debug("Calling get_job() database function...");
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
-                active = rs.getInt("isActive") > 0;
+                final Job.StatusEnum status =
+                    Job.StatusEnum.valueOf(rs.getString("status").toUpperCase());
+                active = status == Job.StatusEnum.ACTIVE || status == Job.StatusEnum.WAITING;
+            }
+
+        } catch (SQLException e) {
+            final String sqlState = e.getSQLState();
+            if (sqlState.equals("P0002")) {
+                // job missing - return false
+            } else {
+                throw e;
             }
         }
 
@@ -391,13 +412,14 @@ public final class DatabaseHelper
     /**
      * Cancels the specified job.
      */
-    public void cancelJob(String jobId) throws Exception {
+    public void cancelJob(final String partition, String jobId) throws Exception {
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call cancel_job(?)}")
+                CallableStatement stmt = conn.prepareCall("{call cancel_job(?,?)}")
         ) {
-            stmt.setString(1,jobId);
+            stmt.setString(1, partition);
+            stmt.setString(2,jobId);
             LOG.debug("Calling cancel_job() database function...");
             stmt.execute();
         } catch (SQLException se) {
@@ -420,14 +442,17 @@ public final class DatabaseHelper
     /**
      * Creates the specified job.
      */
-    public void reportFailure(String jobId, String failureDetails) throws Exception {
+    public void reportFailure(final String partition, String jobId, String failureDetails)
+        throws Exception
+    {
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")
         ) {
-            stmt.setString(1,jobId);
-            stmt.setString(2,failureDetails);
+            stmt.setString(1, partition);
+            stmt.setString(2,jobId);
+            stmt.setString(3,failureDetails);
 
             LOG.debug("Calling report_failure() database function...");
             stmt.execute();

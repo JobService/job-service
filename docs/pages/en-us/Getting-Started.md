@@ -35,10 +35,11 @@ Adjust 'docker-host' to be the name of your own Docker Host and adjust the port 
 
 ## Adding a Job
 
-1. Expand the PUT /jobs/{jobId} method. 
-2. Enter a value for `jobId`. 
-3. Click on the example value box on the right to fill in the `newJob` body. 
-4. Edit these fields with your own details:
+1. Expand the PUT /partitions/{partition}/jobs/{jobId} method. 
+2. Enter a value for `partition`.
+3. Enter a value for `jobId`. 
+4. Click on the example value box on the right to fill in the `newJob` body. 
+5. Edit these fields with your own details:
  
 	* `name`: name of the job. <br>
 	* `description`: description of the job. <br>
@@ -50,7 +51,7 @@ Adjust 'docker-host' to be the name of your own Docker Host and adjust the port 
 	* `taskPipe`: name of the RabbitMQ queue feeding messages to the first worker. <br>
 	* `targetPipe`: name of the final worker's RabbitMQ output queue where tracking will stop. <br><br>
 
-5. Press `Try it out!`. The resulting code will show whether the addition of the job succeeds or not. 
+6. Press `Try it out!`. The resulting code will show whether the addition of the job succeeds or not. 
    - 201, if the job is successfully added
    - 204, if the job is successfully updated
 
@@ -103,8 +104,9 @@ Notice how `tracking` is `null` as the message output contains no tracking infor
 
 ## Getting Jobs
 
-1. Expand the GET /jobs operation. 
-2. Press `Try it out!`. The list of jobs in the system appears in the response body, including the job you just created.
+1. Expand the GET /partitions/{partition}/jobs operation. 
+2. Enter a value for `partition`.
+3. Press `Try it out!`. The list of jobs in the partition appears in the response body, including the job you just created.
 
 	![Add Job](images/JobServiceUIGet.PNG)
 

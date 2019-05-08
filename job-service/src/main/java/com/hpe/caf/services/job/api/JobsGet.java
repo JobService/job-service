@@ -35,12 +35,13 @@ public final class JobsGet {
      * @return  jobs        list of jobs
      * @throws Exception    bad request or database exceptions
      */
-    public static Job[] getJobs(final String jobId, final String statusType, Integer limit, final Integer offset) throws Exception {
+    public static Job[] getJobs(final String partition, final String jobId, final String statusType, Integer limit, final Integer offset) throws Exception {
 
         Job[] jobs;
 
         try {
             LOG.info("getJobs: Starting...");
+            ApiServiceUtil.validatePartition(partition);
 
             //  Get app config settings.
             LOG.debug("getJobs: Reading database connection properties...");
@@ -54,7 +55,7 @@ public final class JobsGet {
             if (limit == null || limit <= 0) {
                 limit = config.getDefaultPageSize();
             }
-            jobs = databaseHelper.getJobs(jobId, statusType, limit, offset);
+            jobs = databaseHelper.getJobs(partition, jobId, statusType, limit, offset);
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());
             throw e;

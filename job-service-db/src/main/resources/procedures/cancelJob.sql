@@ -20,7 +20,10 @@
  *  Description:
  *  Cancels the specified job.
  */
-CREATE OR REPLACE FUNCTION cancel_job(in_job_id VARCHAR(48))
+CREATE OR REPLACE FUNCTION cancel_job(
+    in_partition VARCHAR(40),
+    in_job_id VARCHAR(48)
+)
 RETURNS VOID
 LANGUAGE plpgsql
 AS $$
@@ -37,7 +40,8 @@ BEGIN
     -- And take out an exclusive update lock on the job row
     SELECT status IN ('Completed', 'Failed') INTO v_is_finished
     FROM job
-    WHERE job_id = in_job_id
+    WHERE partition = in_partition
+        AND job_id = in_job_id
     FOR UPDATE;
 
     IF NOT FOUND THEN
@@ -51,7 +55,9 @@ BEGIN
     -- Mark the job cancelled in the job table
     UPDATE job
     SET status = 'Cancelled', last_update_date = now() AT TIME ZONE 'UTC'
-    WHERE job_id = in_job_id AND status != 'Cancelled';
+    WHERE partition = in_partition
+        AND job_id = in_job_id
+        AND status != 'Cancelled';
 
     -- Drop any task tables relating to the job
     PERFORM internal_drop_task_tables(in_job_id);

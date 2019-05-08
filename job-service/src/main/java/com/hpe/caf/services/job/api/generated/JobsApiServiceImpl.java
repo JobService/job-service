@@ -30,10 +30,10 @@ import javax.ws.rs.core.UriInfo;
 public class JobsApiServiceImpl extends JobsApiService {
 
     @Override
-    public Response getJobs(final String jobIdStartsWith, final String statusType, final Integer limit, final Integer offset, String cAFCorrelationId, SecurityContext securityContext)
+    public Response getJobs(final String jobservicePartition, final String jobIdStartsWith, final String statusType, final Integer limit, final Integer offset, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
         try {
-            Job[] jobs = JobsGet.getJobs(jobIdStartsWith, statusType, limit, offset);
+            Job[] jobs = JobsGet.getJobs(jobservicePartition, jobIdStartsWith, statusType, limit, offset);
             return Response.ok().entity(jobs).build();
         } catch (BadRequestException e){
             return Response.status(Response.Status.BAD_REQUEST).entity(new ApiResponseMessage(e.getMessage())).build();
@@ -45,10 +45,10 @@ public class JobsApiServiceImpl extends JobsApiService {
     }
 
     @Override
-    public Response getJob(String jobId, String cAFCorrelationId, SecurityContext securityContext)
+    public Response getJob(final String jobservicePartition, String jobId, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
         try {
-            Job job = JobsGetById.getJob(jobId);
+            Job job = JobsGetById.getJob(jobservicePartition, jobId);
             return Response.ok().entity(job).build();
         } catch (BadRequestException e){
             return Response.status(Response.Status.BAD_REQUEST).entity(new ApiResponseMessage(e.getMessage())).build();
@@ -60,10 +60,10 @@ public class JobsApiServiceImpl extends JobsApiService {
     }
 
     @Override
-    public Response createOrUpdateJob(String jobId, NewJob newJob, String cAFCorrelationId, SecurityContext securityContext, UriInfo uriInfo)
+    public Response createOrUpdateJob(final String jobservicePartition, String jobId, NewJob newJob, String cAFCorrelationId, SecurityContext securityContext, UriInfo uriInfo)
             throws Exception {
         try {
-            String createOrUpdate = JobsPut.createOrUpdateJob(jobId, newJob);
+            String createOrUpdate = JobsPut.createOrUpdateJob(jobservicePartition, jobId, newJob);
             if (createOrUpdate.equals("create")) {
                 //  Return HTTP 201 for successful create.
                 return Response.created(uriInfo.getRequestUri()).build();
@@ -79,10 +79,10 @@ public class JobsApiServiceImpl extends JobsApiService {
     }
 
     @Override
-    public Response deleteJob(String jobId, String cAFCorrelationId, SecurityContext securityContext)
+    public Response deleteJob(final String jobservicePartition, String jobId, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
         try {
-            JobsDelete.deleteJob(jobId);
+            JobsDelete.deleteJob(jobservicePartition, jobId);
             return Response.noContent().build();
         } catch (BadRequestException e){
             return Response.status(Response.Status.BAD_REQUEST).entity(new ApiResponseMessage(e.getMessage())).build();
@@ -94,10 +94,10 @@ public class JobsApiServiceImpl extends JobsApiService {
     }
 
     @Override
-    public Response cancelJob(String jobId, String cAFCorrelationId, SecurityContext securityContext)
+    public Response cancelJob(final String jobservicePartition, String jobId, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
         try {
-            JobsCancel.cancelJob(jobId);
+            JobsCancel.cancelJob(jobservicePartition, jobId);
             return Response.noContent().build();
         } catch (BadRequestException e){
             return Response.status(Response.Status.BAD_REQUEST).entity(new ApiResponseMessage(e.getMessage())).build();
@@ -109,10 +109,10 @@ public class JobsApiServiceImpl extends JobsApiService {
     }
 
     @Override
-    public Response getJobActive(String jobId, String cAFCorrelationId, SecurityContext securityContext)
+    public Response getJobActive(final String jobservicePartition, String jobId, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
         try {
-            JobsActive.JobsActiveResult result = JobsActive.isJobActive(jobId);
+            JobsActive.JobsActiveResult result = JobsActive.isJobActive(jobservicePartition, jobId);
 
             CacheControl cc = new CacheControl();
             cc.setMaxAge(result.statusCheckIntervalSecs);

@@ -31,10 +31,11 @@ import sys
 import time
 import re                       # for string substitution
 
-# CAF Job Service endpoint.
-job_service_api_endpoint = '/job-service/v1/jobs/'
+# CAF Job Service endpoint as string-format template.
+job_service_api_endpoint = '/job-service/v1/partitions/{partition}/jobs/{job_id}'
 
 # Global job identifier and definition.
+partition = ''
 job_id = ''
 job_definition = ''
 
@@ -54,6 +55,7 @@ def parse_args():
 
     # Required arguments.
     required_named = parser.add_argument_group('required arguments')
+    required_named.add_argument('-P', '--partition', dest='partition', help='partition name', required=True, metavar='partition')
     required_named.add_argument('-j', '--job', dest='jobId', help='job identifier', required=True, metavar='jobId')
     required_named.add_argument('-u', '--url', dest='jobWebServiceURL', help='job web service url', required=True, metavar='jobWebServiceURL')
 
@@ -83,6 +85,13 @@ def validate_args(args):
     log('Validating command line arguments ...')
 
     # Make sure input arguments are not empty.
+    if args.partition == "":
+        log('The partition is empty. Exiting.')
+        abnormal_termination()
+    else:
+        global partition
+        partition = args.partition
+
     if args.jobId == "":
         log('The job identifier argument is empty. Exiting.')
         abnormal_termination()
@@ -174,7 +183,8 @@ def main():
     args = parse_args()
 
     # Construct uri to be used in calls to the CAF Job Service.
-    uri = args.jobWebServiceURL + job_service_api_endpoint + job_id
+    uri = (args.jobWebServiceURL +
+        job_service_api_endpoint.format(partition=partition, job_id=job_id))
 
     # Call CAF Job Service to create a new job.
     call_put_job_service(uri, job_definition)

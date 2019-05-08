@@ -17,6 +17,7 @@ package com.hpe.caf.worker.jobtracking;
 
 import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TrackingInfo;
+import com.hpe.caf.services.job.util.JobId;
 import com.hpe.caf.worker.testing.ExecutionContext;
 import com.hpe.caf.worker.testing.ResultHandler;
 import com.hpe.caf.worker.testing.TestItem;
@@ -49,18 +50,28 @@ public class JobTaskWorkerOutputDeliveryHandler implements ResultHandler {
         }
 
         if (tracking != null) {
-            String trackingJobTaskId = tracking.getJobTaskId();
-            if (!expectation.getJobTaskId().equals(trackingJobTaskId)) {
+            final JobId trackingJobTaskId = JobId.fromMessageId(tracking.getJobTaskId());
+            if (!expectation.getPartition().equals(trackingJobTaskId.getPartition())) {
+                context.failed(new TestItem(taskMessage.getTaskId(), null, null),
+                    MessageFormat.format(
+                        "In the forwarded task message, expected partition {0} but found {1} in the tracking info.",
+                        expectation.getPartition(),
+                        trackingJobTaskId.getPartition()));
+            }
+            if (!expectation.getJobTaskId().equals(trackingJobTaskId.getId())) {
                 context.failed(new TestItem(taskMessage.getTaskId(), null, null),
                         MessageFormat.format(
                                 "In the forwarded task message, expected job task ID {0} but found {1} in the tracking info.",
                                 expectation.getJobTaskId(),
-                                trackingJobTaskId));
+                                trackingJobTaskId.getId()));
             }
         }
 
         try {
-            database.verifyJobStatus(expectation.getJobTaskId(), expectation.getJobReportingExpectation());
+            database.verifyJobStatus(
+                expectation.getPartition(),
+                expectation.getJobTaskId(),
+                expectation.getJobReportingExpectation());
         } catch (Exception e) {
             context.failed(new TestItem(taskMessage.getTaskId(), null, null), e.getMessage());
         }

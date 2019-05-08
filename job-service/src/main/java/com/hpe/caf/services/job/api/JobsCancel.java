@@ -30,10 +30,11 @@ public final class JobsCancel {
      * @param   jobId       the id of the job to cancel
      * @throws  Exception   bad request or database exceptions thrown
      */
-    public static void cancelJob(String jobId) throws Exception {
+    public static void cancelJob(final String partition, String jobId) throws Exception {
 
         try {
             LOG.info("cancel: Starting...");
+            ApiServiceUtil.validatePartition(partition);
 
             //  Make sure the job id has been provided.
             if (!ApiServiceUtil.isNotNullOrEmpty(jobId)) {
@@ -56,7 +57,7 @@ public final class JobsCancel {
 
             //  Cancel the specified job.
             LOG.info("cancel: Cancelling the job...");
-            databaseHelper.cancelJob(jobId);
+            databaseHelper.cancelJob(partition, jobId);
 
             LOG.info("cancel: Done.");
         } catch (Exception e) {

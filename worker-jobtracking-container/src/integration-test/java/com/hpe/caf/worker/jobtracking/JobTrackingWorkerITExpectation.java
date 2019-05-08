@@ -20,6 +20,11 @@ package com.hpe.caf.worker.jobtracking;
  */
 public class JobTrackingWorkerITExpectation {
     /**
+     * The partition containing the job under test.
+     */
+    final private String partition;
+
+    /**
      * The job task identifier of the task under test.
      */
     private String jobTaskId;
@@ -40,13 +45,23 @@ public class JobTrackingWorkerITExpectation {
     private JobReportingExpectation jobReportingExpectation;
 
 
-    public JobTrackingWorkerITExpectation(String jobTaskId, String forwardingQueue, boolean trackingInfoPresent, JobReportingExpectation jobReportingExpectation) {
+    public JobTrackingWorkerITExpectation(
+        final String partition,
+        String jobTaskId,
+        String forwardingQueue,
+        boolean trackingInfoPresent,
+        JobReportingExpectation jobReportingExpectation
+    ) {
+        this.partition = partition;
         this.jobTaskId = jobTaskId;
         this.forwardingQueue = forwardingQueue;
         this.trackingInfoPresent = trackingInfoPresent;
         this.jobReportingExpectation = jobReportingExpectation;
     }
 
+    public String getPartition() {
+        return partition;
+    }
 
     public String getJobTaskId() {
         return jobTaskId;

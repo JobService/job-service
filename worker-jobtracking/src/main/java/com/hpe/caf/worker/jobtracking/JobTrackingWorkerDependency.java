@@ -24,6 +24,8 @@ import java.util.Objects;
 public class JobTrackingWorkerDependency
 {
     @NotNull
+    private String partition;
+    @NotNull
     private String jobId;
     @NotNull
     private String taskClassifier;
@@ -35,6 +37,14 @@ public class JobTrackingWorkerDependency
     private String taskPipe;
     @NotNull
     private String targetPipe;
+
+    public String getPartition() {
+        return partition;
+    }
+
+    public void setPartition(final String partition) {
+        this.partition = Objects.requireNonNull(partition);
+    }
 
     public String getJobId() {
         return jobId;

@@ -20,6 +20,7 @@ import com.hpe.caf.api.CodecException;
 import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.api.worker.TrackingInfo;
+import com.hpe.caf.services.job.util.JobId;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.MessageProperties;
@@ -27,8 +28,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
-import java.net.URLEncoder;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
@@ -64,8 +66,9 @@ public final class QueueServices
      * @param   workerAction        the worker task details
      * @throws IOException          thrown if message cannot be sent
      */
-    public void sendMessage(final String jobId, final WorkerAction workerAction) throws IOException
-    {
+    public void sendMessage(
+        final String partition, final String jobId, final WorkerAction workerAction
+    ) throws IOException, URISyntaxException {
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
@@ -105,11 +108,16 @@ public final class QueueServices
         }
 
         //  Set up string for statusCheckUrl
-        final String statusCheckUrl = ScheduledExecutorConfig.getWebserviceUrl() +"/jobs/" + URLEncoder.encode(jobId, "UTF-8") +"/isActive";
+        final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
+            .path("partitions").path(partition)
+            .path("jobs").path(jobId)
+            .path("isActive").build().toString();
 
         //  Construct the task message.
         LOG.debug("Constructing the task message ...");
-        final TrackingInfo trackingInfo = new TrackingInfo(jobId, calculateStatusCheckDate(ScheduledExecutorConfig.getStatusCheckTime()),
+        final TrackingInfo trackingInfo = new TrackingInfo(
+                new JobId(partition, jobId).getMessageId(),
+                calculateStatusCheckDate(ScheduledExecutorConfig.getStatusCheckTime()),
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 
         final TaskMessage taskMessage = new TaskMessage(

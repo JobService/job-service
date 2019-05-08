@@ -21,8 +21,12 @@
  *  Return a list of jobs that can run immediately. Update the eligibility run date for others.
  */
 DROP FUNCTION IF EXISTS internal_process_dependent_jobs(in_job_id VARCHAR(58));
-CREATE OR REPLACE FUNCTION internal_process_dependent_jobs(in_job_id VARCHAR(48))
+CREATE OR REPLACE FUNCTION internal_process_dependent_jobs(
+    in_partition VARCHAR(40),
+    in_job_id VARCHAR(48)
+)
 RETURNS TABLE(
+    partition VARCHAR(40),
     job_id VARCHAR(48),
     task_classifier VARCHAR(255),
     task_api_version INT,
@@ -39,8 +43,9 @@ BEGIN
     AS
         SELECT j.job_id, j.delay
         FROM job_dependency jd
-        INNER JOIN job j ON j.job_id = jd.job_id
-        WHERE jd.dependent_job_id = in_job_id;
+        INNER JOIN job j ON j.partition = jd.partition AND j.job_id = jd.job_id
+        WHERE jd.partition = in_partition
+            AND jd.dependent_job_id = in_job_id;
 
     -- lock rows
 --     PERFORM NULL FROM public.job WHERE job.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs)
@@ -48,8 +53,9 @@ BEGIN
 
     -- Remove corresponding dependency related rows for jobs that can be processed immediately
     DELETE
-    FROM job_dependency
-    WHERE dependent_job_id = in_job_id;
+    FROM job_dependency AS jd
+    WHERE jd.partition = in_partition
+        AND jd.dependent_job_id = in_job_id;
 
     --Set the eligible_to_run_date for jobs with a delay, these will be picked up by scheduled executor
     UPDATE job_task_data
@@ -57,28 +63,47 @@ BEGIN
     FROM tmp_dependent_jobs 
         WHERE 
         job_task_data.eligible_to_run_date IS NULL
+        AND job_task_data.partition = in_partition
         AND tmp_dependent_jobs.job_id = job_task_data.job_id 
         AND tmp_dependent_jobs.delay <> 0 
         AND NOT EXISTS (
-                        SELECT job_dependency.job_id FROM job_dependency
-                            WHERE job_dependency.job_id = job_task_data.job_id);
+            SELECT job_dependency.job_id FROM job_dependency
+            WHERE job_dependency.partition = job_task_data.partition
+                AND job_dependency.job_id = job_task_data.job_id
+        );
     
     -- Return jobs with no delay that we can now run and delete the tasks
     RETURN QUERY
-    WITH del_result AS (DELETE 
+    WITH del_result AS (DELETE
         FROM job_task_data jtd
-        WHERE jtd.job_id IN (
+        WHERE jtd.partition = in_partition AND jtd.job_id IN (
             SELECT jtd.job_id
                 FROM job_task_data jtd
                     INNER JOIN tmp_dependent_jobs dp ON dp.job_id = jtd.job_id
                 WHERE dp.delay = 0 AND NOT EXISTS (
                     SELECT job_dependency.job_id 
-                        FROM job_dependency 
-                        WHERE job_dependency.job_id = dp.job_id
+                    FROM job_dependency
+                    WHERE job_dependency.partition = in_partition
+                        AND job_dependency.job_id = dp.job_id
                 )
         )
-        RETURNING jtd.job_id, jtd.task_classifier, jtd.task_api_version, jtd.task_data, jtd.task_pipe, jtd.target_pipe)
-    SELECT del_result.job_id, del_result.task_classifier, del_result.task_api_version, del_result.task_data, del_result.task_pipe, del_result.target_pipe
+        RETURNING
+            jtd.partition,
+            jtd.job_id,
+            jtd.task_classifier,
+            jtd.task_api_version,
+            jtd.task_data,
+            jtd.task_pipe,
+            jtd.target_pipe
+    )
+    SELECT
+        del_result.partition,
+        del_result.job_id,
+        del_result.task_classifier,
+        del_result.task_api_version,
+        del_result.task_data,
+        del_result.task_pipe,
+        del_result.target_pipe
     FROM del_result;
 
 END

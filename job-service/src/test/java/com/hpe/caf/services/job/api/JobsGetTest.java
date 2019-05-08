@@ -16,6 +16,7 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +40,8 @@ public final class JobsGetTest {
     @Before
     public void setup() throws Exception {
         //  Mock DatabaseHelper calls.
-        Mockito.doNothing().when(mockDatabaseHelper).deleteJob(Mockito.anyString());
+        Mockito.doNothing().when(mockDatabaseHelper)
+            .deleteJob(Mockito.anyString(), Mockito.anyString());
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(Mockito.any()).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
@@ -52,9 +54,14 @@ public final class JobsGetTest {
     @Test
     public void testGetJob_Success() throws Exception {
         //  Test successful run of job retrieval.
-        JobsGet.getJobs("", null, 0, 0);
+        JobsGet.getJobs("partition", "", null, 0, 0);
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs("", null, 0, 0);
+        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs("partition", "", null, 0, 0);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testGetJobs_Success_EmptyPartition() throws Exception {
+        JobsGet.getJobs("", "", null, 0, 0);
     }
 
 }

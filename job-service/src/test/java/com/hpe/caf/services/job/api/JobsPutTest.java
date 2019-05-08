@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.api;
 
 import static junit.framework.Assert.assertEquals;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.anyInt;
@@ -62,10 +63,12 @@ public final class JobsPutTest {
     @Before
     public void setup() throws Exception {
         //  Mock DatabaseHelper calls.
-        doNothing().when(mockDatabaseHelper).createJob(anyString(),anyString(),anyString(),anyString(),anyInt());
-        doNothing().when(mockDatabaseHelper).createJobWithDependencies(anyString(),anyString(),anyString(),anyString(),anyInt(),
-                anyString(),anyInt(), any(), anyString(), anyString(), any(), anyInt());
-        doNothing().when(mockDatabaseHelper).deleteJob(anyString());
+        doNothing().when(mockDatabaseHelper).createJob(
+            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt());
+        doNothing().when(mockDatabaseHelper).createJobWithDependencies(
+            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
+            anyInt(), any(), anyString(), anyString(), any(), anyInt());
+        doNothing().when(mockDatabaseHelper).deleteJob(anyString(), anyString());
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(any()).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
@@ -75,7 +78,7 @@ public final class JobsPutTest {
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         //  Mock QueueServices calls.
-        doNothing().when(mockQueueServices).sendMessage(any(), any(), any());
+        doNothing().when(mockQueueServices).sendMessage(any(), any(), any(), any());
         PowerMockito.whenNew(QueueServices.class).withArguments(any(),any(),anyString(),any()).thenReturn(mockQueueServices);
 
         //  Mock QueueServicesFactory calls.
@@ -115,49 +118,60 @@ public final class JobsPutTest {
     @Test
     public void testCreateJob_Success_NoMatchingJobRow() throws Exception {
 
-        when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyInt())).thenReturn(false);
-        when(mockDatabaseHelper.canJobBeProgressed(anyString())).thenReturn(true);
+        when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyString(), anyInt()))
+            .thenReturn(false);
+        when(mockDatabaseHelper.canJobBeProgressed(anyString(), anyString())).thenReturn(true);
 
         //  Test successful run of job creation when no matching job row exists.
-        JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", validJob);
+        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", validJob);
 
-        verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
-        verify(mockDatabaseHelper, times(1)).createJob(anyString(),anyString(),anyString(),anyString(),anyInt());
-        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any());
+        verify(mockDatabaseHelper, times(1))
+            .doesJobAlreadyExist(eq("partition"), anyString(), anyInt());
+        verify(mockDatabaseHelper, times(1))
+            .createJob(eq("partition"), anyString(),anyString(),anyString(),anyString(),anyInt());
+        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any());
     }
 
     @Test
     public void testCreateJob_Success_MatchingJobRow() throws Exception {
 
-        when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyInt())).thenReturn(true);
+        when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyString(), anyInt()))
+            .thenReturn(true);
 
         //  Test successful run of job creation when a matching job row already exists.
-        JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", validJob);
+        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", validJob);
 
-        verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
-        verify(mockDatabaseHelper, times(0)).createJob(anyString(),anyString(),anyString(),anyString(),anyInt());
-        verify(mockQueueServices, times(0)).sendMessage(any(), any(), any());
+        verify(mockDatabaseHelper, times(1))
+            .doesJobAlreadyExist(anyString(), anyString(), anyInt());
+        verify(mockDatabaseHelper, times(0))
+            .createJob(anyString(), anyString(),anyString(),anyString(),anyString(),anyInt());
+        verify(mockQueueServices, times(0)).sendMessage(any(), any(), any(), any());
     }
 
     @Test(expected = BadRequestException.class)
     public void testCreateJob_Failure_JobIdNotSpecified() throws Exception {
 
         //  Test failed run of job creation with empty job id.
-        JobsPut.createOrUpdateJob("", validJob);
+        JobsPut.createOrUpdateJob("partition", "", validJob);
     }
 
     @Test(expected = BadRequestException.class)
     public void testCreateJob_Failure_InvalidJobId_Period() throws Exception {
 
         //  Test failed run of job creation with job id containing invalid characters.
-        JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b6.dff00", validJob);
+        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b6.dff00", validJob);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testCreateJob_Failure_PartitionNotSpecified() throws Exception {
+        JobsPut.createOrUpdateJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00", validJob);
     }
 
     @Test(expected = BadRequestException.class)
     public void testCreateJob_Failure_InvalidJobId_Asterisk() throws Exception {
 
         //  Test failed run of job creation with job id containing invalid characters.
-        JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b6*dff00", validJob);
+        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b6*dff00", validJob);
     }
 
     @Test(expected = BadRequestException.class)
@@ -178,7 +192,7 @@ public final class JobsPutTest {
 
         //  Test failed run of job creation where task data has not been specified.
         try {
-            JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+            JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
         } catch (BadRequestException bre) {
             assertEquals(JobsPut.ERR_MSG_TASK_DATA_NOT_SPECIFIED, bre.getMessage());
             throw bre;
@@ -188,8 +202,8 @@ public final class JobsPutTest {
     @Test
     public void testJobCreationWithTaskData_Object() throws Exception
     {
-        when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyInt())).thenReturn(false);
-        when(mockDatabaseHelper.canJobBeProgressed(anyString())).thenReturn(true);
+        when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyString(), anyInt())).thenReturn(false);
+        when(mockDatabaseHelper.canJobBeProgressed(anyString(), anyString())).thenReturn(true);
         
         NewJob job = new NewJob();
         WorkerAction action = new WorkerAction();
@@ -204,18 +218,21 @@ public final class JobsPutTest {
         job.setTask(action);
         
         //  Test successful run of job creation when no matching job row exists.
-        JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
         
-        verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
-        verify(mockDatabaseHelper, times(1)).createJob(anyString(),anyString(),anyString(),anyString(),anyInt());
-        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any());
+        verify(mockDatabaseHelper, times(1))
+            .doesJobAlreadyExist(anyString(), anyString(), anyInt());
+        verify(mockDatabaseHelper, times(1)).createJob(
+            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt());
+        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any());
     }
 
     @Test
     public void testJobCreationWithPrerequisites() throws Exception
     {
-        when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyInt())).thenReturn(false);
-        when(mockDatabaseHelper.canJobBeProgressed(anyString())).thenReturn(false);
+        when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyString(), anyInt()))
+            .thenReturn(false);
+        when(mockDatabaseHelper.canJobBeProgressed(anyString(), anyString())).thenReturn(false);
 
         NewJob job = new NewJob();
         WorkerAction action = new WorkerAction();
@@ -232,15 +249,17 @@ public final class JobsPutTest {
         job.setDelay(0);
 
         //  Test creation of job when no matching job row exists and job has prereqs that have not been completed.
-        final String createOrUpdateJobReturnString = JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00",
+        final String createOrUpdateJobReturnString = JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00",
                 job);
 
         assertEquals("create", createOrUpdateJobReturnString);
 
-        verify(mockDatabaseHelper, times(1)).doesJobAlreadyExist(anyString(), anyInt());
-        verify(mockDatabaseHelper, times(1)).createJobWithDependencies(anyString(),anyString(),anyString(),anyString(),anyInt(),
-                anyString(),anyInt(), any(), anyString(), anyString(), any(), anyInt());
-        verify(mockDatabaseHelper, times(1)).canJobBeProgressed(anyString());
+        verify(mockDatabaseHelper, times(1))
+            .doesJobAlreadyExist(anyString(), anyString(), anyInt());
+        verify(mockDatabaseHelper, times(1)).createJobWithDependencies(
+            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
+            anyInt(), any(), anyString(), anyString(), any(), anyInt());
+        verify(mockDatabaseHelper, times(1)).canJobBeProgressed(anyString(), anyString());
     }
     
     
@@ -261,7 +280,7 @@ public final class JobsPutTest {
 
         //  Test failed run of job creation where taskData is an unsupported datatype
         try {
-            JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+            JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
         } catch (BadRequestException bre) {
             assertEquals(JobsPut.ERR_MSG_TASK_DATA_DATATYPE_ERROR, bre.getMessage());
             throw bre;
@@ -284,7 +303,7 @@ public final class JobsPutTest {
         job.setTask(action);
         
         try {
-            JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+            JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
         } catch (BadRequestException bre) {
             assertEquals(JobsPut.ERR_MSG_TASK_DATA_OBJECT_ENCODING_CONFLICT, bre.getMessage());
             throw bre;
@@ -308,7 +327,7 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where task classifier has not been specified.
-        JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
     }
 
     @Test(expected = BadRequestException.class)
@@ -328,7 +347,7 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where task api version has not been specified.
-        JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
     }
 
     @Test(expected = BadRequestException.class)
@@ -348,7 +367,7 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where target queue has not been specified.
-        JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
     }
 
     @Test(expected = BadRequestException.class)
@@ -368,6 +387,6 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where target queue has not been specified.
-        JobsPut.createOrUpdateJob("067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
     }
 }

@@ -23,6 +23,7 @@
  *  the specified prerequisite job identifiers are not yet complete.
  */
 CREATE OR REPLACE FUNCTION create_job(
+    in_partition VARCHAR(40),
     in_job_id VARCHAR(48),
     in_name VARCHAR(255),
     in_description TEXT,
@@ -77,6 +78,7 @@ BEGIN
 
     -- Create new row in job and return the job_id
     INSERT INTO public.job (
+        partition,
         job_id,
         name,
         description,
@@ -89,6 +91,7 @@ BEGIN
         delay,
         job_hash
     ) VALUES (
+        in_partition,
         in_job_id,
         in_name,
         in_description,
@@ -127,14 +130,18 @@ BEGIN
         -- this job is blocked from starting. Shared locks are being used as the rows themselves will not be updated by the operation.
         -- This means that there will be no contention when simultaneously creating multiple jobs which have the same pre-requisites.
         SELECT * FROM job
-        WHERE job_id IN (SELECT job_id FROM prereqs) AND status <> 'Completed'
-        ORDER BY job_id
+        WHERE partition = in_partition
+            AND job_id IN (SELECT job_id FROM prereqs)
+            AND status <> 'Completed'
+        ORDER BY partition, job_id
         FOR SHARE
     ),
     prereqs_not_created_yet AS
     (
         SELECT * FROM prereqs
-        WHERE NOT precreated AND job_id NOT IN (SELECT job_id FROM job)
+        WHERE NOT precreated AND job_id NOT IN (
+            SELECT job_id FROM job WHERE partition = in_partition
+        )
     ),
     all_incomplete_prereqs(prerequisite_job_id) AS
     (
@@ -143,15 +150,30 @@ BEGIN
         SELECT job_id FROM prereqs_not_created_yet
     )
 
-    INSERT INTO public.job_dependency(job_id, dependent_job_id)
-    SELECT in_job_id, prerequisite_job_id
+    INSERT INTO public.job_dependency(partition, job_id, dependent_job_id)
+    SELECT in_partition, in_job_id, prerequisite_job_id
     FROM all_incomplete_prereqs;
 
     IF FOUND OR in_delay > 0 THEN
         INSERT INTO public.job_task_data(
-            job_id, task_classifier, task_api_version, task_data, task_pipe, target_pipe, eligible_to_run_date)
-        VALUES (in_job_id, in_task_classifier, in_task_api_version, in_task_data, in_task_pipe, in_target_pipe,
-                CASE WHEN NOT FOUND THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') END);
+            partition,
+            job_id,
+            task_classifier,
+            task_api_version,
+            task_data,
+            task_pipe,
+            target_pipe,
+            eligible_to_run_date
+        ) VALUES (
+            in_partition,
+            in_job_id,
+            in_task_classifier,
+            in_task_api_version,
+            in_task_data,
+            in_task_pipe,
+            in_target_pipe,
+            CASE WHEN NOT FOUND THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') END
+        );
     END IF;
 END
 $$;

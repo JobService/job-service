@@ -27,9 +27,13 @@ import org.testng.annotations.Test;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 public class JobServiceBasicHttpsIT
 {
@@ -81,9 +85,11 @@ public class JobServiceBasicHttpsIT
     }
 
     @Test
-    public void basicCommunicationTest() throws IOException
+    public void basicCommunicationTest() throws IOException, URISyntaxException
     {
-        final String getRequestUrl = https_url + "/jobs";
+        final String getRequestUrl = UriBuilder.fromUri(https_url)
+            .path("partitions").path(UUID.randomUUID().toString())
+            .path("jobs").toString();
         final HttpGet request = new HttpGet(getRequestUrl);
 
         System.out.println("Sending GET to url: " + getRequestUrl);

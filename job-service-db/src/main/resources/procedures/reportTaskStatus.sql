@@ -21,6 +21,7 @@
  *  Updates the status of the specified task, and rolls the status update up to all the parent tasks.
  */
 CREATE OR REPLACE FUNCTION internal_report_task_status(
+    in_partition VARCHAR(40),
     in_task_id VARCHAR(58),
     in_status job_status,
     in_percentage_complete DOUBLE PRECISION,
@@ -35,7 +36,7 @@ DECLARE
 
 BEGIN
     -- Ignore the status report if the task has already been completed
-    IF internal_is_task_completed(in_task_id) THEN
+    IF internal_is_task_completed(in_partition, in_task_id) THEN
         RETURN;
     END IF;
 
@@ -55,7 +56,8 @@ BEGIN
             percentage_complete = round(in_percentage_complete::numeric, 2),
             failure_details = in_failure_details,
             last_update_date = now() AT TIME ZONE 'UTC'
-        WHERE job_id = in_task_id;
+        WHERE partition = in_partition
+            AND job_id = in_task_id;
     ELSE
         -- Put together the parent task table name
         v_parent_task_table = 'task_' || v_parent_task_id;
@@ -73,6 +75,7 @@ BEGIN
 
         -- Get the overall status of the parent task and recursively call into this function to update the parent tasks
         PERFORM internal_report_task_status(
+            in_partition,
             v_parent_task_id,
             status,
             percentage_complete,

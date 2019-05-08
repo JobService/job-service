@@ -22,13 +22,14 @@ import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.api.worker.TrackingInfo;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.util.JobId;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.MessageProperties;
 import org.apache.commons.codec.binary.Base64;
 
+import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
@@ -58,8 +59,9 @@ public final class QueueServices {
     /**
      * Send task data message to the target queue.
      */
-    public void sendMessage(String jobId, WorkerAction workerAction, AppConfig config) throws IOException
-    {
+    public void sendMessage(
+        final String partition, String jobId, WorkerAction workerAction, AppConfig config
+    ) throws IOException {
         //  Generate a random task id.
         String taskId = UUID.randomUUID().toString();
 
@@ -91,10 +93,15 @@ public final class QueueServices {
         }
 
         //set up string for statusCheckUrl
-        String statusCheckUrl = config.getWebserviceUrl() +"/jobs/" +URLEncoder.encode(jobId, "UTF-8") +"/isActive";
+        String statusCheckUrl = UriBuilder.fromUri(config.getWebserviceUrl())
+            .path("partitions").path(partition)
+            .path("jobs").path(jobId)
+            .path("isActive").build().toString();
 
         //  Construct the task message.
-        final TrackingInfo trackingInfo = new TrackingInfo(jobId, calculateStatusCheckDate(config.getStatusCheckTime()),
+        final TrackingInfo trackingInfo = new TrackingInfo(
+                new JobId(partition, jobId).getMessageId(),
+                calculateStatusCheckDate(config.getStatusCheckTime()),
                 statusCheckUrl, config.getTrackingPipe(), workerAction.getTargetPipe());
 
         final TaskMessage taskMessage = new TaskMessage(

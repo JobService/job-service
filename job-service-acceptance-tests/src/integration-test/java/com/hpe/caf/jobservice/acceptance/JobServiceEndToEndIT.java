@@ -77,6 +77,7 @@ public class JobServiceEndToEndIT {
     private static JobsApi jobsApi;
     private static int numTestItemsToGenerate = 50;   // CAF-3677: This cannot be set any higher than 2 otherwise the job will not reach completion. Change to final variable when fixed.
 
+    private String defaultPartition;
     private List<String> testItemAssetIds;
 
     //  Scripted Job Service testing.
@@ -126,6 +127,7 @@ public class JobServiceEndToEndIT {
 
     @BeforeMethod
     public void testSetup() throws Exception {
+        defaultPartition = UUID.randomUUID().toString();
         numTestItemsToGenerate = 50;        // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();
     }
@@ -142,6 +144,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         jobId,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -196,6 +199,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         job1Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -219,6 +223,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         job2Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -261,6 +266,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         jobId,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -300,6 +306,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         job1Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -323,6 +330,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         job2Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -366,6 +374,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         job1Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -408,6 +417,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         job1Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -480,6 +490,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         job2Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -551,6 +562,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         job2Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -609,6 +621,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         true,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         jobId,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -648,6 +661,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         jobId,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -674,14 +688,16 @@ public class JobServiceEndToEndIT {
             //  Before job service caller container can be started, a number of changes to the container JSON needs to be made including Cmd, HostConfig and Image.
             //  Configure Cmd (i.e. modify job identifier, web service url, polling interval and job definition file that will be passed to the containerized script).
             JSONArray cmd = new JSONArray();
-            cmd.add(0, "-j");
-            cmd.add(1, jobId);
-            cmd.add(2, "-u");
-            cmd.add(3, jobServiceCallerWebServiceLinkURL);
-            cmd.add(4, "-p");
-            cmd.add(5, pollingInterval);
-            cmd.add(6, "-f");
-            cmd.add(7, "/jobDefinition/" + jobDefinitionFile);
+            cmd.add(0, "-P");
+            cmd.add(1, defaultPartition);
+            cmd.add(2, "-j");
+            cmd.add(3, jobId);
+            cmd.add(4, "-u");
+            cmd.add(5, jobServiceCallerWebServiceLinkURL);
+            cmd.add(6, "-p");
+            cmd.add(7, pollingInterval);
+            cmd.add(8, "-f");
+            cmd.add(9, "/jobDefinition/" + jobDefinitionFile);
             createContainerObject.put("Cmd", cmd);
 
             //  Configure HostConfig
@@ -830,6 +846,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
+                        defaultPartition,
                         jobId,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -927,7 +944,7 @@ public class JobServiceEndToEndIT {
      */
     private void createJob(final String jobId, final boolean useTaskDataObject) throws Exception {
         NewJob newJob = constructNewJob(jobId, useTaskDataObject);
-        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
     }
 
     private void createJobWithPrerequisites(final String jobId, final boolean useTaskDataObject, final int delay,
@@ -935,16 +952,16 @@ public class JobServiceEndToEndIT {
         NewJob newJob = constructNewJob(jobId, useTaskDataObject);
         newJob.setPrerequisiteJobIds(Arrays.asList(prerequisiteJobs));
         newJob.setDelay(delay);
-        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
     }
 
 
     private void cancelJob(final String jobId) throws Exception {
-        jobsApi.cancelJob(jobId, jobCorrelationId);
+        jobsApi.cancelJob(defaultPartition, jobId, jobCorrelationId);
     }
 
     private void deleteJob(final String jobId) throws Exception {
-        jobsApi.deleteJob(jobId, jobCorrelationId);
+        jobsApi.deleteJob(defaultPartition, jobId, jobCorrelationId);
     }
 
     private NewJob constructNewJob(String jobId, final boolean useTaskDataObject) throws Exception {

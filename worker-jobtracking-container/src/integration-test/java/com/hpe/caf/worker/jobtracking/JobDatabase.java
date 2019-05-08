@@ -49,7 +49,9 @@ public class JobDatabase {
     }
 
 
-    public void createJobTask(final String jobId, final String jobDescriptor) throws Exception {
+    public void createJobTask(
+        final String partition, final String jobId, final String jobDescriptor
+    ) throws Exception {
         // For jobtracking worker integration tests a simple job will do - no need for a task to be created too.
         String name = MessageFormat.format("{0}_{1}", jobDescriptor, jobId);
         String description = MessageFormat.format("{0}_{1} description", jobDescriptor, jobId);
@@ -57,12 +59,13 @@ public class JobDatabase {
         int jobHash = random.nextInt();
 
         try(Connection connection = getConnection();
-            CallableStatement stmt = connection.prepareCall("{call create_job(?,?,?,?,?)}")) {
-            stmt.setString(1, jobId);
-            stmt.setString(2, name);
-            stmt.setString(3, description);
-            stmt.setString(4, data);
-            stmt.setInt(5, jobHash);
+            CallableStatement stmt = connection.prepareCall("{call create_job(?,?,?,?,?,?)}")) {
+            stmt.setString(1, partition);
+            stmt.setString(2, jobId);
+            stmt.setString(3, name);
+            stmt.setString(4, description);
+            stmt.setString(5, data);
+            stmt.setInt(6, jobHash);
             LOG.info("Creating job {}", jobId);
             stmt.execute();
         }
@@ -73,12 +76,13 @@ public class JobDatabase {
     /**
      * Retrieve the job with the given ID from the job-service database.
      */
-    public DBJob getJob(final String jobTaskId) throws SQLException {
+    public DBJob getJob(final String partition, final String jobTaskId) throws SQLException {
         final DBJob jobStatus = new DBJob();
         try(Connection connection = getConnection();
-            CallableStatement stmt = connection.prepareCall("{call get_job(?)}")) {
+            CallableStatement stmt = connection.prepareCall("{call get_job(?,?)}")) {
 
-            stmt.setString(1, jobTaskId);
+            stmt.setString(1, partition);
+            stmt.setString(2, jobTaskId);
             LOG.info("Calling get_job for job task {}", jobTaskId);
             try (ResultSet rs = stmt.executeQuery()) {
                 rs.next(); // expect exactly 1 record
@@ -95,8 +99,10 @@ public class JobDatabase {
         return jobStatus;
     }
 
-    public void verifyJobStatus(String jobTaskId, JobReportingExpectation jobReportingExpectation) throws Exception {
-        final DBJob job = getJob(jobTaskId);
+    public void verifyJobStatus(
+        final String partition, String jobTaskId, JobReportingExpectation jobReportingExpectation
+    ) throws Exception {
+        final DBJob job = getJob(partition, jobTaskId);
         LOG.info("Called get_job for job task {}. Verifying results against expectations...", jobTaskId);
         assertEquals(jobTaskId, "job_id", job.getJobId(), jobReportingExpectation.getJobId());
         assertEquals(jobTaskId, "status", job.getStatus(), jobReportingExpectation.getStatus());

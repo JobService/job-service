@@ -116,6 +116,11 @@
             <artifactId>httpclient</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-util</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>

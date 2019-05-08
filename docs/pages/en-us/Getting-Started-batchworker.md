@@ -164,7 +164,7 @@ Note the following:
 
 #### Job Verification
 
-After the job has been created, the Swagger UI can be used to track the progress and status of the job using the GET /jobs method.
+After the job has been created, the Swagger UI can be used to track the progress and status of the job using the GET /partitions/{partition}/jobs method.
 
 On completion, the payload sent to the Language Detection Document Worker output queue, `languageidentification-out`, will look similar to the following:
 
