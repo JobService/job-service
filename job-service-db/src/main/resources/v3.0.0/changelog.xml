@@ -88,6 +88,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_procedure_get_job_can_be_progressed" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/getJobCanBeProgressed.sql"
+                         procedureName="get_job_can_be_progressed"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="update_procedure_cancel_job_partitions" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/cancelJob.sql"
                          procedureName="cancel_job"

@@ -320,7 +320,7 @@ public final class DatabaseHelper
      */
     public boolean doesJobAlreadyExist(final String partition, String jobId, int jobHash) throws Exception {
 
-        boolean exists = false;
+        final boolean exists;
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
@@ -333,9 +333,8 @@ public final class DatabaseHelper
             //  Execute a query to determine if a matching job row already exists.
             LOG.debug("Calling get_job_exists() database function...");
             ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
-                exists = rs.getBoolean("job_exists");
-            }
+            rs.next();
+            exists = rs.getBoolean("job_exists");
         }
 
         return exists;
@@ -351,7 +350,7 @@ public final class DatabaseHelper
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call get_job_can_be_progressed(?,?)}")
         ) {
             stmt.setString(1, partition);
             stmt.setString(2, jobId);

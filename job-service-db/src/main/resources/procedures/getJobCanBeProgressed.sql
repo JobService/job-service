@@ -15,28 +15,26 @@
 --
 
 /*
- *  Name: get_job_exists
+ *  Name: get_job_can_be_progressed
  *
  *  Description:
- *  Returns a record indicating whether the job exists with a specific value by comparing the hash.
+ *  Returns a record indicating whether the job can be progressed.
  */
-CREATE OR REPLACE FUNCTION get_job_exists(
+CREATE OR REPLACE FUNCTION get_job_can_be_progressed(
     in_partition VARCHAR(40),
-    in_job_id VARCHAR(48),
-    in_job_hash INT
+    in_job_id VARCHAR(48)
 )
 RETURNS TABLE(
-    job_exists BOOLEAN
+    can_be_progressed BOOLEAN
 )
 LANGUAGE plpgsql STABLE
 AS $$
 BEGIN
     RETURN QUERY
-    SELECT EXISTS(
-        SELECT 1 FROM job
-        WHERE job.partition = in_partition
-            AND job.job_id = in_job_id
-            AND job.job_hash = in_job_hash
+    SELECT NOT EXISTS(
+        SELECT 1 FROM job_task_data as jtd
+        WHERE jtd.partition = in_partition
+            AND jtd.job_id = in_job_id
     );
 END
 $$;
