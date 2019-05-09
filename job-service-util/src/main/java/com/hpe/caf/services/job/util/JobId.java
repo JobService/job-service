@@ -18,11 +18,11 @@ package com.hpe.caf.services.job.util;
 /**
  * Uniquely identify a job.
  */
-public class JobId {
+public final class JobId {
     public static final String DEFAULT_PARTITION = "default";
 
-    final String partition;
-    final String jobId;
+    private final String partition;
+    private final String jobId;
 
     /**
      * @param partition Container for the job
