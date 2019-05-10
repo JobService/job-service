@@ -24,11 +24,11 @@
  * Requires the `pgcrypto` module.
  */
 CREATE OR REPLACE FUNCTION internal_get_task_table_name(
-    in_partition VARCHAR(40),
+    in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58)
 )
 RETURNS VARCHAR(51)
 LANGUAGE SQL IMMUTABLE
 AS $$
-    SELECT 'taskv2_' || encode(digest(in_partition || ':' || in_task_id, 'sha256'), 'base64');
+    SELECT 'taskv2_' || encode(digest(in_partition_id || ':' || in_task_id, 'sha256'), 'base64');
 $$;

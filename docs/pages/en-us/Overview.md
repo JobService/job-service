@@ -31,7 +31,7 @@ For instructions on deploying and using the Job Service web API, see [Getting St
 
 ### Identifying Jobs
 
-Jobs are identified by both a partition and a job ID; job IDs are unique within a partition, but not across partitions.  API calls can only modify or retrieve information about jobs in the specified partition.  Jobs created before the introduction of the partitions feature are in the partition 'default'.
+Jobs are identified by both a partition ID and a job ID; job IDs are unique within a partition, but not across partitions.  API calls can only modify or retrieve information about jobs in the specified partition.  Jobs created before the introduction of the partitions feature are in the partition with ID 'default'.
 
 ### Batch Worker
 The Job Service works in conjunction with any worker from the Worker Framework, but the batch worker is the key worker most often controlled by the Job Service.

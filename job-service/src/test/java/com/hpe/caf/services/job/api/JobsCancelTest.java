@@ -67,7 +67,7 @@ public final class JobsCancelTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void testCancelJob_Success_EmptyPartition() throws Exception {
+    public void testCancelJob_Success_EmptyPartitionId() throws Exception {
         JobsCancel.cancelJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00");
     }
 

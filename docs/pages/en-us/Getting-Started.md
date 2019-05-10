@@ -35,8 +35,8 @@ Adjust 'docker-host' to be the name of your own Docker Host and adjust the port 
 
 ## Adding a Job
 
-1. Expand the PUT /partitions/{partition}/jobs/{jobId} method. 
-2. Enter a value for `partition`.
+1. Expand the PUT /partitions/{partitionId}/jobs/{jobId} method. 
+2. Enter a value for `partitionId`.
 3. Enter a value for `jobId`. 
 4. Click on the example value box on the right to fill in the `newJob` body. 
 5. Edit these fields with your own details:
@@ -104,8 +104,8 @@ Notice how `tracking` is `null` as the message output contains no tracking infor
 
 ## Getting Jobs
 
-1. Expand the GET /partitions/{partition}/jobs operation. 
-2. Enter a value for `partition`.
+1. Expand the GET /partitions/{partitionId}/jobs operation. 
+2. Enter a value for `partitionId`.
 3. Press `Try it out!`. The list of jobs in the partition appears in the response body, including the job you just created.
 
 	![Add Job](images/JobServiceUIGet.PNG)

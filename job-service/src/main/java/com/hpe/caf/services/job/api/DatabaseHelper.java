@@ -56,7 +56,7 @@ public final class DatabaseHelper
     /**
      * Returns a list of job definitions in the system.
      */
-    public Job[] getJobs(final String partition, String jobIdStartsWith, String statusType, Integer limit, Integer offset) throws Exception {
+    public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit, Integer offset) throws Exception {
 
         List<Job> jobs=new ArrayList<>();
 
@@ -76,7 +76,7 @@ public final class DatabaseHelper
             if (offset == null) {
                 offset = 0;
             }
-            stmt.setString(1, partition);
+            stmt.setString(1, partitionId);
             stmt.setString(2, jobIdStartsWith);
             stmt.setString(3, statusType);
             stmt.setInt(4, limit);
@@ -118,7 +118,7 @@ public final class DatabaseHelper
     /**
      * Returns the number of job definitions in the system.
      */
-    public long getJobsCount(final String partition, String jobIdStartsWith, String statusType) throws Exception {
+    public long getJobsCount(final String partitionId, String jobIdStartsWith, String statusType) throws Exception {
 
         long jobsCount = 0;
 
@@ -132,7 +132,7 @@ public final class DatabaseHelper
             if (statusType == null) {
                 statusType = "";
             }
-            stmt.setString(1, partition);
+            stmt.setString(1, partitionId);
             stmt.setString(2, jobIdStartsWith);
             stmt.setString(3, statusType);
 
@@ -153,7 +153,7 @@ public final class DatabaseHelper
     /**
      * Returns the job definition for the specified job.
      */
-    public Job getJob(final String partition, String jobId) throws Exception {
+    public Job getJob(final String partitionId, String jobId) throws Exception {
 
         Job job = null;
 
@@ -161,7 +161,7 @@ public final class DatabaseHelper
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")
         ) {
-            stmt.setString(1, partition);
+            stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
 
             //  Execute a query to return a list of all job definitions in the system.
@@ -208,13 +208,13 @@ public final class DatabaseHelper
     /**
      * Creates the specified job.
      */
-    public void createJob(final String partition, String jobId, String name, String description, String data, int jobHash) throws Exception {
+    public void createJob(final String partitionId, String jobId, String name, String description, String data, int jobHash) throws Exception {
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?)}")
         ) {
-            stmt.setString(1, partition);
+            stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
             stmt.setString(3,name);
             stmt.setString(4,description);
@@ -241,7 +241,7 @@ public final class DatabaseHelper
     /**
      * Creates the specified job.
      */
-    public void createJobWithDependencies(final String partition, final String jobId, final String name, final String description,
+    public void createJobWithDependencies(final String partitionId, final String jobId, final String name, final String description,
                                           final String data, final int jobHash, final String taskClassifier,
                                           final int taskApiVersion, final byte[] taskData, final String taskPipe,
                                           final String targetPipe, final List<String> prerequisiteJobIds,
@@ -254,7 +254,7 @@ public final class DatabaseHelper
             final String[] prerequisiteJobIdStringArray = prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
             Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
 
-            stmt.setString(1, partition);
+            stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
             stmt.setString(3,name);
             stmt.setString(4,description);
@@ -288,13 +288,13 @@ public final class DatabaseHelper
     /**
      * Deletes the specified job.
      */
-    public void deleteJob(final String partition, String jobId) throws Exception {
+    public void deleteJob(final String partitionId, String jobId) throws Exception {
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call delete_job(?,?)}")
         ) {
-            stmt.setString(1, partition);
+            stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
             LOG.debug("Calling delete_job() database function...");
             stmt.execute();
@@ -318,7 +318,7 @@ public final class DatabaseHelper
     /**
      * Check if a matching job identifier with the specified hash already exists.
      */
-    public boolean doesJobAlreadyExist(final String partition, String jobId, int jobHash) throws Exception {
+    public boolean doesJobAlreadyExist(final String partitionId, String jobId, int jobHash) throws Exception {
 
         final boolean exists;
 
@@ -326,7 +326,7 @@ public final class DatabaseHelper
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call get_job_exists(?,?,?)}")
         ) {
-            stmt.setString(1, partition);
+            stmt.setString(1, partitionId);
             stmt.setString(2, jobId);
             stmt.setInt(3, jobHash);
 
@@ -343,7 +343,7 @@ public final class DatabaseHelper
     /**
      * Returns TRUE if the specified job id can be progressed, otherwise FALSE.
      */
-    public boolean canJobBeProgressed(final String partition, final String jobId) throws Exception
+    public boolean canJobBeProgressed(final String partitionId, final String jobId) throws Exception
     {
 
         boolean canBeProgressed = true;
@@ -352,7 +352,7 @@ public final class DatabaseHelper
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call get_job_can_be_progressed(?,?)}")
         ) {
-            stmt.setString(1, partition);
+            stmt.setString(1, partitionId);
             stmt.setString(2, jobId);
 
             //  Execute a query to determine if the specified job can be progressed.
@@ -376,7 +376,7 @@ public final class DatabaseHelper
     /**
      * Returns TRUE if the specified job id is active, otherwise FALSE.
      */
-    public boolean isJobActive(final String partition, String jobId) throws Exception {
+    public boolean isJobActive(final String partitionId, String jobId) throws Exception {
 
         boolean active = false;
 
@@ -384,7 +384,7 @@ public final class DatabaseHelper
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")
         ) {
-            stmt.setString(1, partition);
+            stmt.setString(1, partitionId);
             stmt.setString(2, jobId);
 
             //  Execute a query to determine if the specified job is active or not.
@@ -411,13 +411,13 @@ public final class DatabaseHelper
     /**
      * Cancels the specified job.
      */
-    public void cancelJob(final String partition, String jobId) throws Exception {
+    public void cancelJob(final String partitionId, String jobId) throws Exception {
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call cancel_job(?,?)}")
         ) {
-            stmt.setString(1, partition);
+            stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
             LOG.debug("Calling cancel_job() database function...");
             stmt.execute();
@@ -441,7 +441,7 @@ public final class DatabaseHelper
     /**
      * Creates the specified job.
      */
-    public void reportFailure(final String partition, String jobId, String failureDetails)
+    public void reportFailure(final String partitionId, String jobId, String failureDetails)
         throws Exception
     {
 
@@ -449,7 +449,7 @@ public final class DatabaseHelper
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")
         ) {
-            stmt.setString(1, partition);
+            stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
             stmt.setString(3,failureDetails);
 

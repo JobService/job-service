@@ -80,7 +80,7 @@ public final class JobsActiveTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void testIsJobActive_Failure_EmptyPartition() throws Exception {
+    public void testIsJobActive_Failure_EmptyPartitionId() throws Exception {
         JobsActive.isJobActive("", "067e6162-3b6f-4ae2-a171-2470b63dff00");
     }
 

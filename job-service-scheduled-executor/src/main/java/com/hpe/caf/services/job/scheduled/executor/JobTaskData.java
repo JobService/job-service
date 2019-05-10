@@ -24,7 +24,7 @@ import java.util.Objects;
 public class JobTaskData
 {
     @NotNull
-    private String partition;
+    private String partitionId;
     @NotNull
     private String jobId;
     @NotNull
@@ -38,12 +38,12 @@ public class JobTaskData
     @NotNull
     private String targetPipe;
 
-    public String getPartition() {
-        return partition;
+    public String getPartitionId() {
+        return partitionId;
     }
 
-    public void setPartition(final String partition) {
-        this.partition = Objects.requireNonNull(partition);
+    public void setPartitionId(final String partitionId) {
+        this.partitionId = Objects.requireNonNull(partitionId);
     }
 
     public String getJobId() {

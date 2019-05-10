@@ -54,7 +54,7 @@ import static org.testng.FileAssert.fail;
 public class JobServiceIT {
 
     private String connectionString;
-    private String defaultPartition;
+    private String defaultPartitionId;
     private ApiClient client = new ApiClient();
     private JobsApi jobsApi;
 
@@ -125,7 +125,7 @@ public class JobServiceIT {
 
     @BeforeTest
     public void setup() throws Exception {
-        defaultPartition = UUID.randomUUID().toString();
+        defaultPartitionId = UUID.randomUUID().toString();
         connectionString = System.getenv("webserviceurl");
         
         //Populate maps for testing    
@@ -188,10 +188,10 @@ public class JobServiceIT {
         String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testCreateJob");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
         //retrieve job using web method
-        Job retrievedJob = jobsApi.getJob(defaultPartition, jobId, jobCorrelationId);
+        Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
         assertEquals(retrievedJob.getId(), jobId);
         assertEquals(retrievedJob.getName(), newJob.getName());
@@ -208,10 +208,10 @@ public class JobServiceIT {
         String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testJobIsActive");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
         // Check if job is active.
-        boolean isActive = jobsApi.getJobActive(defaultPartition, jobId, jobCorrelationId);
+        boolean isActive = jobsApi.getJobActive(defaultPartitionId, jobId, jobCorrelationId);
 
         // Job will be in a 'Waiting' state, which is assumed as being Active.
         assertTrue(isActive);
@@ -224,18 +224,18 @@ public class JobServiceIT {
         String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testDeleteJob");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
         //make sure the job is there
-        Job retrievedJob = jobsApi.getJob(defaultPartition, jobId, jobCorrelationId);
+        Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
         assertEquals(retrievedJob.getId(), jobId);
 
         //delete the job
-        jobsApi.deleteJob(defaultPartition, jobId, jobCorrelationId);
+        jobsApi.deleteJob(defaultPartitionId, jobId, jobCorrelationId);
 
         //make sure the job does not exist
         try {
-            jobsApi.getJob(defaultPartition, jobId, jobCorrelationId).getDescription();
+            jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId).getDescription();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("\"message\":\"ERROR: job_id {" +jobId +"} not found"),
                     "Exception Message should return JobId not found");
@@ -250,10 +250,10 @@ public class JobServiceIT {
         String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testObjectJob");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
         //retrieve job using web method
-        Job retrievedJob = jobsApi.getJob(defaultPartition, jobId, jobCorrelationId);
+        Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
         assertEquals(retrievedJob.getId(), jobId);
         assertEquals(retrievedJob.getName(), newJob.getName());
@@ -286,11 +286,11 @@ public class JobServiceIT {
             newJob.setExternalData(jobExternalData);
             newJob.setTask(workerActionTask);
 
-            jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         }
 
         //retrieve the jobs
-        List<Job> retrievedJobs = jobsApi.getJobs(defaultPartition, "100",null,null,null,null);
+        List<Job> retrievedJobs = jobsApi.getJobs(defaultPartitionId, "100",null,null,null,null);
 
         //test to make sure at least the 10 jobs created are returned. Unable to filter by cafCorrelationID
         assertTrue(retrievedJobs.size()>=10);
@@ -317,13 +317,13 @@ public class JobServiceIT {
         String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testCancelJob");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
-        final Job initialJob = jobsApi.getJob(defaultPartition, jobId, jobCorrelationId);
+        final Job initialJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        jobsApi.cancelJob(defaultPartition, jobId, jobCorrelationId);
+        jobsApi.cancelJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        Job cancelledJob = jobsApi.getJob(defaultPartition, jobId, jobCorrelationId);
+        Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
         assertEquals(cancelledJob.getStatus(), Job.StatusEnum.CANCELLED);
         assertTrue(cancelledJob.getLastUpdateTime().after(initialJob.getLastUpdateTime()),
@@ -339,14 +339,14 @@ public class JobServiceIT {
         String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testCancelJobTwice");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
-        final Job initialJob = jobsApi.getJob(defaultPartition, jobId, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        final Job initialJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        jobsApi.cancelJob(defaultPartition, jobId, jobCorrelationId);
-        final Job cancelledJob = jobsApi.getJob(defaultPartition, jobId, jobCorrelationId);
+        jobsApi.cancelJob(defaultPartitionId, jobId, jobCorrelationId);
+        final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        jobsApi.cancelJob(defaultPartition, jobId, jobCorrelationId); // shouldn't throw
-        final Job cancelledAgainJob = jobsApi.getJob(defaultPartition, jobId, jobCorrelationId);
+        jobsApi.cancelJob(defaultPartitionId, jobId, jobCorrelationId); // shouldn't throw
+        final Job cancelledAgainJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
         assertEquals(cancelledJob.getStatus(), Job.StatusEnum.CANCELLED,
             "status should remain cancelled");
@@ -360,7 +360,7 @@ public class JobServiceIT {
         final String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testGetJobFromDifferentPartition");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         assertThrowsApiException(Response.Status.NOT_FOUND,
             () -> jobsApi.getJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
     }
@@ -372,7 +372,7 @@ public class JobServiceIT {
         final NewJob newJob = makeJob(jobId, "testGetJobWithDepsFromDifferentPartition");
         newJob.setPrerequisiteJobIds(Collections.singletonList(UUID.randomUUID().toString()));
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         assertThrowsApiException(Response.Status.NOT_FOUND,
             () -> jobsApi.getJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
     }
@@ -382,13 +382,13 @@ public class JobServiceIT {
         final String jobId = UUID.randomUUID().toString();
         final String jobCorrelationId = "1";
         final NewJob newJob1 = makeJob(jobId, "testCreateJobInMultiplePartitions-1");
-        final String partition2 = UUID.randomUUID().toString();
+        final String partitionId2 = UUID.randomUUID().toString();
         final NewJob newJob2 = makeJob(jobId, "testCreateJobInMultiplePartitions-2");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob1, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob1, jobCorrelationId);
         // shouldn't throw
-        jobsApi.createOrUpdateJob(partition2, jobId, newJob2, jobCorrelationId);
-        jobsApi.getJob(partition2, jobId, jobCorrelationId);
+        jobsApi.createOrUpdateJob(partitionId2, jobId, newJob2, jobCorrelationId);
+        jobsApi.getJob(partitionId2, jobId, jobCorrelationId);
     }
 
     @Test
@@ -396,14 +396,14 @@ public class JobServiceIT {
         final String jobId = UUID.randomUUID().toString();
         final String jobCorrelationId = "1";
         final NewJob newJob1 = makeJob(jobId, "testCreateJobWithDepsInMultiplePartitions-1");
-        final String partition2 = UUID.randomUUID().toString();
+        final String partitionId2 = UUID.randomUUID().toString();
         final NewJob newJob2 = makeJob(jobId, "testCreateJobWithDepsInMultiplePartitions-2");
         newJob2.setPrerequisiteJobIds(Collections.singletonList(UUID.randomUUID().toString()));
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob1, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob1, jobCorrelationId);
         // shouldn't throw
-        jobsApi.createOrUpdateJob(partition2, jobId, newJob2, jobCorrelationId);
-        jobsApi.getJob(partition2, jobId, jobCorrelationId);
+        jobsApi.createOrUpdateJob(partitionId2, jobId, newJob2, jobCorrelationId);
+        jobsApi.getJob(partitionId2, jobId, jobCorrelationId);
     }
 
     @Test
@@ -412,10 +412,10 @@ public class JobServiceIT {
         final String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testDeleteJobFromDifferentPartition");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         assertThrowsApiException(Response.Status.NOT_FOUND,
             () -> jobsApi.deleteJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
-        final Job job = jobsApi.getJob(defaultPartition, jobId, jobCorrelationId);
+        final Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
         assertEquals(job.getStatus(), Job.StatusEnum.WAITING, "job should still be waiting");
     }
 
@@ -425,10 +425,10 @@ public class JobServiceIT {
         final String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testCancelJobFromDifferentPartition");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         assertThrowsApiException(Response.Status.NOT_FOUND,
             () -> jobsApi.cancelJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
-        final Job job = jobsApi.getJob(defaultPartition, jobId, jobCorrelationId);
+        final Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
         assertEquals(job.getStatus(), Job.StatusEnum.WAITING, "job should still be waiting");
     }
 
@@ -438,7 +438,7 @@ public class JobServiceIT {
         final String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testGetJobActiveFromDifferentPartition");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         assertFalse(
             jobsApi.getJobActive(UUID.randomUUID().toString(), jobId, jobCorrelationId),
             "should not be active");
@@ -450,7 +450,7 @@ public class JobServiceIT {
         final String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testGetJobsFromDifferentPartition");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         final List<Job> jobs =
             jobsApi.getJobs(UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null);
         assertEquals(jobs.size(), 0, "job list should be empty");
@@ -462,7 +462,7 @@ public class JobServiceIT {
         final String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testGetJobsCountFromDifferentPartition");
 
-        jobsApi.createOrUpdateJob(defaultPartition, jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         final long count =
             jobsApi.getJobsCount(UUID.randomUUID().toString(), jobCorrelationId, null, null);
         assertEquals(count, 0, "job count should be zero");
@@ -505,7 +505,7 @@ public class JobServiceIT {
         String statusCheckUrl = System.getenv("CAF_WEBSERVICE_URL");
         if(statusCheckUrl!=null) {
             statusCheckUrl = statusCheckUrl +
-                "/partitions/" + defaultPartition + "/jobs/" + jobId + "/isActive";
+                "/partitions/" + defaultPartitionId + "/jobs/" + jobId + "/isActive";
         } else {
             throw new Exception("CAF_WEBSERVICE_URL environment variable is null.");
         }
@@ -520,17 +520,17 @@ public class JobServiceIT {
 
         //create expectation object for comparing message on RabbitMQ
         JobServiceTrackingInfoExpectation expectation = new JobServiceTrackingInfoExpectation(
-            defaultPartition, jobId, statusCheckTime, statusCheckUrl,
+            defaultPartitionId, jobId, statusCheckTime, statusCheckUrl,
             trackingPipe, trackingToQueue, true);
 
         testMessagesPutOnQueue(
-            testQueue, expectation, defaultPartition, jobId, newJob, jobCorrelationId);
+            testQueue, expectation, defaultPartitionId, jobId, newJob, jobCorrelationId);
     }
 
     public void testMessagesPutOnQueue(
         final String taskQueue,
         final JobServiceTrackingInfoExpectation expectation,
-        final String partition,
+        final String partitionId,
         String jobId,
         NewJob newJob,
         String jobCorrelationId
@@ -542,7 +542,7 @@ public class JobServiceIT {
             Thread thread = queueManager.start(new JobServiceOutputDeliveryHandler(context, expectation));
 
             //call web method to create the new job and put message on queue
-            jobsApi.createOrUpdateJob(partition, jobId, newJob, jobCorrelationId);
+            jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
 
             TestResult result = context.getTestResult();
             assertTrue(result.isSuccess());

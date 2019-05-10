@@ -49,18 +49,18 @@ public final class ApiServiceUtil {
     }
 
     /**
-     * Check that a partition name provided to the API is valid.
+     * Check that a partition ID provided to the API is valid.
      *
-     * @param partition
-     * @throws BadRequestException When the partition name is invalid
+     * @param partitionId
+     * @throws BadRequestException When the partition ID is invalid
      */
-    public static void validatePartition(final String partition) throws BadRequestException {
-        if (!isNotNullOrEmpty(partition)) {
-            throw new BadRequestException("The partition has not been specified.");
-        } else if (partition.length() > 40) {
-            throw new BadRequestException("The partition is longer than 40 characters.");
-        } else if (containsInvalidCharacters(partition)) {
-            throw new BadRequestException("The partition contains one or more invalid characters.");
+    public static void validatePartitionId(final String partitionId) throws BadRequestException {
+        if (!isNotNullOrEmpty(partitionId)) {
+            throw new BadRequestException("The partition ID has not been specified.");
+        } else if (partitionId.length() > 40) {
+            throw new BadRequestException("The partition ID is longer than 40 characters.");
+        } else if (containsInvalidCharacters(partitionId)) {
+            throw new BadRequestException("The partition ID contains one or more invalid characters.");
         }
     }
 

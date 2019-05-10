@@ -21,7 +21,7 @@
  *  Returns the job definition for the specified job.
  */
 CREATE OR REPLACE FUNCTION get_job(
-    in_partition VARCHAR(40),
+    in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
 )
 RETURNS TABLE(
@@ -60,8 +60,10 @@ BEGIN
            CAST('WORKER' AS CHAR(6)) AS actionType,
            jtd.job_id IS NULL AS can_be_progressed
     FROM job
-    LEFT JOIN job_task_data AS jtd ON jtd.partition = job.partition AND jtd.job_id = job.job_id
-    WHERE job.partition = in_partition
+    LEFT JOIN job_task_data AS jtd
+        ON jtd.partition_id = job.partition_id
+        AND jtd.job_id = job.job_id
+    WHERE job.partition_id = in_partition_id
         AND job.job_id = in_job_id;
 
     IF NOT FOUND THEN

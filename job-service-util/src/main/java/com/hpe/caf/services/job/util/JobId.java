@@ -19,17 +19,17 @@ package com.hpe.caf.services.job.util;
  * Uniquely identify a job.
  */
 public final class JobId {
-    public static final String DEFAULT_PARTITION = "default";
+    public static final String DEFAULT_PARTITION_ID = "default";
 
-    private final String partition;
+    private final String partitionId;
     private final String jobId;
 
     /**
-     * @param partition Container for the job
+     * @param partitionId Container for the job
      * @param jobId Unique job ID within the partition
      */
-    public JobId(final String partition, final String jobId) {
-        this.partition = partition;
+    public JobId(final String partitionId, final String jobId) {
+        this.partitionId = partitionId;
         this.jobId = jobId;
     }
 
@@ -46,12 +46,12 @@ public final class JobId {
         if (parts.length == 2) {
             return new JobId(parts[0], parts[1]);
         } else {
-            return new JobId(DEFAULT_PARTITION, messageId);
+            return new JobId(DEFAULT_PARTITION_ID, messageId);
         }
     }
 
-    public String getPartition() {
-        return partition;
+    public String getPartitionId() {
+        return partitionId;
     }
 
     public String getId() {
@@ -62,7 +62,7 @@ public final class JobId {
      * @return unique identifier for use in a worker message.
      */
     public String getMessageId() {
-        return partition + ":" + jobId;
+        return partitionId + ":" + jobId;
     }
 
 }

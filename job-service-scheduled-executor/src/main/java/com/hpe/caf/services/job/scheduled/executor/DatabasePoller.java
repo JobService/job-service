@@ -77,7 +77,7 @@ public class DatabasePoller
                     try {
                         queueServices = QueueServicesFactory.create(jtd.getTaskPipe(),codec);
                         LOG.debug(MessageFormat.format("Sending task data to the target queue {0} ...", workerAction.toString()));
-                        queueServices.sendMessage(jtd.getPartition(), jtd.getJobId(), workerAction);
+                        queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
                     } catch(final Exception ex) {
                         //  TODO - in future we need to consider consequence of reaching here as this means we have
                         //  deleted job_task_data rows from the database. For now we will log details as part of
@@ -97,7 +97,7 @@ public class DatabasePoller
                         mapper.setDateFormat(df);
                         try {
                             reportFailure(
-                                jtd.getPartition(), jtd.getJobId(), mapper.writeValueAsString(f));
+                                jtd.getPartitionId(), jtd.getJobId(), mapper.writeValueAsString(f));
                         } catch (final JsonProcessingException e) {
                             LOG.error("Failed to serialize the failure details.");
                         }
@@ -138,7 +138,7 @@ public class DatabasePoller
             final ResultSet rs = stmt.getResultSet();
             while (rs.next()) {
                 final JobTaskData dependency = new JobTaskData();
-                dependency.setPartition(stmt.getResultSet().getString(1));
+                dependency.setPartitionId(stmt.getResultSet().getString(1));
                 dependency.setJobId(stmt.getResultSet().getString(2));
                 dependency.setTaskClassifier(stmt.getResultSet().getString(3));
                 dependency.setTaskApiVersion(stmt.getResultSet().getInt(4));
@@ -161,14 +161,14 @@ public class DatabasePoller
      * Reports failure for the specified job identifier.
      */
     private static void reportFailure(
-        final String partition, final String jobId, final String failureDetails
+        final String partitionId, final String jobId, final String failureDetails
     ) throws ScheduledExecutorException {
 
         try (
                 Connection conn = getConnection();
                 CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")
         ) {
-            stmt.setString(1, partition);
+            stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
             stmt.setString(3,failureDetails);
 

@@ -21,7 +21,7 @@
  *  Create a new row in the job table.
  */
 CREATE OR REPLACE FUNCTION create_job(
-    in_partition VARCHAR(40),
+    in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),
     in_name VARCHAR(255),
     in_description TEXT,
@@ -39,7 +39,7 @@ BEGIN
 
     -- Create new row in job and return the job_id
     INSERT INTO public.job(
-        partition,
+        partition_id,
         job_id,
         name,
         description,
@@ -52,7 +52,7 @@ BEGIN
         delay,
         job_hash
     ) VALUES (
-        in_partition,
+        in_partition_id,
         in_job_id,
         in_name,
         in_description,

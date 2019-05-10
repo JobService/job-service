@@ -21,11 +21,11 @@
  *  Marks the specified task complete.
  */
 CREATE OR REPLACE FUNCTION report_complete(
-    in_partition VARCHAR(40),
+    in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58)
 )
 RETURNS TABLE(
-    partition VARCHAR(40),
+    partition_id VARCHAR(40),
     job_id VARCHAR(48),
     task_classifier VARCHAR(255),
     task_api_version INT,
@@ -52,7 +52,7 @@ BEGIN
     -- And take out an exclusive update lock on the job row
     SELECT status INTO v_job_status
     FROM job j
-    WHERE j.partition = in_partition
+    WHERE j.partition_id = in_partition_id
         AND j.job_id = v_job_id
     FOR UPDATE;
 
@@ -62,13 +62,13 @@ BEGIN
     END IF;
 
     -- Update the task statuses in the tables
-    PERFORM internal_report_task_status(in_partition, in_task_id, 'Completed', 100.00, NULL);
+    PERFORM internal_report_task_status(in_partition_id, in_task_id, 'Completed', 100.00, NULL);
 
     -- If job has just completed, then return any jobs that can now be run
-    IF internal_is_task_completed(in_partition, v_job_id) THEN
+    IF internal_is_task_completed(in_partition_id, v_job_id) THEN
         -- Get a list of jobs that can run immediately and update the eligibility run date for others
         RETURN QUERY
-        SELECT * FROM internal_process_dependent_jobs(in_partition, v_job_id);
+        SELECT * FROM internal_process_dependent_jobs(in_partition_id, v_job_id);
     END IF;
 END
 $$;

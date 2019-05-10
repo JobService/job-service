@@ -21,7 +21,7 @@
  *  Cancels the specified job.
  */
 CREATE OR REPLACE FUNCTION cancel_job(
-    in_partition VARCHAR(40),
+    in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
 )
 RETURNS VOID
@@ -40,7 +40,7 @@ BEGIN
     -- And take out an exclusive update lock on the job row
     SELECT status IN ('Completed', 'Failed') INTO v_is_finished
     FROM job
-    WHERE partition = in_partition
+    WHERE partition_id = in_partition_id
         AND job_id = in_job_id
     FOR UPDATE;
 
@@ -55,11 +55,11 @@ BEGIN
     -- Mark the job cancelled in the job table
     UPDATE job
     SET status = 'Cancelled', last_update_date = now() AT TIME ZONE 'UTC'
-    WHERE partition = in_partition
+    WHERE partition_id = in_partition_id
         AND job_id = in_job_id
         AND status != 'Cancelled';
 
     -- Drop any task tables relating to the job
-    PERFORM internal_drop_task_tables(in_partition, in_job_id);
+    PERFORM internal_drop_task_tables(in_partition_id, in_job_id);
 END
 $$;

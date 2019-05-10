@@ -90,15 +90,15 @@ The deployment files contain the following services:
 
     Replace `<KUBERNETES_CLUSTER>` with the IP address of your own Kubernetes cluster. If you changed the `hostPort` values in step 5 then you should replace `9411` with the port you configured.
 
-9. Try the `GET /partitions/{partition}/jobStats/count` operation  
-    Click on this operation, choose a partition name, and then click on the 'Try it out!' button.
+9. Try the `GET /partitions/{partitionId}/jobStats/count` operation  
+    Click on this operation, choose a partition Id, and then click on the 'Try it out!' button.
 
     You should see the response is zero as you have not yet created any jobs in this partition.
 
 10. Create a Job  
-    Go to the `PUT /partitions/{partition}/jobs/{jobId}` operation.
+    Go to the `PUT /partitions/{partitionId}/jobs/{jobId}` operation.
 
-    - Choose a partition name and set it in the `partition` parameter.
+    - Choose a partition Id and set it in the `partitionId` parameter.
     - Choose a Job Id, for example, `DemoJob`, and set it in the `jobId` parameter.
     - Enter the following Job Definition into the `newJob` parameter:
 
@@ -126,9 +126,9 @@ The deployment files contain the following services:
         }</code></pre>
 
 11. Check on the Job's progress  
-    Go to the `GET /partitions/{partition}/jobs/{jobId}` operation.
+    Go to the `GET /partitions/{partitionId}/jobs/{jobId}` operation.
 
-    - Enter the partition and Job Id that you chose when creating the job.
+    - Enter the partition Id and Job Id that you chose when creating the job.
     - Click on the 'Try it out!' button.
 
     You should see a response returned from the Job Service.

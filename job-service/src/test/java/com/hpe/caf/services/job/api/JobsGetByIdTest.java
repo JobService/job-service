@@ -66,7 +66,7 @@ public final class JobsGetByIdTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void testGetJob_Success_EmptyPartition() throws Exception {
+    public void testGetJob_Success_EmptyPartitionId() throws Exception {
         JobsGetById.getJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00");
     }
 

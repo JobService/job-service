@@ -163,7 +163,7 @@ public final class JobsPutTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void testCreateJob_Failure_PartitionNotSpecified() throws Exception {
+    public void testCreateJob_Failure_PartitionIdNotSpecified() throws Exception {
         JobsPut.createOrUpdateJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00", validJob);
     }
 

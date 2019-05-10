@@ -21,7 +21,7 @@
  *  Returns a record indicating whether the job can be progressed.
  */
 CREATE OR REPLACE FUNCTION get_job_can_be_progressed(
-    in_partition VARCHAR(40),
+    in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
 )
 RETURNS TABLE(
@@ -33,7 +33,7 @@ BEGIN
     RETURN QUERY
     SELECT NOT EXISTS(
         SELECT 1 FROM job_task_data as jtd
-        WHERE jtd.partition = in_partition
+        WHERE jtd.partition_id = in_partition_id
             AND jtd.job_id = in_job_id
     );
 END

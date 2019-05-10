@@ -24,20 +24,20 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
-    <changeSet id="update_tables_add_partition" author="Gamma Team">
+    <changeSet id="update_tables_add_partition_id" author="Gamma Team">
         <addColumn schemaName="public" tableName="job">
-            <column name="partition" type="VARCHAR(40)" defaultValue="default">
+            <column name="partition_id" type="VARCHAR(40)" defaultValue="default">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
         <addColumn schemaName="public" tableName="job_dependency">
-            <column name="partition" type="VARCHAR(40)" defaultValue="default"
+            <column name="partition_id" type="VARCHAR(40)" defaultValue="default"
                     remarks="This is the partition containing both parent and child jobs.">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
         <addColumn schemaName="public" tableName="job_task_data">
-            <column name="partition" type="VARCHAR(40)" defaultValue="default">
+            <column name="partition_id" type="VARCHAR(40)" defaultValue="default">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
@@ -59,27 +59,27 @@
         <addPrimaryKey schemaName="public"
                        tableName="job"
                        constraintName="pk_job"
-                       columnNames="partition, job_id" />
+                       columnNames="partition_id, job_id" />
         <addPrimaryKey schemaName="public"
                        tableName="job_dependency"
                        constraintName="pk_job_dependency"
-                       columnNames="partition, job_id" />
+                       columnNames="partition_id, job_id" />
         <addForeignKeyConstraint baseTableSchemaName="public"
                                  baseTableName="job_dependency"
                                  constraintName="fk_job_dependency"
-                                 baseColumnNames="partition, job_id"
+                                 baseColumnNames="partition_id, job_id"
                                  referencedTableName="job"
-                                 referencedColumnNames="partition, job_id" />
+                                 referencedColumnNames="partition_id, job_id" />
         <addPrimaryKey schemaName="public"
                        tableName="job_task_data"
                        constraintName="pk_job_task_data"
-                       columnNames="partition, job_id" />
+                       columnNames="partition_id, job_id" />
         <addForeignKeyConstraint baseTableSchemaName="public"
                                  baseTableName="job_task_data"
                                  constraintName="fk_job_task_data"
-                                 baseColumnNames="partition, job_id"
+                                 baseColumnNames="partition_id, job_id"
                                  referencedTableName="job"
-                                 referencedColumnNames="partition, job_id" />
+                                 referencedColumnNames="partition_id, job_id" />
     </changeSet>
 
     <changeSet id="create_procedure_get_job_exists" runOnChange="true" author="Gamma Team">

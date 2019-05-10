@@ -22,9 +22,9 @@ public class JobIdTest {
 
     @Test
     public void testMessageId() {
-        final String messageId = new JobId("the partition", "the job-id").getMessageId();
+        final String messageId = new JobId("the partition-id", "the job-id").getMessageId();
         final JobId id = JobId.fromMessageId(messageId);
-        Assert.assertEquals("should preserve partition", "the partition", id.getPartition());
+        Assert.assertEquals("should preserve partition ID", "the partition-id", id.getPartitionId());
         Assert.assertEquals("should preserve job ID", "the job-id", id.getId());
     }
 
@@ -32,7 +32,7 @@ public class JobIdTest {
     public void testFromOldFormatMessageId() {
         final JobId id = JobId.fromMessageId("the job-id");
         Assert.assertEquals("should use default partition",
-            JobId.DEFAULT_PARTITION, id.getPartition());
+            JobId.DEFAULT_PARTITION_ID, id.getPartitionId());
         Assert.assertEquals("should preserve job ID", "the job-id", id.getId());
     }
 

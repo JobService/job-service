@@ -54,7 +54,7 @@ public class JobServiceOutputDeliveryHandler implements ResultHandler {
         if (tracking != null) {
             String trackingJobTaskId = tracking.getJobTaskId();
             final String expectMessageId =
-                new JobId(expectation.getPartition(), expectation.getJobTaskId()).getMessageId();
+                new JobId(expectation.getPartitionId(), expectation.getJobTaskId()).getMessageId();
             if (!expectMessageId.equals(trackingJobTaskId)) {
                 context.failed(new TestItem(taskMessage.getTaskId(), null, null),
                         MessageFormat.format(

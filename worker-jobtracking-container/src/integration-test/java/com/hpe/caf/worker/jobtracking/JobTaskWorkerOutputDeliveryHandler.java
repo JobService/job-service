@@ -51,12 +51,12 @@ public class JobTaskWorkerOutputDeliveryHandler implements ResultHandler {
 
         if (tracking != null) {
             final JobId trackingJobTaskId = JobId.fromMessageId(tracking.getJobTaskId());
-            if (!expectation.getPartition().equals(trackingJobTaskId.getPartition())) {
+            if (!expectation.getPartitionId().equals(trackingJobTaskId.getPartitionId())) {
                 context.failed(new TestItem(taskMessage.getTaskId(), null, null),
                     MessageFormat.format(
-                        "In the forwarded task message, expected partition {0} but found {1} in the tracking info.",
-                        expectation.getPartition(),
-                        trackingJobTaskId.getPartition()));
+                        "In the forwarded task message, expected partition ID {0} but found {1} in the tracking info.",
+                        expectation.getPartitionId(),
+                        trackingJobTaskId.getPartitionId()));
             }
             if (!expectation.getJobTaskId().equals(trackingJobTaskId.getId())) {
                 context.failed(new TestItem(taskMessage.getTaskId(), null, null),
@@ -69,7 +69,7 @@ public class JobTaskWorkerOutputDeliveryHandler implements ResultHandler {
 
         try {
             database.verifyJobStatus(
-                expectation.getPartition(),
+                expectation.getPartitionId(),
                 expectation.getJobTaskId(),
                 expectation.getJobReportingExpectation());
         } catch (Exception e) {

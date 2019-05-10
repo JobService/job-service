@@ -21,7 +21,7 @@
  *  Checks if the specified task has already been marked complete.
  */
 CREATE OR REPLACE FUNCTION internal_is_task_completed(
-    in_partition VARCHAR(40),
+    in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58)
 )
 RETURNS BOOLEAN
@@ -44,11 +44,11 @@ BEGIN
         SELECT status = 'Completed'
         INTO STRICT v_is_task_completed
         FROM job
-        WHERE partition = in_partition
+        WHERE partition_id = in_partition_id
             AND job_id = in_task_id;
 
     -- Check if the parent task has completed
-    ELSIF internal_is_task_completed(in_partition, v_parent_task_id) THEN
+    ELSIF internal_is_task_completed(in_partition_id, v_parent_task_id) THEN
 
         -- Since the parent task has completed then we can say that this task has
         v_is_task_completed = TRUE;
@@ -56,7 +56,7 @@ BEGIN
     ELSE
 
         -- Put together the parent task table name
-        v_parent_task_table = internal_get_task_table_name(in_partition, v_parent_task_id);
+        v_parent_task_table = internal_get_task_table_name(in_partition_id, v_parent_task_id);
 
         -- Check if the parent task table exists
         IF internal_does_table_exist(v_parent_task_table) THEN

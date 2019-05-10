@@ -33,13 +33,13 @@ public final class JobsStatsGetCount {
      * @return  jobsCount   the number of jobs matching the expression
      * @throws  Exception   bad request or database exceptions
      */
-    public static long getJobsCount(final String partition, final String jobId, final String statusType) throws Exception {
+    public static long getJobsCount(final String partitionId, final String jobId, final String statusType) throws Exception {
 
         long jobsCount;
 
         try {
             LOG.info("getJobsCount: Starting...");
-            ApiServiceUtil.validatePartition(partition);
+            ApiServiceUtil.validatePartitionId(partitionId);
 
             //  Get app config settings.
             LOG.debug("getJobsCount: Reading database connection properties...");
@@ -50,7 +50,7 @@ public final class JobsStatsGetCount {
 
             //  Get number of job definitions in the system.
             LOG.info("getJobsCount: Getting number of job definitions...");
-            jobsCount = databaseHelper.getJobsCount(partition, jobId, statusType);
+            jobsCount = databaseHelper.getJobsCount(partitionId, jobId, statusType);
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());
             throw e;

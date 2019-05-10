@@ -48,7 +48,7 @@ public final class JobTrackingWorkerUtil
 
         //  Set up string for statusCheckUrl
         final String statusCheckUrl = UriBuilder.fromUri(System.getenv("CAF_WEBSERVICE_URL") )
-            .path("partitions").path(jobDependency.getPartition())
+            .path("partitions").path(jobDependency.getPartitionId())
             .path("jobs").path(jobDependency.getJobId())
             .path("isActive").build().toString();
 
@@ -59,7 +59,7 @@ public final class JobTrackingWorkerUtil
             statusCheckTime = "5";
         }
         final TrackingInfo trackingInfo = new TrackingInfo(
-                new JobId(jobDependency.getPartition(), jobDependency.getJobId()).getMessageId(),
+                new JobId(jobDependency.getPartitionId(), jobDependency.getJobId()).getMessageId(),
                 calculateStatusCheckDate(statusCheckTime), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
 
         return new TaskMessage(

@@ -119,7 +119,7 @@ This table stores information on the jobs that are requested. Entries are added 
 
 | **Column**           | **Data Type** | **Nullable?** | **Primary Key?** |
 |----------------------|---------------|---------------|------------------|
-| partition            | varchar(40)   | No            | Yes              |
+| partition_id         | varchar(40)   | No            | Yes              |
 | job_id               | varchar(48)   | No            | Yes              |
 | name                 | varchar(255)  | Yes           |                  |
 | description          | text          | Yes           |                  |
@@ -143,7 +143,7 @@ This table stores Ids of dependent jobs i.e. jobs which must be completed before
 
 | **Column**           | **Data Type** | **Nullable?** | **Primary Key?** |
 |----------------------|---------------|---------------|------------------|
-| partition            | varchar(40)   | No            | Yes              |
+| partition_id         | varchar(40)   | No            | Yes              |
 | job_id               | varchar(48)   | No            | Yes              |
 | dependent_job_id     | varchar(48)   | No            | Yes              |
 
@@ -153,7 +153,7 @@ This table stores information on jobs which have dependent jobs and must wait fo
 
 | **Column**           | **Data Type** | **Nullable?** | **Primary Key?** |
 |----------------------|---------------|---------------|------------------|
-| partition            | varchar(40)   | No            | Yes              |
+| partition_id         | varchar(40)   | No            | Yes              |
 | job_id               | varchar(48)   | No            | Yes              |
 | task_classifier      | varchar(255)  | No            |                  |
 | task_api_version     | integer       | No            |                  |

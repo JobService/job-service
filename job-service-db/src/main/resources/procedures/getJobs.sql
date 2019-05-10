@@ -21,7 +21,7 @@
  *  Returns the list of job definitions in the system.
  */
 CREATE OR REPLACE FUNCTION get_jobs(
-    in_partition VARCHAR(40),
+    in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),
     in_status_type VARCHAR(20),
     in_limit INT,
@@ -70,7 +70,7 @@ BEGIN
                CAST('WORKER' AS CHAR(6)) AS actionType
         FROM job$q$;
 
-    sql := sql || whereOrAnd || ' partition = ' || quote_literal(in_partition);
+    sql := sql || whereOrAnd || ' partition_id = ' || quote_literal(in_partition_id);
     whereOrAnd := andConst;
 
     IF in_job_id_starts_with IS NOT NULL AND in_job_id_starts_with != '' THEN

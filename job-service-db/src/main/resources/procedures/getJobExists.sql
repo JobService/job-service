@@ -21,7 +21,7 @@
  *  Returns a record indicating whether the job exists with a specific value by comparing the hash.
  */
 CREATE OR REPLACE FUNCTION get_job_exists(
-    in_partition VARCHAR(40),
+    in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),
     in_job_hash INT
 )
@@ -34,7 +34,7 @@ BEGIN
     RETURN QUERY
     SELECT EXISTS(
         SELECT 1 FROM job
-        WHERE job.partition = in_partition
+        WHERE job.partition_id = in_partition_id
             AND job.job_id = in_job_id
             AND job.job_hash = in_job_hash
     );

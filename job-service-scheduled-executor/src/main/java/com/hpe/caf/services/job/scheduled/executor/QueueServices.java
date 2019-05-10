@@ -67,7 +67,7 @@ public final class QueueServices
      * @throws IOException          thrown if message cannot be sent
      */
     public void sendMessage(
-        final String partition, final String jobId, final WorkerAction workerAction
+        final String partitionId, final String jobId, final WorkerAction workerAction
     ) throws IOException, URISyntaxException {
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
@@ -109,14 +109,14 @@ public final class QueueServices
 
         //  Set up string for statusCheckUrl
         final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
-            .path("partitions").path(partition)
+            .path("partitions").path(partitionId)
             .path("jobs").path(jobId)
             .path("isActive").build().toString();
 
         //  Construct the task message.
         LOG.debug("Constructing the task message ...");
         final TrackingInfo trackingInfo = new TrackingInfo(
-                new JobId(partition, jobId).getMessageId(),
+                new JobId(partitionId, jobId).getMessageId(),
                 calculateStatusCheckDate(ScheduledExecutorConfig.getStatusCheckTime()),
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 

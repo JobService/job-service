@@ -114,7 +114,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
         try (final Connection conn = getConnection()) {
             try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?)}")) {
-                stmt.setString(1, jobId.getPartition());
+                stmt.setString(1, jobId.getPartitionId());
                 stmt.setString(2, jobId.getId());
                 stmt.execute();
 
@@ -123,7 +123,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 if (resultSet != null) {
                     while (resultSet.next()) {
                         final JobTrackingWorkerDependency dependency = new JobTrackingWorkerDependency();
-                        dependency.setPartition(stmt.getResultSet().getString(1));
+                        dependency.setPartitionId(stmt.getResultSet().getString(1));
                         dependency.setJobId(stmt.getResultSet().getString(2));
                         dependency.setTaskClassifier(stmt.getResultSet().getString(3));
                         dependency.setTaskApiVersion(stmt.getResultSet().getInt(4));
@@ -177,7 +177,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
         try (final Connection conn = getConnection()) {
             try (final CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")) {
-                stmt.setString(1, jobId.getPartition());
+                stmt.setString(1, jobId.getPartitionId());
                 stmt.setString(2, jobId.getId());
                 stmt.setString(3, failureDetails);
                 stmt.execute();

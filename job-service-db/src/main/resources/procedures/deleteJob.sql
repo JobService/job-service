@@ -21,7 +21,7 @@
  *  Deletes the job row and corresponding task tables.
  */
 CREATE OR REPLACE FUNCTION delete_job(
-    in_partition VARCHAR(40),
+    in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
 )
 RETURNS VOID
@@ -40,7 +40,7 @@ BEGIN
     -- Take out an exclusive update lock on the job row
     PERFORM NULL
     FROM job
-    WHERE partition = in_partition
+    WHERE partition_id = in_partition_id
         AND job_id = in_job_id
     FOR UPDATE;
 
@@ -50,15 +50,15 @@ BEGIN
     END IF;
 
     -- Drop the task tables associated with the specified job
-    PERFORM internal_drop_task_tables(in_partition, in_job_id);
+    PERFORM internal_drop_task_tables(in_partition_id, in_job_id);
 
     -- Remove job dependency and job task data rows
-    DELETE FROM job_dependency jd WHERE jd.partition = in_partition AND jd.job_id = in_job_id;
-    DELETE FROM job_task_data jtd WHERE jtd.partition = in_partition AND jtd.job_id = in_job_id;
+    DELETE FROM job_dependency jd WHERE jd.partition_id = in_partition_id AND jd.job_id = in_job_id;
+    DELETE FROM job_task_data jtd WHERE jtd.partition_id = in_partition_id AND jtd.job_id = in_job_id;
 
     -- Remove row from the job table
     DELETE FROM job
-    WHERE partition = in_partition
+    WHERE partition_id = in_partition_id
         AND job_id = in_job_id;
 END
 $$;

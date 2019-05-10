@@ -67,7 +67,7 @@ public final class JobsDeleteTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void testDeletxeJob_Success_EmptyPartition() throws Exception {
+    public void testDeletxeJob_Success_EmptyPartitionId() throws Exception {
         JobsDelete.deleteJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00");
     }
 

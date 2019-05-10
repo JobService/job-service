@@ -108,28 +108,28 @@ public final class ApiServiceUtilTest {
 
     }
 
-    public void testValidatePartition_Success() throws BadRequestException {
-        ApiServiceUtil.validatePartition("something valid");
+    public void testValidatePartitionId_Success() throws BadRequestException {
+        ApiServiceUtil.validatePartitionId("something valid");
     }
 
     @Test(expected = BadRequestException.class)
-    public void testValidatePartition_Null() throws BadRequestException {
-        ApiServiceUtil.validatePartition(null);
+    public void testValidatePartitionId_Null() throws BadRequestException {
+        ApiServiceUtil.validatePartitionId(null);
     }
 
     @Test(expected = BadRequestException.class)
-    public void testValidatePartition_Empty() throws BadRequestException {
-        ApiServiceUtil.validatePartition("");
+    public void testValidatePartitionId_Empty() throws BadRequestException {
+        ApiServiceUtil.validatePartitionId("");
     }
 
     @Test(expected = BadRequestException.class)
-    public void testValidatePartition_TooLong() throws BadRequestException {
-        ApiServiceUtil.validatePartition("a very long partition more than forty characters");
+    public void testValidatePartitionId_TooLong() throws BadRequestException {
+        ApiServiceUtil.validatePartitionId("a very long partition ID more than forty characters");
     }
 
     @Test(expected = BadRequestException.class)
-    public void testValidatePartition_InvalidChars() throws BadRequestException {
-        ApiServiceUtil.validatePartition("not:valid");
+    public void testValidatePartitionId_InvalidChars() throws BadRequestException {
+        ApiServiceUtil.validatePartitionId("not:valid");
     }
 
 }

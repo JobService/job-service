@@ -60,7 +60,7 @@ public final class JobsGetTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void testGetJobs_Success_EmptyPartition() throws Exception {
+    public void testGetJobs_Success_EmptyPartitionId() throws Exception {
         JobsGet.getJobs("", "", null, 0, 0);
     }
 

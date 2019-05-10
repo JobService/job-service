@@ -60,7 +60,7 @@ public final class QueueServices {
      * Send task data message to the target queue.
      */
     public void sendMessage(
-        final String partition, String jobId, WorkerAction workerAction, AppConfig config
+        final String partitionId, String jobId, WorkerAction workerAction, AppConfig config
     ) throws IOException {
         //  Generate a random task id.
         String taskId = UUID.randomUUID().toString();
@@ -94,13 +94,13 @@ public final class QueueServices {
 
         //set up string for statusCheckUrl
         String statusCheckUrl = UriBuilder.fromUri(config.getWebserviceUrl())
-            .path("partitions").path(partition)
+            .path("partitions").path(partitionId)
             .path("jobs").path(jobId)
             .path("isActive").build().toString();
 
         //  Construct the task message.
         final TrackingInfo trackingInfo = new TrackingInfo(
-                new JobId(partition, jobId).getMessageId(),
+                new JobId(partitionId, jobId).getMessageId(),
                 calculateStatusCheckDate(config.getStatusCheckTime()),
                 statusCheckUrl, config.getTrackingPipe(), workerAction.getTargetPipe());
 

@@ -23,7 +23,7 @@
 DROP FUNCTION IF EXISTS get_dependent_jobs();
 CREATE FUNCTION get_dependent_jobs()
 RETURNS TABLE(
-    partition VARCHAR(40),
+    partition_id VARCHAR(40),
     job_id VARCHAR(48),
     task_classifier VARCHAR(255),
     task_api_version INT,
@@ -38,7 +38,7 @@ BEGIN
         ON COMMIT DROP
     AS
         SELECT
-            jtd.partition,
+            jtd.partition_id,
             jtd.job_id,
             jtd.task_classifier,
             jtd.task_api_version,
@@ -47,7 +47,7 @@ BEGIN
             jtd.target_pipe
         FROM job_task_data jtd
         LEFT JOIN job_dependency jd
-            ON jd.partition = jtd.partition AND jd.job_id = jtd.job_id
+            ON jd.partition_id = jtd.partition_id AND jd.job_id = jtd.job_id
         WHERE jtd.eligible_to_run_date IS NOT NULL
             AND jtd.eligible_to_run_date <= now() AT TIME ZONE 'UTC'  -- now eligible for running
             AND jd.job_id IS NULL;  -- no other dependencies to wait on
@@ -60,7 +60,7 @@ BEGIN
     -- Remove corresponding task data rows
     DELETE FROM job_task_data jtd
     USING tmp_dependent_jobs tdj
-    WHERE tdj.partition = jtd.partition
+    WHERE tdj.partition_id = jtd.partition_id
         AND tdj.job_id = jtd.job_id;
 END
 $$;
