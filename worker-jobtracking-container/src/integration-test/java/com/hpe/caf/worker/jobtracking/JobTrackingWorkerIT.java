@@ -223,6 +223,43 @@ public class JobTrackingWorkerIT {
             "last-update-time should be updated on subtask complete");
     }
 
+    /**
+     * Verify that there's no interference between jobs with the same ID in different partitions
+     * when tracking subtasks.
+     */
+    @Test
+    public void testSubtasksAcrossDifferentPartitions() throws Exception {
+        final String queue = "jobtrackingworker-test-example-input";
+        final String partition1 = UUID.randomUUID().toString();
+        final String partition2 = UUID.randomUUID().toString();
+        final String parentId = jobDatabase.createJobId();
+        final String childId = parentId + ".1";
+        jobDatabase.createJobTask(partition1, parentId, "testSubtasksAcrossPartitions-parent1");
+        jobDatabase.createJobTask(partition1, childId, "testSubtasksAcrossPartitions-child1");
+        jobDatabase.createJobTask(partition2, parentId, "testSubtasksAcrossPartitions-parent2");
+        jobDatabase.createJobTask(partition2, childId, "testSubtasksAcrossPartitions-child2");
+
+        final TaskMessage child1CompleteMessage =
+            getExampleTaskMessage(partition1, childId, queue, queue);
+        final JobTrackingWorkerITExpectation partition1Expectation =
+            new JobTrackingWorkerITExpectation(partition1, parentId, queue, false,
+                new JobReportingExpectation(
+                    parentId, JobStatus.Active, 50, false, false, false, false, false));
+        testProxiedMessageReporting(child1CompleteMessage, partition1Expectation);
+
+        final DBJob job2FromDb = jobDatabase.getJob(partition2, parentId);
+        Assert.assertEquals(job2FromDb.getStatus(), JobStatus.Waiting,
+            "partition 2 job status should be unaffected by progress of partition 1 job");
+
+        final TaskMessage child2CompleteMessage =
+            getExampleTaskMessage(partition2, childId, queue, queue);
+        final JobTrackingWorkerITExpectation partition2Expectation =
+            new JobTrackingWorkerITExpectation(partition2, parentId, queue, false,
+                new JobReportingExpectation(
+                    parentId, JobStatus.Active, 50, false, false, false, false, false));
+        testProxiedMessageReporting(child2CompleteMessage, partition2Expectation);
+    }
+
 
     public void testProxiedMessageReporting(final TaskMessage testMessage, final JobTrackingWorkerITExpectation expectation) throws Exception {
         try (QueueManager queueManager = getQueueManager(expectation.getForwardingQueue())) {
