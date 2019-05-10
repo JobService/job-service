@@ -60,6 +60,6 @@ BEGIN
         AND status != 'Cancelled';
 
     -- Drop any task tables relating to the job
-    PERFORM internal_drop_task_tables(in_job_id);
+    PERFORM internal_drop_task_tables(in_partition, in_job_id);
 END
 $$;

@@ -21,6 +21,7 @@
  *  Drops all task tables belonging to the specified task and all its subtasks
  */
 CREATE OR REPLACE FUNCTION internal_drop_task_tables(
+    in_partition VARCHAR(40),
     in_task_id VARCHAR(58)
 )
 RETURNS VOID
@@ -32,7 +33,7 @@ DECLARE
 
 BEGIN
     -- Put together the task table identifier
-    task_table_ident = quote_ident('task_' || in_task_id);
+    task_table_ident = quote_ident(internal_get_task_table_name(in_partition, in_task_id));
 
     -- Check if the table exists
     IF internal_to_regclass(task_table_ident) IS NOT NULL THEN
@@ -40,7 +41,7 @@ BEGIN
         FOR subtask_suffix IN
         EXECUTE $ESC$SELECT '.' || subtask_id || CASE WHEN is_final THEN '*' ELSE '' END AS subtask_suffix FROM $ESC$ || task_table_ident
         LOOP
-            PERFORM internal_drop_task_tables(in_task_id || subtask_suffix);
+            PERFORM internal_drop_task_tables(in_partition, in_task_id || subtask_suffix);
         END LOOP;
 
         -- Drop the table itself

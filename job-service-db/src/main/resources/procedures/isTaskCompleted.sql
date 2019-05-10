@@ -56,7 +56,7 @@ BEGIN
     ELSE
 
         -- Put together the parent task table name
-        v_parent_task_table = 'task_' || v_parent_task_id;
+        v_parent_task_table = internal_get_task_table_name(in_partition, v_parent_task_id);
 
         -- Check if the parent task table exists
         IF internal_does_table_exist(v_parent_task_table) THEN

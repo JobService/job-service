@@ -42,7 +42,7 @@ BEGIN
 
     -- If the task is being marked completed, then drop any subtask tables
     IF in_status = 'Completed' THEN
-        PERFORM internal_drop_task_tables(in_task_id);
+        PERFORM internal_drop_task_tables(in_partition, in_task_id);
     END IF;
 
     -- Get the parent task id
@@ -60,7 +60,7 @@ BEGIN
             AND job_id = in_task_id;
     ELSE
         -- Put together the parent task table name
-        v_parent_task_table = 'task_' || v_parent_task_id;
+        v_parent_task_table = internal_get_task_table_name(in_partition, v_parent_task_id);
 
         -- Create the parent task table if necessary
         PERFORM internal_create_task_table(v_parent_task_table);
