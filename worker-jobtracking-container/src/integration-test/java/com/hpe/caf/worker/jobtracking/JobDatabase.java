@@ -114,7 +114,7 @@ public class JobDatabase {
         if (failureDetails != null && !failureDetails.isEmpty()) {
             JSONObject json = new JSONObject(failureDetails);
             assertHasValue(jobTaskId, "failureId", json.getString("failureId"), jobReportingExpectation.getFailureDetailsIdPresent());
-            assertHasValue(jobTaskId, "failureTime", new Date(json.getLong("failureTime")).toString(), jobReportingExpectation.getFailureDetailsTimePresent());
+            assertHasValue(jobTaskId, "failureTime", json.getString("failureTime"), jobReportingExpectation.getFailureDetailsTimePresent());
             assertHasValue(jobTaskId, "failureSource", json.getString("failureSource"), jobReportingExpectation.getFailureDetailsSourcePresent());
             assertHasValue(jobTaskId, "failureMessage", json.getString("failureMessage"), jobReportingExpectation.getFailureDetailsMessagePresent());
         }

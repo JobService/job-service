@@ -184,13 +184,37 @@ public class JobTrackingWorkerIT {
         String to = "jobtrackingworker-test-example-output-3";
         String trackTo = to;
         TaskMessage taskMessage = getExampleTaskMessage(defaultPartitionId, jobTaskId, to, trackTo);
-        TaskMessage failureMessage = failTask(to, taskMessage);
+        TaskMessage failureMessage = failTask(to, taskMessage, TaskStatus.RESULT_FAILURE);
         JobTrackingWorkerITExpectation expectation =
             new JobTrackingWorkerITExpectation(defaultPartitionId, jobTaskId, to, false,
                 new JobReportingExpectation(jobTaskId, JobStatus.Completed, 100, false, true, true, true, true));
         testProxiedMessageReporting(failureMessage, expectation);
 
         final DBJob jobFromDb = jobDatabase.getJob(defaultPartitionId, jobTaskId);
+        Assert.assertTrue(jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate()),
+            "last-update-time should be updated on fail");
+    }
+
+    /**
+     * When a worker responds with INVALID_TASK, the tracking worker should fail the job in the
+     * database.
+     */
+    @Test
+    public void testProxiedInvalidMessage() throws Exception {
+        final String jobId = jobDatabase.createJobId();
+        jobDatabase.createJobTask(defaultPartitionId, jobId, "testProxiedInvalidMessage");
+
+        final String queue = "jobtrackingworker-test-example-output";
+        final TaskMessage basicMessage =
+            getExampleTaskMessage(defaultPartitionId, jobId, queue, queue);
+        final TaskMessage invalidMessage = failTask(queue, basicMessage, TaskStatus.INVALID_TASK);
+        final JobTrackingWorkerITExpectation expectation =
+            new JobTrackingWorkerITExpectation(defaultPartitionId, jobId, queue, false,
+                new JobReportingExpectation(
+                    jobId, JobStatus.Failed, 0, true, true, true, true, true));
+        testProxiedMessageReporting(invalidMessage, expectation);
+
+        final DBJob jobFromDb = jobDatabase.getJob(defaultPartitionId, jobId);
         Assert.assertTrue(jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate()),
             "last-update-time should be updated on fail");
     }
@@ -356,13 +380,15 @@ public class JobTrackingWorkerIT {
     }
 
 
-    private TaskMessage failTask(final String responseQueue, final TaskMessage taskMessage) throws CodecException {
+    private TaskMessage failTask(
+        final String responseQueue, final TaskMessage taskMessage, final TaskStatus taskStatus
+    ) throws CodecException {
         ExampleWorkerResult exampleFailureResult = new ExampleWorkerResult();
         exampleFailureResult.workerStatus = ExampleWorkerStatus.WORKER_EXAMPLE_FAILED;
         WorkerResponse exampleWorkerResponse =
                 new WorkerResponse(
                         responseQueue,
-                        TaskStatus.RESULT_FAILURE,
+                        taskStatus,
                         workerServices.getCodec().serialise(exampleFailureResult),
                         ExampleWorkerConstants.WORKER_NAME,
                         ExampleWorkerConstants.WORKER_API_VER,

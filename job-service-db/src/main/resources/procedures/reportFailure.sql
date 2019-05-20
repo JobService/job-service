@@ -49,7 +49,7 @@ BEGIN
     -- Get the job status
     -- And take out an exclusive update lock on the job row
     SELECT status INTO v_job_status
-    FROM job
+    FROM job AS j
     WHERE j.partition_id = in_partition_id
         AND j.job_id = v_job_id
     FOR UPDATE;
