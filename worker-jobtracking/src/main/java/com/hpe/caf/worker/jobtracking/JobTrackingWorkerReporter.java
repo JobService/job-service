@@ -113,9 +113,10 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
 
         try (final Connection conn = getConnection()) {
-            try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?)}")) {
+            try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?,?)}")) {
                 stmt.setString(1, jobId.getPartitionId());
                 stmt.setString(2, jobId.getId());
+                stmt.setString(3, jobId.getShortId());
                 stmt.execute();
 
                 final ResultSet resultSet = stmt.getResultSet();
@@ -176,10 +177,11 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         final String failureDetails = getFailureDetailsString(rejectionDetails);
 
         try (final Connection conn = getConnection()) {
-            try (final CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")) {
+            try (final CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")) {
                 stmt.setString(1, jobId.getPartitionId());
                 stmt.setString(2, jobId.getId());
-                stmt.setString(3, failureDetails);
+                stmt.setString(3, jobId.getShortId());
+                stmt.setString(4, failureDetails);
                 stmt.execute();
             }
         } catch (final SQLTransientException te) {

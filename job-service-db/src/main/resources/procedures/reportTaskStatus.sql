@@ -19,10 +19,14 @@
  *
  *  Description:
  *  Updates the status of the specified task, and rolls the status update up to all the parent tasks.
+ *
+ *   - in_short_task_id: additional identification for the same task - see
+ *                       com.hpe.caf.services.job.util.JobId#getShortId
  */
 CREATE OR REPLACE FUNCTION internal_report_task_status(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58),
+    in_short_task_id VARCHAR(58),
     in_status job_status,
     in_percentage_complete DOUBLE PRECISION,
     in_failure_details TEXT
@@ -32,21 +36,23 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     v_parent_task_id VARCHAR(58);
+    v_parent_short_task_id VARCHAR(58);
     v_parent_task_table VARCHAR(63);
 
 BEGIN
     -- Ignore the status report if the task has already been completed
-    IF internal_is_task_completed(in_partition_id, in_task_id) THEN
+    IF internal_is_task_completed(in_partition_id, in_task_id, in_short_task_id) THEN
         RETURN;
     END IF;
 
     -- If the task is being marked completed, then drop any subtask tables
     IF in_status = 'Completed' THEN
-        PERFORM internal_drop_task_tables(in_partition_id, in_task_id);
+        PERFORM internal_drop_task_tables(in_short_task_id);
     END IF;
 
     -- Get the parent task id
     v_parent_task_id = internal_get_parent_task_id(in_task_id);
+    v_parent_short_task_id = internal_get_parent_task_id(in_short_task_id);
 
     -- Check if we are dealing with the top level job or a subtask
     IF v_parent_task_id IS NULL THEN
@@ -60,7 +66,7 @@ BEGIN
             AND job_id = in_task_id;
     ELSE
         -- Put together the parent task table name
-        v_parent_task_table = internal_get_task_table_name(in_partition_id, v_parent_task_id);
+        v_parent_task_table = internal_get_task_table_name(v_parent_short_task_id);
 
         -- Create the parent task table if necessary
         PERFORM internal_create_task_table(v_parent_task_table);
@@ -77,6 +83,7 @@ BEGIN
         PERFORM internal_report_task_status(
             in_partition_id,
             v_parent_task_id,
+            v_parent_short_task_id,
             status,
             percentage_complete,
             failure_details)

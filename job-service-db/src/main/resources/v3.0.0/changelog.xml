@@ -95,9 +95,6 @@
         </createProcedure>
     </changeSet>
     <changeSet id="create_procedure_internal_get_task_table_name" runOnChange="true" author="Gamma Team">
-        <sql>
-            CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-        </sql>
         <createProcedure path="procedures/getTaskTableName.sql"
                          procedureName="internal_get_task_table_name"
                          schemaName="public">

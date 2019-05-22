@@ -19,10 +19,14 @@
  *
  *  Description:
  *  Update the specified task and subsequent parent tasks/job with the failure details.
+ *
+ *   - in_short_task_id: additional identification for the same task - see
+ *                       com.hpe.caf.services.job.util.JobId#getShortId
  */
 CREATE OR REPLACE FUNCTION report_failure(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58),
+    in_short_task_id VARCHAR(58),
     in_failure_details TEXT
 )
 RETURNS VOID
@@ -60,6 +64,6 @@ BEGIN
     END IF;
 
     -- Update the task statuses in the tables
-    PERFORM internal_report_task_status(in_partition_id, in_task_id, 'Failed', 0.00, in_failure_details);
+    PERFORM internal_report_task_status(in_partition_id, in_task_id, in_short_task_id, 'Failed', 0.00, in_failure_details);
 END
 $$;
