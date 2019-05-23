@@ -15,6 +15,7 @@
  */
 package com.hpe.caf.services.job.util;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -101,9 +102,9 @@ public final class JobId {
             throw new RuntimeException(e);
         }
 
-        digest.update(partitionId.getBytes());
-        digest.update(":".getBytes());
-        digest.update(jobId.getBytes());
+        digest.update(partitionId.getBytes(StandardCharsets.UTF_8));
+        digest.update(":".getBytes(StandardCharsets.UTF_8));
+        digest.update(jobId.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(digest.digest()) + subtaskIds;
     }
 
