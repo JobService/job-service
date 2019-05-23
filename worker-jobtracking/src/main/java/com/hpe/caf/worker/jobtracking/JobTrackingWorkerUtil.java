@@ -18,7 +18,7 @@ package com.hpe.caf.worker.jobtracking;
 import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.api.worker.TrackingInfo;
-import com.hpe.caf.services.job.util.JobId;
+import com.hpe.caf.services.job.util.JobTaskId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public final class JobTrackingWorkerUtil
             statusCheckTime = "5";
         }
         final TrackingInfo trackingInfo = new TrackingInfo(
-                new JobId(jobDependency.getPartitionId(), jobDependency.getJobId()).getMessageId(),
+                new JobTaskId(jobDependency.getPartitionId(), jobDependency.getJobId()).getMessageId(),
                 calculateStatusCheckDate(statusCheckTime), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
 
         return new TaskMessage(

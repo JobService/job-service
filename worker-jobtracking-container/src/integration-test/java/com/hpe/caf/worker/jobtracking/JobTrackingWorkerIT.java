@@ -24,7 +24,7 @@ import com.hpe.caf.api.worker.TrackingInfo;
 import com.hpe.caf.api.worker.WorkerResponse;
 import com.hpe.caf.config.system.SystemBootstrapConfiguration;
 import com.hpe.caf.naming.ServicePath;
-import com.hpe.caf.services.job.util.JobId;
+import com.hpe.caf.services.job.util.JobTaskId;
 import com.hpe.caf.util.ref.ReferencedData;
 import com.hpe.caf.worker.example.ExampleWorkerConstants;
 import com.hpe.caf.worker.example.ExampleWorkerResult;
@@ -331,7 +331,7 @@ public class JobTrackingWorkerIT {
         Map<String, byte[]> context = Collections.singletonMap(CONTEXT_KEY, CONTEXT_DATA);
         TrackingInfo tracking =
                 new TrackingInfo(
-                        new JobId(partitionId, jobTaskId).getMessageId(),
+                        new JobTaskId(partitionId, jobTaskId).getMessageId(),
                         new Date(),
                         STATUS_CHECK_URL,
                         jobTrackingWorkerInputQueue, //trackingPipe is Job Tracking Worker's input queue
@@ -353,7 +353,7 @@ public class JobTrackingWorkerIT {
         final TrackingReportTask exampleTask = new TrackingReportTask();
         exampleTask.trackingReports = new ArrayList<>();
         final TrackingReport report = new TrackingReport();
-        report.jobTaskId = new JobId(partitionId, jobTaskId).getMessageId();
+        report.jobTaskId = new JobTaskId(partitionId, jobTaskId).getMessageId();
         report.estimatedPercentageCompleted = status.equals(TrackingReportStatus.Complete) ? 100 : 0;
         report.failure = null;
         report.retries = null;

@@ -21,7 +21,7 @@
  *  Checks if the specified task has already been marked complete.
  *
  *   - in_short_task_id: additional identification for the same task - see
- *                       com.hpe.caf.services.job.util.JobId#getShortId
+ *                       com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
 CREATE OR REPLACE FUNCTION internal_is_task_completed(
     in_partition_id VARCHAR(40),

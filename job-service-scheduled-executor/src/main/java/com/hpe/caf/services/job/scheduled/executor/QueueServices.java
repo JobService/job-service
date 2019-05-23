@@ -20,7 +20,7 @@ import com.hpe.caf.api.CodecException;
 import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.api.worker.TrackingInfo;
-import com.hpe.caf.services.job.util.JobId;
+import com.hpe.caf.services.job.util.JobTaskId;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.MessageProperties;
@@ -116,7 +116,7 @@ public final class QueueServices
         //  Construct the task message.
         LOG.debug("Constructing the task message ...");
         final TrackingInfo trackingInfo = new TrackingInfo(
-                new JobId(partitionId, jobId).getMessageId(),
+                new JobTaskId(partitionId, jobId).getMessageId(),
                 calculateStatusCheckDate(ScheduledExecutorConfig.getStatusCheckTime()),
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 

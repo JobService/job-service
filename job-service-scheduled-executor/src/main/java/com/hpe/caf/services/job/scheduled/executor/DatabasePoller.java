@@ -18,7 +18,7 @@ package com.hpe.caf.services.job.scheduled.executor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.Codec;
-import com.hpe.caf.services.job.util.JobId;
+import com.hpe.caf.services.job.util.JobTaskId;
 import com.hpe.caf.util.ModuleLoader;
 import com.hpe.caf.util.ModuleLoaderException;
 import org.slf4j.Logger;
@@ -171,7 +171,7 @@ public class DatabasePoller
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
-            stmt.setString(3, new JobId(partitionId, jobId).getShortId());
+            stmt.setString(3, new JobTaskId(partitionId, jobId).getShortId());
             stmt.setString(4,failureDetails);
 
             LOG.debug("Calling report_failure() database function...");

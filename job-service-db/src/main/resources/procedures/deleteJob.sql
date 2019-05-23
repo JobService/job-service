@@ -21,7 +21,7 @@
  *  Deletes the job row and corresponding task tables.
  *
  *   - in_short_job_id: additional identification for the same job - see
- *                      com.hpe.caf.services.job.util.JobId#getShortId
+ *                      com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
 CREATE OR REPLACE FUNCTION delete_job(
     in_partition_id VARCHAR(40),

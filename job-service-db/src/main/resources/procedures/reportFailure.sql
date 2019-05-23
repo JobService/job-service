@@ -21,7 +21,7 @@
  *  Update the specified task and subsequent parent tasks/job with the failure details.
  *
  *   - in_short_task_id: additional identification for the same task - see
- *                       com.hpe.caf.services.job.util.JobId#getShortId
+ *                       com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
 CREATE OR REPLACE FUNCTION report_failure(
     in_partition_id VARCHAR(40),

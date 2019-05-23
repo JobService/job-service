@@ -21,7 +21,7 @@ import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
-import com.hpe.caf.services.job.util.JobId;
+import com.hpe.caf.services.job.util.JobTaskId;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -297,7 +297,7 @@ public final class DatabaseHelper
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
-            stmt.setString(3, new JobId(partitionId, jobId).getShortId());
+            stmt.setString(3, new JobTaskId(partitionId, jobId).getShortId());
             LOG.debug("Calling delete_job() database function...");
             stmt.execute();
         } catch (SQLException se) {
@@ -421,7 +421,7 @@ public final class DatabaseHelper
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
-            stmt.setString(3, new JobId(partitionId, jobId).getShortId());
+            stmt.setString(3, new JobTaskId(partitionId, jobId).getShortId());
             LOG.debug("Calling cancel_job() database function...");
             stmt.execute();
         } catch (SQLException se) {
@@ -454,7 +454,7 @@ public final class DatabaseHelper
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
-            stmt.setString(3, new JobId(partitionId, jobId).getShortId());
+            stmt.setString(3, new JobTaskId(partitionId, jobId).getShortId());
             stmt.setString(4,failureDetails);
 
             LOG.debug("Calling report_failure() database function...");

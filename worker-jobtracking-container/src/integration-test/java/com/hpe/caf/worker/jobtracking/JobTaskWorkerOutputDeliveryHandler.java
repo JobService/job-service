@@ -17,7 +17,7 @@ package com.hpe.caf.worker.jobtracking;
 
 import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TrackingInfo;
-import com.hpe.caf.services.job.util.JobId;
+import com.hpe.caf.services.job.util.JobTaskId;
 import com.hpe.caf.worker.testing.ExecutionContext;
 import com.hpe.caf.worker.testing.ResultHandler;
 import com.hpe.caf.worker.testing.TestItem;
@@ -50,7 +50,7 @@ public class JobTaskWorkerOutputDeliveryHandler implements ResultHandler {
         }
 
         if (tracking != null) {
-            final JobId trackingJobTaskId = JobId.fromMessageId(tracking.getJobTaskId());
+            final JobTaskId trackingJobTaskId = JobTaskId.fromMessageId(tracking.getJobTaskId());
             if (!expectation.getPartitionId().equals(trackingJobTaskId.getPartitionId())) {
                 context.failed(new TestItem(taskMessage.getTaskId(), null, null),
                     MessageFormat.format(

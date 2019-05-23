@@ -21,7 +21,7 @@
  *  Marks the specified task complete.
  *
  *   - in_short_task_id: additional identification for the same task - see
- *                       com.hpe.caf.services.job.util.JobId#getShortId
+ *                       com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
 CREATE OR REPLACE FUNCTION report_complete(
     in_partition_id VARCHAR(40),

@@ -23,7 +23,7 @@ import java.util.Base64;
 /**
  * Uniquely identify a task (job or subtask).
  */
-public final class JobId {
+public final class JobTaskId {
     public static final String DEFAULT_PARTITION_ID = "default";
 
     private final String partitionId;
@@ -35,7 +35,7 @@ public final class JobId {
      * @param partitionId Container for the job
      * @param taskId Unique task ID within the partition
      */
-    public JobId(final String partitionId, final String taskId) {
+    public JobTaskId(final String partitionId, final String taskId) {
         this.partitionId = partitionId;
         this.taskId = taskId;
 
@@ -57,12 +57,12 @@ public final class JobId {
      * @return parsed job identifier
      * @see #getMessageId
      */
-    public static JobId fromMessageId(final String messageId) {
+    public static JobTaskId fromMessageId(final String messageId) {
         final String[] parts = messageId.split(":", 2);
         if (parts.length == 2) {
-            return new JobId(parts[0], parts[1]);
+            return new JobTaskId(parts[0], parts[1]);
         } else {
-            return new JobId(DEFAULT_PARTITION_ID, messageId);
+            return new JobTaskId(DEFAULT_PARTITION_ID, messageId);
         }
     }
 

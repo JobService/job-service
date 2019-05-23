@@ -22,7 +22,7 @@ import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.api.worker.TrackingInfo;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.job.util.JobId;
+import com.hpe.caf.services.job.util.JobTaskId;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.MessageProperties;
@@ -100,7 +100,7 @@ public final class QueueServices {
 
         //  Construct the task message.
         final TrackingInfo trackingInfo = new TrackingInfo(
-                new JobId(partitionId, jobId).getMessageId(),
+                new JobTaskId(partitionId, jobId).getMessageId(),
                 calculateStatusCheckDate(config.getStatusCheckTime()),
                 statusCheckUrl, config.getTrackingPipe(), workerAction.getTargetPipe());
 

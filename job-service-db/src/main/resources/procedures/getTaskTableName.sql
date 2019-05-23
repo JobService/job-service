@@ -22,7 +22,7 @@
  *  used for a given parent task.
  *
  *   - in_short_task_id: identification of the task - see
- *                       com.hpe.caf.services.job.util.JobId#getShortId
+ *                       com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
 CREATE OR REPLACE FUNCTION internal_get_task_table_name(
     in_short_task_id VARCHAR(58)

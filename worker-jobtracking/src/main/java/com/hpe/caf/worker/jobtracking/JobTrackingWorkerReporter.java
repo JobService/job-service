@@ -17,7 +17,7 @@ package com.hpe.caf.worker.jobtracking;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hpe.caf.services.job.util.JobId;
+import com.hpe.caf.services.job.util.JobTaskId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,14 +109,14 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     {
         LOG.debug(Thread.currentThread() + ": Reporting completion of job task {}...", jobTaskId);
 
-        final JobId jobId = JobId.fromMessageId(jobTaskId);
+        final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskId);
         final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
 
         try (final Connection conn = getConnection()) {
             try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?,?)}")) {
-                stmt.setString(1, jobId.getPartitionId());
-                stmt.setString(2, jobId.getId());
-                stmt.setString(3, jobId.getShortId());
+                stmt.setString(1, jobTaskIdObj.getPartitionId());
+                stmt.setString(2, jobTaskIdObj.getId());
+                stmt.setString(3, jobTaskIdObj.getShortId());
                 stmt.execute();
 
                 final ResultSet resultSet = stmt.getResultSet();
@@ -173,14 +173,14 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     {
         LOG.info(Thread.currentThread() + ": Reporting failure of job task {} ...", jobTaskId);
 
-        final JobId jobId = JobId.fromMessageId(jobTaskId);
+        final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskId);
         final String failureDetails = getFailureDetailsString(rejectionDetails);
 
         try (final Connection conn = getConnection()) {
             try (final CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")) {
-                stmt.setString(1, jobId.getPartitionId());
-                stmt.setString(2, jobId.getId());
-                stmt.setString(3, jobId.getShortId());
+                stmt.setString(1, jobTaskIdObj.getPartitionId());
+                stmt.setString(2, jobTaskIdObj.getId());
+                stmt.setString(3, jobTaskIdObj.getShortId());
                 stmt.setString(4, failureDetails);
                 stmt.execute();
             }
