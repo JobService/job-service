@@ -310,6 +310,7 @@
         <module>deploy</module>
         <module>docs</module>
         <module>job-service-db</module>
+        <module>job-service-postgres-container</module>
         <module>job-service-caller</module>
         <module>job-service-ui</module>
         <module>job-service-contract</module>

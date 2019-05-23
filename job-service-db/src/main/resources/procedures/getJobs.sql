@@ -20,6 +20,11 @@
  *  Description:
  *  Returns the list of job definitions in the system.
  */
+DROP FUNCTION IF EXISTS get_jobs(
+    in_job_id_starts_with VARCHAR(58),
+    in_status_type VARCHAR(20),
+    in_limit INT,
+    in_offset INT);
 CREATE OR REPLACE FUNCTION get_jobs(
     in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),
