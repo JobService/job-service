@@ -97,7 +97,7 @@ public final class JobId {
         final MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             // should never happen
             throw new RuntimeException(e);
         }
