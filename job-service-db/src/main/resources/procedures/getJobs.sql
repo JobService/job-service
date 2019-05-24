@@ -26,6 +26,7 @@ DROP FUNCTION IF EXISTS get_jobs(
     in_limit INT,
     in_offset INT);
 CREATE OR REPLACE FUNCTION get_jobs(
+    in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),
     in_status_type VARCHAR(20),
     in_limit INT,
@@ -73,6 +74,9 @@ BEGIN
                job.failure_details,
                CAST('WORKER' AS CHAR(6)) AS actionType
         FROM job$q$;
+
+    sql := sql || whereOrAnd || ' partition_id = ' || quote_literal(in_partition_id);
+    whereOrAnd := andConst;
 
     IF in_job_id_starts_with IS NOT NULL AND in_job_id_starts_with != '' THEN
         escapedJobIdStartsWith = replace(replace(quote_literal(in_job_id_starts_with), '_', '\_'), '%', '\%');

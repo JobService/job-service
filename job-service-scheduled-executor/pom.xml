@@ -77,6 +77,10 @@
             <artifactId>validation-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
 
         <!-- String to byte[] base64 -->
         <dependency>
@@ -107,6 +111,10 @@
         <dependency>
             <groupId>com.github.cafapi</groupId>
             <artifactId>caf-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-util</artifactId>
         </dependency>
     </dependencies>
 

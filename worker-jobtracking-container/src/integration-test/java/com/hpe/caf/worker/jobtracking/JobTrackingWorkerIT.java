@@ -24,6 +24,7 @@ import com.hpe.caf.api.worker.TrackingInfo;
 import com.hpe.caf.api.worker.WorkerResponse;
 import com.hpe.caf.config.system.SystemBootstrapConfiguration;
 import com.hpe.caf.naming.ServicePath;
+import com.hpe.caf.services.job.util.JobTaskId;
 import com.hpe.caf.util.ref.ReferencedData;
 import com.hpe.caf.worker.example.ExampleWorkerConstants;
 import com.hpe.caf.worker.example.ExampleWorkerResult;
@@ -36,6 +37,7 @@ import com.hpe.caf.worker.tracking.report.TrackingReportStatus;
 import com.hpe.caf.worker.tracking.report.TrackingReportTask;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -62,6 +64,8 @@ public class JobTrackingWorkerIT {
     private static String jobTrackingWorkerInputQueue;
     private static JobDatabase jobDatabase;
 
+    private String defaultPartitionId;
+
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -76,6 +80,11 @@ public class JobTrackingWorkerIT {
         jobDatabase = new JobDatabase();
     }
 
+    @BeforeTest
+    public void setupTest() {
+        defaultPartitionId = UUID.randomUUID().toString();
+    }
+
 
     /**
      * Tests reporting of an in-progress task. This test creates a task suitable for input to the Job Tracking worker. The Job Tracking
@@ -86,11 +95,11 @@ public class JobTrackingWorkerIT {
     public void testTrackingReportTasks() throws Exception
     {
         final String jobTaskId = jobDatabase.createJobId();
-        jobDatabase.createJobTask(jobTaskId, "testProxiedActiveMessage");
+        jobDatabase.createJobTask(defaultPartitionId, jobTaskId, "testProxiedActiveMessage");
         for (int i = 0; i <= 4; i++) {
             final JobStatus status = i < 4 ? JobStatus.Waiting : JobStatus.Completed;
             final TrackingReportStatus trackingReportStatus = i < 4 ? TrackingReportStatus.Progress : TrackingReportStatus.Complete;
-            final TaskMessage taskMessage = getExampleTrackingReportMessage(jobTaskId, trackingReportStatus);
+            final TaskMessage taskMessage = getExampleTrackingReportMessage(defaultPartitionId, jobTaskId, trackingReportStatus);
             final JobReportingExpectation expectation = getExpectation(jobTaskId, status);
             publishAndVerify(taskMessage, jobTaskId, expectation);
         }
@@ -108,13 +117,14 @@ public class JobTrackingWorkerIT {
             final ExecutionContext context = new ExecutionContext(false);
             context.initializeContext();
             Timer timer = getTimer(context);
-            Thread thread = queueManager.start(new JobTaskWorkerOutputDeliveryHandler(jobDatabase, context,
-                                                                                      new JobTrackingWorkerITExpectation(
-                                                                                          jobTaskId, jobTaskId, true, expectation)));
+            Thread thread = queueManager.start(
+                new JobTaskWorkerOutputDeliveryHandler(jobDatabase, context,
+                    new JobTrackingWorkerITExpectation(
+                        defaultPartitionId, jobTaskId, jobTaskId, true, expectation)));
             queueManager.publish(taskMessage);
             final JobDatabase database = new JobDatabase();
             wait(1000);
-            database.verifyJobStatus(jobTaskId, expectation);
+            database.verifyJobStatus(defaultPartitionId, jobTaskId, expectation);
         }
     }
 
@@ -136,19 +146,16 @@ public class JobTrackingWorkerIT {
     @Test
     public void testProxiedCompletedMessage() throws Exception {
         String jobTaskId = jobDatabase.createJobId();
-        jobDatabase.createJobTask(jobTaskId, "testProxiedCompletedMessage");
+        jobDatabase.createJobTask(defaultPartitionId, jobTaskId, "testProxiedCompletedMessage");
         String to = "jobtrackingworker-test-example-input-2";
         String trackTo = to;
-        TaskMessage taskMessage = getExampleTaskMessage(jobTaskId, to, trackTo);
+        TaskMessage taskMessage = getExampleTaskMessage(defaultPartitionId, jobTaskId, to, trackTo);
         JobTrackingWorkerITExpectation expectation =
-                new JobTrackingWorkerITExpectation(
-                        jobTaskId,
-                        to,
-                        false,
-                        new JobReportingExpectation(jobTaskId, JobStatus.Completed, 100, false, false, false, false, false));
+            new JobTrackingWorkerITExpectation(defaultPartitionId, jobTaskId, to, false,
+                new JobReportingExpectation(jobTaskId, JobStatus.Completed, 100, false, false, false, false, false));
         testProxiedMessageReporting(taskMessage, expectation);
 
-        final DBJob jobFromDb = jobDatabase.getJob(jobTaskId);
+        final DBJob jobFromDb = jobDatabase.getJob(defaultPartitionId, jobTaskId);
         Assert.assertTrue(jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate()),
             "last-update-time should be updated on complete");
     }
@@ -173,20 +180,41 @@ public class JobTrackingWorkerIT {
     @Test
     public void testProxiedFailureMessage() throws Exception {
         String jobTaskId = jobDatabase.createJobId();
-        jobDatabase.createJobTask(jobTaskId, "testProxiedFailureMessage");
+        jobDatabase.createJobTask(defaultPartitionId, jobTaskId, "testProxiedFailureMessage");
         String to = "jobtrackingworker-test-example-output-3";
         String trackTo = to;
-        TaskMessage taskMessage = getExampleTaskMessage(jobTaskId, to, trackTo);
-        TaskMessage failureMessage = failTask(to, taskMessage);
+        TaskMessage taskMessage = getExampleTaskMessage(defaultPartitionId, jobTaskId, to, trackTo);
+        TaskMessage failureMessage = failTask(to, taskMessage, TaskStatus.RESULT_FAILURE);
         JobTrackingWorkerITExpectation expectation =
-                new JobTrackingWorkerITExpectation(
-                        jobTaskId,
-                        to,
-                        false,
-                        new JobReportingExpectation(jobTaskId, JobStatus.Completed, 100, false, true, true, true, true));
+            new JobTrackingWorkerITExpectation(defaultPartitionId, jobTaskId, to, false,
+                new JobReportingExpectation(jobTaskId, JobStatus.Completed, 100, false, true, true, true, true));
         testProxiedMessageReporting(failureMessage, expectation);
 
-        final DBJob jobFromDb = jobDatabase.getJob(jobTaskId);
+        final DBJob jobFromDb = jobDatabase.getJob(defaultPartitionId, jobTaskId);
+        Assert.assertTrue(jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate()),
+            "last-update-time should be updated on fail");
+    }
+
+    /**
+     * When a worker responds with INVALID_TASK, the tracking worker should fail the job in the
+     * database.
+     */
+    @Test
+    public void testProxiedInvalidMessage() throws Exception {
+        final String jobId = jobDatabase.createJobId();
+        jobDatabase.createJobTask(defaultPartitionId, jobId, "testProxiedInvalidMessage");
+
+        final String queue = "jobtrackingworker-test-example-output";
+        final TaskMessage basicMessage =
+            getExampleTaskMessage(defaultPartitionId, jobId, queue, queue);
+        final TaskMessage invalidMessage = failTask(queue, basicMessage, TaskStatus.INVALID_TASK);
+        final JobTrackingWorkerITExpectation expectation =
+            new JobTrackingWorkerITExpectation(defaultPartitionId, jobId, queue, false,
+                new JobReportingExpectation(
+                    jobId, JobStatus.Failed, 0, true, true, true, true, true));
+        testProxiedMessageReporting(invalidMessage, expectation);
+
+        final DBJob jobFromDb = jobDatabase.getJob(defaultPartitionId, jobId);
         Assert.assertTrue(jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate()),
             "last-update-time should be updated on fail");
     }
@@ -200,22 +228,60 @@ public class JobTrackingWorkerIT {
         final String parentId = jobDatabase.createJobId();
         final String child1Id = parentId + ".1";
         final String child2Id = parentId + ".2";
-        jobDatabase.createJobTask(parentId, "testCompleteWithParent-parent");
-        jobDatabase.createJobTask(child1Id, "testCompleteWithParent-child1");
-        jobDatabase.createJobTask(child2Id, "testCompleteWithParent-child2");
+        jobDatabase.createJobTask(defaultPartitionId, parentId, "testCompleteWithParent-parent");
+        jobDatabase.createJobTask(defaultPartitionId, child1Id, "testCompleteWithParent-child1");
+        jobDatabase.createJobTask(defaultPartitionId, child2Id, "testCompleteWithParent-child2");
 
         // send a message for the completion of 1 of the 2 child tasks
         final String queue = "jobtrackingworker-test-example-input";
-        final TaskMessage child1CompleteMessage = getExampleTaskMessage(child1Id, queue, queue);
+        final TaskMessage child1CompleteMessage =
+            getExampleTaskMessage(defaultPartitionId, child1Id, queue, queue);
         final JobTrackingWorkerITExpectation expectation =
-            new JobTrackingWorkerITExpectation(parentId, queue, false,
+            new JobTrackingWorkerITExpectation(defaultPartitionId, parentId, queue, false,
                 new JobReportingExpectation(
                     parentId, JobStatus.Active, 50, false, false, false, false, false));
         testProxiedMessageReporting(child1CompleteMessage, expectation);
 
-        final DBJob jobFromDb = jobDatabase.getJob(parentId);
+        final DBJob jobFromDb = jobDatabase.getJob(defaultPartitionId, parentId);
         Assert.assertTrue(jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate()),
             "last-update-time should be updated on subtask complete");
+    }
+
+    /**
+     * Verify that there's no interference between jobs with the same ID in different partitions
+     * when tracking subtasks.
+     */
+    @Test
+    public void testSubtasksAcrossDifferentPartitions() throws Exception {
+        final String queue = "jobtrackingworker-test-example-input";
+        final String partitionId1 = UUID.randomUUID().toString();
+        final String partitionId2 = UUID.randomUUID().toString();
+        final String parentId = jobDatabase.createJobId();
+        final String childId = parentId + ".1";
+        jobDatabase.createJobTask(partitionId1, parentId, "testSubtasksAcrossPartitions-parent1");
+        jobDatabase.createJobTask(partitionId1, childId, "testSubtasksAcrossPartitions-child1");
+        jobDatabase.createJobTask(partitionId2, parentId, "testSubtasksAcrossPartitions-parent2");
+        jobDatabase.createJobTask(partitionId2, childId, "testSubtasksAcrossPartitions-child2");
+
+        final TaskMessage child1CompleteMessage =
+            getExampleTaskMessage(partitionId1, childId, queue, queue);
+        final JobTrackingWorkerITExpectation partition1Expectation =
+            new JobTrackingWorkerITExpectation(partitionId1, parentId, queue, false,
+                new JobReportingExpectation(
+                    parentId, JobStatus.Active, 50, false, false, false, false, false));
+        testProxiedMessageReporting(child1CompleteMessage, partition1Expectation);
+
+        final DBJob job2FromDb = jobDatabase.getJob(partitionId2, parentId);
+        Assert.assertEquals(job2FromDb.getStatus(), JobStatus.Waiting,
+            "partition 2 job status should be unaffected by progress of partition 1 job");
+
+        final TaskMessage child2CompleteMessage =
+            getExampleTaskMessage(partitionId2, childId, queue, queue);
+        final JobTrackingWorkerITExpectation partition2Expectation =
+            new JobTrackingWorkerITExpectation(partitionId2, parentId, queue, false,
+                new JobReportingExpectation(
+                    parentId, JobStatus.Active, 50, false, false, false, false, false));
+        testProxiedMessageReporting(child2CompleteMessage, partition2Expectation);
     }
 
 
@@ -255,7 +321,9 @@ public class JobTrackingWorkerIT {
     }
 
 
-    private TaskMessage getExampleTaskMessage(final String jobTaskId, final String to, final String trackTo) throws CodecException {
+    private TaskMessage getExampleTaskMessage(
+        final String partitionId, final String jobTaskId, final String to, final String trackTo
+    ) throws CodecException {
         ExampleWorkerTask exampleTask = getExampleWorkerTask();
 
         // Wrap the Example task in a TaskMessage with tracking info
@@ -263,7 +331,7 @@ public class JobTrackingWorkerIT {
         Map<String, byte[]> context = Collections.singletonMap(CONTEXT_KEY, CONTEXT_DATA);
         TrackingInfo tracking =
                 new TrackingInfo(
-                        jobTaskId,
+                        new JobTaskId(partitionId, jobTaskId).getMessageId(),
                         new Date(),
                         STATUS_CHECK_URL,
                         jobTrackingWorkerInputQueue, //trackingPipe is Job Tracking Worker's input queue
@@ -279,13 +347,13 @@ public class JobTrackingWorkerIT {
                 tracking);
     }
 
-    private TaskMessage getExampleTrackingReportMessage(final String jobTaskId, final TrackingReportStatus status) 
-        throws CodecException
-    {
+    private TaskMessage getExampleTrackingReportMessage(
+        final String partitionId, final String jobTaskId, final TrackingReportStatus status
+    ) throws CodecException {
         final TrackingReportTask exampleTask = new TrackingReportTask();
         exampleTask.trackingReports = new ArrayList<>();
         final TrackingReport report = new TrackingReport();
-        report.jobTaskId = jobTaskId;
+        report.jobTaskId = new JobTaskId(partitionId, jobTaskId).getMessageId();
         report.estimatedPercentageCompleted = status.equals(TrackingReportStatus.Complete) ? 100 : 0;
         report.failure = null;
         report.retries = null;
@@ -312,13 +380,15 @@ public class JobTrackingWorkerIT {
     }
 
 
-    private TaskMessage failTask(final String responseQueue, final TaskMessage taskMessage) throws CodecException {
+    private TaskMessage failTask(
+        final String responseQueue, final TaskMessage taskMessage, final TaskStatus taskStatus
+    ) throws CodecException {
         ExampleWorkerResult exampleFailureResult = new ExampleWorkerResult();
         exampleFailureResult.workerStatus = ExampleWorkerStatus.WORKER_EXAMPLE_FAILED;
         WorkerResponse exampleWorkerResponse =
                 new WorkerResponse(
                         responseQueue,
-                        TaskStatus.RESULT_FAILURE,
+                        taskStatus,
                         workerServices.getCodec().serialise(exampleFailureResult),
                         ExampleWorkerConstants.WORKER_NAME,
                         ExampleWorkerConstants.WORKER_API_VER,

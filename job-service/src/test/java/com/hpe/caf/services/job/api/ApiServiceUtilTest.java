@@ -18,6 +18,7 @@ package com.hpe.caf.services.job.api;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigException;
 import com.hpe.caf.services.configuration.AppConfigProvider;
+import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -105,6 +106,30 @@ public final class ApiServiceUtilTest {
         boolean isInvalid = ApiServiceUtil.containsInvalidCharacters(test);
         Assert.assertFalse(isInvalid);
 
+    }
+
+    public void testValidatePartitionId_Success() throws BadRequestException {
+        ApiServiceUtil.validatePartitionId("something valid");
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testValidatePartitionId_Null() throws BadRequestException {
+        ApiServiceUtil.validatePartitionId(null);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testValidatePartitionId_Empty() throws BadRequestException {
+        ApiServiceUtil.validatePartitionId("");
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testValidatePartitionId_TooLong() throws BadRequestException {
+        ApiServiceUtil.validatePartitionId("a very long partition ID more than forty characters");
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testValidatePartitionId_InvalidChars() throws BadRequestException {
+        ApiServiceUtil.validatePartitionId("not:valid");
     }
 
 }

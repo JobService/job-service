@@ -38,6 +38,13 @@ produces:
   - application/json
 
 parameters:
+  partitionId:
+    name: partitionId
+    in: path
+    type: string
+    required: true
+    description: Only allow access to jobs in the container with this identifier
+    pattern: '^[^.,:;*?!|()]{1,40}$'
   jobId:
     name: jobId
     in: path
@@ -47,8 +54,9 @@ parameters:
     pattern: '^[^.,:;*?!|()]{1,48}$'
 
 paths:
-  /jobs:
+  /partitions/{partitionId}/jobs:
     parameters:
+      - $ref: '#/parameters/partitionId'
       - name: CAF-Correlation-Id
         in: header
         type: string
@@ -95,8 +103,9 @@ paths:
             type: array
             items:
               $ref: "#/definitions/job"
-  /jobs/{jobId}:
+  /partitions/{partitionId}/jobs/{jobId}:
     parameters:
+      - $ref: '#/parameters/partitionId'
       - name: CAF-Correlation-Id
         in: header
         type: string
@@ -154,8 +163,9 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         404:
           description: The specified job is not found.
-  /jobs/{jobId}/isActive:
+  /partitions/{partitionId}/jobs/{jobId}/isActive:
     parameters:
+      - $ref: '#/parameters/partitionId'
       - name: CAF-Correlation-Id
         in: header
         type: string
@@ -180,8 +190,9 @@ paths:
                 type: boolean
         400:
           description: The `jobId` parameter contains invalid characters.
-  /jobs/{jobId}/cancel:
+  /partitions/{partitionId}/jobs/{jobId}/cancel:
     parameters:
+      - $ref: '#/parameters/partitionId'
       - name: CAF-Correlation-Id
         in: header
         type: string
@@ -202,8 +213,9 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         404:
           description: The specified job is not found.
-  /jobStats/count:
+  /partitions/{partitionId}/jobStats/count:
     parameters:
+      - $ref: '#/parameters/partitionId'
       - name: CAF-Correlation-Id
         in: header
         type: string

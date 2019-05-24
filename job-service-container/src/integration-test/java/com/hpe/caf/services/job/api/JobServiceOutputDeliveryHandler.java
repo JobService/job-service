@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TrackingInfo;
+import com.hpe.caf.services.job.util.JobTaskId;
 import com.hpe.caf.worker.testing.ExecutionContext;
 import com.hpe.caf.worker.testing.ResultHandler;
 import com.hpe.caf.worker.testing.TestItem;
@@ -52,11 +53,13 @@ public class JobServiceOutputDeliveryHandler implements ResultHandler {
 
         if (tracking != null) {
             String trackingJobTaskId = tracking.getJobTaskId();
-            if (!expectation.getJobTaskId().equals(trackingJobTaskId)) {
+            final String expectMessageId =
+                new JobTaskId(expectation.getPartitionId(), expectation.getJobTaskId()).getMessageId();
+            if (!expectMessageId.equals(trackingJobTaskId)) {
                 context.failed(new TestItem(taskMessage.getTaskId(), null, null),
                         MessageFormat.format(
                                 "In the forwarded task message, expected job task ID {0} but found {1} in the tracking info.",
-                                expectation.getJobTaskId(),
+                                expectMessageId,
                                 trackingJobTaskId));
             }
 
@@ -65,7 +68,7 @@ public class JobServiceOutputDeliveryHandler implements ResultHandler {
                 context.failed(new TestItem(taskMessage.getTaskId(), null, null),
                         MessageFormat.format(
                                 "In the forwarded task message, expected status check URL address {0} but found {1} in the tracking info.",
-                                expectation.getStatusCheckTime(),
+                                expectation.getStatusCheckUrl(),
                                 statusCheckUrl));
             }
 

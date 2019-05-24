@@ -18,11 +18,11 @@ package com.hpe.caf.worker.jobtracking;
 import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.api.worker.TrackingInfo;
+import com.hpe.caf.services.job.util.JobTaskId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import javax.ws.rs.core.UriBuilder;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
@@ -47,16 +47,10 @@ public final class JobTrackingWorkerUtil
         final String taskId = UUID.randomUUID().toString();
 
         //  Set up string for statusCheckUrl
-        final String statusCheckUrlPrefix = System.getenv("CAF_WEBSERVICE_URL") +"/jobs/";
-        String statusCheckUrl;
-        try {
-            statusCheckUrl = statusCheckUrlPrefix +
-                    URLEncoder.encode(jobDependency.getJobId(), "UTF-8") +
-                    "/isActive";
-        } catch (final UnsupportedEncodingException e) {
-            LOG.error("Failed to translate the job identifier using UTF-8 encoding scheme {}", e);
-            statusCheckUrl = null;
-        }
+        final String statusCheckUrl = UriBuilder.fromUri(System.getenv("CAF_WEBSERVICE_URL") )
+            .path("partitions").path(jobDependency.getPartitionId())
+            .path("jobs").path(jobDependency.getJobId())
+            .path("isActive").build().toString();
 
         //  Construct the task message.
         String statusCheckTime = System.getenv("CAF_STATUS_CHECK_TIME");
@@ -64,7 +58,8 @@ public final class JobTrackingWorkerUtil
             // Default to 5 if the environment variable is not present.  This is to avoid introducing a breaking change.
             statusCheckTime = "5";
         }
-        final TrackingInfo trackingInfo = new TrackingInfo(jobDependency.getJobId(),
+        final TrackingInfo trackingInfo = new TrackingInfo(
+                new JobTaskId(jobDependency.getPartitionId(), jobDependency.getJobId()).getMessageId(),
                 calculateStatusCheckDate(statusCheckTime), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
 
         return new TaskMessage(

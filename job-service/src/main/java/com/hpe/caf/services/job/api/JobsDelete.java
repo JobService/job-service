@@ -31,9 +31,10 @@ public final class JobsDelete {
      * @param   jobId       id of the job to delete
      * @throws  Exception   bad request or database exceptions thrown
      */
-    public static void deleteJob(String jobId) throws Exception {
+    public static void deleteJob(final String partitionId, String jobId) throws Exception {
         try {
             LOG.info("deleteJob: Starting...");
+            ApiServiceUtil.validatePartitionId(partitionId);
 
             //  Make sure the job id has been provided.
             if (!ApiServiceUtil.isNotNullOrEmpty(jobId)) {
@@ -56,7 +57,7 @@ public final class JobsDelete {
 
             //  Delete the specified job from the system.
             LOG.info("deleteJob: Deleting job...");
-            databaseHelper.deleteJob(jobId);
+            databaseHelper.deleteJob(partitionId, jobId);
 
             LOG.info("deleteJob: Done.");
 

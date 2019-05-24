@@ -33,12 +33,13 @@ public final class JobsGetById {
      * @return  job         the job
      * @throws  Exception   bad request or database exception
      */
-    public static Job getJob(String jobId) throws Exception {
+    public static Job getJob(final String partitionId, String jobId) throws Exception {
 
         Job job;
 
         try {
             LOG.info("getJobById: Starting...");
+            ApiServiceUtil.validatePartitionId(partitionId);
 
             //  Make sure the job id has been provided.
             if (!ApiServiceUtil.isNotNullOrEmpty(jobId)) {
@@ -61,7 +62,7 @@ public final class JobsGetById {
 
             //  Get the job definition for the specified job id.
             LOG.info("getJobById: Getting job definition...");
-            job = databaseHelper.getJob(jobId);
+            job = databaseHelper.getJob(partitionId, jobId);
 
             LOG.info("getJobById: Done.");
             return job;

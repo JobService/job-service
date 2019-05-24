@@ -26,6 +26,7 @@ import java.util.List;
 public class JobServiceEndToEndITExpectation {
     private final boolean expectJobCancellation;
     private final String trackTo;
+    private final String partitionId;
     private final String jobId;
     private final String correlationId;
     private final String taskClassifier;
@@ -34,9 +35,10 @@ public class JobServiceEndToEndITExpectation {
     private final ExampleWorkerStatus workerResultStatus;
     private final List<String> workerItemAssetIds;
 
-    public JobServiceEndToEndITExpectation(boolean expectJobCancellation, String trackTo, String jobId, String correlationId, String taskClassifier, int taskApiVersion, TaskStatus taskStatus, ExampleWorkerStatus workerResultStatus, List<String> workerItemAssetIds) {
+    public JobServiceEndToEndITExpectation(boolean expectJobCancellation, String trackTo, final String partitionId, String jobId, String correlationId, String taskClassifier, int taskApiVersion, TaskStatus taskStatus, ExampleWorkerStatus workerResultStatus, List<String> workerItemAssetIds) {
         this.expectJobCancellation = expectJobCancellation;
         this.trackTo = trackTo;
+        this.partitionId = partitionId;
         this.jobId = jobId;
         this.correlationId = correlationId;
         this.taskClassifier = taskClassifier;
@@ -52,6 +54,10 @@ public class JobServiceEndToEndITExpectation {
 
     public String getTrackTo() {
         return trackTo;
+    }
+
+    public String getPartitionId() {
+        return partitionId;
     }
 
     public String getJobId() {

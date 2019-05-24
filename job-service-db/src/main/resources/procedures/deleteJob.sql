@@ -19,8 +19,15 @@
  *
  *  Description:
  *  Deletes the job row and corresponding task tables.
+ *
+ *   - in_short_job_id: additional identification for the same job - see
+ *                      com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
-CREATE OR REPLACE FUNCTION delete_job(in_job_id VARCHAR(48))
+CREATE OR REPLACE FUNCTION delete_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_short_job_id VARCHAR(48)
+)
 RETURNS VOID
 LANGUAGE plpgsql
 AS $$
@@ -37,7 +44,8 @@ BEGIN
     -- Take out an exclusive update lock on the job row
     PERFORM NULL
     FROM job
-    WHERE job_id = in_job_id
+    WHERE partition_id = in_partition_id
+        AND job_id = in_job_id
     FOR UPDATE;
 
     -- Raise exception if no matching job identifier has been found
@@ -46,13 +54,15 @@ BEGIN
     END IF;
 
     -- Drop the task tables associated with the specified job
-    PERFORM internal_drop_task_tables(in_job_id);
+    PERFORM internal_drop_task_tables(in_short_job_id);
 
     -- Remove job dependency and job task data rows
-    DELETE FROM job_dependency jd WHERE jd.job_id = in_job_id;
-    DELETE FROM job_task_data jtd WHERE jtd.job_id = in_job_id;
+    DELETE FROM job_dependency jd WHERE jd.partition_id = in_partition_id AND jd.job_id = in_job_id;
+    DELETE FROM job_task_data jtd WHERE jtd.partition_id = in_partition_id AND jtd.job_id = in_job_id;
 
     -- Remove row from the job table
-    DELETE FROM job WHERE job_id = in_job_id;
+    DELETE FROM job
+    WHERE partition_id = in_partition_id
+        AND job_id = in_job_id;
 END
 $$;

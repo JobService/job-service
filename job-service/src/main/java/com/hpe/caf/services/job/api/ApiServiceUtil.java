@@ -15,6 +15,8 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.hpe.caf.services.job.exceptions.BadRequestException;
+
 /**
  * Utility class for shared functionality.
  */
@@ -45,4 +47,21 @@ public final class ApiServiceUtil {
         String[] arr = toExamine.split(API_SERVICE_RESERVED_CHARACTERS_REGEX, 2);
         return arr.length > 1;
     }
+
+    /**
+     * Check that a partition ID provided to the API is valid.
+     *
+     * @param partitionId
+     * @throws BadRequestException When the partition ID is invalid
+     */
+    public static void validatePartitionId(final String partitionId) throws BadRequestException {
+        if (!isNotNullOrEmpty(partitionId)) {
+            throw new BadRequestException("The partition ID has not been specified.");
+        } else if (partitionId.length() > 40) {
+            throw new BadRequestException("The partition ID is longer than 40 characters.");
+        } else if (containsInvalidCharacters(partitionId)) {
+            throw new BadRequestException("The partition ID contains one or more invalid characters.");
+        }
+    }
+
 }

@@ -61,14 +61,15 @@ The `marathon.json.b` deployment template file specifies default values for a nu
 
     Adjust '<DOCKER-HOST>` and `<JOB-SERVICE-PORT>' to be the name of your own environment.
 
-5. Try the `GET /jobStats/count` operation  
-    Click on this operation and then click on the 'Try it out!' button.
+5. Try the `GET /partitions/{partitionId}/jobStats/count` operation  
+    Click on this operation, choose a partition Id, and then click on the 'Try it out!' button.
 
     You should see the response is zero as you have not yet created any jobs.
 
 6. Create a Job  
-    Go to the `PUT /jobs/{jobId}` operation.
+    Go to the `PUT /partitions/{partitionId}/jobs/{jobId}` operation.
 
+    - Choose a partition Id and set it in the `partitionId` parameter.
     - Choose a Job Id, for example, `DemoJob`, and set it in the `jobId` parameter.
     - Enter the following Job Definition into the `newJob` parameter:
 
@@ -95,9 +96,9 @@ The `marathon.json.b` deployment template file specifies default values for a nu
         }</code></pre>
 
 7. Check on the Job's progress  
-    Go to the `GET /jobs/{jobId}` operation.
+    Go to the `GET /partitions/{partitionId}/jobs/{jobId}` operation.
 
-    - Enter the Job Id that you chose when creating the job.
+    - Enter the partition Id and Job Id that you chose when creating the job.
     - Click on the 'Try it out!' button.
 
     You should see a response returned from the Job Service.

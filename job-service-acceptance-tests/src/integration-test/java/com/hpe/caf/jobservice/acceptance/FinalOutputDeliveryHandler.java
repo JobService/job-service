@@ -113,14 +113,16 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
 
     private void verifyJob(final TaskMessage resultMessage) throws ApiException {
         //verifyJobActive(resultMessage);   // CAF-2567: Uncomment this line after fix
-        Job job = jobsApi.getJob(expectation.getJobId(), expectation.getCorrelationId());
+        Job job = jobsApi.getJob(
+            expectation.getPartitionId(), expectation.getJobId(), expectation.getCorrelationId());
         //verifyJobStatus(resultMessage, job);  // CAF-2567: Uncomment this line after fix
         verifyJobFailures(resultMessage, job);
     }
 
 
     private void verifyJobActive(final TaskMessage resultMessage) throws ApiException {
-        boolean jobIsActive = jobsApi.getJobActive(expectation.getJobId(), expectation.getCorrelationId());
+        boolean jobIsActive = jobsApi.getJobActive(
+            expectation.getPartitionId(), expectation.getJobId(), expectation.getCorrelationId());
         boolean expectJobActive = getCurrentMessageExpectedJobStatus() == Job.StatusEnum.ACTIVE;
         assertEqual("job active", String.valueOf(expectJobActive), String.valueOf(jobIsActive), resultMessage);
     }
@@ -196,7 +198,8 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
 
     private void verifyJobCancelled() {
         try {
-            Job job = jobsApi.getJob(expectation.getJobId(), expectation.getCorrelationId());
+            Job job = jobsApi.getJob(
+                expectation.getPartitionId(), expectation.getJobId(), expectation.getCorrelationId());
             if (job.getStatus() != Job.StatusEnum.CANCELLED) {
                 String errorMessage = "Expected job " + expectation.getJobId() + " to have status = CANCELLED but it has STATUS = " + job.getStatus().toString();
                 LOG.error(errorMessage);

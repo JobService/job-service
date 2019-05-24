@@ -60,11 +60,12 @@ public final class JobsPut {
      * @return  targetOperation the result of the operation to be performed
      * @throws  Exception       bad request exception or database exception
      */
-    public static String createOrUpdateJob(String jobId, NewJob job) throws Exception {
+    public static String createOrUpdateJob(final String partitionId, String jobId, NewJob job) throws Exception {
         String targetOperation;
 
         try {
             LOG.info("createOrUpdateJob: Starting...");
+            ApiServiceUtil.validatePartitionId(partitionId);
 
             //  Make sure the job id has been provided.
             if (!ApiServiceUtil.isNotNullOrEmpty(jobId)) {
@@ -140,7 +141,7 @@ public final class JobsPut {
             int jobHash = job.getTask().hashCode();
 
             //  Check first if there is anything to do.
-            boolean rowExists = databaseHelper.doesJobAlreadyExist(jobId, jobHash);
+            boolean rowExists = databaseHelper.doesJobAlreadyExist(partitionId, jobId, jobHash);
             if (!rowExists){
                 targetOperation = "create";
 
@@ -155,18 +156,18 @@ public final class JobsPut {
                 LOG.info("createOrUpdateJob: Creating job in the database...");
                 if (job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) {
                     final WorkerAction jobTask = job.getTask();
-                    databaseHelper.createJobWithDependencies(jobId, job.getName(), job.getDescription(),
+                    databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                             job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                             getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
                             job.getPrerequisiteJobIds(), job.getDelay());
 
                 } else {
-                    databaseHelper.createJob(jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
+                    databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
                 }
 
                 // Check if job_task_data row exists for the specified job_id and if it does return 'accepted'
                 // and not 'created'.
-                if (!databaseHelper.canJobBeProgressed(jobId)) {
+                if (!databaseHelper.canJobBeProgressed(partitionId, jobId)) {
                     return targetOperation;
                 }
 
@@ -174,20 +175,20 @@ public final class JobsPut {
                 try {
                     QueueServices queueServices = QueueServicesFactory.create(config, job.getTask().getTaskPipe(),codec);
                     LOG.info("createOrUpdateJob: Sending task data to the target queue...");
-                    queueServices.sendMessage(jobId, job.getTask(), config);
+                    queueServices.sendMessage(partitionId, jobId, job.getTask(), config);
                     queueServices.close();
                 } catch(Exception ex) {
                     //  Failure adding job data to queue. Update the job with the failure details.
                     Failure f = new Failure();
                     f.setFailureId("ADD_TO_QUEUE_FAILURE");
                     f.setFailureTime(new Date());
-                    f.failureSource("Job Service - PUT /jobs/{"+jobId+"}");
+                    f.failureSource("Job Service - PUT /partitions/{"+partitionId+"}/jobs/{"+jobId+"}");
                     f.failureMessage(ex.getMessage());
 
                     ObjectMapper mapper = new ObjectMapper();
                     final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
                     mapper.setDateFormat(df);
-                    databaseHelper.reportFailure(jobId, mapper.writeValueAsString(f));
+                    databaseHelper.reportFailure(partitionId, jobId, mapper.writeValueAsString(f));
 
                     //  Throw error message to user.
                     throw new Exception("Failed to add task data to the queue.");

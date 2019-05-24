@@ -15,10 +15,6 @@
  */
 package com.hpe.caf.services.job.api;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
-import static org.testng.FileAssert.fail;
-
 import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
 import com.hpe.caf.config.system.SystemBootstrapConfiguration;
@@ -31,19 +27,6 @@ import com.hpe.caf.services.job.client.model.NewJob;
 import com.hpe.caf.services.job.client.model.WorkerAction;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
-import java.util.concurrent.TimeoutException;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -52,6 +35,18 @@ import org.apache.http.impl.client.HttpClients;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.TimeoutException;
+
+import static org.testng.Assert.*;
+import static org.testng.FileAssert.fail;
+
 /**
  * Integration tests for the functionality of the Job Service.
  * (Not an end to end integration test.)
@@ -59,7 +54,7 @@ import org.testng.annotations.Test;
 public class JobServiceIT {
 
     private String connectionString;
-    private String projectId;
+    private String defaultPartitionId;
     private ApiClient client = new ApiClient();
     private JobsApi jobsApi;
 
@@ -72,10 +67,65 @@ public class JobServiceIT {
     
     final HashMap<String,Object> testDataObjectMap = new HashMap<>();
     final HashMap<String,String> taskMessageParams = new HashMap<>();
-    
+
+    /**
+     * @param jobId
+     * @param testId Used to identify which test submitted the job
+     * @return Basic job definition to be submitted
+     */
+    private NewJob makeJob(final String jobId, final String testId) {
+        String jobName = "Job_" + jobId;
+
+        //create a WorkerAction task
+        WorkerAction workerActionTask = new WorkerAction();
+        workerActionTask.setTaskClassifier(jobName + "_" + testId);
+        workerActionTask.setTaskApiVersion(1);
+        workerActionTask.setTaskData(jobName + "_TaskClassifier Sample Test Task Data.");
+        workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
+        workerActionTask.setTargetPipe("Queue_" + jobId);
+
+        NewJob newJob = new NewJob();
+        newJob.setName(jobName);
+        newJob.setDescription(jobName + " Descriptive Text.");
+        newJob.setExternalData(jobName + " External data.");
+        newJob.setTask(workerActionTask);
+
+        return newJob;
+    }
+
+
+    /**
+     * A function that might throw.
+     */
+    @FunctionalInterface
+    private interface MaybeFail {
+        void run() throws Exception;
+    }
+
+
+    /**
+     * Assert that an API call fails with a specific error.
+     *
+     * @param status HTTP status code to expect
+     * @param apiCall Function which calls the API
+     */
+    private void assertThrowsApiException(final Response.Status status, final MaybeFail apiCall) {
+        ApiException apiErr = null;
+        try {
+            apiCall.run();
+        } catch (ApiException e) {
+            apiErr = e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        assertNotNull(apiErr, "API call should fail");
+        assertEquals(apiErr.getCode(), status.getStatusCode(), "error code should be " + status);
+    }
+
     @BeforeTest
     public void setup() throws Exception {
-        projectId = UUID.randomUUID().toString();
+        defaultPartitionId = UUID.randomUUID().toString();
         connectionString = System.getenv("webserviceurl");
         
         //Populate maps for testing    
@@ -135,31 +185,13 @@ public class JobServiceIT {
     public void testCreateJob() throws ApiException {
         //create a job
         String jobId = UUID.randomUUID().toString();
-        String jobName = "Job_" +jobId;
-        String jobDesc = jobName +" Descriptive Text.";
         String jobCorrelationId = "1";
-        String jobExternalData = jobName +" External data.";
-        int taskApiVer = 1;
+        final NewJob newJob = makeJob(jobId, "testCreateJob");
 
-        //create a WorkerAction task
-        WorkerAction workerActionTask = new WorkerAction();
-        workerActionTask.setTaskClassifier(jobName +"_testCancelJob");
-        workerActionTask.setTaskApiVersion(taskApiVer);
-        workerActionTask.setTaskData(jobName +"_TaskClassifier Sample Test Task Data.");
-        workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
-        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
-        workerActionTask.setTargetPipe("Queue_" +jobId);
-
-        NewJob newJob = new NewJob();
-        newJob.setName(jobName);
-        newJob.setDescription(jobDesc);
-        newJob.setExternalData(jobExternalData);
-        newJob.setTask(workerActionTask);
-
-        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
         //retrieve job using web method
-        Job retrievedJob = jobsApi.getJob(jobId, jobCorrelationId);
+        Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
         assertEquals(retrievedJob.getId(), jobId);
         assertEquals(retrievedJob.getName(), newJob.getName());
@@ -173,31 +205,13 @@ public class JobServiceIT {
     public void testJobIsActive() throws ApiException {
         //create a job
         String jobId = UUID.randomUUID().toString();
-        String jobName = "Job_" +jobId;
-        String jobDesc = jobName +" Descriptive Text.";
         String jobCorrelationId = "1";
-        String jobExternalData = jobName +" External data.";
-        int taskApiVer = 1;
+        final NewJob newJob = makeJob(jobId, "testJobIsActive");
 
-        //create a WorkerAction task
-        WorkerAction workerActionTask = new WorkerAction();
-        workerActionTask.setTaskClassifier(jobName +"_testCancelJob");
-        workerActionTask.setTaskApiVersion(taskApiVer);
-        workerActionTask.setTaskData(jobName +"_TaskClassifier Sample Test Task Data.");
-        workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
-        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
-        workerActionTask.setTargetPipe("Queue_" +jobId);
-
-        NewJob newJob = new NewJob();
-        newJob.setName(jobName);
-        newJob.setDescription(jobDesc);
-        newJob.setExternalData(jobExternalData);
-        newJob.setTask(workerActionTask);
-
-        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
         // Check if job is active.
-        boolean isActive = jobsApi.getJobActive(jobId, jobCorrelationId);
+        boolean isActive = jobsApi.getJobActive(defaultPartitionId, jobId, jobCorrelationId);
 
         // Job will be in a 'Waiting' state, which is assumed as being Active.
         assertTrue(isActive);
@@ -207,40 +221,21 @@ public class JobServiceIT {
     public void testDeleteJob() throws ApiException {
         //create a job
         String jobId = UUID.randomUUID().toString();
-        String jobName = "Job_" +jobId;
-        String jobDesc = jobName +" Descriptive Text.";
         String jobCorrelationId = "1";
-        String jobExternalData = jobName +" External data.";
-        int taskApiVer = 1;
-        String taskClassifier = jobName +"_testCancelJob";
+        final NewJob newJob = makeJob(jobId, "testDeleteJob");
 
-        //create a WorkerAction task
-        WorkerAction workerActionTask = new WorkerAction();
-        workerActionTask.setTaskClassifier(jobName +"_testCancelJob");
-        workerActionTask.setTaskApiVersion(taskApiVer);
-        workerActionTask.setTaskData(jobName +"_TaskClassifier Sample Test Task Data.");
-        workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
-        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
-        workerActionTask.setTargetPipe("Queue_" +jobId);
-
-        NewJob newJob = new NewJob();
-        newJob.setName(jobName);
-        newJob.setDescription(jobDesc);
-        newJob.setExternalData(jobExternalData);
-        newJob.setTask(workerActionTask);
-
-        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
         //make sure the job is there
-        Job retrievedJob = jobsApi.getJob(jobId, jobCorrelationId);
+        Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
         assertEquals(retrievedJob.getId(), jobId);
 
         //delete the job
-        jobsApi.deleteJob(jobId, jobCorrelationId);
+        jobsApi.deleteJob(defaultPartitionId, jobId, jobCorrelationId);
 
         //make sure the job does not exist
         try {
-            jobsApi.getJob(jobId, jobCorrelationId).getDescription();
+            jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId).getDescription();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("\"message\":\"ERROR: job_id {" +jobId +"} not found"),
                     "Exception Message should return JobId not found");
@@ -252,30 +247,13 @@ public class JobServiceIT {
     public void testCreateJobWithTaskData_Object() throws ApiException {
         //create a job
         String jobId = UUID.randomUUID().toString();
-        String jobName = "Job_" +jobId;
-        String jobDesc = jobName +" Descriptive Text.";
         String jobCorrelationId = "1";
-        String jobExternalData = jobName +" External data.";
-        int taskApiVer = 1;
+        final NewJob newJob = makeJob(jobId, "testObjectJob");
 
-        //create a WorkerAction task
-        WorkerAction workerActionTask = new WorkerAction();
-        workerActionTask.setTaskClassifier(jobName +"_testObjectJob");
-        workerActionTask.setTaskApiVersion(taskApiVer);
-        workerActionTask.setTaskData(testDataObjectMap);
-        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
-        workerActionTask.setTargetPipe("Queue_" +jobId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
-        NewJob newJob = new NewJob();
-        newJob.setName(jobName);
-        newJob.setDescription(jobDesc);
-        newJob.setExternalData(jobExternalData);
-        newJob.setTask(workerActionTask);
-
-        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
-        
-         //retrieve job using web method
-        Job retrievedJob = jobsApi.getJob(jobId, jobCorrelationId);
+        //retrieve job using web method
+        Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
         assertEquals(retrievedJob.getId(), jobId);
         assertEquals(retrievedJob.getName(), newJob.getName());
@@ -308,11 +286,11 @@ public class JobServiceIT {
             newJob.setExternalData(jobExternalData);
             newJob.setTask(workerActionTask);
 
-            jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         }
 
         //retrieve the jobs
-        List<Job> retrievedJobs = jobsApi.getJobs("100",null,null,null,null);
+        List<Job> retrievedJobs = jobsApi.getJobs(defaultPartitionId, "100",null,null,null,null);
 
         //test to make sure at least the 10 jobs created are returned. Unable to filter by cafCorrelationID
         assertTrue(retrievedJobs.size()>=10);
@@ -336,34 +314,16 @@ public class JobServiceIT {
     public void testCancelJob() throws ApiException {
         //create a job
         String jobId = UUID.randomUUID().toString();
-        String jobName = "Job_" +jobId;
-        String jobDesc = jobName +" Descriptive Text.";
         String jobCorrelationId = "1";
-        String jobExternalData = jobName +" External data.";
-        int taskApiVer = 1;
+        final NewJob newJob = makeJob(jobId, "testCancelJob");
 
-        //create a WorkerAction task
-        WorkerAction workerActionTask = new WorkerAction();
-        workerActionTask.setTaskClassifier(jobName +"_testCancelJob");
-        workerActionTask.setTaskApiVersion(taskApiVer);
-        workerActionTask.setTaskData(jobName +"_TaskClassifier Sample Test Task Data.");
-        workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
-        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
-        workerActionTask.setTargetPipe("Queue_" +jobId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
-        NewJob newJob = new NewJob();
-        newJob.setName(jobName);
-        newJob.setDescription(jobDesc);
-        newJob.setExternalData(jobExternalData);
-        newJob.setTask(workerActionTask);
+        final Job initialJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+        jobsApi.cancelJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        final Job initialJob = jobsApi.getJob(jobId, jobCorrelationId);
-
-        jobsApi.cancelJob(jobId, jobCorrelationId);
-
-        Job cancelledJob = jobsApi.getJob(jobId, jobCorrelationId);
+        Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
         assertEquals(cancelledJob.getStatus(), Job.StatusEnum.CANCELLED);
         assertTrue(cancelledJob.getLastUpdateTime().after(initialJob.getLastUpdateTime()),
@@ -376,39 +336,136 @@ public class JobServiceIT {
     @Test
     public void testCancelJobTwice() throws ApiException {
         String jobId = UUID.randomUUID().toString();
-        String jobName = "Job_" + jobId;
-        String jobDesc = jobName + " Descriptive Text.";
         String jobCorrelationId = "1";
-        String jobExternalData = jobName +" External data.";
-        int taskApiVer = 1;
+        final NewJob newJob = makeJob(jobId, "testCancelJobTwice");
 
-        WorkerAction workerActionTask = new WorkerAction();
-        workerActionTask.setTaskClassifier(jobName + "_testCancelJobTwice");
-        workerActionTask.setTaskApiVersion(taskApiVer);
-        workerActionTask.setTaskData(jobName + "_TaskClassifier Sample Test Task Data.");
-        workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
-        workerActionTask.setTaskPipe("TaskQueue_" + jobId);
-        workerActionTask.setTargetPipe("Queue_" + jobId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        final Job initialJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        NewJob newJob = new NewJob();
-        newJob.setName(jobName);
-        newJob.setDescription(jobDesc);
-        newJob.setExternalData(jobExternalData);
-        newJob.setTask(workerActionTask);
+        jobsApi.cancelJob(defaultPartitionId, jobId, jobCorrelationId);
+        final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
-        final Job initialJob = jobsApi.getJob(jobId, jobCorrelationId);
-
-        jobsApi.cancelJob(jobId, jobCorrelationId);
-        final Job cancelledJob = jobsApi.getJob(jobId, jobCorrelationId);
-
-        jobsApi.cancelJob(jobId, jobCorrelationId); // shouldn't throw
-        final Job cancelledAgainJob = jobsApi.getJob(jobId, jobCorrelationId);
+        jobsApi.cancelJob(defaultPartitionId, jobId, jobCorrelationId); // shouldn't throw
+        final Job cancelledAgainJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
         assertEquals(cancelledJob.getStatus(), Job.StatusEnum.CANCELLED,
             "status should remain cancelled");
         assertEquals(cancelledJob.getLastUpdateTime(), cancelledAgainJob.getLastUpdateTime(),
             "last-update-time should not be updated on second cancel");
+    }
+
+    @Test
+    public void testGetJobFromDifferentPartition() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String jobCorrelationId = "1";
+        final NewJob newJob = makeJob(jobId, "testGetJobFromDifferentPartition");
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        assertThrowsApiException(Response.Status.NOT_FOUND,
+            () -> jobsApi.getJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
+    }
+
+    @Test
+    public void testGetJobWithDepsFromDifferentPartition() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String jobCorrelationId = "1";
+        final NewJob newJob = makeJob(jobId, "testGetJobWithDepsFromDifferentPartition");
+        newJob.setPrerequisiteJobIds(Collections.singletonList(UUID.randomUUID().toString()));
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        assertThrowsApiException(Response.Status.NOT_FOUND,
+            () -> jobsApi.getJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
+    }
+
+    @Test
+    public void testCreateJobInMultiplePartitions() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String jobCorrelationId = "1";
+        final NewJob newJob1 = makeJob(jobId, "testCreateJobInMultiplePartitions-1");
+        final String partitionId2 = UUID.randomUUID().toString();
+        final NewJob newJob2 = makeJob(jobId, "testCreateJobInMultiplePartitions-2");
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob1, jobCorrelationId);
+        // shouldn't throw
+        jobsApi.createOrUpdateJob(partitionId2, jobId, newJob2, jobCorrelationId);
+        jobsApi.getJob(partitionId2, jobId, jobCorrelationId);
+    }
+
+    @Test
+    public void testCreateJobWithDepsInMultiplePartitions() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String jobCorrelationId = "1";
+        final NewJob newJob1 = makeJob(jobId, "testCreateJobWithDepsInMultiplePartitions-1");
+        final String partitionId2 = UUID.randomUUID().toString();
+        final NewJob newJob2 = makeJob(jobId, "testCreateJobWithDepsInMultiplePartitions-2");
+        newJob2.setPrerequisiteJobIds(Collections.singletonList(UUID.randomUUID().toString()));
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob1, jobCorrelationId);
+        // shouldn't throw
+        jobsApi.createOrUpdateJob(partitionId2, jobId, newJob2, jobCorrelationId);
+        jobsApi.getJob(partitionId2, jobId, jobCorrelationId);
+    }
+
+    @Test
+    public void testDeleteJobFromDifferentPartition() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String jobCorrelationId = "1";
+        final NewJob newJob = makeJob(jobId, "testDeleteJobFromDifferentPartition");
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        assertThrowsApiException(Response.Status.NOT_FOUND,
+            () -> jobsApi.deleteJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
+        final Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+        assertEquals(job.getStatus(), Job.StatusEnum.WAITING, "job should still be waiting");
+    }
+
+    @Test
+    public void testCancelJobFromDifferentPartition() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String jobCorrelationId = "1";
+        final NewJob newJob = makeJob(jobId, "testCancelJobFromDifferentPartition");
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        assertThrowsApiException(Response.Status.NOT_FOUND,
+            () -> jobsApi.cancelJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
+        final Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+        assertEquals(job.getStatus(), Job.StatusEnum.WAITING, "job should still be waiting");
+    }
+
+    @Test
+    public void testGetJobActiveFromDifferentPartition() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String jobCorrelationId = "1";
+        final NewJob newJob = makeJob(jobId, "testGetJobActiveFromDifferentPartition");
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        assertFalse(
+            jobsApi.getJobActive(UUID.randomUUID().toString(), jobId, jobCorrelationId),
+            "should not be active");
+    }
+
+    @Test
+    public void testGetJobsFromDifferentPartition() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String jobCorrelationId = "1";
+        final NewJob newJob = makeJob(jobId, "testGetJobsFromDifferentPartition");
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        final List<Job> jobs =
+            jobsApi.getJobs(UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null);
+        assertEquals(jobs.size(), 0, "job list should be empty");
+    }
+
+    @Test
+    public void testGetJobsCountFromDifferentPartition() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String jobCorrelationId = "1";
+        final NewJob newJob = makeJob(jobId, "testGetJobsCountFromDifferentPartition");
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        final long count =
+            jobsApi.getJobsCount(UUID.randomUUID().toString(), jobCorrelationId, null, null);
+        assertEquals(count, 0, "job count should be zero");
     }
 
     /**
@@ -447,7 +504,8 @@ public class JobServiceIT {
         //get values of environment variables stored in the task message, making sure
         String statusCheckUrl = System.getenv("CAF_WEBSERVICE_URL");
         if(statusCheckUrl!=null) {
-            statusCheckUrl = statusCheckUrl + "/jobs/" + jobId + "/isActive";
+            statusCheckUrl = statusCheckUrl +
+                "/partitions/" + defaultPartitionId + "/jobs/" + jobId + "/isActive";
         } else {
             throw new Exception("CAF_WEBSERVICE_URL environment variable is null.");
         }
@@ -461,13 +519,22 @@ public class JobServiceIT {
             throw new Exception("CAF_TRACKING_PIPE environment variable is null.");
 
         //create expectation object for comparing message on RabbitMQ
-        JobServiceTrackingInfoExpectation expectation = new JobServiceTrackingInfoExpectation(jobId, statusCheckTime, statusCheckUrl,
-                trackingPipe, trackingToQueue, true);
+        JobServiceTrackingInfoExpectation expectation = new JobServiceTrackingInfoExpectation(
+            defaultPartitionId, jobId, statusCheckTime, statusCheckUrl,
+            trackingPipe, trackingToQueue, true);
 
-        testMessagesPutOnQueue(testQueue, expectation, jobId, newJob, jobCorrelationId);
+        testMessagesPutOnQueue(
+            testQueue, expectation, defaultPartitionId, jobId, newJob, jobCorrelationId);
     }
 
-    public void testMessagesPutOnQueue(final String taskQueue, final JobServiceTrackingInfoExpectation expectation, String jobId, NewJob newJob, String jobCorrelationId) throws Exception {
+    public void testMessagesPutOnQueue(
+        final String taskQueue,
+        final JobServiceTrackingInfoExpectation expectation,
+        final String partitionId,
+        String jobId,
+        NewJob newJob,
+        String jobCorrelationId
+    ) throws Exception {
         try (QueueManager queueManager = getQueueManager(taskQueue)) {
             ExecutionContext context = new ExecutionContext(false);
             context.initializeContext();
@@ -475,7 +542,7 @@ public class JobServiceIT {
             Thread thread = queueManager.start(new JobServiceOutputDeliveryHandler(context, expectation));
 
             //call web method to create the new job and put message on queue
-            jobsApi.createOrUpdateJob(jobId, newJob, jobCorrelationId);
+            jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
 
             TestResult result = context.getTestResult();
             assertTrue(result.isSuccess());

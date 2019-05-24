@@ -19,9 +19,17 @@
  *
  *  Description:
  *  Marks the specified task complete.
+ *
+ *   - in_short_task_id: additional identification for the same task - see
+ *                       com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
-CREATE OR REPLACE FUNCTION report_complete(in_task_id VARCHAR(58))
+CREATE OR REPLACE FUNCTION report_complete(
+    in_partition_id VARCHAR(40),
+    in_task_id VARCHAR(58),
+    in_short_task_id VARCHAR(58)
+)
 RETURNS TABLE(
+    partition_id VARCHAR(40),
     job_id VARCHAR(48),
     task_classifier VARCHAR(255),
     task_api_version INT,
@@ -33,6 +41,7 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     v_job_id VARCHAR(48);
+    v_short_job_id VARCHAR(48);
     v_job_status job_status;
 
 BEGIN
@@ -43,12 +52,14 @@ BEGIN
 
     -- Get the job id
     v_job_id = internal_get_job_id(in_task_id);
+    v_short_job_id = internal_get_job_id(in_short_task_id);
 
     -- Get the job status
     -- And take out an exclusive update lock on the job row
     SELECT status INTO v_job_status
     FROM job j
-    WHERE j.job_id = v_job_id
+    WHERE j.partition_id = in_partition_id
+        AND j.job_id = v_job_id
     FOR UPDATE;
 
     -- Check that the job hasn't been deleted, cancelled or completed
@@ -57,13 +68,13 @@ BEGIN
     END IF;
 
     -- Update the task statuses in the tables
-    PERFORM internal_report_task_status(in_task_id, 'Completed', 100.00, NULL);
+    PERFORM internal_report_task_status(in_partition_id, in_task_id, in_short_task_id, 'Completed', 100.00, NULL);
 
     -- If job has just completed, then return any jobs that can now be run
-    IF internal_is_task_completed(v_job_id) THEN
+    IF internal_is_task_completed(in_partition_id, v_job_id, v_short_job_id) THEN
         -- Get a list of jobs that can run immediately and update the eligibility run date for others
         RETURN QUERY
-        SELECT * FROM internal_process_dependent_jobs(v_job_id);
+        SELECT * FROM internal_process_dependent_jobs(in_partition_id, v_job_id);
     END IF;
 END
 $$;

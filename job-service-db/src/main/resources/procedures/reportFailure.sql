@@ -19,9 +19,14 @@
  *
  *  Description:
  *  Update the specified task and subsequent parent tasks/job with the failure details.
+ *
+ *   - in_short_task_id: additional identification for the same task - see
+ *                       com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
 CREATE OR REPLACE FUNCTION report_failure(
+    in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58),
+    in_short_task_id VARCHAR(58),
     in_failure_details TEXT
 )
 RETURNS VOID
@@ -48,8 +53,9 @@ BEGIN
     -- Get the job status
     -- And take out an exclusive update lock on the job row
     SELECT status INTO v_job_status
-    FROM job
-    WHERE job_id = v_job_id
+    FROM job AS j
+    WHERE j.partition_id = in_partition_id
+        AND j.job_id = v_job_id
     FOR UPDATE;
 
     -- Check that the job hasn't been deleted, cancelled or completed
@@ -58,6 +64,6 @@ BEGIN
     END IF;
 
     -- Update the task statuses in the tables
-    PERFORM internal_report_task_status(in_task_id, 'Failed', 0.00, in_failure_details);
+    PERFORM internal_report_task_status(in_partition_id, in_task_id, in_short_task_id, 'Failed', 0.00, in_failure_details);
 END
 $$;

@@ -21,6 +21,11 @@ package com.hpe.caf.services.job.api;
 public class JobServiceTrackingInfoExpectation {
 
     /**
+     * The partition identifier of the task under test.
+     */
+    private final String partitionId;
+
+    /**
      * The job task identifier of the task under test.
      */
     private String jobTaskId;
@@ -51,13 +56,26 @@ public class JobServiceTrackingInfoExpectation {
      */
     private boolean trackingInfoPresent;
 
-    public JobServiceTrackingInfoExpectation(String jobTaskId, String statusCheckTime, String statusCheckUrl, String trackingPipe, String trackingTo, boolean trackingInfoPresent) {
+    public JobServiceTrackingInfoExpectation(
+        final String partitionId,
+        String jobTaskId,
+        String statusCheckTime,
+        String statusCheckUrl,
+        String trackingPipe,
+        String trackingTo,
+        boolean trackingInfoPresent
+    ) {
+        this.partitionId = partitionId;
         this.jobTaskId = jobTaskId;
         this.statusCheckTime = statusCheckTime;
         this.statusCheckUrl = statusCheckUrl;
         this.trackingPipe = trackingPipe;
         this.trackingTo = trackingTo;
         this.trackingInfoPresent = trackingInfoPresent;
+    }
+
+    public String getPartitionId() {
+        return partitionId;
     }
 
     public String getJobTaskId() {

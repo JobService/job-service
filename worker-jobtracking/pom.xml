@@ -45,6 +45,10 @@
             <artifactId>worker-jobtracking-shared</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-caf</artifactId>
         </dependency>
@@ -60,6 +64,10 @@
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>

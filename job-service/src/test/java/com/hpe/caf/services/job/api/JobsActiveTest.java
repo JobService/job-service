@@ -42,7 +42,8 @@ public final class JobsActiveTest {
     public void setup() throws Exception {
 
         //  Mock DatabaseHelper calls.
-        Mockito.when(mockDatabaseHelper.isJobActive(Mockito.anyString())).thenReturn(true);
+        Mockito.when(mockDatabaseHelper.isJobActive(Mockito.anyString(), Mockito.anyString()))
+            .thenReturn(true);
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(Mockito.any()).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
@@ -64,34 +65,35 @@ public final class JobsActiveTest {
     @Test
     public void testIsJobActive_Success() throws Exception {
         //  Test successful run of job isActive.
-        JobsActive.JobsActiveResult result = JobsActive.isJobActive("067e6162-3b6f-4ae2-a171-2470b63dff00");
+        JobsActive.JobsActiveResult result =
+            JobsActive.isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
 
         Assert.assertTrue(result.active);
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).isJobActive(Mockito.anyString());
+        Mockito.verify(mockDatabaseHelper, Mockito.times(1))
+            .isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
     }
 
     @Test(expected = BadRequestException.class)
     public void testIsJobActive_Failure_EmptyJobId() throws Exception {
         //  Test failed run of job isActive with empty job id.
-        JobsActive.JobsActiveResult result = JobsActive.isJobActive("");
+        JobsActive.isJobActive("partition", "");
+    }
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(0)).isJobActive(Mockito.anyString());
+    @Test(expected = BadRequestException.class)
+    public void testIsJobActive_Failure_EmptyPartitionId() throws Exception {
+        JobsActive.isJobActive("", "067e6162-3b6f-4ae2-a171-2470b63dff00");
     }
 
     @Test(expected = BadRequestException.class)
     public void testIsJobActive_Failure_InvalidJobId_Period() throws Exception {
         //  Test failed run of job isActive with job id containing invalid characters.
-        JobsActive.JobsActiveResult result = JobsActive.isJobActive("067e6162-3b6f-4ae2-a171-2470b.3dff00");
-
-        Mockito.verify(mockDatabaseHelper, Mockito.times(0)).isJobActive(Mockito.anyString());
+        JobsActive.isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00");
     }
 
     @Test(expected = BadRequestException.class)
     public void testIsJobActive_Failure_InvalidJobId_Asterisk() throws Exception {
         //  Test failed run of job isActive with job id containing invalid characters.
-        JobsActive.JobsActiveResult result = JobsActive.isJobActive("067e6162-3b6f-4ae2-a171-2470b*3dff00");
-
-        Mockito.verify(mockDatabaseHelper, Mockito.times(0)).isJobActive(Mockito.anyString());
+        JobsActive.isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00");
     }
 
 }
