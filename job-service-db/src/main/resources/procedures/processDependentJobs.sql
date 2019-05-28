@@ -47,15 +47,18 @@ BEGIN
         WHERE jd.partition_id = in_partition_id
             AND jd.dependent_job_id = in_job_id;
 
-    -- lock rows
---     PERFORM NULL FROM public.job WHERE job.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs)
---             ORDER BY job.job_id ASC FOR UPDATE;
-
     -- Remove corresponding dependency related rows for jobs that can be processed immediately
     DELETE
     FROM job_dependency AS jd
     WHERE jd.partition_id = in_partition_id
         AND jd.dependent_job_id = in_job_id;
+
+    -- Ensure that no other `job_dependency` deletion can run until we've committed, so we don't
+    -- miss the deletion of the last dependency
+    PERFORM NULL FROM job_dependency AS jd
+    WHERE jd.partition_id = in_partition_id
+        AND jd.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs)
+    FOR KEY SHARE;
 
     --Set the eligible_to_run_date for jobs with a delay, these will be picked up by scheduled executor
     UPDATE job_task_data
