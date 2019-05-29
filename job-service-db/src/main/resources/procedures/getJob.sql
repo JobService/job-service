@@ -35,8 +35,7 @@ RETURNS TABLE(
     status job_status,
     percentage_complete DOUBLE PRECISION,
     failure_details TEXT,
-    actionType CHAR(6),
-    can_be_progressed BOOLEAN
+    actionType CHAR(6)
 )
 LANGUAGE plpgsql STABLE
 AS $$
@@ -58,12 +57,8 @@ BEGIN
            job.status,
            job.percentage_complete,
            job.failure_details,
-           CAST('WORKER' AS CHAR(6)) AS actionType,
-           jtd.job_id IS NULL AS can_be_progressed
+           CAST('WORKER' AS CHAR(6)) AS actionType
     FROM job
-    LEFT JOIN job_task_data AS jtd
-        ON jtd.partition_id = job.partition_id
-        AND jtd.job_id = job.job_id
     WHERE job.partition_id = in_partition_id
         AND job.job_id = in_job_id;
 
