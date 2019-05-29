@@ -446,6 +446,21 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
     }
 
+    // testing creation of 2 job-dependency rows for the same parent job
+    @Test
+    public void testJobWithPrerequisiteJobsNotCompleted() throws Exception
+    {
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+
+        final String parentJobId = generateJobId();
+        final String child1JobId = generateJobId();
+        final String child2JobId = generateJobId();
+        createJobWithPrerequisites(parentJobId, true, 0, child1JobId, child2JobId);
+
+        JobServiceDatabaseUtil.assertJobStatus(parentJobId, "waiting");
+    }
+
     @Test
     public void testJobWithPrerequisiteJobs() throws Exception
     {

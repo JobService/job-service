@@ -63,7 +63,7 @@
         <addPrimaryKey schemaName="public"
                        tableName="job_dependency"
                        constraintName="pk_job_dependency"
-                       columnNames="partition_id, job_id" />
+                       columnNames="partition_id, job_id, dependent_job_id" />
         <addForeignKeyConstraint baseTableSchemaName="public"
                                  baseTableName="job_dependency"
                                  constraintName="fk_job_dependency"
