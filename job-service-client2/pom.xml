@@ -40,13 +40,14 @@
     <properties>
         <copyrightYear>2018</copyrightYear>
         <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Micro Focus or one of its affiliates.</copyrightNotice>
+        <swagger-contract-version>${project.version}</swagger-contract-version>
     </properties>
 
     <dependencies>
        <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-contract</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
+            <version>${swagger-contract-version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -83,7 +84,7 @@
                     <dependency>
                         <groupId>com.github.jobservice</groupId>
                         <artifactId>job-service-contract</artifactId>
-                        <version>3.0.0-SNAPSHOT</version>
+                        <version>${swagger-contract-version}</version>
                     </dependency>
                 </dependencies>
                 <executions>
