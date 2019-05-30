@@ -72,7 +72,7 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service</artifactId>
-                <version>${project.version}</version>
+                <version>3.0.0-SNAPSHOT</version>
                 <type>war</type>
             </dependency>
             <dependency>
