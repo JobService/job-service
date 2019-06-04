@@ -5,7 +5,7 @@ ${version-number}
 
 #### Breaking Changes
 
-- [SCMOD-6182](https://portal.digitalsafe.net/browse/SCMOD-6182): Job partitions
+- [SCMOD-6622](https://portal.digitalsafe.net/browse/SCMOD-6622): Job partitions  
        Jobs are organised into partitions.  All API requests must provide a partition ID in the request path.
 
 #### New Features
