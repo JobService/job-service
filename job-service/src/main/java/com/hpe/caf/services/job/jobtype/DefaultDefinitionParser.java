@@ -220,16 +220,10 @@ public final class DefaultDefinitionParser implements DefinitionParser {
         public JsonNode getParametersSchema()
             throws InvalidJobTypeDefinitionException
         {
-            final Object schema = jobParametersSchema == null ?
-                DEFAULT_JOB_PARAMETERS_SCHEMA :
-                jobParametersSchema;
-            try {
-                return objectMapper.convertValue(schema, JsonNode.class);
-            } catch (final IllegalArgumentException e) {
-                // should never happen
-                throw new InvalidJobTypeDefinitionException(
-                    getId() + ": invalid jobParametersSchema", e);
-            }
+            // should never fail
+            return objectMapper.convertValue(
+                jobParametersSchema == null ? DEFAULT_JOB_PARAMETERS_SCHEMA : jobParametersSchema,
+                JsonNode.class);
         }
 
         public void setTaskDataScript(final String taskDataScript) {

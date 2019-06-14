@@ -89,7 +89,12 @@ public final class JobType {
         task.setTargetPipe(targetPipe);
         final JsonNode taskData = taskDataBuilder.build(partitionId, jobId, parameters);
         // job-put expects `Map` (or `String`), but only does a shallow type check
-        task.setTaskData(objectMapper.convertValue(taskData, Map.class));
+        try {
+            task.setTaskData(objectMapper.convertValue(taskData, Map.class));
+        } catch (final IllegalArgumentException e) {
+            throw new InvalidJobTypeDefinitionException(
+                id + ": incorrect output type for taskDataScript", e);
+        }
         return task;
     }
 

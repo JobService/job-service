@@ -104,6 +104,7 @@ final class JsltTaskDataBuilder implements TaskDataBuilder {
         input.put("partitionId", partitionId);
         input.put("jobId", jobId);
         input.put("parameters", parameters);
+        // should never fail
         final JsonNode inputJson = objectMapper.convertValue(input, JsonNode.class);
 
         try {
