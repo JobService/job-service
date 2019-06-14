@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Exactly one of task and job should be specified.
+ */
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-03-03T15:07:30.523Z")
 @XmlRootElement(name = "NewJob")
 public class NewJob   {
@@ -31,6 +34,7 @@ public class NewJob   {
     private String description = null;
     private String externalData = null;
     private WorkerAction task = null;
+    private RestrictedTask job = null;
     private List<String> prerequisiteJobIds = null;
     private Integer delay = 0;
 
@@ -106,6 +110,21 @@ public class NewJob   {
     }
     public void setTask(WorkerAction task) {
         this.task = task;
+    }
+
+    public NewJob job(RestrictedTask job) {
+        this.job = job;
+        return this;
+    }
+
+    @JsonProperty("job")
+    @ApiModelProperty(value = "")
+    public RestrictedTask getJob() {
+        return job;
+    }
+
+    public void setJob(RestrictedTask job) {
+        this.job = job;
     }
 
     /**
