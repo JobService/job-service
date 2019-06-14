@@ -26,28 +26,8 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
- * Parser for the standard job type definition format.  Expects a YAML file with the following
- * properties:
- *  - id (string, required): unique identifier for the job type within a job service instance
- *  - taskClassifier (string, required): value to use for `taskClassifier` in the constructed job
- *  - taskApiVersion (integer, required): value to use for `taskApiVersion` in the constructed job
- *  - configurationProperties (list of string, optional):
- *        names of properties to look up in job service configuration.  Checks environment variables
- *        of the form `CAF_JOB_SERVICE_JOB_TYPE_[jobTypeId]_[propertyName]`, where `jobTypeId` and
- *        `propertyName` are transformed to upper-case.
- *  - jobParametersSchema (yaml, optional):
- *        JSON schema used to validate input ('parameters') to `taskDataScript` (below).  If not
- *        provided, input must be `null` or an empty object.  This is provided as directly-embedded
- *        YAML, not a JSON or YAML string.
- *  - taskDataScript (string, required):
- *        JSLT script used to construct task data; see {@link JsltTaskDataBuilder} for a
- *        specification
- *
- * The `taskPipe` and `targetPipe` used in the job (and passed to the `taskDataScript`) are
- * retrieved like values in `configurationProperties`.  That is, looked up in environment variables
- * of the form `CAF_JOB_SERVICE_JOB_TYPE_[jobTypeId]_TASK_PIPE` and
- * `CAF_JOB_SERVICE_JOB_TYPE_[jobTypeId]_TARGET_PIPE`, where `jobTypeId` is transformed to
- * upper-case.
+ * Parser for the standard job type definition format.  See the `Job-Types.md` document for a
+ * specification.
  */
 public final class DefaultDefinitionParser implements DefinitionParser {
     /**

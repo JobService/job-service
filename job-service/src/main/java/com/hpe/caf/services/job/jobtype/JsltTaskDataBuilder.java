@@ -26,19 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Constructs task data using a JSLT script.
- *
- * The script input is an object with the following properties:
- *  - configuration: object containing string values which are fixed for the job type; generally
- *                   obtained from global configuration
- *  - taskPipe: the job's `taskPipe`
- *  - targetPipe: the job's `targetPipe`
- *  - partitionId: partition ID the job will be created in
- *  - jobId: ID the job will have
- *  - parameters: as provided with the submitted job, and already validated according to the job
- *                type definition
- *
- * The script output is the task data object.
+ * Constructs task data using a JSLT script.  See the `Job-Types.md` document for a specification.
  *
  * @see com.schibsted.spt.data.jslt
  */
