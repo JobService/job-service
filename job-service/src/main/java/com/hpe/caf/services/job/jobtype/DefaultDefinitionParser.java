@@ -18,7 +18,6 @@ package com.hpe.caf.services.job.jobtype;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.configuration.AppConfigException;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 
@@ -54,9 +53,9 @@ public final class DefaultDefinitionParser implements DefinitionParser {
     {
         // parse yaml onto a Java object; this fails for unexpected properties and properties with
         // incorrect types, but not missing properties
-        final JobTypeDefinition definition;
+        final Definition definition;
         try {
-            definition = yaml.loadAs(definitionStream, JobTypeDefinition.class);
+            definition = yaml.loadAs(definitionStream, Definition.class);
         } catch (final YAMLException e) {
             throw new InvalidJobTypeDefinitionException("Invalid syntax or format", e);
         }
@@ -78,10 +77,10 @@ public final class DefaultDefinitionParser implements DefinitionParser {
     }
 
 
-    /**
-     * Temporary container for definition contents, parsed directly from yaml.  The yaml library
-     * requires that:
-     *  - this class must be public and (because it's nested) static
+    /*
+     * The static classes below are temporary containers, parsed directly from yaml.  The yaml
+     * library requires that:
+     *  - these classes must be public and (because they're nested) static
      *  - setters must be public
      *  - getters matching setter names must use the same types (eg. `getTaskApiVersion` can't
      *    return `int`)
@@ -90,7 +89,12 @@ public final class DefaultDefinitionParser implements DefinitionParser {
      * missing-value checks, for which setters wouldn't be called anyway.  Getters never return
      * null - you get the provided value, a default value, or an exception.
      */
-    public static final class JobTypeDefinition {
+
+
+    /**
+     * Definition, parsed from yaml.
+     */
+    public static final class Definition {
         /**
          * Default value for `jobParametersScript`.  Must be marked as `Map` even though
          * `jobParametersScript` is `Object` so we can build it in the static block.
@@ -100,7 +104,7 @@ public final class DefaultDefinitionParser implements DefinitionParser {
         private String id;
         private String taskClassifier;
         private Integer taskApiVersion;
-        private List<String> configurationProperties;
+        private List<ConfigurationProperty> configurationProperties;
         private Object jobParametersSchema;
         private String taskDataScript;
 
@@ -168,18 +172,21 @@ public final class DefaultDefinitionParser implements DefinitionParser {
             return targetPipe;
         }
 
-        public void setConfigurationProperties(final List<String> configurationProperties) {
+        public void setConfigurationProperties(
+            final List<ConfigurationProperty> configurationProperties
+        ) {
             this.configurationProperties = configurationProperties;
         }
 
         public Map<String, String> getConfiguration(final AppConfig appConfig)
             throws InvalidJobTypeDefinitionException
         {
-            final List<String> properties = configurationProperties == null ?
+            final List<ConfigurationProperty> properties = configurationProperties == null ?
                 Collections.emptyList() : configurationProperties;
 
             final Map<String, String> configuration = new HashMap<>();
-            for (final String propertyName : properties) {
+            for (final ConfigurationProperty property : properties) {
+                final String propertyName = property.getName(this);
                 final String propertyValue = appConfig.getJobTypeProperty(id, propertyName);
                 if (propertyValue == null) {
                     throw new InvalidJobTypeDefinitionException(
@@ -197,9 +204,7 @@ public final class DefaultDefinitionParser implements DefinitionParser {
             this.jobParametersSchema = jobParametersSchema;
         }
 
-        public JsonNode getParametersSchema()
-            throws InvalidJobTypeDefinitionException
-        {
+        public JsonNode getParametersSchema() {
             // should never fail
             return objectMapper.convertValue(
                 jobParametersSchema == null ? DEFAULT_JOB_PARAMETERS_SCHEMA : jobParametersSchema,
@@ -216,6 +221,38 @@ public final class DefaultDefinitionParser implements DefinitionParser {
                     getId() + ": missing property: taskDataScript");
             }
             return taskDataScript;
+        }
+
+    }
+
+
+    /**
+     * An item in a definition's `configurationProperties`, parsed from yaml.
+     */
+    public static final class ConfigurationProperty {
+        private String name;
+        private String description;
+
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        public String getName(final Definition definition)
+            throws InvalidJobTypeDefinitionException
+        {
+            if (name == null) {
+                throw new InvalidJobTypeDefinitionException(
+                    definition.getId() + ": configurationProperties item: missing property: name");
+            }
+            return name;
+        }
+
+        public void setDescription(final String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description == null ? "" : description;
         }
 
     }

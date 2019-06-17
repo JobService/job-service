@@ -19,7 +19,7 @@ Job Service can be configured with job types by including a number of job type d
 
 To configure Job Service with job types, define the environment variable `CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR`.  This is the path to a directory containing job type definition files with the '.yaml' extension.  Changes to these files do not take effect until Job Service is restarted.
 
-For each job type definition, you must also provide some type-specific configuration.  Every job type must be configured with `taskPipe` and `targetPipe` properties, which will be used directly in the constructed `task` object, and  job type definition may specify additional properties.  To configure these values, define environment variables using the job type ID (specified in the job type definition) and the property name.  For example, a job type with ID `standard_ingest`, defining the additional property `storeName`, must have the following environment variables defined:
+For each job type definition, you must also provide some type-specific configuration.  Every job type must be configured with `taskPipe` and `targetPipe` properties, which will be used directly in the constructed `task` object, and a job type definition may specify additional properties (see `configurationProperties` below).  To configure these values, define environment variables using the job type ID (specified in the job type definition) and the property name.  For example, a job type with ID `standard_ingest`, defining the additional property `storeName`, must have the following environment variables defined:
  
  - `CAF_JOB_SERVICE_JOB_TYPE_STANDARD_INGEST_TASK_PIPE`
  - `CAF_JOB_SERVICE_JOB_TYPE_STANDARD_INGEST_TARGET_PIPE`
@@ -53,9 +53,23 @@ Value used as the `taskClassifier` property in the constructed `task` object.
 ### configurationProperties
 
 - required: false (default: empty array)
-- type: array of strings
+- type: array of objects
 
-Names of properties to look up in the Job Service configuration.
+Properties to look up in the Job Service configuration.  The subsections here correspond to properties of each object.
+
+#### name
+
+- required: true
+- type: string
+
+Property's name.  This defines how the configuration should be provided.
+
+#### description
+
+- required: false (default: empty string)
+- type: string
+
+Notes on what the property means, and what value should be configured for it.
 
 ### jobParametersSchema
 
