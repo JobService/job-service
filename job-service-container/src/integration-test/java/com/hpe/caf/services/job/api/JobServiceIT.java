@@ -15,8 +15,10 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
+import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.config.system.SystemBootstrapConfiguration;
 import com.hpe.caf.naming.ServicePath;
 import com.hpe.caf.services.job.client.ApiClient;
@@ -24,6 +26,7 @@ import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.services.job.client.model.Job;
 import com.hpe.caf.services.job.client.model.NewJob;
+import com.hpe.caf.services.job.client.model.RestrictedTask;
 import com.hpe.caf.services.job.client.model.WorkerAction;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
@@ -32,6 +35,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -43,6 +47,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
 import static org.testng.Assert.*;
 import static org.testng.FileAssert.fail;
@@ -57,6 +62,8 @@ public class JobServiceIT {
     private String defaultPartitionId;
     private ApiClient client = new ApiClient();
     private JobsApi jobsApi;
+    // cleaned up after each test, if assigned
+    private QueueManager testQueueManager;
 
     private static ServicePath servicePath;
     private static WorkerServices workerServices;
@@ -64,7 +71,8 @@ public class JobServiceIT {
     private static RabbitWorkerQueueConfiguration rabbitConfiguration;
     private static String jobServiceOutputQueue;
     private static final long defaultTimeOutMs = 120000; // 2 minutes
-    
+    private final static ObjectMapper objectMapper = new ObjectMapper();
+
     final HashMap<String,Object> testDataObjectMap = new HashMap<>();
     final HashMap<String,String> taskMessageParams = new HashMap<>();
 
@@ -90,6 +98,28 @@ public class JobServiceIT {
         newJob.setDescription(jobName + " Descriptive Text.");
         newJob.setExternalData(jobName + " External data.");
         newJob.setTask(workerActionTask);
+
+        return newJob;
+    }
+
+    /**
+     * @param jobId
+     * @param typeId The job type ID
+     * @param params Input for the job type task data script
+     * @return Restricted job definition to be submitted
+     */
+    private NewJob makeRestrictedJob(final String jobId, final String typeId, final Object params) {
+        final String jobName = "Job_" + jobId;
+
+        final RestrictedTask task = new RestrictedTask();
+        task.setTypeId(typeId);
+        task.setParameters(params);
+
+        final NewJob newJob = new NewJob();
+        newJob.setName(jobName);
+        newJob.setDescription(jobName + " Descriptive Text.");
+        newJob.setExternalData(jobName + " External data.");
+        newJob.setJob(task);
 
         return newJob;
     }
@@ -154,6 +184,13 @@ public class JobServiceIT {
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
         rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
         rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
+    }
+
+    @AfterTest
+    public void tearDown() throws IOException {
+        if (testQueueManager != null) {
+            testQueueManager.close();
+        }
     }
 
     @Test
@@ -527,6 +564,213 @@ public class JobServiceIT {
             testQueue, expectation, defaultPartitionId, jobId, newJob, jobCorrelationId);
     }
 
+    @Test
+    public void testCreateRestrictedJob() throws Exception {
+        testQueueManager = getQueueManager("basic task-pipe");
+        final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, "basic-type", null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
+
+        final Job databaseJob = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
+        assertEquals(databaseJob.getId(), jobId, "job ID in database should be correct");
+        assertEquals(databaseJob.getName(), newJob.getName(), "name in database should be correct");
+        assertEquals(databaseJob.getDescription(), newJob.getDescription(),
+            "description in database should be correct");
+        assertEquals(databaseJob.getExternalData(), newJob.getExternalData(),
+            "external data in database should be correct");
+
+        final TaskMessage messageTask = messageRetriever.get();
+        assertEquals(messageTask.getTaskClassifier(), "basic classifier",
+            "classifier in message should come from job type definition");
+        assertEquals(messageTask.getTaskApiVersion(), 74,
+            "API version in message should come from job type definition");
+        assertEquals(messageTask.getTo(), "basic task-pipe",
+            "task pipe in message should come from configuration");
+        assertEquals(messageTask.getTracking().getTrackTo(), "basic target-pipe",
+            "target pipe in message should come from configuration");
+
+        final JobTypeTestTaskData messageTaskData =
+            objectMapper.readValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
+        assertEquals(messageTaskData.config.size(), 0,
+            "configuration passed to task data script should be empty");
+        assertEquals(messageTaskData.taskQueue, "basic task-pipe",
+            "task pipe passed to task data script should come from configuration");
+        assertEquals(messageTaskData.targetQueue, "basic target-pipe",
+            "target pipe passed to task data script should come from configuration");
+        assertEquals(messageTaskData.partitionIdent, defaultPartitionId,
+            "partition ID passed to task data script should come from request");
+        assertEquals(messageTaskData.jobIdent, jobId,
+            "job ID passed to task data script should come from request");
+        assertNull(messageTaskData.reqParams,
+            "parameters passed to task data script should be null when not provided with request");
+    }
+
+    @Test
+    public void testCreateRestrictedJobWithUnspecifiedType() throws Exception {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, null, null);
+        assertThrowsApiException(Response.Status.BAD_REQUEST,
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+    }
+
+    @Test
+    public void testCreateRestrictedJobWithMissingType() throws Exception {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, "missing", null);
+        assertThrowsApiException(Response.Status.BAD_REQUEST,
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+    }
+
+    @Test
+    public void testCreateRestrictedJobWithWrongCaseType() throws Exception {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, "basic-TYPE", null);
+        assertThrowsApiException(Response.Status.BAD_REQUEST,
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+    }
+
+    @Test
+    public void testCreateRestrictedJobWithTask() throws Exception {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, "basic-type", null);
+        final NewJob newJobWithTask = makeJob(jobId, "testCreateRestrictedJobWithTask");
+        newJob.setTask(newJobWithTask.getTask());
+        assertThrowsApiException(Response.Status.BAD_REQUEST,
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+    }
+
+    // the definition's extension isn't '.yaml', so it should be missing
+    @Test
+    public void testCreateRestrictedJobWithWrongDefinitionExtension() throws Exception {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, "wrong-ext", null);
+        assertThrowsApiException(Response.Status.BAD_REQUEST,
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+    }
+
+    @Test
+    public void testCreateRestrictedJobWithInvalidParamsWithDefaultSchema() throws Exception {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, "basic-type", "params which should be null");
+        assertThrowsApiException(Response.Status.BAD_REQUEST,
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+    }
+
+    @Test
+    public void testCreateRestrictedJobWithConfig() throws Exception {
+        testQueueManager = getQueueManager("config task-pipe");
+        final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, "withConfig", null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
+
+        final JobTypeTestTaskData messageTaskData =
+            objectMapper.readValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
+        assertEquals(messageTaskData.config.get("UPPER"), "upper value",
+            "property with upper-case name should be passed to task data script");
+        assertEquals(messageTaskData.config.get("lower"), "lower value",
+            "property with lower-case name should be passed to task data script");
+        assertEquals(messageTaskData.config.get("multiple"), "multiple value",
+            "property specified with multiple cases should be passed to task data script " +
+                "in lower-case variant");
+        assertEquals(messageTaskData.config.get("MULTIPLE"), "multiple value",
+            "property specified with multiple cases should be passed to task data script " +
+                "in upper-case variant");
+        assertEquals(messageTaskData.config.get("nodesc"), "nodesc value",
+            "property with no description should be passed to task data script");
+        assertEquals(messageTaskData.config.get("number"), "123",
+            "property with numeric value should be passed to task data script as string");
+    }
+
+    @Test
+    public void testCreateRestrictedJobWithParams() throws Exception {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("s", "some value");
+        params.put("a", 289);
+        params.put("b", 4913);
+
+        testQueueManager = getQueueManager("params task-pipe");
+        final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, "withParams", params);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
+
+        final JobTypeTestTaskData messageTaskData =
+            objectMapper.readValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
+        assertEquals(messageTaskData.reqParams.get("s"), "some value",
+            "param s should be passed to task data script");
+        assertEquals(messageTaskData.reqParams.get("a"), 289,
+            "param a should be passed to task data script");
+        assertEquals(messageTaskData.reqParams.get("b"), 4913,
+            "param b should be passed to task data script");
+    }
+
+    @Test
+    public void testCreateRestrictedJobWithInvalidParams() throws Exception {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("s", "some value");
+        params.put("a", "not a number");
+        params.put("b", 4913);
+
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, "withParams", params);
+        assertThrowsApiException(Response.Status.BAD_REQUEST,
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+    }
+
+    @Test
+    public void testCreateRestrictedJobWithComplexTransform() throws Exception {
+        final Map<String, Object> params = new HashMap<>();
+        params.put("forJoin", Arrays.asList("first", "second", "third"));
+        params.put("forJsonConcat", "things\"which should\\be escaped");
+        final Map<String, Number> paramsNumbers = new HashMap<>();
+        paramsNumbers.put("a", -5);
+        paramsNumbers.put("b", 0);
+        params.put("forObjectMap", paramsNumbers);
+
+        testQueueManager = getQueueManager("complex task-pipe");
+        final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, "complexTransform", params);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
+
+        final JobTypeTestTaskData messageTaskData =
+            objectMapper.readValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
+        assertEquals(messageTaskData.reqParams.get("joined"), "first>second>third",
+            "join function should work");
+        assertEquals(messageTaskData.reqParams.get("concatenatedJson"),
+            "{ \"start\": \"things\\\"which should\\\\be escaped_end\" }",
+            "JSON escaping should work");
+        final Map<String, Integer> messageTaskDataNumbers =
+            (Map<String, Integer>) messageTaskData.reqParams.get("mappedObject");
+        assertEquals(messageTaskDataNumbers.get("incremented:a").intValue(), -4,
+            "number a should be incremented");
+        assertEquals(messageTaskDataNumbers.get("incremented:b").intValue(), 1,
+            "number b should be incremented");
+    }
+
+    // the definition is invalid (its task data script produces non-object), so expect HTTP 500
+    @Test
+    public void testCreateRestrictedJobWithInvalidTaskDataOutput() throws Exception {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, "invalidOutput", null);
+        assertThrowsApiException(Response.Status.INTERNAL_SERVER_ERROR,
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+    }
+
     public void testMessagesPutOnQueue(
         final String taskQueue,
         final JobServiceTrackingInfoExpectation expectation,
@@ -549,6 +793,34 @@ public class JobServiceIT {
         }
     }
 
+    /**
+     * Retrieve a single message from a queue.  Call this before triggering the message publish.
+     *
+     * @param queueManager Configured with a specific queue
+     * @return Function to call which waits for the message and returns it.  Throws
+     *         {@link AssertionError} on timeout.
+     * @throws Exception
+     */
+    private Supplier<TaskMessage> getMessageFromQueue(final QueueManager queueManager)
+        throws Exception
+    {
+        final ExecutionContext context = new ExecutionContext(false);
+        context.initializeContext();
+        final Timer timer = getTimer(context);
+
+        final List<TaskMessage> result = new ArrayList<>();
+        queueManager.start(message -> {
+            result.add(message);
+            context.finishedSuccessfully();
+        });
+
+        return () -> {
+            assertTrue(context.getTestResult().isSuccess(),
+                "should publish a message to the queue");
+            return result.get(0);
+        };
+    }
+
     private QueueManager getQueueManager(final String queueName) throws IOException, TimeoutException {
         //Test messages are published to the target pipe specified in the test (jobservice-test-input-1).
         //The test will consume these messages and assert that the results are as expected.
@@ -569,4 +841,20 @@ public class JobServiceIT {
         }, timeout);
         return timer;
     }
+
+
+    /**
+     * Format of task data produced by all test job type definitions.  We use a common structure to
+     * simplify assertions.  Fields purposely have different values from `taskDataScript` input to
+     * ensure we're getting the output and not the input.
+     */
+    final static class JobTypeTestTaskData {
+        public Map<String, String> config;
+        public String taskQueue;
+        public String targetQueue;
+        public String partitionIdent;
+        public String jobIdent;
+        public Map<String, Object> reqParams;
+    }
+
 }

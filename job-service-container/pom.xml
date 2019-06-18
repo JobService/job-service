@@ -77,6 +77,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-client</artifactId>
             <scope>test</scope>
@@ -400,6 +410,12 @@
                                                 <directory>src/main/startup.d/</directory>
                                                 <outputDirectory>startup/startup.d/</outputDirectory>
                                             </fileSet>
+                                            <fileSet>
+                                                <fileMode>0644</fileMode>
+                                                <lineEnding>unix</lineEnding>
+                                                <directory>src/integration-test/resources/job-type-definitions</directory>
+                                                <outputDirectory>test-job-type-definitions</outputDirectory>
+                                            </fileSet>
                                         </fileSets>
                                         <dependencySets>
                                             <dependencySet>
@@ -460,6 +476,23 @@
                                     <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
                                     <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
                                     <SSL_TOMCAT_CA_CERT_LOCATION>/test-keystore/tomcat.keystore</SSL_TOMCAT_CA_CERT_LOCATION>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR>/test-job-type-definitions</CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR>
+
+                                    <CAF_JOB_SERVICE_JOB_TYPE_BASIC-TYPE_TASK_PIPE>basic task-pipe</CAF_JOB_SERVICE_JOB_TYPE_BASIC-TYPE_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_BASIC-TYPE_TARGET_PIPE>basic target-pipe</CAF_JOB_SERVICE_JOB_TYPE_BASIC-TYPE_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_TASK_PIPE>config task-pipe</CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_TARGET_PIPE>config target-pipe</CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_UPPER>upper value</CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_UPPER>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_LOWER>lower value</CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_LOWER>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_MULTIPLE>multiple value</CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_MULTIPLE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_NODESC>nodesc value</CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_NODESC>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_NUMBER>123</CAF_JOB_SERVICE_JOB_TYPE_WITHCONFIG_NUMBER>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_WITHPARAMS_TASK_PIPE>params task-pipe</CAF_JOB_SERVICE_JOB_TYPE_WITHPARAMS_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_WITHPARAMS_TARGET_PIPE>params target-pipe</CAF_JOB_SERVICE_JOB_TYPE_WITHPARAMS_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_COMPLEXTRANSFORM_TASK_PIPE>complex task-pipe</CAF_JOB_SERVICE_JOB_TYPE_COMPLEXTRANSFORM_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_COMPLEXTRANSFORM_TARGET_PIPE>complex target-pipe</CAF_JOB_SERVICE_JOB_TYPE_COMPLEXTRANSFORM_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_INVALIDOUTPUT_TASK_PIPE>invalid-output task-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALIDOUTPUT_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_INVALIDOUTPUT_TARGET_PIPE>invalid-output target-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALIDOUTPUT_TARGET_PIPE>
                                 </env>
                                 <volumes>
                                     <from>

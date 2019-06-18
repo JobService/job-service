@@ -66,6 +66,11 @@
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.9.6</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>2.9.6</version>
             </dependency>
@@ -191,7 +196,7 @@
             <dependency>
                 <groupId>com.schibsted.spt.data</groupId>
                 <artifactId>jslt</artifactId>
-                <version>0.1.8</version>
+                <version>0.1.8</version> <!-- when changing version, update links in Job-Types.md -->
             </dependency>
             <dependency>
                 <groupId>com.sun.jersey</groupId>

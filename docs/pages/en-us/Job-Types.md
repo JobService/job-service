@@ -73,14 +73,14 @@ Notes on what the property means, and what value should be configured for it.
 
 ### jobParametersSchema
 
-- required: false (default: input must be missing or `null`)
+- required: false (default: input must be missing or null)
 - type: YAML (not a string containing JSON or YAML)
 
 An embedded schema which is used to validate parameters provided with the job before executing `taskDataScript` (below).  The schema language is JSON Schema (`draft-03` or `draft-04`); language reference can be found here:
 
 - http://json-schema.org/specification-links.html#draft-4
 
-The schema also serves as documentation for job creators, so it is recommended to use the `description` annotation throughout.
+Parameters can only be specified as an object, so the schema must expect an object as the outer value.  The schema also serves as documentation for job creators, so it is recommended to use the `description` annotation throughout.
 
 ### taskDataScript
 

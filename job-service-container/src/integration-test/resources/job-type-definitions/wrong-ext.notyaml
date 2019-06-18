@@ -1,0 +1,4 @@
+id: wrong-ext
+taskClassifier: classifier
+taskApiVersion: 1
+taskDataScript: {}
