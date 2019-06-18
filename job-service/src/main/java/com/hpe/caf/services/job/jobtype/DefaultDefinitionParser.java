@@ -96,10 +96,10 @@ public final class DefaultDefinitionParser implements DefinitionParser {
      */
     public static final class Definition {
         /**
-         * Default value for `jobParametersScript`.  Must be marked as `Map` even though
-         * `jobParametersScript` is `Object` so we can build it in the static block.
+         * Default value for `jobParametersScript`.
          */
-        private static final Map<String, Object> DEFAULT_JOB_PARAMETERS_SCHEMA;
+        private static final Object DEFAULT_JOB_PARAMETERS_SCHEMA =
+            Collections.singletonMap("type", "null");
 
         private String id;
         private String taskClassifier;
@@ -107,12 +107,6 @@ public final class DefaultDefinitionParser implements DefinitionParser {
         private List<ConfigurationProperty> configurationProperties;
         private Object jobParametersSchema;
         private String taskDataScript;
-
-        static {
-            DEFAULT_JOB_PARAMETERS_SCHEMA = new HashMap<>();
-            DEFAULT_JOB_PARAMETERS_SCHEMA.put("type", Arrays.asList("null", "object"));
-            DEFAULT_JOB_PARAMETERS_SCHEMA.put("additionalProperties", false);
-        }
 
         public void setId(final String id) {
             this.id = id;

@@ -21,7 +21,9 @@ import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.JsltException;
 import com.schibsted.spt.data.jslt.Parser;
+import com.schibsted.spt.data.jslt.filters.TrueJsonFilter;
 
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,7 +74,10 @@ final class JsltTaskDataBuilder implements TaskDataBuilder {
         this.parametersValidator = parametersValidator;
 
         try {
-            script = Parser.compileString(taskDataScript);
+            script = new Parser(new StringReader(taskDataScript))
+                .withSource(jobTypeId)
+                .withObjectFilter(new TrueJsonFilter())
+                .compile();
         } catch (final JsltException e) {
             throw new InvalidJobTypeDefinitionException(
                 jobTypeId + ": invalid taskDataScript", e);

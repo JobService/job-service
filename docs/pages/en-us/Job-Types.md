@@ -73,7 +73,7 @@ Notes on what the property means, and what value should be configured for it.
 
 ### jobParametersSchema
 
-- required: false (default: input must be `null` or an empty object)
+- required: false (default: input must be missing or `null`)
 - type: YAML (not a string containing JSON or YAML)
 
 An embedded schema which is used to validate parameters provided with the job before executing `taskDataScript` (below).  The schema language is JSON Schema (`draft-03` or `draft-04`); language reference can be found here:
@@ -87,7 +87,7 @@ The schema also serves as documentation for job creators, so it is recommended t
 - required: true
 - type: string
 
-An embedded script which is executed to construct the `taskData` part of the `task` object.  The script language is JSLT (version 0.1.8); language reference can be found here:
+An embedded script which is executed to construct the `taskData` part of the `task` object.  The script language is JSLT (version 0.1.8), configured to preserve all output values.  Language reference can be found here:
 
 - https://github.com/schibsted/jslt/blob/0.1.8/tutorial.md
 - https://github.com/schibsted/jslt/blob/0.1.8/functions.md
