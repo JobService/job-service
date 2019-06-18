@@ -317,6 +317,7 @@ definitions:
       typeId:
         type: string
       parameters:
+        type: object
         default: null
   job:
     type: object
