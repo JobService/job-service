@@ -245,10 +245,6 @@ public final class DefaultDefinitionParser implements DefinitionParser {
             this.description = description;
         }
 
-        public String getDescription() {
-            return description == null ? "" : description;
-        }
-
     }
 
 }

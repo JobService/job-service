@@ -46,7 +46,7 @@ public final class DirectoryLoader implements Loader {
     public List<JobType> load() throws IOException, InvalidJobTypeDefinitionException {
         final List<JobType> defns = new ArrayList<>();
         for (final Path file : (Iterable<Path>) Files.list(dir)::iterator) {
-            if (file.toString().endsWith(".yaml")) {
+            if (Files.isRegularFile(file) && file.toString().endsWith(".yaml")) {
                 try (final FileInputStream defnStream = new FileInputStream(file.toFile())) {
                     defns.add(parser.parse(defnStream));
                 }
