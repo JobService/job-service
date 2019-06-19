@@ -38,7 +38,7 @@
 
     <properties>
         <caf.worker-framework.version>3.1.0-490</caf.worker-framework.version>
-        <caf.worker-document-framework.version>4.2.0-SNAPSHOT</caf.worker-document-framework.version>
+        <caf.worker-document-framework.version>4.1.0-292</caf.worker-document-framework.version>
         <copyrightYear>2018</copyrightYear>
         <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Micro Focus or one of its affiliates.</copyrightNotice>
         <dockerHubOrganization>jobservice</dockerHubOrganization>
@@ -47,6 +47,7 @@
         <gitRepo>https://github.com/JobService/job-service</gitRepo>
         <enforceCorrectDependencies>true</enforceCorrectDependencies>
         <jersey-version>1.19</jersey-version>
+        <spring-version>5.1.5.RELEASE</spring-version>
     </properties>
 
     <dependencyManagement>
@@ -336,6 +337,31 @@
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-module-junit4</artifactId>
                 <version>1.6.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${spring-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-expression</artifactId>
+                <version>${spring-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.yaml</groupId>
