@@ -43,8 +43,7 @@ import java.util.stream.Collectors;
 
 public final class JobsPut {
 
-    public static final String ERR_MSG_JOB_TYPE_ID_NOT_SPECIFIED = "The job type ID has not been specified.";
-    public static final String ERR_MSG_JOB_AND_TASK_SPECIFIED = "Specifying both job and task properties is not allowed.";
+    public static final String ERR_MSG_JOB_AND_TASK_SPECIFIED = "Specifying both typeId and task properties is not allowed.";
     public static final String ERR_MSG_TASK_DATA_NOT_SPECIFIED = "The task data has not been specified.";
     public static final String ERR_MSG_TASK_CLASSIFIER_NOT_SPECIFIED = "The task classifier has not been specified.";
     public static final String ERR_MSG_TASK_API_VERSION_NOT_SPECIFIED = "The task api version has not been specified.";
@@ -86,25 +85,19 @@ public final class JobsPut {
 
             // if `job` is provided, construct `task` from it
             final WorkerAction jobTask;
-            if (job.getJob() == null) {
+            if (job.getType() == null) {
                 jobTask = job.getTask();
             } else {
-                if (!ApiServiceUtil.isNotNullOrEmpty(job.getJob().getTypeId())) {
-                    LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_JOB_TYPE_ID_NOT_SPECIFIED);
-                    throw new BadRequestException(ERR_MSG_JOB_TYPE_ID_NOT_SPECIFIED);
-                }
-
                 if (job.getTask() != null) {
                     LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_JOB_AND_TASK_SPECIFIED);
                     throw new BadRequestException(ERR_MSG_JOB_AND_TASK_SPECIFIED);
                 }
 
-                final JsonNode jobParameters = job.getJob().getParameters();
                 jobTask = JobTypes.getInstance()
-                    .getJobType(job.getJob().getTypeId())
+                    .getJobType(job.getType())
                     // treating InvalidJobDefinitionException as server error
                     .buildTask(partitionId, jobId,
-                        jobParameters == null ? NullNode.getInstance() : jobParameters);
+                        job.getParameters() == null ? NullNode.getInstance() : job.getParameters());
             }
 
             //  Make sure the task classifier has been provided.

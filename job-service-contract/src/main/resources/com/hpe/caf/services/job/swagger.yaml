@@ -271,8 +271,13 @@ definitions:
           components.
       task:
         $ref: "#/definitions/worker-action"
-      job:
-        $ref: "#/definitions/restrictedTask"
+      type:
+        type: string
+        description: Execute the job using a specific job type configured on the service.
+      parameters:
+        type: object
+        default: null
+        description: Input to the selected job type.
       prerequisiteJobIds:
         type: array
         items:
@@ -308,17 +313,6 @@ definitions:
         type: string
       targetPipe:
         type: string
-  restrictedTask:
-    type: object
-    description: Defines how the job should be executed, using a specific job type configured on the service.
-    required:
-      - type
-    properties:
-      typeId:
-        type: string
-      parameters:
-        type: object
-        default: null
   job:
     type: object
     properties:

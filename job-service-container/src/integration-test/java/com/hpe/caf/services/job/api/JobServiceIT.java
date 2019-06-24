@@ -26,7 +26,6 @@ import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.services.job.client.model.Job;
 import com.hpe.caf.services.job.client.model.NewJob;
-import com.hpe.caf.services.job.client.model.RestrictedTask;
 import com.hpe.caf.services.job.client.model.WorkerAction;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
@@ -111,15 +110,12 @@ public class JobServiceIT {
     private NewJob makeRestrictedJob(final String jobId, final String typeId, final Object params) {
         final String jobName = "Job_" + jobId;
 
-        final RestrictedTask task = new RestrictedTask();
-        task.setTypeId(typeId);
-        task.setParameters(params);
-
         final NewJob newJob = new NewJob();
         newJob.setName(jobName);
         newJob.setDescription(jobName + " Descriptive Text.");
         newJob.setExternalData(jobName + " External data.");
-        newJob.setJob(task);
+        newJob.setType(typeId);
+        newJob.setParameters(params);
 
         return newJob;
     }
@@ -605,15 +601,6 @@ public class JobServiceIT {
             "job ID passed to task data script should come from request");
         assertNull(messageTaskData.reqParams,
             "parameters passed to task data script should be null when not provided with request");
-    }
-
-    @Test
-    public void testCreateRestrictedJobWithUnspecifiedType() throws Exception {
-        final String jobId = UUID.randomUUID().toString();
-        final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, null, null);
-        assertThrowsApiException(Response.Status.BAD_REQUEST,
-            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
     }
 
     @Test

@@ -88,10 +88,8 @@ public final class JobsPutTest {
      */
     private NewJob makeRestrictedJob(final String typeId, final JsonNode params) {
         final NewJob job = makeBaseJob();
-        final RestrictedTask task = new RestrictedTask();
-        job.setJob(task);
-        task.setTypeId(typeId);
-        task.setParameters(params);
+        job.setType(typeId);
+        job.setParameters(params);
         return job;
     }
    
@@ -214,11 +212,6 @@ public final class JobsPutTest {
 
         //  Test failed run of job creation with job id containing invalid characters.
         JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b6*dff00", validJob);
-    }
-
-    @Test(expected = BadRequestException.class)
-    public void testCreateRestrictedJob_Failure_typeNotSpecified() throws Exception {
-        JobsPut.createOrUpdateJob("partition", "id", makeRestrictedJob(null, null));
     }
 
     @Test(expected = BadRequestException.class)

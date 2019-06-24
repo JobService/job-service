@@ -13,7 +13,7 @@ banner:
 
 # Job Types
 
-Job Service can be configured with job types by including a number of job type definition files.  A new job can specify a job type by omitting the `task` object in the request body, and instead providing a `job` object.  This object includes a `parameters` property, and the job type definition defines how to construct the omitted `task` object from this input.
+Job Service can be configured with job types by including a number of job type definition files.  A new job can specify a job type by omitting the `task` object in the request body, and instead providing `type` and `parameters`.  The job type definition defines how to construct the omitted `task` object from the `parameters` object.
 
 ## Configuring Job Types
 
