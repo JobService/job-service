@@ -387,6 +387,31 @@
                                 </volumes>
                             </build>
                         </image>
+
+                        <!-- Image containing job type definition files for integration tests -->
+                        <image>
+                            <alias>job-type-definitions</alias>
+                            <name>${project.artifactId}-job-type-definitions:${project.version}</name>
+                            <build>
+                                <assembly>
+                                    <basedir>/</basedir>
+                                    <inline>
+                                        <fileSets>
+                                            <fileSet>
+                                                <fileMode>0644</fileMode>
+                                                <lineEnding>unix</lineEnding>
+                                                <directory>src/integration-test/resources/job-type-definitions</directory>
+                                                <outputDirectory>test-job-type-definitions</outputDirectory>
+                                            </fileSet>
+                                        </fileSets>
+                                    </inline>
+                                </assembly>
+                                <volumes>
+                                    <volume>/test-job-type-definitions</volume>
+                                </volumes>
+                            </build>
+                        </image>
+
                         <image>
                             <alias>job-service</alias>
                             <name>${dockerJobServiceOrg}job-service${dockerProjectVersion}</name>
@@ -409,12 +434,6 @@
                                                 <lineEnding>unix</lineEnding>
                                                 <directory>src/main/startup.d/</directory>
                                                 <outputDirectory>startup/startup.d/</outputDirectory>
-                                            </fileSet>
-                                            <fileSet>
-                                                <fileMode>0644</fileMode>
-                                                <lineEnding>unix</lineEnding>
-                                                <directory>src/integration-test/resources/job-type-definitions</directory>
-                                                <outputDirectory>test-job-type-definitions</outputDirectory>
                                             </fileSet>
                                         </fileSets>
                                         <dependencySets>
@@ -499,6 +518,7 @@
                                         <image>keystore</image>
                                         <image>config</image>
                                         <image>webdav</image>
+                                        <image>job-type-definitions</image>
                                     </from>
                                 </volumes>
                                 <links>
