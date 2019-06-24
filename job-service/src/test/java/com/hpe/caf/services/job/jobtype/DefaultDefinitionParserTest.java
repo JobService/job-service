@@ -92,7 +92,7 @@ public class DefaultDefinitionParserTest {
         final Map<String, Map<String, String>> taskData = JobTypeTestUtil.objectMapper.convertValue(
             task.getTaskData(), new TypeReference<Map<String, Map<String, String>>>() {});
         Assert.assertEquals("should fill in empty configuration",
-            Collections.emptyMap(), taskData.get("cfg"));
+            Collections.EMPTY_MAP, taskData.get("cfg"));
 
         // should fill in params schema that expects null
         expectedException.expect(BadRequestException.class);

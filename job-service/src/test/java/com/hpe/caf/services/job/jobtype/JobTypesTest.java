@@ -34,20 +34,20 @@ public class JobTypesTest {
     @Test(expected = BadRequestException.class)
     public void testGetWithNoTypes() throws Exception {
         JobTypes.initialise(() -> Collections.emptyList());
-        JobTypes.getInstance().getjobType("type");
+        JobTypes.getInstance().getJobType("type");
     }
 
     @Test
     public void testGetExistingType() throws Exception {
         JobTypes.initialise(() -> Collections.singletonList(JobTypeTestUtil.testJobType1));
         Assert.assertEquals(JobTypeTestUtil.testJobType1,
-            JobTypes.getInstance().getjobType("id 1"));
+            JobTypes.getInstance().getJobType("id 1"));
     }
 
     @Test(expected = BadRequestException.class)
     public void testUnknownType() throws Exception {
         JobTypes.initialise(() -> Collections.singletonList(JobTypeTestUtil.testJobType1));
-        JobTypes.getInstance().getjobType("id 2");
+        JobTypes.getInstance().getJobType("id 2");
     }
 
     @Test
@@ -56,9 +56,9 @@ public class JobTypesTest {
             JobTypeTestUtil.testJobType1, JobTypeTestUtil.testJobType2
         ));
         Assert.assertEquals(JobTypeTestUtil.testJobType1,
-            JobTypes.getInstance().getjobType("id 1"));
+            JobTypes.getInstance().getJobType("id 1"));
         Assert.assertEquals(JobTypeTestUtil.testJobType2,
-            JobTypes.getInstance().getjobType("id 2"));
+            JobTypes.getInstance().getJobType("id 2"));
     }
 
 }

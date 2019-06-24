@@ -47,20 +47,20 @@ public class JobTypeTest {
             jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
 
         Assert.assertEquals("classifier should be as provided",
-            task.getTaskClassifier(), "classifier");
+            "classifier", task.getTaskClassifier());
         Assert.assertEquals("api version should be as provided",
-            task.getTaskApiVersion().intValue(), 123);
+            123, task.getTaskApiVersion().intValue());
         Assert.assertEquals("task pipe should be as provided",
-            task.getTaskPipe(), "task pipe");
+            "task pipe", task.getTaskPipe());
         Assert.assertEquals("target pipe should be as provided",
-            task.getTargetPipe(), "target pipe");
+            "target pipe", task.getTargetPipe());
 
         final Map<String, Object> expectedTaskData = new HashMap<>();
         expectedTaskData.put("partitionId", "partition id");
         expectedTaskData.put("jobId", "job id");
         expectedTaskData.put("parameters", "params");
         Assert.assertEquals("task data should be as returned by provided builder",
-            task.getTaskData(), expectedTaskData);
+            expectedTaskData, task.getTaskData());
     }
 
     @Test(expected = BadRequestException.class)

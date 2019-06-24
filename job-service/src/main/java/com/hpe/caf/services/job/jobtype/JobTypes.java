@@ -79,7 +79,7 @@ public final class JobTypes {
      * @return Job type with the given ID
      * @throws BadRequestException If there is no job type with the given ID available
      */
-    public JobType getjobType(final String id) throws BadRequestException {
+    public JobType getJobType(final String id) throws BadRequestException {
         final JobType jobType = jobTypes.get(id);
         if (jobType == null) {
             throw new BadRequestException("Unknown job type ID: " + id);

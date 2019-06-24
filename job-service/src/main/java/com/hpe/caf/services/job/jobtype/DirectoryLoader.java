@@ -15,8 +15,8 @@
  */
 package com.hpe.caf.services.job.jobtype;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public final class DirectoryLoader implements Loader {
         final List<JobType> defns = new ArrayList<>();
         for (final Path file : (Iterable<Path>) Files.list(dir)::iterator) {
             if (Files.isRegularFile(file) && file.toString().endsWith(".yaml")) {
-                try (final FileInputStream defnStream = new FileInputStream(file.toFile())) {
+                try (final InputStream defnStream = Files.newInputStream(file)) {
                     defns.add(parser.parse(defnStream));
                 }
             }

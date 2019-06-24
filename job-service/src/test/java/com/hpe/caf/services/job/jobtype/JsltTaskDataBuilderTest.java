@@ -46,6 +46,7 @@ public class JsltTaskDataBuilderTest {
         Assert.assertEquals(JobTypeTestUtil.convertJson(expectedTaskData), actualTaskData);
     }
 
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testBuildWithIncorrectScriptSyntax() throws Exception {
         new JsltTaskDataBuilder(

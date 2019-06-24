@@ -71,7 +71,7 @@ public class JobServiceIT {
     private static RabbitWorkerQueueConfiguration rabbitConfiguration;
     private static String jobServiceOutputQueue;
     private static final long defaultTimeOutMs = 120000; // 2 minutes
-    private final static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     final HashMap<String,Object> testDataObjectMap = new HashMap<>();
     final HashMap<String,String> taskMessageParams = new HashMap<>();
@@ -801,7 +801,7 @@ public class JobServiceIT {
      *         {@link AssertionError} on timeout.
      * @throws Exception
      */
-    private Supplier<TaskMessage> getMessageFromQueue(final QueueManager queueManager)
+    private static Supplier<TaskMessage> getMessageFromQueue(final QueueManager queueManager)
         throws Exception
     {
         final ExecutionContext context = new ExecutionContext(false);
@@ -821,7 +821,7 @@ public class JobServiceIT {
         };
     }
 
-    private QueueManager getQueueManager(final String queueName) throws IOException, TimeoutException {
+    private static QueueManager getQueueManager(final String queueName) throws IOException, TimeoutException {
         //Test messages are published to the target pipe specified in the test (jobservice-test-input-1).
         //The test will consume these messages and assert that the results are as expected.
         QueueServices queueServices = QueueServicesFactory.create(rabbitConfiguration, queueName, workerServices.getCodec());
@@ -829,7 +829,7 @@ public class JobServiceIT {
         return new QueueManager(queueServices, workerServices, debugEnabled);
     }
 
-    private Timer getTimer(ExecutionContext context) {
+    private static Timer getTimer(ExecutionContext context) {
         String timeoutSetting = SettingsProvider.defaultProvider.getSetting(SettingNames.timeOutMs);
         long timeout = timeoutSetting == null ? defaultTimeOutMs : Long.parseLong(timeoutSetting);
         Timer timer = new Timer();

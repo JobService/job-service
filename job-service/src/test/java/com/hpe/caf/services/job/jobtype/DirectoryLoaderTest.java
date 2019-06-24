@@ -58,7 +58,7 @@ public class DirectoryLoaderTest {
     public void testLoadEmptyDir() throws Exception {
         final Path dir = tempFiles.newFolder().toPath();
         final List<JobType> definitions = new DirectoryLoader(defaultParser, dir).load();
-        Assert.assertEquals(Collections.emptyList(), definitions);
+        Assert.assertEquals(Collections.EMPTY_LIST, definitions);
     }
 
     @Test(expected = NoSuchFileException.class)

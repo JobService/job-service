@@ -101,7 +101,7 @@ public final class JobsPut {
 
                 final JsonNode jobParameters = job.getJob().getParameters();
                 jobTask = JobTypes.getInstance()
-                    .getjobType(job.getJob().getTypeId())
+                    .getJobType(job.getJob().getTypeId())
                     // treating InvalidJobDefinitionException as server error
                     .buildTask(partitionId, jobId,
                         jobParameters == null ? NullNode.getInstance() : jobParameters);

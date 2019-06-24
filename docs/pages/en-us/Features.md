@@ -31,6 +31,6 @@ The Job Service can accept a job and a list of dependent jobs.  The Job Service 
 
 ## Job Types
 
-Job Service can be configured with job types.  If a new job targets a job type, it can be defined using a format specific to that type, which can simplify job creation, and restrict the actions that a job can perform.
+Job Service can be configured with [job types](Job-Types).  If a new job targets a job type, it can be defined using a format specific to that type, which can simplify job creation, and restrict the actions that a job can perform.
 
 
