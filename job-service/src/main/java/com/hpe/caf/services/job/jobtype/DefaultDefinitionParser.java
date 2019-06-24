@@ -48,7 +48,7 @@ public final class DefaultDefinitionParser implements DefinitionParser {
     }
 
     @Override
-    public JobType parse(final InputStream definitionStream)
+    public JobType parse(final String id, final InputStream definitionStream)
         throws InvalidJobTypeDefinitionException
     {
         // parse yaml onto a Java object; this fails for unexpected properties and properties with
@@ -62,17 +62,16 @@ public final class DefaultDefinitionParser implements DefinitionParser {
 
         // `JobTypeDefinition` getters perform validation, so try to only call them once
         // it throws on missing values and fills in defaults, so there are no checks needed here
-        final String id = definition.getId();
-        final String taskPipe = definition.getTaskPipe(appConfig);
-        final String targetPipe = definition.getTargetPipe(appConfig);
+        final String taskPipe = definition.getTaskPipe(id, appConfig);
+        final String targetPipe = definition.getTargetPipe(id, appConfig);
         final ParametersValidator parametersValidator =
             new JsonSchemaParametersValidator(id, definition.getParametersSchema());
         final TaskDataBuilder taskDataBuilder = new JsltTaskDataBuilder(
-            id, taskPipe, targetPipe, definition.getConfiguration(appConfig),
-            parametersValidator, definition.getTaskDataScript());
+            id, taskPipe, targetPipe, definition.getConfiguration(id, appConfig),
+            parametersValidator, definition.getTaskDataScript(id));
 
         return new JobType(
-            id, definition.getTaskClassifier(), definition.getTaskApiVersion(),
+            id, definition.getTaskClassifier(id), definition.getTaskApiVersion(id),
             taskPipe, targetPipe, taskDataBuilder);
     }
 
@@ -101,33 +100,20 @@ public final class DefaultDefinitionParser implements DefinitionParser {
         private static final Object DEFAULT_JOB_PARAMETERS_SCHEMA =
             Collections.singletonMap("type", "null");
 
-        private String id;
         private String taskClassifier;
         private Integer taskApiVersion;
         private List<ConfigurationProperty> configurationProperties;
         private Object jobParametersSchema;
         private String taskDataScript;
 
-        public void setId(final String id) {
-            this.id = id;
-        }
-
-        public String getId() throws InvalidJobTypeDefinitionException {
-            if (id == null) {
-                throw new InvalidJobTypeDefinitionException("Missing property: id");
-            }
-            return id;
-        }
-
         public void setTaskClassifier(final String taskClassifier) {
             this.taskClassifier = taskClassifier;
         }
 
-        public String getTaskClassifier() throws InvalidJobTypeDefinitionException {
+        public String getTaskClassifier(final String id) throws InvalidJobTypeDefinitionException {
             if (taskClassifier == null) {
-                // call the `id` getter in case this is called before `getId`, and it's null
                 throw new InvalidJobTypeDefinitionException(
-                    getId() + ": missing property: taskClassifier");
+                    id + ": missing property: taskClassifier");
             }
             return taskClassifier;
         }
@@ -136,32 +122,30 @@ public final class DefaultDefinitionParser implements DefinitionParser {
             this.taskApiVersion = taskApiVersion;
         }
 
-        public Integer getTaskApiVersion() throws InvalidJobTypeDefinitionException {
+        public Integer getTaskApiVersion(final String id) throws InvalidJobTypeDefinitionException {
             if (taskApiVersion == null) {
                 throw new InvalidJobTypeDefinitionException(
-                    getId() + ": missing property: taskApiVersion");
+                    id + ": missing property: taskApiVersion");
             }
             return taskApiVersion;
         }
 
-        public String getTaskPipe(final AppConfig appConfig)
+        public String getTaskPipe(final String id, final AppConfig appConfig)
             throws InvalidJobTypeDefinitionException
         {
-            final String taskPipe = appConfig.getJobTypeProperty(getId(), "task_pipe");
+            final String taskPipe = appConfig.getJobTypeProperty(id, "task_pipe");
             if (taskPipe == null) {
-                throw new InvalidJobTypeDefinitionException(
-                    getId() + ": task pipe is not configured");
+                throw new InvalidJobTypeDefinitionException(id + ": task pipe is not configured");
             }
             return taskPipe;
         }
 
-        public String getTargetPipe(final AppConfig appConfig)
+        public String getTargetPipe(final String id, final AppConfig appConfig)
             throws InvalidJobTypeDefinitionException
         {
-            final String targetPipe = appConfig.getJobTypeProperty(getId(), "target_pipe");
+            final String targetPipe = appConfig.getJobTypeProperty(id, "target_pipe");
             if (targetPipe == null) {
-                throw new InvalidJobTypeDefinitionException(
-                    getId() + ": target pipe is not configured");
+                throw new InvalidJobTypeDefinitionException(id + ": target pipe is not configured");
             }
             return targetPipe;
         }
@@ -172,7 +156,7 @@ public final class DefaultDefinitionParser implements DefinitionParser {
             this.configurationProperties = configurationProperties;
         }
 
-        public Map<String, String> getConfiguration(final AppConfig appConfig)
+        public Map<String, String> getConfiguration(final String id, final AppConfig appConfig)
             throws InvalidJobTypeDefinitionException
         {
             final List<ConfigurationProperty> properties = configurationProperties == null ?
@@ -180,11 +164,11 @@ public final class DefaultDefinitionParser implements DefinitionParser {
 
             final Map<String, String> configuration = new HashMap<>();
             for (final ConfigurationProperty property : properties) {
-                final String propertyName = property.getName(this);
+                final String propertyName = property.getName(id, this);
                 final String propertyValue = appConfig.getJobTypeProperty(id, propertyName);
                 if (propertyValue == null) {
                     throw new InvalidJobTypeDefinitionException(
-                        getId() + ": configuration is not available: " + propertyName);
+                        id + ": configuration is not available: " + propertyName);
                 }
                 // preserve property name case in the output, even though the configuration lookup
                 // ignores it
@@ -209,10 +193,10 @@ public final class DefaultDefinitionParser implements DefinitionParser {
             this.taskDataScript = taskDataScript;
         }
 
-        public String getTaskDataScript() throws InvalidJobTypeDefinitionException {
+        public String getTaskDataScript(final String id) throws InvalidJobTypeDefinitionException {
             if (taskDataScript == null) {
                 throw new InvalidJobTypeDefinitionException(
-                    getId() + ": missing property: taskDataScript");
+                    id + ": missing property: taskDataScript");
             }
             return taskDataScript;
         }
@@ -231,12 +215,12 @@ public final class DefaultDefinitionParser implements DefinitionParser {
             this.name = name;
         }
 
-        public String getName(final Definition definition)
+        public String getName(final String id, final Definition definition)
             throws InvalidJobTypeDefinitionException
         {
             if (name == null) {
                 throw new InvalidJobTypeDefinitionException(
-                    definition.getId() + ": configurationProperties item: missing property: name");
+                    id + ": configurationProperties item: missing property: name");
             }
             return name;
         }

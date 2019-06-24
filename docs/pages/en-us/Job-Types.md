@@ -17,7 +17,7 @@ Job Service can be configured with job types by including a number of job type d
 
 ## Configuring Job Types
 
-To configure Job Service with job types, define the environment variable `CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR`.  This is the path to a directory containing job type definition files with the '.yaml' extension.  Changes to these files do not take effect until Job Service is restarted.
+To configure Job Service with job types, define the environment variable `CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR`.  This is the path to a directory containing job type definition files with the '.yaml' extension.  The filename, excluding the '.yaml' extension, is used as a unique identifier for the job type.  Changes to these files do not take effect until Job Service is restarted.
 
 For each job type definition, you must also provide some type-specific configuration.  Every job type must be configured with `taskPipe` and `targetPipe` properties, which will be used directly in the constructed `task` object, and a job type definition may specify additional properties (see `configurationProperties` below).  To configure these values, define environment variables using the job type ID (specified in the job type definition) and the property name.  For example, a job type with ID `standard_ingest`, defining the additional property `storeName`, must have the following environment variables defined:
  
@@ -28,13 +28,6 @@ For each job type definition, you must also provide some type-specific configura
 ## Defining a Job Type
 
 A definition is a YAML file containing an object.  The subsections here correspond to properties of that object.
-
-### id
-
-- required: true
-- type: string
-
-Unique identifier for the job type across all of the Job Service's job types.
 
 ### taskClassifier
 

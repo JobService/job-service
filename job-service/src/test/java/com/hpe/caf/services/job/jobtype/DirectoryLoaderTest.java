@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.jobtype;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -26,23 +27,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class DirectoryLoaderTest {
-
-    private static final DefinitionParser defaultParser = stream -> {
-        try {
-            final String contents = IOUtils.toString(stream);
-            if ("1".equals(contents)) return JobTypeTestUtil.testJobType1;
-            else if ("2".equals(contents)) return JobTypeTestUtil.testJobType2;
-            else throw new InvalidJobTypeDefinitionException(contents);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-    };
+    // record of calls made to `parser` - map from job type ID to stream contents
+    private Map<String, String> parserCalls;
+    private DefinitionParser parser;
 
     private static final class JobTypeComparator implements Comparator<JobType> {
         @Override
@@ -54,17 +44,33 @@ public class DirectoryLoaderTest {
     @Rule
     public final TemporaryFolder tempFiles = new TemporaryFolder();
 
+    @Before
+    public final void setUp() {
+        parserCalls = new HashMap<>();
+        parser = (id, stream) -> {
+            try {
+                final String contents = IOUtils.toString(stream);
+                parserCalls.put(id, contents);
+                if ("1".equals(contents)) return JobTypeTestUtil.testJobType1;
+                else if ("2".equals(contents)) return JobTypeTestUtil.testJobType2;
+                else throw new InvalidJobTypeDefinitionException(contents);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
     @Test
     public void testLoadEmptyDir() throws Exception {
         final Path dir = tempFiles.newFolder().toPath();
-        final List<JobType> definitions = new DirectoryLoader(defaultParser, dir).load();
+        final List<JobType> definitions = new DirectoryLoader(parser, dir).load();
         Assert.assertEquals(Collections.EMPTY_LIST, definitions);
     }
 
     @Test(expected = NoSuchFileException.class)
     public void testLoadNonExistentDir() throws Exception {
         final Path dir = tempFiles.newFolder().toPath().resolve("missing");
-        new DirectoryLoader(defaultParser, dir).load();
+        new DirectoryLoader(parser, dir).load();
     }
 
     @Test
@@ -72,9 +78,16 @@ public class DirectoryLoaderTest {
         final Path dir = tempFiles.newFolder().toPath();
         Files.write(dir.resolve("defn A.yaml"), "1".getBytes(StandardCharsets.UTF_8));
         Files.write(dir.resolve("defn B.yaml"), "2".getBytes(StandardCharsets.UTF_8));
-        final List<JobType> definitions = new DirectoryLoader(defaultParser, dir).load();
+        final List<JobType> definitions = new DirectoryLoader(parser, dir).load();
+
+        final Map<String, String> expectedParserCalls = new HashMap<>();
+        expectedParserCalls.put("defn A", "1");
+        expectedParserCalls.put("defn B", "2");
+        Assert.assertEquals("should extract the job type IDs from the filenames",
+            expectedParserCalls, parserCalls);
+
         definitions.sort(new JobTypeComparator());
-        Assert.assertEquals(
+        Assert.assertEquals("should return the loaded job types",
             Arrays.asList(JobTypeTestUtil.testJobType1, JobTypeTestUtil.testJobType2),
             definitions);
     }
@@ -84,7 +97,7 @@ public class DirectoryLoaderTest {
         final Path dir = tempFiles.newFolder().toPath();
         Files.write(dir.resolve("defn A.yaml"), "1".getBytes(StandardCharsets.UTF_8));
         Files.createDirectory(dir.resolve("defn B.yaml"));
-        final List<JobType> definitions = new DirectoryLoader(defaultParser, dir).load();
+        final List<JobType> definitions = new DirectoryLoader(parser, dir).load();
         Assert.assertEquals(Collections.singletonList(JobTypeTestUtil.testJobType1), definitions);
     }
 
@@ -93,7 +106,7 @@ public class DirectoryLoaderTest {
         final Path dir = tempFiles.newFolder().toPath();
         Files.write(dir.resolve("defn A.yaml"), "1".getBytes(StandardCharsets.UTF_8));
         Files.write(dir.resolve("defn B.json"), "2".getBytes(StandardCharsets.UTF_8));
-        final List<JobType> definitions = new DirectoryLoader(defaultParser, dir).load();
+        final List<JobType> definitions = new DirectoryLoader(parser, dir).load();
         Assert.assertEquals(Collections.singletonList(JobTypeTestUtil.testJobType1), definitions);
     }
 
@@ -102,16 +115,16 @@ public class DirectoryLoaderTest {
         final Path dir = tempFiles.newFolder().toPath();
         Files.write(dir.resolve("defn A.yaml"), "1".getBytes(StandardCharsets.UTF_8));
         Files.write(dir.resolve("defn B"), "2".getBytes(StandardCharsets.UTF_8));
-        final List<JobType> definitions = new DirectoryLoader(defaultParser, dir).load();
+        final List<JobType> definitions = new DirectoryLoader(parser, dir).load();
         Assert.assertEquals(Collections.singletonList(JobTypeTestUtil.testJobType1), definitions);
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testLoadWithInvalidDefinition() throws Exception {
         final Path dir = tempFiles.newFolder().toPath();
-        // defaultParser implementation treats '3' as an invalid definition
+        // parser implementation treats '3' as an invalid definition
         Files.write(dir.resolve("defn.yaml"), "3".getBytes(StandardCharsets.UTF_8));
-        new DirectoryLoader(defaultParser, dir).load();
+        new DirectoryLoader(parser, dir).load();
     }
 
 }

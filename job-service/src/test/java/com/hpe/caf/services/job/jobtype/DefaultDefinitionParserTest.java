@@ -74,13 +74,13 @@ public class DefaultDefinitionParserTest {
 
     @Test
     public void testBasicDefinition() throws Exception {
-        setupValidConfig("basic");
+        setupValidConfig("basic-id");
         final JobType jobType =
-            new DefaultDefinitionParser(appConfig).parse(getDefinition("basic"));
+            new DefaultDefinitionParser(appConfig).parse("basic-id", getDefinition("basic"));
         final WorkerAction task =
             jobType.buildTask("partition id", "job id", NullNode.getInstance());
 
-        Assert.assertEquals("should parse type ID", "basic", jobType.getId());
+        Assert.assertEquals("should use provided ID", "basic-id", jobType.getId());
         Assert.assertEquals("should parse classifier",
             "basic classifier", task.getTaskClassifier());
         Assert.assertEquals("should parse api version", 74, task.getTaskApiVersion().intValue());
@@ -101,8 +101,8 @@ public class DefaultDefinitionParserTest {
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testInputStreamError() throws Exception {
-        setupValidConfig("basic");
-        new DefaultDefinitionParser(appConfig).parse(new InputStream() {
+        setupValidConfig("id");
+        new DefaultDefinitionParser(appConfig).parse("id", new InputStream() {
             @Override
             public int read() throws IOException { throw new IOException("disk error"); }
         });
@@ -110,61 +110,54 @@ public class DefaultDefinitionParserTest {
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testInvalidYamlSyntax() throws Exception {
-        setupValidConfig("invalid-syntax");
-        new DefaultDefinitionParser(appConfig).parse(getDefinition("invalid-syntax"));
+        setupValidConfig("id");
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("invalid-syntax"));
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testExtraProperty() throws Exception {
-        setupValidConfig("extra-property");
-        new DefaultDefinitionParser(appConfig).parse(getDefinition("extra-property"));
+        setupValidConfig("id");
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("extra-property"));
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testPropertyWithWrongType() throws Exception {
-        setupValidConfig("wrong-type");
-        new DefaultDefinitionParser(appConfig).parse(getDefinition("wrong-type"));
-    }
-
-    @Test(expected = InvalidJobTypeDefinitionException.class)
-    public void testMissingId() throws Exception {
-        setupValidConfig("missing-id");
-        new DefaultDefinitionParser(appConfig).parse(getDefinition("missing-id"));
+        setupValidConfig("id");
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("wrong-type"));
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testMissingTaskClassifier() throws Exception {
-        setupValidConfig("missing-taskclassifier");
-        new DefaultDefinitionParser(appConfig).parse(getDefinition("missing-taskclassifier"));
+        setupValidConfig("id");
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-taskclassifier"));
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testMissingTaskApiVersion() throws Exception {
-        setupValidConfig("missing-taskapiversion");
-        new DefaultDefinitionParser(appConfig).parse(getDefinition("missing-taskapiversion"));
+        setupValidConfig("id");
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-taskapiversion"));
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testMissingTaskPipe() throws Exception {
-        Mockito.when(appConfig.getJobTypeProperty("basic", "target_pipe"))
+        Mockito.when(appConfig.getJobTypeProperty("id", "target_pipe"))
             .thenReturn("basic target pipe");
-        new DefaultDefinitionParser(appConfig).parse(getDefinition("basic"));
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("basic"));
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testMissingTargetPipe() throws Exception {
-        Mockito.when(appConfig.getJobTypeProperty("basic", "task_pipe"))
-            .thenReturn("basic task pipe");
-        new DefaultDefinitionParser(appConfig).parse(getDefinition("basic"));
+        Mockito.when(appConfig.getJobTypeProperty("id", "task_pipe")).thenReturn("basic task pipe");
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("basic"));
     }
 
     @Test
     public void testConfigurationProperties() throws Exception {
-        setupValidConfig("config");
-        Mockito.when(appConfig.getJobTypeProperty("config", "prop_a")).thenReturn("value a");
-        Mockito.when(appConfig.getJobTypeProperty("config", "prop_b")).thenReturn("value b");
+        setupValidConfig("id");
+        Mockito.when(appConfig.getJobTypeProperty("id", "prop_a")).thenReturn("value a");
+        Mockito.when(appConfig.getJobTypeProperty("id", "prop_b")).thenReturn("value b");
         final JobType jobType =
-            new DefaultDefinitionParser(appConfig).parse(getDefinition("config"));
+            new DefaultDefinitionParser(appConfig).parse("id", getDefinition("config"));
         final WorkerAction task =
             jobType.buildTask("partition id", "job id", NullNode.getInstance());
         final Map<String, Map<String, String>> taskData = JobTypeTestUtil.objectMapper.convertValue(
@@ -179,27 +172,25 @@ public class DefaultDefinitionParserTest {
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testConfigurationPropertiesWithMissingName() throws Exception {
-        setupValidConfig("missing-config-name");
-        Mockito.when(appConfig.getJobTypeProperty("missing-config-name", "prop_a"))
-            .thenReturn("value a");
-        Mockito.when(appConfig.getJobTypeProperty("missing-config-name", "prop_b"))
-            .thenReturn("value b");
-        new DefaultDefinitionParser(appConfig).parse(getDefinition("missing-config-name"));
+        setupValidConfig("id");
+        Mockito.when(appConfig.getJobTypeProperty("id", "prop_a")).thenReturn("value a");
+        Mockito.when(appConfig.getJobTypeProperty("id", "prop_b")).thenReturn("value b");
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-config-name"));
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testConfigurationPropertiesWithPropertyNotConfigured() throws Exception {
-        setupValidConfig("config");
+        setupValidConfig("id");
         Mockito.when(appConfig.getJobTypeProperty("config", "prop_a")).thenReturn("value a");
         // prop_b not configured
-        new DefaultDefinitionParser(appConfig).parse(getDefinition("config"));
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("config"));
     }
 
     @Test
     public void testSchema() throws Exception {
-        setupValidConfig("schema");
+        setupValidConfig("id");
         final JobType jobType =
-            new DefaultDefinitionParser(appConfig).parse(getDefinition("schema"));
+            new DefaultDefinitionParser(appConfig).parse("id", getDefinition("schema"));
 
         // expects string - should not throw with string
         jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
@@ -211,8 +202,8 @@ public class DefaultDefinitionParserTest {
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testMissingTaskDataScript() throws Exception {
-        setupValidConfig("missing-taskdatascript");
-        new DefaultDefinitionParser(appConfig).parse(getDefinition("missing-taskdatascript"));
+        setupValidConfig("id");
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-taskdatascript"));
     }
 
 }

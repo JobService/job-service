@@ -570,7 +570,7 @@ public class JobServiceIT {
         final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, "basic-type", null);
+        final NewJob newJob = makeRestrictedJob(jobId, "basic", null);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
         final Job databaseJob = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
@@ -629,7 +629,7 @@ public class JobServiceIT {
     public void testCreateRestrictedJobWithWrongCaseType() throws Exception {
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, "basic-TYPE", null);
+        final NewJob newJob = makeRestrictedJob(jobId, "BASIC", null);
         assertThrowsApiException(Response.Status.BAD_REQUEST,
             () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
     }
@@ -638,7 +638,7 @@ public class JobServiceIT {
     public void testCreateRestrictedJobWithTask() throws Exception {
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, "basic-type", null);
+        final NewJob newJob = makeRestrictedJob(jobId, "basic", null);
         final NewJob newJobWithTask = makeJob(jobId, "testCreateRestrictedJobWithTask");
         newJob.setTask(newJobWithTask.getTask());
         assertThrowsApiException(Response.Status.BAD_REQUEST,
@@ -659,7 +659,7 @@ public class JobServiceIT {
     public void testCreateRestrictedJobWithInvalidParamsWithDefaultSchema() throws Exception {
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, "basic-type", "params which should be null");
+        final NewJob newJob = makeRestrictedJob(jobId, "basic", "params which should be null");
         assertThrowsApiException(Response.Status.BAD_REQUEST,
             () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
     }
@@ -670,7 +670,7 @@ public class JobServiceIT {
         final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, "withConfig", null);
+        final NewJob newJob = makeRestrictedJob(jobId, "config", null);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
         final JobTypeTestTaskData messageTaskData =
@@ -702,7 +702,7 @@ public class JobServiceIT {
         final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, "withParams", params);
+        final NewJob newJob = makeRestrictedJob(jobId, "params", params);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
         final JobTypeTestTaskData messageTaskData =
@@ -724,7 +724,7 @@ public class JobServiceIT {
 
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, "withParams", params);
+        final NewJob newJob = makeRestrictedJob(jobId, "params", params);
         assertThrowsApiException(Response.Status.BAD_REQUEST,
             () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
     }
@@ -743,7 +743,7 @@ public class JobServiceIT {
         final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, "complexTransform", params);
+        final NewJob newJob = makeRestrictedJob(jobId, "complex-transform", params);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
         final JobTypeTestTaskData messageTaskData =
@@ -766,7 +766,7 @@ public class JobServiceIT {
     public void testCreateRestrictedJobWithInvalidTaskDataOutput() throws Exception {
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, "invalidOutput", null);
+        final NewJob newJob = makeRestrictedJob(jobId, "invalid-output", null);
         assertThrowsApiException(Response.Status.INTERNAL_SERVER_ERROR,
             () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
     }

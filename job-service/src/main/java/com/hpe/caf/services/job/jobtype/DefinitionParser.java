@@ -23,10 +23,12 @@ import java.io.InputStream;
 public interface DefinitionParser {
 
     /**
+     * @param id The job type ID
      * @param definitionStream Binary stream containing the job type definition
      * @return Parsed job type
      * @throws InvalidJobTypeDefinitionException
      */
-    JobType parse(final InputStream definitionStream) throws InvalidJobTypeDefinitionException;
+    JobType parse(final String id, final InputStream definitionStream)
+        throws InvalidJobTypeDefinitionException;
 
 }

@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-id: basic
 taskClassifier: basic classifier
 taskApiVersion: 74
 taskDataScript: |

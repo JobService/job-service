@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-id: missing-config-name
 taskClassifier: classifier
 taskApiVersion: 1
 configurationProperties:
