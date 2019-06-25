@@ -128,6 +128,9 @@ public class DatabasePoller
      */
     private static List<JobTaskData> getDependentJobsToRun() throws ScheduledExecutorException
     {
+        /*
+        SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Unreleased Resource: Database.
+        */
         try (
                 Connection connection = getConnection();
                 CallableStatement stmt = connection.prepareCall("{call get_dependent_jobs()}")
@@ -164,7 +167,9 @@ public class DatabasePoller
     private static void reportFailure(
         final String partitionId, final String jobId, final String failureDetails
     ) throws ScheduledExecutorException {
-
+        /*
+        SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Unreleased Resource: Database.
+        */
         try (
                 Connection conn = getConnection();
                 CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")
@@ -213,6 +218,10 @@ public class DatabasePoller
             final Properties myProp = new Properties();
             myProp.put("user", dbUser);
             myProp.put("password", dbPass);
+            /*
+            SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Log forging. The values of databaseUrl, dbUser, dbPass are all set using
+            properties or env variables.
+            */
             LOG.debug(MessageFormat.format("Connecting to database {0} with username {1} and password {2} ...", databaseUrl, dbUser, dbPass));
             conn = DriverManager.getConnection(databaseUrl, myProp);
             LOG.debug("Connected to database.");
