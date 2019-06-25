@@ -71,7 +71,7 @@ Notes on what the property means, and what value should be configured for it.
 
 An embedded schema which is used to validate parameters provided with the job before executing `taskDataScript` (below).  The schema language is JSON Schema (`draft-03` or `draft-04`); language reference can be found here:
 
-- http://json-schema.org/specification-links.html#draft-4
+- <http://json-schema.org/specification-links.html#draft-4>
 
 Parameters can only be specified as an object, so the schema must expect an object as the outer value.  The schema also serves as documentation for job creators, so it is recommended to use the `description` annotation throughout.
 
@@ -82,8 +82,8 @@ Parameters can only be specified as an object, so the schema must expect an obje
 
 An embedded script which is executed to construct the `taskData` part of the `task` object.  The script language is JSLT (version 0.1.8), configured to preserve all output values.  Language reference can be found here:
 
-- https://github.com/schibsted/jslt/blob/0.1.8/tutorial.md
-- https://github.com/schibsted/jslt/blob/0.1.8/functions.md
+- <https://github.com/schibsted/jslt/blob/0.1.8/tutorial.md>
+- <https://github.com/schibsted/jslt/blob/0.1.8/functions.md>
 
 The script input is an object with the following properties:
 
