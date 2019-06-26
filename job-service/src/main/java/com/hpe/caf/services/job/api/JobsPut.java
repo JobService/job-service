@@ -138,7 +138,7 @@ public final class JobsPut {
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
             //  Create hash of parameters not being stored in the database.
-            int jobHash = job.getTask().hashCode();
+            int jobHash = job.hashCode();
 
             //  Check first if there is anything to do.
             boolean rowExists = databaseHelper.doesJobAlreadyExist(partitionId, jobId, jobHash);
