@@ -103,8 +103,14 @@ final class JsltTaskDataBuilder implements TaskDataBuilder {
         try {
             return script.apply(inputJson);
         } catch (final JsltException e) {
-            throw new InvalidJobTypeDefinitionException(
-                jobTypeId + ": taskDataScript execution failed", e);
+            // an explicitly thrown error is distinguished by its message prefix and lack of
+            // location information
+            if (e.getSource() == null && e.getMessage().startsWith("error: ")) {
+                throw new BadRequestException(jobTypeId + ": " + e.getMessage());
+            } else {
+                throw new InvalidJobTypeDefinitionException(
+                    jobTypeId + ": taskDataScript execution failed", e);
+            }
         }
     }
 

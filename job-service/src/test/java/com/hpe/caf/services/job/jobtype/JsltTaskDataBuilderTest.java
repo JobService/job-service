@@ -63,8 +63,18 @@ public class JsltTaskDataBuilderTest {
         builder.build("partition id", "job id", TextNode.valueOf("params"));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    // a script which fails by using `error()`
+    @Test(expected = BadRequestException.class)
     public void testBuildWithFailingScript() throws Exception {
+        final TaskDataBuilder builder = new JsltTaskDataBuilder(
+            "type", "task pipe", "target pipe", Collections.emptyMap(), paramValidatorSuccess,
+            "error(\"input not quite right\")");
+        builder.build("partition id", "job id", TextNode.valueOf("params"));
+    }
+
+    // a script which is syntactically correct but fails without explicitly using `error()`
+    @Test(expected = InvalidJobTypeDefinitionException.class)
+    public void testBuildWithInvalidScript() throws Exception {
         final TaskDataBuilder builder = new JsltTaskDataBuilder(
             "type", "task pipe", "target pipe", Collections.emptyMap(), paramValidatorSuccess,
             "{ \"result\": .jobId[\"key\"] }"); // can't index string with string
