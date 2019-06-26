@@ -758,26 +758,6 @@ public class JobServiceIT {
             () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
     }
 
-    // definition task data script throws an unexpected error
-    @Test
-    public void testCreateRestrictedJobWithInvalidTaskDataScript() throws Exception {
-        final String jobId = UUID.randomUUID().toString();
-        final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, "invalid-script", null);
-        assertThrowsApiException(Response.Status.INTERNAL_SERVER_ERROR,
-            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
-    }
-
-    // definition task data script explicitly throws an error
-    @Test
-    public void testCreateRestrictedJobWithFailingTaskDataScript() throws Exception {
-        final String jobId = UUID.randomUUID().toString();
-        final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, "failing-script", null);
-        assertThrowsApiException(Response.Status.BAD_REQUEST,
-            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
-    }
-
     public void testMessagesPutOnQueue(
         final String taskQueue,
         final JobServiceTrackingInfoExpectation expectation,
