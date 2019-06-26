@@ -24,6 +24,8 @@ For each job type definition, you must also provide some type-specific configura
  - `CAF_JOB_SERVICE_JOB_TYPE_STANDARD_INGEST_TASK_PIPE`
  - `CAF_JOB_SERVICE_JOB_TYPE_STANDARD_INGEST_TARGET_PIPE`
  - `CAF_JOB_SERVICE_JOB_TYPE_STANDARD_INGEST_STORENAME`
+ 
+The configured `targetPipe` value may be empty, in which case the `targetPipe` property will not be set on the constructed worker message.
 
 ## Defining a Job Type
 
@@ -89,7 +91,7 @@ The script input is an object with the following properties:
 
 - `configuration`: object with property names from `configurationProperties` (above), and values all strings resolved from Job Service configuration
 - `taskPipe`: the job's `taskPipe`
-- `targetPipe`: the job's `targetPipe`
+- `targetPipe`: the job's `targetPipe`; this is missing if a value is not configured
 - `partitionId`: the job's partition ID
 - `jobId`: the job's ID
 - `parameters`: as provided with the submitted job, and already validated according to `jobParameterSchema`

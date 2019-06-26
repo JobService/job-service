@@ -717,6 +717,25 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testCreateRestrictedJobWithEmptyTargetPipe() throws Exception {
+        testQueueManager = getQueueManager("empty-target-pipe task-pipe");
+        final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeRestrictedJob(jobId, "empty-target-pipe", null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
+
+        final TaskMessage messageTask = messageRetriever.get();
+        assertNull(messageTask.getTracking().getTrackTo(),
+            "target pipe should be missing from message");
+
+        final JobTypeTestTaskData messageTaskData =
+            objectMapper.readValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
+        assertNull(messageTaskData.targetQueue,
+            "target pipe should not be passed to task data script");
+    }
+
+    @Test
     public void testCreateRestrictedJobWithComplexTransform() throws Exception {
         final Map<String, Object> params = new HashMap<>();
         params.put("forJoin", Arrays.asList("first", "second", "third"));

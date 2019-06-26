@@ -146,8 +146,11 @@ public final class DefaultDefinitionParser implements DefinitionParser {
             final String targetPipe = appConfig.getJobTypeProperty(id, "target_pipe");
             if (targetPipe == null) {
                 throw new InvalidJobTypeDefinitionException(id + ": target pipe is not configured");
+            } else if (targetPipe.equals("")) {
+                return null;
+            } else {
+                return targetPipe;
             }
-            return targetPipe;
         }
 
         public void setConfigurationProperties(

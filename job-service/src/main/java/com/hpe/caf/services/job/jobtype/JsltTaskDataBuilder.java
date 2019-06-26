@@ -51,7 +51,7 @@ final class JsltTaskDataBuilder implements TaskDataBuilder {
     /**
      * @param jobTypeId Job type's ID, used in error messages
      * @param taskPipe The job's `taskPipe`
-     * @param targetPipe The job's `targetPipe`
+     * @param targetPipe The job's `targetPipe`; may be null
      * @param configuration object containing string values which are fixed for the job type;
      *                      generally obtained from global configuration
      * @param parametersValidator used to validate the `parameters` argument to {@link #build}
@@ -93,7 +93,7 @@ final class JsltTaskDataBuilder implements TaskDataBuilder {
         final Map<String, Object> input = new HashMap<>();
         input.put("configuration", configuration);
         input.put("taskPipe", taskPipe);
-        input.put("targetPipe", targetPipe);
+        if (targetPipe != null) input.put("targetPipe", targetPipe);
         input.put("partitionId", partitionId);
         input.put("jobId", jobId);
         input.put("parameters", parameters);

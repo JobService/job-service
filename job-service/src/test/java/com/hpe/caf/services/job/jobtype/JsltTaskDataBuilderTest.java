@@ -16,6 +16,7 @@
 package com.hpe.caf.services.job.jobtype;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.junit.Assert;
@@ -44,6 +45,18 @@ public class JsltTaskDataBuilderTest {
         expectedTaskData.put("jobId", "job id");
         expectedTaskData.put("parameters", "params");
         Assert.assertEquals(JobTypeTestUtil.convertJson(expectedTaskData), actualTaskData);
+    }
+
+    @Test
+    public void testBuildWithNullTargetPipe() throws Exception {
+        final Map<String, String> config = Collections.singletonMap("cfg key", "cfg val");
+        final TaskDataBuilder builder = new JsltTaskDataBuilder(
+            "type", "task pipe", null, config, paramValidatorSuccess, ".targetPipe");
+        final JsonNode actualTaskData =
+            builder.build("partition id", "job id", TextNode.valueOf("params"));
+
+        Assert.assertEquals("targetPipe should not be passed to script",
+            NullNode.getInstance(), actualTaskData);
     }
 
     @SuppressWarnings("ResultOfObjectAllocationIgnored")

@@ -63,6 +63,18 @@ public class JobTypeTest {
             expectedTaskData, task.getTaskData());
     }
 
+    @Test
+    public void testBuildTaskWithNullTargetPipe() throws Exception {
+        final JobType jobType = new JobType(
+            "id", "classifier", 123, "task pipe", null,
+            (partitionId, jobId, params) -> {
+                return JobTypeTestUtil.convertJson(new HashMap<String, String>());
+            });
+        final WorkerAction task =
+            jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
+        Assert.assertNull("target pipe in task should null", task.getTargetPipe());
+    }
+
     @Test(expected = BadRequestException.class)
     public void testBuildTaskWithInvalidParams() throws Exception {
         final JobType jobType = new JobType(

@@ -152,6 +152,23 @@ public class DefaultDefinitionParserTest {
     }
 
     @Test
+    public void testEmptyStringTargetPipe() throws Exception {
+        setupValidConfig("id");
+        Mockito.when(appConfig.getJobTypeProperty("id", "target_pipe")).thenReturn("");
+        final JobType jobType = new DefaultDefinitionParser(appConfig)
+            .parse("id", getDefinition("target-pipe-in-output"));
+        final WorkerAction task =
+            jobType.buildTask("partition id", "job id", NullNode.getInstance());
+
+        Assert.assertNull("should use null target pipe in constructed task", task.getTargetPipe());
+
+        final Map<String, String> taskData = JobTypeTestUtil.objectMapper.convertValue(
+            task.getTaskData(), new TypeReference<Map<String, String>>() {});
+        Assert.assertNull("should not pass target pipe to task data script",
+            taskData.get("targetPipe"));
+    }
+
+    @Test
     public void testConfigurationProperties() throws Exception {
         setupValidConfig("id");
         Mockito.when(appConfig.getJobTypeProperty("id", "prop_a")).thenReturn("value a");

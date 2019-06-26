@@ -44,7 +44,7 @@ public final class JobType {
      * @param taskClassifier Value to use for `taskClassifier` in the transformed job
      * @param taskApiVersion Value to use for `taskApiVersion` in the transformed job
      * @param taskPipe Value to use for `taskPipe` in the transformed job
-     * @param targetPipe Value to use for `targetPipe` in the transformed job
+     * @param targetPipe Value to use for `targetPipe` in the transformed job; may be null
      * @param taskDataBuilder How to construct the final job task data
      */
     public JobType(
