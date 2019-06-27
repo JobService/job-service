@@ -276,7 +276,6 @@ definitions:
         description: Execute the job using a specific job type configured on the service.
       parameters:
         type: object
-        default: null
         description: Input to the selected job type.
       prerequisiteJobIds:
         type: array
