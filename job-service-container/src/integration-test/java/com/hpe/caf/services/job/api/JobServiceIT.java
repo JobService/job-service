@@ -202,6 +202,70 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testCreateJobTwice() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeJob(jobId, "testCreateJobTwice");
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
+        final Job retrievedJobBefore = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
+        final Job retrievedJobAfter = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
+
+        assertEquals(retrievedJobAfter.getName(), newJob.getName(), "job name should be unchanged");
+        assertEquals(retrievedJobAfter.getLastUpdateTime(), retrievedJobBefore.getLastUpdateTime(),
+            "job last update time should be unchanged");
+    }
+
+    @Test
+    public void testCreateJobTwiceWithDeps() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeJob(jobId, "testCreateJobTwiceWithDeps");
+        newJob.setPrerequisiteJobIds(Collections.singletonList(UUID.randomUUID().toString()));
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
+        final Job retrievedJobBefore = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
+        final Job retrievedJobAfter = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
+
+        assertEquals(retrievedJobAfter.getName(), newJob.getName(), "job name should be unchanged");
+        assertEquals(retrievedJobAfter.getLastUpdateTime(), retrievedJobBefore.getLastUpdateTime(),
+            "job last update time should be unchanged");
+    }
+
+    @Test
+    public void testUpdateJobName() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob1 = makeJob(jobId, "testUpdateJobName");
+        final NewJob newJob2 = makeJob(jobId, "testUpdateJobName");
+        newJob2.setName(newJob2.getName() + " updated");
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob1, correlationId);
+        // TODO: should be FORBIDDEN (SCMOD-6619)
+        assertThrowsApiException(Response.Status.INTERNAL_SERVER_ERROR,
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob2, correlationId));
+
+        final Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
+        assertEquals(retrievedJob.getName(), newJob1.getName(), "job name should be unchanged");
+    }
+
+    @Test
+    public void testUpdateJobTask() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob1 = makeJob(jobId, "testUpdateJobTask");
+        final NewJob newJob2 = makeJob(jobId, "testUpdateJobTask");
+        newJob2.getTask().setTaskApiVersion(newJob2.getTask().getTaskApiVersion() + 7);
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob1, correlationId);
+        // TODO: should be FORBIDDEN (SCMOD-6619)
+        assertThrowsApiException(Response.Status.INTERNAL_SERVER_ERROR,
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob2, correlationId));
+    }
+
+    @Test
     public void testJobIsActive() throws ApiException {
         //create a job
         String jobId = UUID.randomUUID().toString();
