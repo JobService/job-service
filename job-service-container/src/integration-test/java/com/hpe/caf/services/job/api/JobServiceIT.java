@@ -243,8 +243,7 @@ public class JobServiceIT {
         newJob2.setName(newJob2.getName() + " updated");
 
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob1, correlationId);
-        // TODO: should be FORBIDDEN (SCMOD-6619)
-        assertThrowsApiException(Response.Status.INTERNAL_SERVER_ERROR,
+        assertThrowsApiException(Response.Status.FORBIDDEN,
             () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob2, correlationId));
 
         final Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
@@ -260,8 +259,7 @@ public class JobServiceIT {
         newJob2.getTask().setTaskApiVersion(newJob2.getTask().getTaskApiVersion() + 7);
 
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob1, correlationId);
-        // TODO: should be FORBIDDEN (SCMOD-6619)
-        assertThrowsApiException(Response.Status.INTERNAL_SERVER_ERROR,
+        assertThrowsApiException(Response.Status.FORBIDDEN,
             () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob2, correlationId));
     }
 
