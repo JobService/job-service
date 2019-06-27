@@ -19,7 +19,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.HttpHost;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.Assert;
 import org.testng.annotations.BeforeTest;
@@ -41,8 +40,6 @@ public class JobServiceBasicHttpsIT
     private String https_url;
     private SSLContext sslContext;
     private HttpClient httpClient;
-    private int target_port;
-    private String target_hostname;
 
     /**
      * SCMOD-3454 - FALSE POSITIVE on FORTIFY SCAN. SSL verification is disabled on purpose.
@@ -51,8 +48,6 @@ public class JobServiceBasicHttpsIT
     public void setup() throws NoSuchAlgorithmException, KeyManagementException
     {
         https_url = System.getenv("webserviceurlhttps");
-        target_hostname = System.getenv("docker.host.address");
-        target_port = Integer.parseInt(System.getenv("webservice.https.adminport"));
 
         // Set up a trust-all cert manager implementation
         TrustManager[] trustAllCertsManager = new TrustManager[]{
@@ -98,7 +93,7 @@ public class JobServiceBasicHttpsIT
         final HttpGet request = new HttpGet(getRequestUrl);
 
         System.out.println("Sending GET to url: " + getRequestUrl);
-        final HttpResponse response = httpClient.execute(new HttpHost(target_hostname, target_port), request);
+        final HttpResponse response = httpClient.execute(request);
 
         Assert.assertTrue(response.getStatusLine().getStatusCode() == 200);
         System.out.println("Response code: " + response.getStatusLine().getStatusCode());
