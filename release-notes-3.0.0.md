@@ -11,6 +11,3 @@ ${version-number}
 #### New Features
 
 #### Known Issues
-
-- [SCMOD-6618](https://portal.digitalsafe.net/browse/SCMOD-6618): Trying to updating a job could incorrectly succeed  
-       When creating a job with the same ID as an existing job in the partition, but with a different value for some request body properties, the request would succeed without making any changes to the job.  Now, such requests will fail.
