@@ -171,7 +171,7 @@
                                         </dependencySets>
                                         <fileSets>
                                             <fileSet>
-                                                <directory>/scripts</directory>
+                                                <directory>scripts</directory>
                                                 <outputDirectory>/docker-entrypoint-initdb.d</outputDirectory>
                                                 <lineEnding>unix</lineEnding>
                                                 <includes>
@@ -180,7 +180,7 @@
                                                 <fileMode>0755</fileMode>
                                             </fileSet>
                                             <fileSet>
-                                                <directory>/scripts/install</directory>
+                                                <directory>scripts/install</directory>
                                                 <outputDirectory>/</outputDirectory>
                                                 <lineEnding>unix</lineEnding>
                                                 <includes>
