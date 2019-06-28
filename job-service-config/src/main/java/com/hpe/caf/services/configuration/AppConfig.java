@@ -20,6 +20,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * Configuration class for the job service api. Includes connection properties to both database and RabbitMQ.
  */
@@ -78,6 +81,26 @@ public class AppConfig {
         else {
             return Integer.parseInt(defaultPageSize);
         }
+    }
+
+    /**
+     * @return Directory containing job type definition files, possibly `null`
+     */
+    public Path getJobTypeDefinitionsDir() {
+        final String path = environment.getProperty("CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR");
+        return path == null ? null : Paths.get(path);
+    }
+
+    /**
+     * Retrieve a configuration property specific to a job type.
+     *
+     * @param jobTypeId
+     * @param propertyName
+     * @return Property value, possibly `null`
+     */
+    public String getJobTypeProperty(final String jobTypeId, final String propertyName) {
+        return environment.getProperty("CAF_JOB_SERVICE_JOB_TYPE_" +
+            jobTypeId.toUpperCase() + "_" + propertyName.toUpperCase());
     }
 
 }

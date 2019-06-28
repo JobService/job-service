@@ -15,6 +15,8 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.services.configuration.AppConfigProvider;
@@ -25,6 +27,7 @@ import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
+import com.hpe.caf.services.job.jobtype.JobTypes;
 import com.hpe.caf.util.ModuleLoader;
 import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -40,6 +43,7 @@ import java.util.stream.Collectors;
 
 public final class JobsPut {
 
+    public static final String ERR_MSG_JOB_AND_TASK_SPECIFIED = "Specifying both typeId and task properties is not allowed.";
     public static final String ERR_MSG_TASK_DATA_NOT_SPECIFIED = "The task data has not been specified.";
     public static final String ERR_MSG_TASK_CLASSIFIER_NOT_SPECIFIED = "The task classifier has not been specified.";
     public static final String ERR_MSG_TASK_API_VERSION_NOT_SPECIFIED = "The task api version has not been specified.";
@@ -79,31 +83,48 @@ public final class JobsPut {
                 throw new BadRequestException(ApiServiceUtil.ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS);
             }
 
+            // if `job` is provided, construct `task` from it
+            final WorkerAction jobTask;
+            if (job.getType() == null) {
+                jobTask = job.getTask();
+            } else {
+                if (job.getTask() != null) {
+                    LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_JOB_AND_TASK_SPECIFIED);
+                    throw new BadRequestException(ERR_MSG_JOB_AND_TASK_SPECIFIED);
+                }
+
+                jobTask = JobTypes.getInstance()
+                    .getJobType(job.getType())
+                    // treating InvalidJobDefinitionException as server error
+                    .buildTask(partitionId, jobId,
+                        job.getParameters() == null ? NullNode.getInstance() : job.getParameters());
+            }
+
             //  Make sure the task classifier has been provided.
-            if (!ApiServiceUtil.isNotNullOrEmpty(job.getTask().getTaskClassifier())) {
+            if (!ApiServiceUtil.isNotNullOrEmpty(jobTask.getTaskClassifier())) {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_CLASSIFIER_NOT_SPECIFIED);
                 throw new BadRequestException(ERR_MSG_TASK_CLASSIFIER_NOT_SPECIFIED);
             }
 
             //  Make sure the task api version has been provided.
-            if (0 == job.getTask().getTaskApiVersion()) {
+            if (0 == jobTask.getTaskApiVersion()) {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_API_VERSION_NOT_SPECIFIED);
                 throw new BadRequestException(ERR_MSG_TASK_API_VERSION_NOT_SPECIFIED);
             }
 
             //  Make sure the target queue name is not empty. Null targetPipe is valid
-            if ("".equals(job.getTask().getTargetPipe())) {
+            if ("".equals(jobTask.getTargetPipe())) {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TARGET_QUEUE_NOT_SPECIFIED);
                 throw new BadRequestException(ERR_MSG_TARGET_QUEUE_NOT_SPECIFIED);
             }
 
             //  Make sure the task queue name has been provided.
-            if (!ApiServiceUtil.isNotNullOrEmpty(job.getTask().getTaskPipe())) {
+            if (!ApiServiceUtil.isNotNullOrEmpty(jobTask.getTaskPipe())) {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_QUEUE_NOT_SPECIFIED);
                 throw new BadRequestException(ERR_MSG_TASK_QUEUE_NOT_SPECIFIED);
             }
             
-            final Object taskData = job.getTask().getTaskData();
+            final Object taskData = jobTask.getTaskData();
 
             // Make sure that taskData is available
             if (taskData == null) {
@@ -117,7 +138,7 @@ public final class JobsPut {
                     throw new BadRequestException(ERR_MSG_TASK_DATA_NOT_SPECIFIED);
                 }
             } else if (taskData instanceof Map<?, ?>) {
-                if (job.getTask().getTaskDataEncoding() != null) {// If taskData is an object, ensure that taskDataEncoding has been left out.
+                if (jobTask.getTaskDataEncoding() != null) {// If taskData is an object, ensure that taskDataEncoding has been left out.
                     LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_DATA_OBJECT_ENCODING_CONFLICT);
                     throw new BadRequestException(ERR_MSG_TASK_DATA_OBJECT_ENCODING_CONFLICT);
                 }
@@ -155,7 +176,6 @@ public final class JobsPut {
                 //  Create job in the database.
                 LOG.info("createOrUpdateJob: Creating job in the database...");
                 if (job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) {
-                    final WorkerAction jobTask = job.getTask();
                     databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                             job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                             getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
@@ -173,9 +193,9 @@ public final class JobsPut {
 
                 //  Get database helper instance.
                 try {
-                    QueueServices queueServices = QueueServicesFactory.create(config, job.getTask().getTaskPipe(),codec);
+                    QueueServices queueServices = QueueServicesFactory.create(config, jobTask.getTaskPipe(),codec);
                     LOG.info("createOrUpdateJob: Sending task data to the target queue...");
-                    queueServices.sendMessage(partitionId, jobId, job.getTask(), config);
+                    queueServices.sendMessage(partitionId, jobId, jobTask, config);
                     queueServices.close();
                 } catch(Exception ex) {
                     //  Failure adding job data to queue. Update the job with the failure details.

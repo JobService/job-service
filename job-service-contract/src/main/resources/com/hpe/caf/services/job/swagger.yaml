@@ -252,6 +252,7 @@ paths:
 definitions:
   newJob:
     type: object
+    description: Exactly one of task and job should be specified.
     properties:
       name:
         type: string
@@ -270,6 +271,12 @@ definitions:
           components.
       task:
         $ref: "#/definitions/worker-action"
+      type:
+        type: string
+        description: Execute the job using a specific job type configured on the service.
+      parameters:
+        type: object
+        description: Input to the selected job type.
       prerequisiteJobIds:
         type: array
         items:
@@ -279,7 +286,7 @@ definitions:
         type: integer
         format: int32
         default: 0		
-        description: The time in seconds after the prerequisite job identifiers have completed before this job is eligible for running. 
+        description: The time in seconds after the prerequisite job identifiers have completed before this job is eligible for running.
   worker-action:
     type: object
     required:

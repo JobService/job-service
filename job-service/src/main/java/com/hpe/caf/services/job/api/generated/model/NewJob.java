@@ -16,6 +16,7 @@
 package com.hpe.caf.services.job.api.generated.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -23,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Exactly one of task and job should be specified.
+ */
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-03-03T15:07:30.523Z")
 @XmlRootElement(name = "NewJob")
 public class NewJob   {
@@ -31,6 +35,8 @@ public class NewJob   {
     private String description = null;
     private String externalData = null;
     private WorkerAction task = null;
+    private String type = null;
+    private JsonNode parameters = null;
     private List<String> prerequisiteJobIds = null;
     private Integer delay = 0;
 
@@ -106,6 +112,44 @@ public class NewJob   {
     }
     public void setTask(WorkerAction task) {
         this.task = task;
+    }
+
+    public NewJob type(String type) {
+        this.type = type;
+        return this;
+    }
+
+    /**
+     * Execute the job using a specific job type configured on the service.
+     * @return type
+     **/
+    @JsonProperty("type")
+    @ApiModelProperty(value = "Execute the job using a specific job type configured on the service.")
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public NewJob parameters(JsonNode parameters) {
+        this.parameters = parameters;
+        return this;
+    }
+
+    /**
+     * Input to the selected job type.
+     * @return parameters
+     **/
+    @JsonProperty("parameters")
+    @ApiModelProperty(value = "Input to the selected job type.")
+    public JsonNode getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(JsonNode parameters) {
+        this.parameters = parameters;
     }
 
     /**

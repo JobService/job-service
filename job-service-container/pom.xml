@@ -97,6 +97,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-client</artifactId>
             <scope>test</scope>
@@ -397,6 +407,31 @@
                                 </volumes>
                             </build>
                         </image>
+
+                        <!-- Image containing job type definition files for integration tests -->
+                        <image>
+                            <alias>job-type-definitions</alias>
+                            <name>${project.artifactId}-job-type-definitions:${project.version}</name>
+                            <build>
+                                <assembly>
+                                    <basedir>/</basedir>
+                                    <inline>
+                                        <fileSets>
+                                            <fileSet>
+                                                <fileMode>0644</fileMode>
+                                                <lineEnding>unix</lineEnding>
+                                                <directory>src/integration-test/resources/job-type-definitions</directory>
+                                                <outputDirectory>test-job-type-definitions</outputDirectory>
+                                            </fileSet>
+                                        </fileSets>
+                                    </inline>
+                                </assembly>
+                                <volumes>
+                                    <volume>/test-job-type-definitions</volume>
+                                </volumes>
+                            </build>
+                        </image>
+
                         <image>
                             <alias>job-service</alias>
                             <name>${dockerJobServiceOrg}job-service${dockerProjectVersion}</name>
@@ -480,12 +515,32 @@
                                     <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
                                     <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
                                     <SSL_TOMCAT_CA_CERT_LOCATION>/test-keystore/tomcat.keystore</SSL_TOMCAT_CA_CERT_LOCATION>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR>/test-job-type-definitions</CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR>
+
+                                    <CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE>basic task-pipe</CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE>basic target-pipe</CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TASK_PIPE>config task-pipe</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TARGET_PIPE>config target-pipe</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER>upper value</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_LOWER>lower value</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_LOWER>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_MULTIPLE>multiple value</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_MULTIPLE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_NODESC>nodesc value</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_NODESC>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_NUMBER>123</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_NUMBER>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TASK_PIPE>params task-pipe</CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TARGET_PIPE>params target-pipe</CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TASK_PIPE>complex task-pipe</CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE>complex target-pipe</CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TASK_PIPE>invalid-output task-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>invalid-output target-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TASK_PIPE>empty-target-pipe task-pipe</CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TARGET_PIPE></CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TARGET_PIPE>
                                 </env>
                                 <volumes>
                                     <from>
                                         <image>keystore</image>
                                         <image>config</image>
                                         <image>webdav</image>
+                                        <image>job-type-definitions</image>
                                     </from>
                                 </volumes>
                                 <links>

@@ -26,15 +26,22 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
+import com.hpe.caf.services.job.api.generated.model.RestrictedTask;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.jobtype.JobType;
+import com.hpe.caf.services.job.jobtype.JobTypes;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -42,6 +49,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 @RunWith(PowerMockRunner.class)
@@ -55,10 +63,35 @@ public final class JobsPutTest {
     private QueueServices mockQueueServices;
     @Mock
     private QueueServicesFactory mockQueueServicesFactory;
-    
+
+    private NewJob baseJob;
     private NewJob validJob;
     private HashMap <String,Object> testDataObjectMap;
     private HashMap <String,String> taskMessageParams;
+    private JobType basicJobType;
+
+    /**
+     * @return Simple new job with just outer values filled in - no `task` or `job`
+     */
+    private NewJob makeBaseJob() {
+        final NewJob job = new NewJob();
+        job.setName("TestName");
+        job.setDescription("TestDescription");
+        job.setExternalData("TestExternalData");
+        return job;
+    }
+
+    /**
+     * @param typeId
+     * @param params
+     * @return Simple new restricted job with job type and params filled in
+     */
+    private NewJob makeRestrictedJob(final String typeId, final JsonNode params) {
+        final NewJob job = makeBaseJob();
+        job.setType(typeId);
+        job.setParameters(params);
+        return job;
+    }
    
     @Before
     public void setup() throws Exception {
@@ -76,6 +109,16 @@ public final class JobsPutTest {
         newEnv.put("CAF_DATABASE_USERNAME","testUserName");
         newEnv.put("CAF_DATABASE_PASSWORD","testPassword");
         TestUtil.setSystemEnvironmentFields(newEnv);
+
+        // by default, set up a single job type with id 'basic'
+        final JsonNode jsonObject =
+            new ObjectMapper().convertValue(
+                Collections.singletonMap("key", "val"),
+                JsonNode.class);
+        basicJobType = new JobType(
+            "basic", "classifier", 2, "task pipe", "target pipe",
+            (partitionId, jobId, params) -> jsonObject);
+        JobTypes.initialise(() -> Collections.singletonList(basicJobType));
 
         //  Mock QueueServices calls.
         doNothing().when(mockQueueServices).sendMessage(any(), any(), any(), any());
@@ -100,11 +143,8 @@ public final class JobsPutTest {
         testDataObjectMap.put("targetPipe", "languageidentification-in");
         
         //  Create job object for testing.
-        validJob = new NewJob();
+        validJob = makeBaseJob();
         WorkerAction action = new WorkerAction();
-        validJob.setName("TestName");
-        validJob.setDescription("TestDescription");
-        validJob.setExternalData("TestExternalData");
         action.setTaskClassifier("TestTaskClassifier");
         action.setTaskApiVersion(1);
         action.setTaskData("TestTaskData");
@@ -112,7 +152,7 @@ public final class JobsPutTest {
         action.setTaskPipe("TaskQueue");
         action.setTargetPipe("JobServiceQueue");
 
-        validJob.setTask(action); 
+        validJob.setTask(action);
     }
     
     @Test
@@ -173,6 +213,47 @@ public final class JobsPutTest {
         //  Test failed run of job creation with job id containing invalid characters.
         JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b6*dff00", validJob);
     }
+
+    @Test(expected = BadRequestException.class)
+    public void testCreateRestrictedJob_Failure_typeAndTaskSpecified() throws Exception {
+        final NewJob job = makeRestrictedJob("basic", null);
+        job.setTask(validJob.getTask());
+        JobsPut.createOrUpdateJob("partition", "id", job);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testCreateRestrictedJob_Failure_missingType() throws Exception {
+        JobsPut.createOrUpdateJob("partition", "id", makeRestrictedJob("missing", null));
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testCreateRestrictedJob_Failure_invalidParams() throws Exception {
+        final JobType failingJobType = new JobType(
+            "id", "classifier", 2, "task pipe", "target pipe",
+            (partitionId, jobId, params) -> { throw new BadRequestException("invalid params"); });
+        JobTypes.initialise(() -> Collections.singletonList(failingJobType));
+        JobsPut.createOrUpdateJob("partition", "id", makeRestrictedJob("basic", null));
+    }
+
+    public void testCreateRestrictedJob_Success() throws Exception {
+        when(mockDatabaseHelper.doesJobAlreadyExist(anyString(), anyString(), anyInt()))
+            .thenReturn(false);
+        when(mockDatabaseHelper.canJobBeProgressed(anyString(), anyString())).thenReturn(true);
+        JobsPut.createOrUpdateJob("partition", "id",
+            makeRestrictedJob("basic", TextNode.valueOf("params")));
+
+        verify(mockDatabaseHelper, times(1))
+            .createJob(eq("partition"), eq("id"), anyString(), anyString(), anyString(), anyInt());
+        final ArgumentCaptor<WorkerAction> workerActionCaptor =
+            ArgumentCaptor.forClass(WorkerAction.class);
+        verify(mockQueueServices, times(1))
+            .sendMessage(eq("partition"), eq("id"), workerActionCaptor.capture(), any());
+
+        final WorkerAction workerAction = workerActionCaptor.getValue();
+        assertEquals(Collections.singletonMap("key", "val"), workerAction.getTaskData());
+    }
+
+    // null params
 
     @Test(expected = BadRequestException.class)
     public void testCreateJob_Failure_TaskDataNotSpecified() throws Exception {
