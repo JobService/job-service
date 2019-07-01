@@ -87,9 +87,10 @@ public class JobServiceBasicHttpsIT
     @Test
     public void basicCommunicationTest() throws IOException, URISyntaxException
     {
-        final String getRequestUrl = UriBuilder.fromUri(https_url)
+        final URI getRequestUrl = UriBuilder.fromUri(https_url)
             .path("partitions").path(UUID.randomUUID().toString())
-            .path("jobs").toString();
+            .path("jobs")
+            .build();
         final HttpGet request = new HttpGet(getRequestUrl);
 
         System.out.println("Sending GET to url: " + getRequestUrl);
