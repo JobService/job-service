@@ -264,7 +264,7 @@ public class JobServiceIT {
     public void testCreateJobTwiceInParallelWithDeps() throws Throwable {
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
-        final NewJob newJob = makeJob(jobId, "testCreateJobTwiceInParallel");
+        final NewJob newJob = makeJob(jobId, "testCreateJobTwiceInParallelWithDeps");
         newJob.setPrerequisiteJobIds(Collections.singletonList(UUID.randomUUID().toString()));
         final JobServiceAssert.TestThread req1 = new JobServiceAssert.TestThread(
             () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));

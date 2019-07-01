@@ -67,6 +67,8 @@ BEGIN
 
 EXCEPTION WHEN unique_violation THEN
 
+    -- updating the job is disallowed, so on conflict we can only succeed if the hash indicates the
+    -- provided job is exactly the same as the existing job
     IF EXISTS(
         SELECT 1 FROM job
         WHERE job.partition_id = in_partition_id

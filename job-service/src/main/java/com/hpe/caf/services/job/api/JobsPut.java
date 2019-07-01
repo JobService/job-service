@@ -166,9 +166,9 @@ public final class JobsPut {
                         .collect(Collectors.toList()));
             }
 
-            final boolean jobCreated;
             //  Create job in the database.
             LOG.info("createOrUpdateJob: Creating job in the database...");
+            final boolean jobCreated;
             if (job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) {
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
@@ -183,8 +183,6 @@ public final class JobsPut {
                 return "update";
             }
 
-            // Check if job_task_data row exists for the specified job_id and if it does return 'accepted'
-            // and not 'created'.
             if (!databaseHelper.canJobBeProgressed(partitionId, jobId)) {
                 return "create";
             }
