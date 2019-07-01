@@ -18,8 +18,18 @@
  *  Name: create_job
  *
  *  Description:
- *  Create a new row in the job table.
+ *  Create a new row in the job table.  Returns a single row, with true if the job doesn't already
+ *  exist, and false if the job already exists with the same hash.
  */
+DROP FUNCTION IF EXISTS create_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_name VARCHAR(255),
+    in_description TEXT,
+    in_data TEXT,
+    in_job_hash INT
+);
+
 CREATE OR REPLACE FUNCTION create_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),
@@ -28,7 +38,9 @@ CREATE OR REPLACE FUNCTION create_job(
     in_data TEXT,
     in_job_hash INT
 )
-RETURNS VOID
+RETURNS TABLE(
+    job_created BOOLEAN
+)
 LANGUAGE plpgsql
 AS $$
 BEGIN
@@ -37,33 +49,8 @@ BEGIN
         RAISE EXCEPTION 'Job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data
     END IF;
 
-    -- Create new row in job and return the job_id
-    INSERT INTO public.job(
-        partition_id,
-        job_id,
-        name,
-        description,
-        data,
-        create_date,
-        last_update_date,
-        status,
-        percentage_complete,
-        failure_details,
-        delay,
-        job_hash
-    ) VALUES (
-        in_partition_id,
-        in_job_id,
-        in_name,
-        in_description,
-        in_data,
-        now() AT TIME ZONE 'UTC',
-        now() AT TIME ZONE 'UTC',
-        'Waiting',
-        0.00,
-        NULL,
-        0,
-        in_job_hash
-    );
+    RETURN QUERY
+    SELECT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, 0, in_job_hash);
+
 END
 $$;

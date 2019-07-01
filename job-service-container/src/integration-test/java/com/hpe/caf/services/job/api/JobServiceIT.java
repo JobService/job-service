@@ -48,6 +48,7 @@ import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
+import static com.hpe.caf.services.job.api.JobServiceAssert.assertThrowsApiException;
 import static org.testng.Assert.*;
 import static org.testng.FileAssert.fail;
 
@@ -118,35 +119,6 @@ public class JobServiceIT {
         newJob.setParameters(params);
 
         return newJob;
-    }
-
-
-    /**
-     * A function that might throw.
-     */
-    @FunctionalInterface
-    private interface MaybeFail {
-        void run() throws Exception;
-    }
-
-
-    /**
-     * Assert that an API call fails with a specific error.
-     *
-     * @param status HTTP status code to expect
-     * @param apiCall Function which calls the API
-     */
-    private void assertThrowsApiException(final Response.Status status, final MaybeFail apiCall) {
-        ApiException apiErr = null;
-        try {
-            apiCall.run();
-        } catch (ApiException e) {
-            apiErr = e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        assertNotNull(apiErr, "API call should fail");
-        assertEquals(apiErr.getCode(), status.getStatusCode(), "error code should be " + status);
     }
 
     @BeforeTest
@@ -265,6 +237,47 @@ public class JobServiceIT {
         assertEquals(retrievedJobAfter.getName(), newJob.getName(), "job name should be unchanged");
         assertEquals(retrievedJobAfter.getLastUpdateTime(), retrievedJobBefore.getLastUpdateTime(),
             "job last update time should be unchanged");
+    }
+
+    // regression test for SCMOD-7065
+    @Test
+    public void testCreateJobTwiceInParallel() throws Throwable {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeJob(jobId, "testCreateJobTwiceInParallel");
+        final JobServiceAssert.TestThread req1 = new JobServiceAssert.TestThread(
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+        final JobServiceAssert.TestThread req2 = new JobServiceAssert.TestThread(
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+
+        // just checking the requests succeed
+        req1.start();
+        req2.start();
+        req1.join();
+        req2.join();
+        req1.handleThrown();
+        req2.handleThrown();
+    }
+
+    // regression test for SCMOD-7065
+    @Test
+    public void testCreateJobTwiceInParallelWithDeps() throws Throwable {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeJob(jobId, "testCreateJobTwiceInParallelWithDeps");
+        newJob.setPrerequisiteJobIds(Collections.singletonList(UUID.randomUUID().toString()));
+        final JobServiceAssert.TestThread req1 = new JobServiceAssert.TestThread(
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+        final JobServiceAssert.TestThread req2 = new JobServiceAssert.TestThread(
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+
+        // just checking the requests succeed
+        req1.start();
+        req2.start();
+        req1.join();
+        req2.join();
+        req1.handleThrown();
+        req2.handleThrown();
     }
 
     @Test

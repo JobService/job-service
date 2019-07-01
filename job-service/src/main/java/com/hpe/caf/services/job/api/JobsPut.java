@@ -65,8 +65,6 @@ public final class JobsPut {
      * @throws  Exception       bad request exception or database exception
      */
     public static String createOrUpdateJob(final String partitionId, String jobId, NewJob job) throws Exception {
-        String targetOperation;
-
         try {
             LOG.info("createOrUpdateJob: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
@@ -161,67 +159,60 @@ public final class JobsPut {
             //  Create hash of parameters not being stored in the database.
             int jobHash = job.hashCode();
 
-            //  Check first if there is anything to do.
-            boolean rowExists = databaseHelper.doesJobAlreadyExist(partitionId, jobId, jobHash);
-            if (!rowExists){
-                targetOperation = "create";
-
-                // Remove all null or blank prerequisite job ids from the job's list of prerequisiteJobIds
-                if (job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) {
-                    job.setPrerequisiteJobIds(job.getPrerequisiteJobIds().stream()
-                            .filter(prereqJobId -> prereqJobId != null && !prereqJobId.trim().isEmpty())
-                            .collect(Collectors.toList()));
-                }
-
-                //  Create job in the database.
-                LOG.info("createOrUpdateJob: Creating job in the database...");
-                if (job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) {
-                    databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
-                            job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
-                            getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
-                            job.getPrerequisiteJobIds(), job.getDelay());
-
-                } else {
-                    databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
-                }
-
-                // Check if job_task_data row exists for the specified job_id and if it does return 'accepted'
-                // and not 'created'.
-                if (!databaseHelper.canJobBeProgressed(partitionId, jobId)) {
-                    return targetOperation;
-                }
-
-                //  Get database helper instance.
-                try {
-                    QueueServices queueServices = QueueServicesFactory.create(config, jobTask.getTaskPipe(),codec);
-                    LOG.info("createOrUpdateJob: Sending task data to the target queue...");
-                    queueServices.sendMessage(partitionId, jobId, jobTask, config);
-                    queueServices.close();
-                } catch(Exception ex) {
-                    //  Failure adding job data to queue. Update the job with the failure details.
-                    Failure f = new Failure();
-                    f.setFailureId("ADD_TO_QUEUE_FAILURE");
-                    f.setFailureTime(new Date());
-                    f.failureSource("Job Service - PUT /partitions/{"+partitionId+"}/jobs/{"+jobId+"}");
-                    f.failureMessage(ex.getMessage());
-
-                    ObjectMapper mapper = new ObjectMapper();
-                    final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                    mapper.setDateFormat(df);
-                    databaseHelper.reportFailure(partitionId, jobId, mapper.writeValueAsString(f));
-
-                    //  Throw error message to user.
-                    throw new Exception("Failed to add task data to the queue.");
-                }
+            // Remove all null or blank prerequisite job ids from the job's list of prerequisiteJobIds
+            if (job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) {
+                job.setPrerequisiteJobIds(job.getPrerequisiteJobIds().stream()
+                        .filter(prereqJobId -> prereqJobId != null && !prereqJobId.trim().isEmpty())
+                        .collect(Collectors.toList()));
             }
-            else {
-                targetOperation = "update";
-                LOG.debug("createOrUpdateJob: Matching job already exists so nothing to do...");
+
+            //  Create job in the database.
+            LOG.info("createOrUpdateJob: Creating job in the database...");
+            final boolean jobCreated;
+            if (job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) {
+                jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
+                        job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
+                        getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
+                        job.getPrerequisiteJobIds(), job.getDelay());
+
+            } else {
+                jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
+            }
+
+            if (!jobCreated) {
+                return "update";
+            }
+
+            if (!databaseHelper.canJobBeProgressed(partitionId, jobId)) {
+                return "create";
+            }
+
+            //  Get database helper instance.
+            try {
+                QueueServices queueServices = QueueServicesFactory.create(config, jobTask.getTaskPipe(),codec);
+                LOG.info("createOrUpdateJob: Sending task data to the target queue...");
+                queueServices.sendMessage(partitionId, jobId, jobTask, config);
+                queueServices.close();
+            } catch(Exception ex) {
+                //  Failure adding job data to queue. Update the job with the failure details.
+                Failure f = new Failure();
+                f.setFailureId("ADD_TO_QUEUE_FAILURE");
+                f.setFailureTime(new Date());
+                f.failureSource("Job Service - PUT /partitions/{"+partitionId+"}/jobs/{"+jobId+"}");
+                f.failureMessage(ex.getMessage());
+
+                ObjectMapper mapper = new ObjectMapper();
+                final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                mapper.setDateFormat(df);
+                databaseHelper.reportFailure(partitionId, jobId, mapper.writeValueAsString(f));
+
+                //  Throw error message to user.
+                throw new Exception("Failed to add task data to the queue.");
             }
 
             LOG.info("createOrUpdateJob: Done.");
 
-            return targetOperation;
+            return "create";
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());
             throw e;
