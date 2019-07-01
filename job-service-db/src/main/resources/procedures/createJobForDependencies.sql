@@ -18,10 +18,27 @@
  *  Name: create_job
  *
  *  Description:
- *  Create a new row in the job table.
+ *  Create a new row in the job table.  Returns a single row, with true if the job doesn't already
+ *  exist, and false if the job already exists with the same hash.
  *  The function also stores task data and job dependency details if any of
  *  the specified prerequisite job identifiers are not yet complete.
  */
+DROP FUNCTION IF EXISTS create_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_name VARCHAR(255),
+    in_description TEXT,
+    in_data TEXT,
+    in_job_hash INT,
+    in_task_classifier VARCHAR(255),
+    in_task_api_version INT,
+    in_task_data BYTEA,
+    in_task_pipe VARCHAR(255),
+    in_target_pipe VARCHAR(255),
+    in_prerequisite_job_ids VARCHAR(128)[],
+    in_delay INT
+);
+
 CREATE OR REPLACE FUNCTION create_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),
@@ -37,7 +54,9 @@ CREATE OR REPLACE FUNCTION create_job(
     in_prerequisite_job_ids VARCHAR(128)[],
     in_delay INT
 )
-RETURNS VOID
+RETURNS TABLE(
+    job_created BOOLEAN
+)
 LANGUAGE plpgsql
 AS $$
 BEGIN
@@ -76,34 +95,10 @@ BEGIN
         in_delay = 0;
     END IF;
 
-    -- Create new row in job and return the job_id
-    INSERT INTO public.job (
-        partition_id,
-        job_id,
-        name,
-        description,
-        data,
-        create_date,
-        last_update_date,
-        status,
-        percentage_complete,
-        failure_details,
-        delay,
-        job_hash
-    ) VALUES (
-        in_partition_id,
-        in_job_id,
-        in_name,
-        in_description,
-        in_data,
-        now() AT TIME ZONE 'UTC',
-        now() AT TIME ZONE 'UTC',
-        'Waiting',
-        0.00,
-        NULL,
-        in_delay,
-        in_job_hash
-    );
+    IF NOT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, in_delay, in_job_hash) THEN
+        RETURN QUERY SELECT FALSE;
+        RETURN;
+    END IF;
 
     -- Store task data and job dependency rows if any of the prerequisite job identifiers are not yet complete
 
@@ -175,5 +170,7 @@ BEGIN
             CASE WHEN NOT FOUND THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') END
         );
     END IF;
+
+    RETURN QUERY SELECT TRUE;
 END
 $$;

@@ -208,23 +208,18 @@ public final class DatabaseHelper
     }
 
     /**
-     * Creates the specified job.
+     * Call one of the `create_job` database functions and parse the result.
+     *
+     * @param statement Statement which calls the `create_job` function
+     * @return Whether the job was created
+     * @throws Exception
      */
-    public void createJob(final String partitionId, String jobId, String name, String description, String data, int jobHash) throws Exception {
-
-        try (
-                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?)}")
-        ) {
-            stmt.setString(1, partitionId);
-            stmt.setString(2,jobId);
-            stmt.setString(3,name);
-            stmt.setString(4,description);
-            stmt.setString(5,data);
-            stmt.setInt(6,jobHash);
-
+    private boolean callCreateJobFunction(final CallableStatement statement) throws Exception {
+        try {
             LOG.debug("Calling create_job() database function...");
-            stmt.execute();
+            final ResultSet rs = statement.executeQuery();
+            rs.next();
+            return rs.getBoolean("job_created");
         } catch (SQLException se) {
             //  Determine source of SQL exception and throw appropriate error.
             String sqlState = se.getSQLState();
@@ -238,18 +233,37 @@ public final class DatabaseHelper
                 throw se;
             }
         }
-
     }
 
     /**
      * Creates the specified job.
+     * @return Whether the job was created
      */
-    public void createJobWithDependencies(final String partitionId, final String jobId, final String name, final String description,
+    public boolean createJob(final String partitionId, String jobId, String name, String description, String data, int jobHash) throws Exception {
+        try (
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?)}")
+        ) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2,jobId);
+            stmt.setString(3,name);
+            stmt.setString(4,description);
+            stmt.setString(5,data);
+            stmt.setInt(6,jobHash);
+
+            return callCreateJobFunction(stmt);
+        }
+    }
+
+    /**
+     * Creates the specified job.
+     * @return Whether the job was created
+     */
+    public boolean createJobWithDependencies(final String partitionId, final String jobId, final String name, final String description,
                                           final String data, final int jobHash, final String taskClassifier,
                                           final int taskApiVersion, final byte[] taskData, final String taskPipe,
                                           final String targetPipe, final List<String> prerequisiteJobIds,
                                           final int delay) throws Exception {
-
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?)}")
@@ -271,22 +285,8 @@ public final class DatabaseHelper
             stmt.setArray(12,prerequisiteJobIdSQLArray);
             stmt.setInt(13,delay);
 
-            LOG.debug("Calling create_job() database function...");
-            stmt.execute();
-        } catch (SQLException se) {
-            //  Determine source of SQL exception and throw appropriate error.
-            String sqlState = se.getSQLState();
-
-            if (sqlState.equals("02000")) {
-                //  Job id has not been provided.
-                throw new BadRequestException(se.getMessage());
-            } else if (sqlState.equals("23505")) {
-                throw new ForbiddenException("Job already exists");
-            } else {
-                throw se;
-            }
+            return callCreateJobFunction(stmt);
         }
-
     }
 
     /**
@@ -318,31 +318,6 @@ public final class DatabaseHelper
                     throw se;
             }
         }
-    }
-
-    /**
-     * Check if a matching job identifier with the specified hash already exists.
-     */
-    public boolean doesJobAlreadyExist(final String partitionId, String jobId, int jobHash) throws Exception {
-
-        final boolean exists;
-
-        try (
-                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_job_exists(?,?,?)}")
-        ) {
-            stmt.setString(1, partitionId);
-            stmt.setString(2, jobId);
-            stmt.setInt(3, jobHash);
-
-            //  Execute a query to determine if a matching job row already exists.
-            LOG.debug("Calling get_job_exists() database function...");
-            ResultSet rs = stmt.executeQuery();
-            rs.next();
-            exists = rs.getBoolean("job_exists");
-        }
-
-        return exists;
     }
 
     /**

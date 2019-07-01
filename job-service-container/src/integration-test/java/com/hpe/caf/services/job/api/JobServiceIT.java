@@ -259,6 +259,27 @@ public class JobServiceIT {
         req2.handleThrown();
     }
 
+    // regression test for SCMOD-7065
+    @Test
+    public void testCreateJobTwiceInParallelWithDeps() throws Throwable {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob newJob = makeJob(jobId, "testCreateJobTwiceInParallel");
+        newJob.setPrerequisiteJobIds(Collections.singletonList(UUID.randomUUID().toString()));
+        final JobServiceAssert.TestThread req1 = new JobServiceAssert.TestThread(
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+        final JobServiceAssert.TestThread req2 = new JobServiceAssert.TestThread(
+            () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+
+        // just checking the requests succeed
+        req1.start();
+        req2.start();
+        req1.join();
+        req2.join();
+        req1.handleThrown();
+        req2.handleThrown();
+    }
+
     @Test
     public void testUpdateJobName() throws ApiException {
         final String jobId = UUID.randomUUID().toString();
