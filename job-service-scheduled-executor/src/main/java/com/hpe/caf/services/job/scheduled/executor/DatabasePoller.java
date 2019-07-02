@@ -218,15 +218,15 @@ public class DatabasePoller
             final Properties myProp = new Properties();
             myProp.put("user", dbUser);
             myProp.put("password", dbPass);
-            /*
-            SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Log forging. The values of databaseUrl, dbUser, dbPass are all set using
-            properties or env variables.
-            */
             LOG.debug(MessageFormat.format("Connecting to database {0} with username {1} and password {2} ...", databaseUrl, dbUser, dbPass));
             conn = DriverManager.getConnection(databaseUrl, myProp);
             LOG.debug("Connected to database.");
         } catch (final SQLException se) {
             final String errorMessage = MessageFormat.format("Failed to connect to database {0} with username {1} and password {2}.", databaseUrl, dbUser, dbPass);
+            /*
+            SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Log forging. The values of databaseUrl, dbUser, dbPass are all set using
+            properties or env variables.
+            */
             LOG.error(errorMessage);
             throw new ScheduledExecutorException(errorMessage);
         }
