@@ -227,19 +227,19 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     /**
      * Reports the progress of the proxied task message, then forwards it to its destination.
      * @param proxiedTaskMessage the proxied task message being diverted via the Job Tracking Worker
-     * @param queueMessageId the reference to the message this task arrived on
+     * @param taskInformation the reference to the message this task arrived on
      * @param headers the map of key/value paired headers to be stamped on the message
      * @param callback worker callback to enact the forwarding action determined by the worker
      */
     @Override
-    public void determineForwardingAction(TaskMessage proxiedTaskMessage, String queueMessageId,
+    public void determineForwardingAction(TaskMessage proxiedTaskMessage, TaskInformation taskInformation,
                                           Map<String, Object> headers, WorkerCallback callback) {
 
         List<JobTrackingWorkerDependency> jobDependencyList = reportProxiedTask(proxiedTaskMessage, headers);
         if (jobDependencyList != null && jobDependencyList.size() > 0) {
             // Forward any dependent jobs which are now available for processing
             try {
-                forwardAvailableJobs(jobDependencyList, callback, proxiedTaskMessage.getTracking().getTrackingPipe());
+                forwardAvailableJobs(jobDependencyList, callback, proxiedTaskMessage.getTracking().getTrackingPipe(), taskInformation);
             } catch (Exception e) {
                 LOG.error("Failed to create dependent jobs.");
                 throw new RuntimeException("Failed to create dependent jobs.", e);
@@ -247,7 +247,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         }
 
         LOG.debug("Forwarding task {}", proxiedTaskMessage.getTaskId());
-        callback.forward(queueMessageId, proxiedTaskMessage.getTo(), proxiedTaskMessage, headers);
+        callback.forward(taskInformation, proxiedTaskMessage.getTo(), proxiedTaskMessage, headers);
     }
 
     /**
@@ -373,14 +373,17 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
      * @param trackingPipe target pipe where dependent jobs should be forwarded to.
      * @throws Exception
      */
-    private void forwardAvailableJobs(final List<JobTrackingWorkerDependency> jobDependencyList, final WorkerCallback callback, final String trackingPipe) throws Exception
+    private void forwardAvailableJobs(final List<JobTrackingWorkerDependency> jobDependencyList,
+                                      final WorkerCallback callback, final String trackingPipe,
+                                      TaskInformation taskInformation) throws Exception
     {
         // Walk the resultSet placing each returned job on the Rabbit Queue
         try {
             for (final JobTrackingWorkerDependency jobDependency : jobDependencyList) {
                 final TaskMessage dependentJobTaskMessage =
                         JobTrackingWorkerUtil.createDependentJobTaskMessage(jobDependency, trackingPipe);
-                callback.send("-1", dependentJobTaskMessage);
+
+                callback.send(taskInformation, dependentJobTaskMessage);
             }
         } catch (final Exception e) {
             LOG.error("Error retrieving Dependent Job Info from the Job Service Database {}", e);

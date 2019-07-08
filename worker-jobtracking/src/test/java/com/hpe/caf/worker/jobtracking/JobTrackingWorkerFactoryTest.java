@@ -26,6 +26,8 @@ import com.hpe.caf.worker.tracking.report.TrackingReportConstants;
 import com.hpe.caf.worker.tracking.report.TrackingReportStatus;
 import com.hpe.caf.worker.tracking.report.TrackingReportTask;
 import java.util.ArrayList;
+
+import javafx.concurrent.Task;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,11 +77,13 @@ public class JobTrackingWorkerFactoryTest {
         //Create the worker factory subject to testing
         JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
 
+        TaskInformation taskInformation = Mockito.mock(TaskInformation.class);
+
         //Test
-        workerFactory.determineForwardingAction(tm, queueMsgId, headers, mockCallback);
+        workerFactory.determineForwardingAction(tm, taskInformation, headers, mockCallback);
 
         //verify results
-        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
+        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
         Mockito.verify(reporter, Mockito.times(1)).reportJobTaskComplete(Mockito.eq(jobTaskId));
     }
 
@@ -139,11 +143,13 @@ public class JobTrackingWorkerFactoryTest {
         //Create the worker factory subject to testing
         JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
 
+        TaskInformation taskInformation = Mockito.mock(TaskInformation.class);
+
         //Test
-        workerFactory.determineForwardingAction(tm, queueMsgId, headers, mockCallback);
+        workerFactory.determineForwardingAction(tm, taskInformation, headers, mockCallback);
 
         //verify results
-        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
+        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
         Mockito.verify(reporter, Mockito.times(1)).reportJobTaskProgress(Mockito.eq(jobTaskId), Mockito.anyInt());
     }
 
@@ -166,11 +172,13 @@ public class JobTrackingWorkerFactoryTest {
         //Create the worker factory subject to testing
         JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
 
+        TaskInformation taskInformation = Mockito.mock(TaskInformation.class);
+
         //Test
-        workerFactory.determineForwardingAction(tm, queueMsgId, headers, mockCallback);
+        workerFactory.determineForwardingAction(tm, taskInformation, headers, mockCallback);
 
         //verify results
-        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
+        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
         Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRejected(Mockito.eq(jobTaskId), Mockito.any());
     }
 
@@ -193,11 +201,13 @@ public class JobTrackingWorkerFactoryTest {
         //Create the worker factory subject to testing
         JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
 
+        TaskInformation taskInformation = Mockito.mock(TaskInformation.class);
+
         //Test
-        workerFactory.determineForwardingAction(tm, queueMsgId, headers, mockCallback);
+        workerFactory.determineForwardingAction(tm, taskInformation, headers, mockCallback);
 
         //verify results
-        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(queueMsgId), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
+        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
         Mockito.verify(reporter, Mockito.times(1)).reportJobTaskProgress(Mockito.eq(jobTaskId),Mockito.anyInt());
     }
 
