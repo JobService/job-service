@@ -26,7 +26,6 @@ import com.hpe.caf.worker.tracking.report.TrackingReportConstants;
 import com.hpe.caf.worker.tracking.report.TrackingReportStatus;
 import com.hpe.caf.worker.tracking.report.TrackingReportTask;
 import java.util.ArrayList;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
