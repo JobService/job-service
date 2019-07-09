@@ -407,7 +407,7 @@
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
                                 </ports>
-                                <cmd>postgres -c log_min_messages=DEBUG5</cmd>
+<!--                                <cmd>postgres -c log_min_messages=DEBUG5</cmd>-->
                                 <env>
                                     <POSTGRES_PASSWORD>${job.database.password}</POSTGRES_PASSWORD>
                                     <POSTGRES_USER>${job.database.username}</POSTGRES_USER>
