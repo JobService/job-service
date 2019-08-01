@@ -29,7 +29,7 @@ The deployment files contain the following services:
     The Worker Framework is a pluggable infrastructure and technically it can use different messaging systems.  However it is most common for RabbitMQ to be used for messaging, and that is what is used here.
 
 4. Job Tracking Worker  
-    For simplicity the Job Tracking Worker is not shown on the diagram above.  The diagram shows messages passing directly between the workers, but in reality the messages are passed through the Job Tracking Worker, which acts as a proxy for them.  It routes them to their intended destination but it also updates the Job Service Database with the progress.  This means that the Job Service is able to provide accurate progress reports when they are requested.
+    For simplicity the Job Tracking Worker is not shown on the diagram above.  The diagram shows messages passing directly between the workers.  A second message is passed by the workers to the Job Tracking Worker with progress information, which updates the Job Service Database. This means that the Job Service is able to provide accurate progress reports when they are requested.
 
 5. Job Service Scheduled Executor  
     This is a polling service that identifies jobs in the system that depend on other jobs which are now complete. It is an ExecutorService which schedules a task to execute repeatedly identifying jobs which are ready to run. For simplicity, this service is not shown in the diagram but for each job identified, a message is then published on RabbitMQ in order to start the job.
