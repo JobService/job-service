@@ -35,6 +35,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -123,9 +124,8 @@ public class JobServiceIT {
 
     @BeforeTest
     public void setup() throws Exception {
-        defaultPartitionId = UUID.randomUUID().toString();
         connectionString = System.getenv("webserviceurl");
-        
+
         //Populate maps for testing    
         taskMessageParams.put("datastorePartialReference", "sample-files");
         taskMessageParams.put("documentDataInputFolder", "/mnt/caf-datastore-root/sample-files");
@@ -159,6 +159,11 @@ public class JobServiceIT {
         if (testQueueManager != null) {
             testQueueManager.close();
         }
+    }
+
+    @BeforeMethod
+    public void setupMethod() {
+        defaultPartitionId = UUID.randomUUID().toString();
     }
 
     @Test
@@ -372,7 +377,6 @@ public class JobServiceIT {
     @Test
     public void testRetrieveMultipleJobs() throws ApiException {
         String randomUUID = UUID.randomUUID().toString();
-        //to test functionality of returning Jobs based on cafCorrelationId
         for(int i=0; i<10; i++){
             String jobId = randomUUID +"_"+i;
             String jobName = "Job_"+randomUUID +"_"+i;
@@ -397,25 +401,58 @@ public class JobServiceIT {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         }
 
-        //retrieve the jobs
         List<Job> retrievedJobs = jobsApi.getJobs(defaultPartitionId, "100",null,null,null,null);
-
-        //test to make sure at least the 10 jobs created are returned. Unable to filter by cafCorrelationID
-        assertTrue(retrievedJobs.size()>=10);
+        assertEquals(retrievedJobs.size(), 10);
+        retrievedJobs.sort(Comparator.comparing(Job::getId));
 
         for(int i=0; i<10; i++) {
             String expectedId = randomUUID +"_" +i;
             String expectedName = "Job_" +randomUUID +"_" +i;
             String expectedDescription = expectedName + " Descriptive Text.";
             String expectedExternalData = expectedName +" External data.";
-            //only assert if the job is one of the jobs created above (the getJobs returns ALL jobs)
-            if(retrievedJobs.get(i).getId().equals(""+i)) {
-                assertEquals(retrievedJobs.get(i).getId(), expectedId);
-                assertEquals(retrievedJobs.get(i).getName(), expectedName);
-                assertEquals(retrievedJobs.get(i).getDescription(), expectedDescription);
-                assertEquals(retrievedJobs.get(i).getExternalData(), expectedExternalData);
-            }
+
+            assertEquals(retrievedJobs.get(i).getId(), expectedId);
+            assertEquals(retrievedJobs.get(i).getName(), expectedName);
+            assertEquals(retrievedJobs.get(i).getDescription(), expectedDescription);
+            assertEquals(retrievedJobs.get(i).getExternalData(), expectedExternalData);
         }
+    }
+
+    @Test
+    public void testGetJobsFilterNotFinished() throws ApiException {
+        final String correlationId = "1";
+
+        final String canceledJobId = UUID.randomUUID().toString();
+        final NewJob canceledJob = makeJob(canceledJobId, "testGetJobsFilterNotFinished");
+        jobsApi.createOrUpdateJob(defaultPartitionId, canceledJobId, canceledJob, correlationId);
+        jobsApi.cancelJob(defaultPartitionId,  canceledJobId, correlationId);
+
+        final String waitingJobId = UUID.randomUUID().toString();
+        final NewJob waitingJob = makeJob(waitingJobId, "testGetJobsFilterNotFinished");
+        jobsApi.createOrUpdateJob(defaultPartitionId, waitingJobId, waitingJob, correlationId);
+
+        final List<Job> jobs = jobsApi.getJobs(
+            defaultPartitionId, correlationId, null, "NotFinished", null, null);
+        assertEquals(jobs.size(), 1);
+        assertEquals(jobs.get(0).getId(), waitingJobId);
+    }
+
+    @Test
+    public void testGetJobsCountFilterNotFinished() throws ApiException {
+        final String correlationId = "1";
+
+        final String canceledJobId = UUID.randomUUID().toString();
+        final NewJob canceledJob = makeJob(canceledJobId, "testGetJobsCountFilterNotFinished");
+        jobsApi.createOrUpdateJob(defaultPartitionId, canceledJobId, canceledJob, correlationId);
+        jobsApi.cancelJob(defaultPartitionId,  canceledJobId, correlationId);
+
+        final String waitingJobId = UUID.randomUUID().toString();
+        final NewJob waitingJob = makeJob(waitingJobId, "testGetJobsCountFilterNotFinished");
+        jobsApi.createOrUpdateJob(defaultPartitionId, waitingJobId, waitingJob, correlationId);
+
+        final long count = jobsApi.getJobsCount(
+            defaultPartitionId, correlationId, null, "NotFinished");
+        assertEquals(count, 1);
     }
 
     @Test

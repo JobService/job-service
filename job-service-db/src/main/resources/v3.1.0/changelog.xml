@@ -39,4 +39,13 @@
                          path="procedures/createJobForDependencies.sql" />
     </changeSet>
 
+    <changeSet id="update_procedures_add_not_finished_filter" author="Gamma Team">
+        <createProcedure schemaName="public"
+                         procedureName="get_jobs_count"
+                         path="procedures/getJobsCount.sql" />
+        <createProcedure schemaName="public"
+                         procedureName="get_jobs"
+                         path="procedures/getJobs.sql" />
+    </changeSet>
+
 </databaseChangeLog>
