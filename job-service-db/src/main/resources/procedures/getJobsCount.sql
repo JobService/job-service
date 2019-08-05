@@ -43,6 +43,7 @@ BEGIN
     --      NotCompleted - only those results with statuses other than Completed will be returned;
     --      Completed - only those results with Completed status will be returned;
     --      Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned;
+    --      NotFinished - only those results with unfinished statuses (ie. Active, Paused, Waiting) will be returned;
     --      Anything else returns all statuses.
     sql := $q$SELECT COUNT(job.job_id) FROM job$q$;
 
@@ -65,6 +66,9 @@ BEGIN
             whereOrAnd := andConst;
         ELSIF in_status_type = 'Inactive' THEN
             sql := sql || whereOrAnd || $q$ status IN ('Completed', 'Cancelled', 'Failed')$q$;
+            whereOrAnd := andConst;
+        ELSIF in_status_type = 'NotFinished' THEN
+            sql := sql || whereOrAnd || $q$ status IN ('Active', 'Paused', 'Waiting')$q$;
             whereOrAnd := andConst;
         END IF;
     END IF;
