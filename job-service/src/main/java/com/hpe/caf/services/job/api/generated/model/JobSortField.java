@@ -22,11 +22,6 @@ public enum JobSortField {
     JOB_ID("job_id"),
     CREATE_DATE("create_date");
 
-    /**
-     * The field that should be used to sort by default.
-     */
-    public final static JobSortField DEFAULT = CREATE_DATE;
-
     private final String dbField;
 
     JobSortField(final String dbField) {

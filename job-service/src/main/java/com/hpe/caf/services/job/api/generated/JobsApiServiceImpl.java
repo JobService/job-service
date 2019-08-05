@@ -30,9 +30,9 @@ import javax.ws.rs.core.UriInfo;
 public class JobsApiServiceImpl extends JobsApiService {
 
     @Override
-    public Response getJobs(final String partitionId, final String jobIdStartsWith, final String statusType, final Integer limit, final Integer offset, String cAFCorrelationId, String sortField, String sortOrder, SecurityContext securityContext)
+    public Response getJobs(final String partitionId, final String jobIdStartsWith, final String statusType, final Integer limit, final Integer offset, String cAFCorrelationId, String sort, SecurityContext securityContext)
             throws Exception {
-        Job[] jobs = JobsGet.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, sortField, sortOrder);
+        Job[] jobs = JobsGet.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, sort);
         return Response.ok().entity(jobs).build();
     }
 

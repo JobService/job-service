@@ -16,24 +16,16 @@
 package com.hpe.caf.services.job.api.generated.model;
 
 /**
- * Directions a list of jobs can be sorted in.
+ * Directions a list can be sorted in.
  */
-public enum JobSortOrder {
+public enum SortDirection {
     ASCENDING(true),
     DESCENDING(false);
 
     private final boolean dbValue;
 
-    JobSortOrder(final boolean dbValue) {
+    SortDirection(final boolean dbValue) {
         this.dbValue = dbValue;
-    }
-
-    /**
-     * @param sortFieldProvided Whether a {@link JobSortField} was provided
-     * @return The sort order that should be used to sort by default
-     */
-    public static JobSortOrder getDefault(final boolean sortFieldProvided) {
-        return sortFieldProvided ? ASCENDING : DESCENDING;
     }
 
     /**
