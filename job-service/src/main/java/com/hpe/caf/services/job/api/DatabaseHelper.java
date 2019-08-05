@@ -19,6 +19,8 @@ import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.api.generated.model.JobSortField;
+import com.hpe.caf.services.job.api.generated.model.JobSortOrder;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
@@ -58,13 +60,13 @@ public final class DatabaseHelper
     /**
      * Returns a list of job definitions in the system.
      */
-    public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit, Integer offset) throws Exception {
+    public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit, Integer offset, final JobSortField sortField, final JobSortOrder sortOrder) throws Exception {
 
         List<Job> jobs=new ArrayList<>();
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -83,6 +85,8 @@ public final class DatabaseHelper
             stmt.setString(3, statusType);
             stmt.setInt(4, limit);
             stmt.setInt(5, offset);
+            stmt.setString(6, sortField.getDbField());
+            stmt.setBoolean(7, sortOrder.getDbValue());
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");

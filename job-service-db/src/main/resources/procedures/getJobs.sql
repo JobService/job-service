@@ -19,6 +19,9 @@
  *
  *  Description:
  *  Returns the list of job definitions in the system.
+ *
+ * in_sort_field: name of the column to sort by
+ * in_sort_ascending: true to sort ascending, false to sort descending
  */
 DROP FUNCTION IF EXISTS get_jobs(
     in_job_id_starts_with VARCHAR(58),
@@ -30,7 +33,9 @@ CREATE OR REPLACE FUNCTION get_jobs(
     in_job_id_starts_with VARCHAR(48),
     in_status_type VARCHAR(20),
     in_limit INT,
-    in_offset INT
+    in_offset INT,
+    in_sort_field VARCHAR(20),
+    in_sort_ascending BOOLEAN
 )
 RETURNS TABLE(
     job_id VARCHAR(48),
@@ -102,7 +107,8 @@ BEGIN
         END IF;
     END IF;
 
-    sql := sql || ' ORDER BY create_date DESC';
+    sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
+        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
 
     IF in_limit > 0 THEN
         sql := sql || ' LIMIT ' || in_limit;

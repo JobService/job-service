@@ -48,6 +48,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.hpe.caf.services.job.api.JobServiceAssert.assertThrowsApiException;
 import static org.testng.Assert.*;
@@ -101,6 +102,19 @@ public class JobServiceIT {
         newJob.setTask(workerActionTask);
 
         return newJob;
+    }
+
+    /**
+     * Create a job in the job-service.
+     *
+     * @param jobId
+     * @return The job ID
+     * @throws ApiException
+     */
+    private String createJob(final String jobId) throws ApiException {
+        final NewJob job = makeJob(jobId, UUID.randomUUID().toString());
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, "1");
+        return jobId;
     }
 
     /**
@@ -401,9 +415,9 @@ public class JobServiceIT {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         }
 
-        List<Job> retrievedJobs = jobsApi.getJobs(defaultPartitionId, "100",null,null,null,null);
+        List<Job> retrievedJobs = jobsApi.getJobs(
+            defaultPartitionId, "100",null,null,null,null,null,null);
         assertEquals(retrievedJobs.size(), 10);
-        retrievedJobs.sort(Comparator.comparing(Job::getId));
 
         for(int i=0; i<10; i++) {
             String expectedId = randomUUID +"_" +i;
@@ -411,10 +425,11 @@ public class JobServiceIT {
             String expectedDescription = expectedName + " Descriptive Text.";
             String expectedExternalData = expectedName +" External data.";
 
-            assertEquals(retrievedJobs.get(i).getId(), expectedId);
-            assertEquals(retrievedJobs.get(i).getName(), expectedName);
-            assertEquals(retrievedJobs.get(i).getDescription(), expectedDescription);
-            assertEquals(retrievedJobs.get(i).getExternalData(), expectedExternalData);
+            final int resultIndex = 9 - i; // default order is by create date, descending
+            assertEquals(retrievedJobs.get(resultIndex).getId(), expectedId);
+            assertEquals(retrievedJobs.get(resultIndex).getName(), expectedName);
+            assertEquals(retrievedJobs.get(resultIndex).getDescription(), expectedDescription);
+            assertEquals(retrievedJobs.get(resultIndex).getExternalData(), expectedExternalData);
         }
     }
 
@@ -432,7 +447,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, waitingJobId, waitingJob, correlationId);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, "NotFinished", null, null);
+            defaultPartitionId, correlationId, null, "NotFinished", null, null, null, null);
         assertEquals(jobs.size(), 1);
         assertEquals(jobs.get(0).getId(), waitingJobId);
     }
@@ -453,6 +468,36 @@ public class JobServiceIT {
         final long count = jobsApi.getJobsCount(
             defaultPartitionId, correlationId, null, "NotFinished");
         assertEquals(count, 1);
+    }
+
+    @Test
+    public void testGetJobsWithSortField() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String job1Id = createJob(jobId + "C");
+        final String job2Id = createJob(jobId + "A");
+        final String job3Id = createJob(jobId + "b");
+
+        final List<Job> jobs = jobsApi.getJobs(
+            defaultPartitionId, "1", null, null, null, null, "JOB_ID", null);
+        final List<String> resultJobIds =
+            jobs.stream().map(job -> job.getId()).collect(Collectors.toList());
+        assertEquals(resultJobIds, Arrays.asList(jobId + "A", jobId + "b", jobId + "C"),
+            "should sort case-insensitively by ascending job ID");
+    }
+
+    @Test
+    public void testGetJobsWithSortOrder() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String job1Id = createJob(jobId + "C");
+        final String job2Id = createJob(jobId + "A");
+        final String job3Id = createJob(jobId + "b");
+
+        final List<Job> jobs = jobsApi.getJobs(
+            defaultPartitionId, "1", null, null, null, null, "JOB_ID", "DESCENDING");
+        final List<String> resultJobIds =
+            jobs.stream().map(job -> job.getId()).collect(Collectors.toList());
+        assertEquals(resultJobIds, Arrays.asList(jobId + "C", jobId + "b", jobId + "A"),
+            "should sort case-insensitively by descending job ID");
     }
 
     @Test
@@ -596,8 +641,8 @@ public class JobServiceIT {
         final NewJob newJob = makeJob(jobId, "testGetJobsFromDifferentPartition");
 
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
-        final List<Job> jobs =
-            jobsApi.getJobs(UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null);
+        final List<Job> jobs = jobsApi.getJobs(
+            UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null, null, null);
         assertEquals(jobs.size(), 0, "job list should be empty");
     }
 

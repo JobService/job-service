@@ -91,6 +91,24 @@ paths:
         format: int32
         required: false
         description: The starting position from which to return results (useful for paging)
+      - name: sortField
+        in: query
+        type: string
+        required: false
+        description: The field to sort the returned results by
+        default: CREATE_DATE
+        enum:
+          - JOB_ID
+          - CREATE_DATE
+      - name: sortOrder
+        in: query
+        type: string
+        required: false
+        description: The direction in which the returned results are sorted with respect to sortField. If sortField is not specified, then the default value is DESCENDING
+        default: ASCENDING
+        enum:
+          - ASCENDING
+          - DESCENDING
     get:
       tags:
         - Jobs
