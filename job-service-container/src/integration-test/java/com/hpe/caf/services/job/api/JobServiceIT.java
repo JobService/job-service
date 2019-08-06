@@ -478,7 +478,7 @@ public class JobServiceIT {
         final String job3Id = createJob(jobId + "b");
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, "1", null, null, null, null, "JOB_ID:ASCENDING");
+            defaultPartitionId, "1", null, null, null, null, "jobId:asc");
         final List<String> resultJobIds =
             jobs.stream().map(job -> job.getId()).collect(Collectors.toList());
         assertEquals(resultJobIds, Arrays.asList(jobId + "A", jobId + "b", jobId + "C"),

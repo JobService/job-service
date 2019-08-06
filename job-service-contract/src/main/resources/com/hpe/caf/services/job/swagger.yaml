@@ -95,8 +95,8 @@ paths:
         in: query
         type: string
         required: false
-        description: 'How to order the returned results, in the format <field>:<direction>.  Allowed values for field: JOB_ID, CREATE_DATE.  Allowed values for direction: ASCENDING, DESCENDING.'
-        default: CREATE_DATE:DESCENDING
+        description: 'How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.'
+        default: createTime:desc
     get:
       tags:
         - Jobs

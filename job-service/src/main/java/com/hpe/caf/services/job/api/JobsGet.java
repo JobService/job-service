@@ -60,14 +60,12 @@ public final class JobsGet {
                 if (sortParts.length != 2) {
                     throw new BadRequestException("Invalid format for sort: " + sort);
                 }
-                try {
-                    sortField = JobSortField.valueOf(sortParts[0]);
-                } catch (final IllegalArgumentException e) {
+                sortField = JobSortField.fromApiValue(sortParts[0]);
+                if (sortField == null) {
                     throw new BadRequestException("Invalid value for sort field: " + sortParts[0]);
                 }
-                try {
-                    sortDirection = SortDirection.valueOf(sortParts[1]);
-                } catch (final IllegalArgumentException e) {
+                sortDirection = SortDirection.fromApiValue(sortParts[1]);
+                if (sortDirection == null) {
                     throw new BadRequestException(
                         "Invalid value for sort direction: " + sortParts[1]);
                 }

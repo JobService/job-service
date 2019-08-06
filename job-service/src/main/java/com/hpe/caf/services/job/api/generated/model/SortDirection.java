@@ -15,17 +15,45 @@
  */
 package com.hpe.caf.services.job.api.generated.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Directions a list can be sorted in.
  */
 public enum SortDirection {
-    ASCENDING(true),
-    DESCENDING(false);
+    ASCENDING("asc", true),
+    DESCENDING("desc", false);
 
+    private static final Map<String, SortDirection> apiValueLookup = new HashMap<>();
+
+    private final String apiValue;
     private final boolean dbValue;
 
-    SortDirection(final boolean dbValue) {
+    static {
+        for (final SortDirection direction : values()) {
+            apiValueLookup.put(direction.apiValue, direction);
+        }
+    }
+
+    SortDirection(final String apiValue, final boolean dbValue) {
+        this.apiValue = apiValue;
         this.dbValue = dbValue;
+    }
+
+    /**
+     * @param apiValue Public identifier for this sort direction
+     * @return The matching sort direction, or null
+     */
+    public static SortDirection fromApiValue(final String apiValue) {
+        return apiValueLookup.get(apiValue);
+    }
+
+    /**
+     * @return Public identifier for this sort direction
+     */
+    public String getApiValue() {
+        return apiValue;
     }
 
     /**
