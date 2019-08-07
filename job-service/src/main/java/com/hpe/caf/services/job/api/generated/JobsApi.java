@@ -50,9 +50,11 @@ public class JobsApi  {
             @ApiParam(value = "All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned; NotFinished - only those results with unfinished statuses (ie. Active, Paused, Waiting) will be returned.") @QueryParam("statusType") String statusType,
             @ApiParam(value = "The maximum results to return (i.e. page size)") @QueryParam("limit") Integer limit,
             @ApiParam(value = "The starting position from which to return results (useful for paging)") @QueryParam("offset") Integer offset,
-            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,@Context SecurityContext securityContext)
+            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,
+            @ApiParam(value = "How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.") @QueryParam("sort") String sort,
+            @Context SecurityContext securityContext)
             throws Exception {
-        return delegate.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, cAFCorrelationId,securityContext);
+        return delegate.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, cAFCorrelationId, sort, securityContext);
     }
 
     @GET

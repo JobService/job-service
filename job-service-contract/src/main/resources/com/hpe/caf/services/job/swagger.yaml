@@ -91,6 +91,12 @@ paths:
         format: int32
         required: false
         description: The starting position from which to return results (useful for paging)
+      - name: sort
+        in: query
+        type: string
+        required: false
+        description: 'How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.'
+        default: createTime:desc
     get:
       tags:
         - Jobs

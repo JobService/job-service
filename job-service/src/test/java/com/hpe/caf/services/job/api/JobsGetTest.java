@@ -16,6 +16,8 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.api.generated.model.JobSortField;
+import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,14 +56,37 @@ public final class JobsGetTest {
     @Test
     public void testGetJob_Success() throws Exception {
         //  Test successful run of job retrieval.
-        JobsGet.getJobs("partition", "", null, 0, 0);
+        JobsGet.getJobs("partition", "", null, 0, 0, null);
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs("partition", "", null, 0, 0);
+        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
+            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING);
     }
 
     @Test(expected = BadRequestException.class)
-    public void testGetJobs_Success_EmptyPartitionId() throws Exception {
-        JobsGet.getJobs("", "", null, 0, 0);
+    public void testGetJobs_Failure_EmptyPartitionId() throws Exception {
+        JobsGet.getJobs("", "", null, 0, 0, null);
+    }
+
+    @Test
+    public void testGetJobs_Success_WithSort() throws Exception {
+        JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc");
+        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
+            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testGetJobs_Failure_InvalidSort() throws Exception {
+        JobsGet.getJobs("partition", "", null, 0, 0, "invalid");
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testGetJobs_Failure_InvalidSortField() throws Exception {
+        JobsGet.getJobs("partition", "", null, 0, 0, "unknown:desc");
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testGetJobs_Failure_InvalidSortDirection() throws Exception {
+        JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random");
     }
 
 }

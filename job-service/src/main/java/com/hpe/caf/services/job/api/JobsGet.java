@@ -18,12 +18,17 @@ package com.hpe.caf.services.job.api;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.api.generated.model.JobSortField;
+import com.hpe.caf.services.job.api.generated.model.SortDirection;
+import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class JobsGet {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsGet.class);
+    private static final JobSortField DEFAULT_SORT_FIELD = JobSortField.CREATE_DATE;
+    private static final SortDirection DEFAULT_SORT_DIRECTION = SortDirection.DESCENDING;
 
     /**
      * Gets a list of jobs from the job database specified by environment variable configuration.
@@ -35,13 +40,37 @@ public final class JobsGet {
      * @return  jobs        list of jobs
      * @throws Exception    bad request or database exceptions
      */
-    public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit, final Integer offset) throws Exception {
+    public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit, final Integer offset, final String sort) throws Exception {
 
         Job[] jobs;
 
         try {
             LOG.info("getJobs: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
+
+            final JobSortField sortField;
+            final SortDirection sortDirection;
+
+            if (sort == null) {
+                sortField = DEFAULT_SORT_FIELD;
+                sortDirection = DEFAULT_SORT_DIRECTION;
+
+            } else {
+                final String[] sortParts = sort.split(":", 2);
+                if (sortParts.length != 2) {
+                    throw new BadRequestException("Invalid format for sort: " + sort);
+                }
+                sortField = JobSortField.fromApiValue(sortParts[0]);
+                if (sortField == null) {
+                    throw new BadRequestException("Invalid value for sort field: " + sortParts[0]);
+                }
+                sortDirection = SortDirection.fromApiValue(sortParts[1]);
+                if (sortDirection == null) {
+                    throw new BadRequestException(
+                        "Invalid value for sort direction: " + sortParts[1]);
+                }
+            }
+
 
             //  Get app config settings.
             LOG.debug("getJobs: Reading database connection properties...");
@@ -55,7 +84,8 @@ public final class JobsGet {
             if (limit == null || limit <= 0) {
                 limit = config.getDefaultPageSize();
             }
-            jobs = databaseHelper.getJobs(partitionId, jobId, statusType, limit, offset);
+            jobs = databaseHelper.getJobs(
+                partitionId, jobId, statusType, limit, offset, sortField, sortDirection);
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());
             throw e;

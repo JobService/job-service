@@ -48,4 +48,13 @@
                          path="procedures/getJobs.sql" />
     </changeSet>
 
+    <changeSet id="add_job_sorting" author="Gamma Team">
+        <createProcedure schemaName="public"
+                         procedureName="get_jobs"
+                         path="procedures/getJobs.sql" />
+        <createIndex schemaName="public" tableName="job" indexName="idx_job_create_date">
+            <column name="create_date" />
+        </createIndex>
+    </changeSet>
+
 </databaseChangeLog>
