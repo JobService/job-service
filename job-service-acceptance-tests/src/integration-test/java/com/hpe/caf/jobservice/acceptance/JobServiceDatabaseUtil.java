@@ -25,6 +25,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Properties;
 
 /**
@@ -43,7 +44,7 @@ public class JobServiceDatabaseUtil
             st.setString(1, jobId);
             final ResultSet jobRS = st.executeQuery();
             jobRS.next();
-            Assert.assertEquals(jobRS.getString(1).toLowerCase(), expectedStatus);
+            Assert.assertEquals(jobRS.getString(1).toLowerCase(Locale.ENGLISH), expectedStatus);
             jobRS.close();
 
             st.close();

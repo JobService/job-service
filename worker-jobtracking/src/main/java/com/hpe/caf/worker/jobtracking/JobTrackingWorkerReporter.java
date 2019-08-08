@@ -29,6 +29,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -66,7 +67,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
 
     public JobTrackingWorkerReporter() throws JobReportingException {
-        this.jobDatabaseURL = Objects.requireNonNull(JobDatabaseProperties.getDatabaseUrl()).toLowerCase();
+        this.jobDatabaseURL = Objects.requireNonNull(JobDatabaseProperties.getDatabaseUrl()).toLowerCase(Locale.ENGLISH);
         if (!jobDatabaseURL.startsWith(JDBC_POSTGRESQL_PREFIX))
         {
             throw new JobReportingException("Invalid database url string format - must start with jdbc:postgresql:");

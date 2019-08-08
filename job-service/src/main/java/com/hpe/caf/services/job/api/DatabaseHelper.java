@@ -35,6 +35,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * The DatabaseHelper class is responsible for database operations.
@@ -100,7 +101,7 @@ public final class DatabaseHelper
                 job.setExternalData(rs.getString("data"));
                 job.setCreateTime(getDate(rs.getString("create_date")));
                 job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
-                job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase()));
+                job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
                 job.setPercentageComplete(rs.getFloat("percentage_complete"));
 
                 //  Parse JSON failure sub-strings.
@@ -182,7 +183,7 @@ public final class DatabaseHelper
                 job.setExternalData(rs.getString("data"));
                 job.setCreateTime(getDate(rs.getString("create_date")));
                 job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
-                job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase()));
+                job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
                 job.setPercentageComplete(rs.getFloat("percentage_complete"));
 
                 //  Parse JSON failure sub-strings.
@@ -376,7 +377,7 @@ public final class DatabaseHelper
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
                 final Job.StatusEnum status =
-                    Job.StatusEnum.valueOf(rs.getString("status").toUpperCase());
+                    Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH));
                 active = status == Job.StatusEnum.ACTIVE || status == Job.StatusEnum.WAITING;
             }
 
