@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Locale;
 import java.util.Properties;
 
 /**
@@ -47,7 +48,7 @@ public final class DatabaseConnectionProvider
         final Connection conn;
 
         // Only JDBC/PostgreSQL connections supported.
-        final String dbURL = appConfig.getDatabaseURL().toLowerCase();
+        final String dbURL = appConfig.getDatabaseURL().toLowerCase(Locale.ENGLISH);
         if ( !dbURL.startsWith(JDBC_POSTGRESQL_PREFIX) )
         {
             throw new Exception(ERR_MSG_DB_URL_FORMAT_INVALID);

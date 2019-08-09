@@ -22,6 +22,7 @@ import org.springframework.core.env.Environment;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 
 /**
  * Configuration class for the job service api. Includes connection properties to both database and RabbitMQ.
@@ -100,7 +101,7 @@ public class AppConfig {
      */
     public String getJobTypeProperty(final String jobTypeId, final String propertyName) {
         return environment.getProperty("CAF_JOB_SERVICE_JOB_TYPE_" +
-            jobTypeId.toUpperCase() + "_" + propertyName.toUpperCase());
+            jobTypeId.toUpperCase(Locale.ENGLISH) + "_" + propertyName.toUpperCase(Locale.ENGLISH));
     }
 
 }
