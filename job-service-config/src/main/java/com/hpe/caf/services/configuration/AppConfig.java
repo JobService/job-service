@@ -28,7 +28,7 @@ import java.util.Locale;
  * Configuration class for the job service api. Includes connection properties to both database and RabbitMQ.
  */
 @Configuration
-@PropertySource(value = "file:${JOB_SERVICE_API_CONFIG_PATH}/config.properties", ignoreResourceNotFound = true)
+@PropertySource(value = "classpath:${JOB_SERVICE_API_CONFIG_PATH:config.properties}", ignoreResourceNotFound = true)
 public class AppConfig {
 
     @Autowired
