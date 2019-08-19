@@ -45,6 +45,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     private static final String FAILED_TO_REPORT_COMPLETION = "Failed to report the completion of job task {0}. {1}";
     private static final String FAILED_TO_REPORT_REJECTION = "Failed to report the failure and rejection of job task {0}. {1}";
 
+    private static final String POSTGRES_OPERATOR_FAILURE_CODE_PREFIX = "57";
+
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerReporter.class);
 
     @NotNull
@@ -143,6 +145,10 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             throw new JobReportingTransientException(
                 MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
         } catch (final SQLException se) {
+            if (isSqlStateIn(se, POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+                throw new JobReportingTransientException(
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
+            }
             throw new JobReportingException(
                 MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
         }
@@ -189,6 +195,10 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             throw new JobReportingTransientException(
                 MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId, te.getMessage()), te);
         } catch (final SQLException se) {
+            if (isSqlStateIn(se, POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+                throw new JobReportingTransientException(
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
+            }
             throw new JobReportingException(
                 MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId, se.getMessage()), se);
         }
@@ -232,7 +242,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             final String CONNECTION_EXCEPTION = "08";
             final String INSUFFICIENT_RESOURCES = "53";
 
-            if (isSqlStateIn(ex, CONNECTION_EXCEPTION, INSUFFICIENT_RESOURCES)) {
+            if (isSqlStateIn(ex, CONNECTION_EXCEPTION, INSUFFICIENT_RESOURCES, POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(ex.getMessage(), ex);
             } else {
                 throw new JobReportingException(ex.getMessage(), ex);
