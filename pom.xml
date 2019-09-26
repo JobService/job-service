@@ -288,11 +288,6 @@
                 <version>2.0-rc2</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>2.9.6</version>
-            </dependency>
-            <dependency>
                 <groupId>org.codehaus.jettison</groupId>
                 <artifactId>jettison</artifactId>
                 <version>1.1</version>
@@ -371,8 +366,8 @@
     </dependencyManagement>
 
     <modules>
-        <module>deploy</module>
-        <module>docs</module>
+        <!--<module>deploy</module>-->
+        <!--<module>docs</module>-->
         <module>job-service-db</module>
         <module>job-service-postgres-container</module>
         <module>job-service-caller</module>
