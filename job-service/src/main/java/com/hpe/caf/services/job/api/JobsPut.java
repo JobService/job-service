@@ -16,6 +16,7 @@
 package com.hpe.caf.services.job.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
@@ -30,7 +31,6 @@ import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.services.job.jobtype.JobTypes;
 import com.hpe.caf.util.ModuleLoader;
 import org.apache.commons.codec.binary.Base64;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
