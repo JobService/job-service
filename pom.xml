@@ -366,8 +366,8 @@
     </dependencyManagement>
 
     <modules>
-        <!--<module>deploy</module>-->
-        <!--<module>docs</module>-->
+        <module>deploy</module>
+        <module>docs</module>
         <module>job-service-db</module>
         <module>job-service-postgres-container</module>
         <module>job-service-caller</module>
