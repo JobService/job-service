@@ -38,8 +38,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi</groupId>
-            <artifactId>swagger-ui</artifactId>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>swagger-ui-dist</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -58,10 +58,11 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.github.cafapi</groupId>
-                                    <artifactId>swagger-ui</artifactId>
+                                    <groupId>org.webjars.npm</groupId>
+                                    <artifactId>swagger-ui-dist</artifactId>
+                                    <version>${swagger-ui-version}</version>
                                     <outputDirectory>${project.build.directory}/swagger-ui</outputDirectory>
-                                    <excludes>**/META-INF/**</excludes>
+                                    <excludes>META-INF/resources/webjars/swagger-ui-dist/${swagger-ui-version}/index.html</excludes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.github.jobservice</groupId>
@@ -83,7 +84,12 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <webResources>
                         <resource>
-                            <directory>${project.build.directory}/swagger-ui</directory>
+                            <directory>${project.build.directory}/swagger-ui/META-INF/resources/webjars/swagger-ui-dist/${swagger-ui-version}</directory>
+                            <targetPath>.</targetPath>
+                        </resource>
+                        <resource>
+                            <directory>src/main/html</directory>
+                            <targetPath>.</targetPath>
                         </resource>
                         <resource>
                             <directory>${project.build.directory}/swagger-contract/com/hpe/caf/services/job</directory>
