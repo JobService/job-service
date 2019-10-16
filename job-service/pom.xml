@@ -210,16 +210,10 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- Logging -->
+        <!-- Logging -->        
         <dependency>
-            <!--Required at runtime for log4j output-->
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-to-slf4j</artifactId>            
+            <groupId>com.github.cafapi</groupId>
+            <artifactId>caf-logging</artifactId>
             <scope>runtime</scope>
         </dependency>
         <!-- Test dependencies -->

@@ -15,6 +15,9 @@
 # limitations under the License.
 #
 
+log() {
+    echo "$@" | $(dirname "$0")/../scripts/caf-log-format.sh "${0##*/}"
+}
 dropwizardConfig="/maven/worker.yaml"
 
 ####################################################
@@ -23,7 +26,7 @@ dropwizardConfig="/maven/worker.yaml"
 function set_dropwizard_config_file_location_if_mounted(){
   if [ "$DROPWIZARD_CONFIG_PATH" ] && [ -e "$DROPWIZARD_CONFIG_PATH" ];
   then
-    echo "Using dropwizard config file at $DROPWIZARD_CONFIG_PATH"
+    log "INFO: Using dropwizard config file at $DROPWIZARD_CONFIG_PATH"
     dropwizardConfig="$DROPWIZARD_CONFIG_PATH"
   fi
 }
