@@ -210,7 +210,7 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- Logging -->        
+        <!-- Logging -->
         <dependency>
             <groupId>com.github.cafapi</groupId>
             <artifactId>caf-logging</artifactId>
