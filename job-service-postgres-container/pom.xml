@@ -45,6 +45,16 @@
             <version>${project.version}</version>
             <classifier>jar-with-dependencies</classifier>
         </dependency>
+        <dependency>
+            <groupId>com.github.cafapi</groupId>
+            <artifactId>caf-logging</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>            
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
