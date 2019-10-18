@@ -151,6 +151,23 @@
             <artifactId>job-service-util</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Logging -->
+        <dependency>            
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cafapi</groupId>
+            <artifactId>caf-logging</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.tomcat-slf4j-logback</groupId>
+            <artifactId>tomcat7-slf4j-logback</artifactId>
+            <scope>runtime</scope>
+        </dependency>           
+        <!-- End Logging -->
     </dependencies>
 
     <profiles>
@@ -311,6 +328,7 @@
                                 </ports>
                                 <env>
                                     <APACHE_PORT>8080</APACHE_PORT>
+                                    <CAF_LOG_LEVEL>DEBUG</CAF_LOG_LEVEL>
                                 </env>
                                 <wait>
                                     <log>WebDAV Server startup complete</log>
@@ -337,6 +355,7 @@
                                     <POSTGRES_PASSWORD>root</POSTGRES_PASSWORD>
                                     <POSTGRES_USER>postgres</POSTGRES_USER>
                                     <POSTGRES_DB>${db.name}</POSTGRES_DB>
+                                    <CAF_LOG_LEVEL>DEBUG</CAF_LOG_LEVEL>
                                 </env>
                                 <wait>
                                     <log>PostgreSQL init process complete</log>
@@ -534,6 +553,7 @@
                                     <CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>invalid-output target-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>
                                     <CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TASK_PIPE>empty-target-pipe task-pipe</CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TASK_PIPE>
                                     <CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TARGET_PIPE></CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TARGET_PIPE>
+                                    <CAF_LOG_LEVEL>DEBUG</CAF_LOG_LEVEL>
                                 </env>
                                 <volumes>
                                     <from>
