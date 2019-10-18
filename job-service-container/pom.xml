@@ -162,11 +162,6 @@
             <artifactId>caf-logging</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>com.github.tomcat-slf4j-logback</groupId>
-            <artifactId>tomcat7-slf4j-logback</artifactId>
-            <scope>runtime</scope>
-        </dependency>           
         <!-- End Logging -->
     </dependencies>
 
