@@ -170,11 +170,6 @@
                 <version>${caf.worker-framework.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.tomcat-slf4j-logback</groupId>
-                <artifactId>tomcat7-slf4j-logback</artifactId>
-                <version>7.0.97-SNAPSHOT</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>2.8.2</version>
