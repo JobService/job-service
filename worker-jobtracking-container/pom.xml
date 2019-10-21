@@ -92,16 +92,6 @@
             <classifier>jar-with-dependencies</classifier>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>com.github.cafapi</groupId>
-            <artifactId>caf-logging</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>            
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <scope>runtime</scope>
-        </dependency>
         <!--Test dependencies.-->
         <dependency>
             <groupId>junit</groupId>
