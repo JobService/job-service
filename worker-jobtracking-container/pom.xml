@@ -95,6 +95,12 @@
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-db</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
             <classifier>jar-with-dependencies</classifier>
             <scope>runtime</scope>
         </dependency>
