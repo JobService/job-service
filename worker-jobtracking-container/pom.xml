@@ -68,12 +68,6 @@
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>worker-core</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework</groupId>
@@ -95,13 +89,12 @@
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-db</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-            </exclusions>
             <classifier>jar-with-dependencies</classifier>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cafapi</groupId>
+            <artifactId>caf-logging</artifactId>
             <scope>runtime</scope>
         </dependency>
         <!--Test dependencies.-->
