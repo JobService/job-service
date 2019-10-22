@@ -72,6 +72,11 @@
             <version>2.9.6</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.cafapi</groupId>
+            <artifactId>caf-logging</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -133,6 +138,49 @@ limitations under the License.
                     </inlineHeader>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>modify-swagger-jabservice-client2-logging</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <property>
+                                    <name>targetDir</name>
+                                    <value>${project.build.directory}</value>
+                                </property>
+                            </properties>
+                            <scripts>
+                                <script><![CDATA[
+                                    def apiClientFile = new File(targetDir + "/swagger/src/main/java/com/hpe/caf/services/job/client/ApiClient.java")
+                                    def apiClientFileContents = apiClientFile.text
+                                    if(apiClientFileContents==null){
+                                        throw Exception();
+                                    }
+                                    def loggerDefinition = 'public class ApiClient \\{ \n    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ApiClient.class);'
+                                    def loggerDefinedAddedText = apiClientFileContents.replaceAll('public class ApiClient \\{', loggerDefinition)
+                                    def logInterceptorModifiedText = loggerDefinedAddedText.replaceAll('HttpLoggingInterceptor\\(', 'HttpLoggingInterceptor\\(msg -> \\{ LOGGER.debug(msg); \\}')
+                                    apiClientFile.write(logInterceptorModifiedText)
+                                ]]></script>
+                            </scripts>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-all</artifactId>
+                        <version>2.4.7</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
+            </plugin>            
         </plugins>
     </build>
 
