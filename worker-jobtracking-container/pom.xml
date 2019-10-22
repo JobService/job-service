@@ -418,6 +418,7 @@
                                                     <exclude>com.github.jobservice:job-service-db</exclude>
                                                 </excludes>
                                                 <outputDirectory>/maven</outputDirectory>
+                                                <useTransitiveFiltering>true</useTransitiveFiltering>
                                             </dependencySet>
                                             <dependencySet>
                                                 <useProjectArtifact>false</useProjectArtifact>
