@@ -323,7 +323,6 @@
                                 </ports>
                                 <env>
                                     <APACHE_PORT>8080</APACHE_PORT>
-                                    <CAF_LOG_LEVEL>DEBUG</CAF_LOG_LEVEL>
                                 </env>
                                 <wait>
                                     <log>WebDAV Server startup complete</log>
@@ -350,7 +349,6 @@
                                     <POSTGRES_PASSWORD>root</POSTGRES_PASSWORD>
                                     <POSTGRES_USER>postgres</POSTGRES_USER>
                                     <POSTGRES_DB>${db.name}</POSTGRES_DB>
-                                    <CAF_LOG_LEVEL>DEBUG</CAF_LOG_LEVEL>
                                 </env>
                                 <wait>
                                     <log>PostgreSQL init process complete</log>
@@ -495,6 +493,14 @@
                                                 </includes>
                                                 <unpack>true</unpack>
                                                 <useProjectArtifact>false</useProjectArtifact>
+                                            </dependencySet>
+                                            <dependencySet>
+                                                <useProjectArtifact>false</useProjectArtifact>
+                                                <excludes>
+                                                    <exclude>com.github.jobservice:job-service-db</exclude>
+                                                </excludes>
+                                                <outputDirectory>/maven</outputDirectory>
+                                                <useTransitiveFiltering>true</useTransitiveFiltering>
                                             </dependencySet>
                                             <dependencySet>
                                                 <useProjectArtifact>false</useProjectArtifact>
