@@ -451,7 +451,7 @@
                                     <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
                                     <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
                                     <!-- DEBUGGING -->
-                                    <_JAVA_OPTIONS>-Dorg.jboss.logging.provider=slf4j</_JAVA_OPTIONS>
+                                    <!-- <_JAVA_OPTIONS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</_JAVA_OPTIONS>-->
                                 </env>
                                 <volumes>
                                     <from>

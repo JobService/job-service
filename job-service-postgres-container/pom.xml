@@ -136,7 +136,6 @@
                                 </links>
                                 <env>
                                     <POSTGRES_DB>${js.database.name}</POSTGRES_DB>
-                                    <CAF_LOG_LEVEL>DEBUG</CAF_LOG_LEVEL>
                                 </env>
                                 <cmd>
                                     ./install_job_service_db.sh -fd -db.connection jdbc:postgresql://${js.database.host}:5432 -db.name ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password}
@@ -221,9 +220,6 @@
                                 <log>
                                     <enabled>true</enabled>
                                 </log>
-                                <env>
-                                    <CAF_LOG_LEVEL>DEBUG</CAF_LOG_LEVEL>
-                                </env>
                             </run>
                         </image>
                     </images>
