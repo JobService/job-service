@@ -12,7 +12,7 @@ ${version-number}
 
 #### Bug fixes
 - SCMOD-7065: Fixed HTTP status for parallel duplicate job creation
-
+- SCMOD-7143: Fixed WorkerCallback update for TaskInformation 
 
 #### Known Issues
 - None
