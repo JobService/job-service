@@ -13,6 +13,7 @@ ${version-number}
 #### Bug fixes
 - **SCMOD-7065**: Fixed HTTP status for parallel duplicate job creation
 - **SCMOD-7143**: Fixed WorkerCallback update for TaskInformation 
+- **SCMOD-7336**: Job-Tracking failure fixed during Postgres failover 
 
 #### Known Issues
 - None
