@@ -72,12 +72,13 @@ paths:
         in: query
         type: string
         required: false
-        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned.
+        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned; NotFinished - only those results with unfinished statuses (ie. Active, Paused, Waiting) will be returned.
         enum:
           - All
           - NotCompleted
           - Completed
           - Inactive
+          - NotFinished
       - name: limit
         in: query
         type: integer
@@ -90,6 +91,12 @@ paths:
         format: int32
         required: false
         description: The starting position from which to return results (useful for paging)
+      - name: sort
+        in: query
+        type: string
+        required: false
+        description: 'How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.'
+        default: createTime:desc
     get:
       tags:
         - Jobs
@@ -231,12 +238,13 @@ paths:
         in: query
         type: string
         required: false
-        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned.
+        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned; NotFinished - only those results with unfinished statuses (ie. Active, Paused, Waiting) will be returned.
         enum:
           - All
           - NotCompleted
           - Completed
           - Inactive
+          - NotFinished
     get:
       tags:
         - Jobs
@@ -252,6 +260,7 @@ paths:
 definitions:
   newJob:
     type: object
+    description: Exactly one of task and job should be specified.
     properties:
       name:
         type: string
@@ -270,6 +279,12 @@ definitions:
           components.
       task:
         $ref: "#/definitions/worker-action"
+      type:
+        type: string
+        description: Execute the job using a specific job type configured on the service.
+      parameters:
+        type: object
+        description: Input to the selected job type.
       prerequisiteJobIds:
         type: array
         items:
@@ -279,7 +294,7 @@ definitions:
         type: integer
         format: int32
         default: 0		
-        description: The time in seconds after the prerequisite job identifiers have completed before this job is eligible for running. 
+        description: The time in seconds after the prerequisite job identifiers have completed before this job is eligible for running.
   worker-action:
     type: object
     required:

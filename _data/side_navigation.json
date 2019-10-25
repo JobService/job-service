@@ -50,6 +50,14 @@
             "url": {
                 "en-us": "pages/en-us/Scheduling-Jobs"
             }
+        },
+        {
+            "title": {
+                "en-us": "Job Types"
+            },
+            "url": {
+                "en-us": "pages/en-us/Job-Types"
+            }
         }]
     }, {
         "title": {
