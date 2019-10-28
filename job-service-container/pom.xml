@@ -152,15 +152,16 @@
             <scope>test</scope>
         </dependency>
         <!-- Logging -->
-        <dependency>            
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi</groupId>
-            <artifactId>caf-logging</artifactId>
-            <scope>runtime</scope>
+            <groupId>com.github.cafapi.logging</groupId>
+            <artifactId>caf-logging</artifactId>   
+            <type>pom</type>         
+            <scope>test</scope>
         </dependency>
         <!-- End Logging -->
     </dependencies>

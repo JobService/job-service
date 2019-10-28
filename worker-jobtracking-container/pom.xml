@@ -93,9 +93,10 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi</groupId>
+            <groupId>com.github.cafapi.logging</groupId>
             <artifactId>caf-logging</artifactId>
             <scope>runtime</scope>
+            <type>pom</type>
         </dependency>
         <!--Test dependencies.-->
         <dependency>

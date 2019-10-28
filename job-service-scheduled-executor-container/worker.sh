@@ -16,7 +16,7 @@
 #
 
 log() {
-    echo "$@" | $(dirname "$0")/../scripts/caf-log-format.sh "${0##*/}"
+    echo "$@" | $(dirname "$0")/../scripts/caf-log-format.sh "${0##*/}" $$
 }
 dropwizardConfig="/maven/worker.yaml"
 

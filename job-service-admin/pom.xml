@@ -45,8 +45,9 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi</groupId>
+            <groupId>com.github.cafapi.logging</groupId>
             <artifactId>caf-logging</artifactId>
+            <type>pom</type>
             <scope>runtime</scope>
         </dependency>
         <dependency>
