@@ -15,6 +15,4 @@
 #
 
 logging:
-  level: ${CAF_LOG_LEVEL:-INFO}
-  loggers:
-    com.hpe.caf: ${CAF_LOG_LEVEL:-INFO}
+  type: external
