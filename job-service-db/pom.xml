@@ -46,7 +46,8 @@
                 <version>3.0</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/*.sql</exclude>
+                        <exclude>**/getOptions.sql</exclude>
+                        <exclude>**/getPrereqJobIdOptions.sql</exclude>
                     </excludes>
                     <mapping>
                         <java>PHP</java>
