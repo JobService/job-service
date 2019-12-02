@@ -46,8 +46,6 @@
                 <version>3.0</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/changelog.xml</exclude>
-                        <exclude>**/changelog-master.xml</exclude>
                         <exclude>**/*.sql</exclude>
                     </excludes>
                     <mapping>
