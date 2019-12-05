@@ -149,12 +149,14 @@
         </addColumn>
     </changeSet>
     <changeSet id="add_procedure_internal_get_options" author="Gamma Team">
+        <validCheckSum>7:bc95dd9476c92f7dcc586d445bf0dbf4</validCheckSum>
         <createProcedure path="procedures/getOptions.sql"
                          procedureName="internal_get_options"
                          schemaName="public">
         </createProcedure>
     </changeSet>
     <changeSet id="add_procedure_internal_get_prereq_job_id_options" author="Gamma Team">
+        <validCheckSum>7:d8a33a77002e769d2c17e558d9759574</validCheckSum>
         <createProcedure path="procedures/getPrereqJobIdOptions.sql"
                          procedureName="internal_get_prereq_job_id_options"
                          schemaName="public">

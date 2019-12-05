@@ -41,29 +41,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.mycila</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>3.0</version>
-                <configuration>
-                    <excludes>
-                        <exclude>**/getOptions.sql</exclude>
-                        <exclude>**/getPrereqJobIdOptions.sql</exclude>
-                    </excludes>
-                    <mapping>
-                        <java>PHP</java>
-                    </mapping>
-                    <skip>${skipLicenseHeadersCheck}</skip>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>check-license-headers</id>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
