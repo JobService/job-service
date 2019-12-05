@@ -36,6 +36,11 @@
     
     <inceptionYear>2016</inceptionYear>
 
+    <organization>
+        <name>EntIT Software LLC, a Micro Focus company</name>
+        <url>https://www.microfocus.com</url>
+    </organization>
+
     <properties>
         <copyrightYear>2020</copyrightYear>
         <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Micro Focus or one of its affiliates.</copyrightNotice>
