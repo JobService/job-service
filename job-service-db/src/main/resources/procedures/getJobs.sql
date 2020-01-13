@@ -35,7 +35,8 @@ CREATE OR REPLACE FUNCTION get_jobs(
     in_limit INT,
     in_offset INT,
     in_sort_field VARCHAR(20),
-    in_sort_ascending BOOLEAN
+    in_sort_ascending BOOLEAN,
+    in_label_filter VARCHAR(MAX),
 )
 RETURNS TABLE(
     job_id VARCHAR(48),
@@ -47,7 +48,9 @@ RETURNS TABLE(
     status job_status,
     percentage_complete DOUBLE PRECISION,
     failure_details TEXT,
-    actionType CHAR(6)
+    actionType CHAR(6),
+    label,
+    label_value,
 )
 LANGUAGE plpgsql STABLE
 AS $$
@@ -78,8 +81,17 @@ BEGIN
                job.status,
                job.percentage_complete,
                job.failure_details,
-               CAST('WORKER' AS CHAR(6)) AS actionType
-        FROM job$q$;
+               CAST('WORKER' AS CHAR(6)) AS actionType,
+           $q$;
+
+
+    IF in_label_filter IS NOT NULL AND in_label_filter != '' THEN
+        sql := sql || ' lbl.label, lbl.value ' || ' FROM job INNER JOIN public.label lbl ON lbl.job_id = job.job_id ' ||
+         whereOrAnd || in_label_filter || ' ';
+        whereOrAnd := andConst;
+    ELSE
+        sql := sql || ' FROM job '
+    END IF;
 
     sql := sql || whereOrAnd || ' partition_id = ' || quote_literal(in_partition_id);
     whereOrAnd := andConst;

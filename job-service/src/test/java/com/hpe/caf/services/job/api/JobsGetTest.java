@@ -29,6 +29,8 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 @RunWith(PowerMockRunner.class)
@@ -59,7 +61,7 @@ public final class JobsGetTest {
         JobsGet.getJobs("partition", "", null, 0, 0, null);
 
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING);
+            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null);
     }
 
     @Test(expected = BadRequestException.class)
@@ -71,7 +73,7 @@ public final class JobsGetTest {
     public void testGetJobs_Success_WithSort() throws Exception {
         JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc");
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING);
+            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null);
     }
 
     @Test(expected = BadRequestException.class)
@@ -87,6 +89,21 @@ public final class JobsGetTest {
     @Test(expected = BadRequestException.class)
     public void testGetJobs_Failure_InvalidSortDirection() throws Exception {
         JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random");
+    }
+
+    @Test
+    public void testGetJobs_Success_WithLabelFilter() throws Exception {
+        JobsGet.getJobs("partition", "", null, 0, 0, null, Arrays.asList("tag:4,5", "owner:test"));
+        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
+                "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
+                SortDirection.DESCENDING,
+                "(lbl.label = 'tag' AND lbl.value IN ('4','5')) OR (lbl.label = 'owner' AND lbl.value IN ('test'))");
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void testGetJobs_Failure_InvalidLabel_MissingValue() throws Exception {
+        JobsGet.getJobs("partition", "", null, 0, 0, null,
+                Collections.singletonList("tag"));
     }
 
 }

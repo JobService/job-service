@@ -61,13 +61,15 @@ public final class DatabaseHelper
     /**
      * Returns a list of job definitions in the system.
      */
-    public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit, Integer offset, final JobSortField sortField, final SortDirection sortDirection) throws Exception {
+    public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
+                         Integer offset, final JobSortField sortField, final SortDirection sortDirection,
+                         final String labelFilter) throws Exception {
 
         List<Job> jobs=new ArrayList<>();
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -88,6 +90,7 @@ public final class DatabaseHelper
             stmt.setInt(5, offset);
             stmt.setString(6, sortField.getDbField());
             stmt.setBoolean(7, sortDirection.getDbValue());
+            stmt.setString(8, labelFilter);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");

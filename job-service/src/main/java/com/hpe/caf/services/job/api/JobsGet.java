@@ -23,6 +23,10 @@ import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Collections;
+import java.util.List;
 
 public final class JobsGet {
 
@@ -40,7 +44,24 @@ public final class JobsGet {
      * @return  jobs        list of jobs
      * @throws Exception    bad request or database exceptions
      */
-    public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit, final Integer offset, final String sort) throws Exception {
+    public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit,
+                                final Integer offset, final String sort) throws Exception {
+        return JobsGet.getJobs(partitionId, jobId, statusType, limit, offset, sort, Collections.emptyList());
+    }
+
+    /**
+     * Gets a list of jobs from the job database specified by environment variable configuration.
+     *
+     * @param jobId         optional id of the job to get
+     * @param statusType    optional status of the job
+     * @param limit         optional limit of jobs to return per page
+     * @param offset        optional offset from which to return page of jobs
+     * @param labels        optional list of metadata to filter against.
+     * @return  jobs        list of jobs
+     * @throws Exception    bad request or database exceptions
+     */
+    public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit,
+                                final Integer offset, final String sort, final List<String> labels) throws Exception {
 
         Job[] jobs;
 
@@ -71,6 +92,7 @@ public final class JobsGet {
                 }
             }
 
+            String labelFilter = buildLabelQuery(labels);
 
             //  Get app config settings.
             LOG.debug("getJobs: Reading database connection properties...");
@@ -85,13 +107,39 @@ public final class JobsGet {
                 limit = config.getDefaultPageSize();
             }
             jobs = databaseHelper.getJobs(
-                partitionId, jobId, statusType, limit, offset, sortField, sortDirection);
+                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelFilter);
         } catch (Exception e) {
-            LOG.error("Error - '{}'", e.toString());
+            LOG.error("Error - ", e);
             throw e;
         }
 
         LOG.info("getJobs: Done.");
         return jobs;
+    }
+
+    private static String buildLabelQuery(List<String> labels) throws BadRequestException {
+        String labelFilter = null;
+        if (!CollectionUtils.isEmpty(labels)) {
+            StringBuilder sb = new StringBuilder();
+            for (String lbl : labels) {
+                final String[] split = lbl.split(":", 2);
+                if (split.length != 2) {
+                    throw new BadRequestException("Invalid format for label: " + lbl);
+                }
+                String[] values = split[1].split(",");
+                sb.append("(lbl.label = '").append(split[0]).append("'");
+                if (values.length > 0) {
+                    sb.append(" AND lbl.value IN (");
+                    for (String val : values) {
+                        sb.append("'").append(val).append("',");
+                    }
+                    sb.deleteCharAt(sb.lastIndexOf(",")).append(")");
+                }
+                sb.append(") OR ");
+            }
+            sb.delete(sb.length()-3, sb.length());
+            labelFilter = sb.toString().trim();
+        }
+        return labelFilter;
     }
 }

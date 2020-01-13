@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright 2016-2020 Micro Focus or one of its affiliates.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                                       http://www.liquibase.org/xml/ns/dbchangelog
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="create_label_table" author="Gamma Team">
+        <createTable tableName="label">
+            <column name="id" type="BIGSERIAL" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_label"/>
+            </column>
+            <column name="job_id" type="VARCHAR(48)">
+                <constraints foreignKeyName="fk_job_task_data" references="job(job_id)"/>
+            </column>
+            <column name="label" type="VARCHAR(100)"/>
+            <column name="value" type="VARCHAR(255)"/>
+        </createTable>
+        <createIndex schemaName="public" tableName="label" indexName="idx_label" unique="false">
+            <column name="id" />
+            <column name="label"/>
+            <column name="value"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="update_procedures_add_not_finished_filter" author="Gamma Team">
+        <createProcedure schemaName="public"
+                         procedureName="get_jobs_count"
+                         path="procedures/getJobsCount.sql" />
+        <createProcedure schemaName="public"
+                         procedureName="get_jobs"
+                         path="procedures/getJobs.sql" />
+    </changeSet>
+
+</databaseChangeLog>
