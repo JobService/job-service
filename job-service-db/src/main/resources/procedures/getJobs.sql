@@ -86,7 +86,7 @@ BEGIN
                lbl.label,
                lbl.value
         FROM job
-        INNER JOIN public.label lbl ON lbl.partition_id = job.partition_id AND lbl.job_id = job.job_id
+        LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id AND lbl.job_id = job.job_id
         $q$;
 
 

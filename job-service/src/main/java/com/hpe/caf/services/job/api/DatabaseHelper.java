@@ -60,7 +60,7 @@ public final class DatabaseHelper
                          Integer offset, final JobSortField sortField, final SortDirection sortDirection,
                          final String labelKey, final List<String> labelValues) throws Exception {
 
-        Map<String, Job> jobs = new HashMap<>();
+        Map<String, Job> jobs = new LinkedHashMap<>(); //Linked rather than hash to preserve order of results.
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
@@ -85,9 +85,11 @@ public final class DatabaseHelper
             stmt.setInt(5, offset);
             stmt.setString(6, sortField.getDbField());
             stmt.setBoolean(7, sortDirection.getDbValue());
-            Array array = null;
+            Array array;
             if (labelValues != null) {
-                array = conn.createArrayOf("varchar", labelValues.toArray());
+                array = conn.createArrayOf("VARCHAR", labelValues.toArray());
+            } else {
+                array = conn.createArrayOf("VARCHAR", new String[0]);
             }
             stmt.setString(8, labelKey);
             stmt.setArray(9, array);
