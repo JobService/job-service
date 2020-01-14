@@ -118,6 +118,7 @@ public final class JobsGet {
     }
 
     private static String buildLabelQuery(List<String> labels) throws BadRequestException {
+        //build up this list of OR filters, this is defo a sql injection point.
         String labelFilter = null;
         if (!CollectionUtils.isEmpty(labels)) {
             StringBuilder sb = new StringBuilder();
@@ -127,11 +128,11 @@ public final class JobsGet {
                     throw new BadRequestException("Invalid format for label: " + lbl);
                 }
                 String[] values = split[1].split(",");
-                sb.append("(lbl.label = '").append(split[0]).append("'");
+                sb.append("(lbl.label = '").append(split[0].replace("'", "''")).append("'");
                 if (values.length > 0) {
                     sb.append(" AND lbl.value IN (");
                     for (String val : values) {
-                        sb.append("'").append(val).append("',");
+                        sb.append("'").append(val.replace("'", "''")).append("',");
                     }
                     sb.deleteCharAt(sb.lastIndexOf(",")).append(")");
                 }
@@ -139,6 +140,7 @@ public final class JobsGet {
             }
             sb.delete(sb.length()-3, sb.length());
             labelFilter = sb.toString().trim();
+            labelFilter = labelFilter.replace("%", "\\%");
         }
         return labelFilter;
     }

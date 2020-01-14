@@ -36,7 +36,7 @@ CREATE OR REPLACE FUNCTION get_jobs(
     in_offset INT,
     in_sort_field VARCHAR(20),
     in_sort_ascending BOOLEAN,
-    in_label_filter VARCHAR(MAX),
+    in_label_filter TEXT
 )
 RETURNS TABLE(
     job_id VARCHAR(48),
@@ -49,8 +49,8 @@ RETURNS TABLE(
     percentage_complete DOUBLE PRECISION,
     failure_details TEXT,
     actionType CHAR(6),
-    label,
-    label_value,
+    label VARCHAR(100),
+    label_value VARCHAR(255)
 )
 LANGUAGE plpgsql STABLE
 AS $$
@@ -82,24 +82,25 @@ BEGIN
                job.percentage_complete,
                job.failure_details,
                CAST('WORKER' AS CHAR(6)) AS actionType,
-           $q$;
+               lbl.label,
+               lbl.value
+        FROM job
+        INNER JOIN public.label lbl ON lbl.partition_id = job.partition_id AND lbl.job_id = job.job_id
+        $q$;
 
 
     IF in_label_filter IS NOT NULL AND in_label_filter != '' THEN
-        sql := sql || ' lbl.label, lbl.value ' || ' FROM job INNER JOIN public.label lbl ON lbl.job_id = job.job_id ' ||
-         whereOrAnd || in_label_filter || ' ';
+        sql := sql || whereOrAnd || in_label_filter || ' ';
         whereOrAnd := andConst;
-    ELSE
-        sql := sql || ' FROM job '
     END IF;
 
-    sql := sql || whereOrAnd || ' partition_id = ' || quote_literal(in_partition_id);
+    sql := sql || whereOrAnd || ' job.partition_id = ' || quote_literal(in_partition_id);
     whereOrAnd := andConst;
 
     IF in_job_id_starts_with IS NOT NULL AND in_job_id_starts_with != '' THEN
         escapedJobIdStartsWith = replace(replace(quote_literal(in_job_id_starts_with), '_', '\_'), '%', '\%');
         escapedJobIdStartsWith = left(escapedJobIdStartsWith, char_length(escapedJobIdStartsWith) - 1) || '%''';
-        sql := sql || whereOrAnd || ' job_id LIKE ' || escapedJobIdStartsWith;
+        sql := sql || whereOrAnd || ' job.job_id LIKE ' || escapedJobIdStartsWith;
         whereOrAnd := andConst;
     END IF;
 

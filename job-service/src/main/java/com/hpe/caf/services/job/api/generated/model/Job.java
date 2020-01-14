@@ -17,6 +17,8 @@ package com.hpe.caf.services.job.api.generated.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -61,7 +63,7 @@ public class Job   {
     private StatusEnum status = null;
     private Float percentageComplete = null;
     private List<Failure> failures = new ArrayList<Failure>();
-
+    private Multimap<String, String> labels = HashMultimap.create();
 
     /**
      * The job identifier
@@ -230,7 +232,15 @@ public class Job   {
         this.failures = failures;
     }
 
+    @ApiModelProperty("Extra meta-data related to the job")
+    @JsonProperty("labels")
+    public Multimap<String, String> getLabels() {
+        return labels;
+    }
 
+    public void setLabels(Multimap<String, String> labels) {
+        this.labels = labels;
+    }
 
     @Override
     public boolean equals(Object o) {

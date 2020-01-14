@@ -27,25 +27,32 @@
     <changeSet id="create_label_table" author="Gamma Team">
         <createTable tableName="label">
             <column name="id" type="BIGSERIAL" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="pk_label"/>
+                <constraints primaryKey="true" primaryKeyName="pk_label" />
             </column>
-            <column name="job_id" type="VARCHAR(48)">
-                <constraints foreignKeyName="fk_job_task_data" references="job(job_id)"/>
-            </column>
+            <column name="partition_id" type="VARCHAR(40)" defaultValue="default"/>
+            <column name="job_id" type="VARCHAR(48)"/>
             <column name="label" type="VARCHAR(100)"/>
             <column name="value" type="VARCHAR(255)"/>
         </createTable>
+        <addForeignKeyConstraint baseTableSchemaName="public"
+                                 baseTableName="label"
+                                 constraintName="fk_label_job"
+                                 baseColumnNames="partition_id, job_id"
+                                 referencedTableName="job"
+                                 referencedColumnNames="partition_id, job_id" />
         <createIndex schemaName="public" tableName="label" indexName="idx_label" unique="false">
             <column name="id" />
             <column name="label"/>
             <column name="value"/>
         </createIndex>
+        <addUniqueConstraint tableName="label" columnNames="partition_id,job_id,label,value"
+                             schemaName="public" constraintName="UNQ_Label_1" />
     </changeSet>
 
-    <changeSet id="update_procedures_add_not_finished_filter" author="Gamma Team">
-        <createProcedure schemaName="public"
-                         procedureName="get_jobs_count"
-                         path="procedures/getJobsCount.sql" />
+    <changeSet id="update_procedures_label_filter" author="Gamma Team">
+<!--        <createProcedure schemaName="public"-->
+<!--                         procedureName="get_jobs_count"-->
+<!--                         path="procedures/getJobsCount.sql" />-->
         <createProcedure schemaName="public"
                          procedureName="get_jobs"
                          path="procedures/getJobs.sql" />

@@ -16,11 +16,8 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
-import com.hpe.caf.services.job.api.generated.model.Failure;
-import com.hpe.caf.services.job.api.generated.model.Job;
+import com.hpe.caf.services.job.api.generated.model.*;
 import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.job.api.generated.model.JobSortField;
-import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
@@ -32,10 +29,8 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * The DatabaseHelper class is responsible for database operations.
@@ -65,7 +60,7 @@ public final class DatabaseHelper
                          Integer offset, final JobSortField sortField, final SortDirection sortDirection,
                          final String labelFilter) throws Exception {
 
-        List<Job> jobs=new ArrayList<>();
+        Map<String, Job> jobs = new HashMap<>();
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
@@ -90,7 +85,9 @@ public final class DatabaseHelper
             stmt.setInt(5, offset);
             stmt.setString(6, sortField.getDbField());
             stmt.setBoolean(7, sortDirection.getDbValue());
-            stmt.setString(8, labelFilter);
+            String[][] tmp = {{"tag", "2"}};
+            Array array = conn.createArrayOf("text", tmp);
+            stmt.setArray(8, array);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
@@ -113,14 +110,22 @@ public final class DatabaseHelper
                     job.setFailures(getFailuresAsList(failureDetails));
                 }
 
-                jobs.add(job);
+                String label = rs.getString("label");
+                if (ApiServiceUtil.isNotNullOrEmpty(label)) {
+                    job.getLabels().put(label, rs.getString("label_value"));
+                }
+                //We joined onto the labels table and there may be multiple rows for the same job, so merge their labels
+                jobs.merge(job.getId(), job, (orig, insert) -> {
+                    orig.getLabels().putAll(insert.getLabels());
+                    return orig;
+                });
             }
             rs.close();
         }
 
         //  Convert arraylist to array of jobs.
         Job[] jobArr = new Job[jobs.size()];
-        jobArr = jobs.toArray(jobArr);
+        jobArr = jobs.values().toArray(jobArr);
 
         return jobArr;
     }
