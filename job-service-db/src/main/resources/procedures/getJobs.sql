@@ -36,7 +36,7 @@ CREATE OR REPLACE FUNCTION get_jobs(
     in_offset INT,
     in_sort_field VARCHAR(20),
     in_sort_ascending BOOLEAN,
-    in_label_key VARCHAR(100),
+    in_label_key VARCHAR(255),
     in_label_values VARCHAR(255)[]
 )
 RETURNS TABLE(
@@ -50,7 +50,7 @@ RETURNS TABLE(
     percentage_complete DOUBLE PRECISION,
     failure_details TEXT,
     actionType CHAR(6),
-    label VARCHAR(100),
+    label VARCHAR(255),
     label_value VARCHAR(255)
 )
 LANGUAGE plpgsql STABLE

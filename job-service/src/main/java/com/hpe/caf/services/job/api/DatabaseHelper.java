@@ -85,7 +85,10 @@ public final class DatabaseHelper
             stmt.setInt(5, offset);
             stmt.setString(6, sortField.getDbField());
             stmt.setBoolean(7, sortDirection.getDbValue());
-            Array array = conn.createArrayOf("varchar", labelValues.toArray());
+            Array array = null;
+            if (labelValues != null) {
+                array = conn.createArrayOf("varchar", labelValues.toArray());
+            }
             stmt.setString(8, labelKey);
             stmt.setArray(9, array);
 
@@ -120,7 +123,9 @@ public final class DatabaseHelper
                     return orig;
                 });
             }
-            array.free();
+            if (array != null) {
+                array.free();
+            }
             rs.close();
         }
 

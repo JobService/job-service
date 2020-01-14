@@ -31,7 +31,7 @@
             </column>
             <column name="partition_id" type="VARCHAR(40)" defaultValue="default"/>
             <column name="job_id" type="VARCHAR(48)"/>
-            <column name="label" type="VARCHAR(100)"/>
+            <column name="label" type="VARCHAR(255)"/>
             <column name="value" type="VARCHAR(255)"/>
         </createTable>
         <addForeignKeyConstraint baseTableSchemaName="public"
@@ -50,12 +50,21 @@
     </changeSet>
 
     <changeSet id="update_procedures_label_filter" author="Gamma Team">
-<!--        <createProcedure schemaName="public"-->
-<!--                         procedureName="get_jobs_count"-->
-<!--                         path="procedures/getJobsCount.sql" />-->
         <createProcedure schemaName="public"
                          procedureName="get_jobs"
                          path="procedures/getJobs.sql" />
+        <createProcedure schemaName="public"
+                         procedureName="delete_job"
+                         path="procedures/deleteJob.sql" />
+        <createProcedure schemaName="public"
+                         procedureName="internal_create_job"
+                         path="procedures/internalCreateJob.sql" />
+        <createProcedure schemaName="public"
+                         procedureName="create_job"
+                         path="procedures/createJob.sql" />
+        <createProcedure schemaName="public"
+                         procedureName="create_job"
+                         path="procedures/createJobForDependencies.sql" />
     </changeSet>
 
 </databaseChangeLog>
