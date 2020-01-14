@@ -58,13 +58,13 @@ public final class DatabaseHelper
      */
     public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
                          Integer offset, final JobSortField sortField, final SortDirection sortDirection,
-                         final String labelFilter) throws Exception {
+                         final String labelKey, final List<String> labelValues) throws Exception {
 
         Map<String, Job> jobs = new HashMap<>();
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -85,9 +85,9 @@ public final class DatabaseHelper
             stmt.setInt(5, offset);
             stmt.setString(6, sortField.getDbField());
             stmt.setBoolean(7, sortDirection.getDbValue());
-            String[][] tmp = {{"tag", "2"}};
-            Array array = conn.createArrayOf("text", tmp);
-            stmt.setArray(8, array);
+            Array array = conn.createArrayOf("varchar", labelValues.toArray());
+            stmt.setString(8, labelKey);
+            stmt.setArray(9, array);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
@@ -120,13 +120,13 @@ public final class DatabaseHelper
                     return orig;
                 });
             }
+            array.free();
             rs.close();
         }
 
         //  Convert arraylist to array of jobs.
         Job[] jobArr = new Job[jobs.size()];
         jobArr = jobs.values().toArray(jobArr);
-
         return jobArr;
     }
 

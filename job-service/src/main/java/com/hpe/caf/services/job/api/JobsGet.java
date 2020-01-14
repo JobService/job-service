@@ -24,7 +24,9 @@ import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,7 +48,7 @@ public final class JobsGet {
      */
     public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit,
                                 final Integer offset, final String sort) throws Exception {
-        return JobsGet.getJobs(partitionId, jobId, statusType, limit, offset, sort, Collections.emptyList());
+        return JobsGet.getJobs(partitionId, jobId, statusType, limit, offset, sort, null);
     }
 
     /**
@@ -56,12 +58,12 @@ public final class JobsGet {
      * @param statusType    optional status of the job
      * @param limit         optional limit of jobs to return per page
      * @param offset        optional offset from which to return page of jobs
-     * @param labels        optional list of metadata to filter against.
+     * @param label         optional metadata to filter against.
      * @return  jobs        list of jobs
      * @throws Exception    bad request or database exceptions
      */
     public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit,
-                                final Integer offset, final String sort, final List<String> labels) throws Exception {
+                                final Integer offset, final String sort, final String label) throws Exception {
 
         Job[] jobs;
 
@@ -92,7 +94,17 @@ public final class JobsGet {
                 }
             }
 
-            String labelFilter = buildLabelQuery(labels);
+            String labelKey = null;
+            List<String> labelValues = null;
+            if(!StringUtils.isEmpty(label)) {
+                final String[] split = label.split(":", 2);
+                if (split.length != 2) {
+                    throw new BadRequestException("Invalid format for label: " + label);
+                }
+                labelKey = escapeSql(split[0]).get(0);
+                labelValues = escapeSql(split[1].split(","));
+            }
+
 
             //  Get app config settings.
             LOG.debug("getJobs: Reading database connection properties...");
@@ -107,7 +119,7 @@ public final class JobsGet {
                 limit = config.getDefaultPageSize();
             }
             jobs = databaseHelper.getJobs(
-                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelFilter);
+                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelKey, labelValues);
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;
@@ -117,31 +129,11 @@ public final class JobsGet {
         return jobs;
     }
 
-    private static String buildLabelQuery(List<String> labels) throws BadRequestException {
-        //build up this list of OR filters, this is defo a sql injection point.
-        String labelFilter = null;
-        if (!CollectionUtils.isEmpty(labels)) {
-            StringBuilder sb = new StringBuilder();
-            for (String lbl : labels) {
-                final String[] split = lbl.split(":", 2);
-                if (split.length != 2) {
-                    throw new BadRequestException("Invalid format for label: " + lbl);
-                }
-                String[] values = split[1].split(",");
-                sb.append("(lbl.label = '").append(split[0].replace("'", "''")).append("'");
-                if (values.length > 0) {
-                    sb.append(" AND lbl.value IN (");
-                    for (String val : values) {
-                        sb.append("'").append(val.replace("'", "''")).append("',");
-                    }
-                    sb.deleteCharAt(sb.lastIndexOf(",")).append(")");
-                }
-                sb.append(") OR ");
-            }
-            sb.delete(sb.length()-3, sb.length());
-            labelFilter = sb.toString().trim();
-            labelFilter = labelFilter.replace("%", "\\%");
+    private static List<String> escapeSql(String... toEscape) {
+        List<String> toReturn = new ArrayList<>();
+        for(String s : toEscape) {
+            toReturn.add(s.replace("%", "\\%").replace("'", "''"));
         }
-        return labelFilter;
+        return toReturn;
     }
 }

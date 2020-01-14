@@ -61,7 +61,7 @@ public final class JobsGetTest {
         JobsGet.getJobs("partition", "", null, 0, 0, null);
 
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null);
+            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null);
     }
 
     @Test(expected = BadRequestException.class)
@@ -73,7 +73,7 @@ public final class JobsGetTest {
     public void testGetJobs_Success_WithSort() throws Exception {
         JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc");
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null);
+            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null);
     }
 
     @Test(expected = BadRequestException.class)
@@ -93,26 +93,28 @@ public final class JobsGetTest {
 
     @Test
     public void testGetJobs_Success_WithLabelFilter() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, null, Arrays.asList("tag:4,5", "owner:test"));
+        JobsGet.getJobs("partition", "", null, 0, 0, null,"tag:4,5");
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
                 "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
-                SortDirection.DESCENDING,
-                "(lbl.label = 'tag' AND lbl.value IN ('4','5')) OR (lbl.label = 'owner' AND lbl.value IN ('test'))");
+                SortDirection.DESCENDING, "tag", Arrays.asList("4", "5"));
     }
 
     @Test
     public void testGetJobs_Success_WithLabelFilter_escaped() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, null, Arrays.asList("tag:'4", "owner:test%"));
+        JobsGet.getJobs("partition", "", null, 0, 0, null, "owner:test%");
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
                 "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
-                SortDirection.DESCENDING,
-                "(lbl.label = 'tag' AND lbl.value IN ('''4')) OR (lbl.label = 'owner' AND lbl.value IN ('test\\%'))");
+                SortDirection.DESCENDING, "owner", Collections.singletonList("test\\%"));
+        JobsGet.getJobs("partition", "", null, 0, 0, null, "owner:'test");
+        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
+                "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
+                SortDirection.DESCENDING, "owner", Collections.singletonList("''test"));
     }
 
     @Test(expected = BadRequestException.class)
     public void testGetJobs_Failure_InvalidLabel_MissingValue() throws Exception {
         JobsGet.getJobs("partition", "", null, 0, 0, null,
-                Collections.singletonList("tag"));
+                "tag");
     }
 
 }
