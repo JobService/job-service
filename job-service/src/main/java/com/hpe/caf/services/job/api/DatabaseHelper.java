@@ -96,39 +96,39 @@ public final class DatabaseHelper
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
-            ResultSet rs = stmt.executeQuery();
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Job job = new Job();
+                    job.setId(rs.getString("job_id"));
+                    job.setName(rs.getString("name"));
+                    job.setDescription(rs.getString("description"));
+                    job.setExternalData(rs.getString("data"));
+                    job.setCreateTime(getDate(rs.getString("create_date")));
+                    job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
+                    job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
+                    job.setPercentageComplete(rs.getFloat("percentage_complete"));
 
-            while (rs.next()) {
-                Job job = new Job();
-                job.setId(rs.getString("job_id"));
-                job.setName(rs.getString("name"));
-                job.setDescription(rs.getString("description"));
-                job.setExternalData(rs.getString("data"));
-                job.setCreateTime(getDate(rs.getString("create_date")));
-                job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
-                job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
-                job.setPercentageComplete(rs.getFloat("percentage_complete"));
+                    //  Parse JSON failure sub-strings.
+                    String failureDetails = rs.getString("failure_details");
+                    if (ApiServiceUtil.isNotNullOrEmpty(failureDetails)) {
+                        job.setFailures(getFailuresAsList(failureDetails));
+                    }
 
-                //  Parse JSON failure sub-strings.
-                String failureDetails = rs.getString("failure_details");
-                if (ApiServiceUtil.isNotNullOrEmpty(failureDetails)) {
-                    job.setFailures(getFailuresAsList(failureDetails));
+                    String label = rs.getString("label");
+                    if (ApiServiceUtil.isNotNullOrEmpty(label)) {
+                        job.getLabelsMultimap().put(label, rs.getString("label_value"));
+                    }
+                    //We joined onto the labels table and there may be multiple rows for the same job, so merge their labels
+                    jobs.merge(job.getId(), job, (orig, insert) -> {
+                        orig.getLabelsMultimap().putAll(insert.getLabelsMultimap());
+                        return orig;
+                    });
                 }
-
-                String label = rs.getString("label");
-                if (ApiServiceUtil.isNotNullOrEmpty(label)) {
-                    job.getLabels().put(label, rs.getString("label_value"));
+            } finally {
+                if (array != null) {
+                    array.free();
                 }
-                //We joined onto the labels table and there may be multiple rows for the same job, so merge their labels
-                jobs.merge(job.getId(), job, (orig, insert) -> {
-                    orig.getLabels().putAll(insert.getLabels());
-                    return orig;
-                });
             }
-            if (array != null) {
-                array.free();
-            }
-            rs.close();
         }
 
         //  Convert arraylist to array of jobs.
@@ -160,13 +160,11 @@ public final class DatabaseHelper
 
             //  Execute a query to return a count of all job definitions in the system.
             LOG.debug("Calling get_jobs_count() database function...");
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                jobsCount = rs.getLong(1);
+            try(ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    jobsCount = rs.getLong(1);
+                }
             }
-
-            rs.close();
         }
 
         return jobsCount;
@@ -188,26 +186,29 @@ public final class DatabaseHelper
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_job() database function...");
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
+            try (ResultSet rs = stmt.executeQuery()) {
                 job = new Job();
-                job.setId(rs.getString("job_id"));
-                job.setName(rs.getString("name"));
-                job.setDescription(rs.getString("description"));
-                job.setExternalData(rs.getString("data"));
-                job.setCreateTime(getDate(rs.getString("create_date")));
-                job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
-                job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
-                job.setPercentageComplete(rs.getFloat("percentage_complete"));
+                while (rs.next()) {
+                    job.setId(rs.getString("job_id"));
+                    job.setName(rs.getString("name"));
+                    job.setDescription(rs.getString("description"));
+                    job.setExternalData(rs.getString("data"));
+                    job.setCreateTime(getDate(rs.getString("create_date")));
+                    job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
+                    job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
+                    job.setPercentageComplete(rs.getFloat("percentage_complete"));
 
-                //  Parse JSON failure sub-strings.
-                String failureDetails = rs.getString("failure_details");
-                if (ApiServiceUtil.isNotNullOrEmpty(failureDetails)) {
-                    job.setFailures(getFailuresAsList(failureDetails));
+                    //  Parse JSON failure sub-strings.
+                    String failureDetails = rs.getString("failure_details");
+                    if (ApiServiceUtil.isNotNullOrEmpty(failureDetails)) {
+                        job.setFailures(getFailuresAsList(failureDetails));
+                    }
+                    String label = rs.getString("label");
+                    if (ApiServiceUtil.isNotNullOrEmpty(label)) {
+                        job.getLabelsMultimap().put(label, rs.getString("label_value"));
+                    }
                 }
             }
-            rs.close();
         } catch (SQLException se) {
             //  Determine source of SQL exception and throw appropriate error.
             String sqlState = se.getSQLState();
@@ -259,11 +260,14 @@ public final class DatabaseHelper
      * Creates the specified job.
      * @return Whether the job was created
      */
-    public boolean createJob(final String partitionId, String jobId, String name, String description, String data, int jobHash) throws Exception {
+    public boolean createJob(final String partitionId, String jobId, String name, String description, String data,
+                             int jobHash, final Map<String, Collection<String>> labels) throws Exception {
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?)}")
         ) {
+            final List<String[]> labelArray = buildLabelSqlArray(labels);
+
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
             stmt.setString(3,name);
@@ -271,7 +275,18 @@ public final class DatabaseHelper
             stmt.setString(5,data);
             stmt.setInt(6,jobHash);
 
-            return callCreateJobFunction(stmt);
+            Array array;
+            if (!labelArray.isEmpty()) {
+                array = conn.createArrayOf("VARCHAR", labelArray.toArray());
+            } else {
+                array = conn.createArrayOf("VARCHAR", new String[0]);
+            }
+            stmt.setArray(7, array);
+            try {
+                return callCreateJobFunction(stmt);
+            } finally {
+                array.free();
+            }
         }
     }
 
@@ -283,13 +298,15 @@ public final class DatabaseHelper
                                           final String data, final int jobHash, final String taskClassifier,
                                           final int taskApiVersion, final byte[] taskData, final String taskPipe,
                                           final String targetPipe, final List<String> prerequisiteJobIds,
-                                          final int delay) throws Exception {
+                                          final int delay, final Map<String, Collection<String>> labels) throws Exception {
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
             final String[] prerequisiteJobIdStringArray = prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
             Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
+
+            final List<String[]> labelArray = buildLabelSqlArray(labels);
 
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
@@ -305,8 +322,27 @@ public final class DatabaseHelper
             stmt.setArray(12,prerequisiteJobIdSQLArray);
             stmt.setInt(13,delay);
 
-            return callCreateJobFunction(stmt);
+            Array array;
+            if (!labelArray.isEmpty()) {
+                array = conn.createArrayOf("VARCHAR", labelArray.toArray());
+            } else {
+                array = conn.createArrayOf("VARCHAR", new String[0]);
+            }
+            stmt.setArray(14, array);
+
+            try {
+                return callCreateJobFunction(stmt);
+            } finally {
+                array.free();
+                prerequisiteJobIdSQLArray.free();
+            }
         }
+    }
+
+    private List<String[]> buildLabelSqlArray(Map<String, Collection<String>> labels) {
+        List<String[]> labelArray = new ArrayList<>();
+        labels.forEach((key, value) -> value.forEach(val -> labelArray.add(new String[]{key, val})));
+        return labelArray;
     }
 
     /**

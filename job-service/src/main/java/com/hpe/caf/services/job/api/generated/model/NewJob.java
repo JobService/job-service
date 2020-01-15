@@ -17,12 +17,12 @@ package com.hpe.caf.services.job.api.generated.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Exactly one of task and job should be specified.
@@ -39,6 +39,7 @@ public class NewJob   {
     private JsonNode parameters = null;
     private List<String> prerequisiteJobIds = null;
     private Integer delay = 0;
+    private Multimap<String, String> labels = HashMultimap.create();
 
     /**
      * The name of the job
@@ -190,6 +191,21 @@ public class NewJob   {
     }
     public void setDelay(Integer delay) {
         this.delay = delay;
+    }
+
+    @ApiModelProperty("Extra meta-data related to the job")
+    @JsonProperty("labels")
+    public Map<String, Collection<String>> getLabels() {
+        return labels.asMap();
+    }
+
+    public Multimap<String, String> getLabelsMultimap() {
+        return labels;
+    }
+
+    public void setLabels(Map<String, Collection<String>> labels) {
+        this.labels = HashMultimap.create();
+        labels.forEach(this.labels::putAll);
     }
 
     @Override

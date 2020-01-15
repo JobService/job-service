@@ -22,10 +22,7 @@ import com.google.common.collect.Multimap;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-03-03T15:07:30.523Z")
 @XmlRootElement(name = "Job")
@@ -234,12 +231,17 @@ public class Job   {
 
     @ApiModelProperty("Extra meta-data related to the job")
     @JsonProperty("labels")
-    public Multimap<String, String> getLabels() {
+    public Map<String, Collection<String>> getLabels() {
+        return labels.asMap();
+    }
+
+    public Multimap<String, String> getLabelsMultimap() {
         return labels;
     }
 
-    public void setLabels(Multimap<String, String> labels) {
-        this.labels = labels;
+    public void setLabels(Map<String, Collection<String>> labels) {
+        this.labels = HashMultimap.create();
+        labels.forEach(this.labels::putAll);
     }
 
     @Override

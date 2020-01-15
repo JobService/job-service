@@ -75,7 +75,7 @@ BEGIN
         in_job_hash
     );
 
-    IF in_labels IS NOT NULL THEN
+    IF in_labels IS NOT NULL AND in_labels != '{}' THEN
         FOREACH t SLICE 1 IN ARRAY in_labels LOOP
             INSERT INTO public.label(
                 partition_id,
@@ -83,7 +83,7 @@ BEGIN
                 label,
                 value
             )
-            SELECT in_partition_id, in_job_id, t[0], t[1];
+            SELECT in_partition_id, in_job_id, t[1], t[2];
         END LOOP;
     END IF;
 

@@ -175,6 +175,20 @@ public class JobServiceDatabaseUtil
         }
     }
 
+    public static void assertJobLabelRowsDoNotExist(final String jobId) throws SQLException {
+        try (final Connection dbConnection = getDbConnection()) {
+
+            //  Verify job task data row has been removed.
+            try(PreparedStatement st = dbConnection.prepareStatement("SELECT count(*) as result FROM public.label WHERE job_id = ?")) {
+                st.setString(1, jobId);
+                try (ResultSet rs = st.executeQuery()) {
+                    rs.next();
+                    Assert.assertEquals(rs.getInt("result"), 0);
+                }
+            }
+        }
+    }
+
     private static Connection getDbConnection() throws SQLException
     {
         final String databaseUrl = System.getProperty("CAF_DATABASE_URL", System.getenv("CAF_DATABASE_URL"));

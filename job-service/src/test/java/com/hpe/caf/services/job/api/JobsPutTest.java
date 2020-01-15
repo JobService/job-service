@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.api;
 
 import static junit.framework.Assert.assertEquals;
 
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
@@ -113,11 +114,11 @@ public final class JobsPutTest {
     public void setup() throws Exception {
         //  Mock DatabaseHelper calls.
         when(mockDatabaseHelper.createJob(
-            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt()
+            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap()
         )).thenReturn(true);
         when(mockDatabaseHelper.createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt()
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap()
         )).thenReturn(true);
         doNothing().when(mockDatabaseHelper).deleteJob(anyString(), anyString());
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(any()).thenReturn(mockDatabaseHelper);
@@ -171,7 +172,7 @@ public final class JobsPutTest {
             "partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", makeJob());
 
         verify(mockDatabaseHelper, times(1))
-            .createJob(eq("partition"), anyString(),anyString(),anyString(),anyString(),anyInt());
+            .createJob(eq("partition"), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap());
         verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any());
         assertEquals("create", result);
     }
@@ -179,7 +180,7 @@ public final class JobsPutTest {
     @Test
     public void testCreateJob_Success_MatchingJobRow() throws Exception {
         when(mockDatabaseHelper.createJob(
-            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt()
+            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap()
         )).thenReturn(false);
 
         //  Test successful run of job creation when a matching job row already exists.
@@ -187,7 +188,7 @@ public final class JobsPutTest {
             "partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", makeJob());
 
         verify(mockDatabaseHelper, times(1))
-            .createJob(anyString(), anyString(),anyString(),anyString(),anyString(),anyInt());
+            .createJob(anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap());
         verify(mockQueueServices, times(0)).sendMessage(any(), any(), any(), any());
         assertEquals("update", result);
     }
@@ -245,7 +246,7 @@ public final class JobsPutTest {
             makeRestrictedJob("basic", TextNode.valueOf("params")));
 
         verify(mockDatabaseHelper, times(1))
-            .createJob(eq("partition"), eq("id"), anyString(), anyString(), anyString(), anyInt());
+            .createJob(eq("partition"), eq("id"), anyString(), anyString(), anyString(), anyInt(), anyMap());
         final ArgumentCaptor<WorkerAction> workerActionCaptor =
             ArgumentCaptor.forClass(WorkerAction.class);
         verify(mockQueueServices, times(1))
@@ -303,7 +304,7 @@ public final class JobsPutTest {
         JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
         
         verify(mockDatabaseHelper, times(1)).createJob(
-            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt());
+            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap());
         verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any());
     }
 
@@ -334,7 +335,7 @@ public final class JobsPutTest {
 
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt());
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap());
         verify(mockDatabaseHelper, times(1)).canJobBeProgressed(anyString(), anyString());
     }
 
@@ -342,7 +343,7 @@ public final class JobsPutTest {
     public void testJobCreationWithPrerequisites_MatchingJobRow() throws Exception {
         when(mockDatabaseHelper.createJobWithDependencies(
             anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt()
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap()
         )).thenReturn(false);
 
         final NewJob job = makeJob();
@@ -355,7 +356,7 @@ public final class JobsPutTest {
         assertEquals("update", result);
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt());
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap());
         verify(mockDatabaseHelper, times(0)).canJobBeProgressed(anyString(), anyString());
     }
 

@@ -15,6 +15,7 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
@@ -44,6 +45,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -416,7 +418,7 @@ public class JobServiceIT {
         }
 
         List<Job> retrievedJobs = jobsApi.getJobs(
-            defaultPartitionId, "100",null,null,null,null,null);
+            defaultPartitionId, "100",null,null,null,null,null, null);
         assertEquals(retrievedJobs.size(), 10);
 
         for(int i=0; i<10; i++) {
@@ -447,7 +449,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, waitingJobId, waitingJob, correlationId);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, "NotFinished", null, null, null);
+            defaultPartitionId, correlationId, null, "NotFinished", null, null, null, null);
         assertEquals(jobs.size(), 1);
         assertEquals(jobs.get(0).getId(), waitingJobId);
     }
@@ -478,7 +480,7 @@ public class JobServiceIT {
         final String job3Id = createJob(jobId + "b");
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, "1", null, null, null, null, "jobId:asc");
+            defaultPartitionId, "1", null, null, null, null, "jobId:asc", null);
         final List<String> resultJobIds =
             jobs.stream().map(job -> job.getId()).collect(Collectors.toList());
         assertEquals(resultJobIds, Arrays.asList(jobId + "A", jobId + "b", jobId + "C"),
@@ -627,7 +629,7 @@ public class JobServiceIT {
 
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         final List<Job> jobs = jobsApi.getJobs(
-            UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null, null);
+            UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null, null, null);
         assertEquals(jobs.size(), 0, "job list should be empty");
     }
 
@@ -918,6 +920,29 @@ public class JobServiceIT {
         assertThrowsApiException(Response.Status.INTERNAL_SERVER_ERROR,
             () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
     }
+
+    @Test
+    public void testCreateJobWithLabels() throws ApiException, SQLException {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob job = makeJob(jobId, "testCreateJobWithLabels");
+        job.getLabels().put("tags", Arrays.asList("1", "4", "7"));
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
+
+        //retrieve job using web method
+        Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
+
+        assertEquals(retrievedJob.getId(), jobId);
+        assertEquals(retrievedJob.getName(), job.getName());
+        assertTrue(retrievedJob.getLabels().containsKey("tags"));
+
+        List<String> retrievedTags = retrievedJob.getLabels().get("tags");
+        Collections.sort(retrievedTags);
+        List<String> tags = job.getLabels().get("tags");
+        Collections.sort(tags);
+        assertEquals(tags, retrievedTags);
+    }
+
 
     public void testMessagesPutOnQueue(
         final String taskQueue,

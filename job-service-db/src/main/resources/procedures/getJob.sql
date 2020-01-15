@@ -21,6 +21,7 @@
  *  Returns the job definition for the specified job.
  */
 DROP FUNCTION IF EXISTS get_job(in_job_id VARCHAR(58));
+DROP FUNCTION IF EXISTS get_job(in_partition_id VARCHAR(40), in_job_id VARCHAR(58));
 CREATE OR REPLACE FUNCTION get_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
@@ -35,7 +36,9 @@ RETURNS TABLE(
     status job_status,
     percentage_complete DOUBLE PRECISION,
     failure_details TEXT,
-    actionType CHAR(6)
+    actionType CHAR(6),
+    label VARCHAR(255),
+    label_value VARCHAR(255)
 )
 LANGUAGE plpgsql STABLE
 AS $$
@@ -57,8 +60,11 @@ BEGIN
            job.status,
            job.percentage_complete,
            job.failure_details,
-           CAST('WORKER' AS CHAR(6)) AS actionType
+           CAST('WORKER' AS CHAR(6)) AS actionType,
+           lbl.label,
+           lbl.value
     FROM job
+    LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id AND lbl.job_id = job.job_id
     WHERE job.partition_id = in_partition_id
         AND job.job_id = in_job_id;
 

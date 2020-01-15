@@ -920,6 +920,28 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
     }
 
+    @Test
+    public void testJobDeletionWithLabels() throws Exception {
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+
+        //  Generate job identifiers for test.
+        final String job1Id = generateJobId();
+
+        Map<String, List<String>> labels = new HashMap<>();
+        labels.put("tags", Arrays.asList("1", "4", "7"));
+        createJobWithLabels(job1Id, true, labels);
+
+        //  Delete J1.
+        deleteJob(job1Id);
+
+        //  Verify J1 rows have been removed.
+        JobServiceDatabaseUtil.assertJobRowDoesNotExist(job1Id);
+
+        // Verify J1 label rows have been removed.
+        JobServiceDatabaseUtil.assertJobLabelRowsDoNotExist(job1Id);
+    }
+
     private List<String> generateWorkerBatch() throws DataStoreException {
         List<String> assetIds = new ArrayList<>();
         String containerId = getContainerId();
@@ -962,6 +984,13 @@ public class JobServiceEndToEndIT {
         NewJob newJob = constructNewJob(jobId, useTaskDataObject);
         newJob.setPrerequisiteJobIds(Arrays.asList(prerequisiteJobs));
         newJob.setDelay(delay);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+    }
+
+    private void createJobWithLabels(final String jobId, final boolean useTaskDataObject,
+                                     Map<String, List<String>> labels) throws Exception {
+        NewJob newJob = constructNewJob(jobId, useTaskDataObject);
+        newJob.getLabels().putAll(labels);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
     }
 

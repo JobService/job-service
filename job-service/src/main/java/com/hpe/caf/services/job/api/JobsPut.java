@@ -173,10 +173,10 @@ public final class JobsPut {
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
-                        job.getPrerequisiteJobIds(), job.getDelay());
+                        job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels());
 
             } else {
-                jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
+                jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash, job.getLabels());
             }
 
             if (!jobCreated) {
