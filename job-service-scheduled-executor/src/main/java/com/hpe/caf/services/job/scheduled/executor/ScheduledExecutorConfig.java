@@ -55,13 +55,13 @@ public class ScheduledExecutorConfig {
     public static String getStatusCheckTime() {
         return getPropertyOrEnvVar("CAF_STATUS_CHECK_TIME");
     }
-
-    public static String getWebserviceUrl() {
-        return getPropertyOrEnvVar("CAF_WEBSERVICE_URL");
-    }    
     
     public static String getApplicationName(){
         return getPropertyOrEnvVar("CAF_APPNAME");
+    }
+
+    public static String getWebserviceUrl() {
+        return getPropertyOrEnvVar("CAF_WEBSERVICE_URL");
     }
     
     public static int getScheduledExecutorPeriod() {
