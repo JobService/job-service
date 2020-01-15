@@ -11,3 +11,7 @@ data:
   CAF_RABBITMQ_USERNAME: guest
   CAF_RABBITMQ_PASSWORD: guest
   CAF_WEBSERVICE_URL: http://jobservice:8080/job-service/v1
+  CAF_APPNAME_JOBSERVICE: jobservice
+  CAF_APPNAME_JOBTRACKING: jobtracking-worker
+  CAF_APPNAME_SCHEDULED_EXECUTOR: job-service-scheduled-executor
+  

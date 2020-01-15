@@ -5,6 +5,7 @@ services:
       - ./rabbitmq.env
     environment:
       CAF_DATABASE_URL: "jdbc:postgresql://${JOB_SERVICE_DB_HOST}:${JOB_SERVICE_DB_PORT}/jobservice"
+      CAF_APPNAME: "jobservice"
       CAF_DATABASE_USERNAME: "${CAF_DATABASE_USERNAME}"
       CAF_DATABASE_PASSWORD: "${CAF_DATABASE_PASSWORD}"
       CAF_STATUS_CHECK_TIME: 5
@@ -28,6 +29,7 @@ services:
     env_file:
       - ./rabbitmq.env
     environment:
+      CAF_APPNAME: "jobtracking-worker"
       CAF_WORKER_INPUT_QUEUE: jobtracking-in
       CAF_WORKER_ERROR_QUEUE: jobtracking-err
       JOB_DATABASE_URL: "jdbc:postgresql://${JOB_SERVICE_DB_HOST}:${JOB_SERVICE_DB_PORT}/jobservice"
@@ -50,6 +52,7 @@ services:
     env_file:
       - ./rabbitmq.env
     environment:
+      CAF_APPNAME: "job-service-scheduled-executor"
       CAF_WORKER_INPUT_QUEUE: jobservicescheduler-in
       CAF_DATABASE_URL: "jdbc:postgresql://${JOB_SERVICE_DB_HOST}:${JOB_SERVICE_DB_PORT}/jobservice"
       CAF_DATABASE_USERNAME: "${CAF_DATABASE_USERNAME}"
