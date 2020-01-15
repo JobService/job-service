@@ -73,6 +73,10 @@ public class AppConfig {
     public String getWebserviceUrl() {
         return environment.getProperty("CAF_WEBSERVICE_URL");
     }
+    
+    public String getApplicationName(){
+        return environment.getProperty("CAF_APPNAME");
+    }
 
     public int getDefaultPageSize(){
         final String defaultPageSize = environment.getProperty("CAF_JOB_SERVICE_PAGE_SIZE");
