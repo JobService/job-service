@@ -63,6 +63,7 @@ public class ScheduledExecutorConfig {
     public static String getApplicationName(){
         return getPropertyOrEnvVar("CAF_APPNAME");
     }
+    
     public static int getScheduledExecutorPeriod() {
         //  Default to 10 seconds if CAF_SCHEDULED_EXECUTOR_PERIOD not specified.
         final String  scheduledExecutorPeriod = getPropertyOrEnvVar("CAF_SCHEDULED_EXECUTOR_PERIOD");
