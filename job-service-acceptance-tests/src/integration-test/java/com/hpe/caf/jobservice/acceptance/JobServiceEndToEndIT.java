@@ -928,8 +928,9 @@ public class JobServiceEndToEndIT {
         //  Generate job identifiers for test.
         final String job1Id = generateJobId();
 
-        Map<String, List<String>> labels = new HashMap<>();
-        labels.put("tags", Arrays.asList("1", "4", "7"));
+        Map<String, String> labels = new HashMap<>();
+        labels.put("tag:4", "4");
+        labels.put("tag:7", "7");
         createJobWithLabels(job1Id, true, labels);
 
         //  Delete J1.
@@ -988,7 +989,7 @@ public class JobServiceEndToEndIT {
     }
 
     private void createJobWithLabels(final String jobId, final boolean useTaskDataObject,
-                                     Map<String, List<String>> labels) throws Exception {
+                                     Map<String, String> labels) throws Exception {
         NewJob newJob = constructNewJob(jobId, useTaskDataObject);
         newJob.getLabels().putAll(labels);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);

@@ -97,11 +97,11 @@ paths:
         required: false
         description: 'How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.'
         default: createTime:desc
-      - name: label
+      - name: labelExist
         in: query
         type: string
         required: false
-        description: 'Filter to jobs with the specified label and values, in the format label=<labelName>:<value1>,<value2>'
+        description: 'Filter to jobs with the specified labels, in the format label=<labelName>,<labelName>'
     get:
       tags:
         - Jobs
@@ -303,14 +303,13 @@ definitions:
       labels:
         type: object
         additionalProperties:
-          type: array
-          items:
-            type: string
-            minLength: 1
+          type: string
+          pattern: '^(?!\s*$)[a-zA-Z0-9_\- ]{1,}$'
+          minLength: 1
         description: A map of meta data associated with this job.
         example:
-          tags: ["1", "4", "7"]
-          owner: ["bob"]
+          "tag:4": "4"
+          owner: "bob"
   worker-action:
     type: object
     required:
@@ -383,10 +382,9 @@ definitions:
       labels:
         type: object
         additionalProperties:
-          type: array
-          items:
-            type: string
-            minLength: 1
+          type: string
+          pattern: '^(?!\s*$)[a-zA-Z0-9_\- ]{1,}$'
+          minLength: 1
         description: A map of meta data associated with this job.
   failure:
     type: object

@@ -26,14 +26,12 @@
 
     <changeSet id="create_label_table" author="Gamma Team">
         <createTable tableName="label">
-            <column name="id" type="BIGSERIAL" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="pk_label" />
-            </column>
             <column name="partition_id" type="VARCHAR(40)" defaultValue="default"/>
             <column name="job_id" type="VARCHAR(48)"/>
             <column name="label" type="VARCHAR(255)"/>
             <column name="value" type="VARCHAR(255)"/>
         </createTable>
+        <addPrimaryKey tableName="label" columnNames="partition_id,job_id,label" schemaName="public"/>
         <addForeignKeyConstraint baseTableSchemaName="public"
                                  baseTableName="label"
                                  constraintName="fk_label_job"
@@ -41,7 +39,7 @@
                                  referencedTableName="job"
                                  referencedColumnNames="partition_id, job_id" />
         <createIndex schemaName="public" tableName="label" indexName="idx_label" unique="false">
-            <column name="id" />
+            <column name="job_id" />
             <column name="label"/>
             <column name="value"/>
         </createIndex>

@@ -58,13 +58,13 @@ public final class DatabaseHelper
      */
     public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
                          Integer offset, final JobSortField sortField, final SortDirection sortDirection,
-                         final String labelKey, final List<String> labelValues) throws Exception {
+                         final List<String> labels) throws Exception {
 
         Map<String, Job> jobs = new LinkedHashMap<>(); //Linked rather than hash to preserve order of results.
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -86,13 +86,12 @@ public final class DatabaseHelper
             stmt.setString(6, sortField.getDbField());
             stmt.setBoolean(7, sortDirection.getDbValue());
             Array array;
-            if (labelValues != null) {
-                array = conn.createArrayOf("VARCHAR", labelValues.toArray());
+            if (labels != null) {
+                array = conn.createArrayOf("VARCHAR", labels.toArray());
             } else {
                 array = conn.createArrayOf("VARCHAR", new String[0]);
             }
-            stmt.setString(8, labelKey);
-            stmt.setArray(9, array);
+            stmt.setArray(8, array);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
@@ -116,11 +115,11 @@ public final class DatabaseHelper
 
                     String label = rs.getString("label");
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
-                        job.getLabelsMultimap().put(label, rs.getString("label_value"));
+                        job.getLabels().put(label, rs.getString("label_value"));
                     }
                     //We joined onto the labels table and there may be multiple rows for the same job, so merge their labels
                     jobs.merge(job.getId(), job, (orig, insert) -> {
-                        orig.getLabelsMultimap().putAll(insert.getLabelsMultimap());
+                        orig.getLabels().putAll(insert.getLabels());
                         return orig;
                     });
                 }
@@ -205,7 +204,7 @@ public final class DatabaseHelper
                     }
                     String label = rs.getString("label");
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
-                        job.getLabelsMultimap().put(label, rs.getString("label_value"));
+                        job.getLabels().put(label, rs.getString("label_value"));
                     }
                 }
             }
@@ -261,7 +260,7 @@ public final class DatabaseHelper
      * @return Whether the job was created
      */
     public boolean createJob(final String partitionId, String jobId, String name, String description, String data,
-                             int jobHash, final Map<String, Collection<String>> labels) throws Exception {
+                             int jobHash, final Map<String, String> labels) throws Exception {
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?)}")
@@ -298,7 +297,7 @@ public final class DatabaseHelper
                                           final String data, final int jobHash, final String taskClassifier,
                                           final int taskApiVersion, final byte[] taskData, final String taskPipe,
                                           final String targetPipe, final List<String> prerequisiteJobIds,
-                                          final int delay, final Map<String, Collection<String>> labels) throws Exception {
+                                          final int delay, final Map<String, String> labels) throws Exception {
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
@@ -339,9 +338,9 @@ public final class DatabaseHelper
         }
     }
 
-    private List<String[]> buildLabelSqlArray(Map<String, Collection<String>> labels) {
+    private List<String[]> buildLabelSqlArray(Map<String, String> labels) {
         List<String[]> labelArray = new ArrayList<>();
-        labels.forEach((key, value) -> value.forEach(val -> labelArray.add(new String[]{key, val})));
+        labels.forEach((key, value) -> labelArray.add(new String[]{key, value}));
         return labelArray;
     }
 

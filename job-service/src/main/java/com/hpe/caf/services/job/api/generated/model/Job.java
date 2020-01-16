@@ -60,7 +60,7 @@ public class Job   {
     private StatusEnum status = null;
     private Float percentageComplete = null;
     private List<Failure> failures = new ArrayList<Failure>();
-    private Multimap<String, String> labels = HashMultimap.create();
+    private Map<String, String> labels = new HashMap<>();
 
     /**
      * The job identifier
@@ -231,17 +231,12 @@ public class Job   {
 
     @ApiModelProperty("Extra meta-data related to the job")
     @JsonProperty("labels")
-    public Map<String, Collection<String>> getLabels() {
-        return labels.asMap();
-    }
-
-    public Multimap<String, String> getLabelsMultimap() {
+    public Map<String, String> getLabels() {
         return labels;
     }
 
-    public void setLabels(Map<String, Collection<String>> labels) {
-        this.labels = HashMultimap.create();
-        labels.forEach(this.labels::putAll);
+    public void setLabels(Map<String, String> labels) {
+        this.labels = labels;
     }
 
     @Override
@@ -283,6 +278,7 @@ public class Job   {
         sb.append("    status: ").append(toIndentedString(status)).append("\n");
         sb.append("    percentageComplete: ").append(toIndentedString(percentageComplete)).append("\n");
         sb.append("    failures: ").append(toIndentedString(failures)).append("\n");
+        sb.append("    labels: ").append(toIndentedString(labels)).append("\n");
         sb.append("}");
         return sb.toString();
     }

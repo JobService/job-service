@@ -61,7 +61,7 @@ public final class JobsGetTest {
         JobsGet.getJobs("partition", "", null, 0, 0, null);
 
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null);
+            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null);
     }
 
     @Test(expected = BadRequestException.class)
@@ -73,7 +73,7 @@ public final class JobsGetTest {
     public void testGetJobs_Success_WithSort() throws Exception {
         JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc");
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null);
+            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null);
     }
 
     @Test(expected = BadRequestException.class)
@@ -93,10 +93,10 @@ public final class JobsGetTest {
 
     @Test
     public void testGetJobs_Success_WithLabelFilter() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, null,"tag:4,5");
+        JobsGet.getJobs("partition", "", null, 0, 0, null,"tag:4,tag:5");
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
                 "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
-                SortDirection.DESCENDING, "tag", Arrays.asList("4", "5"));
+                SortDirection.DESCENDING, Arrays.asList("tag:4", "tag:5"));
     }
 
     @Test
@@ -104,17 +104,10 @@ public final class JobsGetTest {
         JobsGet.getJobs("partition", "", null, 0, 0, null, "owner:test%");
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
                 "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
-                SortDirection.DESCENDING, "owner", Collections.singletonList("test\\%"));
+                SortDirection.DESCENDING,  Collections.singletonList("owner:test\\%"));
         JobsGet.getJobs("partition", "", null, 0, 0, null, "owner:'test");
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
                 "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
-                SortDirection.DESCENDING, "owner", Collections.singletonList("''test"));
+                SortDirection.DESCENDING, Collections.singletonList("owner:''test"));
     }
-
-    @Test(expected = BadRequestException.class)
-    public void testGetJobs_Failure_InvalidLabel_MissingValue() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, null,
-                "tag");
-    }
-
 }

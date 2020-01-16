@@ -36,8 +36,7 @@ CREATE OR REPLACE FUNCTION get_jobs(
     in_offset INT,
     in_sort_field VARCHAR(20),
     in_sort_ascending BOOLEAN,
-    in_label_key VARCHAR(255),
-    in_label_values VARCHAR(255)[]
+    in_labels VARCHAR(255)[]
 )
 RETURNS TABLE(
     job_id VARCHAR(48),
@@ -90,10 +89,9 @@ BEGIN
         $q$;
 
 
-    IF in_label_key IS NOT NULL AND in_label_key != '' THEN
-        sql := sql || whereOrAnd || ' lbl.label = ' || in_label_key;
+    IF in_labels IS NOT NULL AND ARRAY_LENGTH(in_labels, 1) > 0 THEN
+        sql := sql || whereOrAnd || ' lbl.label = ANY(' || quote_literal(in_labels) || ') ';
         whereOrAnd := andConst;
-        sql := sql || whereOrAnd || ' lbl.value IN ' || unnest(in_label_values);
     END IF;
 
     sql := sql || whereOrAnd || ' job.partition_id = ' || quote_literal(in_partition_id);

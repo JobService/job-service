@@ -922,11 +922,11 @@ public class JobServiceIT {
     }
 
     @Test
-    public void testCreateJobWithLabels() throws ApiException, SQLException {
+    public void testCreateJobWithLabels() throws ApiException {
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
         final NewJob job = makeJob(jobId, "testCreateJobWithLabels");
-        job.getLabels().put("tags", Arrays.asList("1", "4", "7"));
+        job.getLabels().put("tag:1", "1");
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
 
         //retrieve job using web method
@@ -934,13 +934,41 @@ public class JobServiceIT {
 
         assertEquals(retrievedJob.getId(), jobId);
         assertEquals(retrievedJob.getName(), job.getName());
-        assertTrue(retrievedJob.getLabels().containsKey("tags"));
+        assertTrue(retrievedJob.getLabels().containsKey("tag:1"));
 
-        List<String> retrievedTags = retrievedJob.getLabels().get("tags");
-        Collections.sort(retrievedTags);
-        List<String> tags = job.getLabels().get("tags");
-        Collections.sort(tags);
-        assertEquals(tags, retrievedTags);
+        assertEquals(job.getLabels().get("tag:1"), retrievedJob.getLabels().get("tag:1"));
+    }
+
+    @Test
+    public void testFilterJobsByLabel() throws ApiException {
+        final String jobId1 = UUID.randomUUID().toString();
+        final String jobId2 = UUID.randomUUID().toString();
+        final String jobId3 = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob job = makeJob(jobId1, "testFilterJobsByLabel");
+        job.getLabels().put("tag:1", "1");
+        job.getLabels().put("tag:2", "2");
+        final NewJob job2 = makeJob(jobId2, "testFilterJobsByLabel");
+        job2.getLabels().put("tag:1", "1");
+        job2.getLabels().put("owner", "bob");
+        final NewJob job3 = makeJob(jobId3, "testFilterJobsByLabel");
+        job3.getLabels().put("random", "label");
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, job, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, job2, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, job3, correlationId);
+
+        //retrieve job using web method
+        List<Job> jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
+                null, null, null, "tag:1");
+        assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(jobId1, jobId2)));
+
+        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
+                null, null, "tag:1,random");
+        assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(jobId1, jobId2, jobId3)));
+
+        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
+                null, null, "owner");
+        assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Collections.singletonList(jobId2)));
     }
 
 

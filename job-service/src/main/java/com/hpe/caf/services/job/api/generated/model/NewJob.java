@@ -39,7 +39,7 @@ public class NewJob   {
     private JsonNode parameters = null;
     private List<String> prerequisiteJobIds = null;
     private Integer delay = 0;
-    private Multimap<String, String> labels = HashMultimap.create();
+    private Map<String, String> labels = new HashMap<>();
 
     /**
      * The name of the job
@@ -195,18 +195,14 @@ public class NewJob   {
 
     @ApiModelProperty("Extra meta-data related to the job")
     @JsonProperty("labels")
-    public Map<String, Collection<String>> getLabels() {
-        return labels.asMap();
-    }
-
-    public Multimap<String, String> getLabelsMultimap() {
+    public Map<String, String> getLabels() {
         return labels;
     }
 
-    public void setLabels(Map<String, Collection<String>> labels) {
-        this.labels = HashMultimap.create();
-        labels.forEach(this.labels::putAll);
+    public void setLabels(Map<String, String> labels) {
+        this.labels = labels;
     }
+
 
     @Override
     public boolean equals(Object o) {

@@ -58,12 +58,12 @@ public final class JobsGet {
      * @param statusType    optional status of the job
      * @param limit         optional limit of jobs to return per page
      * @param offset        optional offset from which to return page of jobs
-     * @param label         optional metadata to filter against.
+     * @param labelExists   optional metadata to filter against.
      * @return  jobs        list of jobs
      * @throws Exception    bad request or database exceptions
      */
     public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit,
-                                final Integer offset, final String sort, final String label) throws Exception {
+                                final Integer offset, final String sort, final String labelExists) throws Exception {
 
         Job[] jobs;
 
@@ -94,16 +94,12 @@ public final class JobsGet {
                 }
             }
 
-            String labelKey = null;
             List<String> labelValues = null;
-            if(!StringUtils.isEmpty(label)) {
-                final String[] split = label.split(":", 2);
-                if (split.length != 2) {
-                    throw new BadRequestException("Invalid format for label: " + label);
-                }
-                labelKey = escapeSql(split[0]).get(0);
-                labelValues = escapeSql(split[1].split(","));
+            if(!StringUtils.isEmpty(labelExists)) {
+                final String[] split = labelExists.split(",");
+                labelValues = escapeSql(split);
             }
+            LOG.info("DOM - rest param {} - split {}", labelExists, labelValues);
 
 
             //  Get app config settings.
@@ -119,11 +115,12 @@ public final class JobsGet {
                 limit = config.getDefaultPageSize();
             }
             jobs = databaseHelper.getJobs(
-                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelKey, labelValues);
+                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues);
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;
         }
+
 
         LOG.info("getJobs: Done.");
         return jobs;
