@@ -99,8 +99,6 @@ public final class JobsGet {
                 final String[] split = labelExists.split(",");
                 labelValues = escapeSql(split);
             }
-            LOG.info("DOM - rest param {} - split {}", labelExists, labelValues);
-
 
             //  Get app config settings.
             LOG.debug("getJobs: Reading database connection properties...");
