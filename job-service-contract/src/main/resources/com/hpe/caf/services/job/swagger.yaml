@@ -304,7 +304,7 @@ definitions:
         type: object
         additionalProperties:
           type: string
-          pattern: '^(?!\s*$)[a-zA-Z0-9_\- ]{1,}$'
+          pattern: '^(?!\s*$)[a-zA-Z0-9_\- :]+$'
           minLength: 1
         description: A map of meta data associated with this job.
         example:
@@ -383,7 +383,7 @@ definitions:
         type: object
         additionalProperties:
           type: string
-          pattern: '^(?!\s*$)[a-zA-Z0-9_\- ]{1,}$'
+          pattern: '^(?!\s*$)[a-zA-Z0-9_\- :]+$'
           minLength: 1
         description: A map of meta data associated with this job.
   failure:

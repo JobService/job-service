@@ -35,10 +35,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -971,6 +968,31 @@ public class JobServiceIT {
         assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Collections.singletonList(jobId2)));
     }
 
+    @Test
+    public void testInvalidLabelFormat() {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob job = makeJob(jobId, "testFilterJobsByLabel");
+        job.getLabels().put(", ", "1");
+        boolean exceptionThrown = false;
+        try {
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
+        } catch (ApiException e) {
+            exceptionThrown = true;
+            assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
+        }
+        assertTrue(exceptionThrown);
+        exceptionThrown = false;
+        job.getLabels().clear();
+        job.getLabels().put("    ", "asd");
+        try {
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
+        } catch (ApiException e) {
+            exceptionThrown = true;
+            assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
+        }
+        assertTrue(exceptionThrown);
+    }
 
     public void testMessagesPutOnQueue(
         final String taskQueue,
