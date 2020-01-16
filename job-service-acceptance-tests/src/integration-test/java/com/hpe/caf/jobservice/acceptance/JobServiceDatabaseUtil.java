@@ -179,9 +179,9 @@ public class JobServiceDatabaseUtil
         try (final Connection dbConnection = getDbConnection()) {
 
             //  Verify job task data row has been removed.
-            try(PreparedStatement st = dbConnection.prepareStatement("SELECT count(*) as result FROM public.label WHERE job_id = ?")) {
+            try(final PreparedStatement st = dbConnection.prepareStatement("SELECT count(*) as result FROM public.label WHERE job_id = ?")) {
                 st.setString(1, jobId);
-                try (ResultSet rs = st.executeQuery()) {
+                try (final ResultSet rs = st.executeQuery()) {
                     rs.next();
                     Assert.assertEquals(rs.getInt("result"), 0);
                 }

@@ -18,9 +18,9 @@ package com.hpe.caf.services.job.api;
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
+import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
@@ -32,8 +32,12 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
