@@ -15,7 +15,6 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
@@ -35,14 +34,16 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -927,7 +928,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
 
         //retrieve job using web method
-        Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
+        final Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
 
         assertEquals(retrievedJob.getId(), jobId);
         assertEquals(retrievedJob.getName(), job.getName());
@@ -977,7 +978,7 @@ public class JobServiceIT {
         boolean exceptionThrown = false;
         try {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
-        } catch (ApiException e) {
+        } catch (final ApiException e) {
             exceptionThrown = true;
             assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
         }
@@ -987,7 +988,7 @@ public class JobServiceIT {
         job.getLabels().put("    ", "asd");
         try {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
-        } catch (ApiException e) {
+        } catch (final ApiException e) {
             exceptionThrown = true;
             assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
         }

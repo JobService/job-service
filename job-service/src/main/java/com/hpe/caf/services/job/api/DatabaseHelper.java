@@ -16,7 +16,10 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
-import com.hpe.caf.services.job.api.generated.model.*;
+import com.hpe.caf.services.job.api.generated.model.Failure;
+import com.hpe.caf.services.job.api.generated.model.Job;
+import com.hpe.caf.services.job.api.generated.model.JobSortField;
+import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
@@ -31,6 +34,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 /**
  * The DatabaseHelper class is responsible for database operations.
@@ -60,11 +64,11 @@ public final class DatabaseHelper
                          Integer offset, final JobSortField sortField, final SortDirection sortDirection,
                          final List<String> labels) throws Exception {
 
-        Map<String, Job> jobs = new LinkedHashMap<>(); //Linked rather than hash to preserve order of results.
+        final Map<String, Job> jobs = new LinkedHashMap<>(); //Linked rather than hash to preserve order of results.
 
         try (
-                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?)}")
+                final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                final CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -95,9 +99,9 @@ public final class DatabaseHelper
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (final ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Job job = new Job();
+                    final Job job = new Job();
                     job.setId(rs.getString("job_id"));
                     job.setName(rs.getString("name"));
                     job.setDescription(rs.getString("description"));
@@ -108,12 +112,12 @@ public final class DatabaseHelper
                     job.setPercentageComplete(rs.getFloat("percentage_complete"));
 
                     //  Parse JSON failure sub-strings.
-                    String failureDetails = rs.getString("failure_details");
+                    final String failureDetails = rs.getString("failure_details");
                     if (ApiServiceUtil.isNotNullOrEmpty(failureDetails)) {
                         job.setFailures(getFailuresAsList(failureDetails));
                     }
 
-                    String label = rs.getString("label");
+                    final String label = rs.getString("label");
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
                         job.getLabels().put(label, rs.getString("label_value"));
                     }
@@ -159,7 +163,7 @@ public final class DatabaseHelper
 
             //  Execute a query to return a count of all job definitions in the system.
             LOG.debug("Calling get_jobs_count() database function...");
-            try(ResultSet rs = stmt.executeQuery()) {
+            try (final ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     jobsCount = rs.getLong(1);
                 }
@@ -185,7 +189,7 @@ public final class DatabaseHelper
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_job() database function...");
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (final ResultSet rs = stmt.executeQuery()) {
                 job = new Job();
                 while (rs.next()) {
                     job.setId(rs.getString("job_id"));
@@ -198,11 +202,11 @@ public final class DatabaseHelper
                     job.setPercentageComplete(rs.getFloat("percentage_complete"));
 
                     //  Parse JSON failure sub-strings.
-                    String failureDetails = rs.getString("failure_details");
+                    final String failureDetails = rs.getString("failure_details");
                     if (ApiServiceUtil.isNotNullOrEmpty(failureDetails)) {
                         job.setFailures(getFailuresAsList(failureDetails));
                     }
-                    String label = rs.getString("label");
+                    final String label = rs.getString("label");
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
                         job.getLabels().put(label, rs.getString("label_value"));
                     }
@@ -262,8 +266,8 @@ public final class DatabaseHelper
     public boolean createJob(final String partitionId, String jobId, String name, String description, String data,
                              int jobHash, final Map<String, String> labels) throws Exception {
         try (
-                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?)}")
+                final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?)}")
         ) {
             final List<String[]> labelArray = buildLabelSqlArray(labels);
 
@@ -299,8 +303,8 @@ public final class DatabaseHelper
                                           final String targetPipe, final List<String> prerequisiteJobIds,
                                           final int delay, final Map<String, String> labels) throws Exception {
         try (
-                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
+                final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
             final String[] prerequisiteJobIdStringArray = prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
             Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
@@ -339,9 +343,8 @@ public final class DatabaseHelper
     }
 
     private List<String[]> buildLabelSqlArray(Map<String, String> labels) {
-        List<String[]> labelArray = new ArrayList<>();
-        labels.forEach((key, value) -> labelArray.add(new String[]{key, value}));
-        return labelArray;
+        return labels.entrySet().stream().map(entry -> new String[]{entry.getKey(), entry.getValue()})
+                .collect(Collectors.toList());
     }
 
     /**

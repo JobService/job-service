@@ -36,7 +36,7 @@ public class JobsApiServiceImpl extends JobsApiService {
                             final String label,
                             SecurityContext securityContext)
             throws Exception {
-        Job[] jobs = JobsGet.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, sort, label);
+        final Job[] jobs = JobsGet.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, sort, label);
         return Response.ok().entity(jobs).build();
     }
 

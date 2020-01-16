@@ -46,8 +46,7 @@ public final class JobsGet {
      * @return  jobs        list of jobs
      * @throws Exception    bad request or database exceptions
      */
-    public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit,
-                                final Integer offset, final String sort) throws Exception {
+    public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit, final Integer offset, final String sort) throws Exception {
         return JobsGet.getJobs(partitionId, jobId, statusType, limit, offset, sort, null);
     }
 
@@ -125,7 +124,7 @@ public final class JobsGet {
     }
 
     private static List<String> escapeSql(String... toEscape) {
-        List<String> toReturn = new ArrayList<>();
+        final List<String> toReturn = new ArrayList<>();
         for(String s : toEscape) {
             toReturn.add(s.replace("%", "\\%").replace("'", "''"));
         }
