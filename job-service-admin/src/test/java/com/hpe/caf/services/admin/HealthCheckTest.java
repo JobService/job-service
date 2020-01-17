@@ -54,8 +54,7 @@ public class HealthCheckTest {
         TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_DATABASE_URL",
                 "jdbc:postgresql://UNKNOWNHOST1234567890:9999/jobservicedb");
         TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_DATABASE_USERNAME", "unknownuser");
-        TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_DATABASE_PASSWORD", "unknownpass");
-        
+        TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_DATABASE_PASSWORD", "unknownpass");   
         TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_DATABASE_APPNAME", "unknownappname");
         // Setup dud RabbitMQ environment variables
         TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_RABBITMQ_HOST", "unknown-rabbitmq-host");
