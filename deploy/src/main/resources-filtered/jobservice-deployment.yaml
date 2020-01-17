@@ -95,11 +95,11 @@ spec:
         image: jobservice/job-service:${project.version}
         imagePullPolicy: Always
         env:
-          - name: CAF_APPNAME
+          - name: CAF_DATABASE_APP_NAME
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: CAF_APPNAME_JOBSERVICE
+                key: CAF_DATABASE_APPNAME_JOBSERVICE
           - name: CAF_DATABASE_URL
             valueFrom:
               configMapKeyRef:
@@ -167,11 +167,11 @@ spec:
         image: jobservice/worker-jobtracking:${project.version}
         imagePullPolicy: Always
         env:
-          - name: CAF_APPNAME
+          - name: CAF_DATABASE_APPNAME
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: CAF_APPNAME_JOBTRACKING
+                key: CAF_DATABASE_APPNAME_JOBTRACKING
           - name: CAF_RABBITMQ_HOST
             valueFrom:
               configMapKeyRef:
@@ -241,11 +241,11 @@ spec:
         image: jobservice/job-service-scheduled-executor:${project.version}
         imagePullPolicy: Always
         env:
-          - name: CAF_APPNAME
+          - name: CAF_DATABASE_APPNAME
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: CAF_APPNAME_SCHEDULED_EXECUTOR
+                key: CAF_DATABASE_APPNAME_SCHEDULED_EXECUTOR
           - name: CAF_DATABASE_URL
             valueFrom:
               configMapKeyRef:

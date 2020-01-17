@@ -48,7 +48,7 @@ public final class JobsDeleteTest {
         newEnv.put("CAF_DATABASE_URL","testUrl");
         newEnv.put("CAF_DATABASE_USERNAME","testUserName");
         newEnv.put("CAF_DATABASE_PASSWORD","testPassword");
-        newEnv.put("CAF_APPNAME","testAppName");
+        newEnv.put("CAF_DATABASE_APPNAME","testAppName");
         TestUtil.setSystemEnvironmentFields(newEnv);
     }
 

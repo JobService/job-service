@@ -180,7 +180,7 @@ public class JobServiceDatabaseUtil
         final String databaseUrl = System.getProperty("CAF_DATABASE_URL", System.getenv("CAF_DATABASE_URL"));
         final String dbUser = System.getProperty("CAF_DATABASE_USERNAME", System.getenv("CAF_DATABASE_USERNAME"));
         final String dbPass = System.getProperty("CAF_DATABASE_PASSWORD", System.getenv("CAF_DATABASE_PASSWORD"));
-        final String appName = System.getProperty("CAF_APPNAME", System.getenv("CAF_APPNAME"));
+        final String appName = System.getProperty("CAF_DATABASE_APPNAME", System.getenv("CAF_DATABASE_APPNAME"));
         try {
             final Connection conn;
             final Properties myProp = new Properties();

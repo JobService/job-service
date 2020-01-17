@@ -21,7 +21,7 @@
             },
             "env": {
                 "_JAVA_OPTIONS": "-Xms512m -Xmx512m",
-                "CAF_APPNAME": "jobservice",
+                "CAF_DATABASE_APPNAME": "Job Service",
                 "CAF_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice",
                 "CAF_DATABASE_USERNAME": "${JOB_SERVICE_DB_USER}",
                 "CAF_DATABASE_PASSWORD": "${JOB_SERVICE_DB_PASSWORD}",
@@ -70,7 +70,7 @@
             },
             "env": {
                 "_JAVA_OPTIONS": "-Xms512m -Xmx512m",
-                "CAF_APPNAME": "jobtracking-worker",
+                "JOB_DATABASE_APPNAME": "Job Tracking Worker",
                 "CAF_WORKER_INPUT_QUEUE": "jobtracking-in",
                 "CAF_WORKER_ERROR_QUEUE": "jobtracking-err",
                 "JOB_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice",
@@ -122,7 +122,7 @@
             },
             "env": {
                 "_JAVA_OPTIONS": "-Xms512m -Xmx512m",
-                "CAF_APPNAME": "job-service-scheduled-executor",
+                "CAF_DATABASE_APPNAME": "Job Service Scheduled Executor",
                 "CAF_WORKER_INPUT_QUEUE": "jobservicescheduler-in",
                 "CAF_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice",
                 "CAF_DATABASE_USERNAME": "${JOB_SERVICE_DB_USER}",

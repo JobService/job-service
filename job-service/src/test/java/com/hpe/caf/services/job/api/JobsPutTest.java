@@ -126,7 +126,7 @@ public final class JobsPutTest {
         newEnv.put("CAF_DATABASE_URL","testUrl");
         newEnv.put("CAF_DATABASE_USERNAME","testUserName");
         newEnv.put("CAF_DATABASE_PASSWORD","testPassword");
-        newEnv.put("CAF_APPNAME","testAppName");
+        newEnv.put("CAF_DATABASE_APP_NAME","testAppName");
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         // by default, set up a single job type with id 'basic'

@@ -75,7 +75,7 @@ public class AppConfig {
     }
     
     public String getApplicationName(){
-        return environment.getProperty("CAF_APPNAME");
+        return environment.getProperty("CAF_DATABASE_APPNAME");
     }
 
     public int getDefaultPageSize(){

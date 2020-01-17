@@ -51,6 +51,6 @@ public class JobDatabaseProperties {
      * @return application name
      */
     public static String getApplicationName() {
-        return System.getenv("CAF_APPNAME");
+        return System.getenv("JOB_DATABASE_APPNAME");
     }
 }

@@ -57,7 +57,7 @@ public class ScheduledExecutorConfig {
     }
     
     public static String getApplicationName(){
-        return getPropertyOrEnvVar("CAF_APPNAME");
+        return getPropertyOrEnvVar("CAF_DATABASE_APPNAME");
     }
 
     public static String getWebserviceUrl() {
