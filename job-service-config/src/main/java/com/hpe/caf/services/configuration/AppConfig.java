@@ -45,6 +45,10 @@ public class AppConfig {
     public String getDatabasePassword(){
         return environment.getProperty("CAF_DATABASE_PASSWORD");
     }
+    
+    public String getApplicationName(){
+        return environment.getProperty("CAF_DATABASE_APPNAME");
+    }
 
     public String getRabbitMQHost(){
         return environment.getProperty("CAF_RABBITMQ_HOST");
@@ -72,10 +76,6 @@ public class AppConfig {
 
     public String getWebserviceUrl() {
         return environment.getProperty("CAF_WEBSERVICE_URL");
-    }
-    
-    public String getApplicationName(){
-        return environment.getProperty("CAF_DATABASE_APPNAME");
     }
 
     public int getDefaultPageSize(){
