@@ -44,4 +44,13 @@ public class JobDatabaseProperties {
     public static String getDatabasePassword() {
         return System.getenv("JOB_DATABASE_PASSWORD");
     }
+    
+    /**
+     * Gets the application name from the environment variable.
+     *
+     * @return application name
+     */
+    public static String getApplicationName() {
+        return System.getenv("JOB_DATABASE_APPNAME");
+    }
 }

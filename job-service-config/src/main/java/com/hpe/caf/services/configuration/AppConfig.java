@@ -45,6 +45,10 @@ public class AppConfig {
     public String getDatabasePassword(){
         return environment.getProperty("CAF_DATABASE_PASSWORD");
     }
+    
+    public String getApplicationName(){
+        return environment.getProperty("CAF_DATABASE_APPNAME");
+    }
 
     public String getRabbitMQHost(){
         return environment.getProperty("CAF_RABBITMQ_HOST");

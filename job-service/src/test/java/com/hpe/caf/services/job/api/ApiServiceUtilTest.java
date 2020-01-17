@@ -41,6 +41,7 @@ public final class ApiServiceUtilTest {
         newEnv.put("CAF_DATABASE_URL","testUrl");
         newEnv.put("CAF_DATABASE_USERNAME","testUserName");
         newEnv.put("CAF_DATABASE_PASSWORD","testPassword");
+        newEnv.put("CAF_DATABASE_APPNAME","testAppName");
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         //  Test successful call to class method.
@@ -48,6 +49,7 @@ public final class ApiServiceUtilTest {
         Assert.assertEquals(configProps.getDatabaseURL(),"testUrl");
         Assert.assertEquals(configProps.getDatabaseUsername(),"testUserName");
         Assert.assertEquals(configProps.getDatabasePassword(),"testPassword");
+        Assert.assertEquals(configProps.getApplicationName(),"testAppName");
     }
 
     @Test(expected = AppConfigException.class)
@@ -57,6 +59,7 @@ public final class ApiServiceUtilTest {
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("CAF_DATABASE_USERNAME","testUserName");
         newEnv.put("CAF_DATABASE_PASSWORD","testPassword");
+        newEnv.put("CAF_DATABASE_APPNAME","testAppName");
         //need to set the invalid path else it will pick CAF_DATABASE_URL from config.properties and the test will fail
         newEnv.put("JOB_SERVICE_API_CONFIG_PATH","Override-Default-MissingConfig");
         TestUtil.setSystemEnvironmentFields(newEnv);

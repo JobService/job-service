@@ -63,6 +63,7 @@ public final class DatabaseConnectionProvider
             Properties myProp = new Properties();
             myProp.put("user", appConfig.getDatabaseUsername());
             myProp.put("password", appConfig.getDatabasePassword());
+            myProp.put("ApplicationName", appConfig.getApplicationName());
 
             LOG.debug("Connecting to database...");
             conn = DriverManager.getConnection(dbURL, myProp);

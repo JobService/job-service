@@ -50,6 +50,7 @@ public final class JobsActiveTest {
         newEnv.put("CAF_DATABASE_URL","testUrl");
         newEnv.put("CAF_DATABASE_USERNAME","testUserName");
         newEnv.put("CAF_DATABASE_PASSWORD","testPassword");
+        newEnv.put("CAF_DATABASE_APPNAME","testAppName");
 
         newEnv.put("CAF_RABBITMQ_HOST","localhost");
         newEnv.put("CAF_RABBITMQ_PORT","5672");

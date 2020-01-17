@@ -197,6 +197,7 @@ public class DatabasePoller
         final String databaseUrl = ScheduledExecutorConfig.getDatabaseURL();
         final String dbUser = ScheduledExecutorConfig.getDatabaseUsername();
         final String dbPass = ScheduledExecutorConfig.getDatabasePassword();
+        final String appName = ScheduledExecutorConfig.getApplicationName();
 
         // Only JDBC/PostgreSQL connections are supported.
         if ( !databaseUrl.startsWith(JDBC_POSTGRESQL_PREFIX) )
@@ -218,6 +219,7 @@ public class DatabasePoller
             final Properties myProp = new Properties();
             myProp.put("user", dbUser);
             myProp.put("password", dbPass);
+            myProp.put("ApplicationName", appName);
             LOG.debug(MessageFormat.format("Connecting to database {0} with username {1} and password {2} ...", databaseUrl, dbUser, dbPass));
             conn = DriverManager.getConnection(databaseUrl, myProp);
             LOG.debug("Connected to database.");

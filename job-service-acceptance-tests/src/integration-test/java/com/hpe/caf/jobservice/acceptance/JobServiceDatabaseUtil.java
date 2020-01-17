@@ -180,11 +180,13 @@ public class JobServiceDatabaseUtil
         final String databaseUrl = System.getProperty("CAF_DATABASE_URL", System.getenv("CAF_DATABASE_URL"));
         final String dbUser = System.getProperty("CAF_DATABASE_USERNAME", System.getenv("CAF_DATABASE_USERNAME"));
         final String dbPass = System.getProperty("CAF_DATABASE_PASSWORD", System.getenv("CAF_DATABASE_PASSWORD"));
+        final String appName = System.getProperty("CAF_DATABASE_APPNAME", System.getenv("CAF_DATABASE_APPNAME"));
         try {
             final Connection conn;
             final Properties myProp = new Properties();
             myProp.put("user", dbUser);
             myProp.put("password", dbPass);
+            myProp.put("ApplicationName", appName);
             LOG.info("Connecting to database " + databaseUrl + " with username " + dbUser + " and password " + dbPass);
             conn = DriverManager.getConnection(databaseUrl, myProp);
             LOG.info("Connected to database");
