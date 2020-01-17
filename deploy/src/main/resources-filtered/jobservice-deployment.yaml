@@ -95,7 +95,7 @@ spec:
         image: jobservice/job-service:${project.version}
         imagePullPolicy: Always
         env:
-          - name: CAF_DATABASE_APP_NAME
+          - name: CAF_DATABASE_APPNAME
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config

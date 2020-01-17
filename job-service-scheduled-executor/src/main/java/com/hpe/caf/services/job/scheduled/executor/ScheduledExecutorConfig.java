@@ -31,6 +31,10 @@ public class ScheduledExecutorConfig {
     public static String getDatabasePassword(){
         return getPropertyOrEnvVar("CAF_DATABASE_PASSWORD");
     }
+    
+    public static String getApplicationName(){
+        return getPropertyOrEnvVar("CAF_DATABASE_APPNAME");
+    }
 
     public static String getRabbitMQHost(){
         return getPropertyOrEnvVar("CAF_RABBITMQ_HOST");
@@ -54,10 +58,6 @@ public class ScheduledExecutorConfig {
 
     public static String getStatusCheckTime() {
         return getPropertyOrEnvVar("CAF_STATUS_CHECK_TIME");
-    }
-    
-    public static String getApplicationName(){
-        return getPropertyOrEnvVar("CAF_DATABASE_APPNAME");
     }
 
     public static String getWebserviceUrl() {
