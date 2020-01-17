@@ -56,6 +56,7 @@ public class HealthCheckTest {
         TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_DATABASE_APPNAME", "unknownapplicationname");
         TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_DATABASE_USERNAME", "unknownuser");
         TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_DATABASE_PASSWORD", "unknownpass");
+        
         // Setup dud RabbitMQ environment variables
         TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_RABBITMQ_HOST", "unknown-rabbitmq-host");
         TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_RABBITMQ_PORT", "9999");
