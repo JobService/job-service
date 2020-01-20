@@ -49,6 +49,7 @@ public final class DatabaseConnectionProvider
 
         // Only JDBC/PostgreSQL connections supported.
         final String dbURL = appConfig.getDatabaseURL().toLowerCase(Locale.ENGLISH);
+        final String appname = appConfig.getApplicationName() != null ? appConfig.getApplicationName() : "Job Service";
         if ( !dbURL.startsWith(JDBC_POSTGRESQL_PREFIX) )
         {
             throw new Exception(ERR_MSG_DB_URL_FORMAT_INVALID);
@@ -63,7 +64,7 @@ public final class DatabaseConnectionProvider
             Properties myProp = new Properties();
             myProp.put("user", appConfig.getDatabaseUsername());
             myProp.put("password", appConfig.getDatabasePassword());
-            myProp.put("ApplicationName", appConfig.getApplicationName());
+            myProp.put("ApplicationName", appname);
 
             LOG.debug("Connecting to database...");
             conn = DriverManager.getConnection(dbURL, myProp);
