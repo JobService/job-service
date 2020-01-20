@@ -989,7 +989,7 @@ public class JobServiceEndToEndIT {
     }
 
     private void createJobWithLabels(final String jobId, final boolean useTaskDataObject,
-                                     Map<String, String> labels) throws Exception {
+                                     final Map<String, String> labels) throws Exception {
         final NewJob newJob = constructNewJob(jobId, useTaskDataObject);
         newJob.getLabels().putAll(labels);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);

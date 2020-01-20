@@ -201,7 +201,7 @@ public class NewJob   {
         return labels;
     }
 
-    public void setLabels(Map<String, String> labels) {
+    public void setLabels(final Map<String, String> labels) {
         this.labels = labels;
     }
 

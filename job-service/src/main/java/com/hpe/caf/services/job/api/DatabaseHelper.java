@@ -346,7 +346,7 @@ public final class DatabaseHelper
         }
     }
 
-    private List<String[]> buildLabelSqlArray(Map<String, String> labels) {
+    private List<String[]> buildLabelSqlArray(final Map<String, String> labels) {
         return labels.entrySet().stream().map(entry -> new String[]{entry.getKey(), entry.getValue()})
                 .collect(Collectors.toList());
     }

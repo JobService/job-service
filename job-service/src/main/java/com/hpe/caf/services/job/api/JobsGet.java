@@ -23,11 +23,8 @@ import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public final class JobsGet {
@@ -94,7 +91,7 @@ public final class JobsGet {
             }
 
             List<String> labelValues = null;
-            if(!StringUtils.isEmpty(labelExists)) {
+            if(labelExists != null && !labelExists.isEmpty()) {
                 final String[] split = labelExists.split(",");
                 labelValues = escapeSql(split);
             }
@@ -125,7 +122,7 @@ public final class JobsGet {
 
     private static List<String> escapeSql(String... toEscape) {
         final List<String> toReturn = new ArrayList<>();
-        for(String s : toEscape) {
+        for (final String s : toEscape) {
             toReturn.add(s.replace("%", "\\%").replace("'", "''"));
         }
         return toReturn;

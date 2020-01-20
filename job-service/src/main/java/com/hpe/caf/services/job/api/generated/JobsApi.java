@@ -53,7 +53,7 @@ public class JobsApi  {
             @ApiParam(value = "The starting position from which to return results (useful for paging)") @QueryParam("offset") Integer offset,
             @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,
             @ApiParam(value = "How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.") @QueryParam("sort") String sort,
-            @ApiParam(value = "Filter to jobs with any of the specified labels, in the format label=<labelName><labelName>") @QueryParam("labelExist") String label,
+            @ApiParam(value = "Filter jobs with any of the specified labels, in the format label=<labelName>,<labelName>") @QueryParam("labelExist") String label,
             @Context SecurityContext securityContext)
             throws Exception {
         return delegate.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, cAFCorrelationId, sort, label, securityContext);
