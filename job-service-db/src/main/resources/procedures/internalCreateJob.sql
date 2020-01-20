@@ -21,7 +21,7 @@
  *  Create a new row in the job table.  Returns true if the job doesn't already exist, and false if
  *  the job already exists with the same hash.
  */
-CREATE OR REPLACE FUNCTION internal_create_job(
+ DROP FUNCTION IF EXISTS internal_create_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),
     in_name VARCHAR(255),
@@ -29,10 +29,22 @@ CREATE OR REPLACE FUNCTION internal_create_job(
     in_data TEXT,
     in_delay INT,
     in_job_hash INT
+ );
+CREATE OR REPLACE FUNCTION internal_create_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_name VARCHAR(255),
+    in_description TEXT,
+    in_data TEXT,
+    in_delay INT,
+    in_job_hash INT,
+    in_labels VARCHAR(255)[][] default null
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    t VARCHAR(255)[];
 BEGIN
 
     INSERT INTO public.job(
@@ -62,6 +74,18 @@ BEGIN
         in_delay,
         in_job_hash
     );
+
+    IF in_labels IS NOT NULL AND in_labels != '{}' THEN
+        FOREACH t SLICE 1 IN ARRAY in_labels LOOP
+            INSERT INTO public.label(
+                partition_id,
+                job_id,
+                label,
+                value
+            )
+            SELECT in_partition_id, in_job_id, t[1], t[2];
+        END LOOP;
+    END IF;
 
     RETURN TRUE;
 

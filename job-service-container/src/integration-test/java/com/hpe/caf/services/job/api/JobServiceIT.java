@@ -416,7 +416,7 @@ public class JobServiceIT {
         }
 
         List<Job> retrievedJobs = jobsApi.getJobs(
-            defaultPartitionId, "100",null,null,null,null,null);
+            defaultPartitionId, "100",null,null,null,null,null, null);
         assertEquals(retrievedJobs.size(), 10);
 
         for(int i=0; i<10; i++) {
@@ -447,7 +447,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, waitingJobId, waitingJob, correlationId);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, "NotFinished", null, null, null);
+            defaultPartitionId, correlationId, null, "NotFinished", null, null, null, null);
         assertEquals(jobs.size(), 1);
         assertEquals(jobs.get(0).getId(), waitingJobId);
     }
@@ -478,7 +478,7 @@ public class JobServiceIT {
         final String job3Id = createJob(jobId + "b");
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, "1", null, null, null, null, "jobId:asc");
+            defaultPartitionId, "1", null, null, null, null, "jobId:asc", null);
         final List<String> resultJobIds =
             jobs.stream().map(job -> job.getId()).collect(Collectors.toList());
         assertEquals(resultJobIds, Arrays.asList(jobId + "A", jobId + "b", jobId + "C"),
@@ -627,7 +627,7 @@ public class JobServiceIT {
 
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         final List<Job> jobs = jobsApi.getJobs(
-            UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null, null);
+            UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null, null, null);
         assertEquals(jobs.size(), 0, "job list should be empty");
     }
 
@@ -917,6 +917,82 @@ public class JobServiceIT {
         final NewJob newJob = makeRestrictedJob(jobId, "invalid-output", null);
         assertThrowsApiException(Response.Status.INTERNAL_SERVER_ERROR,
             () -> jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId));
+    }
+
+    @Test
+    public void testCreateJobWithLabels() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob job = makeJob(jobId, "testCreateJobWithLabels");
+        job.getLabels().put("tag:1", "1");
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
+
+        //retrieve job using web method
+        final Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
+
+        assertEquals(retrievedJob.getId(), jobId);
+        assertEquals(retrievedJob.getName(), job.getName());
+        assertTrue(retrievedJob.getLabels().containsKey("tag:1"));
+
+        assertEquals(job.getLabels().get("tag:1"), retrievedJob.getLabels().get("tag:1"));
+    }
+
+    @Test
+    public void testFilterJobsByLabel() throws ApiException {
+        final String jobId1 = UUID.randomUUID().toString();
+        final String jobId2 = UUID.randomUUID().toString();
+        final String jobId3 = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob job = makeJob(jobId1, "testFilterJobsByLabel");
+        job.getLabels().put("tag:1", "1");
+        job.getLabels().put("tag:2", "2");
+        final NewJob job2 = makeJob(jobId2, "testFilterJobsByLabel");
+        job2.getLabels().put("tag:1", "1");
+        job2.getLabels().put("owner", "bob");
+        final NewJob job3 = makeJob(jobId3, "testFilterJobsByLabel");
+        job3.getLabels().put("random", "label");
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, job, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, job2, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, job3, correlationId);
+
+        //retrieve job using web method
+        List<Job> jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
+                null, null, null, "tag:1");
+        assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(jobId1, jobId2)));
+
+        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
+                null, null, "tag:1,random");
+        assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(jobId1, jobId2, jobId3)));
+
+        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
+                null, null, "owner");
+        assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Collections.singletonList(jobId2)));
+    }
+
+    @Test
+    public void testInvalidLabelFormat() {
+        final String jobId = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob job = makeJob(jobId, "testFilterJobsByLabel");
+        job.getLabels().put(", ", "1");
+        boolean exceptionThrown = false;
+        try {
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
+        } catch (final ApiException e) {
+            exceptionThrown = true;
+            assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
+        }
+        assertTrue(exceptionThrown);
+        exceptionThrown = false;
+        job.getLabels().clear();
+        job.getLabels().put("    ", "asd");
+        try {
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
+        } catch (final ApiException e) {
+            exceptionThrown = true;
+            assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
+        }
+        assertTrue(exceptionThrown);
     }
 
     public void testMessagesPutOnQueue(

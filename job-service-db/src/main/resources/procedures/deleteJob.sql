@@ -60,6 +60,9 @@ BEGIN
     DELETE FROM job_dependency jd WHERE jd.partition_id = in_partition_id AND jd.job_id = in_job_id;
     DELETE FROM job_task_data jtd WHERE jtd.partition_id = in_partition_id AND jtd.job_id = in_job_id;
 
+    -- Remove any associated labels
+    DELETE FROM label lbl WHERE lbl.partition_id = in_partition_id AND lbl.job_id = in_job_id;
+
     -- Remove row from the job table
     DELETE FROM job
     WHERE partition_id = in_partition_id

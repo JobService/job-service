@@ -29,6 +29,8 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 @RunWith(PowerMockRunner.class)
@@ -60,7 +62,7 @@ public final class JobsGetTest {
         JobsGet.getJobs("partition", "", null, 0, 0, null);
 
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING);
+            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null);
     }
 
     @Test(expected = BadRequestException.class)
@@ -72,7 +74,7 @@ public final class JobsGetTest {
     public void testGetJobs_Success_WithSort() throws Exception {
         JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc");
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING);
+            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null);
     }
 
     @Test(expected = BadRequestException.class)
@@ -90,4 +92,23 @@ public final class JobsGetTest {
         JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random");
     }
 
+    @Test
+    public void testGetJobs_Success_WithLabelFilter() throws Exception {
+        JobsGet.getJobs("partition", "", null, 0, 0, null,"tag:4,tag:5");
+        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
+                "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
+                SortDirection.DESCENDING, Arrays.asList("tag:4", "tag:5"));
+    }
+
+    @Test
+    public void testGetJobs_Success_WithLabelFilter_escaped() throws Exception {
+        JobsGet.getJobs("partition", "", null, 0, 0, null, "owner:test%");
+        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
+                "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
+                SortDirection.DESCENDING,  Collections.singletonList("owner:test\\%"));
+        JobsGet.getJobs("partition", "", null, 0, 0, null, "owner:'test");
+        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
+                "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
+                SortDirection.DESCENDING, Collections.singletonList("owner:''test"));
+    }
 }
