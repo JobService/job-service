@@ -129,7 +129,7 @@ public final class JobsPut {
             }
 
             // Make sure label names are valid.
-            if (job.getLabels() != null && !job.getLabels().isEmpty() &&
+            if (job.getLabels() != null &&
                     job.getLabels().keySet().stream().anyMatch(key -> !LABEL_PATTERN.matcher(key).matches())) {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_INVALID_LABEL_NAME);
                 throw new BadRequestException(ERR_MSG_INVALID_LABEL_NAME);

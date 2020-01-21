@@ -280,7 +280,8 @@ definitions:
         #       would mean xpath searches could be done later
         type: string
         description: |
-          DEPRECATED - Replaced by labels
+          DEPRECATED - Replaced by labels. External data can be associated with the job for use by other
+          components.
       task:
         $ref: "#/definitions/worker-action"
       type:
@@ -303,8 +304,9 @@ definitions:
         type: object
         additionalProperties:
           type: string
-          minLength: 1
-        description: A map of meta data associated with this job. Note that the keys must match the following regex ^(?!\s*$)[a-zA-Z0-9_\- :]+$
+        description: |
+          A map of meta data associated with this job. Note that the keys can only include alphanumeric, '_', '-' and
+          ':' characters
         example:
           "tag:4": "4"
           owner: "bob"
@@ -348,7 +350,8 @@ definitions:
       externalData:
         type: string
         description: |
-          DEPRECATED - Replaced by labels
+          DEPRECATED - Replaced by labels External data can be associated with the job for use by other
+          components.
       createTime:
         type: string
         format: date-time
@@ -380,8 +383,9 @@ definitions:
         type: object
         additionalProperties:
           type: string
-          minLength: 1
-        description: A map of meta data associated with this job. Note that the keys must match the following regex ^(?!\s*$)[a-zA-Z0-9_\- :]+$
+        description: |
+          A map of meta data associated with this job. Note that the keys can only include alphanumeric, '_', '-' and
+          ':' characters
   failure:
     type: object
     properties:
