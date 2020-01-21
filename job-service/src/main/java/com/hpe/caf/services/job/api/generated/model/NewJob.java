@@ -35,6 +35,10 @@ public class NewJob   {
 
     private String name = null;
     private String description = null;
+    /**
+     * @deprecated 21/01/2020 - Replaced by labels functionality.
+     */
+    @Deprecated
     private String externalData = null;
     private WorkerAction task = null;
     private String type = null;
