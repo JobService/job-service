@@ -35,7 +35,8 @@ CREATE OR REPLACE FUNCTION get_jobs(
     in_limit INT,
     in_offset INT,
     in_sort_field VARCHAR(20),
-    in_sort_ascending BOOLEAN
+    in_sort_ascending BOOLEAN,
+    in_labels VARCHAR(255)[]
 )
 RETURNS TABLE(
     job_id VARCHAR(48),
@@ -47,7 +48,9 @@ RETURNS TABLE(
     status job_status,
     percentage_complete DOUBLE PRECISION,
     failure_details TEXT,
-    actionType CHAR(6)
+    actionType CHAR(6),
+    label VARCHAR(255),
+    label_value VARCHAR(255)
 )
 LANGUAGE plpgsql STABLE
 AS $$
@@ -78,16 +81,26 @@ BEGIN
                job.status,
                job.percentage_complete,
                job.failure_details,
-               CAST('WORKER' AS CHAR(6)) AS actionType
-        FROM job$q$;
+               CAST('WORKER' AS CHAR(6)) AS actionType,
+               lbl.label,
+               lbl.value
+        FROM job
+        LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id AND lbl.job_id = job.job_id
+        $q$;
 
-    sql := sql || whereOrAnd || ' partition_id = ' || quote_literal(in_partition_id);
+
+    IF in_labels IS NOT NULL AND ARRAY_LENGTH(in_labels, 1) > 0 THEN
+        sql := sql || whereOrAnd || ' lbl.label = ANY(' || quote_literal(in_labels) || ') ';
+        whereOrAnd := andConst;
+    END IF;
+
+    sql := sql || whereOrAnd || ' job.partition_id = ' || quote_literal(in_partition_id);
     whereOrAnd := andConst;
 
     IF in_job_id_starts_with IS NOT NULL AND in_job_id_starts_with != '' THEN
         escapedJobIdStartsWith = replace(replace(quote_literal(in_job_id_starts_with), '_', '\_'), '%', '\%');
         escapedJobIdStartsWith = left(escapedJobIdStartsWith, char_length(escapedJobIdStartsWith) - 1) || '%''';
-        sql := sql || whereOrAnd || ' job_id LIKE ' || escapedJobIdStartsWith;
+        sql := sql || whereOrAnd || ' job.job_id LIKE ' || escapedJobIdStartsWith;
         whereOrAnd := andConst;
     END IF;
 

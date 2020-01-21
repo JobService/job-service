@@ -21,7 +21,9 @@ import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -39,6 +41,7 @@ public class NewJob   {
     private JsonNode parameters = null;
     private List<String> prerequisiteJobIds = null;
     private Integer delay = 0;
+    private Map<String, String> labels = new HashMap<>();
 
     /**
      * The name of the job
@@ -191,6 +194,17 @@ public class NewJob   {
     public void setDelay(Integer delay) {
         this.delay = delay;
     }
+
+    @ApiModelProperty("Extra meta-data related to the job")
+    @JsonProperty("labels")
+    public Map<String, String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(final Map<String, String> labels) {
+        this.labels = labels;
+    }
+
 
     @Override
     public boolean equals(Object o) {

@@ -22,7 +22,9 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-03-03T15:07:30.523Z")
@@ -61,7 +63,7 @@ public class Job   {
     private StatusEnum status = null;
     private Float percentageComplete = null;
     private List<Failure> failures = new ArrayList<Failure>();
-
+    private Map<String, String> labels = new HashMap<>();
 
     /**
      * The job identifier
@@ -230,7 +232,15 @@ public class Job   {
         this.failures = failures;
     }
 
+    @ApiModelProperty("Extra meta-data related to the job")
+    @JsonProperty("labels")
+    public Map<String, String> getLabels() {
+        return labels;
+    }
 
+    public void setLabels(final Map<String, String> labels) {
+        this.labels = labels;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -271,6 +281,7 @@ public class Job   {
         sb.append("    status: ").append(toIndentedString(status)).append("\n");
         sb.append("    percentageComplete: ").append(toIndentedString(percentageComplete)).append("\n");
         sb.append("    failures: ").append(toIndentedString(failures)).append("\n");
+        sb.append("    labels: ").append(toIndentedString(labels)).append("\n");
         sb.append("}");
         return sb.toString();
     }

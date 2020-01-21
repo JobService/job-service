@@ -97,6 +97,11 @@ paths:
         required: false
         description: 'How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.'
         default: createTime:desc
+      - name: labelExist
+        in: query
+        type: string
+        required: false
+        description: 'Filter to jobs with the specified labels, in the format label=<labelName>,<labelName>'
     get:
       tags:
         - Jobs
@@ -295,6 +300,16 @@ definitions:
         format: int32
         default: 0		
         description: The time in seconds after the prerequisite job identifiers have completed before this job is eligible for running.
+      labels:
+        type: object
+        additionalProperties:
+          type: string
+          pattern: '^(?!\s*$)[a-zA-Z0-9_\- :]+$'
+          minLength: 1
+        description: A map of meta data associated with this job.
+        example:
+          "tag:4": "4"
+          owner: "bob"
   worker-action:
     type: object
     required:
@@ -364,6 +379,13 @@ definitions:
         items:
           $ref: "#/definitions/failure"
         description: Job failure details
+      labels:
+        type: object
+        additionalProperties:
+          type: string
+          pattern: '^(?!\s*$)[a-zA-Z0-9_\- :]+$'
+          minLength: 1
+        description: A map of meta data associated with this job.
   failure:
     type: object
     properties:

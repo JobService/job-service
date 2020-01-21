@@ -39,6 +39,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class JobsPut {
@@ -52,8 +54,12 @@ public final class JobsPut {
     public static final String ERR_MSG_TARGET_QUEUE_NOT_SPECIFIED = "The target queue name has not been specified.";
     public static final String ERR_MSG_TASK_DATA_OBJECT_ENCODING_CONFLICT = "An encoding type has been found in the task along with "
         + "taskDataObject. Remove taskDataEncoding and try again";
+    public static final String ERR_MSG_INVALID_LABEL_NAME = "A provided label name contains an invalid character, only " +
+            "alphanumeric, '-' and '_' are supported";
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsPut.class);
+
+    private static final Pattern LABEL_PATTERN = Pattern.compile("^(?!\\s*$)[a-zA-Z0-9_\\- :]+$");
 
     /**
      * Creates a new job with the job object provided if the specified job id does not exist. If the job id already exists it updates
@@ -121,6 +127,14 @@ public final class JobsPut {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_QUEUE_NOT_SPECIFIED);
                 throw new BadRequestException(ERR_MSG_TASK_QUEUE_NOT_SPECIFIED);
             }
+
+            // Make sure label names are valid.
+            if(job.getLabels() != null && !job.getLabels().isEmpty()) {
+                if (job.getLabels().keySet().stream().anyMatch(key -> !LABEL_PATTERN.matcher(key).matches())) {
+                    LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_INVALID_LABEL_NAME);
+                    throw new BadRequestException(ERR_MSG_INVALID_LABEL_NAME);
+                }
+            }
             
             final Object taskData = jobTask.getTaskData();
 
@@ -173,10 +187,10 @@ public final class JobsPut {
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
-                        job.getPrerequisiteJobIds(), job.getDelay());
+                        job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels());
 
             } else {
-                jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash);
+                jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash, job.getLabels());
             }
 
             if (!jobCreated) {
