@@ -197,7 +197,8 @@ public class DatabasePoller
         final String databaseUrl = ScheduledExecutorConfig.getDatabaseURL();
         final String dbUser = ScheduledExecutorConfig.getDatabaseUsername();
         final String dbPass = ScheduledExecutorConfig.getDatabasePassword();
-        final String appName = ScheduledExecutorConfig.getApplicationName();
+        final String appName = ScheduledExecutorConfig.getApplicationName() != null ? ScheduledExecutorConfig.getApplicationName()
+                                 : "Job Service Scheduled Executor";
 
         // Only JDBC/PostgreSQL connections are supported.
         if ( !databaseUrl.startsWith(JDBC_POSTGRESQL_PREFIX) )

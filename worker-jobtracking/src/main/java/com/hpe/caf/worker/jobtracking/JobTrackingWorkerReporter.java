@@ -75,7 +75,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
     public JobTrackingWorkerReporter() throws JobReportingException {
         this.jobDatabaseURL = Objects.requireNonNull(JobDatabaseProperties.getDatabaseUrl()).toLowerCase(Locale.ENGLISH);
-        this.appName = JobDatabaseProperties.getApplicationName();
+        this.appName = JobDatabaseProperties.getApplicationName() != null ? JobDatabaseProperties.getApplicationName() 
+                             : "Job Tracking Worker";
         if (!jobDatabaseURL.startsWith(JDBC_POSTGRESQL_PREFIX))
         {
             throw new JobReportingException("Invalid database url string format - must start with jdbc:postgresql:");

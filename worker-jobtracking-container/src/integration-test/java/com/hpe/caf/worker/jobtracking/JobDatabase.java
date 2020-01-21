@@ -129,11 +129,12 @@ public class JobDatabase {
 
     private Connection getConnection () throws SQLException {
         try {
+            final String appName = JobDatabaseProperties.getApplicationName() != null ? JobDatabaseProperties.getApplicationName() : "Job Tracking Worker";
             Connection conn;
             Properties myProp = new Properties();
             myProp.put("user", JobDatabaseProperties.getDatabaseUsername());
             myProp.put("password", JobDatabaseProperties.getDatabasePassword());
-            myProp.put("ApplicationName", JobDatabaseProperties.getApplicationName());
+            myProp.put("ApplicationName", appName);
             LOG.info("Connecting to database {} with username {} and password {}", JobDatabaseProperties.getDatabaseUrl(), JobDatabaseProperties.getDatabaseUsername(), JobDatabaseProperties.getDatabasePassword());
             conn = DriverManager.getConnection(JobDatabaseProperties.getDatabaseUrl(), myProp);
             LOG.info("Connected to database");

@@ -200,7 +200,7 @@ public class JobServiceDatabaseUtil
             final Properties myProp = new Properties();
             myProp.put("user", dbUser);
             myProp.put("password", dbPass);
-            myProp.put("ApplicationName", appName);
+            myProp.put("ApplicationName", appName != null ? appName : "Job Service Acceptance");
             LOG.info("Connecting to database " + databaseUrl + " with username " + dbUser + " and password " + dbPass);
             conn = DriverManager.getConnection(databaseUrl, myProp);
             LOG.info("Connected to database");
