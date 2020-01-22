@@ -34,6 +34,10 @@ public class Job   {
     private String id = null;
     private String name = null;
     private String description = null;
+    /**
+     * @deprecated 21/01/2020 - Replaced by labels functionality.
+     */
+    @Deprecated
     private String externalData = null;
     private Date createTime = null;
     private Date lastUpdateTime = null;
