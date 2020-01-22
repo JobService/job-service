@@ -122,8 +122,8 @@
             },
             "env": {
                 "_JAVA_OPTIONS": "-Xms512m -Xmx512m",
-                "JOB_DATABASE_APPNAME": "Job Service Scheduled Executor",
                 "CAF_WORKER_INPUT_QUEUE": "jobservicescheduler-in",
+                "JOB_DATABASE_APPNAME": "Job Service Scheduled Executor",
                 "JOB_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice",
                 "JOB_DATABASE_USERNAME": "${JOB_SERVICE_DB_USER}",
                 "JOB_DATABASE_PASSWORD": "${JOB_SERVICE_DB_PASSWORD}",

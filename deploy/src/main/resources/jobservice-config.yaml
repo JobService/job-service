@@ -4,8 +4,8 @@ metadata:
   name: jobservice-config
 data:
   JOB_SERVICE_DB_PASSWORD: postgres
-  JOB_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
   JOB_SERVICE_DB_USER: postgres
+  JOB_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
   JOB_DATABASE_APPNAME_JOBSERVICE: Job Service
   JOB_DATABASE_APPNAME_JOBTRACKING: Job Tracking Worker
   JOB_DATABASE_APPNAME_SCHEDULED_EXECUTOR: Job Service Scheduled Executor
