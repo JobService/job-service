@@ -70,9 +70,9 @@
             },
             "env": {
                 "_JAVA_OPTIONS": "-Xms512m -Xmx512m",
-                "JOB_DATABASE_APPNAME": "Job Tracking Worker",
                 "CAF_WORKER_INPUT_QUEUE": "jobtracking-in",
                 "CAF_WORKER_ERROR_QUEUE": "jobtracking-err",
+                "JOB_DATABASE_APPNAME": "Job Tracking Worker",
                 "JOB_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice",
                 "JOB_DATABASE_USERNAME": "${JOB_SERVICE_DB_USER}",
                 "JOB_DATABASE_PASSWORD": "${JOB_SERVICE_DB_PASSWORD}",
