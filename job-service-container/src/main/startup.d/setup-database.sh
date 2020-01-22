@@ -18,6 +18,6 @@
 
 cd /database
 java -jar job-service-db-installer.jar \
-     -db.user "${CAF_DATABASE_USERNAME}" \
-     -db.pass "${CAF_DATABASE_PASSWORD}" \
-     -db.connection.url "${CAF_DATABASE_URL}"
+     -db.user "${JOB_DATABASE_USERNAME}" \
+     -db.pass "${JOB_DATABASE_PASSWORD}" \
+     -db.connection.url "${JOB_DATABASE_URL}"

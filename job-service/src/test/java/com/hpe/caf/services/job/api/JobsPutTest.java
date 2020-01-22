@@ -124,10 +124,10 @@ public final class JobsPutTest {
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(any()).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
-        newEnv.put("CAF_DATABASE_URL","testUrl");
-        newEnv.put("CAF_DATABASE_USERNAME","testUserName");
-        newEnv.put("CAF_DATABASE_PASSWORD","testPassword");
-        newEnv.put("CAF_DATABASE_APPNAME","testAppName");
+        newEnv.put("JOB_DATABASE_URL","testUrl");
+        newEnv.put("JOB_DATABASE_USERNAME","testUserName");
+        newEnv.put("JOB_DATABASE_PASSWORD","testPassword");
+        newEnv.put("JOB_DATABASE_APPNAME","testAppName");
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         // by default, set up a single job type with id 'basic'

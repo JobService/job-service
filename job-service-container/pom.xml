@@ -504,10 +504,10 @@
                                     <!-- When the container is deployed in Marathon it will use the environment variable values specified in the container json. -->
                                     <CAF_APPNAME>test/jobservice</CAF_APPNAME>
                                     <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
-                                    <CAF_DATABASE_APPNAME>Job Service</CAF_DATABASE_APPNAME>
-                                    <CAF_DATABASE_URL>jdbc:postgresql://jobservice-integrationtests-postgres:5432/${db.name}</CAF_DATABASE_URL>
-                                    <CAF_DATABASE_USERNAME>postgres</CAF_DATABASE_USERNAME>
-                                    <CAF_DATABASE_PASSWORD>root</CAF_DATABASE_PASSWORD>
+                                    <JOB_DATABASE_APPNAME>Job Service</JOB_DATABASE_APPNAME>
+                                    <JOB_DATABASE_URL>jdbc:postgresql://jobservice-integrationtests-postgres:5432/${db.name}</JOB_DATABASE_URL>
+                                    <JOB_DATABASE_USERNAME>postgres</JOB_DATABASE_USERNAME>
+                                    <JOB_DATABASE_PASSWORD>root</JOB_DATABASE_PASSWORD>
                                     <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
                                     <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
                                     <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>

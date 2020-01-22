@@ -164,10 +164,10 @@
                         <CAF_JOB_SERVICE_CALLER_IMAGE>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</CAF_JOB_SERVICE_CALLER_IMAGE>
                         <CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>http://job-service:8080</CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>
                         <CAF_INTEGRATIONTESTS_FS_PATH>${caf.integrationtests.fs.path}</CAF_INTEGRATIONTESTS_FS_PATH>
-                        <CAF_DATABASE_APPNAME>Job Service Acceptance</CAF_DATABASE_APPNAME>
-                        <CAF_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${job.database.name}</CAF_DATABASE_URL>
-                        <CAF_DATABASE_USERNAME>${job.database.username}</CAF_DATABASE_USERNAME>
-                        <CAF_DATABASE_PASSWORD>${job.database.password}</CAF_DATABASE_PASSWORD>
+                        <JOB_DATABASE_APPNAME>Job Service Acceptance</JOB_DATABASE_APPNAME>
+                        <JOB_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${job.database.name}</JOB_DATABASE_URL>
+                        <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
+                        <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
                     </environmentVariables>
                 </configuration>
             </plugin>
@@ -432,10 +432,10 @@
                                 <env>
                                     <CAF_APPNAME>test/jobservice</CAF_APPNAME>
                                     <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
-                                    <CAF_DATABASE_APPNAME>Job Service</CAF_DATABASE_APPNAME>
-                                    <CAF_DATABASE_URL>${job.database.url}</CAF_DATABASE_URL>
-                                    <CAF_DATABASE_USERNAME>${job.database.username}</CAF_DATABASE_USERNAME>
-                                    <CAF_DATABASE_PASSWORD>${job.database.password}</CAF_DATABASE_PASSWORD>
+                                    <JOB_DATABASE_APPNAME>Job Service</JOB_DATABASE_APPNAME>
+                                    <JOB_DATABASE_URL>${job.database.url}</JOB_DATABASE_URL>
+                                    <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
+                                    <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
                                     <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
                                     <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
                                     <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
@@ -598,10 +598,10 @@
                             <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
                             <run>
                                 <env>
-                                    <CAF_DATABASE_APPNAME>Job Service Scheduled Executor</CAF_DATABASE_APPNAME>
-                                    <CAF_DATABASE_URL>${job.database.url}</CAF_DATABASE_URL>
-                                    <CAF_DATABASE_USERNAME>${job.database.username}</CAF_DATABASE_USERNAME>
-                                    <CAF_DATABASE_PASSWORD>${job.database.password}</CAF_DATABASE_PASSWORD>
+                                    <JOB_DATABASE_APPNAME>Job Service Scheduled Executor</JOB_DATABASE_APPNAME>
+                                    <JOB_DATABASE_URL>${job.database.url}</JOB_DATABASE_URL>
+                                    <JOB_DATABASE_USERNAME>${job.database.username}</JOB_DATABASE_USERNAME>
+                                    <JOB_DATABASE_PASSWORD>${job.database.password}</JOB_DATABASE_PASSWORD>
                                     <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
                                     <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
                                     <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>

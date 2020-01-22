@@ -21,19 +21,19 @@ package com.hpe.caf.services.job.scheduled.executor;
 public class ScheduledExecutorConfig {
 
     public static String getDatabaseURL(){
-        return getPropertyOrEnvVar("CAF_DATABASE_URL");
+        return getPropertyOrEnvVar("JOB_DATABASE_URL");
     }
 
     public static String getDatabaseUsername(){
-        return getPropertyOrEnvVar("CAF_DATABASE_USERNAME");
+        return getPropertyOrEnvVar("JOB_DATABASE_USERNAME");
     }
 
     public static String getDatabasePassword(){
-        return getPropertyOrEnvVar("CAF_DATABASE_PASSWORD");
+        return getPropertyOrEnvVar("JOB_DATABASE_PASSWORD");
     }
     
     public static String getApplicationName(){
-        return getPropertyOrEnvVar("CAF_DATABASE_APPNAME");
+        return getPropertyOrEnvVar("JOB_DATABASE_APPNAME");
     }
 
     public static String getRabbitMQHost(){
