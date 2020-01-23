@@ -99,7 +99,7 @@ spec:
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_SERVICE_DATABASE_APPNAME_JOBSERVICE
+                key: JOB_SERVICE_DATABASE_APPNAME
           - name: JOB_SERVICE_DATABASE_URL
             valueFrom:
               configMapKeyRef:
