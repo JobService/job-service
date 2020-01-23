@@ -18,6 +18,6 @@
 
 cd /database
 java -jar job-service-db-installer.jar \
-     -db.user "${JOB_SERVICE_DATABASE_USERNAME}" \
-     -db.pass "${JOB_SERVICE_DATABASE_PASSWORD}" \
-     -db.connection.url "${JOB_SERVICE_DATABASE_URL}"
+     -db.user "${JOB_SERVICE_DATABASE_USERNAME:-${JOB_DATABASE_USERNAME}}" \
+     -db.pass "${JOB_SERVICE_DATABASE_PASSWORD:-${JOB_DATABASE_PASSWORD}}" \
+     -db.connection.url "${JOB_SERVICE_DATABASE_URL:-${JOB_DATABASE_URL}}"
