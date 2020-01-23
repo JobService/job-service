@@ -35,19 +35,19 @@ public class AppConfig {
     private Environment environment;
 
     public String getDatabaseURL(){
-        return environment.getProperty("JOB_DATABASE_URL");
+        return environment.getProperty("JOB_SERVICE_DATABASE_URL");
     }
 
     public String getDatabaseUsername(){
-        return environment.getProperty("JOB_DATABASE_USERNAME");
+        return environment.getProperty("JOB_SERVICE_DATABASE_USERNAME");
     }
 
     public String getDatabasePassword(){
-        return environment.getProperty("JOB_DATABASE_PASSWORD");
+        return environment.getProperty("JOB_SERVICE_DATABASE_PASSWORD");
     }
     
     public String getApplicationName(){
-        return environment.getProperty("JOB_DATABASE_APPNAME");
+        return environment.getProperty("JOB_SERVICE_DATABASE_APPNAME");
     }
 
     public String getRabbitMQHost(){

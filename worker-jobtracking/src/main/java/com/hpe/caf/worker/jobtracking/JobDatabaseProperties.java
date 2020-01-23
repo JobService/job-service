@@ -24,7 +24,7 @@ public class JobDatabaseProperties {
      * @return database url
      */
     public static String getDatabaseUrl() {
-        return System.getenv("JOB_DATABASE_URL");
+        return System.getenv("JOB_SERVICE_DATABASE_URL");
     }
 
     /**
@@ -33,7 +33,7 @@ public class JobDatabaseProperties {
      * @return database username
      */
     public static String getDatabaseUsername() {
-        return System.getenv("JOB_DATABASE_USERNAME");
+        return System.getenv("JOB_SERVICE_DATABASE_USERNAME");
     }
 
     /**
@@ -42,7 +42,7 @@ public class JobDatabaseProperties {
      * @return database password
      */
     public static String getDatabasePassword() {
-        return System.getenv("JOB_DATABASE_PASSWORD");
+        return System.getenv("JOB_SERVICE_DATABASE_PASSWORD");
     }
     
     /**
@@ -51,6 +51,6 @@ public class JobDatabaseProperties {
      * @return application name
      */
     public static String getApplicationName() {
-        return System.getenv("JOB_DATABASE_APPNAME");
+        return System.getenv("JOB_SERVICE_DATABASE_APPNAME");
     }
 }

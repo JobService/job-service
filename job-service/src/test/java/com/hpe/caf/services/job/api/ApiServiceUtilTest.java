@@ -38,10 +38,10 @@ public final class ApiServiceUtilTest {
 
         //  Set-up test database connection properties.
         HashMap<String, String> newEnv  = new HashMap<>();
-        newEnv.put("JOB_DATABASE_URL","testUrl");
-        newEnv.put("JOB_DATABASE_USERNAME","testUserName");
-        newEnv.put("JOB_DATABASE_PASSWORD","testPassword");
-        newEnv.put("JOB_DATABASE_APPNAME","testAppName");
+        newEnv.put("JOB_SERVICE_DATABASE_URL","testUrl");
+        newEnv.put("JOB_SERVICE_DATABASE_USERNAME","testUserName");
+        newEnv.put("JOB_SERVICE_DATABASE_PASSWORD","testPassword");
+        newEnv.put("JOB_SERVICE_DATABASE_APPNAME","testAppName");
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         //  Test successful call to class method.
@@ -57,10 +57,10 @@ public final class ApiServiceUtilTest {
 
         //  Set-up test database connection properties.
         HashMap<String, String> newEnv  = new HashMap<>();
-        newEnv.put("JOB_DATABASE_USERNAME","testUserName");
-        newEnv.put("JOB_DATABASE_PASSWORD","testPassword");
-        newEnv.put("JOB_DATABASE_APPNAME","testAppName");
-        //need to set the invalid path else it will pick JOB_DATABASE_URL from config.properties and the test will fail
+        newEnv.put("JOB_SERVICE_DATABASE_USERNAME","testUserName");
+        newEnv.put("JOB_SERVICE_DATABASE_PASSWORD","testPassword");
+        newEnv.put("JOB_SERVICE_DATABASE_APPNAME","testAppName");
+        //need to set the invalid path else it will pick JOB_SERVICE_DATABASE_URL from config.properties and the test will fail
         newEnv.put("JOB_SERVICE_API_CONFIG_PATH","Override-Default-MissingConfig");
         TestUtil.setSystemEnvironmentFields(newEnv);
 

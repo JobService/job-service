@@ -23,12 +23,12 @@ spec:
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_SERVICE_DB_PASSWORD
+                key: JOB_SERVICE_DATABASE_PASSWORD
           - name: POSTGRES_USER
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_SERVICE_DB_USER
+                key: JOB_SERVICE_DATABASE_USERNAME
         volumeMounts:
           - mountPath: /var/lib/postgresql/data
             name: job-service-db
@@ -95,26 +95,26 @@ spec:
         image: jobservice/job-service:${project.version}
         imagePullPolicy: Always
         env:
-          - name: JOB_DATABASE_APPNAME
+          - name: JOB_SERVICE_DATABASE_APPNAME
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_DATABASE_APPNAME_JOBSERVICE
-          - name: JOB_DATABASE_URL
+                key: JOB_SERVICE_DATABASE_APPNAME_JOBSERVICE
+          - name: JOB_SERVICE_DATABASE_URL
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_DATABASE_URL
-          - name: JOB_DATABASE_USERNAME
+                key: JOB_SERVICE_DATABASE_URL
+          - name: JOB_SERVICE_DATABASE_USERNAME
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_SERVICE_DB_USER
-          - name: JOB_DATABASE_PASSWORD
+                key: JOB_SERVICE_DATABASE_USERNAME
+          - name: JOB_SERVICE_DATABASE_PASSWORD
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_SERVICE_DB_PASSWORD
+                key: JOB_SERVICE_DATABASE_PASSWORD
           - name: CAF_RABBITMQ_HOST
             valueFrom:
               configMapKeyRef:
@@ -167,11 +167,11 @@ spec:
         image: jobservice/worker-jobtracking:${project.version}
         imagePullPolicy: Always
         env:
-          - name: JOB_DATABASE_APPNAME
+          - name: JOB_SERVICE_DATABASE_APPNAME
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_DATABASE_APPNAME_JOBTRACKING
+                key: JOB_SERVICE_DATABASE_APPNAME_JOBTRACKING
           - name: CAF_RABBITMQ_HOST
             valueFrom:
               configMapKeyRef:
@@ -203,21 +203,21 @@ spec:
             value: "jobtracking-err"
           - name: CAF_WORKER_INPUT_QUEUE
             value: "jobtracking-in"
-          - name: JOB_DATABASE_URL
+          - name: JOB_SERVICE_DATABASE_URL
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_DATABASE_URL
-          - name: JOB_DATABASE_USERNAME
+                key: JOB_SERVICE_DATABASE_URL
+          - name: JOB_SERVICE_DATABASE_USERNAME
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_SERVICE_DB_USER
-          - name: JOB_DATABASE_PASSWORD
+                key: JOB_SERVICE_DATABASE_USERNAME
+          - name: JOB_SERVICE_DATABASE_PASSWORD
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_SERVICE_DB_PASSWORD
+                key: JOB_SERVICE_DATABASE_PASSWORD
         ports:
         - containerPort: 8080
         - containerPort: 8081
@@ -241,26 +241,26 @@ spec:
         image: jobservice/job-service-scheduled-executor:${project.version}
         imagePullPolicy: Always
         env:
-          - name: JOB_DATABASE_APPNAME
+          - name: JOB_SERVICE_DATABASE_APPNAME
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_DATABASE_APPNAME_SCHEDULED_EXECUTOR
-          - name: JOB_DATABASE_URL
+                key: JOB_SERVICE_DATABASE_APPNAME_SCHEDULED_EXECUTOR
+          - name: JOB_SERVICE_DATABASE_URL
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_DATABASE_URL
-          - name: JOB_DATABASE_USERNAME
+                key: JOB_SERVICE_DATABASE_URL
+          - name: JOB_SERVICE_DATABASE_USERNAME
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_SERVICE_DB_USER
-          - name: JOB_DATABASE_PASSWORD
+                key: JOB_SERVICE_DATABASE_USERNAME
+          - name: JOB_SERVICE_DATABASE_PASSWORD
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_SERVICE_DB_PASSWORD
+                key: JOB_SERVICE_DATABASE_PASSWORD
           - name: CAF_RABBITMQ_HOST
             valueFrom:
               configMapKeyRef:

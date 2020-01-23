@@ -3,12 +3,12 @@ kind: ConfigMap
 metadata:
   name: jobservice-config
 data:
-  JOB_SERVICE_DB_PASSWORD: postgres
-  JOB_SERVICE_DB_USER: postgres
-  JOB_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
-  JOB_DATABASE_APPNAME_JOBSERVICE: Job Service
-  JOB_DATABASE_APPNAME_JOBTRACKING: Job Tracking Worker
-  JOB_DATABASE_APPNAME_SCHEDULED_EXECUTOR: Job Service Scheduled Executor
+  JOB_SERVICE_DATABASE_PASSWORD: postgres
+  JOB_SERVICE_DATABASE_USERNAME: postgres
+  JOB_SERVICE_DATABASE_URL: jdbc:postgresql://jobservicedb:5432/jobservice
+  JOB_SERVICE_DATABASE_APPNAME_JOBSERVICE: Job Service
+  JOB_SERVICE_DATABASE_APPNAME_JOBTRACKING: Job Tracking Worker
+  JOB_SERVICE_DATABASE_APPNAME_SCHEDULED_EXECUTOR: Job Service Scheduled Executor
   CAF_RABBITMQ_HOST: rabbitmq
   CAF_RABBITMQ_PORT: "5672"
   CAF_RABBITMQ_USERNAME: guest

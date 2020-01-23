@@ -10,11 +10,11 @@ The `marathon.json.b` template file describes the marathon deployment informatio
 ### Marathon Environment
 The `marathon.env` file supports configurable property settings necessary for service deployment. These include:
 
-- `JOB_SERVICE_DB_PORT`: This configures the external port number on the host machine that will be forwarded to the Job Service Database containers internal 5432 port. This port is used to connect to the Job Service Database.
+- `JOB_SERVICE_DATABASE_PORT`: This configures the external port number on the host machine that will be forwarded to the Job Service Database containers internal 5432 port. This port is used to connect to the Job Service Database.
 
-- `JOB_SERVICE_DB_USER`: The username for the Postgres database.
+- `JOB_SERVICE_DATABASE_USERNAME`: The username for the Postgres database.
 
-- `JOB_SERVICE_DB_PASSWORD`: The password for the Postgres database.
+- `JOB_SERVICE_DATABASE_PASSWORD`: The password for the Postgres database.
 
 ### Additional Marathon Configuration
 The `marathon.json.b` deployment template file specifies default values for a number of additional settings which you may choose to modify directly for your custom deployment. These include:

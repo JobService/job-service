@@ -191,10 +191,10 @@ public class JobServiceDatabaseUtil
 
     private static Connection getDbConnection() throws SQLException
     {
-        final String databaseUrl = System.getProperty("JOB_DATABASE_URL", System.getenv("JOB_DATABASE_URL"));
-        final String dbUser = System.getProperty("JOB_DATABASE_USERNAME", System.getenv("JOB_DATABASE_USERNAME"));
-        final String dbPass = System.getProperty("JOB_DATABASE_PASSWORD", System.getenv("JOB_DATABASE_PASSWORD"));
-        final String appName = System.getProperty("JOB_DATABASE_APPNAME", System.getenv("JOB_DATABASE_APPNAME"));
+        final String databaseUrl = System.getProperty("JOB_SERVICE_DATABASE_URL", System.getenv("JOB_SERVICE_DATABASE_URL"));
+        final String dbUser = System.getProperty("JOB_SERVICE_DATABASE_USERNAME", System.getenv("JOB_SERVICE_DATABASE_USERNAME"));
+        final String dbPass = System.getProperty("JOB_SERVICE_DATABASE_PASSWORD", System.getenv("JOB_SERVICE_DATABASE_PASSWORD"));
+        final String appName = System.getProperty("JOB_SERVICE_DATABASE_APPNAME", System.getenv("JOB_SERVICE_DATABASE_APPNAME"));
         try {
             final Connection conn;
             final Properties myProp = new Properties();
