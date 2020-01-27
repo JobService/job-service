@@ -47,10 +47,13 @@
                              schemaName="public" constraintName="UNQ_Label_1" />
     </changeSet>
 
-    <changeSet id="update_procedures_label_filter" author="Gamma Team">
+    <changeSet id="update_procedures_label_filter" author="Gamma Team" runOnChange="true">
         <createProcedure schemaName="public"
                          procedureName="get_jobs"
                          path="procedures/getJobs.sql" />
+        <createProcedure schemaName="public"
+                         procedureName="get_job"
+                         path="procedures/getJob.sql" />
         <createProcedure schemaName="public"
                          procedureName="delete_job"
                          path="procedures/deleteJob.sql" />
