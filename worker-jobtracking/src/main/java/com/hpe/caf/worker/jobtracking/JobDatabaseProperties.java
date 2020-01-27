@@ -24,7 +24,8 @@ public class JobDatabaseProperties {
      * @return database url
      */
     public static String getDatabaseUrl() {
-        return System.getenv("JOB_DATABASE_URL");
+        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL")
+            : getPropertyOrEnvVar("JOB_DATABASE_URL");
     }
 
     /**
@@ -33,7 +34,8 @@ public class JobDatabaseProperties {
      * @return database username
      */
     public static String getDatabaseUsername() {
-        return System.getenv("JOB_DATABASE_USERNAME");
+        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME")
+            : getPropertyOrEnvVar("JOB_DATABASE_USERNAME");
     }
 
     /**
@@ -42,7 +44,8 @@ public class JobDatabaseProperties {
      * @return database password
      */
     public static String getDatabasePassword() {
-        return System.getenv("JOB_DATABASE_PASSWORD");
+        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD")
+            : getPropertyOrEnvVar("JOB_DATABASE_PASSWORD");
     }
     
     /**
@@ -51,6 +54,13 @@ public class JobDatabaseProperties {
      * @return application name
      */
     public static String getApplicationName() {
-        return System.getenv("JOB_DATABASE_APPNAME");
+        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME")
+            : getPropertyOrEnvVar("JOB_DATABASE_APPNAME");
+    }
+    
+    private static String getPropertyOrEnvVar(final String key)
+    {
+        final String propertyValue = System.getProperty(key);
+        return (propertyValue != null) ? propertyValue : System.getenv(key);
     }
 }

@@ -191,10 +191,18 @@ public class JobServiceDatabaseUtil
 
     private static Connection getDbConnection() throws SQLException
     {
-        final String databaseUrl = System.getProperty("CAF_DATABASE_URL", System.getenv("CAF_DATABASE_URL"));
-        final String dbUser = System.getProperty("CAF_DATABASE_USERNAME", System.getenv("CAF_DATABASE_USERNAME"));
-        final String dbPass = System.getProperty("CAF_DATABASE_PASSWORD", System.getenv("CAF_DATABASE_PASSWORD"));
-        final String appName = System.getProperty("CAF_DATABASE_APPNAME", System.getenv("CAF_DATABASE_APPNAME"));
+        final String databaseUrl = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL") != null 
+            ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL")
+            : getPropertyOrEnvVar("CAF_DATABASE_URL");
+        final String dbUser = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME") != null 
+            ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME")
+            : getPropertyOrEnvVar("CAF_DATABASE_USERNAME");
+        final String dbPass = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD") != null 
+            ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD")
+            : getPropertyOrEnvVar("CAF_DATABASE_PASSWORD");
+        final String appName = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME") != null 
+            ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME")
+            : getPropertyOrEnvVar("CAF_DATABASE_APPNAME");
         try {
             final Connection conn;
             final Properties myProp = new Properties();
@@ -211,5 +219,10 @@ public class JobServiceDatabaseUtil
             throw e;
         }
     }
-
+    
+    private static String getPropertyOrEnvVar(final String key)
+    {
+        final String propertyValue = System.getProperty(key);
+        return (propertyValue != null) ? propertyValue : System.getenv(key);
+    }
 }
