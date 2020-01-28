@@ -46,7 +46,6 @@
                 <configuration>
                     <excludes combine.children="append">
                         <exclude>**/changelog*.xml</exclude>
-                        <exclude>**/procedures/*.sql</exclude>
                     </excludes>
                 </configuration>
             </plugin>

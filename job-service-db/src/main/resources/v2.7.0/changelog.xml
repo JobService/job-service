@@ -148,13 +148,13 @@
             </column>
         </addColumn>
     </changeSet>
-    <changeSet id="add_procedure_internal_get_options" author="Gamma Team">
+    <changeSet id="add_procedure_internal_get_options" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/getOptions.sql"
                          procedureName="internal_get_options"
                          schemaName="public">
         </createProcedure>
     </changeSet>
-    <changeSet id="add_procedure_internal_get_prereq_job_id_options" author="Gamma Team">
+    <changeSet id="add_procedure_internal_get_prereq_job_id_options" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/getPrereqJobIdOptions.sql"
                          procedureName="internal_get_prereq_job_id_options"
                          schemaName="public">
