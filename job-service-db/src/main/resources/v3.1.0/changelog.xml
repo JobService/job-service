@@ -54,7 +54,7 @@
                          path="procedures/getJobs.sql" />
     </changeSet>
 
-    <changeSet id="add_job_sorting_index" author="">
+    <changeSet id="add_job_sorting_index" author="Gamma Team">
         <preConditions onFail="CONTINUE">
             <not>
                 <indexExists schemaName="public" tableName="job" indexName="idx_job_create_date"

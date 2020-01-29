@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 
-    Copyright 2015-2018 Micro Focus or one of its affiliates.
+    Copyright 2016-2020 Micro Focus or one of its affiliates.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
    <include file="changelog.xml" relativeToChangelogFile="true"/>
-   <include file="procedures/changelog.xml" relativeToChangelogFile="true"/>
    <include file="v1.3.0/changelog.xml" relativeToChangelogFile="true" />
    <include file="v1.9.0/changelog.xml" relativeToChangelogFile="true" />
    <include file="v2.1.0/changelog.xml" relativeToChangelogFile="true" />
@@ -36,4 +35,5 @@
    <include file="v3.0.0/changelog.xml" relativeToChangelogFile="true" />
    <include file="v3.1.0/changelog.xml" relativeToChangelogFile="true" />
    <include file="v3.2.0/changelog.xml" relativeToChangelogFile="true" />
+   <include file="procedures/changelog.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
