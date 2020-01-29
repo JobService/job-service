@@ -46,26 +46,4 @@
         <addUniqueConstraint tableName="label" columnNames="partition_id,job_id,label,value"
                              schemaName="public" constraintName="UNQ_Label_1" />
     </changeSet>
-
-    <changeSet id="update_procedures_label_filter" author="Gamma Team" runOnChange="true">
-        <createProcedure schemaName="public"
-                         procedureName="get_jobs"
-                         path="procedures/getJobs.sql" />
-        <createProcedure schemaName="public"
-                         procedureName="get_job"
-                         path="procedures/getJob.sql" />
-        <createProcedure schemaName="public"
-                         procedureName="delete_job"
-                         path="procedures/deleteJob.sql" />
-        <createProcedure schemaName="public"
-                         procedureName="internal_create_job"
-                         path="procedures/internalCreateJob.sql" />
-        <createProcedure schemaName="public"
-                         procedureName="create_job"
-                         path="procedures/createJob.sql" />
-        <createProcedure schemaName="public"
-                         procedureName="create_job"
-                         path="procedures/createJobForDependencies.sql" />
-    </changeSet>
-
 </databaseChangeLog>
