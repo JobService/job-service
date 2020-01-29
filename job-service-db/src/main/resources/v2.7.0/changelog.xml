@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 
-    Copyright 2016-2020 Micro Focus or one of its affiliates.
+    Copyright 2015-2018 Micro Focus or one of its affiliates.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -148,15 +148,13 @@
             </column>
         </addColumn>
     </changeSet>
-    <changeSet id="add_procedure_internal_get_options" author="Gamma Team">
-        <validCheckSum>7:bc95dd9476c92f7dcc586d445bf0dbf4</validCheckSum>
+    <changeSet id="add_procedure_internal_get_options" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/getOptions.sql"
                          procedureName="internal_get_options"
                          schemaName="public">
         </createProcedure>
     </changeSet>
-    <changeSet id="add_procedure_internal_get_prereq_job_id_options" author="Gamma Team">
-        <validCheckSum>7:d8a33a77002e769d2c17e558d9759574</validCheckSum>
+    <changeSet id="add_procedure_internal_get_prereq_job_id_options" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/getPrereqJobIdOptions.sql"
                          procedureName="internal_get_prereq_job_id_options"
                          schemaName="public">
