@@ -15,6 +15,7 @@
  */
 package com.hpe.caf.services.job.api.generated.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModelProperty;
@@ -238,6 +239,7 @@ public class Job   {
 
     @ApiModelProperty("Extra meta-data related to the job")
     @JsonProperty("labels")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public Map<String, String> getLabels() {
         return labels;
     }
