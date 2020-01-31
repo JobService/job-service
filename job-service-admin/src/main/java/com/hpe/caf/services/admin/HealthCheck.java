@@ -162,7 +162,7 @@ public class HealthCheck extends HttpServlet
             LOG.debug("Database Health Check: Healthy");
             return updateStatusResponseWithHealthOfComponent(statusResponseMap, true, null, "database");
         } catch (final Exception e) {
-            LOG.info("Database Health Check: Unhealthy : " + e.toString() + "Msg "+e.getMessage());
+            LOG.error("Database Health Check: Unhealthy : " + e.toString());
             return updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "database");
         }
     }
