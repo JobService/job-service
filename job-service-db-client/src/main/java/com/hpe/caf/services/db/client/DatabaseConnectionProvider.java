@@ -69,7 +69,7 @@ public final class DatabaseConnectionProvider
             LOG.debug("Connecting to database...");
             conn = DriverManager.getConnection(dbURL, myProp);
         } catch (final Exception ex) {
-            LOG.error("Cannot get connection" + ex.getMessage());
+            LOG.info("Cannot get connection" + ex.getMessage());
             throw ex;
         }
 
