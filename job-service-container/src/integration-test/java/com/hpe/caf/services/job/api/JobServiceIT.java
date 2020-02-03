@@ -960,6 +960,17 @@ public class JobServiceIT {
                 null, null, null, "tag:1");
         assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(jobId1, jobId2)));
 
+        //Assert all labels are returned, not just the ones used to filter the jobs
+        Job dbJob1 = jobs.stream().filter(j -> j.getId().equals(jobId1)).findFirst().orElse(null);
+        assertNotNull(dbJob1);
+        assertTrue(dbJob1.getLabels().containsKey("tag:1"));
+        assertTrue(dbJob1.getLabels().containsKey("tag:2"));
+
+        Job dbJob2 = jobs.stream().filter(j -> j.getId().equals(jobId2)).findFirst().orElse(null);
+        assertNotNull(dbJob2);
+        assertTrue(dbJob2.getLabels().containsKey("tag:1"));
+        assertTrue(dbJob2.getLabels().containsKey("owner"));
+
         jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
                 null, null, "tag:1,random");
         assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(jobId1, jobId2, jobId3)));

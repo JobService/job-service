@@ -90,8 +90,9 @@ BEGIN
 
 
     IF in_labels IS NOT NULL AND ARRAY_LENGTH(in_labels, 1) > 0 THEN
-        sql := sql || whereOrAnd || ' lbl.label = ANY(' || quote_literal(in_labels) || ') ';
-        whereOrAnd := andConst;
+        sql := sql || ' INNER JOIN public.label lbl_filter ON lbl_filter.partition_id = job.partition_id '
+                   || ' AND lbl_filter.job_id = job.job_id '
+                   || ' AND lbl_filter.label = ANY(' || quote_literal(in_labels) || ') ';
     END IF;
 
     sql := sql || whereOrAnd || ' job.partition_id = ' || quote_literal(in_partition_id);
