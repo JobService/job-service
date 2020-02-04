@@ -981,6 +981,43 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testPagingWithLabels() throws ApiException {
+        final String jobId1 = UUID.randomUUID().toString();
+        final String jobId2 = UUID.randomUUID().toString();
+        final String jobId3 = UUID.randomUUID().toString();
+        final String correlationId = UUID.randomUUID().toString();
+        final NewJob job = makeJob(jobId1, "testPagingWithLabels");
+        job.getLabels().put("tag:1", "1");
+        job.getLabels().put("tag:2", "2");
+        final NewJob job2 = makeJob(jobId2, "testPagingWithLabels");
+        job2.getLabels().put("tag:1", "1");
+        job2.getLabels().put("owner", "bob");
+        final NewJob job3 = makeJob(jobId3, "testPagingWithLabels");
+        job3.getLabels().put("random", "label");
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, job, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, job2, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, job3, correlationId);
+
+        //retrieve job using web method
+        List<Job> jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
+                2, 0, "createTime:asc", null);
+        assertEquals(jobs.size(), 2);
+        //Assert all labels are returned
+        Job dbJob1 = jobs.stream().filter(j -> j.getId().equals(jobId1)).findFirst().orElse(null);
+        assertNotNull(dbJob1);
+        assertTrue(dbJob1.getLabels().containsKey("tag:1"));
+        assertTrue(dbJob1.getLabels().containsKey("tag:2"));
+
+        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
+                5, 0, "createTime:asc", null);
+        assertEquals(jobs.size(), 3);
+
+        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
+                2, 2, "createTime:asc", null);
+        assertEquals(jobs.size(), 1);
+    }
+
+    @Test
     public void testInvalidLabelFormat() {
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
