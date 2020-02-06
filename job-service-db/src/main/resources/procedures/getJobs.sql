@@ -76,23 +76,35 @@ BEGIN
                job.name,
                job.description,
                job.data,
-               to_char(job.create_date, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-               to_char(job.last_update_date, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+               job.create_date,
+               job.last_update_date,
                job.status,
                job.percentage_complete,
                job.failure_details,
                CAST('WORKER' AS CHAR(6)) AS actionType,
                lbl.label,
                lbl.value
+        FROM
+        (SELECT
+               job.partition_id,
+               job.job_id,
+               job.name,
+               job.description,
+               job.data,
+               to_char(job.create_date, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as create_date,
+               to_char(job.last_update_date, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as last_update_date,
+               job.status,
+               job.percentage_complete,
+               job.failure_details,
+               CAST('WORKER' AS CHAR(6)) AS actionType
         FROM job
-        LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id AND lbl.job_id = job.job_id
+
         $q$;
 
-
     IF in_labels IS NOT NULL AND ARRAY_LENGTH(in_labels, 1) > 0 THEN
-        sql := sql || ' INNER JOIN public.label lbl_filter ON lbl_filter.partition_id = job.partition_id '
-                   || ' AND lbl_filter.job_id = job.job_id '
-                   || ' AND lbl_filter.label = ANY(' || quote_literal(in_labels) || ') ';
+        sql := sql || whereOrAnd || ' EXISTS ( SELECT 1 FROM public.label lbl WHERE lbl.partition_id = job.partition_id'
+            || ' AND lbl.job_id = job.job_id AND lbl.label = ANY(' || quote_literal(in_labels) || ')) ';
+        whereOrAnd := andConst;
     END IF;
 
     sql := sql || whereOrAnd || ' job.partition_id = ' || quote_literal(in_partition_id);
@@ -104,6 +116,7 @@ BEGIN
         sql := sql || whereOrAnd || ' job.job_id LIKE ' || escapedJobIdStartsWith;
         whereOrAnd := andConst;
     END IF;
+
 
     IF in_status_type IS NOT NULL THEN
         IF in_status_type = 'NotCompleted' THEN
@@ -133,7 +146,9 @@ BEGIN
     IF in_offset > 0 THEN
         sql := sql || ' OFFSET ' || in_offset;
     END IF;
-
+    -- Join onto the labels after paging to avoid them bloating the row count
+    sql := sql || ' ) as job LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id '
+               || 'AND lbl.job_id = job.job_id';
     RETURN QUERY EXECUTE sql;
 END
 $$;
