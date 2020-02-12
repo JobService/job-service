@@ -59,7 +59,7 @@ public final class JobsPut {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsPut.class);
 
-    private static final Pattern LABEL_PATTERN = Pattern.compile("^(?!\\s*$)[a-zA-Z0-9_\\- :]+$");
+    private static final Pattern LABEL_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-:]+$");
 
     /**
      * Creates a new job with the job object provided if the specified job id does not exist. If the job id already exists it updates
