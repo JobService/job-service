@@ -1041,6 +1041,16 @@ public class JobServiceIT {
             assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
         }
         assertTrue(exceptionThrown);
+        exceptionThrown = false;
+        job.getLabels().clear();
+        job.getLabels().put("tag name", "value");
+        try {
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
+        } catch (final ApiException e) {
+            exceptionThrown = true;
+            assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
+        }
+        assertTrue(exceptionThrown);
     }
 
     public void testMessagesPutOnQueue(
