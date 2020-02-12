@@ -38,12 +38,5 @@
                                  baseColumnNames="partition_id, job_id"
                                  referencedTableName="job"
                                  referencedColumnNames="partition_id, job_id" />
-        <createIndex schemaName="public" tableName="label" indexName="idx_label" unique="false">
-            <column name="job_id" />
-            <column name="label"/>
-            <column name="value"/>
-        </createIndex>
-        <addUniqueConstraint tableName="label" columnNames="partition_id,job_id,label,value"
-                             schemaName="public" constraintName="UNQ_Label_1" />
     </changeSet>
 </databaseChangeLog>
