@@ -146,7 +146,7 @@
                             <alias>job-service-scheduled-executor</alias>
                             <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
                             <build>
-                                <from>cafinternal/prereleases:opensuse-jre8-2.0.0-SNAPSHOT</from>
+                                <from>cafapi/opensuse-jre8:2</from>
                                 <labels>
                                     <caf.worker-document-framework.version>${caf.worker-document-framework.version}</caf.worker-document-framework.version>
                                     <Build.Number>${project.version}</Build.Number>
