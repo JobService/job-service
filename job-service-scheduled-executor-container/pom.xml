@@ -35,18 +35,6 @@
         <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.github.cafdataprocessing</groupId>
-                <artifactId>worker-document-framework</artifactId>
-                <version>${caf.worker-document-framework.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>com.github.workerframework</groupId>
