@@ -43,13 +43,14 @@ Adjust 'docker-host' to be the name of your own Docker Host and adjust the port 
  
 	* `name`: name of the job. <br>
 	* `description`: description of the job. <br>
-	* `externalData`: external data (i.e. information that you want associated with the job but that has no effect on it). <br>
+	* `externalData`: Deprecated in 3.2.0, replaced by `labels` - external data (i.e. information that you want associated with the job but that has no effect on it). <br>
 	* `taskClassifier`: specifies the type of message being sent. Worker feeding off `taskPipe` queue should be able to process this message. <br>
 	* `taskApiVersion`: API version of the task. <br>
 	* `taskData`: data of the task to be sent. This can be presented in a string format or in a more readable and friendly object format. <br>
 	* `taskDataEncoding`: encoding of the `taskData` field value e.g. `utf8`. Only required if `taskData` field is specified in string format. <br>
 	* `taskPipe`: name of the RabbitMQ queue feeding messages to the first worker. <br>
-	* `targetPipe`: name of the final worker's RabbitMQ output queue where tracking will stop. <br><br>
+	* `targetPipe`: name of the final worker's RabbitMQ output queue where tracking will stop. <br>
+	* `labels`: A map of meta data associated with this job. Note that the keys can only include alphanumeric, '_', '-' and ':' characters <br><br>
 
 6. Press `Try it out!`. The resulting code will show whether the addition of the job succeeds or not. 
    - 201, if the job is successfully added

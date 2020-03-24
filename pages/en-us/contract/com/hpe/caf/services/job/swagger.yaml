@@ -1,5 +1,5 @@
 #
-# Copyright 2015-2018 Micro Focus or one of its affiliates.
+# Copyright 2016-2020 Micro Focus or one of its affiliates.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -97,6 +97,11 @@ paths:
         required: false
         description: 'How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.'
         default: createTime:desc
+      - name: labelExist
+        in: query
+        type: string
+        required: false
+        description: 'Filter to jobs with the specified labels, in the format label=<labelName>,<labelName>'
     get:
       tags:
         - Jobs
@@ -275,7 +280,7 @@ definitions:
         #       would mean xpath searches could be done later
         type: string
         description: |
-          External data can be associated with the job for use by other
+          DEPRECATED - Replaced by labels. External data can be associated with the job for use by other
           components.
       task:
         $ref: "#/definitions/worker-action"
@@ -295,6 +300,16 @@ definitions:
         format: int32
         default: 0		
         description: The time in seconds after the prerequisite job identifiers have completed before this job is eligible for running.
+      labels:
+        type: object
+        additionalProperties:
+          type: string
+        description: |
+          A map of meta data associated with this job. Note that the keys can only include alphanumeric, '_', '-' and
+          ':' characters
+        example:
+          "tag:4": "4"
+          owner: "bob"
   worker-action:
     type: object
     required:
@@ -335,7 +350,7 @@ definitions:
       externalData:
         type: string
         description: |
-          External data can be associated with the job for use by other
+          DEPRECATED - Replaced by labels External data can be associated with the job for use by other
           components.
       createTime:
         type: string
@@ -364,6 +379,13 @@ definitions:
         items:
           $ref: "#/definitions/failure"
         description: Job failure details
+      labels:
+        type: object
+        additionalProperties:
+          type: string
+        description: |
+          A map of meta data associated with this job. Note that the keys can only include alphanumeric, '_', '-' and
+          ':' characters
   failure:
     type: object
     properties:
