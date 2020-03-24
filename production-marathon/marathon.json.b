@@ -7,7 +7,7 @@
             "instances": 1,
             "container": {
                 "docker": {
-                    "image": "jobservice/job-service:3.1.0",
+                    "image": "jobservice/job-service:3.2.0",
                     "network": "BRIDGE",
                     "portMappings": [{
                         "containerPort": 8080,
@@ -21,9 +21,10 @@
             },
             "env": {
                 "_JAVA_OPTIONS": "-Xms512m -Xmx512m",
-                "CAF_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice",
-                "CAF_DATABASE_USERNAME": "${JOB_SERVICE_DB_USER}",
-                "CAF_DATABASE_PASSWORD": "${JOB_SERVICE_DB_PASSWORD}",
+                "JOB_SERVICE_DATABASE_APPNAME": "Job Service",
+                "JOB_SERVICE_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DATABASE_HOSTNAME}:${JOB_SERVICE_DATABASE_PORT}/jobservice",
+                "JOB_SERVICE_DATABASE_USERNAME": "${JOB_SERVICE_DATABASE_USERNAME}",
+                "JOB_SERVICE_DATABASE_PASSWORD": "${JOB_SERVICE_DATABASE_PASSWORD}",
                 "CAF_TRACKING_PIPE": "jobtracking-in",
                 "CAF_STATUS_CHECK_TIME": "5",
                 "CAF_WEBSERVICE_URL": "http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1",
@@ -49,7 +50,7 @@
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "jobservice/worker-jobtracking:3.1.0",
+                    "image": "jobservice/worker-jobtracking:3.2.0",
                     "network": "BRIDGE",
                     "forcePullImage": true,
                     "portMappings": [{
@@ -71,9 +72,10 @@
                 "_JAVA_OPTIONS": "-Xms512m -Xmx512m",
                 "CAF_WORKER_INPUT_QUEUE": "jobtracking-in",
                 "CAF_WORKER_ERROR_QUEUE": "jobtracking-err",
-                "JOB_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice",
-                "JOB_DATABASE_USERNAME": "${JOB_SERVICE_DB_USER}",
-                "JOB_DATABASE_PASSWORD": "${JOB_SERVICE_DB_PASSWORD}",
+                "JOB_SERVICE_DATABASE_APPNAME": "Job Tracking Worker",
+                "JOB_SERVICE_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DATABASE_HOSTNAME}:${JOB_SERVICE_DATABASE_PORT}/jobservice",
+                "JOB_SERVICE_DATABASE_USERNAME": "${JOB_SERVICE_DATABASE_USERNAME}",
+                "JOB_SERVICE_DATABASE_PASSWORD": "${JOB_SERVICE_DATABASE_PASSWORD}",
                 "CAF_WEBSERVICE_URL": "http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1",
                 "CAF_RABBITMQ_HOST": "${CAF_RABBITMQ_HOST}",
                 "CAF_RABBITMQ_PORT": "${CAF_RABBITMQ_PORT}",
@@ -107,7 +109,7 @@
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "jobservice/job-service-scheduled-executor:3.1.0",
+                    "image": "jobservice/job-service-scheduled-executor:3.2.0",
                     "network": "BRIDGE",
                     "forcePullImage": true,
                     "portMappings": [{
@@ -121,9 +123,10 @@
             "env": {
                 "_JAVA_OPTIONS": "-Xms512m -Xmx512m",
                 "CAF_WORKER_INPUT_QUEUE": "jobservicescheduler-in",
-                "CAF_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DB_HOSTNAME}:${JOB_SERVICE_DB_PORT}/jobservice",
-                "CAF_DATABASE_USERNAME": "${JOB_SERVICE_DB_USER}",
-                "CAF_DATABASE_PASSWORD": "${JOB_SERVICE_DB_PASSWORD}",
+                "JOB_SERVICE_DATABASE_APPNAME": "Job Service Scheduled Executor",
+                "JOB_SERVICE_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DATABASE_HOSTNAME}:${JOB_SERVICE_DATABASE_PORT}/jobservice",
+                "JOB_SERVICE_DATABASE_USERNAME": "${JOB_SERVICE_DATABASE_USERNAME}",
+                "JOB_SERVICE_DATABASE_PASSWORD": "${JOB_SERVICE_DATABASE_PASSWORD}",
                 "CAF_TRACKING_PIPE": "jobtracking-in",
                 "CAF_STATUS_CHECK_TIME": "5",
                 "CAF_WEBSERVICE_URL": "http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1",

@@ -13,15 +13,15 @@
                         "containerPort": 5432,
                         "hostPort": 0,
                         "protocol": "tcp",
-                        "servicePort": ${JOB_SERVICE_DB_PORT}
+                        "servicePort": ${JOB_SERVICE_DATABASE_PORT}
                     }],
                     "forcePullImage": true
                 },
                 "type": "DOCKER"
             },
             "env": {
-                "POSTGRES_USER": "${JOB_SERVICE_DB_USER}",
-                "POSTGRES_PASSWORD": "${JOB_SERVICE_DB_PASSWORD}"
+                "POSTGRES_USER": "${JOB_SERVICE_DATABASE_USERNAME}",
+                "POSTGRES_PASSWORD": "${JOB_SERVICE_DATABASE_PASSWORD}"
             }
         },
         {

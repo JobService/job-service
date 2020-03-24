@@ -18,10 +18,10 @@ The `environment.sh` file supports configurable property settings necessary for 
 ###
 
 ## Postgres Database Connection Details
-export JOB_SERVICE_DB_HOST=192.168.56.10
-export JOB_SERVICE_DB_PORT=5432
-export CAF_DATABASE_USERNAME=postgres
-export CAF_DATABASE_PASSWORD=root
+export JOB_SERVICE_DATABASE_HOST=192.168.56.10
+export JOB_SERVICE_DATABASE_PORT=5432
+export JOB_SERVICE_DATABASE_USERNAME=postgres
+export JOB_SERVICE_DATABASE_PASSWORD=root
 
 ## Job Service Web Service Connection Details
 export JOB_SERVICE_PORT=9411

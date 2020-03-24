@@ -4,13 +4,14 @@ services:
     env_file:
       - ./rabbitmq.env
     environment:
-      CAF_DATABASE_URL: "jdbc:postgresql://${JOB_SERVICE_DB_HOST}:${JOB_SERVICE_DB_PORT}/jobservice"
-      CAF_DATABASE_USERNAME: "${CAF_DATABASE_USERNAME}"
-      CAF_DATABASE_PASSWORD: "${CAF_DATABASE_PASSWORD}"
+      JOB_SERVICE_DATABASE_APPNAME: "Job Service"
+      JOB_SERVICE_DATABASE_URL: "jdbc:postgresql://${JOB_SERVICE_DATABASE_HOST}:${JOB_SERVICE_DATABASE_PORT}/jobservice"
+      JOB_SERVICE_DATABASE_USERNAME: "${JOB_SERVICE_DATABASE_USERNAME}"
+      JOB_SERVICE_DATABASE_PASSWORD: "${JOB_SERVICE_DATABASE_PASSWORD}"
       CAF_STATUS_CHECK_TIME: 5
       CAF_TRACKING_PIPE: jobtracking-in
       CAF_WEBSERVICE_URL: "http://${JOB_SERVICE_DOCKER_HOST}:${JOB_SERVICE_PORT}/job-service/v1"
-    image: jobservice/job-service:3.1.0
+    image: jobservice/job-service:3.2.0
     deploy:
       mode: replicated
       replicas: 2
@@ -30,11 +31,12 @@ services:
     environment:
       CAF_WORKER_INPUT_QUEUE: jobtracking-in
       CAF_WORKER_ERROR_QUEUE: jobtracking-err
-      JOB_DATABASE_URL: "jdbc:postgresql://${JOB_SERVICE_DB_HOST}:${JOB_SERVICE_DB_PORT}/jobservice"
-      JOB_DATABASE_USERNAME: "${CAF_DATABASE_USERNAME}"
-      JOB_DATABASE_PASSWORD: "${CAF_DATABASE_PASSWORD}"
+      JOB_SERVICE_DATABASE_APPNAME: "Job Tracking Worker"
+      JOB_SERVICE_DATABASE_URL: "jdbc:postgresql://${JOB_SERVICE_DATABASE_HOST}:${JOB_SERVICE_DATABASE_PORT}/jobservice"
+      JOB_SERVICE_DATABASE_USERNAME: "${JOB_SERVICE_DATABASE_USERNAME}"
+      JOB_SERVICE_DATABASE_PASSWORD: "${JOB_SERVICE_DATABASE_PASSWORD}"
       CAF_WEBSERVICE_URL: "http://${JOB_SERVICE_DOCKER_HOST}:${JOB_SERVICE_PORT}/job-service/v1"
-    image: jobservice/worker-jobtracking:3.1.0
+    image: jobservice/worker-jobtracking:3.2.0
     deploy:
       mode: replicated
       replicas: 2
@@ -50,15 +52,16 @@ services:
     env_file:
       - ./rabbitmq.env
     environment:
+      JOB_SERVICE_DATABASE_APPNAME: "Job Service Scheduled Executor"
+      JOB_SERVICE_DATABASE_URL: "jdbc:postgresql://${JOB_SERVICE_DATABASE_HOST}:${JOB_SERVICE_DATABASE_PORT}/jobservice"
+      JOB_SERVICE_DATABASE_USERNAME: "${JOB_SERVICE_DATABASE_USERNAME}"
+      JOB_SERVICE_DATABASE_PASSWORD: "${JOB_SERVICE_DATABASE_PASSWORD}"
       CAF_WORKER_INPUT_QUEUE: jobservicescheduler-in
-      CAF_DATABASE_URL: "jdbc:postgresql://${JOB_SERVICE_DB_HOST}:${JOB_SERVICE_DB_PORT}/jobservice"
-      CAF_DATABASE_USERNAME: "${CAF_DATABASE_USERNAME}"
-      CAF_DATABASE_PASSWORD: "${CAF_DATABASE_PASSWORD}"
       CAF_STATUS_CHECK_TIME: 5
       CAF_TRACKING_PIPE: jobtracking-in
       CAF_WEBSERVICE_URL: "http://${JOB_SERVICE_DOCKER_HOST}:${JOB_SERVICE_PORT}/job-service/v1"
       CAF_SCHEDULED_EXECUTOR_PERIOD: 10	  
-    image: jobservice/job-service-scheduled-executor:3.1.0
+    image: jobservice/job-service-scheduled-executor:3.2.0
     deploy:
       mode: replicated
       replicas: 2
