@@ -49,7 +49,6 @@
         <enforceCorrectDependencies>true</enforceCorrectDependencies>
         <enforceBannedDependencies>true</enforceBannedDependencies>
         <jersey-version>1.19</jersey-version>
-        <swagger-ui-version>3.23.10</swagger-ui-version>
     </properties>
 
     <dependencyManagement>
@@ -344,11 +343,6 @@
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-module-junit4</artifactId>
                 <version>1.6.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.webjars.npm</groupId>
-                <artifactId>swagger-ui-dist</artifactId>
-                <version>${swagger-ui-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.yaml</groupId>
