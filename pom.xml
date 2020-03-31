@@ -27,7 +27,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-aggregator</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <parent>
@@ -39,7 +39,7 @@
     <inceptionYear>2016</inceptionYear>
 
     <properties>
-        <caf.worker-document-framework.version>4.3.0-SNAPSHOT</caf.worker-document-framework.version>
+        <caf.worker-document-framework.version>4.4.0-SCMOD-8829-SNAPSHOT</caf.worker-document-framework.version>
         <copyrightYear>2020</copyrightYear>
         <dockerHubOrganization>jobservice</dockerHubOrganization>
         <dockerJobServiceOrg>${dockerImagePrefix}${dockerHubOrganization}${dockerOrgSeperator}</dockerJobServiceOrg>
@@ -55,7 +55,7 @@
             <dependency>
                 <groupId>com.github.cafapi</groupId>
                 <artifactId>caf-dependency-management-bom</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.0-SCMOD-8829-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -68,56 +68,56 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service</artifactId>
-                <version>3.2.0-SNAPSHOT</version>
+                <version>3.3.0-SNAPSHOT</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-admin</artifactId>
-                <version>3.2.0-SNAPSHOT</version>
+                <version>3.3.0-SNAPSHOT</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-client</artifactId>
-                <version>3.2.0-SNAPSHOT</version>
+                <version>3.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-config</artifactId>
-                <version>3.2.0-SNAPSHOT</version>
+                <version>3.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-contract</artifactId>
-                <version>3.2.0-SNAPSHOT</version>
+                <version>3.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db</artifactId>
-                <version>3.2.0-SNAPSHOT</version>
+                <version>3.3.0-SNAPSHOT</version>
                 <classifier>jar-with-dependencies</classifier>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db-client</artifactId>
-                <version>3.2.0-SNAPSHOT</version>
+                <version>3.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-scheduled-executor</artifactId>
-                <version>3.2.0-SNAPSHOT</version>
+                <version>3.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-ui</artifactId>
-                <version>3.2.0-SNAPSHOT</version>
+                <version>3.3.0-SNAPSHOT</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-util</artifactId>
-                <version>3.2.0-SNAPSHOT</version>
+                <version>3.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
@@ -127,12 +127,12 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>worker-jobtracking</artifactId>
-                <version>3.2.0-SNAPSHOT</version>
+                <version>3.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>worker-jobtracking-shared</artifactId>
-                <version>3.2.0-SNAPSHOT</version>
+                <version>3.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>

@@ -28,18 +28,13 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>3.2.0-SNAPSHOT</version>
+        <version>3.3.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-contract</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>swagger-ui-dist</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -58,11 +53,11 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.webjars.npm</groupId>
+                                    <groupId>com.microfocus.webjars</groupId>
                                     <artifactId>swagger-ui-dist</artifactId>
-                                    <version>${swagger-ui-version}</version>
+                                    <version>1.0.0-6</version>
                                     <outputDirectory>${project.build.directory}/swagger-ui</outputDirectory>
-                                    <excludes>META-INF/resources/webjars/swagger-ui-dist/${swagger-ui-version}/index.html</excludes>
+                                    <excludes>META-INF/resources/webjars/microfocus-swagger-ui-dist/1.0.0/microfocus-config.js</excludes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.github.jobservice</groupId>
@@ -84,7 +79,7 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <webResources>
                         <resource>
-                            <directory>${project.build.directory}/swagger-ui/META-INF/resources/webjars/swagger-ui-dist/${swagger-ui-version}</directory>
+                            <directory>${project.build.directory}/swagger-ui/META-INF/resources/webjars/microfocus-swagger-ui-dist/1.0.0</directory>
                             <targetPath>.</targetPath>
                         </resource>
                         <resource>
