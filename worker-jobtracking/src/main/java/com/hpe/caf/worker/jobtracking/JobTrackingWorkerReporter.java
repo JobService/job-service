@@ -28,7 +28,6 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -154,7 +153,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             throw new JobReportingTransientException(
                 MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
         } catch (final SQLException se) {
-            if (isSqlStateIn(se, Arrays.asList(POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE),
+            if (isSqlStateIn(se, POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE,
                              POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(
                     MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
@@ -205,7 +204,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             throw new JobReportingTransientException(
                 MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId, te.getMessage()), te);
         } catch (final SQLException se) {
-            if (isSqlStateIn(se, Arrays.asList(POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE),
+            if (isSqlStateIn(se, POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE,
                              POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(
                     MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
@@ -254,8 +253,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             final String CONNECTION_EXCEPTION = "08";
             final String INSUFFICIENT_RESOURCES = "53";
 
-            if (isSqlStateIn(ex, Arrays.asList(POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE),
-                             CONNECTION_EXCEPTION, INSUFFICIENT_RESOURCES, POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+            if (isSqlStateIn(ex, CONNECTION_EXCEPTION, INSUFFICIENT_RESOURCES, POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(ex.getMessage(), ex);
             } else {
                 throw new JobReportingException(ex.getMessage(), ex);
@@ -282,7 +280,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * The SQL Error Code should be a 5 letter code - the first 2 characters denote the class of the error and the final 3 indicate the
      * specific condition.
      */
-    private static boolean isSqlStateIn(final SQLException ex, final List<String> errorCodes, final String... errorClasses)
+    private static boolean isSqlStateIn(final SQLException ex, final String... errorClasses)
     {
         final String sqlState = ex.getSQLState();
 
@@ -292,18 +290,16 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
         for (final String errorClass : errorClasses) {
             assert errorClass != null
-                && errorClass.length() == 2;
+                && errorClass.length() >= 2;
 
-            if (sqlState.startsWith(errorClass)) {
+            // If the errorClass is 2 characters long check if the current state is this class of exception
+            if (errorClass.length() == 2 && sqlState.startsWith(errorClass)) {
                 return true;
             }
-        }
-        
-        if (errorCodes != null) {
-            for (final String errorCode : errorCodes) {
-                if (sqlState.equals(errorCode)) {
-                    return true;
-                }
+
+            // If the error class is more than 2 characters long then it is an error code so we check if the sqlState matches this code
+            if(errorClass.length() > 2 && sqlState.equals(errorClass)){
+                return true;
             }
         }
 
