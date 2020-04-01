@@ -46,6 +46,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     private static final String FAILED_TO_REPORT_REJECTION = "Failed to report the failure and rejection of job task {0}. {1}";
 
     private static final String POSTGRES_OPERATOR_FAILURE_CODE_PREFIX = "57";
+    private static final String POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE = "25006";
 
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerReporter.class);
 
@@ -152,7 +153,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             throw new JobReportingTransientException(
                 MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
         } catch (final SQLException se) {
-            if (isSqlStateIn(se, POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+            if (isSqlStateIn(se, POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE,
+                             POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(
                     MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
             }
@@ -202,7 +204,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             throw new JobReportingTransientException(
                 MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId, te.getMessage()), te);
         } catch (final SQLException se) {
-            if (isSqlStateIn(se, POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+            if (isSqlStateIn(se, POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE,
+                             POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(
                     MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
             }
@@ -287,9 +290,15 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
         for (final String errorClass : errorClasses) {
             assert errorClass != null
-                && errorClass.length() == 2;
+                && errorClass.length() >= 2;
 
-            if (sqlState.startsWith(errorClass)) {
+            // If the errorClass is 2 characters long check if the current state is this class of exception
+            if (errorClass.length() == 2 && sqlState.startsWith(errorClass)) {
+                return true;
+            }
+
+            // If the error class is more than 2 characters long then it is an error code so we check if the sqlState matches this code
+            if(errorClass.length() > 2 && sqlState.equals(errorClass)){
                 return true;
             }
         }
