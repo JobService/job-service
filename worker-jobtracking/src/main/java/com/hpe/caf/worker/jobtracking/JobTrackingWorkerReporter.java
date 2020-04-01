@@ -28,6 +28,7 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -46,6 +47,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     private static final String FAILED_TO_REPORT_REJECTION = "Failed to report the failure and rejection of job task {0}. {1}";
 
     private static final String POSTGRES_OPERATOR_FAILURE_CODE_PREFIX = "57";
+    private static final String POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE = "25006";
 
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerReporter.class);
 
@@ -152,7 +154,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             throw new JobReportingTransientException(
                 MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
         } catch (final SQLException se) {
-            if (isSqlStateIn(se, POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+            if (isSqlStateIn(se, Arrays.asList(POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE),
+                             POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(
                     MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
             }
@@ -202,7 +205,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             throw new JobReportingTransientException(
                 MessageFormat.format(FAILED_TO_REPORT_REJECTION, jobTaskId, te.getMessage()), te);
         } catch (final SQLException se) {
-            if (isSqlStateIn(se, POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+            if (isSqlStateIn(se, Arrays.asList(POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE),
+                             POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(
                     MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
             }
@@ -250,7 +254,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             final String CONNECTION_EXCEPTION = "08";
             final String INSUFFICIENT_RESOURCES = "53";
 
-            if (isSqlStateIn(ex, CONNECTION_EXCEPTION, INSUFFICIENT_RESOURCES, POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+            if (isSqlStateIn(ex, Arrays.asList(POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE),
+                             CONNECTION_EXCEPTION, INSUFFICIENT_RESOURCES, POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(ex.getMessage(), ex);
             } else {
                 throw new JobReportingException(ex.getMessage(), ex);
@@ -277,7 +282,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * The SQL Error Code should be a 5 letter code - the first 2 characters denote the class of the error and the final 3 indicate the
      * specific condition.
      */
-    private static boolean isSqlStateIn(final SQLException ex, final String... errorClasses)
+    private static boolean isSqlStateIn(final SQLException ex, final List<String> errorCodes, final String... errorClasses)
     {
         final String sqlState = ex.getSQLState();
 
@@ -291,6 +296,16 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
             if (sqlState.startsWith(errorClass)) {
                 return true;
+            }
+        }
+        
+        if (errorCodes != null) {
+            for (final String errorCode : errorCodes) {
+                assert errorCode != null;
+
+                if (sqlState.equals(errorCode)) {
+                    return true;
+                }
             }
         }
 
