@@ -301,8 +301,6 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         
         if (errorCodes != null) {
             for (final String errorCode : errorCodes) {
-                assert errorCode != null;
-
                 if (sqlState.equals(errorCode)) {
                     return true;
                 }
