@@ -159,6 +159,10 @@
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
             <artifactId>jsr311-api</artifactId>
             <scope>runtime</scope>
         </dependency>
