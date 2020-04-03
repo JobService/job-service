@@ -365,7 +365,6 @@
                                     <Git.Repo>${gitRepo}</Git.Repo>
                                     <Git.Branch>${git.branch}</Git.Branch>
                                     <Git.Commit>${git.revision}</Git.Commit>
-                                    <caf.worker-framework.version>${caf.worker-framework.version}</caf.worker-framework.version>
                                     <caf.worker-queue.impl>${caf.worker-queue.impl}</caf.worker-queue.impl>
                                     <caf.worker-store.impl>${caf.worker-store.impl}</caf.worker-store.impl>
                                     <caf.config.impl>${caf.config.impl}</caf.config.impl>
