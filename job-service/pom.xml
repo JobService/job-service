@@ -111,12 +111,17 @@
             <artifactId>jslt</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet</artifactId>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-core</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-servlet</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-server</artifactId>
             <scope>runtime</scope>
         </dependency>
