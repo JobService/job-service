@@ -39,7 +39,6 @@
     <inceptionYear>2016</inceptionYear>
 
     <properties>
-        <caf.worker-document-framework.version>4.4.0-SCMOD-8829-SNAPSHOT</caf.worker-document-framework.version>
         <copyrightYear>2020</copyrightYear>
         <dockerHubOrganization>jobservice</dockerHubOrganization>
         <dockerJobServiceOrg>${dockerImagePrefix}${dockerHubOrganization}${dockerOrgSeperator}</dockerJobServiceOrg>

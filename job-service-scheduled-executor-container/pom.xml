@@ -136,7 +136,6 @@
                             <build>
                                 <from>cafapi/opensuse-jre8:2</from>
                                 <labels>
-                                    <caf.worker-document-framework.version>${caf.worker-document-framework.version}</caf.worker-document-framework.version>
                                     <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
                                     <Git.Repo>${gitRepo}</Git.Repo>
