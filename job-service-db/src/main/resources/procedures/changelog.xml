@@ -199,6 +199,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_process_failed_dependent_jobs_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/processFailedDependentJobs.sql"
+                         procedureName="internal_process_failed_dependent_jobs"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_report_complete_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/reportComplete.sql"
                          procedureName="report_complete"
