@@ -23,11 +23,19 @@
  *   - in_short_task_id: additional identification for the same task - see
  *                       com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
-CREATE OR REPLACE FUNCTION report_failure(
+DROP FUNCTION IF EXISTS report_failure(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58),
     in_short_task_id VARCHAR(58),
     in_failure_details TEXT
+);
+
+CREATE OR REPLACE FUNCTION report_failure(
+    in_partition_id VARCHAR(40),
+    in_task_id VARCHAR(58),
+    in_short_task_id VARCHAR(58),
+    in_failure_details TEXT,
+    in_propagate_failures BOOLEAN
 )
 RETURNS VOID
 LANGUAGE plpgsql
@@ -65,5 +73,9 @@ BEGIN
 
     -- Update the task statuses in the tables
     PERFORM internal_report_task_status(in_partition_id, in_task_id, in_short_task_id, 'Failed', 0.00, in_failure_details);
+
+    IF in_propagate_failures THEN
+        PERFORM internal_process_failed_dependent_jobs(in_partition_id, v_job_id);
+    END IF;
 END
 $$;

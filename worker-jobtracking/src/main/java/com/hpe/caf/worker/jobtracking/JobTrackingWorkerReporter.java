@@ -193,19 +193,13 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         final String failureDetails = getFailureDetailsString(rejectionDetails);
 
         try (final Connection conn = getConnection()) {
-            try (final CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")) {
+            try (final CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?,?)}")) {
                 stmt.setString(1, jobTaskIdObj.getPartitionId());
                 stmt.setString(2, jobTaskIdObj.getId());
                 stmt.setString(3, jobTaskIdObj.getShortId());
                 stmt.setString(4, failureDetails);
+                stmt.setBoolean(5, JobDatabaseProperties.propagateFailures());
                 stmt.execute();
-            }
-            if(Boolean.parseBoolean(System.getenv("CAF_JOB_TRACKING_PROPAGATE_FAILURES"))){
-                try (final CallableStatement stmt = conn.prepareCall("{call internal_process_dependent_jobs(?,?)}")) {
-                    stmt.setString(1, jobTaskIdObj.getPartitionId());
-                    stmt.setString(2, jobTaskIdObj.getId());
-                    stmt.execute();
-                }
             }
         } catch (final SQLTransientException te) {
             throw new JobReportingTransientException(
