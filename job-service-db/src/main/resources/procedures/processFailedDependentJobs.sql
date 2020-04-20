@@ -40,14 +40,9 @@ BEGIN
         SELECT job_id FROM all_job_dependencies
         WHERE dependent_job_id = in_job_id AND partition_id = in_partition_id;
 
-    -- Ensure that no other `job_dependency` deletion can run until we've committed, so we don't
-    -- miss the deletion of the last dependency.  Lock ALL possibly conflicting rows up-front to
-    -- avoid deadlocks.
-    PERFORM NULL FROM job_dependency AS jd
-    WHERE jd.partition_id = in_partition_id
-        AND jd.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs)
-    ORDER BY jd.partition_id, jd.job_id, jd.dependent_job_id
-    FOR UPDATE;
+    UPDATE job AS j
+    SET status = 'Failed', percentage_complete = 0.00
+    WHERE j.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs) AND partition_id = in_partition_id;
 
     DELETE
     FROM job_dependency AS jd
