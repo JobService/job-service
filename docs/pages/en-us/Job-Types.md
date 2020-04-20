@@ -82,10 +82,10 @@ Parameters can only be specified as an object, so the schema must expect an obje
 - required: true
 - type: string
 
-An embedded script which is executed to construct the `taskData` part of the `task` object.  The script language is JSLT (version 0.1.8), configured to preserve all output values.  Language reference can be found here:
+An embedded script which is executed to construct the `taskData` part of the `task` object.  The script language is JSLT (version 0.1.9), configured to preserve all output values.  Language reference can be found here:
 
-- <https://github.com/schibsted/jslt/blob/0.1.8/tutorial.md>
-- <https://github.com/schibsted/jslt/blob/0.1.8/functions.md>
+- <https://github.com/schibsted/jslt/blob/0.1.9/tutorial.md>
+- <https://github.com/schibsted/jslt/blob/0.1.9/functions.md>
 
 The script input is an object with the following properties:
 
