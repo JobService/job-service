@@ -198,7 +198,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 stmt.setString(2, jobTaskIdObj.getId());
                 stmt.setString(3, jobTaskIdObj.getShortId());
                 stmt.setString(4, failureDetails);
-                stmt.setBoolean(5, JobDatabaseProperties.propagateFailures());
+                stmt.setBoolean(5, JobDatabaseProperties.getShouldPropagateFailures());
                 stmt.execute();
             }
         } catch (final SQLTransientException te) {

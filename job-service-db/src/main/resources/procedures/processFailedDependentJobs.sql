@@ -17,10 +17,12 @@
 /*
  *  Name: internal_process_failed_dependent_jobs
  */
-DROP FUNCTION IF EXISTS internal_process_failed_dependent_jobs(in_partition_id VARCHAR(40), in_job_id VARCHAR(58));
+DROP FUNCTION IF EXISTS internal_process_failed_dependent_jobs(in_partition_id VARCHAR(40), in_job_id VARCHAR(58),
+                                                               in_failure_details TEXT);
 CREATE OR REPLACE FUNCTION internal_process_failed_dependent_jobs(
     in_partition_id VARCHAR(40),
-    in_job_id VARCHAR(48)
+    in_job_id VARCHAR(48),
+    in_failure_details TEXT
 )
 RETURNS VOID
 LANGUAGE plpgsql
@@ -57,7 +59,7 @@ BEGIN
     FOR UPDATE;
 
     UPDATE job AS j
-    SET status = 'Failed', percentage_complete = 0.00
+    SET status = 'Failed', percentage_complete = 0.00, failure_details = in_failure_details, last_update_date = now() AT TIME ZONE 'UTC'
     WHERE j.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs) AND partition_id = in_partition_id;
 
     DELETE
