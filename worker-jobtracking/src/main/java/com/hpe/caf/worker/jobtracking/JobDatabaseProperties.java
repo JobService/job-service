@@ -58,6 +58,11 @@ public class JobDatabaseProperties {
             : getPropertyOrEnvVar("JOB_DATABASE_APPNAME");
     }
     
+    public static boolean getShouldPropagateFailures() {
+        final String propFailures = getPropertyOrEnvVar("CAF_JOB_TRACKING_PROPAGATE_FAILURES");
+        return propFailures == null ? false : Boolean.parseBoolean(propFailures);
+    }
+    
     private static String getPropertyOrEnvVar(final String key)
     {
         final String propertyValue = System.getProperty(key);
