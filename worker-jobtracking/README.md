@@ -13,11 +13,11 @@ The Job Service has the ability to execute jobs in an order defined by a job hav
 ## Configuration
 This section describes environment variables that can be used to change the behaviour of the worker-jobtracking.  
 
-- `CAF_JOB_TRACKING_PROPAGATE_FAILURES`
+- `CAF_JOB_TRACKING_PROPAGATE_FAILURES`  
 `description`: This environment variable will indicate if the worker should propagate job failures through subtasks. This means that if a task fails and as a results other tasks are not able to be run due to prerequisite commitments, those other tasks will be marked as failures also.
-For instance, in the example below all tasks will be marked as failures because T1 failed. Possible values are `true` and `false`.
-`default`: false 
-`example`: T1 has two dependent tasks, T2 and T3, T3 also has a dependent task T4. If this environment variable is set to true then the failure of T1 will cause the marking of tasks T2, T3 and T4 as failed as none of them will ever be eligible to run.
+For instance, in the example below all tasks will be marked as failures because T1 failed. Possible values are `true` and `false`.  
+`default`: false  
+`example`: T1 has two dependent tasks, T2 and T3, T3 also has a dependent task T4. If this environment variable is set to true then the failure of T1 will cause the marking of tasks T2, T3 and T4 as failed as none of them will ever be eligible to run.  
 ````
 T1
  |->T2
