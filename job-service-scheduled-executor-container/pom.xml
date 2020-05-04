@@ -134,7 +134,7 @@
                             <alias>job-service-scheduled-executor</alias>
                             <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
                             <build>
-                                <from>cafapi/opensuse-jre8:2</from>
+                                <from>cafinternal/prereleases:opensuse-jre8-3.0.0-SNAPSHOT</from>
                                 <labels>
                                     <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
