@@ -23,7 +23,7 @@ The deployment files contain the following services:
     This is the Job Service itself.  As discussed it is a RESTful Web Service and is the primary service being demonstrated here.
 
 2. PostgreSQL  
-    PostgreSQL 9.6 container used to store the Job Service database.
+    PostgreSQL 11.7 container used to store the Job Service database.
 
 3. RabbitMQ  
     The Worker Framework is a pluggable infrastructure and technically it can use different messaging systems.  However it is most common for RabbitMQ to be used for messaging, and that is what is used here.
