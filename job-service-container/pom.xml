@@ -328,7 +328,7 @@
                         <!-- pull in a normal postgres DB for integration tests -->
                         <image>
                             <alias>jobservice-integrationtests-postgres</alias>
-                            <name>postgres:9.4</name>
+                            <name>postgres:11.7</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
