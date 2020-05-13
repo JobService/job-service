@@ -32,7 +32,7 @@
     </parent>
 
     <properties>
-        <tomcatBaseImage>cafapi/opensuse-tomcat:4</tomcatBaseImage>
+        <tomcatBaseImage>cafapi/opensuse-tomcat-jre11:1</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
@@ -397,7 +397,7 @@
                             <alias>keystore</alias>
                             <name>${project.artifactId}-keystore:${project.version}</name>
                             <build>
-                                <from>java:8</from>
+                                <from>java:11</from>
                                 <runCmds>
                                     <runCmd>mkdir /test-keystore</runCmd>
                                     <runCmd>$JAVA_HOME/bin/keytool -genkey -noprompt -alias tomcat -dname "CN=myname, OU=myorganisational.unit, O=myorganisation, L=mycity, S=myprovince, C=GB" -keystore /test-keystore/tomcat.keystore -storepass changeit -keypass changeit -keyalg RSA</runCmd>

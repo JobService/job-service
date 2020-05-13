@@ -66,7 +66,7 @@
                             <alias>job-service-caller-image</alias>
                             <name>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</name>
                             <build>
-                                <from>cafapi/opensuse-python2:1</from>
+                                <from>cafapi/opensuse-python3:1</from>
                                 <labels>
                                     <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
