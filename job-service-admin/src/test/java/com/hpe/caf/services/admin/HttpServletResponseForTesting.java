@@ -16,10 +16,12 @@
 package com.hpe.caf.services.admin;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Locale;
 
 public class HttpServletResponseForTesting implements HttpServletResponse
@@ -212,6 +214,21 @@ public class HttpServletResponseForTesting implements HttpServletResponse
         return statusCode;
     }
 
+    @Override
+    public String getHeader(String s) {
+        return null;
+    }
+
+    @Override
+    public Collection<String> getHeaders(String s) {
+        return null;
+    }
+
+    @Override
+    public Collection<String> getHeaderNames() {
+        return null;
+    }
+
     /**
      * Method unused during testing.
      * @param sc
@@ -265,6 +282,16 @@ public class HttpServletResponseForTesting implements HttpServletResponse
         {
 
             @Override
+            public boolean isReady() {
+                return false;
+            }
+
+            @Override
+            public void setWriteListener(WriteListener writeListener) {
+
+            }
+
+            @Override
             public void write(int b) throws IOException
             {
 
@@ -306,6 +333,11 @@ public class HttpServletResponseForTesting implements HttpServletResponse
     @Override
     public void setContentLength(int len)
     {
+
+    }
+
+    @Override
+    public void setContentLengthLong(long l) {
 
     }
 
