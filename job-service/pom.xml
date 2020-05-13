@@ -203,12 +203,6 @@
             <artifactId>util-rabbitmq</artifactId>
         </dependency>
 
-        <!-- PostgreSQL database -->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
         <!-- Logging -->
         <dependency>
             <groupId>com.github.cafapi.logging</groupId>
