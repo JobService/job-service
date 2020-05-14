@@ -60,6 +60,23 @@ public final class JobsGet {
      */
     public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit,
                                 final Integer offset, final String sort, final String labelExists) throws Exception {
+        return getJobs(partitionId, jobId, statusType, limit, offset, sort, labelExists, null);
+    }
+
+    /**
+     * Gets a list of jobs from the job database specified by environment variable configuration.
+     *
+     * @param jobId         optional id of the job to get
+     * @param statusType    optional status of the job
+     * @param limit         optional limit of jobs to return per page
+     * @param offset        optional offset from which to return page of jobs
+     * @param labelExists   optional metadata to filter against
+     * @param filter        optional filter to use when returning results
+     * @return  jobs        list of jobs
+     * @throws Exception    bad request or database exceptions
+     */
+    public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit,
+                                final Integer offset, final String sort, final String labelExists, final String filter) throws Exception {
 
         Job[] jobs;
 
@@ -109,7 +126,7 @@ public final class JobsGet {
                 limit = config.getDefaultPageSize();
             }
             jobs = databaseHelper.getJobs(
-                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues);
+                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues, filter);
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;
