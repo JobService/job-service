@@ -64,6 +64,12 @@
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-config</artifactId>
         </dependency>
+        <!-- PostgreSQL database driver -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

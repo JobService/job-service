@@ -507,7 +507,7 @@
                                 </log>
                                 <wait>
                                     <http>
-                                        <url>http://${docker.host.address}:${jobtracking-worker.adminport}</url>
+                                        <url>http://${docker.host.address}:${jobtracking-worker.adminport}/healthcheck</url>
                                     </http>
                                     <time>120000</time>
                                     <shutdown>500</shutdown>
@@ -578,7 +578,7 @@
                                 </log>
                                 <wait>
                                     <http>
-                                        <url>http://${docker.host.address}:${example-worker.adminport}</url>
+                                        <url>http://${docker.host.address}:${example-worker.adminport}/healthcheck</url>
                                     </http>
                                     <time>120000</time>
                                     <shutdown>500</shutdown>

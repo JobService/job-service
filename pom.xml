@@ -50,6 +50,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <!--TODO Upgrade to latest mockito-core 3.3.3-->
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>1.10.19</version>
+            </dependency>
             <!--Centralized CAF dependency BOM-->
             <dependency>
                 <groupId>com.github.cafapi</groupId>
