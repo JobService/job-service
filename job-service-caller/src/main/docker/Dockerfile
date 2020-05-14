@@ -17,12 +17,10 @@
 FROM cafapi/opensuse-python3:1
 
 # Update the OS packages and install Python
-RUN zypper -n refresh && \
-    zypper -n update && \
-    zypper -n install python3-pip && \
+RUN zypper -n install python3-pip && \
     pip install requests
 
-ADD /script/* /
+COPY script/* /maven/script/
 
 ENTRYPOINT python3 createJob.py
 
