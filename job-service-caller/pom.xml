@@ -60,44 +60,27 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <verbose>true</verbose>
                     <autoPull>on</autoPull>
                     <images>
                         <image>
                             <alias>job-service-caller-image</alias>
                             <name>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</name>
                             <build>
-                                <from>cafapi/opensuse-python3:1</from>
-                                <labels>
-                                    <Build.Number>${project.version}</Build.Number>
-                                    <Build.Date>${maven.build.timestamp}</Build.Date>
-                                    <Git.Repo>${gitRepo}</Git.Repo>
-                                    <Git.Branch>${git.branch}</Git.Branch>
-                                    <Git.Commit>${git.revision}</Git.Commit>
-                                </labels>
-                                <assembly>
-                                    <mode>tar</mode>
-                                    <inline>
-                                        <fileSets>
-                                            <fileSet>
-                                                <outputDirectory>/</outputDirectory>
-                                                <includes>
-                                                    <include>script/*</include>
-                                                </includes>
-                                                <fileMode>0755</fileMode>
-                                            </fileSet>
-                                        </fileSets>
-                                    </inline>
-                                </assembly>
-                                <runCmds>
-                                    <run>http_proxy=${env.HTTP_PROXY} https_proxy=${env.HTTPS_PROXY} pip install requests</run>
-                                </runCmds>
-                                <entryPoint>
-                                    <exec>
-                                        <args>python2</args>
-                                        <args>createJob.py</args>
-                                    </exec>
-                                </entryPoint>
-                                <workdir>/maven/script</workdir>
+                                <dockerFileDir>.</dockerFileDir>
+                                <args>
+                                    <!-- Labels used for image tagging -->
+                                    <BUILD_NUMBER>${project.version}</BUILD_NUMBER>
+                                    <BUILD_DATE>${maven.build.timestamp}</BUILD_DATE>
+                                    <GIT_REPO>${gitRepo}</GIT_REPO>
+                                    <GIT_BRANCH>${git.branch}</GIT_BRANCH>
+                                    <GIT_COMMIT>${git.revision}</GIT_COMMIT>
+
+                                    <!-- Enable internet access -->
+                                    <http_proxy>${env.HTTP_PROXY}</http_proxy>
+                                    <https_proxy>${env.HTTPS_PROXY}</https_proxy>
+                                    <no_proxy>${env.NO_PROXY}</no_proxy>
+                                </args>
                             </build>
                         </image>
                     </images>
