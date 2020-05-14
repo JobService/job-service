@@ -16,7 +16,7 @@
 
 FROM cafapi/opensuse-python3:1
 
-# Update the OS packages and install Python
+# Install pip and requests
 RUN zypper -n install python3-pip && \
     pip install requests
 
