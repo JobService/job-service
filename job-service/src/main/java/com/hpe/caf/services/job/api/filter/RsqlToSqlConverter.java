@@ -38,5 +38,3 @@ public final class RsqlToSqlConverter
         return filterQueryCondition.toString();
     }
 }
-
-

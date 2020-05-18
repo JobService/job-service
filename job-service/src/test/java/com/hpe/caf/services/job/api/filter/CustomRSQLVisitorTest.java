@@ -207,5 +207,3 @@ public class CustomRSQLVisitorTest
         assertEquals(filterQueryCondition.toString(), "(job.name <> 'batchjob')");
     }
 }
-
-
