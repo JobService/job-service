@@ -15,20 +15,16 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.healthmarketscience.sqlbuilder.Condition;
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.job.api.filter.CustomRsqlVisitor;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
 import com.hpe.caf.services.job.util.JobTaskId;
-import cz.jirutka.rsql.parser.RSQLParser;
-import cz.jirutka.rsql.parser.ast.Node;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +50,6 @@ public final class DatabaseHelper
     private static AppConfig appConfig;
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHelper.class);
-    private final RSQLParser rsqlParser = new RSQLParser();
 
     /**
      * Instantiates a new DBUtil
@@ -71,12 +66,6 @@ public final class DatabaseHelper
                          final List<String> labels, final String filter) throws Exception {
 
         final Map<String, Job> jobs = new LinkedHashMap<>(); //Linked rather than hash to preserve order of results.
-        String filterQuery = null;
-        if (filter != null) {
-            final Node rootNode = rsqlParser.parse(filter);
-            final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
-            filterQuery = filterQueryCondition.toString();
-        }
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?)}")
@@ -107,8 +96,7 @@ public final class DatabaseHelper
                 array = conn.createArrayOf("VARCHAR", new String[0]);
             }
             stmt.setArray(8, array);
-            LOG.info("Filter = " + filterQuery);
-            stmt.setString(9, filterQuery);
+            stmt.setString(9, filter);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
@@ -151,16 +139,6 @@ public final class DatabaseHelper
         Job[] jobArr = new Job[jobs.size()];
         jobArr = jobs.values().toArray(jobArr);
         return jobArr;
-    }
-
-    /**
-     * Returns a list of job definitions in the system.
-     */
-    public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
-                         Integer offset, final JobSortField sortField, final SortDirection sortDirection,
-                         final List<String> labels) throws Exception
-    {
-        return getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, sortField, sortDirection, labels, null);
     }
 
     /**

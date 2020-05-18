@@ -17,7 +17,6 @@ package com.hpe.caf.services.job.api.filter;
 
 import com.hpe.caf.services.job.exceptions.FilterException;
 import com.healthmarketscience.sqlbuilder.BinaryCondition;
-import com.healthmarketscience.sqlbuilder.ComboCondition;
 import com.healthmarketscience.sqlbuilder.CommonTableExpression;
 import com.healthmarketscience.sqlbuilder.InCondition;
 import com.healthmarketscience.sqlbuilder.NotCondition;
@@ -31,9 +30,9 @@ import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
 import cz.jirutka.rsql.parser.ast.ComparisonOperator;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class JobFilterQuery
 {
@@ -67,11 +66,11 @@ public final class JobFilterQuery
         JOB_PERCENTAGE_COMPLETE = JOB_TABLE.addColumn("percentage_complete");
 
         LABEL_PARTITION_ID = LABEL_TABLE.addColumn("partition_id");
-        LABEL_LABEL = LABEL_TABLE.addColumn("label");
         LABEL_JOB_ID = LABEL_TABLE.addColumn("job_id");
+        LABEL_LABEL = LABEL_TABLE.addColumn("label");
         LABEL_VALUE = LABEL_TABLE.addColumn("value");
 
-        COLUMN_MAPPINGS = new ConcurrentHashMap<>();
+        COLUMN_MAPPINGS = new HashMap<>();
         COLUMN_MAPPINGS.put("id", JOB_ID);
         COLUMN_MAPPINGS.put("name", JOB_NAME);
         COLUMN_MAPPINGS.put("createTime", JOB_CREATE_TIME);
@@ -93,9 +92,9 @@ public final class JobFilterQuery
                                                           comparisonOperator,
                                                           args);
             return labelExistsCon(con1, con2, con3, con4);
-
+        } else {
+            return convertConditionString(COLUMN_MAPPINGS.get(key), comparisonOperator, args);
         }
-        return convertConditionString(COLUMN_MAPPINGS.get(key), comparisonOperator, args);
     }
 
     private static Condition convertConditionString(final DbColumn key, final ComparisonOperator comparisonOperator,
@@ -103,28 +102,33 @@ public final class JobFilterQuery
     {
 
         final Condition condition;
+        final String value = args.get(0);
         switch (comparisonOperator.getSymbol()) {
             case "==":
-                condition = BinaryCondition.equalTo(key, args.get(0));
+                condition = value.contains("*")
+                    ? BinaryCondition.like(key, value.replace("*", "%"))
+                    : BinaryCondition.equalTo(key, value);
                 break;
             case "!=":
-                condition = BinaryCondition.notEqualTo(key, args.get(0));
+                condition = value.contains("*")
+                    ? BinaryCondition.notLike(key, value.replace("*", "%"))
+                    : BinaryCondition.notEqualTo(key, value);
                 break;
             case "=gt=":
             case ">":
-                condition = BinaryCondition.greaterThan(key, args.get(0));
+                condition = BinaryCondition.greaterThan(key, value);
                 break;
             case "=ge=":
             case ">=":
-                condition = BinaryCondition.greaterThanOrEq(key, args.get(0));
+                condition = BinaryCondition.greaterThanOrEq(key, value);
                 break;
             case "=lt=":
             case "<":
-                condition = BinaryCondition.lessThan(key, args.get(0));
+                condition = BinaryCondition.lessThan(key, value);
                 break;
             case "=le=":
             case "<=":
-                condition = BinaryCondition.lessThanOrEq(key, args.get(0));
+                condition = BinaryCondition.lessThanOrEq(key, value);
                 break;
             case "=in=":
                 condition = new InCondition(key, args);
@@ -150,14 +154,3 @@ public final class JobFilterQuery
         return new UnaryCondition(UnaryCondition.Op.EXISTS, query);
     }
 }
-
-
-
-
-
-
-
-
-
-
-

@@ -18,6 +18,7 @@ package com.hpe.caf.services.job.api;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.api.filter.RsqlToSqlConverter;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
@@ -32,36 +33,6 @@ public final class JobsGet {
     private static final Logger LOG = LoggerFactory.getLogger(JobsGet.class);
     private static final JobSortField DEFAULT_SORT_FIELD = JobSortField.CREATE_DATE;
     private static final SortDirection DEFAULT_SORT_DIRECTION = SortDirection.DESCENDING;
-
-    /**
-     * Gets a list of jobs from the job database specified by environment variable configuration.
-     *
-     * @param jobId         optional id of the job to get
-     * @param statusType    optional status of the job
-     * @param limit         optional limit of jobs to return per page
-     * @param offset        optional offset from which to return page of jobs
-     * @return  jobs        list of jobs
-     * @throws Exception    bad request or database exceptions
-     */
-    public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit, final Integer offset, final String sort) throws Exception {
-        return JobsGet.getJobs(partitionId, jobId, statusType, limit, offset, sort, null);
-    }
-
-    /**
-     * Gets a list of jobs from the job database specified by environment variable configuration.
-     *
-     * @param jobId         optional id of the job to get
-     * @param statusType    optional status of the job
-     * @param limit         optional limit of jobs to return per page
-     * @param offset        optional offset from which to return page of jobs
-     * @param labelExists   optional metadata to filter against.
-     * @return  jobs        list of jobs
-     * @throws Exception    bad request or database exceptions
-     */
-    public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit,
-                                final Integer offset, final String sort, final String labelExists) throws Exception {
-        return getJobs(partitionId, jobId, statusType, limit, offset, sort, labelExists, null);
-    }
 
     /**
      * Gets a list of jobs from the job database specified by environment variable configuration.
@@ -113,6 +84,9 @@ public final class JobsGet {
                 labelValues = escapeSql(split);
             }
 
+            final RsqlToSqlConverter rsqlConverter = new RsqlToSqlConverter();
+            final String filterQuery = rsqlConverter.convertToSqlSyntax(filter);
+
             //  Get app config settings.
             LOG.debug("getJobs: Reading database connection properties...");
             AppConfig config = AppConfigProvider.getAppConfigProperties();
@@ -126,7 +100,7 @@ public final class JobsGet {
                 limit = config.getDefaultPageSize();
             }
             jobs = databaseHelper.getJobs(
-                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues, filter);
+                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues, filterQuery);
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;

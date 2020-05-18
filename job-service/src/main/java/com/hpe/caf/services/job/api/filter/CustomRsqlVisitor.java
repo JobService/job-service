@@ -15,41 +15,79 @@
  */
 package com.hpe.caf.services.job.api.filter;
 
+import com.healthmarketscience.sqlbuilder.ComboCondition;
 import com.healthmarketscience.sqlbuilder.Condition;
+import com.hpe.caf.services.job.exceptions.FilterException;
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
+import cz.jirutka.rsql.parser.ast.LogicalNode;
+import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.OrNode;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
+import java.util.Objects;
+import java.util.stream.Stream;
 
-public final class CustomRsqlVisitor<T> implements RSQLVisitor<Condition, Void>
+public final class CustomRsqlVisitor implements RSQLVisitor<Condition, Void>
 {
-    private final JdbcQueryBuilder builder;
-
     public CustomRsqlVisitor()
     {
-        this.builder = new JdbcQueryBuilder();
     }
 
     @Override
     public Condition visit(final AndNode node, final Void param)
     {
-        return builder.createQuery(node);
+        return createQuery(node);
     }
 
     @Override
     public Condition visit(final OrNode node, final Void param)
     {
-        return builder.createQuery(node);
+        return createQuery(node);
     }
 
     @Override
     public Condition visit(final ComparisonNode node, final Void params)
     {
-        return builder.createQuery(node);
+        return createQuery(node);
+    }
+
+    private static Condition createQuery(final ComparisonNode comparisonNode)
+    {
+        final Condition result = JobFilterQuery.getQueryStatement(comparisonNode.getSelector(),
+                                                                  comparisonNode.getOperator(),
+                                                                  comparisonNode.getArguments());
+        return result;
+    }
+
+    private static Condition createQuery(final AndNode logicalNode)
+    {
+        return getStream(logicalNode).reduce(ComboCondition::and).get();
+    }
+
+    private static Condition createQuery(final OrNode logicalNode)
+    {
+        return getStream(logicalNode).reduce(ComboCondition::or).get();
+    }
+
+    private static Stream<Condition> getStream(final LogicalNode logicalNode)
+    {
+        return logicalNode.getChildren()
+            .stream()
+            .map(node -> createQuery(node))
+            .filter(Objects::nonNull);
+    }
+
+    private static Condition createQuery(final Node node)
+    {
+        if (node instanceof AndNode) {
+            return createQuery((AndNode) node);
+        }
+        if (node instanceof OrNode) {
+            return createQuery((OrNode) node);
+        }
+        if (node instanceof ComparisonNode) {
+            return createQuery((ComparisonNode) node);
+        }
+        throw new FilterException("Unkown node type, node did not match Comparision, And or Or node.");
     }
 }
-
-
-
-
-

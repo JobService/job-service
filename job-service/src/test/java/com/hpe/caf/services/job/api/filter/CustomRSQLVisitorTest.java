@@ -29,7 +29,7 @@ public class CustomRSQLVisitorTest
         final String filter = "labels.tag==tag.1.2 and labels.owner==anthony.mcgreevy@microfocus.com";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(),
                      "((EXISTS (SELECT * FROM label WHERE ((job.partition_id = label.partition_id) "
                      + "AND (job.job_id = label.job_id) AND (label.label = 'tag') "
@@ -45,7 +45,7 @@ public class CustomRSQLVisitorTest
         final String filter = "labels.label1==value";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(),
                      "(EXISTS (SELECT * FROM label WHERE ((job.partition_id = label.partition_id) "
                      + "AND (job.job_id = label.job_id) AND (label.label = 'label1') "
@@ -58,7 +58,7 @@ public class CustomRSQLVisitorTest
         final String filter = "labels.tag==tag.1.2 or labels.owner==anthony.mcgreevy@microfocus.com";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(),
                      "((EXISTS (SELECT * FROM label WHERE ((job.partition_id = label.partition_id) "
                      + "AND (job.job_id = label.job_id) AND (label.label = 'tag') "
@@ -74,7 +74,7 @@ public class CustomRSQLVisitorTest
         final String filter = "(labels.tag==tag.1.2 or labels.tag==tag.1.3) and labels.tagged==true";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(),
                      "(((EXISTS (SELECT * FROM label WHERE ((job.partition_id = label.partition_id) "
                      + "AND (job.job_id = label.job_id) "
@@ -93,7 +93,7 @@ public class CustomRSQLVisitorTest
         final String filter = "id==2";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(), "(job.job_id = '2')");
     }
 
@@ -103,7 +103,7 @@ public class CustomRSQLVisitorTest
         final String filter = "name==test-job";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(), "(job.name = 'test-job')");
     }
 
@@ -113,7 +113,7 @@ public class CustomRSQLVisitorTest
         final String filter = "createTime==1589463608";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(), "(job.create_date = '1589463608')");
     }
 
@@ -123,7 +123,7 @@ public class CustomRSQLVisitorTest
         final String filter = "status==Active or status==Waiting";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(), "((job.job_status = 'Active') OR (job.job_status = 'Waiting'))");
     }
 
@@ -133,7 +133,7 @@ public class CustomRSQLVisitorTest
         final String filter = "percentageComplete=gt=50";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(), "(job.percentage_complete > '50')");
     }
 
@@ -143,7 +143,7 @@ public class CustomRSQLVisitorTest
         final String filter = "percentageComplete=ge=50";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(), "(job.percentage_complete >= '50')");
     }
 
@@ -153,7 +153,7 @@ public class CustomRSQLVisitorTest
         final String filter = "percentageComplete=lt=50 and percentageComplete=le=50";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(), "((job.percentage_complete < '50') AND (job.percentage_complete <= '50'))");
     }
 
@@ -163,7 +163,7 @@ public class CustomRSQLVisitorTest
         final String filter = "status=in=(Active,Waiting,Failed)";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(), "(job.job_status IN ('Active','Waiting','Failed') )");
     }
 
@@ -173,7 +173,7 @@ public class CustomRSQLVisitorTest
         final String filter = "status=out=(Active,Waiting,Complete)";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(), "(NOT (job.job_status IN ('Active','Waiting','Complete') ))");
     }
 
@@ -183,8 +183,8 @@ public class CustomRSQLVisitorTest
         final String filter = "name==batchjob.*";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
-        assertEquals(filterQueryCondition.toString(), "(job.name = 'batchjob.*')");
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
+        assertEquals(filterQueryCondition.toString(), "(job.name LIKE 'batchjob.%')");
     }
 
     @Test
@@ -193,8 +193,8 @@ public class CustomRSQLVisitorTest
         final String filter = "name==*-batchjob";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
-        assertEquals(filterQueryCondition.toString(), "(job.name = '*-batchjob')");
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
+        assertEquals(filterQueryCondition.toString(), "(job.name LIKE '%-batchjob')");
     }
 
     @Test
@@ -203,7 +203,9 @@ public class CustomRSQLVisitorTest
         final String filter = "name!=batchjob";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor<Condition>());
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
         assertEquals(filterQueryCondition.toString(), "(job.name <> 'batchjob')");
     }
 }
+
+
