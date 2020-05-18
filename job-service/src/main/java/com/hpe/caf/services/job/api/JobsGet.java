@@ -15,13 +15,16 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.healthmarketscience.sqlbuilder.Condition;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.job.api.filter.RsqlToSqlConverter;
+import com.hpe.caf.services.job.api.filter.CustomRsqlVisitor;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import cz.jirutka.rsql.parser.RSQLParser;
+import cz.jirutka.rsql.parser.ast.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,8 +87,7 @@ public final class JobsGet {
                 labelValues = escapeSql(split);
             }
 
-            final RsqlToSqlConverter rsqlConverter = new RsqlToSqlConverter();
-            final String filterQuery = rsqlConverter.convertToSqlSyntax(filter);
+            final String filterQuery = convertToSqlSyntax(filter);
 
             //  Get app config settings.
             LOG.debug("getJobs: Reading database connection properties...");
@@ -117,5 +119,16 @@ public final class JobsGet {
             toReturn.add(s.replace("%", "\\%").replace("'", "''"));
         }
         return toReturn;
+    }
+
+    private static String convertToSqlSyntax(final String filter)
+    {
+        if (filter == null) {
+            return null;
+        }
+        final RSQLParser rsqlParser = new RSQLParser();
+        final Node rootNode = rsqlParser.parse(filter);
+        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
+        return filterQueryCondition.toString();
     }
 }
