@@ -149,6 +149,8 @@ BEGIN
     -- Join onto the labels after paging to avoid them bloating the row count
     sql := sql || ' ) as job LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id '
                || 'AND lbl.job_id = job.job_id';
+    sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
+        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
     RETURN QUERY EXECUTE sql;
 END
 $$;
