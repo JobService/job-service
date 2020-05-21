@@ -16,6 +16,7 @@
 package com.hpe.caf.services.job.api.filter;
 
 import com.healthmarketscience.sqlbuilder.Condition;
+import com.hpe.caf.services.job.exceptions.FilterException;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.ast.Node;
 import org.testng.annotations.Test;
@@ -124,7 +125,7 @@ public class CustomRSQLVisitorTest
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
         final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
-        assertEquals(filterQueryCondition.toString(), "((job.job_status = 'Active') OR (job.job_status = 'Waiting'))");
+        assertEquals(filterQueryCondition.toString(), "((job.status = 'Active') OR (job.status = 'Waiting'))");
     }
 
     @Test
@@ -164,7 +165,7 @@ public class CustomRSQLVisitorTest
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
         final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
-        assertEquals(filterQueryCondition.toString(), "(job.job_status IN ('Active','Waiting','Failed') )");
+        assertEquals(filterQueryCondition.toString(), "(job.status IN ('Active','Waiting','Failed') )");
     }
 
     @Test
@@ -174,7 +175,7 @@ public class CustomRSQLVisitorTest
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
         final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
-        assertEquals(filterQueryCondition.toString(), "(NOT (job.job_status IN ('Active','Waiting','Complete') ))");
+        assertEquals(filterQueryCondition.toString(), "(NOT (job.status IN ('Active','Waiting','Complete') ))");
     }
 
     @Test

@@ -62,7 +62,7 @@ public final class JobFilterQuery
         JOB_PARTITION_ID = JOB_TABLE.addColumn("partition_id");
         JOB_CREATE_TIME = JOB_TABLE.addColumn("create_date");
         JOB_LAST_MODIFIED = JOB_TABLE.addColumn("last_update_date");
-        JOB_STATUS = JOB_TABLE.addColumn("job_status");
+        JOB_STATUS = JOB_TABLE.addColumn("status");
         JOB_PERCENTAGE_COMPLETE = JOB_TABLE.addColumn("percentage_complete");
 
         LABEL_PARTITION_ID = LABEL_TABLE.addColumn("partition_id");
