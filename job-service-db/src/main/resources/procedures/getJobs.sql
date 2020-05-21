@@ -134,6 +134,9 @@ BEGIN
         END IF;
     END IF;
 
+    sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
+        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+
     IF in_limit > 0 THEN
         sql := sql || ' LIMIT ' || in_limit;
     ELSE
