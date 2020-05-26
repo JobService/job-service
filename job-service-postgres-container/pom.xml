@@ -95,7 +95,7 @@
                         <!-- Postgres DB -->
                         <image>
                             <alias>${js.database.host}</alias>
-                            <name>postgres:9.6</name>
+                            <name>postgres:11.7</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
@@ -146,7 +146,7 @@
                             <alias>job-service-postgres</alias>
                             <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <build>
-                                <from>cafapi/java-postgres:1.0</from>
+                                <from>cafinternal/prereleases:java-postgres-2.0.0-SNAPSHOT</from>
                                 <labels>
                                     <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>

@@ -7,7 +7,7 @@
             "instances": 1,
             "container": {
                 "docker": {
-                    "image": "postgres:9.6",
+                    "image": "postgres:11.7",
                     "network": "BRIDGE",
                     "portMappings": [{
                         "containerPort": 5432,
