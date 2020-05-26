@@ -16,7 +16,6 @@
 package com.hpe.caf.services.job.api.filter;
 
 import com.healthmarketscience.sqlbuilder.Condition;
-import com.hpe.caf.services.job.exceptions.FilterException;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.ast.Node;
 import org.testng.annotations.Test;
