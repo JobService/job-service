@@ -85,7 +85,7 @@ public final class JobFilterQuery
             final String[] keys = key.split("\\.");
             final Condition con1 = BinaryCondition.equalTo(JOB_PARTITION_ID, LABEL_PARTITION_ID);
             final Condition con2 = BinaryCondition.equalTo(JOB_ID, LABEL_JOB_ID);
-            final Condition con3 = BinaryCondition.equalTo(LABEL_LABEL, Arrays.asList(keys[1]));
+            final Condition con3 = BinaryCondition.equalTo(LABEL_LABEL, keys[1]);
             final Condition con4 = convertConditionString(LABEL_VALUE, comparisonOperator, args);
             return labelExistsCon(con1, con2, con3, con4);
         } else {
@@ -146,3 +146,4 @@ public final class JobFilterQuery
         return new UnaryCondition(UnaryCondition.Op.EXISTS, query);
     }
 }
+
