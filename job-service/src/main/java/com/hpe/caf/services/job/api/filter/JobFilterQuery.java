@@ -85,12 +85,8 @@ public final class JobFilterQuery
             final String[] keys = key.split("\\.");
             final Condition con1 = BinaryCondition.equalTo(JOB_PARTITION_ID, LABEL_PARTITION_ID);
             final Condition con2 = BinaryCondition.equalTo(JOB_ID, LABEL_JOB_ID);
-            final Condition con3 = convertConditionString(LABEL_LABEL,
-                                                          new ComparisonOperator("=="),
-                                                          Arrays.asList(keys[1]));
-            final Condition con4 = convertConditionString(LABEL_VALUE,
-                                                          comparisonOperator,
-                                                          args);
+            final Condition con3 = BinaryCondition.equalTo(LABEL_LABEL, Arrays.asList(keys[1]));
+            final Condition con4 = convertConditionString(LABEL_VALUE, comparisonOperator, args);
             return labelExistsCon(con1, con2, con3, con4);
         } else {
             return convertConditionString(COLUMN_MAPPINGS.get(key), comparisonOperator, args);
@@ -115,19 +111,15 @@ public final class JobFilterQuery
                     : BinaryCondition.notEqualTo(key, value);
                 break;
             case "=gt=":
-            case ">":
                 condition = BinaryCondition.greaterThan(key, value);
                 break;
             case "=ge=":
-            case ">=":
                 condition = BinaryCondition.greaterThanOrEq(key, value);
                 break;
             case "=lt=":
-            case "<":
                 condition = BinaryCondition.lessThan(key, value);
                 break;
             case "=le=":
-            case "<=":
                 condition = BinaryCondition.lessThanOrEq(key, value);
                 break;
             case "=in=":
