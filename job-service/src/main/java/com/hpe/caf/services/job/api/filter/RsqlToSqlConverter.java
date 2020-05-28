@@ -24,7 +24,6 @@ import cz.jirutka.rsql.parser.ast.LogicalNode;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.OrNode;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 public final class RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
@@ -90,4 +89,3 @@ public final class RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
         throw new FilterException("Unkown node type, node did not match comparision, And or Or node.");
     }
 }
-
