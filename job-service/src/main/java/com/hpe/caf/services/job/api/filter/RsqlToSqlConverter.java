@@ -73,8 +73,7 @@ public final class RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
     {
         return logicalNode.getChildren()
             .stream()
-            .map(node -> createQuery(node))
-            .filter(Objects::nonNull);
+            .map(node -> createQuery(node));
     }
 
     private static Condition createQuery(final Node node)
@@ -88,6 +87,6 @@ public final class RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
         if (node instanceof ComparisonNode) {
             return createQuery((ComparisonNode) node);
         }
-        throw new FilterException("Unkown node type, node did not match Comparision, And or Or node.");
+        throw new FilterException("Unkown node type, node did not match comparision, And or Or node.");
     }
 }
