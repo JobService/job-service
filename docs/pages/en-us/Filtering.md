@@ -37,17 +37,17 @@ Example RSQL filters:
 Specified label has specified value.  
 - `labels.<labelKey>!=<labelValue>`  
 Specified label doesn't have specified value.  
-- `status in ['Active', 'Waiting']`  
+- `status in ('Active', 'Waiting')`  
 Job status is either Active or Waiting.  
-- `status out ['Completed', 'Failed']`  
+- `status out ('Completed', 'Failed')`  
 Job Status is not Completed or Failed.  
-- `percentageComplete =gt= 50`  
+- `percentageComplete=gt=50`  
 Percentage complete is more than 50% complete.  
-- `percentageComplete =lt= 50`  
+- `percentageComplete=lt=50`  
 Percentage complete is less than 50% complete.  
-- `percentageComplete =ge= 50`  
+- `percentageComplete=ge=50`  
 Percentage complete is more than or equal to 50% complete.  
-- `percentageComplete =le= 50`  
+- `percentageComplete=le 50`  
 Percentage complete is less than or equal to 50% complete.  
-- `percentageComplete =gt= 50 and status != 'Failed`  
+- `percentageComplete=gt=50 and status != 'Failed`  
 Percentage complete is greater than 50% and status is not failed.  
