@@ -58,6 +58,14 @@
             "url": {
                 "en-us": "pages/en-us/Job-Types"
             }
+        },
+        {
+            "title": {
+                "en-us": "Filtering"
+            },
+            "url": {
+                "en-us": "pages/en-us/Filtering"
+            }
         }]
     }, {
         "title": {
