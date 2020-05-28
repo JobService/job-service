@@ -146,4 +146,3 @@ public final class JobFilterQuery
         return new UnaryCondition(UnaryCondition.Op.EXISTS, query);
     }
 }
-
