@@ -27,9 +27,9 @@ import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public final class CustomRsqlVisitor implements RSQLVisitor<Condition, Void>
+public final class RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
 {
-    public CustomRsqlVisitor()
+    public RsqlToSqlConverter()
     {
     }
 

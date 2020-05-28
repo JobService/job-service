@@ -19,7 +19,7 @@ import com.healthmarketscience.sqlbuilder.Condition;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.job.api.filter.CustomRsqlVisitor;
+import com.hpe.caf.services.job.api.filter.RsqlToSqlConverter;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
@@ -128,7 +128,7 @@ public final class JobsGet {
         }
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new CustomRsqlVisitor());
+        final Condition filterQueryCondition = rootNode.accept(new RsqlToSqlConverter());
         return filterQueryCondition.toString();
     }
 }
