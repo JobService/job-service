@@ -24,7 +24,7 @@ import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public final class JobsGet {
@@ -93,7 +93,7 @@ public final class JobsGet {
             List<String> labelValues = null;
             if(labelExists != null && !labelExists.isEmpty()) {
                 final String[] split = labelExists.split(",");
-                labelValues = escapeSql(split);
+                labelValues = Arrays.asList(split);
             }
 
             //  Get app config settings.
@@ -118,13 +118,5 @@ public final class JobsGet {
 
         LOG.info("getJobs: Done.");
         return jobs;
-    }
-
-    private static List<String> escapeSql(String... toEscape) {
-        final List<String> toReturn = new ArrayList<>();
-        for (final String s : toEscape) {
-            toReturn.add(s.replace("%", "\\%").replace("'", "''"));
-        }
-        return toReturn;
     }
 }
