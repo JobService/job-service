@@ -14,7 +14,7 @@ banner:
 # Filtering
 
 Filtering can be used to limit the results returned when searching for jobs.  
-Jobs can filtered using an filter parameter written in RSQL syntax that can be passed to the get jobs RestApi call. 
+Jobs can filtered using a filter parameter written in RSQL syntax that can be passed to the get jobs RestApi call. 
 This filter will allow the request to filter out jobs that do not meet the specified criteria. 
 The RSQL filter syntax specifications can found [here](https://github.com/jirutka/rsql-parser).
 
