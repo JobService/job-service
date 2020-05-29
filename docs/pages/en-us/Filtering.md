@@ -20,7 +20,7 @@ The RSQL filter syntax specifications can found [here](https://github.com/jirutk
 
 Below is a list of the RSQL operators and what they can be used for.
 
-| Symbols  | Meaning  |  
+| Operators  | Meaning  |  
 |----------|----------|  
 |    ==    | Equal to |  
 |    !=    | Not equal to |  
