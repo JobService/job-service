@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class JobFilterQuery
+final class JobFilterQuery
 {
     private static final Map<String, DbColumn> COLUMN_MAPPINGS;
     private static final DbTable JOB_TABLE;
@@ -52,6 +52,10 @@ public final class JobFilterQuery
     private static final DbColumn LABEL_PARTITION_ID;
     private static final DbColumn LABEL_VALUE;
 
+    private JobFilterQuery()
+    {
+    }
+    
     static {
         JOB_TABLE = new DbTable(new DbSchema(new DbSpec(), ""), "job", "job");
         LABEL_TABLE = new DbTable(new DbSchema(new DbSpec(), ""), "label", "label");
@@ -67,7 +71,7 @@ public final class JobFilterQuery
         LABEL_PARTITION_ID = LABEL_TABLE.addColumn("partition_id");
         LABEL_JOB_ID = LABEL_TABLE.addColumn("job_id");
         LABEL_LABEL = LABEL_TABLE.addColumn("label");
-        LABEL_VALUE = LABEL_TABLE.addColumn("value");
+        LABEL_VALUE = LABEL_TABLE.addColumn("args.get(0)");
 
         COLUMN_MAPPINGS = new HashMap<>();
         COLUMN_MAPPINGS.put("id", JOB_ID);
@@ -95,42 +99,30 @@ public final class JobFilterQuery
     private static Condition convertConditionString(final DbColumn key, final ComparisonOperator comparisonOperator,
                                                     final List<String> args)
     {
-
-        final Condition condition;
-        final String value = args.get(0);
         switch (comparisonOperator.getSymbol()) {
             case "==":
-                condition = value.contains("*")
-                    ? BinaryCondition.like(key, value.replace("*", "%"))
-                    : BinaryCondition.equalTo(key, value);
-                break;
+                return args.get(0).contains("*")
+                    ? BinaryCondition.like(key, args.get(0).replace("_", "\\_").replace("%", "\\%").replace("*", "%"))
+                    : BinaryCondition.equalTo(key, args.get(0));
             case "!=":
-                condition = value.contains("*")
-                    ? BinaryCondition.notLike(key, value.replace("*", "%"))
-                    : BinaryCondition.notEqualTo(key, value);
-                break;
+                return args.get(0).contains("*")
+                    ? BinaryCondition.notLike(key, args.get(0).replace("_", "\\_").replace("%", "\\%").replace("*", "%"))
+                    : BinaryCondition.notEqualTo(key, args.get(0));
             case "=gt=":
-                condition = BinaryCondition.greaterThan(key, value);
-                break;
+                return BinaryCondition.greaterThan(key, args.get(0));
             case "=ge=":
-                condition = BinaryCondition.greaterThanOrEq(key, value);
-                break;
+                return BinaryCondition.greaterThanOrEq(key, args.get(0));
             case "=lt=":
-                condition = BinaryCondition.lessThan(key, value);
-                break;
+                return BinaryCondition.lessThan(key, args.get(0));
             case "=le=":
-                condition = BinaryCondition.lessThanOrEq(key, value);
-                break;
+                return BinaryCondition.lessThanOrEq(key, args.get(0));
             case "=in=":
-                condition = new InCondition(key, args);
-                break;
+                return new InCondition(key, args);
             case "=out=":
-                condition = new NotCondition(new InCondition(key, args));
-                break;
+                return new NotCondition(new InCondition(key, args));
             default:
                 throw new FilterException("Unrecognised filter condition: " + comparisonOperator.getSymbol());
         }
-        return condition;
     }
 
     private static Condition labelExistsCon(final Condition... cons)
@@ -145,3 +137,8 @@ public final class JobFilterQuery
         return new UnaryCondition(UnaryCondition.Op.EXISTS, query);
     }
 }
+
+
+
+
+

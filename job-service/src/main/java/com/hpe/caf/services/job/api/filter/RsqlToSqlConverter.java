@@ -20,11 +20,10 @@ import com.healthmarketscience.sqlbuilder.Condition;
 import com.hpe.caf.services.job.exceptions.FilterException;
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
-import cz.jirutka.rsql.parser.ast.LogicalNode;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.OrNode;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
-import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public final class RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
 {
@@ -35,57 +34,47 @@ public final class RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
     @Override
     public Condition visit(final AndNode node, final Void param)
     {
-        return createQuery(node);
+        return ComboCondition.and(
+            StreamSupport.stream(node.spliterator(), false)
+                .map(RsqlToSqlConverter::createQuery)
+                .toArray()
+        );
     }
 
     @Override
     public Condition visit(final OrNode node, final Void param)
     {
-        return createQuery(node);
+        return ComboCondition.or(
+            StreamSupport.stream(node.spliterator(), false)
+                .map(RsqlToSqlConverter::createQuery)
+                .toArray()
+        );
     }
 
     @Override
     public Condition visit(final ComparisonNode node, final Void params)
     {
-        return createQuery(node);
-    }
-
-    private static Condition createQuery(final ComparisonNode comparisonNode)
-    {
-        final Condition result = JobFilterQuery.getQueryStatement(comparisonNode.getSelector(),
-                                                                  comparisonNode.getOperator(),
-                                                                  comparisonNode.getArguments());
+        final Condition result = JobFilterQuery.getQueryStatement(node.getSelector(),
+                                                                  node.getOperator(),
+                                                                  node.getArguments());
         return result;
-    }
-
-    private static Condition createQuery(final AndNode logicalNode)
-    {
-        return getStream(logicalNode).reduce(ComboCondition::and).get();
-    }
-
-    private static Condition createQuery(final OrNode logicalNode)
-    {
-        return getStream(logicalNode).reduce(ComboCondition::or).get();
-    }
-
-    private static Stream<Condition> getStream(final LogicalNode logicalNode)
-    {
-        return logicalNode.getChildren()
-            .stream()
-            .map(RsqlToSqlConverter::createQuery);
     }
 
     private static Condition createQuery(final Node node)
     {
-        if (node instanceof AndNode) {
-            return createQuery((AndNode) node);
+        switch (node.getClass().getSimpleName()) {
+            case "AndNode": {
+                return createQuery((AndNode) node);
+            }
+            case "OrNode": {
+                return createQuery((OrNode) node);
+            }
+            case "ComparisonNode": {
+                return createQuery((ComparisonNode) node);
+            }
+            default: {
+                throw new FilterException("Unkown node type, node did not match comparision, And or Or node.");
+            }
         }
-        if (node instanceof OrNode) {
-            return createQuery((OrNode) node);
-        }
-        if (node instanceof ComparisonNode) {
-            return createQuery((ComparisonNode) node);
-        }
-        throw new FilterException("Unkown node type, node did not match comparision, And or Or node.");
     }
 }

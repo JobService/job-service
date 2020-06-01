@@ -24,10 +24,10 @@ Below is a list of the RSQL operators and what they can be used for.
 |----------|----------|  
 |    ==    | Equal to |  
 |    !=    | Not equal to |  
-| > / =gt= | Greater than |  
-| >= / =ge= | Greater than or equal to |  
-| > / =lt= | Less than |  
-| >= / =le= | Less than or equal to |  
+| > | Greater than |  
+| >= | Greater than or equal to |  
+| > | Less than |  
+| >= | Less than or equal to |  
 | =in= | Value present in array ["job1", "job2"] |  
 | =out= | Value not present in array ["job1", "job2"] |  
 | and | Compounding operator that combines two statements together |  
@@ -42,13 +42,13 @@ Specified label doesn't have specified value.
 Job status is either Active or Waiting.  
 - `status=out=('Completed', 'Failed')`  
 Job Status is not Completed or Failed.  
-- `percentageComplete=gt=50`  
+- `percentageComplete>50`  
 Percentage complete is more than 50% complete.  
-- `percentageComplete=lt=50`  
+- `percentageComplete<50`  
 Percentage complete is less than 50% complete.  
-- `percentageComplete=ge=50`  
+- `percentageComplete>=50`  
 Percentage complete is more than or equal to 50% complete.  
-- `percentageComplete=le=50`  
+- `percentageComplete<=50`  
 Percentage complete is less than or equal to 50% complete.  
-- `percentageComplete=gt=50 and status!='Failed`  
+- `percentageComplete>50 and status!='Failed`  
 Percentage complete is greater than 50% and status is not failed.  

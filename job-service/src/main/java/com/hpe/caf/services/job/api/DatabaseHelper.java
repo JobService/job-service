@@ -66,6 +66,7 @@ public final class DatabaseHelper
                          final List<String> labels, final String filter) throws Exception {
 
         final Map<String, Job> jobs = new LinkedHashMap<>(); //Linked rather than hash to preserve order of results.
+
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?)}")
