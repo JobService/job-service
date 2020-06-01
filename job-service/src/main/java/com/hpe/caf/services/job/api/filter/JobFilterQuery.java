@@ -105,11 +105,11 @@ final class JobFilterQuery
         switch (comparisonOperator.getSymbol()) {
             case "==":
                 return values.get(0).contains("*")
-                    ? BinaryCondition.like(key, values.get(0))
+                    ? BinaryCondition.like(key, values.get(0).replace("*", "%"))
                     : BinaryCondition.equalTo(key, values.get(0));
             case "!=":
                 return values.get(0).contains("*")
-                    ? BinaryCondition.notLike(key, values.get(0))
+                    ? BinaryCondition.notLike(key, values.get(0).replace("*", "%"))
                     : BinaryCondition.notEqualTo(key, values.get(0));
             case "=gt=":
                 return BinaryCondition.greaterThan(key, values.get(0));
@@ -143,7 +143,7 @@ final class JobFilterQuery
     private static List<String> escapeValues(final List<String> args)
     {
         Objects.requireNonNull(args);
-        return args.stream().map(arg -> arg.replace("_", "\\_").replace("%", "\\%").replace("*", "%"))
+        return args.stream().map(arg -> arg.replace("_", "\\_").replace("%", "\\%"))
             .collect(Collectors.toList());
     }
 }

@@ -15,15 +15,12 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.api.ConfigurationSource;
 import com.hpe.caf.services.job.client.ApiClient;
 import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.services.job.client.model.Job;
 import com.hpe.caf.services.job.client.model.NewJob;
 import com.hpe.caf.services.job.client.model.WorkerAction;
-import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
-import com.hpe.caf.worker.testing.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
