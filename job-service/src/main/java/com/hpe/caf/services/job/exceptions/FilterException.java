@@ -19,7 +19,7 @@ public final class FilterException extends RuntimeException
 {
     private static final String MESSAGE
         = "Invalid filter provided. Please ensure filter has the appropriate format (examples here: "
-        + "https://github.com/jirutka/rsql-parser#examples)";
+        + "https://jobservice.github.io/job-service/pages/en-us/Filtering)";
 
     public FilterException()
     {
@@ -31,4 +31,3 @@ public final class FilterException extends RuntimeException
         super(message);
     }
 }
-
