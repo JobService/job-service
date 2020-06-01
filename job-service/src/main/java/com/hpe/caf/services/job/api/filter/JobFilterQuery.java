@@ -32,6 +32,8 @@ import cz.jirutka.rsql.parser.ast.ComparisonOperator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 final class JobFilterQuery
 {
@@ -99,27 +101,28 @@ final class JobFilterQuery
     private static Condition convertConditionString(final DbColumn key, final ComparisonOperator comparisonOperator,
                                                     final List<String> args)
     {
+        final List<String> values = escapeValues(args);
         switch (comparisonOperator.getSymbol()) {
             case "==":
-                return args.get(0).contains("*")
-                    ? BinaryCondition.like(key, args.get(0).replace("_", "\\_").replace("%", "\\%").replace("*", "%"))
-                    : BinaryCondition.equalTo(key, args.get(0));
+                return values.get(0).contains("*")
+                    ? BinaryCondition.like(key, values.get(0))
+                    : BinaryCondition.equalTo(key, values.get(0));
             case "!=":
-                return args.get(0).contains("*")
-                    ? BinaryCondition.notLike(key, args.get(0).replace("_", "\\_").replace("%", "\\%").replace("*", "%"))
-                    : BinaryCondition.notEqualTo(key, args.get(0));
+                return values.get(0).contains("*")
+                    ? BinaryCondition.notLike(key, values.get(0))
+                    : BinaryCondition.notEqualTo(key, values.get(0));
             case "=gt=":
-                return BinaryCondition.greaterThan(key, args.get(0));
+                return BinaryCondition.greaterThan(key, values.get(0));
             case "=ge=":
-                return BinaryCondition.greaterThanOrEq(key, args.get(0));
+                return BinaryCondition.greaterThanOrEq(key, values.get(0));
             case "=lt=":
-                return BinaryCondition.lessThan(key, args.get(0));
+                return BinaryCondition.lessThan(key, values.get(0));
             case "=le=":
-                return BinaryCondition.lessThanOrEq(key, args.get(0));
+                return BinaryCondition.lessThanOrEq(key, values.get(0));
             case "=in=":
-                return new InCondition(key, args);
+                return new InCondition(key, values);
             case "=out=":
-                return new NotCondition(new InCondition(key, args));
+                return new NotCondition(new InCondition(key, values));
             default:
                 throw new FilterException("Unrecognised filter condition: " + comparisonOperator.getSymbol());
         }
@@ -135,5 +138,12 @@ final class JobFilterQuery
             query.addCondition(condition);
         }
         return new UnaryCondition(UnaryCondition.Op.EXISTS, query);
+    }
+
+    private static List<String> escapeValues(final List<String> args)
+    {
+        Objects.requireNonNull(args);
+        return args.stream().map(arg -> arg.replace("_", "\\_").replace("%", "\\%").replace("*", "%"))
+            .collect(Collectors.toList());
     }
 }
