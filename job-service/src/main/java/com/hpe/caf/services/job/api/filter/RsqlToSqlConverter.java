@@ -25,11 +25,9 @@ import cz.jirutka.rsql.parser.ast.OrNode;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 import java.util.stream.StreamSupport;
 
-public final class RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
+public enum RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
 {
-    public RsqlToSqlConverter()
-    {
-    }
+    INSTANCE;
 
     @Override
     public Condition visit(final AndNode node, final Void param)

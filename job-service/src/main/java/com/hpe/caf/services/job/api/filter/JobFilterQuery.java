@@ -85,7 +85,7 @@ final class JobFilterQuery
     public static Condition getQueryStatement(final String key, final ComparisonOperator comparisonOperator, final List<String> args)
     {
         if (key.startsWith("labels.")) {
-            final String[] keys = key.split("\\.");
+            final String[] keys = key.split("\\.", 2);
             final Condition con1 = BinaryCondition.equalTo(JOB_PARTITION_ID, LABEL_PARTITION_ID);
             final Condition con2 = BinaryCondition.equalTo(JOB_ID, LABEL_JOB_ID);
             final Condition con3 = BinaryCondition.equalTo(LABEL_LABEL, keys[1]);
