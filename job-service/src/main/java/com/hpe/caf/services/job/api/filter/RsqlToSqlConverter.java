@@ -17,7 +17,6 @@ package com.hpe.caf.services.job.api.filter;
 
 import com.healthmarketscience.sqlbuilder.ComboCondition;
 import com.healthmarketscience.sqlbuilder.Condition;
-import com.hpe.caf.services.job.exceptions.FilterException;
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
 import cz.jirutka.rsql.parser.ast.Node;
@@ -60,19 +59,6 @@ public enum RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
 
     private static Condition createQuery(final Node node)
     {
-        switch (node.getClass().getSimpleName()) {
-            case "AndNode": {
-                return createQuery((AndNode) node);
-            }
-            case "OrNode": {
-                return createQuery((OrNode) node);
-            }
-            case "ComparisonNode": {
-                return createQuery((ComparisonNode) node);
-            }
-            default: {
-                throw new FilterException("Unkown node type, node did not match comparision, And or Or node.");
-            }
-        }
+        return node.accept(INSTANCE);
     }
 }

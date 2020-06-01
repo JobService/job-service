@@ -128,7 +128,7 @@ public final class JobsGet {
         }
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = rootNode.accept(new RsqlToSqlConverter());
+        final Condition filterQueryCondition = rootNode.accept(RsqlToSqlConverter.INSTANCE);
         return filterQueryCondition.toString();
     }
 }

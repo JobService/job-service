@@ -55,7 +55,7 @@ final class JobFilterQuery
     private JobFilterQuery()
     {
     }
-    
+
     static {
         JOB_TABLE = new DbTable(new DbSchema(new DbSpec(), ""), "job", "job");
         LABEL_TABLE = new DbTable(new DbSchema(new DbSpec(), ""), "label", "label");
@@ -71,7 +71,7 @@ final class JobFilterQuery
         LABEL_PARTITION_ID = LABEL_TABLE.addColumn("partition_id");
         LABEL_JOB_ID = LABEL_TABLE.addColumn("job_id");
         LABEL_LABEL = LABEL_TABLE.addColumn("label");
-        LABEL_VALUE = LABEL_TABLE.addColumn("args.get(0)");
+        LABEL_VALUE = LABEL_TABLE.addColumn("value");
 
         COLUMN_MAPPINGS = new HashMap<>();
         COLUMN_MAPPINGS.put("id", JOB_ID);
@@ -137,8 +137,3 @@ final class JobFilterQuery
         return new UnaryCondition(UnaryCondition.Op.EXISTS, query);
     }
 }
-
-
-
-
-
