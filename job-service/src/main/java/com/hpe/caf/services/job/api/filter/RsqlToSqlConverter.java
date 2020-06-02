@@ -51,10 +51,7 @@ public enum RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
     @Override
     public Condition visit(final ComparisonNode node, final Void params)
     {
-        final Condition result = JobFilterQuery.getQueryStatement(node.getSelector(),
-                                                                  node.getOperator(),
-                                                                  node.getArguments());
-        return result;
+        return JobFilterQuery.getQueryStatement(node.getSelector(), node.getOperator(), node.getArguments());
     }
 
     public static Condition convert(final Node node)
