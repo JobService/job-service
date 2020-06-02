@@ -141,6 +141,6 @@ final class JobFilterQuery
     private static String escapeLikeParamValue(final String pattern)
     {
         Objects.requireNonNull(pattern);
-        return pattern.replace("_", "\\_").replace("%", "\\%").replace("*", "%");
+        return pattern.replace("\\", "\\\\").replace("_", "\\_").replace("%", "\\%").replace("*", "%");
     }
 }
