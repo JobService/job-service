@@ -20,18 +20,18 @@ The RSQL filter syntax specifications can found [here](https://github.com/jirutk
 
 Below is a list of the RSQL operators and what they can be used for.
 
-| Operators  | Meaning  |  
-|----------|----------|  
-|    ==    | Equal to |  
-|    !=    | Not equal to |  
-| > | Greater than |  
-| >= | Greater than or equal to |  
-| > | Less than |  
-| >= | Less than or equal to |  
-| =in= | Value present in array ["job1", "job2"] |  
-| =out= | Value not present in array ["job1", "job2"] |  
-| and | Compounding operator that combines two statements together |  
-| or | Compounding operator that combines two statements together |  
+| Operators | Meaning                                                    |
+|-----------|------------------------------------------------------------|
+|    ==     | Equal to                                                   |
+|    !=     | Not equal to                                               |
+|    >      | Greater than                                               |
+|    >=     | Greater than or equal to                                   |
+|    >      | Less than                                                  |
+|    >=     | Less than or equal to                                      |
+|   =in=    | Value present in array ["job1", "job2"]                    |
+|   =out=   | Value not present in array ["job1", "job2"]                |
+|   and     | Compounding operator that combines two statements together |
+|   or      | Compounding operator that combines two statements together |
 
 Example RSQL filters:  
 - `labels.<labelKey>==<labelValue>`  
