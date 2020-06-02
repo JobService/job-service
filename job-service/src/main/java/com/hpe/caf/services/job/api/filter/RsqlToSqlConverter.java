@@ -33,7 +33,7 @@ public enum RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
     {
         return ComboCondition.and(
             StreamSupport.stream(node.spliterator(), false)
-                .map(RsqlToSqlConverter::createQuery)
+                .map(RsqlToSqlConverter::convert)
                 .toArray()
         );
     }
@@ -43,7 +43,7 @@ public enum RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
     {
         return ComboCondition.or(
             StreamSupport.stream(node.spliterator(), false)
-                .map(RsqlToSqlConverter::createQuery)
+                .map(RsqlToSqlConverter::convert)
                 .toArray()
         );
     }
@@ -57,7 +57,7 @@ public enum RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
         return result;
     }
 
-    private static Condition createQuery(final Node node)
+    public static Condition convert(final Node node)
     {
         return node.accept(INSTANCE);
     }
