@@ -102,6 +102,11 @@ paths:
         type: string
         required: false
         description: 'Filter to jobs with the specified labels, in the format label=<labelName>,<labelName>'
+      - name: filter
+        in: query
+        type: string
+        required: false
+        description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1'
     get:
       tags:
         - Jobs
