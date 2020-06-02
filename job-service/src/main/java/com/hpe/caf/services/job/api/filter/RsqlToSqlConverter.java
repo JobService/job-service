@@ -19,6 +19,7 @@ import com.healthmarketscience.sqlbuilder.ComboCondition;
 import com.healthmarketscience.sqlbuilder.Condition;
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
+import cz.jirutka.rsql.parser.ast.LogicalNode;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.OrNode;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
@@ -31,21 +32,13 @@ public enum RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
     @Override
     public Condition visit(final AndNode node, final Void param)
     {
-        return ComboCondition.and(
-            StreamSupport.stream(node.spliterator(), false)
-                .map(RsqlToSqlConverter::convert)
-                .toArray()
-        );
+        return ComboCondition.and(convertChildren(node));
     }
 
     @Override
     public Condition visit(final OrNode node, final Void param)
     {
-        return ComboCondition.or(
-            StreamSupport.stream(node.spliterator(), false)
-                .map(RsqlToSqlConverter::convert)
-                .toArray()
-        );
+        return ComboCondition.or(convertChildren(node));
     }
 
     @Override
@@ -57,5 +50,12 @@ public enum RsqlToSqlConverter implements RSQLVisitor<Condition, Void>
     public static Condition convert(final Node node)
     {
         return node.accept(INSTANCE);
+    }
+
+    private static Object[] convertChildren(final LogicalNode node)
+    {
+        return StreamSupport.stream(node.spliterator(), false)
+            .map(RsqlToSqlConverter::convert)
+            .toArray();
     }
 }
