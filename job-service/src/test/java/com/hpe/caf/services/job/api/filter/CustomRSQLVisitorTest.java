@@ -100,11 +100,11 @@ public class CustomRSQLVisitorTest
     @Test
     public void filterOnJobName()
     {
-        final String filter = "name==test-job";
+        final String filter = "name==Job_6f99d48c-2a9e-4257-b18d-2c8d039dfa52";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
         final Condition filterQueryCondition = rootNode.accept(RsqlToSqlConverter.INSTANCE);
-        assertEquals(filterQueryCondition.toString(), "(job.name = 'test-job')");
+        assertEquals(filterQueryCondition.toString(), "(job.name = 'Job_6f99d48c-2a9e-4257-b18d-2c8d039dfa52')");
     }
 
     @Test

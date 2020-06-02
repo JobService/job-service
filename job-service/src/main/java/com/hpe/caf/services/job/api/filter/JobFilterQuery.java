@@ -101,28 +101,27 @@ final class JobFilterQuery
     private static Condition convertConditionString(final DbColumn key, final ComparisonOperator comparisonOperator,
                                                     final List<String> args)
     {
-        final List<String> values = escapeValues(args);
         switch (comparisonOperator.getSymbol()) {
             case "==":
-                return values.get(0).contains("*")
-                    ? BinaryCondition.like(key, values.get(0).replace("*", "%"))
-                    : BinaryCondition.equalTo(key, values.get(0));
+                return args.get(0).contains("*")
+                    ? BinaryCondition.like(key, escapeLikeParamValue(args))
+                    : BinaryCondition.equalTo(key, args.get(0));
             case "!=":
-                return values.get(0).contains("*")
-                    ? BinaryCondition.notLike(key, values.get(0).replace("*", "%"))
-                    : BinaryCondition.notEqualTo(key, values.get(0));
+                return args.get(0).contains("*")
+                    ? BinaryCondition.notLike(key, escapeLikeParamValue(args))
+                    : BinaryCondition.notEqualTo(key, args.get(0));
             case "=gt=":
-                return BinaryCondition.greaterThan(key, values.get(0));
+                return BinaryCondition.greaterThan(key, args.get(0));
             case "=ge=":
-                return BinaryCondition.greaterThanOrEq(key, values.get(0));
+                return BinaryCondition.greaterThanOrEq(key, args.get(0));
             case "=lt=":
-                return BinaryCondition.lessThan(key, values.get(0));
+                return BinaryCondition.lessThan(key, args.get(0));
             case "=le=":
-                return BinaryCondition.lessThanOrEq(key, values.get(0));
+                return BinaryCondition.lessThanOrEq(key, args.get(0));
             case "=in=":
-                return new InCondition(key, values);
+                return new InCondition(key, args);
             case "=out=":
-                return new NotCondition(new InCondition(key, values));
+                return new NotCondition(new InCondition(key, args));
             default:
                 throw new FilterException("Unrecognised filter condition: " + comparisonOperator.getSymbol());
         }
@@ -140,10 +139,9 @@ final class JobFilterQuery
         return new UnaryCondition(UnaryCondition.Op.EXISTS, query);
     }
 
-    private static List<String> escapeValues(final List<String> args)
+    private static String escapeLikeParamValue(final List<String> args)
     {
         Objects.requireNonNull(args);
-        return args.stream().map(arg -> arg.replace("_", "\\_").replace("%", "\\%"))
-            .collect(Collectors.toList());
+        return args.stream().map(arg -> arg.replace("_", "\\_").replace("%", "\\%").replace("*", "%")).findFirst().get();
     }
 }
