@@ -99,16 +99,4 @@ public final class JobsGetTest {
                 "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
                 SortDirection.DESCENDING, Arrays.asList("tag:4", "tag:5"), null);
     }
-
-    @Test
-    public void testGetJobs_Success_WithLabelFilter_escaped() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, null, "owner:test%", null);
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-                "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
-                SortDirection.DESCENDING,  Collections.singletonList("owner:test\\%"), null);
-        JobsGet.getJobs("partition", "", null, 0, 0, null, "owner:'test", null);
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-                "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
-                SortDirection.DESCENDING, Collections.singletonList("owner:''test"), null);
-    }
 }
