@@ -28,6 +28,12 @@ DROP FUNCTION IF EXISTS get_jobs(
     in_status_type VARCHAR(20),
     in_limit INT,
     in_offset INT);
+DROP FUNCTION IF EXISTS get_jobs(
+    in_job_id_starts_with VARCHAR(58),
+    in_status_type VARCHAR(20),
+    in_limit INT,
+    in_offset INT,
+    in_labels VARCHAR(255)[]);
 CREATE OR REPLACE FUNCTION get_jobs(
     in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),
@@ -36,7 +42,8 @@ CREATE OR REPLACE FUNCTION get_jobs(
     in_offset INT,
     in_sort_field VARCHAR(20),
     in_sort_ascending BOOLEAN,
-    in_labels VARCHAR(255)[]
+    in_labels VARCHAR(255)[],
+    in_filter VARCHAR(255)
 )
 RETURNS TABLE(
     job_id VARCHAR(48),
@@ -134,6 +141,10 @@ BEGIN
         END IF;
     END IF;
 
+    IF in_filter IS NOT NULL THEN
+        sql := sql || whereOrAnd || in_filter;
+    END IF;
+
     sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
 
@@ -149,6 +160,8 @@ BEGIN
     -- Join onto the labels after paging to avoid them bloating the row count
     sql := sql || ' ) as job LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id '
                || 'AND lbl.job_id = job.job_id';
+    sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
+        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
     RETURN QUERY EXECUTE sql;
 END
 $$;

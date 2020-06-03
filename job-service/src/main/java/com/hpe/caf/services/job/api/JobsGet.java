@@ -15,16 +15,20 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.healthmarketscience.sqlbuilder.Condition;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.api.filter.RsqlToSqlConverter;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import cz.jirutka.rsql.parser.RSQLParser;
+import cz.jirutka.rsql.parser.ast.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public final class JobsGet {
@@ -40,26 +44,13 @@ public final class JobsGet {
      * @param statusType    optional status of the job
      * @param limit         optional limit of jobs to return per page
      * @param offset        optional offset from which to return page of jobs
-     * @return  jobs        list of jobs
-     * @throws Exception    bad request or database exceptions
-     */
-    public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit, final Integer offset, final String sort) throws Exception {
-        return JobsGet.getJobs(partitionId, jobId, statusType, limit, offset, sort, null);
-    }
-
-    /**
-     * Gets a list of jobs from the job database specified by environment variable configuration.
-     *
-     * @param jobId         optional id of the job to get
-     * @param statusType    optional status of the job
-     * @param limit         optional limit of jobs to return per page
-     * @param offset        optional offset from which to return page of jobs
-     * @param labelExists   optional metadata to filter against.
+     * @param labelExists   optional metadata to filter against
+     * @param filter        optional filter to use when returning results
      * @return  jobs        list of jobs
      * @throws Exception    bad request or database exceptions
      */
     public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit,
-                                final Integer offset, final String sort, final String labelExists) throws Exception {
+                                final Integer offset, final String sort, final String labelExists, final String filter) throws Exception {
 
         Job[] jobs;
 
@@ -93,8 +84,10 @@ public final class JobsGet {
             List<String> labelValues = null;
             if(labelExists != null && !labelExists.isEmpty()) {
                 final String[] split = labelExists.split(",");
-                labelValues = escapeSql(split);
+                labelValues = Arrays.asList(split);
             }
+
+            final String filterQuery = convertToSqlSyntax(filter);
 
             //  Get app config settings.
             LOG.debug("getJobs: Reading database connection properties...");
@@ -109,7 +102,7 @@ public final class JobsGet {
                 limit = config.getDefaultPageSize();
             }
             jobs = databaseHelper.getJobs(
-                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues);
+                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues, filterQuery);
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;
@@ -120,11 +113,14 @@ public final class JobsGet {
         return jobs;
     }
 
-    private static List<String> escapeSql(String... toEscape) {
-        final List<String> toReturn = new ArrayList<>();
-        for (final String s : toEscape) {
-            toReturn.add(s.replace("%", "\\%").replace("'", "''"));
+    private static String convertToSqlSyntax(final String filter)
+    {
+        if (filter == null) {
+            return null;
         }
-        return toReturn;
+        final RSQLParser rsqlParser = new RSQLParser();
+        final Node rootNode = rsqlParser.parse(filter);
+        final Condition filterQueryCondition = RsqlToSqlConverter.convert(rootNode);
+        return filterQueryCondition.toString();
     }
 }
