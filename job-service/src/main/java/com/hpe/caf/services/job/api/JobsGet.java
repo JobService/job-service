@@ -24,6 +24,7 @@ import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import cz.jirutka.rsql.parser.RSQLParser;
+import cz.jirutka.rsql.parser.RSQLParserException;
 import cz.jirutka.rsql.parser.ast.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,14 +114,18 @@ public final class JobsGet {
         return jobs;
     }
 
-    private static String convertToSqlSyntax(final String filter)
+    private static String convertToSqlSyntax(final String filter) throws BadRequestException
     {
         if (filter == null) {
             return null;
         }
         final RSQLParser rsqlParser = new RSQLParser();
-        final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = RsqlToSqlConverter.convert(rootNode);
-        return filterQueryCondition.toString();
+        try {
+            final Node rootNode = rsqlParser.parse(filter);
+            final Condition filterQueryCondition = RsqlToSqlConverter.convert(rootNode);
+            return filterQueryCondition.toString();
+        } catch (final RSQLParserException ex) {
+            throw new BadRequestException("Unable to parse filter", ex);
+        }
     }
 }
