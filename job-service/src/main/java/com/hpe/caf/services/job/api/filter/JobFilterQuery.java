@@ -104,11 +104,11 @@ final class JobFilterQuery
         switch (comparisonOperator.getSymbol()) {
             case "==":
                 return args.get(0).contains("*")
-                    ? BinaryCondition.like(key, escapeLikeParamValue((String) args.get(0)))
+                    ? BinaryCondition.like(key, escapeLikeParamValue(args.get(0)))
                     : BinaryCondition.equalTo(key, convertValue(key, args.get(0)));
             case "!=":
                 return args.get(0).contains("*")
-                    ? BinaryCondition.notLike(key, escapeLikeParamValue((String) args.get(0)))
+                    ? BinaryCondition.notLike(key, escapeLikeParamValue(args.get(0)))
                     : BinaryCondition.notEqualTo(key, convertValue(key, args.get(0)));
             case "=gt=":
                 return BinaryCondition.greaterThan(key, convertValue(key, args.get(0)));
