@@ -114,7 +114,7 @@ public class CustomRSQLVisitorTest
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
         final Condition filterQueryCondition = RsqlToSqlConverter.convert(rootNode);
-        assertEquals(filterQueryCondition.toString(), "(job.create_date = '1589463608')");
+        assertEquals(filterQueryCondition.toString(), "(job.create_date = 1589463608)");
     }
 
     @Test
@@ -134,7 +134,7 @@ public class CustomRSQLVisitorTest
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
         final Condition filterQueryCondition = RsqlToSqlConverter.convert(rootNode);
-        assertEquals(filterQueryCondition.toString(), "(job.percentage_complete > '50')");
+        assertEquals(filterQueryCondition.toString(), "(job.percentage_complete > 50.0)");
     }
 
     @Test
@@ -144,17 +144,17 @@ public class CustomRSQLVisitorTest
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
         final Condition filterQueryCondition = RsqlToSqlConverter.convert(rootNode);
-        assertEquals(filterQueryCondition.toString(), "(job.percentage_complete >= '50')");
+        assertEquals(filterQueryCondition.toString(), "(job.percentage_complete >= 50.0)");
     }
 
     @Test
     public void filterOnPercentageCompleteLessThanAndLessThanEqualTo()
     {
-        final String filter = "percentageComplete=lt=50 and percentageComplete=le=50";
+        final String filter = "percentageComplete=lt=50 and percentageComplete=le=80.5";
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
         final Condition filterQueryCondition = RsqlToSqlConverter.convert(rootNode);
-        assertEquals(filterQueryCondition.toString(), "((job.percentage_complete < '50') AND (job.percentage_complete <= '50'))");
+        assertEquals(filterQueryCondition.toString(), "((job.percentage_complete < 50.0) AND (job.percentage_complete <= 80.5))");
     }
 
     @Test
