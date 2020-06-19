@@ -33,6 +33,15 @@ Below is a list of the RSQL operators and what they can be used for.
 |   and     | Compounding operator that combines two statements together |
 |   or      | Compounding operator that combines two statements together |
 
+
+| Supported Filter Keys |  
+|-----------------------|  
+| labels.<labelKey>     |  
+| name                  |  
+| id                    |  
+| status                |  
+| percentageComplete    |   
+
 Example RSQL filters:  
 - `labels.<labelKey>==<labelValue>`  
 Specified label has specified value.  

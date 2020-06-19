@@ -94,6 +94,9 @@ final class JobFilterQuery
             final Condition con4 = convertConditionString(LABEL_VALUE, comparisonOperator, args);
             return labelExistsCon(con1, con2, con3, con4);
         } else {
+            if(key.equalsIgnoreCase("createDate") || key.equalsIgnoreCase("lastUpdateTime")){
+                throw new FilterException("Unsupported filter key specified: " + key);
+            }
             return convertConditionString(COLUMN_MAPPINGS.get(key), comparisonOperator, args);
         }
     }
@@ -153,10 +156,6 @@ final class JobFilterQuery
     private static Object convertValue(final DbColumn key, final String value)
     {
         switch (key.getName()) {
-            case "create_date":
-            case "last_update_date": {
-                return Long.parseLong(value);
-            }
             case "percentage_complete": {
                 return Double.parseDouble(value);
             }
