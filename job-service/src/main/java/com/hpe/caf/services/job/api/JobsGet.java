@@ -125,8 +125,10 @@ public final class JobsGet {
             final Node rootNode = rsqlParser.parse(filter);
             final Condition filterQueryCondition = RsqlToSqlConverter.convert(rootNode);
             return filterQueryCondition.toString();
-        } catch (final RSQLParserException | FilterException ex) {
+        } catch (final RSQLParserException ex) {
             throw new BadRequestException("Unable to parse filter", ex);
+        } catch (final FilterException ex) {
+            throw new BadRequestException(ex.getMessage());
         }
     }
 }
