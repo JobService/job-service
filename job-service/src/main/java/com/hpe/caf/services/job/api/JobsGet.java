@@ -23,6 +23,7 @@ import com.hpe.caf.services.job.api.filter.RsqlToSqlConverter;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.exceptions.FilterException;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.RSQLParserException;
 import cz.jirutka.rsql.parser.ast.Node;
@@ -126,6 +127,8 @@ public final class JobsGet {
             return filterQueryCondition.toString();
         } catch (final RSQLParserException ex) {
             throw new BadRequestException("Unable to parse filter", ex);
+        } catch (final FilterException ex) {
+            throw new BadRequestException(ex.getMessage());
         }
     }
 }

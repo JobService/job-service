@@ -44,8 +44,6 @@ final class JobFilterQuery
     private static final DbColumn JOB_ID;
     private static final DbColumn JOB_NAME;
     private static final DbColumn JOB_PARTITION_ID;
-    private static final DbColumn JOB_CREATE_TIME;
-    private static final DbColumn JOB_LAST_MODIFIED;
     private static final DbColumn JOB_STATUS;
     private static final DbColumn JOB_PERCENTAGE_COMPLETE;
 
@@ -65,8 +63,6 @@ final class JobFilterQuery
         JOB_ID = JOB_TABLE.addColumn("job_id");
         JOB_NAME = JOB_TABLE.addColumn("name");
         JOB_PARTITION_ID = JOB_TABLE.addColumn("partition_id");
-        JOB_CREATE_TIME = JOB_TABLE.addColumn("create_date");
-        JOB_LAST_MODIFIED = JOB_TABLE.addColumn("last_update_date");
         JOB_STATUS = JOB_TABLE.addColumn("status");
         JOB_PERCENTAGE_COMPLETE = JOB_TABLE.addColumn("percentage_complete");
 
@@ -78,8 +74,6 @@ final class JobFilterQuery
         COLUMN_MAPPINGS = new HashMap<>();
         COLUMN_MAPPINGS.put("id", JOB_ID);
         COLUMN_MAPPINGS.put("name", JOB_NAME);
-        COLUMN_MAPPINGS.put("createTime", JOB_CREATE_TIME);
-        COLUMN_MAPPINGS.put("lastUpdateTime", JOB_LAST_MODIFIED);
         COLUMN_MAPPINGS.put("status", JOB_STATUS);
         COLUMN_MAPPINGS.put("percentageComplete", JOB_PERCENTAGE_COMPLETE);
     }
@@ -94,6 +88,9 @@ final class JobFilterQuery
             final Condition con4 = convertConditionString(LABEL_VALUE, comparisonOperator, args);
             return labelExistsCon(con1, con2, con3, con4);
         } else {
+            if(!COLUMN_MAPPINGS.containsKey(key)){
+                throw new FilterException("Unsupported filter key specified: " + key);
+            }
             return convertConditionString(COLUMN_MAPPINGS.get(key), comparisonOperator, args);
         }
     }
@@ -153,10 +150,6 @@ final class JobFilterQuery
     private static Object convertValue(final DbColumn key, final String value)
     {
         switch (key.getName()) {
-            case "create_date":
-            case "last_update_date": {
-                return Long.parseLong(value);
-            }
             case "percentage_complete": {
                 return Double.parseDouble(value);
             }
