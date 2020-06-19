@@ -108,16 +108,6 @@ public class CustomRSQLVisitorTest
     }
 
     @Test
-    public void filterOnCreateTime()
-    {
-        final String filter = "createTime==1589463608";
-        final RSQLParser rsqlParser = new RSQLParser();
-        final Node rootNode = rsqlParser.parse(filter);
-        final Condition filterQueryCondition = RsqlToSqlConverter.convert(rootNode);
-        assertEquals(filterQueryCondition.toString(), "(job.create_date = 1589463608)");
-    }
-
-    @Test
     public void filterOnStatus()
     {
         final String filter = "status==Active or status==Waiting";
@@ -207,3 +197,4 @@ public class CustomRSQLVisitorTest
         assertEquals(filterQueryCondition.toString(), "(job.name <> 'batchjob')");
     }
 }
+
