@@ -54,9 +54,10 @@ public class JobsApi  {
             @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,
             @ApiParam(value = "How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.") @QueryParam("sort") String sort,
             @ApiParam(value = "Filter jobs with any of the specified labels, in the format label=<labelName>,<labelName>") @QueryParam("labelExist") String label,
+            @ApiParam(value = "Filter jobs with the specified RSQL filter criteria") @QueryParam("filter") String filter,
             @Context SecurityContext securityContext)
             throws Exception {
-        return delegate.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, cAFCorrelationId, sort, label, securityContext);
+        return delegate.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, cAFCorrelationId, sort, label, filter, securityContext);
     }
 
     @GET

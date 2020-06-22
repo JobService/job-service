@@ -33,10 +33,10 @@ public class JobsApiServiceImpl extends JobsApiService {
     @Override
     public Response getJobs(final String partitionId, final String jobIdStartsWith, final String statusType,
                             final Integer limit, final Integer offset, String cAFCorrelationId, String sort,
-                            final String label,
+                            final String label, final String filter,
                             SecurityContext securityContext)
             throws Exception {
-        final Job[] jobs = JobsGet.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, sort, label);
+        final Job[] jobs = JobsGet.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, sort, label, filter);
         return Response.ok().entity(jobs).build();
     }
 

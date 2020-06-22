@@ -416,7 +416,7 @@ public class JobServiceIT {
         }
 
         List<Job> retrievedJobs = jobsApi.getJobs(
-            defaultPartitionId, "100",null,null,null,null,null, null);
+            defaultPartitionId, "100",null,null,null,null,null, null, null);
         assertEquals(retrievedJobs.size(), 10);
 
         for(int i=0; i<10; i++) {
@@ -447,7 +447,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, waitingJobId, waitingJob, correlationId);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, "NotFinished", null, null, null, null);
+            defaultPartitionId, correlationId, null, "NotFinished", null, null, null, null, null);
         assertEquals(jobs.size(), 1);
         assertEquals(jobs.get(0).getId(), waitingJobId);
     }
@@ -478,7 +478,7 @@ public class JobServiceIT {
         final String job3Id = createJob(jobId + "b");
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, "1", null, null, null, null, "jobId:asc", null);
+            defaultPartitionId, "1", null, null, null, null, "jobId:asc", null, null);
         final List<String> resultJobIds =
             jobs.stream().map(job -> job.getId()).collect(Collectors.toList());
         assertEquals(resultJobIds, Arrays.asList(jobId + "A", jobId + "b", jobId + "C"),
@@ -627,7 +627,7 @@ public class JobServiceIT {
 
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         final List<Job> jobs = jobsApi.getJobs(
-            UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null, null, null);
+            UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null, null, null, null);
         assertEquals(jobs.size(), 0, "job list should be empty");
     }
 
@@ -957,7 +957,7 @@ public class JobServiceIT {
 
         //retrieve job using web method
         List<Job> jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
-                null, null, null, "tag:1");
+                null, null, null, "tag:1", null);
         assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(jobId1, jobId2)));
 
         //Assert all labels are returned, not just the ones used to filter the jobs
@@ -972,11 +972,11 @@ public class JobServiceIT {
         assertTrue(dbJob2.getLabels().containsKey("owner"));
 
         jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
-                null, null, "tag:1,random");
+                null, null, "tag:1,random", null);
         assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(jobId1, jobId2, jobId3)));
 
         jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
-                null, null, "owner");
+                null, null, "owner", null);
         assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Collections.singletonList(jobId2)));
     }
 
@@ -1000,7 +1000,7 @@ public class JobServiceIT {
 
         //retrieve job using web method
         List<Job> jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
-                2, 0, "createTime:asc", null);
+                2, 0, "createTime:asc", null, null);
         assertEquals(jobs.size(), 2);
         //Assert all labels are returned
         Job dbJob1 = jobs.stream().filter(j -> j.getId().equals(jobId1)).findFirst().orElse(null);
@@ -1009,11 +1009,11 @@ public class JobServiceIT {
         assertTrue(dbJob1.getLabels().containsKey("tag:2"));
 
         jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
-                5, 0, "createTime:asc", null);
+                5, 0, "createTime:asc", null, null);
         assertEquals(jobs.size(), 3);
 
         jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
-                2, 2, "createTime:asc", null);
+                2, 2, "createTime:asc", null, null);
         assertEquals(jobs.size(), 1);
     }
 
