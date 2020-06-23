@@ -26,8 +26,6 @@ import com.schibsted.spt.data.jslt.filters.DefaultJsonFilter;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Constructs task data using a JSLT script.  See the `Job-Types.md` document for a specification.
@@ -35,8 +33,7 @@ import org.slf4j.LoggerFactory;
  * @see com.schibsted.spt.data.jslt
  */
 final class JsltTaskDataBuilder implements TaskDataBuilder {
-    
-    private static final Logger LOG = LoggerFactory.getLogger(JsltTaskDataBuilder.class);
+
     /**
      * Used for building script input.
      */
@@ -76,7 +73,7 @@ final class JsltTaskDataBuilder implements TaskDataBuilder {
         this.targetPipe = targetPipe;
         this.configuration = configuration;
         this.parametersValidator = parametersValidator;
-        
+
         try {
             script = new Parser(new StringReader(taskDataScript))
                 .withSource(jobTypeId)
