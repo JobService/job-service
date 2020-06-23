@@ -22,7 +22,7 @@ RUN zypper -n install python3-pip && \
 
 COPY script/* /maven/script/
 
-ENTRYPOINT python3 createJob.py
+ENTRYPOINT ["python3", "createJob.py"]
 
 WORKDIR /maven/script
 
