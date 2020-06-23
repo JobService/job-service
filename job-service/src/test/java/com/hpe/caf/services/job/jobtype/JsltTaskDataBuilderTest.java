@@ -35,7 +35,7 @@ public class JsltTaskDataBuilderTest {
         final TaskDataBuilder builder = new JsltTaskDataBuilder(
             "type", "task pipe", "target pipe", config, paramValidatorSuccess, ".");
         final JsonNode actualTaskData =
-            builder.build("partition id", "job id", TextNode.valueOf("params"));
+            builder.build(null, "job id", TextNode.valueOf("params"));
 
         final Map<String, Object> expectedTaskData = new HashMap<>();
         expectedTaskData.put("configuration", config);
@@ -103,9 +103,7 @@ public class JsltTaskDataBuilderTest {
         final JsonNode actualTaskData =
             builder.build("partition id", "job id", TextNode.valueOf("params"));
 
-        final Map<String, Object> expectedTaskData = new HashMap<>();
-        expectedTaskData.put("empty", Collections.emptyMap());
-        Assert.assertEquals(JobTypeTestUtil.convertJson(expectedTaskData), actualTaskData);
+        Assert.assertEquals(JobTypeTestUtil.convertJson(Collections.emptyMap()), actualTaskData);
     }
 
 }
