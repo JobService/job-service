@@ -33,7 +33,6 @@ import java.util.Map;
  * @see com.schibsted.spt.data.jslt
  */
 final class JsltTaskDataBuilder implements TaskDataBuilder {
-
     /**
      * Used for building script input.
      */
