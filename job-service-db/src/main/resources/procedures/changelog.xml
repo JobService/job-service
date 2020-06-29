@@ -253,4 +253,10 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_procedure_getIdentityBasedTableName" runOnChange="true" author="Anthony McGreevy" >
+        <createProcedure path="procedures/getIdentityBasedTableName.sql"
+                         procedureName="internal_get_identity_based_task_table_name"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
 </databaseChangeLog>
