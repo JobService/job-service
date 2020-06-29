@@ -71,10 +71,8 @@ BEGIN
         WHERE partition_id = in_partition_id
             AND job_id = in_task_id;
     ELSE
-        RAISE LOG 'v_parent_task_id - Base: %', v_parent_task_id;
         -- Put together the parent task table name
         v_parent_task_table = internal_get_identity_based_task_table_name(v_parent_task_id);
-        RAISE LOG 'v_parent_task_table: %', v_parent_task_table;
 
         -- Create the parent task table if necessary
         PERFORM internal_create_task_table(v_parent_task_table);
