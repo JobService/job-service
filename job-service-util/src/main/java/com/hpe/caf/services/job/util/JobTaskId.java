@@ -80,32 +80,4 @@ public final class JobTaskId {
     public String getMessageId() {
         return partitionId + ":" + taskId;
     }
-
-    /**
-     * A 'short ID' for a task uniquely identifies it (ie. doesn't need further qualification by
-     * partition) and is deterministic, but is shorter than the combined partition ID and task ID
-     * (max length: 54).  This representation is used in dynamically creating task tables in the
-     * database - it's used in the table name, which is restricted by postgres to 63 characters.
-     *
-     * For most purposes, the result can be treated like a normal task ID.  It doesn't contain any
-     * characters not allowed in job IDs, and subtask IDs are appended to the end in the usual
-     * manner.
-     *
-     * @return The short task ID
-     */
-    public String getShortId() {
-        final MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (final NoSuchAlgorithmException e) {
-            // should never happen
-            throw new RuntimeException(e);
-        }
-
-        digest.update(partitionId.getBytes(StandardCharsets.UTF_8));
-        digest.update(":".getBytes(StandardCharsets.UTF_8));
-        digest.update(jobId.getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encodeToString(digest.digest()) + subtaskIds;
-    }
-
 }
