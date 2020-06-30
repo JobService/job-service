@@ -124,10 +124,9 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
 
         try (final Connection conn = getConnection()) {
-            try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?,?)}")) {
+            try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?)}")) {
                 stmt.setString(1, jobTaskIdObj.getPartitionId());
                 stmt.setString(2, jobTaskIdObj.getId());
-                stmt.setString(3, jobTaskIdObj.getShortId());
                 stmt.execute();
 
                 final ResultSet resultSet = stmt.getResultSet();
