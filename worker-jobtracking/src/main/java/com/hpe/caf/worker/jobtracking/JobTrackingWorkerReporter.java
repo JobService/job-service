@@ -118,7 +118,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public List<JobTrackingWorkerDependency> reportJobTaskComplete(final String jobTaskId) throws JobReportingException
     {
-        LOG.debug(Thread.currentThread() + ": Reporting completion of job task {}...", jobTaskId);
+        LOG.info("Reporting completion of job task {}", jobTaskId);
 
         final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskId);
         final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
@@ -127,6 +127,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?)}")) {
                 stmt.setString(1, jobTaskIdObj.getPartitionId());
                 stmt.setString(2, jobTaskIdObj.getId());
+                LOG.info("Reporting completion of job task {}", jobTaskId);
                 stmt.execute();
 
                 final ResultSet resultSet = stmt.getResultSet();
