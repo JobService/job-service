@@ -172,12 +172,11 @@ public class DatabasePoller
         */
         try (
                 Connection conn = getConnection();
-                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
-            stmt.setString(3, new JobTaskId(partitionId, jobId).getShortId());
-            stmt.setString(4,failureDetails);
+            stmt.setString(3,failureDetails);
 
             LOG.debug("Calling report_failure() database function...");
             stmt.execute();
