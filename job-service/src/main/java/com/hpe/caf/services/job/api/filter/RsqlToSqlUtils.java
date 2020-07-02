@@ -24,7 +24,9 @@ import cz.jirutka.rsql.parser.ast.Node;
 
 public final class RsqlToSqlUtils
 {
-    private RsqlToSqlUtils(){}
+    private RsqlToSqlUtils()
+    {
+    }
 
     public static String convertToSqlSyntax(final String filter) throws BadRequestException
     {
@@ -43,4 +45,3 @@ public final class RsqlToSqlUtils
         }
     }
 }
-
