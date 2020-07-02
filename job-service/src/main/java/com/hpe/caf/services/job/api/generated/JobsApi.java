@@ -171,9 +171,11 @@ public class JobsApi  {
         @ApiParam(value = "Only allow access to jobs in the container with this name",required=true) @PathParam("partitionId") String partitionId,
         @ApiParam(value = "Only those results whose job id starts with this value will be returned") @QueryParam("jobIdStartsWith") String jobIdStartsWith,
         @ApiParam(value = "All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned; NotFinished - only those results with unfinished statuses (ie. Active, Paused, Waiting) will be returned.") @QueryParam("statusType") String statusType,
-        @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,@Context SecurityContext securityContext)
+        @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,
+        @ApiParam(value = "Filter jobs with the specified RSQL filter criteria") @QueryParam("filter") String filter,
+        @Context SecurityContext securityContext)
         throws Exception {
-        return statsDelegate.getJobStatsCount(partitionId, jobIdStartsWith, statusType, cAFCorrelationId,securityContext);
+        return statsDelegate.getJobStatsCount(partitionId, jobIdStartsWith, statusType, filter, cAFCorrelationId, securityContext);
     }
 
 }
