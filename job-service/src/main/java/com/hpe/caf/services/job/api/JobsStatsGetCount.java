@@ -31,7 +31,7 @@ public final class JobsStatsGetCount {
      *
      * @param   jobId       expression for filtering jobs to be counted
      * @param   statusType  further filtering of jobs with the provided status
-     * @param filter        SQL expression to filter jobs that should be counted
+     * @param   filter      further filtering using the provided RSQL filter expression
      * @return  jobsCount   the number of jobs matching the expression
      * @throws  Exception   bad request or database exceptions
      */
