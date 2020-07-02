@@ -63,9 +63,9 @@ BEGIN
         v_is_task_completed = TRUE;
 
     ELSE
-        v_job_id = SUBSTRING(in_task_id FROM position(':' IN in_task_id) + 1);
+        RAISE LOG 'internal_is_task_completed - v_parent_task_id: %', v_parent_task_id;
         -- Put together the parent task table name
-        v_parent_task_table = internal_get_identity_based_task_table_name(v_job_id);
+        v_parent_task_table = internal_get_identity_based_task_table_name(v_parent_task_id);
 
         -- Check if the parent task table exists
         IF internal_does_table_exist(v_parent_task_table) THEN
