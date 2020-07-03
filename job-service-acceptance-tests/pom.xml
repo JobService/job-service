@@ -255,13 +255,13 @@
                             <goal>start</goal>
                         </goals>
                     </execution>
-<!--                    <execution>
+                    <execution>
                         <id>stop</id>
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>stop</goal>
                         </goals>
-                    </execution>-->
+                    </execution>
                 </executions>
                 <configuration>
                     <verbose>true</verbose>
@@ -389,8 +389,8 @@
                                     <POSTGRES_DB>${job.database.name}</POSTGRES_DB>
                                 </env>
                                 <wait>
-                                    <!--<log>PostgreSQL init process complete</log>-->
-                                    <time>12000</time>
+                                    <log>PostgreSQL init process complete</log>
+                                    <time>120000</time>
                                     <shutdown>500</shutdown>
                                 </wait>
                                 <log>
@@ -475,7 +475,6 @@
                             <run>
                                 <ports>
                                     <port>${jobtracking-worker.adminport}:8081</port>
-                                    <port>5005:5005</port>
                                 </ports>
                                 <env>
                                     <CAF_RABBITMQ_BACKOFF_INTERVAL>1</CAF_RABBITMQ_BACKOFF_INTERVAL>
@@ -494,7 +493,6 @@
                                     <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
-                                    <!--<JAVA_OPTS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</JAVA_OPTS>-->
                                 </env>
                                 <volumes>
                                     <from>
@@ -636,17 +634,6 @@
         <profile>
             <id>use-default-fixed-ports</id>
             <properties>
-                <jobservice.adminport>8080</jobservice.adminport>
-                <rabbitmq.node.port>5672</rabbitmq.node.port>
-                <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
-                <postgres.db.port>5432</postgres.db.port>
-                <webdav.apache.port>32775</webdav.apache.port>
-            </properties>
-        </profile>
-        <profile>
-            <id>integration-test</id>
-            <properties>
-                <jobservice.adminport>8080</jobservice.adminport>
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
                 <postgres.db.port>5432</postgres.db.port>
