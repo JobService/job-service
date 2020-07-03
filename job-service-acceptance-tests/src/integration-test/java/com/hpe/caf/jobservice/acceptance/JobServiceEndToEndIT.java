@@ -103,112 +103,8 @@ public class JobServiceEndToEndIT {
         dockerContainersURL = System.getenv("CAF_DOCKER_HOST") + "/v" + System.getenv("CAF_DOCKER_VERSION") + "/containers/";
         jobServiceImage = System.getenv("CAF_JOB_SERVICE_IMAGE");
         jobServiceAdminPort = System.getenv("CAF_JOB_SERVICE_ADMIN_PORT");
-        jobDefinitionContainerJSON = "{\n"
-            + "  \"HostConfig\": {},\n"
-            + "  \"Labels\": {\n"
-            + "    \"dmp.coordinates\": \"com.hpe.caf:job-service-acceptance-tests:3.3.0-SNAPSHOT\"\n"
-            + "  },\n"
-            + "  \"Image\": \"job-service-acceptance-tests-test-job-definition:3.3.0-SNAPSHOT\"\n"
-            + "}";
-        jobServiceCallerContainerJSON = "{\n"
-            + "  \"Hostname\": \"\",\n"
-            + "  \"Domainname\": \"\",\n"
-            + "  \"User\": \"\",\n"
-            + "  \"AttachStdin\": true,\n"
-            + "  \"AttachStdout\": true,\n"
-            + "  \"AttachStderr\": true,\n"
-            + "  \"Tty\": false,\n"
-            + "  \"OpenStdin\": true,\n"
-            + "  \"StdinOnce\": true,\n"
-            + "  \"Env\": [],\n"
-            + "  \"Cmd\": [\n"
-            + "    \"-j\",\n"
-            + "    \"<jobId>\",\n"
-            + "    \"-p\",\n"
-            + "    \"<pollingInterval>\",\n"
-            + "    \"-u\",\n"
-            + "    \"<jobWebServiceURL>\",\n"
-            + "    \"-f\",\n"
-            + "    \"<jobDefinitionJSONFile>\"\n"
-            + "  ],\n"
-            + "  \"Image\": \"<job service caller image>\",\n"
-            + "  \"Volumes\": null,\n"
-            + "  \"WorkingDir\": \"\",\n"
-            + "  \"Entrypoint\": null,\n"
-            + "  \"OnBuild\": null,\n"
-            + "  \"Labels\": {},\n"
-            + "  \"HostConfig\": {\n"
-            + "    \"Links\": [\"<link name for job-service docker container>\"],\n"
-            + "    \"Binds\": null,\n"
-            + "    \"ContainerIDFile\": \"\",\n"
-            + "    \"LogConfig\": {\n"
-            + "      \"Type\": \"\",\n"
-            + "      \"Config\": {}\n"
-            + "    },\n"
-            + "    \"NetworkMode\": \"default\",\n"
-            + "    \"PortBindings\": {},\n"
-            + "    \"RestartPolicy\": {\n"
-            + "      \"Name\": \"no\",\n"
-            + "      \"MaximumRetryCount\": 0\n"
-            + "    },\n"
-            + "    \"AutoRemove\": false,\n"
-            + "    \"VolumeDriver\": \"\",\n"
-            + "    \"VolumesFrom\": [\"<name of data docker container>\"],\n"
-            + "    \"CapAdd\": null,\n"
-            + "    \"CapDrop\": null,\n"
-            + "    \"Dns\": [],\n"
-            + "    \"DnsOptions\": [],\n"
-            + "    \"DnsSearch\": [],\n"
-            + "    \"ExtraHosts\": null,\n"
-            + "    \"GroupAdd\": null,\n"
-            + "    \"IpcMode\": \"\",\n"
-            + "    \"Cgroup\": \"\",\n"
-            + "    \"Links\": null,\n"
-            + "    \"OomScoreAdj\": 0,\n"
-            + "    \"PidMode\": \"\",\n"
-            + "    \"Privileged\": false,\n"
-            + "    \"PublishAllPorts\": false,\n"
-            + "    \"ReadonlyRootfs\": false,\n"
-            + "    \"SecurityOpt\": null,\n"
-            + "    \"UTSMode\": \"\",\n"
-            + "    \"UsernsMode\": \"\",\n"
-            + "    \"ShmSize\": 0,\n"
-            + "    \"ConsoleSize\": [\n"
-            + "      0,\n"
-            + "      0\n"
-            + "    ],\n"
-            + "    \"Isolation\": \"\",\n"
-            + "    \"CpuShares\": 0,\n"
-            + "    \"Memory\": 0,\n"
-            + "    \"CgroupParent\": \"\",\n"
-            + "    \"BlkioWeight\": 0,\n"
-            + "    \"BlkioWeightDevice\": null,\n"
-            + "    \"BlkioDeviceReadBps\": null,\n"
-            + "    \"BlkioDeviceWriteBps\": null,\n"
-            + "    \"BlkioDeviceReadIOps\": null,\n"
-            + "    \"BlkioDeviceWriteIOps\": null,\n"
-            + "    \"CpuPeriod\": 0,\n"
-            + "    \"CpuQuota\": 0,\n"
-            + "    \"CpusetCpus\": \"\",\n"
-            + "    \"CpusetMems\": \"\",\n"
-            + "    \"Devices\": [],\n"
-            + "    \"DiskQuota\": 0,\n"
-            + "    \"KernelMemory\": 0,\n"
-            + "    \"MemoryReservation\": 0,\n"
-            + "    \"MemorySwap\": 0,\n"
-            + "    \"MemorySwappiness\": -1,\n"
-            + "    \"OomKillDisable\": false,\n"
-            + "    \"PidsLimit\": 0,\n"
-            + "    \"Ulimits\": null,\n"
-            + "    \"CpuCount\": 0,\n"
-            + "    \"CpuPercent\": 0,\n"
-            + "    \"IOMaximumIOps\": 0,\n"
-            + "    \"IOMaximumBandwidth\": 0\n"
-            + "  },\n"
-            + "  \"NetworkingConfig\": {\n"
-            + "    \"EndpointsConfig\": {}\n"
-            + "  }\n"
-            + "}";
+        jobDefinitionContainerJSON = JobServiceCallerTestsHelper.getJSONFromFile(CREATE_JOB_DEFN_CONTAINER_JSON_FILENAME);
+        jobServiceCallerContainerJSON = JobServiceCallerTestsHelper.getJSONFromFile(CREATE_JOB_SERVICE_CALLER_CONTAINER_JSON_FILENAME);
         jobServiceCallerImage = System.getenv("CAF_JOB_SERVICE_CALLER_IMAGE");
         jobServiceCallerWebServiceLinkURL = System.getenv("CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL");
         exampleWorkerMessageOutQueue="exampleworker-test-output-1";
@@ -231,7 +127,7 @@ public class JobServiceEndToEndIT {
         testItemAssetIds = generateWorkerBatch();
     }
 
-//    //@Test
+//    @Test
 //    public void testJobCompletionWithTaskDataObject() throws Exception {
 //        testJobCompletion(true);
 //    }
@@ -267,12 +163,12 @@ public class JobServiceEndToEndIT {
         }
     }
 
-    //@Test
+    @Test
     public void testTargetPipeNull()throws Exception{
         //Set null output queue. Which is valid.
         testTargetPipeForJobWithNoAndWithCompletedPrerequisiteJobs(null);
     }
-    //@Test
+    @Test
     public void testTargetPipeEmpty()throws Exception{
         //Set empty output queue. Which is invalid.
         try {
@@ -355,7 +251,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
 
-    //@Test
+    @Test
     public void testJobWithNoPrerequisiteJobs() throws Exception {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
@@ -389,7 +285,7 @@ public class JobServiceEndToEndIT {
         }
     }
 
-    //@Test
+    @Test
     public void testJobWithPrerequisiteJobsWhichHaveCompleted() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
@@ -462,7 +358,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
 
-    //@Test
+    @Test
     public void testJobWithNullAndBlankAndEmptyPrereqJobsShouldComplete() throws Exception
     {
         numTestItemsToGenerate = 1;                 // CAF-3677: Remove this on fix
@@ -500,7 +396,7 @@ public class JobServiceEndToEndIT {
         }
     }
 
-    //@Test
+    @Test
     public void testJobWithPrerequisiteJobsWithOneNotCompleted() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
@@ -551,7 +447,7 @@ public class JobServiceEndToEndIT {
     }
 
     // testing creation of 2 job-dependency rows for the same parent job
-    //@Test
+    @Test
     public void testJobWithPrerequisiteJobsNotCompleted() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
@@ -640,7 +536,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job4Id, job2Id);
     }
 
-    //@Test
+    @Test
     public void testJobWithPrerequisiteJobsAndDelays() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
@@ -718,12 +614,12 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
 
-    //@Test
+    @Test
     public void testJobCancellation() throws Exception {
         testJobCancellation(false);
     }
 
-    //@Test
+    @Test
     public void testJobCancellationWithTaskDataObject() throws Exception {
         testJobCancellation(true);
     }
@@ -759,7 +655,7 @@ public class JobServiceEndToEndIT {
         }
     }
 
-    //@Test
+    @Test
     @SuppressWarnings("unchecked")
     public void testJobServiceCaller_Success() throws ParseException, IOException, TimeoutException {
 
@@ -865,7 +761,7 @@ public class JobServiceEndToEndIT {
         LOG.debug("Finished testJobServiceCaller_Success().");
     }
 
-    //@Test
+    @Test
     @SuppressWarnings("unchecked")
     public void testJobServiceCaller_Failure() throws ParseException, IOException, TimeoutException {
         LOG.debug("Starting testJobServiceCaller_Failure() ...");
@@ -940,12 +836,12 @@ public class JobServiceEndToEndIT {
         LOG.debug("Finished testJobServiceCaller_Failure().");
     }
 
-    //@Test
+    @Test
     public void testJobDeletion() throws Exception {
         testJobDeletion(false);
     }
 
-    //@Test
+    @Test
     public void testJobDeletionWithTaskDataObject() throws Exception {
         testJobDeletion(true);
     }
@@ -986,7 +882,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobRowDoesNotExist(jobId);
     }
 
-    //@Test
+    @Test
     public void testJobDeletionWithPrerequisiteJobs() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
@@ -1024,7 +920,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
     }
 
-    //@Test
+    @Test
     public void testJobDeletionWithLabels() throws Exception {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix

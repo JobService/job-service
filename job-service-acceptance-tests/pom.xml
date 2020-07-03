@@ -169,7 +169,6 @@
                         <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                         <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
                     </environmentVariables>
-                    <!--<debugForkedProcess>true</debugForkedProcess>-->
                 </configuration>
             </plugin>
 
@@ -382,7 +381,7 @@
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
                                 </ports>
-                                <!--<cmd>postgres -c log_min_messages=DEBUG5</cmd>-->
+<!--                                <cmd>postgres -c log_min_messages=DEBUG5</cmd>-->
                                 <env>
                                     <POSTGRES_PASSWORD>${job.database.password}</POSTGRES_PASSWORD>
                                     <POSTGRES_USER>${job.database.username}</POSTGRES_USER>
@@ -488,7 +487,6 @@
                                     <CAF_WORKER_OUTPUT_QUEUE>jobtrackingworker-test-output-1</CAF_WORKER_OUTPUT_QUEUE>
                                     <CAF_WORKER_RETRY_LIMIT>1</CAF_WORKER_RETRY_LIMIT>
                                     <CAF_WORKER_THREADS>1</CAF_WORKER_THREADS>
-                                    <CAF_LOG_LEVEL>INFO</CAF_LOG_LEVEL>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Tracking Worker</JOB_SERVICE_DATABASE_APPNAME>
                                     <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
@@ -564,7 +562,6 @@
                                 <env>
                                     <CAF_APPNAME>test/worker-example</CAF_APPNAME>
                                     <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
-                                    <CAF_LOG_LEVEL>DEBUG</CAF_LOG_LEVEL>
                                 </env>
                                 <volumes>
                                     <from>
