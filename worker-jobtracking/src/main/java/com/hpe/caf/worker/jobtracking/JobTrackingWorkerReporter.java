@@ -127,7 +127,6 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?)}")) {
                 stmt.setString(1, jobTaskIdObj.getPartitionId());
                 stmt.setString(2, jobTaskIdObj.getId());
-                LOG.info("Reporting completion of job task {}", jobTaskId);
                 stmt.execute();
 
                 final ResultSet resultSet = stmt.getResultSet();
