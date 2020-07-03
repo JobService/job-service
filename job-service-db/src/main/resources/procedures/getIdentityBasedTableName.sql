@@ -15,13 +15,10 @@
 --
 
 /*
- *  Name: cancel_job
+ *  Name: internal_get_identity_based_task_table_name
  *
  *  Description:
- *  Cancels the specified job.
- *
- *   - in_short_job_id: additional identification for the same job - see
- *                      com.hpe.caf.services.job.util.JobTaskId#getShortId
+ *  Creates the task table nambe based on the identity value from the root job.
  */
 CREATE OR REPLACE FUNCTION internal_get_identity_based_task_table_name(
     in_task_id VARCHAR(63)
