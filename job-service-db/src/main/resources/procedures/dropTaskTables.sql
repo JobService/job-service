@@ -19,9 +19,6 @@
  *
  *  Description:
  *  Drops all task tables belonging to the specified task and all its subtasks
- *
- *   - in_short_task_id: identification of the task - see
- *                       com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
 DROP FUNCTION IF EXISTS internal_drop_task_tables(
     in_short_task_id VARCHAR(58)

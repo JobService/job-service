@@ -19,9 +19,6 @@
  *
  *  Description:
  *  Checks if the specified task has already been marked complete.
- *
- *   - in_short_task_id: additional identification for the same task - see
- *                       com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
 DROP FUNCTION IF EXISTS internal_is_task_completed(
     in_partition_id VARCHAR(40),
