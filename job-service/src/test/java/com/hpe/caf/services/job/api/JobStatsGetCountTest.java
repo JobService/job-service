@@ -55,14 +55,14 @@ public final class JobStatsGetCountTest {
     @Test
     public void testGetJobCount_Success() throws Exception {
         //  Test successful run of job count retrieval.
-        JobsStatsGetCount.getJobsCount("partition", "", null);
+        JobsStatsGetCount.getJobsCount("partition", "", null, null);
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobsCount("partition", "", null);
+        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobsCount("partition", "", null, null);
     }
 
     @Test(expected = BadRequestException.class)
     public void testGetJobCount_Success_EmptyPartitionId() throws Exception {
-        JobsStatsGetCount.getJobsCount("", "", null);
+        JobsStatsGetCount.getJobsCount("", "", null, null);
     }
 
 }
