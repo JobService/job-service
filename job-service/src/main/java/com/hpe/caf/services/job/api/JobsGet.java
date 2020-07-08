@@ -15,18 +15,13 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.healthmarketscience.sqlbuilder.Condition;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.job.api.filter.RsqlToSqlConverter;
+import com.hpe.caf.services.job.api.filter.RsqlToSqlUtils;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import com.hpe.caf.services.job.exceptions.FilterException;
-import cz.jirutka.rsql.parser.RSQLParser;
-import cz.jirutka.rsql.parser.RSQLParserException;
-import cz.jirutka.rsql.parser.ast.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +84,7 @@ public final class JobsGet {
                 labelValues = Arrays.asList(split);
             }
 
-            final String filterQuery = convertToSqlSyntax(filter);
+            final String filterQuery = RsqlToSqlUtils.convertToSqlSyntax(filter);
 
             //  Get app config settings.
             LOG.debug("getJobs: Reading database connection properties...");
@@ -113,22 +108,5 @@ public final class JobsGet {
 
         LOG.info("getJobs: Done.");
         return jobs;
-    }
-
-    private static String convertToSqlSyntax(final String filter) throws BadRequestException
-    {
-        if (filter == null) {
-            return null;
-        }
-        final RSQLParser rsqlParser = new RSQLParser();
-        try {
-            final Node rootNode = rsqlParser.parse(filter);
-            final Condition filterQueryCondition = RsqlToSqlConverter.convert(rootNode);
-            return filterQueryCondition.toString();
-        } catch (final RSQLParserException ex) {
-            throw new BadRequestException("Unable to parse filter", ex);
-        } catch (final FilterException ex) {
-            throw new BadRequestException(ex.getMessage());
-        }
     }
 }

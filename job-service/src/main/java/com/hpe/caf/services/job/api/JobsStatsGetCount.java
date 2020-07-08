@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigProvider;
+import com.hpe.caf.services.job.api.filter.RsqlToSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +31,12 @@ public final class JobsStatsGetCount {
      *
      * @param   jobId       expression for filtering jobs to be counted
      * @param   statusType  further filtering of jobs with the provided status
+     * @param   filter      further filtering using the provided RSQL filter expression
      * @return  jobsCount   the number of jobs matching the expression
      * @throws  Exception   bad request or database exceptions
      */
-    public static long getJobsCount(final String partitionId, final String jobId, final String statusType) throws Exception {
+    public static long getJobsCount(final String partitionId, final String jobId, final String statusType, final String filter)
+        throws Exception {
 
         long jobsCount;
 
@@ -47,10 +50,11 @@ public final class JobsStatsGetCount {
 
             //  Get database helper instance.
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
+            final String convertedFilter = RsqlToSqlUtils.convertToSqlSyntax(filter);
 
             //  Get number of job definitions in the system.
             LOG.info("getJobsCount: Getting number of job definitions...");
-            jobsCount = databaseHelper.getJobsCount(partitionId, jobId, statusType);
+            jobsCount = databaseHelper.getJobsCount(partitionId, jobId, statusType, convertedFilter);
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());
             throw e;
