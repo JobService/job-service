@@ -19,9 +19,6 @@
  *
  *  Description:
  *  Deletes the job row and corresponding task tables.
- *
- *   - in_short_job_id: additional identification for the same job - see
- *                      com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
 DROP FUNCTION IF EXISTS delete_job(
     in_partition_id VARCHAR(40),
@@ -58,7 +55,7 @@ BEGIN
     END IF;
 
     -- Drop the task tables associated with the specified job
-    PERFORM internal_drop_task_tables(in_job_id);
+    PERFORM internal_drop_task_tables(in_partition_id, in_job_id);
 
     -- Remove job dependency and job task data rows
     DELETE FROM job_dependency jd WHERE jd.partition_id = in_partition_id AND jd.job_id = in_job_id;

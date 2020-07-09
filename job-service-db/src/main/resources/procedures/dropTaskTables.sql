@@ -24,7 +24,8 @@ DROP FUNCTION IF EXISTS internal_drop_task_tables(
     in_short_task_id VARCHAR(58)
 );
 CREATE OR REPLACE FUNCTION internal_drop_task_tables(
-    in_task_id VARCHAR(63)
+    in_partition_id VARCHAR(40),
+    in_task_id VARCHAR(58)
 )
 RETURNS VOID
 LANGUAGE plpgsql
@@ -32,12 +33,10 @@ AS $$
 DECLARE
     task_table_ident TEXT;
     subtask_suffix TEXT;
-    v_job_id VARCHAR(63);
 
 BEGIN
-    v_job_id = SUBSTRING(in_task_id FROM position(':' IN in_task_id) + 1);
     -- Put together the task table identifier
-    task_table_ident = quote_ident(internal_get_identity_based_task_table_name(v_job_id));
+    task_table_ident = quote_ident(internal_get_task_table_name(in_partition_id, in_task_id));
 
     -- Check if the table exists
     IF internal_to_regclass(task_table_ident) IS NOT NULL THEN
@@ -45,7 +44,7 @@ BEGIN
         FOR subtask_suffix IN
         EXECUTE $ESC$SELECT '.' || subtask_id || CASE WHEN is_final THEN '*' ELSE '' END AS subtask_suffix FROM $ESC$ || task_table_ident
         LOOP
-            PERFORM internal_drop_task_tables(in_task_id || subtask_suffix);
+            PERFORM internal_drop_task_tables(in_partition_id, in_task_id || subtask_suffix);
         END LOOP;
 
         -- Drop the table itself
