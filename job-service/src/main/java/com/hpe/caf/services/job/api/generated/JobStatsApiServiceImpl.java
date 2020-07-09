@@ -26,9 +26,11 @@ import javax.ws.rs.core.SecurityContext;
 public class JobStatsApiServiceImpl extends JobStatsApiService {
 
     @Override
-    public Response getJobStatsCount(final String partitionId, final String jobIdStartsWith, final String statusType, String cAFCorrelationId, SecurityContext securityContext)
-            throws Exception {
-        Long jobsCount = JobsStatsGetCount.getJobsCount(partitionId, jobIdStartsWith, statusType);
+    public Response getJobStatsCount(final String partitionId, final String jobIdStartsWith, final String statusType, final String filter,
+                                     String cAFCorrelationId, SecurityContext securityContext)
+        throws Exception
+    {
+        final Long jobsCount = JobsStatsGetCount.getJobsCount(partitionId, jobIdStartsWith, statusType, filter);
         return Response.ok().entity(jobsCount).build();
     }
 
