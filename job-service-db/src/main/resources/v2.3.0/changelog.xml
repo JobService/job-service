@@ -64,46 +64,4 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="create_procedure_createJob_job_dependency_change" runOnChange="true" author="Connor Mulholland" >
-        <createProcedure path="procedures/createJobForDependencies.sql"
-                         procedureName="create_job"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
-
-    <changeSet id="create_procedure_deleteJob_job_dependency_change" runOnChange="true" author="Connor Mulholland" >
-        <createProcedure path="procedures/deleteJob.sql"
-                         procedureName="delete_job"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
-
-    <changeSet id="create_procedure_getDependentJobs_job_dependency_change" runOnChange="true" author="Connor Mulholland" >
-        <createProcedure path="procedures/getDependentJobs.sql"
-                         procedureName="get_dependent_jobs"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
-
-    <changeSet id="create_procedure_processDependentJobs_job_dependency_change" runOnChange="true" author="Connor Mulholland" >
-        <createProcedure path="procedures/processDependentJobs.sql"
-                         procedureName="internal_process_dependent_jobs"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
-
-    <changeSet id="create_procedure_reportProgress_job_dependency_change" runOnChange="true" author="Connor Mulholland" >
-        <createProcedure path="procedures/reportProgress.sql"
-                         procedureName="report_progress"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
-
-    <changeSet id="create_procedure_reportTaskCompletion_job_dependency_change" runOnChange="true" author="Connor Mulholland" >
-        <createProcedure path="procedures/reportTaskCompletion.sql"
-                         procedureName="internal_report_task_completion"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
-
 </databaseChangeLog>
