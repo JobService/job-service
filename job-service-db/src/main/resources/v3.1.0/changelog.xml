@@ -24,36 +24,6 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
-    <changeSet id="update_procedures_fix_parallel_job_creation" author="Gamma Team" runOnChange="true">
-        <createProcedure schemaName="public"
-                         procedureName="get_job_exists"
-                         path="procedures/getJobExists.sql" />
-        <createProcedure schemaName="public"
-                         procedureName="internal_create_job"
-                         path="procedures/internalCreateJob.sql" />
-        <createProcedure schemaName="public"
-                         procedureName="create_job"
-                         path="procedures/createJob.sql" />
-        <createProcedure schemaName="public"
-                         procedureName="create_job"
-                         path="procedures/createJobForDependencies.sql" />
-    </changeSet>
-
-    <changeSet id="update_procedures_add_not_finished_filter" author="Gamma Team" runOnChange="true">
-        <createProcedure schemaName="public"
-                         procedureName="get_jobs_count"
-                         path="procedures/getJobsCount.sql" />
-        <createProcedure schemaName="public"
-                         procedureName="get_jobs"
-                         path="procedures/getJobs.sql" />
-    </changeSet>
-
-    <changeSet id="add_job_sorting" author="Gamma Team" runOnChange="true">
-        <createProcedure schemaName="public"
-                         procedureName="get_jobs"
-                         path="procedures/getJobs.sql" />
-    </changeSet>
-
     <changeSet id="add_job_sorting_index" author="Gamma Team">
         <preConditions onFail="CONTINUE">
             <not>
