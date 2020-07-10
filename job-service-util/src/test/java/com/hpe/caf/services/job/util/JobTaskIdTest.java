@@ -35,34 +35,4 @@ public class JobTaskIdTest {
             JobTaskId.DEFAULT_PARTITION_ID, id.getPartitionId());
         Assert.assertEquals("should preserve job ID", "the job-id", id.getId());
     }
-
-    @Test
-    public void testShortId() {
-        final JobTaskId id = new JobTaskId("the partition-id", "the job-id");
-        Assert.assertEquals("should generate short ID without invalid characters",
-            "jtt8Lk2mSQc37bw//1qYWOeSHZrv0Doux2824zv62AA=",
-            id.getShortId());
-        Assert.assertNotEquals("different partition IDs should given different results",
-            id.getShortId(), new JobTaskId("the partition-id-other", "the job-id").getShortId());
-        Assert.assertNotEquals("different job IDs should given different results",
-            id.getShortId(),
-            new JobTaskId("the partition-id", "the job-id-other").getShortId());
-    }
-
-    @Test
-    public void testShortIdWithSubtask() {
-        final JobTaskId id = new JobTaskId("the partition-id", "the job-id.74");
-        Assert.assertEquals("short ID should preserve subtask suffix",
-            "jtt8Lk2mSQc37bw//1qYWOeSHZrv0Doux2824zv62AA=.74",
-            id.getShortId());
-    }
-
-    @Test
-    public void testShortIdWithNestedSubtask() {
-        final JobTaskId id = new JobTaskId("the partition-id", "the job-id.74.1.13");
-        Assert.assertEquals("short ID should preserve subtask suffix",
-            "jtt8Lk2mSQc37bw//1qYWOeSHZrv0Doux2824zv62AA=.74.1.13",
-            id.getShortId());
-    }
-
 }

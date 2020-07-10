@@ -19,14 +19,15 @@
  *
  *  Description:
  *  Cancels the specified job.
- *
- *   - in_short_job_id: additional identification for the same job - see
- *                      com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
-CREATE OR REPLACE FUNCTION cancel_job(
+DROP FUNCTION IF EXISTS cancel_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),
     in_short_job_id VARCHAR(48)
+);
+CREATE OR REPLACE FUNCTION cancel_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48)
 )
 RETURNS VOID
 LANGUAGE plpgsql
@@ -64,6 +65,6 @@ BEGIN
         AND status != 'Cancelled';
 
     -- Drop any task tables relating to the job
-    PERFORM internal_drop_task_tables(in_short_job_id);
+    PERFORM internal_drop_task_tables(in_partition_id, in_job_id);
 END
 $$;

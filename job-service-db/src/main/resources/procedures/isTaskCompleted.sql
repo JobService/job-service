@@ -19,28 +19,27 @@
  *
  *  Description:
  *  Checks if the specified task has already been marked complete.
- *
- *   - in_short_task_id: additional identification for the same task - see
- *                       com.hpe.caf.services.job.util.JobTaskId#getShortId
  */
-CREATE OR REPLACE FUNCTION internal_is_task_completed(
+DROP FUNCTION IF EXISTS internal_is_task_completed(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58),
     in_short_task_id VARCHAR(58)
+);
+CREATE OR REPLACE FUNCTION internal_is_task_completed(
+    in_partition_id VARCHAR(40),
+    in_task_id VARCHAR(58)
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql STABLE
 AS $$
 DECLARE
     v_parent_task_id VARCHAR(58);
-    v_parent_short_task_id VARCHAR(58);
     v_parent_task_table VARCHAR(63);
     v_is_task_completed BOOLEAN;
 
 BEGIN
     -- Get the parent task id
     v_parent_task_id = internal_get_parent_task_id(in_task_id);
-    v_parent_short_task_id = internal_get_parent_task_id(in_short_task_id);
 
     -- Check if we are dealing with the top level job or a subtask
     IF v_parent_task_id IS NULL THEN
@@ -54,7 +53,7 @@ BEGIN
             AND job_id = in_task_id;
 
     -- Check if the parent task has completed
-    ELSIF internal_is_task_completed(in_partition_id, v_parent_task_id, v_parent_short_task_id) THEN
+    ELSIF internal_is_task_completed(in_partition_id, v_parent_task_id) THEN
 
         -- Since the parent task has completed then we can say that this task has
         v_is_task_completed = TRUE;
@@ -62,7 +61,7 @@ BEGIN
     ELSE
 
         -- Put together the parent task table name
-        v_parent_task_table = internal_get_task_table_name(v_parent_short_task_id);
+        v_parent_task_table = internal_get_task_table_name(in_partition_id, v_parent_task_id);
 
         -- Check if the parent task table exists
         IF internal_does_table_exist(v_parent_task_table) THEN
