@@ -27,6 +27,8 @@ CREATE OR REPLACE FUNCTION internal_process_failed_dependent_jobs(
 RETURNS VOID
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    failure_details_var TEXT;
 BEGIN
     CREATE TEMPORARY TABLE tmp_dependent_jobs
         ON COMMIT DROP
@@ -58,8 +60,10 @@ BEGIN
     ORDER BY j.partition_id, j.job_id
     FOR UPDATE;
 
+    failure_details_var = '{"root_failure": "' || in_partition_id || ':' || in_job_id || '", "failure_details": ' || in_failure_details || '}';
+
     UPDATE job AS j
-    SET status = 'Failed', percentage_complete = 0.00, failure_details = in_failure_details, last_update_date = now() AT TIME ZONE 'UTC'
+    SET status = 'Failed', percentage_complete = 0.00, failure_details = failure_details_var, last_update_date = now() AT TIME ZONE 'UTC'
     WHERE j.job_id IN (SELECT tmp_dependent_jobs.job_id FROM tmp_dependent_jobs) AND partition_id = in_partition_id;
 
     DELETE
