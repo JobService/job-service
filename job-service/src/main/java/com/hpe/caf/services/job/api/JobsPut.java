@@ -200,6 +200,11 @@ public final class JobsPut {
                 return "create";
             }
 
+            if (ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId))
+            {
+                return "create";
+            }
+
             //  Get database helper instance.
             try {
                 QueueServices queueServices = QueueServicesFactory.create(config, jobTask.getTaskPipe(),codec);

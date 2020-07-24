@@ -23,6 +23,7 @@ import org.springframework.core.env.Environment;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * Configuration class for the job service api. Includes connection properties to both database and RabbitMQ.
@@ -110,6 +111,11 @@ public class AppConfig {
     public String getJobTypeProperty(final String jobTypeId, final String propertyName) {
         return environment.getProperty("CAF_JOB_SERVICE_JOB_TYPE_" +
             jobTypeId.toUpperCase(Locale.ENGLISH) + "_" + propertyName.toUpperCase(Locale.ENGLISH));
+    }
+
+    public Pattern getSuspendedPartitionsPattern() {
+        final String suspendedPartitionsRegex = environment.getProperty("JOB_SERVICE_SUSPENDED_PARTITIONS_REGEX");
+        return suspendedPartitionsRegex == null ? null : Pattern.compile(suspendedPartitionsRegex);
     }
 
 }

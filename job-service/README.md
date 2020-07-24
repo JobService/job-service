@@ -1,6 +1,6 @@
 # Job Service
 
-The job-service API is used to create, retrieve, update, delete, cancel and check the status of jobs. HTTP requests are made to the job service which runs with a base Tomcat image. The job service then stores and retrieves data from the database.
+The job-service API is used to create, retrieve, update, delete, suspend, cancel and check the status of jobs. HTTP requests are made to the job service which runs with a base Tomcat image. The job service then stores and retrieves data from the database.
 
 ## Job Service Links
 
