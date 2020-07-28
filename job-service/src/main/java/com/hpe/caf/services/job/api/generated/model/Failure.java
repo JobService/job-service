@@ -15,8 +15,6 @@
  */
 package com.hpe.caf.services.job.api.generated.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -32,9 +30,6 @@ public class Failure   {
     private Date failureTime = null;
     private String failureSource = null;
     private String failureMessage = null;
-
-    @JsonInclude(Include.NON_NULL)
-    private String rootFailure = null;
 
     /**
      **/
@@ -105,16 +100,6 @@ public class Failure   {
         this.failureMessage = failureMessage;
     }
 
-    @ApiModelProperty(value = "")
-    @JsonProperty("rootFailure")
-    public String getRootFailure() {
-        return rootFailure;
-    }
-    public void setRootFailure(final String rootFailure) {
-        this.rootFailure = rootFailure;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -127,13 +112,12 @@ public class Failure   {
         return Objects.equals(failureId, failure.failureId) &&
                 Objects.equals(failureSource, failure.failureSource) &&
                 Objects.equals(failureTime, failure.failureTime) &&
-                Objects.equals(rootFailure, failure.rootFailure) &&
                 Objects.equals(failureMessage, failure.failureMessage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(failureId, failureTime, failureSource, failureMessage, rootFailure);
+        return Objects.hash(failureId, failureTime, failureSource, failureMessage);
     }
 
     @Override
@@ -141,7 +125,6 @@ public class Failure   {
         StringBuilder sb = new StringBuilder();
         sb.append("class Failure {\n");
 
-        sb.append("    rootFailure: ").append(toIndentedString(rootFailure)).append("\n");
         sb.append("    failureId: ").append(toIndentedString(failureId)).append("\n");
         sb.append("    failureSource: ").append(toIndentedString(failureSource)).append("\n");
         sb.append("    failureTime: ").append(toIndentedString(failureTime)).append("\n");
