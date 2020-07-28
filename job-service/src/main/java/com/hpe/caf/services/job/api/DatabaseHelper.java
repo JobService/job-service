@@ -514,7 +514,7 @@ public final class DatabaseHelper
                 final Failure f;
                 if (jFailure.has("root_failure")) {
                     f = getFailureFromJsonObject(new JSONObject(jFailure.getString("failure_details")));
-                    f.setFailureSource(jFailure.getString("root_failure"));
+                    f.setFailureSource(jFailure.getString("root_failure") + ":" + f.getFailureSource());
                 } else {
                     f = getFailureFromJsonObject(jFailure);
                 }
