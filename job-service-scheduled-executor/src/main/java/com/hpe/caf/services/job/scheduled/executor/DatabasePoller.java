@@ -47,6 +47,12 @@ public class DatabasePoller
 
     private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
     private static final String JDBC_DRIVER = "org.postgresql.Driver";
+    private static final boolean PROP_DEPENDENT_JOB_FAILURES;
+
+    static {
+        final String propDepJoFailures = System.getenv("CAF_JOB_TRACKING_PROPAGATE_FAILURES");
+        PROP_DEPENDENT_JOB_FAILURES = propDepJoFailures != null ? Boolean.parseBoolean(propDepJoFailures) : false;
+    }
 
     public static void pollDatabaseForJobsToRun() {
         try {
@@ -172,11 +178,12 @@ public class DatabasePoller
         */
         try (
                 Connection conn = getConnection();
-                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
             stmt.setString(3,failureDetails);
+            stmt.setBoolean(4, PROP_DEPENDENT_JOB_FAILURES);
 
             LOG.debug("Calling report_failure() database function...");
             stmt.execute();
