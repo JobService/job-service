@@ -61,7 +61,7 @@ public final class DatabaseHelper
     public DatabaseHelper(AppConfig appConfig)
     {
         DatabaseHelper.appConfig = appConfig;
-        final String propDepJoFailures = System.getenv("CAF_JOB_TRACKING_PROPAGATE_FAILURES");
+        final String propDepJoFailures = System.getenv("CAF_JOB_SERVICE_PROPAGATE_FAILURES");
         propagateDependentJobFailures = propDepJoFailures != null ? Boolean.parseBoolean(propDepJoFailures) : false;
     }
 

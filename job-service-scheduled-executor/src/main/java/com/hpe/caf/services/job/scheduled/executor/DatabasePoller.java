@@ -50,7 +50,7 @@ public class DatabasePoller
     private static final boolean PROP_DEPENDENT_JOB_FAILURES;
 
     static {
-        final String propDepJoFailures = System.getenv("CAF_JOB_TRACKING_PROPAGATE_FAILURES");
+        final String propDepJoFailures = System.getenv("CAF_JOB_SCHEDULAR_PROPAGATE_FAILURES");
         PROP_DEPENDENT_JOB_FAILURES = propDepJoFailures != null ? Boolean.parseBoolean(propDepJoFailures) : false;
     }
 
