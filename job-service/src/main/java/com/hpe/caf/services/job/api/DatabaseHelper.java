@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.codehaus.jettison.json.JSONException;
 
 /**
  * The DatabaseHelper class is responsible for database operations.
@@ -510,11 +511,13 @@ public final class DatabaseHelper
         for (String failure: failureDetails.split("\\r?\\n")){
             if (failure.startsWith("{")) {
                 JSONObject jFailure = new JSONObject(failure);
-                Failure f = new Failure();
-                f.setFailureId(jFailure.getString("failureId"));
-                f.setFailureTime(getDate(jFailure.getString("failureTime")));
-                f.failureSource(jFailure.getString("failureSource"));
-                f.failureMessage(jFailure.getString("failureMessage"));
+                final Failure f;
+                if (jFailure.has("root_failure")) {
+                    f = getFailureFromJsonObject(new JSONObject(jFailure.getString("failure_details")));
+                    f.setRootFailure(jFailure.getString("root_failure"));
+                } else {
+                    f = getFailureFromJsonObject(jFailure);
+                }
                 failures.add(f);
             } else {
                 //  Valid failure JSON not detected.
@@ -529,6 +532,16 @@ public final class DatabaseHelper
 
         return failures;
 
+    }
+
+    private static Failure getFailureFromJsonObject(final JSONObject json) throws JSONException, ParseException
+    {
+        final Failure f = new Failure();
+        f.setFailureId(json.getString("failureId"));
+        f.setFailureTime(getDate(json.getString("failureTime")));
+        f.failureSource(json.getString("failureSource"));
+        f.failureMessage(json.getString("failureMessage"));
+        return f;
     }
 
     /**
