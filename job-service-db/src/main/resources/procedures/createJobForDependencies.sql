@@ -53,7 +53,8 @@ CREATE OR REPLACE FUNCTION create_job(
     in_target_pipe VARCHAR(255),
     in_prerequisite_job_ids VARCHAR(128)[],
     in_delay INT,
-    in_labels VARCHAR(255)[][] default null
+    in_labels VARCHAR(255)[][] default null,
+    in_suspended_partition BOOLEAN default false
 )
 RETURNS TABLE(
     job_created BOOLEAN
@@ -168,7 +169,10 @@ BEGIN
             in_task_data,
             in_task_pipe,
             in_target_pipe,
-            CASE WHEN NOT FOUND THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') END
+            CASE
+                WHEN NOT FOUND AND NOT in_suspended_partition THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') 
+                WHEN NOT FOUND AND in_suspended_partition THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '10 years')
+            END
         );
     END IF;
 

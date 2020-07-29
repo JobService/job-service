@@ -182,14 +182,16 @@ public final class JobsPut {
             //  Create job in the database.
             LOG.info("createOrUpdateJob: Creating job in the database...");
             final boolean jobCreated;
+            final boolean partitionSuspended = ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId);
             if (job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) {
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
-                        job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels());
+                        job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended);
 
             } else {
-                jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash, job.getLabels());
+                jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(),
+                        job.getExternalData(), jobHash, job.getLabels(), partitionSuspended);
             }
 
             if (!jobCreated) {
