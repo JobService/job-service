@@ -37,7 +37,8 @@ CREATE OR REPLACE FUNCTION create_job(
     in_description TEXT,
     in_data TEXT,
     in_job_hash INT,
-    in_labels VARCHAR(255)[][] default null
+    in_labels VARCHAR(255)[][] default null,
+    in_suspended_partition BOOLEAN default false
 )
 RETURNS TABLE(
     job_created BOOLEAN
