@@ -10,7 +10,7 @@ The Job Service Scheduled Executor is an ExecutorService which schedules a task 
 
 ### Configuration  
 
-- `CAF_JOB_SCHEDULAR_PROPAGATE_FAILURES`  
+- `CAF_JOB_SCHEDULER_PROPAGATE_FAILURES`  
 `description`: This environment variable will indicate if the service should propagate job failures through subtasks. This means that if a task fails and as a result other tasks are not able to be run due to prerequisite commitments, those other tasks will be marked as failures also.
 For instance, in the example below all tasks will be marked as failures because T1 failed. Possible values are `true` and `false`.  
 `default`: false  
