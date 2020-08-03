@@ -33,17 +33,19 @@ public class JobsApiServiceImpl extends JobsApiService {
     @Override
     public Response getJobs(final String partitionId, final String jobIdStartsWith, final String statusType,
                             final Integer limit, final Integer offset, String cAFCorrelationId, String sort,
-                            final String label, final String filter,
+                            final String label, final String filter, final Boolean legacyDateFormat,
                             SecurityContext securityContext)
             throws Exception {
-        final Job[] jobs = JobsGet.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, sort, label, filter);
+        final boolean isLegacyFormat = isLegacyFormat(legacyDateFormat);
+        final Job[] jobs = JobsGet.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, sort, label, filter, isLegacyFormat);
         return Response.ok().entity(jobs).build();
     }
 
     @Override
-    public Response getJob(final String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
+    public Response getJob(final String partitionId, String jobId, String cAFCorrelationId, Boolean legacyDateFormat, SecurityContext securityContext)
             throws Exception {
-        Job job = JobsGetById.getJob(partitionId, jobId);
+        final boolean isLegacyFormat = isLegacyFormat(legacyDateFormat);
+        Job job = JobsGetById.getJob(partitionId, jobId, isLegacyFormat);
         return Response.ok().entity(job).build();
     }
 
@@ -84,5 +86,8 @@ public class JobsApiServiceImpl extends JobsApiService {
 
         return Response.ok().header("CacheableJobStatus", true).entity(result.active).cacheControl(cc).build();
     }
-
+    private static boolean isLegacyFormat(final Boolean legacyDateFormat)
+    {
+        return legacyDateFormat != null ? legacyDateFormat : true;
+    }
 }

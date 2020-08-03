@@ -59,44 +59,44 @@ public final class JobsGetTest {
     @Test
     public void testGetJob_Success() throws Exception {
         //  Test successful run of job retrieval.
-        JobsGet.getJobs("partition", "", null, 0, 0, null, null, null);
+        JobsGet.getJobs("partition", "", null, 0, 0, null, null, null, null);
 
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null);
+            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null, null);
     }
 
     @Test(expected = BadRequestException.class)
     public void testGetJobs_Failure_EmptyPartitionId() throws Exception {
-        JobsGet.getJobs("", "", null, 0, 0, null, null, null);
+        JobsGet.getJobs("", "", null, 0, 0, null, null, null, null);
     }
 
     @Test
     public void testGetJobs_Success_WithSort() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc", null, null);
+        JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc", null, null, null);
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null);
+            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null, null);
     }
 
     @Test(expected = BadRequestException.class)
     public void testGetJobs_Failure_InvalidSort() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "invalid", null, null);
+        JobsGet.getJobs("partition", "", null, 0, 0, "invalid", null, null, null);
     }
 
     @Test(expected = BadRequestException.class)
     public void testGetJobs_Failure_InvalidSortField() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "unknown:desc", null, null);
+        JobsGet.getJobs("partition", "", null, 0, 0, "unknown:desc", null, null, null);
     }
 
     @Test(expected = BadRequestException.class)
     public void testGetJobs_Failure_InvalidSortDirection() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random", null, null);
+        JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random", null, null, null);
     }
 
     @Test
     public void testGetJobs_Success_WithLabelFilter() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, null,"tag:4,tag:5", null);
+        JobsGet.getJobs("partition", "", null, 0, 0, null,"tag:4,tag:5", null, null);
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
                 "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
-                SortDirection.DESCENDING, Arrays.asList("tag:4", "tag:5"), null);
+                SortDirection.DESCENDING, Arrays.asList("tag:4", "tag:5"), null, null);
     }
 }

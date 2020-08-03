@@ -66,10 +66,10 @@ public class JobServiceFilterIT
         final NewJob job = makeJob(jobId, "testFilterJobsByLabel");
         final NewJob job1 = makeJob(jobId, "testFilterJobsByLabel1");
         job.getLabels().put("label1", "value");
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, job1, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, job1, correlationId, null);
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, null, null, null, null, null, "labels.label1==value");
+            defaultPartitionId, correlationId, null, null, null, null, null, null, "labels.label1==value", null);
         assertTrue(jobs.size() == 1);
         cleanUpJobs(jobId, jobId1);
     }
@@ -86,12 +86,12 @@ public class JobServiceFilterIT
         newJob1.getLabels().put("label1", "value");
         newJob2.getLabels().put("label2", "value");
         newJob3.getLabels().put("label3", "value");
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId, null);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, null, null, null, null, null, "labels.label1==value or labels.label3==value");
+            defaultPartitionId, correlationId, null, null, null, null, null, null, "labels.label1==value or labels.label3==value", null);
         assertTrue(jobs.size() == 2);
         cleanUpJobs(jobId1, jobId2, jobId3);
     }
@@ -106,12 +106,12 @@ public class JobServiceFilterIT
         final NewJob newJob2 = makeJob(jobId2, "testGreaterThanAndLessThan2");
         final NewJob newJob3 = makeJob(jobId3, "testGreaterThanAndLessThan3");
 
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId, null);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, null, null, null, null, null, "id==" + jobId1);
+            defaultPartitionId, correlationId, null, null, null, null, null, null, "id==" + jobId1, null);
         assertTrue(jobs.size() == 1);
         cleanUpJobs(jobId1, jobId2, jobId3);
     }
@@ -126,12 +126,12 @@ public class JobServiceFilterIT
         final NewJob newJob2 = makeJob(jobId2, "testGreaterThanAndLessThan2");
         final NewJob newJob3 = makeJob(jobId3, "testGreaterThanAndLessThan3");
 
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId, null);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, null, null, null, null, null, "id!=" + jobId1);
+            defaultPartitionId, correlationId, null, null, null, null, null, null, "id!=" + jobId1, null);
         assertTrue(jobs.size() == 2);
         cleanUpJobs(jobId1, jobId2, jobId3);
     }
@@ -146,12 +146,12 @@ public class JobServiceFilterIT
         final NewJob newJob2 = makeJob(jobId2, "testGreaterThanAndLessThan2");
         final NewJob newJob3 = makeJob(jobId3, "testGreaterThanAndLessThan3");
 
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId, null);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, null, null, null, null, null, "name==" + newJob1.getName());
+            defaultPartitionId, correlationId, null, null, null, null, null, null, "name==" + newJob1.getName(), null);
         assertTrue(jobs.size() == 1);
         cleanUpJobs(jobId1, jobId2, jobId3);
     }
@@ -166,13 +166,13 @@ public class JobServiceFilterIT
         final NewJob newJob2 = makeJob(jobId2, "testGreaterThanAndLessThan2");
         final NewJob newJob3 = makeJob(jobId3, "testGreaterThanAndLessThan3");
 
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId, null);
 
         final List<Job> jobs = jobsApi.getJobs(
             defaultPartitionId, correlationId, null, null, null, null, null, null, "name=in=(" + newJob1.getName() + ","
-            + newJob2.getName() + ")");
+            + newJob2.getName() + ")", null);
         assertTrue(jobs.size() == 2);
         cleanUpJobs(jobId1, jobId2, jobId3);
     }
@@ -187,12 +187,12 @@ public class JobServiceFilterIT
         final NewJob newJob2 = makeJob(jobId2, "testGreaterThanAndLessThan2");
         final NewJob newJob3 = makeJob(jobId3, "testGreaterThanAndLessThan3");
 
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId, null);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, null, null, null, null, null, "name=out=(" + newJob1.getName() + ")");
+            defaultPartitionId, correlationId, null, null, null, null, null, null, "name=out=(" + newJob1.getName() + ")", null);
         assertTrue(jobs.size() == 2);
         cleanUpJobs(jobId1, jobId2, jobId3);
     }
@@ -207,12 +207,12 @@ public class JobServiceFilterIT
         final NewJob newJob2 = makeJob(jobId2, "testGreaterThanAndLessThan2");
         final NewJob newJob3 = makeJob(jobId3, "testGreaterThanAndLessThan3");
 
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId, null);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, null, null, null, null, null, "name==Job_*");
+            defaultPartitionId, correlationId, null, null, null, null, null, null, "name==Job_*", null);
         assertTrue(jobs.size() == 3);
         cleanUpJobs(jobId1, jobId2, jobId3);
     }
@@ -227,12 +227,12 @@ public class JobServiceFilterIT
         final NewJob newJob2 = makeJob(jobId2, "testGreaterThanAndLessThan2");
         final NewJob newJob3 = makeJob(jobId3, "testGreaterThanAndLessThan3");
 
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId, null);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, null, null, null, null, null, "name!=test_*");
+            defaultPartitionId, correlationId, null, null, null, null, null, null, "name!=test_*", null);
         assertTrue(jobs.size() == 2);
         cleanUpJobs(jobId1, jobId2, jobId3);
     }
@@ -247,12 +247,12 @@ public class JobServiceFilterIT
         final NewJob newJob2 = makeJob(jobId2, "testGreaterThanAndLessThan2");
         final NewJob newJob3 = makeJob(jobId3, "testGreaterThanAndLessThan3");
 
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId, null);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, null, null, null, null, null, "status=in=(Waiting,Active)");
+            defaultPartitionId, correlationId, null, null, null, null, null, null, "status=in=(Waiting,Active)", null);
         assertTrue(jobs.size() == 3);
         cleanUpJobs(jobId1, jobId2, jobId3);
     }
@@ -267,12 +267,12 @@ public class JobServiceFilterIT
         final NewJob newJob2 = makeJob(jobId2, "testGreaterThanAndLessThan2");
         final NewJob newJob3 = makeJob(jobId3, "testGreaterThanAndLessThan3");
 
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, newJob1, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, newJob2, correlationId, null);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, newJob3, correlationId, null);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, null, null, null, null, null, "status=out=(Failed,Completed)");
+            defaultPartitionId, correlationId, null, null, null, null, null, null, "status=out=(Failed,Completed)", null);
         assertTrue(jobs.size() == 3);
         cleanUpJobs(jobId1, jobId2, jobId3);
     }
@@ -280,7 +280,7 @@ public class JobServiceFilterIT
     private void cleanUpJobs(final String... jobIds) throws ApiException
     {
         for (final String jobId : jobIds) {
-            jobsApi.deleteJob(defaultPartitionId, jobId, correlationId);
+            jobsApi.deleteJob(defaultPartitionId, jobId, correlationId, null);
         }
     }
 

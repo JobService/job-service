@@ -23,6 +23,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-contract</artifactId>
+    <version>3.4.0-SCMOD-9638-SNAPSHOT</version>
 
     <parent>
         <groupId>com.github.jobservice</groupId>

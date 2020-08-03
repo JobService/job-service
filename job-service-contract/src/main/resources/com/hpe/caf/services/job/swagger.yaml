@@ -107,6 +107,11 @@ paths:
         type: string
         required: false
         description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`'
+      - name: legacyDateFormat
+        in: query
+        type: boolean
+        required: false
+        description: 'If False the service will return any dates in a human readable date format, i.e. similar to dd/mm/yyyy HH:MM:SS:SSS`'
     get:
       tags:
         - Jobs
@@ -130,6 +135,11 @@ paths:
           An identifier that correlates events 
           across different services.
       - $ref: '#/parameters/jobId'
+      - name: legacyDateFormat
+        in: query
+        type: boolean
+        required: false
+        description: 'If False the service will return any dates in a human readable date format, i.e. similar to dd/mm/yyyy HH:MM:SS:SSS`'
     get:
       tags:
         - Jobs

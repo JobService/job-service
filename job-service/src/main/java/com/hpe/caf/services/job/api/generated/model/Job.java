@@ -22,15 +22,13 @@ import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-03-03T15:07:30.523Z")
 @XmlRootElement(name = "Job")
-public class Job   {
+public class Job implements JobInterface   {
 
     private String id = null;
     private String name = null;
@@ -40,8 +38,6 @@ public class Job   {
      */
     @Deprecated
     private String externalData = null;
-    private Date createTime = null;
-    private Date lastUpdateTime = null;
 
 
     public enum StatusEnum {
@@ -145,42 +141,6 @@ public class Job   {
         this.externalData = externalData;
     }
 
-
-    /**
-     * The time the job was created
-     **/
-    public Job createTime(Date createTime) {
-        this.createTime = createTime;
-        return this;
-    }
-
-
-    @ApiModelProperty(value = "The time the job was created")
-    @JsonProperty("createTime")
-    public Date getCreateTime() {
-        return createTime;
-    }
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    /**
-     * The time the job status or progress last changed
-     **/
-    public Job lastUpdateTime(Date lastUpdateTime) {
-        this.lastUpdateTime = lastUpdateTime;
-        return this;
-    }
-
-    @ApiModelProperty(value = "The time the job status or progress last changed")
-    public Date getLastUpdateTime() {
-        return lastUpdateTime;
-    }
-
-    public void setLastUpdateTime(Date lastUpdateTime) {
-        this.lastUpdateTime = lastUpdateTime;
-    }
-
     /**
      * The status of the job
      **/
@@ -246,60 +206,5 @@ public class Job   {
 
     public void setLabels(final Map<String, String> labels) {
         this.labels = labels;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Job job = (Job) o;
-        return Objects.equals(id, job.id) &&
-                Objects.equals(name, job.name) &&
-                Objects.equals(description, job.description) &&
-                Objects.equals(externalData, job.externalData) &&
-                Objects.equals(createTime, job.createTime) &&
-                Objects.equals(this.lastUpdateTime, job.lastUpdateTime) &&
-                Objects.equals(status, job.status) &&
-                Objects.equals(percentageComplete, job.percentageComplete) &&
-                Objects.equals(failures, job.failures);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, externalData, createTime, lastUpdateTime, status, percentageComplete, failures);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class Job {\n");
-
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    description: ").append(toIndentedString(description)).append("\n");
-        sb.append("    externalData: ").append(toIndentedString(externalData)).append("\n");
-        sb.append("    createTime: ").append(toIndentedString(createTime)).append("\n");
-        sb.append("    lastUpdateTime: ").append(toIndentedString(lastUpdateTime)).append("\n");
-        sb.append("    status: ").append(toIndentedString(status)).append("\n");
-        sb.append("    percentageComplete: ").append(toIndentedString(percentageComplete)).append("\n");
-        sb.append("    failures: ").append(toIndentedString(failures)).append("\n");
-        sb.append("    labels: ").append(toIndentedString(labels)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
     }
 }

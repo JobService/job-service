@@ -28,10 +28,10 @@ public abstract class JobsApiService {
 
       public abstract Response getJobs(String partitionId, final String jobIdStartsWith, final String statusType, final Integer limit,
                                        final Integer offset, String cAFCorrelationId, String sort, String label, 
-                                       final String filter, SecurityContext securityContext)
+                                       final String filter, final Boolean legacyDateFormat, SecurityContext securityContext)
         throws Exception;
 
-      public abstract Response getJob(String partitionId,String jobId,String cAFCorrelationId,SecurityContext securityContext)
+      public abstract Response getJob(String partitionId,String jobId,String cAFCorrelationId, final Boolean legacyDateFormat,SecurityContext securityContext)
               throws Exception;
 
       public abstract Response createOrUpdateJob(String partitionId,String jobId,NewJob newJob,String cAFCorrelationId,SecurityContext securityContext,UriInfo uriInfo)

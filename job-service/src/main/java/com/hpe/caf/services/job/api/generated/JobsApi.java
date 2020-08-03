@@ -55,9 +55,11 @@ public class JobsApi  {
             @ApiParam(value = "How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.") @QueryParam("sort") String sort,
             @ApiParam(value = "Filter jobs with any of the specified labels, in the format label=<labelName>,<labelName>") @QueryParam("labelExist") String label,
             @ApiParam(value = "Filter jobs with the specified RSQL filter criteria") @QueryParam("filter") String filter,
+            @ApiParam(value = "Should job be returned with legacy date time formatting, i.e. epoch") @QueryParam("legacyDateFormat") Boolean legacyDateFormat,
             @Context SecurityContext securityContext)
             throws Exception {
-        return delegate.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, cAFCorrelationId, sort, label, filter, securityContext);
+        return delegate.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, cAFCorrelationId, sort, label, filter,
+                                legacyDateFormat, securityContext);
     }
 
     @GET
@@ -75,9 +77,10 @@ public class JobsApi  {
     public Response getJob(
             @ApiParam(value = "Only allow access to jobs in the container with this name",required=true) @PathParam("partitionId") String partitionId,
             @ApiParam(value = "The identifier of the job",required=true) @PathParam("jobId") String jobId,
-            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,@Context SecurityContext securityContext)
+            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,@Context SecurityContext securityContext,
+            @ApiParam(value = "Should job be returned with legacy date time formatting, i.e. epoch") @QueryParam("legacyDateFormat") Boolean legacyDateFormat)
             throws Exception {
-        return delegate.getJob(partitionId, jobId,cAFCorrelationId,securityContext);
+        return delegate.getJob(partitionId, jobId,cAFCorrelationId,legacyDateFormat,securityContext);
     }
 
     @PUT

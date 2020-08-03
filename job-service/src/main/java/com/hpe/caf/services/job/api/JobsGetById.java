@@ -30,10 +30,11 @@ public final class JobsGetById {
      * Get the job with the specified job id.
      *
      * @param   jobId       job id of the job to return
+     * @param legacyDateFormat
      * @return  job         the job
      * @throws  Exception   bad request or database exception
      */
-    public static Job getJob(final String partitionId, String jobId) throws Exception {
+    public static Job getJob(final String partitionId, String jobId, Boolean legacyDateFormat) throws Exception {
 
         Job job;
 
@@ -62,7 +63,7 @@ public final class JobsGetById {
 
             //  Get the job definition for the specified job id.
             LOG.info("getJobById: Getting job definition...");
-            job = databaseHelper.getJob(partitionId, jobId);
+            job = databaseHelper.getJob(partitionId, jobId, legacyDateFormat);
 
             LOG.info("getJobById: Done.");
             return job;
@@ -72,4 +73,6 @@ public final class JobsGetById {
             throw e;
         }
     }
+    
+    
 }

@@ -19,7 +19,9 @@ import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.api.generated.model.CorrectedFormatJob;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
+import com.hpe.caf.services.job.api.generated.model.LegacyJob;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
@@ -68,7 +70,7 @@ public final class DatabaseHelper
 
     public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
                          Integer offset, final JobSortField sortField, final SortDirection sortDirection,
-                         final List<String> labels, final String filter) throws Exception {
+                         final List<String> labels, final String filter, final Boolean legacyDateFormat) throws Exception {
 
         final Map<String, Job> jobs = new LinkedHashMap<>(); //Linked rather than hash to preserve order of results.
 
@@ -108,16 +110,14 @@ public final class DatabaseHelper
             LOG.debug("Calling get_jobs() database function...");
             try (final ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    final Job job = new Job();
-                    job.setId(rs.getString("job_id"));
-                    job.setName(rs.getString("name"));
-                    job.setDescription(rs.getString("description"));
-                    job.setExternalData(rs.getString("data"));
-                    job.setCreateTime(getDate(rs.getString("create_date")));
-                    job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
-                    job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
-                    job.setPercentageComplete(rs.getFloat("percentage_complete"));
-
+                    final Job job;
+                    if (legacyDateFormat) {
+                        job = new LegacyJob(getDate(rs.getString("create_date")), getDate(rs.getString("last_update_date")));
+                    } else {
+                        job = new CorrectedFormatJob(rs.getString("create_date"), rs.getString("last_update_date"));
+                    }
+                    populateJob(job, rs);
+                    
                     //  Parse JSON failure sub-strings.
                     final String failureDetails = rs.getString("failure_details");
                     if (ApiServiceUtil.isNotNullOrEmpty(failureDetails)) {
@@ -145,6 +145,16 @@ public final class DatabaseHelper
         Job[] jobArr = new Job[jobs.size()];
         jobArr = jobs.values().toArray(jobArr);
         return jobArr;
+    }
+
+    private void populateJob(final Job job, final ResultSet rs) throws ParseException, SQLException
+    {
+        job.setId(rs.getString("job_id"));
+        job.setName(rs.getString("name"));
+        job.setDescription(rs.getString("description"));
+        job.setExternalData(rs.getString("data"));
+        job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
+        job.setPercentageComplete(rs.getFloat("percentage_complete"));
     }
 
     /**
@@ -184,7 +194,7 @@ public final class DatabaseHelper
     /**
      * Returns the job definition for the specified job.
      */
-    public Job getJob(final String partitionId, String jobId) throws Exception {
+    public Job getJob(final String partitionId, String jobId, final Boolean legacyDateFormat) throws Exception {
 
         Job job = null;
 
@@ -200,14 +210,12 @@ public final class DatabaseHelper
             try (final ResultSet rs = stmt.executeQuery()) {
                 job = new Job();
                 while (rs.next()) {
-                    job.setId(rs.getString("job_id"));
-                    job.setName(rs.getString("name"));
-                    job.setDescription(rs.getString("description"));
-                    job.setExternalData(rs.getString("data"));
-                    job.setCreateTime(getDate(rs.getString("create_date")));
-                    job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
-                    job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
-                    job.setPercentageComplete(rs.getFloat("percentage_complete"));
+                    if (legacyDateFormat) {
+                        job = new LegacyJob(getDate(rs.getString("create_date")), getDate(rs.getString("last_update_date")));
+                    } else {
+                        job = new CorrectedFormatJob(rs.getString("create_date"), rs.getString("last_update_date"));
+                    }
+                    populateJob(job, rs);
 
                     //  Parse JSON failure sub-strings.
                     final String failureDetails = rs.getString("failure_details");
@@ -558,6 +566,4 @@ public final class DatabaseHelper
         return java.util.Date.from( instant );
 
     }
-
 }
-

@@ -43,11 +43,13 @@ public final class JobsGet {
      * @param offset        optional offset from which to return page of jobs
      * @param labelExists   optional metadata to filter against
      * @param filter        optional filter to use when returning results
+     * @param legacyDateFormat
      * @return  jobs        list of jobs
      * @throws Exception    bad request or database exceptions
      */
     public static Job[] getJobs(final String partitionId, final String jobId, final String statusType, Integer limit,
-                                final Integer offset, final String sort, final String labelExists, final String filter) throws Exception {
+                                final Integer offset, final String sort, final String labelExists, final String filter,
+                                final Boolean legacyDateFormat) throws Exception {
 
         Job[] jobs;
 
@@ -99,7 +101,7 @@ public final class JobsGet {
                 limit = config.getDefaultPageSize();
             }
             jobs = databaseHelper.getJobs(
-                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues, filterQuery);
+                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues, filterQuery, legacyDateFormat);
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;
