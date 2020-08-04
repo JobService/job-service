@@ -179,11 +179,12 @@ public final class JobsPut {
                         .collect(Collectors.toList()));
             }
 
-            //  Create job in the database.
-            LOG.info("createOrUpdateJob: Creating job in the database...");
-            final boolean jobCreated;
             final boolean partitionSuspended = ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId);
-            if (job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) {
+            //  Create job in the database.
+            LOG.info("createOrUpdateJob: Creating job in the database for {} : {}...",
+                    partitionSuspended ? "suspended partition" : "partition", partitionId);
+            final boolean jobCreated;
+            if ((job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) || partitionSuspended) {
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
@@ -198,12 +199,7 @@ public final class JobsPut {
                 return "update";
             }
 
-            if (!databaseHelper.canJobBeProgressed(partitionId, jobId)) {
-                return "create";
-            }
-
-            if (ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId))
-            {
+            if (!databaseHelper.canJobBeProgressed(partitionId, jobId) || partitionSuspended) {
                 return "create";
             }
 

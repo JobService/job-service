@@ -508,6 +508,7 @@
                                     <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://jobservice-integrationtests-postgres:5432/${db.name}</JOB_SERVICE_DATABASE_URL>
                                     <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
+                                    <JOB_SERVICE_SUSPENDED_PARTITIONS_REGEX>^tenant-acme-c(.?>rp|om|o)$</JOB_SERVICE_SUSPENDED_PARTITIONS_REGEX>
                                     <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
                                     <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
                                     <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>

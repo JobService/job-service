@@ -151,7 +151,7 @@ BEGIN
     SELECT in_partition_id, in_job_id, prerequisite_job_id
     FROM all_incomplete_prereqs;
 
-    IF FOUND OR in_delay > 0 THEN
+    IF FOUND OR in_delay > 0 OR in_suspended_partition THEN
         INSERT INTO public.job_task_data(
             partition_id,
             job_id,
@@ -170,8 +170,13 @@ BEGIN
             in_task_pipe,
             in_target_pipe,
             CASE
-                WHEN NOT FOUND AND NOT in_suspended_partition THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') 
-                WHEN NOT FOUND AND in_suspended_partition THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '10 years')
+                --if suspended and delayed, pre req or not
+                WHEN in_suspended_partition AND in_delay > 0 THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') + (interval '10 years')
+                --if suspended and not delayed, pre req or not
+                WHEN in_suspended_partition AND in_delay = 0 THEN now() AT TIME ZONE 'UTC' + (interval '10 years')
+                --if not suspended, just delayed, pre req or not
+                WHEN NOT in_suspended_partition AND in_delay > 0 THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second')
+                --if pre req with no delay and not suspended, leave eligible_to_run_date = null
             END
         );
     END IF;

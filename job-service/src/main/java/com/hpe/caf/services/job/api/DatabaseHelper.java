@@ -311,7 +311,7 @@ public final class DatabaseHelper
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
-            final String[] prerequisiteJobIdStringArray = prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
+            final String[] prerequisiteJobIdStringArray = getPrerequisiteJobIds(prerequisiteJobIds);
             Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
 
             final List<String[]> labelArray = buildLabelSqlArray(labels);
@@ -345,6 +345,18 @@ public final class DatabaseHelper
                 array.free();
                 prerequisiteJobIdSQLArray.free();
             }
+        }
+    }
+
+    private String[] getPrerequisiteJobIds(final List<String> prerequisiteJobIds)
+    {
+        if (prerequisiteJobIds != null && !prerequisiteJobIds.isEmpty())
+        {
+            return prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
+        }
+        else
+        {
+            return new String[0];
         }
     }
 
