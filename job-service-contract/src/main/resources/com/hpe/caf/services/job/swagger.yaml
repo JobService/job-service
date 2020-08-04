@@ -28,7 +28,7 @@ info:
     The primary use of this functionality is batch document
     processing.  The service can send work to the Batch Worker, and
     then track the progress of that work.
-basePath: /job-service/v1
+basePath: /job-service
 tags:
   - name: Jobs
     description: Job Control
@@ -54,7 +54,7 @@ parameters:
     pattern: '^[^.,:;*?!|()]{1,48}$'
 
 paths:
-  /partitions/{partitionId}/jobs:
+  /v1/partitions/{partitionId}/jobs:
     parameters:
       - $ref: '#/parameters/partitionId'
       - name: CAF-Correlation-Id
@@ -107,11 +107,6 @@ paths:
         type: string
         required: false
         description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`'
-      - name: legacyDateFormat
-        in: query
-        type: boolean
-        required: false
-        description: 'If False the service will return any dates in a human readable date format, i.e. similar to dd/mm/yyyy HH:MM:SS:SSS`'
     get:
       tags:
         - Jobs
@@ -124,8 +119,74 @@ paths:
           schema:
             type: array
             items:
+              $ref: "#/definitions/legacyJob"
+  /v2/partitions/{partitionId}/jobs:
+    parameters:
+      - $ref: '#/parameters/partitionId'
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that correlates events 
+          across different services.
+      - name: jobIdStartsWith
+        in: query
+        type: string
+        required: false
+        description: Only those results whose job id starts with this value will be returned
+      - name: statusType
+        in: query
+        type: string
+        required: false
+        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned; NotFinished - only those results with unfinished statuses (ie. Active, Paused, Waiting) will be returned.
+        enum:
+          - All
+          - NotCompleted
+          - Completed
+          - Inactive
+          - NotFinished
+      - name: limit
+        in: query
+        type: integer
+        format: int32
+        required: false
+        description: The maximum results to return (i.e. page size)
+      - name: offset
+        in: query
+        type: integer
+        format: int32
+        required: false
+        description: The starting position from which to return results (useful for paging)
+      - name: sort
+        in: query
+        type: string
+        required: false
+        description: 'How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.'
+        default: createTime:desc
+      - name: labelExist
+        in: query
+        type: string
+        required: false
+        description: 'Filter to jobs with the specified labels, in the format label=<labelName>,<labelName>'
+      - name: filter
+        in: query
+        type: string
+        required: false
+        description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`'
+    get:
+      tags:
+        - Jobs
+      summary: Gets the list of jobs
+      description: Returns the list of job definitions defined in the system.
+      operationId: getJobsV2
+      responses:
+        200:
+          description: Returns the list of jobs.
+          schema:
+            type: array
+            items:
               $ref: "#/definitions/job"
-  /partitions/{partitionId}/jobs/{jobId}:
+  /v2/partitions/{partitionId}/jobs/{jobId}:
     parameters:
       - $ref: '#/parameters/partitionId'
       - name: CAF-Correlation-Id
@@ -135,11 +196,31 @@ paths:
           An identifier that correlates events 
           across different services.
       - $ref: '#/parameters/jobId'
-      - name: legacyDateFormat
-        in: query
-        type: boolean
-        required: false
-        description: 'If False the service will return any dates in a human readable date format, i.e. similar to dd/mm/yyyy HH:MM:SS:SSS`'
+    get:
+      tags:
+        - Jobs
+      summary: Gets the specified job.
+      description: Retrieves information about the specified job.
+      operationId: getJobV2
+      responses:
+        200:
+          description: Returns the job data.
+          schema:
+            $ref: "#/definitions/job"
+        400:
+          description: The `jobId` parameter contains invalid characters.
+        404:
+          description: The specified job is not found.
+  /v1/partitions/{partitionId}/jobs/{jobId}:
+    parameters:
+      - $ref: '#/parameters/partitionId'
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that correlates events 
+          across different services.
+      - $ref: '#/parameters/jobId'
     get:
       tags:
         - Jobs
@@ -150,7 +231,7 @@ paths:
         200:
           description: Returns the job data.
           schema:
-            $ref: "#/definitions/job"
+            $ref: "#/definitions/legacyJob"
         400:
           description: The `jobId` parameter contains invalid characters.
         404:
@@ -190,7 +271,7 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         404:
           description: The specified job is not found.
-  /partitions/{partitionId}/jobs/{jobId}/isActive:
+  /v1/partitions/{partitionId}/jobs/{jobId}/isActive:
     parameters:
       - $ref: '#/parameters/partitionId'
       - name: CAF-Correlation-Id
@@ -217,7 +298,7 @@ paths:
                 type: boolean
         400:
           description: The `jobId` parameter contains invalid characters.
-  /partitions/{partitionId}/jobs/{jobId}/cancel:
+  /v1/partitions/{partitionId}/jobs/{jobId}/cancel:
     parameters:
       - $ref: '#/parameters/partitionId'
       - name: CAF-Correlation-Id
@@ -240,7 +321,7 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         404:
           description: The specified job is not found.
-  /partitions/{partitionId}/jobStats/count:
+  /v1/partitions/{partitionId}/jobStats/count:
     parameters:
       - $ref: '#/parameters/partitionId'
       - name: CAF-Correlation-Id
@@ -356,6 +437,57 @@ definitions:
       targetPipe:
         type: string
   job:
+    type: object
+    properties:
+      id:
+        type: string
+        description: The job identifier
+      name:
+        type: string
+        description: The name of the job
+      description:
+        type: string
+        description: The description of the job
+      externalData:
+        type: string
+        description: |
+          DEPRECATED - Replaced by labels External data can be associated with the job for use by other
+          components.
+      createTime:
+        type: object
+        format: date-time
+        description: The time the job was created
+      lastUpdateTime:
+        type: object
+        format: date-time
+        description: The time the job status or progress last changed
+      status:
+        type: string
+        description: The status of the job
+        enum:
+          - Active
+          - Cancelled
+          - Completed
+          - Failed
+          - Paused
+          - Waiting
+      percentageComplete:
+        type: number
+        format: float
+        description: Gives an indication of the progress of the job.
+      failures:
+        type: array
+        items:
+          $ref: "#/definitions/failure"
+        description: Job failure details
+      labels:
+        type: object
+        additionalProperties:
+          type: string
+        description: |
+          A map of meta data associated with this job. Note that the keys can only include alphanumeric, '_', '-' and
+          ':' characters
+  legacyJob:
     type: object
     properties:
       id:

@@ -17,7 +17,7 @@ package com.hpe.caf.services.job.api.generated;
 
 import io.swagger.annotations.ApiParam;
 
-import com.hpe.caf.services.job.api.generated.model.Job;
+import com.hpe.caf.services.job.api.generated.model.LegacyJob;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 
 import javax.ws.rs.core.Context;
@@ -25,9 +25,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.*;
 import javax.ws.rs.core.UriInfo;
-import java.util.List;
 
-@Path("/partitions")
+@Path("/v1/partitions")
 @Consumes({ "application/json" })
 @Produces({ "application/json" })
 @io.swagger.annotations.Api(description = "the jobs API")
@@ -41,9 +40,9 @@ public class JobsApi  {
     @Path("/{partitionId}/jobs")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
-    @io.swagger.annotations.ApiOperation(value = "Gets the list of jobs", notes = "Returns the list of job definitions defined in the system", response = Job.class, responseContainer = "List", tags={ "Jobs",  })
+    @io.swagger.annotations.ApiOperation(value = "Gets the list of jobs", notes = "Returns the list of job definitions defined in the system", response = LegacyJob.class, responseContainer = "List", tags={ "Jobs",  })
     @io.swagger.annotations.ApiResponses(value = {
-            @io.swagger.annotations.ApiResponse(code = 200, message = "Returns the list of jobs", response = Job.class, responseContainer = "List") })
+            @io.swagger.annotations.ApiResponse(code = 200, message = "Returns the list of jobs", response = LegacyJob.class, responseContainer = "List") })
 
     public Response getJobs(
             @ApiParam(value = "Only allow access to jobs in the container with this name",required=true) @PathParam("partitionId") String partitionId,
@@ -55,32 +54,30 @@ public class JobsApi  {
             @ApiParam(value = "How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.") @QueryParam("sort") String sort,
             @ApiParam(value = "Filter jobs with any of the specified labels, in the format label=<labelName>,<labelName>") @QueryParam("labelExist") String label,
             @ApiParam(value = "Filter jobs with the specified RSQL filter criteria") @QueryParam("filter") String filter,
-            @ApiParam(value = "Should job be returned with legacy date time formatting, i.e. epoch") @QueryParam("legacyDateFormat") Boolean legacyDateFormat,
             @Context SecurityContext securityContext)
             throws Exception {
         return delegate.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, cAFCorrelationId, sort, label, filter,
-                                legacyDateFormat, securityContext);
+                                false, securityContext);
     }
 
     @GET
     @Path("/{partitionId}/jobs/{jobId}")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
-    @io.swagger.annotations.ApiOperation(value = "Gets the specified job", notes = "Retrieves information about the specified job", response = Job.class, tags={ "Jobs",  })
+    @io.swagger.annotations.ApiOperation(value = "Gets the specified job", notes = "Retrieves information about the specified job", response = LegacyJob.class, tags={ "Jobs",  })
     @io.swagger.annotations.ApiResponses(value = {
-            @io.swagger.annotations.ApiResponse(code = 200, message = "Returns the job data", response = Job.class),
+            @io.swagger.annotations.ApiResponse(code = 200, message = "Returns the job data", response = LegacyJob.class),
 
-            @io.swagger.annotations.ApiResponse(code = 400, message = "The `jobId` parameter contains invalid characters.", response = Job.class),
+            @io.swagger.annotations.ApiResponse(code = 400, message = "The `jobId` parameter contains invalid characters.", response = LegacyJob.class),
 
-            @io.swagger.annotations.ApiResponse(code = 404, message = "The specified job is not found.", response = Job.class) })
+            @io.swagger.annotations.ApiResponse(code = 404, message = "The specified job is not found.", response = LegacyJob.class) })
 
     public Response getJob(
             @ApiParam(value = "Only allow access to jobs in the container with this name",required=true) @PathParam("partitionId") String partitionId,
             @ApiParam(value = "The identifier of the job",required=true) @PathParam("jobId") String jobId,
-            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,@Context SecurityContext securityContext,
-            @ApiParam(value = "Should job be returned with legacy date time formatting, i.e. epoch") @QueryParam("legacyDateFormat") Boolean legacyDateFormat)
+            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,@Context SecurityContext securityContext)
             throws Exception {
-        return delegate.getJob(partitionId, jobId,cAFCorrelationId,legacyDateFormat,securityContext);
+        return delegate.getJob(partitionId, jobId,cAFCorrelationId, false, securityContext);
     }
 
     @PUT

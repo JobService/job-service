@@ -34,13 +34,13 @@
     <properties>
         <tomcatBaseImage>cafapi/opensuse-tomcat-jre11:2</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
-        <webserviceBasePath>/v1</webserviceBasePath>
+        <webserviceBasePath>/</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
         <db.name>jobservice</db.name>
         <caf.config.impl>config-file</caf.config.impl>
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
-        <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
+        <dummyUrl>http://self:1234/job-service/</dummyUrl>
     </properties>
 
     <dependencies>
