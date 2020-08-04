@@ -501,7 +501,7 @@ public class JobServiceIT {
         Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
         assertEquals(cancelledJob.getStatus(), Job.StatusEnum.CANCELLED);
-        assertTrue(new Date(cancelledJob.getLastUpdateTime()).after(new Date(initialJob.getLastUpdateTime())),
+        assertTrue(cancelledJob.getLastUpdateTime().after(initialJob.getLastUpdateTime()),
             "last-update-time should be updated on cancel");
     }
 
