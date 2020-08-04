@@ -363,12 +363,12 @@ definitions:
           DEPRECATED - Replaced by labels External data can be associated with the job for use by other
           components.
       createTime:
-        type: string
-        format: date-time
+        type: integer
+        format: int64
         description: The time the job was created
       lastUpdateTime:
-        type: string
-        format: date-time
+        type: integer
+        format: int64
         description: The time the job status or progress last changed
       status:
         type: string
