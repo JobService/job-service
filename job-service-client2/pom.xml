@@ -39,7 +39,7 @@
     </properties>
 
     <dependencies>
-        <dependency>
+       <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-contract</artifactId>
             <scope>provided</scope>
