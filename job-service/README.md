@@ -5,14 +5,14 @@ The job-service API is used to create, retrieve, update, delete, suspend, cancel
 Jobs can be suspended by setting the `JOB_SERVICE_SUSPENDED_PARTITIONS_REGEX` environment variable.
 The variable can be set to a regular expression and can be used to control which partitions should be suspended.
 
-For example to suspend only the "tenant-acme-corp" and "tenant-acme-com" partitions it can be set to `^tenant-acme-co(?rp|m)$`
+For example to suspend only the "tenant-acme-corp" and "tenant-acme-com" partitions it can be set to `^tenant-acme-co(?rp|m)$`.
 If a job is created for a suspended partition then rather than the job being kicked off immediately as it normally would be, the Job Service marks it as suspended and it is not eligible to run at this time.
 
 Suspended jobs can be resumed by updating the `job_task_data` table.
 ```
 UPDATE public.job_task_data
-    SET suspended=false
-	WHERE partition_id ~ '^tenant-acme-c(.?rp|om|o)$';
+SET suspended=false
+WHERE partition_id ~ '^tenant-acme-c(.?rp|om)$';
 ```
 
 ## Job Service Links
