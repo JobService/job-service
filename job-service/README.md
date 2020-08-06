@@ -2,7 +2,7 @@
 
 The job-service API is used to create, retrieve, update, delete, suspend, cancel and check the status of jobs. HTTP requests are made to the job service which runs with a base Tomcat image. The job service then stores and retrieves data from the database.
 
-Jobs can be suspended by setting the `JOB_SERVICE_SUSPENDED_PARTITIONS_REGEX` environment variable.
+Jobs can be suspended by setting the `CAF_JOB_SERVICE_SUSPENDED_PARTITIONS_REGEX` environment variable.
 The variable can be set to a regular expression and can be used to control which partitions should be suspended.
 
 For example to suspend only the "tenant-acme-corp" and "tenant-acme-com" partitions it can be set to `^tenant-acme-co(?rp|m)$`.

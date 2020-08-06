@@ -114,7 +114,7 @@ public class AppConfig {
     }
 
     public Pattern getSuspendedPartitionsPattern() {
-        final String suspendedPartitionsRegex = environment.getProperty("JOB_SERVICE_SUSPENDED_PARTITIONS_REGEX");
+        final String suspendedPartitionsRegex = environment.getProperty("CAF_JOB_SERVICE_SUSPENDED_PARTITIONS_REGEX");
         return suspendedPartitionsRegex == null ? null : Pattern.compile(suspendedPartitionsRegex);
     }
 
