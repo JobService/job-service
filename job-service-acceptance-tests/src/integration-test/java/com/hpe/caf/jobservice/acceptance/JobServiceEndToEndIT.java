@@ -784,9 +784,9 @@ public class JobServiceEndToEndIT {
         LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays check if task_data rows are created for jobs in partition: {}",
                 partitionId);
 
-        JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(job1Id);
-        JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(job2Id);
-        JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(job3Id);
+        JobServiceDatabaseUtil.assertJobTaskDataRowExists(job1Id);
+        JobServiceDatabaseUtil.assertJobTaskDataRowExists(job2Id);
+        JobServiceDatabaseUtil.assertJobTaskDataRowExists(job3Id);
 
         final boolean canRunJob1 = JobServiceDatabaseUtil.isJobEligibleToRun(job1Id);
         LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays job1 {} in partition: {}, canRun? {}",

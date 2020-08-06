@@ -163,6 +163,7 @@ public class JobServiceDatabaseUtil
             // Verify job task data row exists.
             st.setString(1, jobId);
             final ResultSet jobTaskDataRS = st.executeQuery();
+            jobTaskDataRS.next();
             Assert.assertEquals(jobTaskDataRS.getString(1), jobId);
             Assert.assertTrue(!jobTaskDataRS.next());
             st.clearBatch();
