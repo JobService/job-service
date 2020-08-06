@@ -716,7 +716,8 @@ public class JobServiceEndToEndIT {
         //retrieve job using web method
         final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
         final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(retrievedJob.getId());
-        LOG.info("--testCreateJobWithPreReqSuspendedPartition job {} in partition: {}, canRun? {}", retrievedJob.getId(), partitionId, canRun);
+        LOG.info("--testCreateJobWithPreReqSuspendedPartition job {} in partition: {}, canRun? {}",
+                retrievedJob.getId(), partitionId, canRun);
         assertEquals(false, canRun);
     }
 
@@ -733,7 +734,8 @@ public class JobServiceEndToEndIT {
         //retrieve job using web method
         final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
         final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(retrievedJob.getId());
-        LOG.info("--testCreateJobWithDelaySuspendedPartition job {} in partition: {}, canRun? {}", retrievedJob.getId(), partitionId, canRun);
+        LOG.info("--testCreateJobWithDelaySuspendedPartition job {} in partition: {}, canRun? {}",
+                retrievedJob.getId(), partitionId, canRun);
         assertEquals(false, canRun);
     }
 
@@ -779,7 +781,7 @@ public class JobServiceEndToEndIT {
 
         createJobWithLabels(partitionId, job1Id, true, labels);
 
-        LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays check if task_data rows are creatred for jobs in partition: {}",
+        LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays check if task_data rows are created for jobs in partition: {}",
                 partitionId);
 
         JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(job1Id);
