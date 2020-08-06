@@ -12,7 +12,7 @@ Suspended jobs can be resumed by updating the `job_task_data` table.
 ```
 UPDATE public.job_task_data
 SET suspended=false
-WHERE partition_id ~ '^tenant-acme-c(.?rp|om)$';
+WHERE partition_id ~ '^tenant-acme-co(?rp|m)$';
 ```
 
 ## Job Service Links
