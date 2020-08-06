@@ -160,7 +160,8 @@ BEGIN
             task_data,
             task_pipe,
             target_pipe,
-            eligible_to_run_date
+            eligible_to_run_date,
+            suspended
         ) VALUES (
             in_partition_id,
             in_job_id,
@@ -169,15 +170,8 @@ BEGIN
             in_task_data,
             in_task_pipe,
             in_target_pipe,
-            CASE
-                --if suspended and delayed, pre req or not
-                WHEN in_suspended_partition AND in_delay > 0 THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') + (interval '10 years')
-                --if suspended and not delayed, pre req or not
-                WHEN in_suspended_partition AND in_delay = 0 THEN now() AT TIME ZONE 'UTC' + (interval '10 years')
-                --if not suspended, just delayed, pre req or not
-                WHEN NOT in_suspended_partition AND in_delay > 0 THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second')
-                --if pre req with no delay and not suspended, leave eligible_to_run_date = null
-            END
+            CASE WHEN NOT FOUND THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') END,
+            in_suspended_partition
         );
     END IF;
 
