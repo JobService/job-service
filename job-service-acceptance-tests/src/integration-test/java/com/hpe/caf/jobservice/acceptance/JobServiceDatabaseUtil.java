@@ -154,6 +154,36 @@ public class JobServiceDatabaseUtil
         }
     }
 
+    public static void assertJobTaskDataRowExists(final String jobId)
+            throws SQLException
+    {
+        try (final Connection dbConnection = getDbConnection();
+             final PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?")) {
+
+            // Verify job task data row exists.
+            st.setString(1, jobId);
+            final ResultSet jobTaskDataRS = st.executeQuery();
+            Assert.assertEquals(jobTaskDataRS.getString(1), jobId);
+            Assert.assertTrue(!jobTaskDataRS.next());
+            st.clearBatch();
+            jobTaskDataRS.close();
+        }
+    }
+
+    public static void assertJobTaskDataRowDoesNotExist(final String jobId)
+            throws SQLException
+    {
+        try (final Connection dbConnection = getDbConnection();
+             final PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?")) {
+
+            // Verify job task data row does not exist.
+            st.setString(1, jobId);
+            final ResultSet jobTaskDataRS = st.executeQuery();
+            Assert.assertTrue(!jobTaskDataRS.next());
+            jobTaskDataRS.close();
+        }
+    }
+
     public static void assertJobDependencyRowsDoNotExist(final String jobId, final String dependentJobId)
             throws SQLException
     {
@@ -194,9 +224,6 @@ public class JobServiceDatabaseUtil
 
     public static boolean isJobEligibleToRun(final String jobId) throws SQLException
     {
-        /*
-        FALSE POSITIVE on FORTIFY SCAN for Unreleased Resource: Database.
-        */
         try (
                 final Connection connection = getDbConnection();
                 final CallableStatement stmt = connection.prepareCall("{call get_dependent_jobs()}")
@@ -209,6 +236,7 @@ public class JobServiceDatabaseUtil
             while (rs.next()) {
                 jobTaskDataList.add(stmt.getResultSet().getString(2));
             }
+            rs.close();
 
             return jobTaskDataList.contains(jobId);
         }
