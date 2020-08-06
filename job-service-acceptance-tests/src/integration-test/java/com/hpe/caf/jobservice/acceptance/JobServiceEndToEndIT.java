@@ -665,7 +665,7 @@ public class JobServiceEndToEndIT {
         createJobWithPrerequisites(partitionId, job1Id, true, 2, preReqJobId);
         //  Verify J1 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job1Id, "waiting");
-        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job1Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job1Id, preReqJobId, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
         Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job1Id) == 2);
         final String job1EligibleRunDate = JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job1Id);
         LOG.info("--testCreateJobNoDelayAndSomePreReq : job1EligibleRunDate: ", job1EligibleRunDate);
