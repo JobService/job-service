@@ -192,14 +192,14 @@ public final class JobsPut {
 
             } else {
                 jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(),
-                        job.getExternalData(), jobHash, job.getLabels(), partitionSuspended);
+                        job.getExternalData(), jobHash, job.getLabels());
             }
 
             if (!jobCreated) {
                 return "update";
             }
 
-            if (!databaseHelper.canJobBeProgressed(partitionId, jobId) || partitionSuspended) {
+            if (!databaseHelper.canJobBeProgressed(partitionId, jobId)) {
                 return "create";
             }
 

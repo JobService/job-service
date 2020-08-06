@@ -268,10 +268,10 @@ public final class DatabaseHelper
      * @return Whether the job was created
      */
     public boolean createJob(final String partitionId, String jobId, String name, String description, String data,
-                             int jobHash, final Map<String, String> labels, final boolean partitionSuspended) throws Exception {
+                             int jobHash, final Map<String, String> labels) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?)}")
         ) {
             final List<String[]> labelArray = buildLabelSqlArray(labels);
 
@@ -289,7 +289,6 @@ public final class DatabaseHelper
                 array = conn.createArrayOf("VARCHAR", new String[0]);
             }
             stmt.setArray(7, array);
-            stmt.setBoolean(8, partitionSuspended);
             try {
                 return callCreateJobFunction(stmt);
             } finally {
