@@ -43,6 +43,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -118,7 +119,7 @@ public final class JobsPutTest {
         )).thenReturn(true);
         when(mockDatabaseHelper.createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap()
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false)
         )).thenReturn(true);
         doNothing().when(mockDatabaseHelper).deleteJob(anyString(), anyString());
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(any()).thenReturn(mockDatabaseHelper);
@@ -336,7 +337,7 @@ public final class JobsPutTest {
 
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap());
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false));
         verify(mockDatabaseHelper, times(1)).canJobBeProgressed(anyString(), anyString());
     }
 
@@ -344,7 +345,7 @@ public final class JobsPutTest {
     public void testJobCreationWithPrerequisites_MatchingJobRow() throws Exception {
         when(mockDatabaseHelper.createJobWithDependencies(
             anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap()
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false)
         )).thenReturn(false);
 
         final NewJob job = makeJob();
@@ -357,7 +358,7 @@ public final class JobsPutTest {
         assertEquals("update", result);
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap());
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false));
         verify(mockDatabaseHelper, times(0)).canJobBeProgressed(anyString(), anyString());
     }
 
