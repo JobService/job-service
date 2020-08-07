@@ -625,87 +625,218 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testCreateJobLongDelay() throws Exception {
-        //create a job for a suspended partition
+        //create a job with a long delay
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
         final String jobId = generateJobId();
-        final String jobCorrelationId = "1";
-        final NewJob newJob = constructNewJob(jobId, true);
-        newJob.setDelay(6000);
-        final String partitionId = "tenant-abc-com";
-        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
 
-        //retrieve job using web method
-        final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
-        final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(retrievedJob.getId());
-        LOG.info("--testCreateJobLongDelay job {} in partition: {}, canRun? {}", retrievedJob.getId(), partitionId, canRun);
-        assertEquals(false, canRun);
+        JobServiceEndToEndITExpectation expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        defaultPartitionId,
+                        jobId,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            Timer timer = getTimer(context);
+            Thread thread = queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context, expectation));
+
+            createJobWithDelay(jobId, true, 60);
+            final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(jobId);
+            LOG.info("--testCreateJobLongDelay job {} in partition: {}, canRun? {}", jobId, defaultPartitionId, canRun);
+            assertEquals(false, canRun);
+
+            LOG.info("--testCreateJobNoDelayNoPreReq job {} in partition: {}", jobId, defaultPartitionId);
+            JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(jobId);
+
+            // Waits for the final result message to appear on the Example worker's output queue.
+            // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
+            TestResult result = context.getTestResult();
+            Assert.assertTrue(result.isSuccess());
+        }
     }
 
     @Test
     public void testCreateJobNoDelayNoPreReq() throws Exception {
         //create a job eligible for running
-        final String jobId = generateJobId();
-        final String jobCorrelationId = "1";
-        final NewJob newJob = constructNewJob(jobId, true);
-        final String partitionId = "tenant-allclear-com";
-        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
 
-        //retrieve job using web method
-        final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
-        LOG.info("--testCreateJobNoDelayNoPreReq job {} in partition: {}", retrievedJob.getId(), partitionId);
-        JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(retrievedJob.getId());
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+        final String jobId = generateJobId();
+
+        JobServiceEndToEndITExpectation expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                    defaultPartitionId,
+                        jobId,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            Timer timer = getTimer(context);
+            Thread thread = queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context, expectation));
+
+            createJob(jobId, true);
+
+            LOG.info("--testCreateJobNoDelayNoPreReq job {} in partition: {}", jobId, defaultPartitionId);
+            JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(jobId);
+
+            // Waits for the final result message to appear on the Example worker's output queue.
+            // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
+            TestResult result = context.getTestResult();
+            Assert.assertTrue(result.isSuccess());
+        }
     }
 
     @Test
     public void testCreateJobNoDelayAndSomePreReq() throws Exception {
         //create a job with some pre req
-        final String preReqJobId = generateJobId();
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+
+        //  Generate job identifiers for test.
         final String job1Id = generateJobId();
-        final String jobCorrelationId = "1";
-        final String partitionId = "tenant-hasprereq-com";
-        createJobWithPrerequisites(partitionId, job1Id, true, preReqJobId);
-        //  Verify J1 is in 'waiting' state and job dependency rows exist as expected.
-        JobServiceDatabaseUtil.assertJobStatus(job1Id, "waiting");
-        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job1Id, preReqJobId, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
-        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job1Id) == 0);
-        final String job1EligibleRunDate = JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job1Id);
-        LOG.info("--testCreateJobNoDelayAndSomePreReq : job1EligibleRunDate: ", job1EligibleRunDate);
-        Assert.assertTrue(job1EligibleRunDate == null);
+        final String job2Id = generateJobId();
+        final String job3Id = generateJobId();
 
-        final NewJob preReqJobJob = constructNewJob(preReqJobId, true);
-        jobsApi.createOrUpdateJob(partitionId, preReqJobId, preReqJobJob, jobCorrelationId);
-
-        final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(job1Id);
-        LOG.info("--testCreateJobNoDelayAndSomePreReq job {} in partition: {}, canRun? {}", job1Id, partitionId, canRun);
+        //  Create job hierarchy.
+        //
+        //  J1
+        //  -> J2
+        //      -> J3
+        createJobWithPrerequisites(job2Id, true, 0, job1Id);
+        //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+        final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(job2Id);
+        LOG.info("--testCreateJobNoDelayAndSomePreReq job {} in partition: {}, canRun? {}", job2Id, defaultPartitionId, canRun);
         assertEquals(false, canRun);
 
-        JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(preReqJobId);
+        createJobWithPrerequisites(job3Id, true, 0, job2Id);
+        //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+
+        //  Add a Prerequisite job 1 that should be completed. This should trigger the completion of all
+        //  other jobs.
+        JobServiceEndToEndITExpectation job1Expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                    defaultPartitionId,
+                        job2Id,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            getTimer(context);
+            queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
+                    job1Expectation));
+
+            createJob(job1Id, true);
+
+            JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(job1Id);
+
+            // Waits for the final result message to appear on the Example worker's output queue.
+            // When we read it from this queue it should have been processed fully and its status reported to the Job
+            // Database as Completed.
+            context.getTestResult();
+        }
+
+        Thread.sleep(3000); // Add short delay to allow previous jobs to complete
+
+        //  Now that J1 has completed, verify this has triggered the completion of other jobs created
+        //  with a prerequisite.
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job2Id, job1Id);
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
 
     @Test
     public void testCreateJobNoDelayAndSomePreReqWithDelay() throws Exception {
         //create a job with some pre req which has a delay
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+
+        //  Generate job identifiers for test.
         final String preReqJobId = generateJobId();
         final String job1Id = generateJobId();
-        final String partitionId = "tenant-prereqdelay-com";
-        createJobWithPrerequisites(partitionId, job1Id, true, preReqJobId);
+
+        //  Create job hierarchy.
+        //
+        //  preReqJobId
+        //  -> J1
+        createJobWithPrerequisites(job1Id, true, 0, preReqJobId);
         //  Verify J1 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job1Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job1Id, preReqJobId, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
-        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job1Id) == 0);
-        final String job1EligibleRunDate = JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job1Id);
-        LOG.info("--testCreateJobNoDelayAndSomePreReqWithDelay : job1EligibleRunDate: ", job1EligibleRunDate);
-        Assert.assertTrue(job1EligibleRunDate == null);
-
-        createJobWithDelay(partitionId, preReqJobId, true, 15);
-
         final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(job1Id);
-        LOG.info("--testCreateJobNoDelayAndSomePreReqWithDelay job {} in partition: {}, canRun? {}", job1Id, partitionId, canRun);
+        LOG.info("--testCreateJobNoDelayAndSomePreReqWithDelay job {} in partition: {}, canRun? {}", job1Id, defaultPartitionId, canRun);
         assertEquals(false, canRun);
 
-        final boolean preReqJobCanRun = JobServiceDatabaseUtil.isJobEligibleToRun(preReqJobId);
-        LOG.info("--testCreateJobNoDelayAndSomePreReqWithDelay job {} in partition: {}, canRun? {}",
-                preReqJobId, partitionId, preReqJobCanRun);
-        assertEquals(false, preReqJobCanRun);
+        //  Add a Prerequisite job that should be completed after a delay. This should trigger the completion of job1.
+        JobServiceEndToEndITExpectation job1Expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        defaultPartitionId,
+                        job1Id,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            getTimer(context);
+            queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
+                    job1Expectation));
+
+            createJobWithDelay(preReqJobId, true, 15);
+            JobServiceDatabaseUtil.assertJobTaskDataRowExists(preReqJobId);
+            final boolean preReqJobCanRun = JobServiceDatabaseUtil.isJobEligibleToRun(preReqJobId);
+            LOG.info("--testCreateJobNoDelayAndSomePreReqWithDelay job {} in partition: {}, canRun? {}",
+                    preReqJobId, defaultPartitionId, preReqJobCanRun);
+            assertEquals(false, preReqJobCanRun);
+
+            Thread.sleep(3000); // Add short delay to allow prerequisite job to complete
+            // Waits for the final result message to appear on the Example worker's output queue.
+            // When we read it from this queue it should have been processed fully and its status reported to the Job
+            // Database as Completed.
+            context.getTestResult();
+        }
+
+        Thread.sleep(3000); // Add short delay to allow previous jobs to complete
+
+        //  Now that preReqJob has completed, verify this has triggered the completion of job created
+        //  with a prerequisite.
+        JobServiceDatabaseUtil.assertJobStatus(job1Id, "completed");
+        JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job1Id, preReqJobId);
     }
 
     @Test
@@ -1189,26 +1320,25 @@ public class JobServiceEndToEndIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
     }
 
+    private void createJobWithDelay(final String jobId, final boolean useTaskDataObject, final int delay) throws Exception {
+        NewJob newJob = constructNewJob(jobId, useTaskDataObject);
+        newJob.setDelay(delay);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+    }
+
+    private void createJobWithNoDelay(final String jobId, final boolean useTaskDataObject,
+            final String... prerequisiteJobs) throws Exception {
+        NewJob newJob = constructNewJob(jobId, useTaskDataObject);
+        newJob.setPrerequisiteJobIds(Arrays.asList(prerequisiteJobs));
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+    }
+
     private void createJobWithPrerequisites(final String jobId, final boolean useTaskDataObject, final int delay,
                                             final String... prerequisiteJobs) throws Exception {
         NewJob newJob = constructNewJob(jobId, useTaskDataObject);
         newJob.setPrerequisiteJobIds(Arrays.asList(prerequisiteJobs));
         newJob.setDelay(delay);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
-    }
-
-    private void createJobWithPrerequisites(final String partitionId, final String jobId,
-            final boolean useTaskDataObject, final String... prerequisiteJobs) throws Exception {
-        final NewJob newJob = constructNewJob(jobId, useTaskDataObject);
-        newJob.setPrerequisiteJobIds(Arrays.asList(prerequisiteJobs));
-        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
-    }
-
-    private void createJobWithDelay(final String partitionId, final String jobId,
-            final boolean useTaskDataObject, final int delay) throws Exception {
-        final NewJob newJob = constructNewJob(jobId, useTaskDataObject);
-        newJob.setDelay(delay);
-        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
     }
 
     private void createJobWithPrerequisitesAndDelay(final String partitionId, final String jobId,
