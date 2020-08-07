@@ -130,10 +130,10 @@ public class JobServiceEndToEndIT {
         testItemAssetIds = generateWorkerBatch();
     }
 
-//    @Test
-//    public void testJobCompletionWithTaskDataObject() throws Exception {
-//        testJobCompletion(true);
-//    }
+    @Test
+    public void testJobCompletionWithTaskDataObject() throws Exception {
+        testJobCompletion(true);
+    }
 
     private void testJobCompletion(final boolean useTaskDataObject) throws Exception {
         final String jobId = generateJobId();
@@ -817,7 +817,7 @@ public class JobServiceEndToEndIT {
             queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
                     job1Expectation));
 
-            createJobWithDelay(preReqJobId, true, 15);
+            createJobWithDelay(preReqJobId, true, 60);
             JobServiceDatabaseUtil.assertJobTaskDataRowExists(preReqJobId);
             final boolean preReqJobCanRun = JobServiceDatabaseUtil.isJobEligibleToRun(preReqJobId);
             LOG.info("--testCreateJobNoDelayAndSomePreReqWithDelay job {} in partition: {}, canRun? {}",
@@ -1323,13 +1323,6 @@ public class JobServiceEndToEndIT {
     private void createJobWithDelay(final String jobId, final boolean useTaskDataObject, final int delay) throws Exception {
         NewJob newJob = constructNewJob(jobId, useTaskDataObject);
         newJob.setDelay(delay);
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
-    }
-
-    private void createJobWithNoDelay(final String jobId, final boolean useTaskDataObject,
-            final String... prerequisiteJobs) throws Exception {
-        NewJob newJob = constructNewJob(jobId, useTaskDataObject);
-        newJob.setPrerequisiteJobIds(Arrays.asList(prerequisiteJobs));
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
     }
 
