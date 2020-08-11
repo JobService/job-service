@@ -373,13 +373,8 @@ definitions:
       status:
         type: string
         description: The status of the job
-        enum:
-          - Active
-          - Cancelled
-          - Completed
-          - Failed
-          - Paused
-          - Waiting
+        string:
+        description: String value of the status enum, possible values are Completed, Active, Waiting, Failed, Paused and Canceled.
       percentageComplete:
         type: number
         format: float
