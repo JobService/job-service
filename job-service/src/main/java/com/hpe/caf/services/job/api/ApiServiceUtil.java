@@ -15,6 +15,8 @@
  */
 package com.hpe.caf.services.job.api;
 
+import java.util.regex.Pattern;
+
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 
 /**
@@ -62,6 +64,15 @@ public final class ApiServiceUtil {
         } else if (containsInvalidCharacters(partitionId)) {
             throw new BadRequestException("The partition ID contains one or more invalid characters.");
         }
+    }
+
+    public static boolean isPartitionSuspended(final Pattern suspendedPartitionsPattern, final String partitionId)
+    {
+        if(suspendedPartitionsPattern == null)
+        {
+            return false;
+        }
+        return suspendedPartitionsPattern.matcher(partitionId).matches();
     }
 
 }

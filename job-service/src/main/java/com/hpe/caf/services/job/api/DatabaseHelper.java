@@ -309,10 +309,11 @@ public final class DatabaseHelper
                                           final String data, final int jobHash, final String taskClassifier,
                                           final int taskApiVersion, final byte[] taskData, final String taskPipe,
                                           final String targetPipe, final List<String> prerequisiteJobIds,
-                                          final int delay, final Map<String, String> labels) throws Exception {
+                                          final int delay, final Map<String, String> labels,
+                                          final boolean partitionSuspended) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
             final String[] prerequisiteJobIdStringArray = prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
             Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
@@ -340,6 +341,7 @@ public final class DatabaseHelper
                 array = conn.createArrayOf("VARCHAR", new String[0]);
             }
             stmt.setArray(14, array);
+            stmt.setBoolean(15, partitionSuspended);
 
             try {
                 return callCreateJobFunction(stmt);
@@ -353,6 +355,18 @@ public final class DatabaseHelper
     private List<String[]> buildLabelSqlArray(final Map<String, String> labels) {
         return labels.entrySet().stream().map(entry -> new String[]{entry.getKey(), entry.getValue()})
                 .collect(Collectors.toList());
+    }
+
+    private String[] getPrerequisiteJobIds(final List<String> prerequisiteJobIds)
+    {
+        if (prerequisiteJobIds != null && !prerequisiteJobIds.isEmpty())
+        {
+            return prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
+        }
+        else
+        {
+            return new String[0];
+        }
     }
 
     /**

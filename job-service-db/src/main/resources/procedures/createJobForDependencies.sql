@@ -53,7 +53,8 @@ CREATE OR REPLACE FUNCTION create_job(
     in_target_pipe VARCHAR(255),
     in_prerequisite_job_ids VARCHAR(128)[],
     in_delay INT,
-    in_labels VARCHAR(255)[][] default null
+    in_labels VARCHAR(255)[][] default null,
+    in_suspended_partition BOOLEAN default false
 )
 RETURNS TABLE(
     job_created BOOLEAN
@@ -150,7 +151,7 @@ BEGIN
     SELECT in_partition_id, in_job_id, prerequisite_job_id
     FROM all_incomplete_prereqs;
 
-    IF FOUND OR in_delay > 0 THEN
+    IF FOUND OR in_delay > 0 OR in_suspended_partition THEN
         INSERT INTO public.job_task_data(
             partition_id,
             job_id,
@@ -159,7 +160,8 @@ BEGIN
             task_data,
             task_pipe,
             target_pipe,
-            eligible_to_run_date
+            eligible_to_run_date,
+            suspended
         ) VALUES (
             in_partition_id,
             in_job_id,
@@ -168,7 +170,8 @@ BEGIN
             in_task_data,
             in_task_pipe,
             in_target_pipe,
-            CASE WHEN NOT FOUND THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') END
+            CASE WHEN NOT FOUND THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') END,
+            in_suspended_partition
         );
     END IF;
 

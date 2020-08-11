@@ -48,7 +48,8 @@ BEGIN
         FROM job_task_data jtd
         LEFT JOIN job_dependency jd
             ON jd.partition_id = jtd.partition_id AND jd.job_id = jtd.job_id
-        WHERE jtd.eligible_to_run_date IS NOT NULL
+        WHERE NOT jtd.suspended
+            AND jtd.eligible_to_run_date IS NOT NULL
             AND jtd.eligible_to_run_date <= now() AT TIME ZONE 'UTC'  -- now eligible for running
             AND jd.job_id IS NULL;  -- no other dependencies to wait on
 
