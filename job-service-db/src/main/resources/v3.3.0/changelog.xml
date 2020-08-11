@@ -23,10 +23,16 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
                                        http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
-    <changeSet id="add_identity_column" runOnChange="true" author="Gamma Team">
-        <addColumn schemaName="public" tableName="job">
-            <column name="identity" type="SERIAL">
-                <constraints nullable="false" />
+
+    <changeSet id="update_job_task_data_add_suspended" runOnChange="true" author="Gamma Team">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="job_task_data" columnName="suspended" />
+            </not>
+        </preConditions>
+        <addColumn schemaName="public" tableName="job_task_data">
+            <column name="suspended" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
             </column>
         </addColumn>
     </changeSet>
