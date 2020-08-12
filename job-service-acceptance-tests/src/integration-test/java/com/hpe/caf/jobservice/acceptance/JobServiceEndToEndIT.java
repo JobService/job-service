@@ -353,7 +353,7 @@ public class JobServiceEndToEndIT {
         Thread.sleep(1000); // Add short delay to allow previous job to complete
 
         //  Verify job 3 has completed and no job dependency rows exist.
-        JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "Completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job1Id);
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
@@ -442,7 +442,7 @@ public class JobServiceEndToEndIT {
         createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id);
 
         // Verify job 3 is in waiting status and dependency rows exist as expected.
-        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "Waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
     }
 
@@ -458,7 +458,7 @@ public class JobServiceEndToEndIT {
         final String child2JobId = generateJobId();
         createJobWithPrerequisites(parentJobId, true, 0, child1JobId, child2JobId);
 
-        JobServiceDatabaseUtil.assertJobStatus(parentJobId, "waiting");
+        JobServiceDatabaseUtil.assertJobStatus(parentJobId, "Waiting");
     }
 
     @Test
@@ -481,17 +481,17 @@ public class JobServiceEndToEndIT {
         //      -> J4
         createJobWithPrerequisites(job2Id, true, 0, job1Id);
         //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
-        JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "Waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
 
         createJobWithPrerequisites(job3Id, true, 0, job2Id);
         //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
-        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "Waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
 
         createJobWithPrerequisites(job4Id, true, 0, job2Id);
         //  Verify J4 is in 'waiting' state and job dependency rows exist as expected.
-        JobServiceDatabaseUtil.assertJobStatus(job4Id, "waiting");
+        JobServiceDatabaseUtil.assertJobStatus(job4Id, "Waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
 
         //  Add a Prerequisite job 1 that should be completed. This should trigger the completion of all
@@ -528,11 +528,11 @@ public class JobServiceEndToEndIT {
 
         //  Now that J1 has completed, verify this has triggered the completion of other jobs created
         //  with a prerequisite.
-        JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "Completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job2Id, job1Id);
-        JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "Completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
-        JobServiceDatabaseUtil.assertJobStatus(job4Id, "completed");
+        JobServiceDatabaseUtil.assertJobStatus(job4Id, "Completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job4Id, job2Id);
     }
 
@@ -554,14 +554,14 @@ public class JobServiceEndToEndIT {
         //      -> J3 (delay=10s)
         createJobWithPrerequisites(job2Id, true, 2, job1Id);
         //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
-        JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "Waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
         Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job2Id) == 2);
         Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job2Id) == null);
 
         createJobWithPrerequisites(job3Id, true, 10, job2Id);
         //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
-        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "Waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
         Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job3Id) == 10);
         Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) == null);
@@ -599,14 +599,14 @@ public class JobServiceEndToEndIT {
         Thread.sleep(6000); // Add short delay to allow J1 + J2 to complete.
 
         //  Verify J2 is complete but J3 is still waiting.
-        JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
-        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "Completed");
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "Waiting");
         Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) != null);
 
         Thread.sleep(15000); // Add short delay to allow J3 to complete
 
         //  Verify J3 is complete.
-        JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "Completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
 
         //  Verify dependency rows do not exist.
@@ -913,10 +913,10 @@ public class JobServiceEndToEndIT {
 
         //  Verify rows for J3 & J4 still exist.
         JobServiceDatabaseUtil.assertJobRowExists(job3Id);
-        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "Waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
         JobServiceDatabaseUtil.assertJobRowExists(job4Id);
-        JobServiceDatabaseUtil.assertJobStatus(job4Id, "waiting");
+        JobServiceDatabaseUtil.assertJobStatus(job4Id, "Waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
     }
 

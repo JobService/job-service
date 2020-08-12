@@ -123,19 +123,19 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
     private void verifyJobActive(final TaskMessage resultMessage) throws ApiException {
         boolean jobIsActive = jobsApi.getJobActive(
             expectation.getPartitionId(), expectation.getJobId(), expectation.getCorrelationId());
-        boolean expectJobActive = getCurrentMessageExpectedJobStatus() == "Active";
+        boolean expectJobActive = "Active".equals(getCurrentMessageExpectedJobStatus());
         assertEqual("job active", String.valueOf(expectJobActive), String.valueOf(jobIsActive), resultMessage);
     }
 
 
     private void verifyJobStatus(final TaskMessage resultMessage, final Job job) throws ApiException {
-        assertEqual("job status", getCurrentMessageExpectedJobStatus().toString(), job.getStatus(), resultMessage);
+        assertEqual("job status", getCurrentMessageExpectedJobStatus(), job.getStatus(), resultMessage);
     }
 
     private void verifyJobFailures(final TaskMessage resultMessage, final Job job) throws ApiException {
         int numFailures = job.getFailures().size();
         boolean failuresFound = numFailures > 0;
-        boolean expectedFailures = getCurrentMessageExpectedJobStatus() == "Failed";
+        boolean expectedFailures = "Failed".equals(getCurrentMessageExpectedJobStatus());
         if (expectedFailures != failuresFound) {
             String errorMessage = "Expected job " + expectation.getJobId() + " to have " + (expectedFailures ? "" : "no ") + "failures." + (expectedFailures ? "" : " Found " + String.valueOf(numFailures) + " failures: " + String.valueOf(getFailureMessages(job)));
             LOG.error(errorMessage);
