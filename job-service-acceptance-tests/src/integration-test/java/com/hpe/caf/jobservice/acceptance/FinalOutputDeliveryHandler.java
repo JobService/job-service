@@ -123,7 +123,7 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
     private void verifyJobActive(final TaskMessage resultMessage) throws ApiException {
         boolean jobIsActive = jobsApi.getJobActive(
             expectation.getPartitionId(), expectation.getJobId(), expectation.getCorrelationId());
-        boolean expectJobActive = getCurrentMessageExpectedJobStatus() == Job.StatusEnum.ACTIVE;
+        boolean expectJobActive = getCurrentMessageExpectedJobStatus() == "Active";
         assertEqual("job active", String.valueOf(expectJobActive), String.valueOf(jobIsActive), resultMessage);
     }
 
@@ -135,7 +135,7 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
     private void verifyJobFailures(final TaskMessage resultMessage, final Job job) throws ApiException {
         int numFailures = job.getFailures().size();
         boolean failuresFound = numFailures > 0;
-        boolean expectedFailures = getCurrentMessageExpectedJobStatus() == Job.StatusEnum.FAILED;
+        boolean expectedFailures = getCurrentMessageExpectedJobStatus() == "Failed";
         if (expectedFailures != failuresFound) {
             String errorMessage = "Expected job " + expectation.getJobId() + " to have " + (expectedFailures ? "" : "no ") + "failures." + (expectedFailures ? "" : " Found " + String.valueOf(numFailures) + " failures: " + String.valueOf(getFailureMessages(job)));
             LOG.error(errorMessage);
@@ -154,8 +154,8 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
     }
 
 
-    private Job.StatusEnum getCurrentMessageExpectedJobStatus() {
-        return currentMessageIsLastExpected() ? Job.StatusEnum.COMPLETED : Job.StatusEnum.ACTIVE;
+    private String getCurrentMessageExpectedJobStatus() {
+        return currentMessageIsLastExpected() ? "Completed" : "Active";
     }
 
 
@@ -200,7 +200,7 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
         try {
             Job job = jobsApi.getJob(
                 expectation.getPartitionId(), expectation.getJobId(), expectation.getCorrelationId());
-            if (job.getStatus() != Job.StatusEnum.CANCELLED) {
+            if (job.getStatus() != "Cancelled") {
                 String errorMessage = "Expected job " + expectation.getJobId() + " to have status = CANCELLED but it has STATUS = " + job.getStatus().toString();
                 LOG.error(errorMessage);
                 context.failed(new TestItem("JobId=" + expectation.getJobId(), null, null), errorMessage);
