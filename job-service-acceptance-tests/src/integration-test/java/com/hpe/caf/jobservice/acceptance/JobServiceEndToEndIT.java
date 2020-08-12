@@ -353,7 +353,7 @@ public class JobServiceEndToEndIT {
         Thread.sleep(1000); // Add short delay to allow previous job to complete
 
         //  Verify job 3 has completed and no job dependency rows exist.
-        JobServiceDatabaseUtil.assertJobStatus(job3Id, "Completed");
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job1Id);
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
@@ -528,11 +528,11 @@ public class JobServiceEndToEndIT {
 
         //  Now that J1 has completed, verify this has triggered the completion of other jobs created
         //  with a prerequisite.
-        JobServiceDatabaseUtil.assertJobStatus(job2Id, "Completed");
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job2Id, job1Id);
-        JobServiceDatabaseUtil.assertJobStatus(job3Id, "Completed");
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
-        JobServiceDatabaseUtil.assertJobStatus(job4Id, "Completed");
+        JobServiceDatabaseUtil.assertJobStatus(job4Id, "completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job4Id, job2Id);
     }
 
