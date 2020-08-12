@@ -200,7 +200,7 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
         try {
             Job job = jobsApi.getJob(
                 expectation.getPartitionId(), expectation.getJobId(), expectation.getCorrelationId());
-            if (job.getStatus() != "Cancelled") {
+            if (!"Cancelled".equals(job.getStatus().toString())) {
                 String errorMessage = "Expected job " + expectation.getJobId() + " to have status = CANCELLED but it has STATUS = " + job.getStatus();
                 LOG.error(errorMessage);
                 context.failed(new TestItem("JobId=" + expectation.getJobId(), null, null), errorMessage);
