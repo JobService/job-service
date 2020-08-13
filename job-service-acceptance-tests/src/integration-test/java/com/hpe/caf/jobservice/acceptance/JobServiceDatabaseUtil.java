@@ -20,11 +20,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
@@ -151,6 +154,37 @@ public class JobServiceDatabaseUtil
         }
     }
 
+    public static void assertJobTaskDataRowExists(final String jobId)
+            throws SQLException
+    {
+        try (final Connection dbConnection = getDbConnection();
+             final PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?")) {
+
+            // Verify job task data row exists.
+            st.setString(1, jobId);
+            final ResultSet jobTaskDataRS = st.executeQuery();
+            jobTaskDataRS.next();
+            Assert.assertEquals(jobTaskDataRS.getString(1), jobId);
+            Assert.assertTrue(!jobTaskDataRS.next());
+            st.clearBatch();
+            jobTaskDataRS.close();
+        }
+    }
+
+    public static void assertJobTaskDataRowDoesNotExist(final String jobId)
+            throws SQLException
+    {
+        try (final Connection dbConnection = getDbConnection();
+             final PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?")) {
+
+            // Verify job task data row does not exist.
+            st.setString(1, jobId);
+            final ResultSet jobTaskDataRS = st.executeQuery();
+            Assert.assertTrue(!jobTaskDataRS.next());
+            jobTaskDataRS.close();
+        }
+    }
+
     public static void assertJobDependencyRowsDoNotExist(final String jobId, final String dependentJobId)
             throws SQLException
     {
@@ -186,6 +220,26 @@ public class JobServiceDatabaseUtil
                     Assert.assertEquals(rs.getInt("result"), 0);
                 }
             }
+        }
+    }
+
+    public static boolean isJobEligibleToRun(final String jobId) throws SQLException
+    {
+        try (
+                final Connection connection = getDbConnection();
+                final CallableStatement stmt = connection.prepareCall("{call get_dependent_jobs()}")
+        ) {
+            LOG.debug("Calling get_dependent_jobs() database function ...");
+            stmt.execute();
+
+            final List<String> jobTaskDataList = new ArrayList<>();
+            final ResultSet rs = stmt.getResultSet();
+            while (rs.next()) {
+                jobTaskDataList.add(stmt.getResultSet().getString(2));
+            }
+            rs.close();
+
+            return jobTaskDataList.contains(jobId);
         }
     }
 

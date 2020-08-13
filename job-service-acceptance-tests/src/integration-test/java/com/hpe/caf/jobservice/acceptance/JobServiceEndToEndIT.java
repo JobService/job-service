@@ -26,6 +26,7 @@ import com.hpe.caf.naming.ServicePath;
 import com.hpe.caf.services.job.client.ApiClient;
 import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.services.job.client.api.JobsApi;
+import com.hpe.caf.services.job.client.model.Job;
 import com.hpe.caf.services.job.client.model.NewJob;
 import com.hpe.caf.services.job.client.model.WorkerAction;
 import com.hpe.caf.worker.batch.BatchWorkerConstants;
@@ -43,6 +44,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -615,6 +618,206 @@ public class JobServiceEndToEndIT {
     }
 
     @Test
+    public void testCreateJobLongDelay() throws Exception {
+        //create a job for a suspended partition
+        final String jobId = generateJobId();
+        final String jobCorrelationId = "1";
+        final NewJob newJob = constructNewJob(jobId, true);
+        newJob.setDelay(6000);
+        final String partitionId = "tenant-abc-com";
+        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
+
+        //retrieve job using web method
+        final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
+        final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(retrievedJob.getId());
+        LOG.info("--testCreateJobLongDelay job {} in partition: {}, canRun? {}", retrievedJob.getId(), partitionId, canRun);
+        assertEquals(false, canRun);
+    }
+
+    @Test
+    public void testCreateJobNoDelayNoPreReq() throws Exception {
+        //create a job eligible for running
+        final String jobId = generateJobId();
+        final String jobCorrelationId = "1";
+        final NewJob newJob = constructNewJob(jobId, true);
+        final String partitionId = "tenant-allclear-com";
+        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
+
+        //retrieve job using web method
+        final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
+        LOG.info("--testCreateJobNoDelayNoPreReq job {} in partition: {}", retrievedJob.getId(), partitionId);
+        JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(retrievedJob.getId());
+    }
+
+    @Test
+    public void testCreateJobNoDelayAndSomePreReq() throws Exception {
+        //create a job with some pre req
+        final String preReqJobId = generateJobId();
+        final String job1Id = generateJobId();
+        final String jobCorrelationId = "1";
+        final String partitionId = "tenant-hasprereq-com";
+        createJobWithPrerequisites(partitionId, job1Id, true, preReqJobId);
+        //  Verify J1 is in 'waiting' state and job dependency rows exist as expected.
+        JobServiceDatabaseUtil.assertJobStatus(job1Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job1Id, preReqJobId, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job1Id) == 0);
+        final String job1EligibleRunDate = JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job1Id);
+        LOG.info("--testCreateJobNoDelayAndSomePreReq : job1EligibleRunDate: ", job1EligibleRunDate);
+        Assert.assertTrue(job1EligibleRunDate == null);
+
+        final NewJob preReqJobJob = constructNewJob(preReqJobId, true);
+        jobsApi.createOrUpdateJob(partitionId, preReqJobId, preReqJobJob, jobCorrelationId);
+
+        final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(job1Id);
+        LOG.info("--testCreateJobNoDelayAndSomePreReq job {} in partition: {}, canRun? {}", job1Id, partitionId, canRun);
+        assertEquals(false, canRun);
+
+        JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(preReqJobId);
+    }
+
+    @Test
+    public void testCreateJobNoDelayAndSomePreReqWithDelay() throws Exception {
+        //create a job with some pre req which has a delay
+        final String preReqJobId = generateJobId();
+        final String job1Id = generateJobId();
+        final String partitionId = "tenant-prereqdelay-com";
+        createJobWithPrerequisites(partitionId, job1Id, true, preReqJobId);
+        //  Verify J1 is in 'waiting' state and job dependency rows exist as expected.
+        JobServiceDatabaseUtil.assertJobStatus(job1Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job1Id, preReqJobId, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job1Id) == 0);
+        final String job1EligibleRunDate = JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job1Id);
+        LOG.info("--testCreateJobNoDelayAndSomePreReqWithDelay : job1EligibleRunDate: ", job1EligibleRunDate);
+        Assert.assertTrue(job1EligibleRunDate == null);
+
+        createJobWithDelay(partitionId, preReqJobId, true, 15);
+
+        final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(job1Id);
+        LOG.info("--testCreateJobNoDelayAndSomePreReqWithDelay job {} in partition: {}, canRun? {}", job1Id, partitionId, canRun);
+        assertEquals(false, canRun);
+
+        final boolean preReqJobCanRun = JobServiceDatabaseUtil.isJobEligibleToRun(preReqJobId);
+        LOG.info("--testCreateJobNoDelayAndSomePreReqWithDelay job {} in partition: {}, canRun? {}",
+                preReqJobId, partitionId, preReqJobCanRun);
+        assertEquals(false, preReqJobCanRun);
+    }
+
+    @Test
+    public void testCreateJobSuspendedPartition() throws Exception {
+        //create a job for a suspended partition
+        final String jobId = generateJobId();
+        final String jobCorrelationId = "1";
+        final NewJob newJob = constructNewJob(jobId, true);
+        final String partitionId = "tenant-acme-com";
+        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
+
+        //retrieve job using web method
+        final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
+        final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(retrievedJob.getId());
+        LOG.info("--testCreateJobSuspendedPartition job {} in partition: {}, canRun? {}", retrievedJob.getId(), partitionId, canRun);
+        assertEquals(false, canRun);
+    }
+
+    @Test
+    public void testCreateJobWithPreReqSuspendedPartition() throws Exception {
+        //create a job with pre reqs for a suspended partition
+        final String jobId = generateJobId();
+        final String jobCorrelationId = "1";
+        final NewJob newJob = constructNewJob(jobId, true);
+        newJob.setPrerequisiteJobIds(Collections.singletonList(UUID.randomUUID().toString()));
+        final String partitionId = "tenant-acme-co";
+        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
+
+        //retrieve job using web method
+        final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
+        final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(retrievedJob.getId());
+        LOG.info("--testCreateJobWithPreReqSuspendedPartition job {} in partition: {}, canRun? {}",
+                retrievedJob.getId(), partitionId, canRun);
+        assertEquals(false, canRun);
+    }
+
+    @Test
+    public void testCreateJobWithDelaySuspendedPartition() throws Exception {
+        //create a job with delay for a suspended partition
+        final String jobId = generateJobId();
+        final String jobCorrelationId = "1";
+        final NewJob newJob = constructNewJob(jobId, true);
+        newJob.setDelay(600); // 600s
+        final String partitionId = "tenant-acme-com";
+        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
+
+        //retrieve job using web method
+        final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
+        final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(retrievedJob.getId());
+        LOG.info("--testCreateJobWithDelaySuspendedPartition job {} in partition: {}, canRun? {}",
+                retrievedJob.getId(), partitionId, canRun);
+        assertEquals(false, canRun);
+    }
+
+    @Test
+    public void testSuspendedJobWithPrerequisiteJobsAndDelays() throws Exception
+    {
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+
+        final String partitionId = "tenant-acme-corp";
+
+        //  Generate job identifiers for test.
+        final String job1Id = generateJobId();
+        final String job2Id = generateJobId();
+        final String job3Id = generateJobId();
+
+        //  Create job hierarchy.
+        //
+        //  J1
+        //  -> J2 (delay=2s)
+        //      -> J3 (delay=10s)
+        createJobWithPrerequisitesAndDelay(partitionId, job2Id, true, 2, job1Id);
+        //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
+        JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job2Id) == 2);
+        final String job2EligibleRunDate = JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job2Id);
+        LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays : job2EligibleRunDate: ", job2EligibleRunDate);
+        Assert.assertTrue(job2EligibleRunDate == null);
+
+        createJobWithPrerequisitesAndDelay(partitionId, job3Id, true, 10, job2Id);
+        //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job3Id) == 10);
+        String job3EligibleRunDate = JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id);
+        LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays : job3EligibleRunDate: ", job3EligibleRunDate);
+        Assert.assertTrue(job3EligibleRunDate == null);
+
+        final Map<String, String> labels = new HashMap<>();
+        labels.put("tag:4", "4");
+        labels.put("tag:7", "7");
+
+        createJobWithLabels(partitionId, job1Id, true, labels);
+
+        LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays check if task_data rows are created for jobs in partition: {}",
+                partitionId);
+
+        JobServiceDatabaseUtil.assertJobTaskDataRowExists(job1Id);
+        JobServiceDatabaseUtil.assertJobTaskDataRowExists(job2Id);
+        JobServiceDatabaseUtil.assertJobTaskDataRowExists(job3Id);
+
+        final boolean canRunJob1 = JobServiceDatabaseUtil.isJobEligibleToRun(job1Id);
+        LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays job1 {} in partition: {}, canRun? {}",
+                job1Id, partitionId, canRunJob1);
+        final boolean canRunJob2 = JobServiceDatabaseUtil.isJobEligibleToRun(job2Id);
+        LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays job2 {} in partition: {}, canRun? {}",
+                job2Id, partitionId, canRunJob2);
+        final boolean canRunJob3 = JobServiceDatabaseUtil.isJobEligibleToRun(job3Id);
+        LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays job3 {} in partition: {}, canRun? {}",
+                job3Id, partitionId, canRunJob3);
+        assertEquals(false, canRunJob1);
+        assertEquals(false, canRunJob2);
+        assertEquals(false, canRunJob3);
+    }
+
+    @Test
     public void testJobCancellation() throws Exception {
         testJobCancellation(false);
     }
@@ -995,6 +1198,35 @@ public class JobServiceEndToEndIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
     }
 
+    private void createJobWithPrerequisites(final String partitionId, final String jobId,
+            final boolean useTaskDataObject, final String... prerequisiteJobs) throws Exception {
+        final NewJob newJob = constructNewJob(jobId, useTaskDataObject);
+        newJob.setPrerequisiteJobIds(Arrays.asList(prerequisiteJobs));
+        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
+    }
+
+    private void createJobWithDelay(final String partitionId, final String jobId,
+            final boolean useTaskDataObject, final int delay) throws Exception {
+        final NewJob newJob = constructNewJob(jobId, useTaskDataObject);
+        newJob.setDelay(delay);
+        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
+    }
+
+    private void createJobWithPrerequisitesAndDelay(final String partitionId, final String jobId,
+            final boolean useTaskDataObject, final int delay,
+            final String... prerequisiteJobs) throws Exception {
+        final NewJob newJob = constructNewJob(jobId, useTaskDataObject);
+        newJob.setPrerequisiteJobIds(Arrays.asList(prerequisiteJobs));
+        newJob.setDelay(delay);
+        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
+    }
+
+    private void createJobWithLabels(final String partitionId, final String jobId, final boolean useTaskDataObject,
+            final Map<String, String> labels) throws Exception {
+        final NewJob newJob = constructNewJob(jobId, useTaskDataObject);
+        newJob.getLabels().putAll(labels);
+        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
+    }
 
     private void cancelJob(final String jobId) throws Exception {
         jobsApi.cancelJob(defaultPartitionId, jobId, jobCorrelationId);
