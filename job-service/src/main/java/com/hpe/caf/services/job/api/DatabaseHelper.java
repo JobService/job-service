@@ -315,7 +315,7 @@ public final class DatabaseHelper
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
-            final String[] prerequisiteJobIdStringArray = prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
+            final String[] prerequisiteJobIdStringArray = getPrerequisiteJobIds(prerequisiteJobIds);
             Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
 
             final List<String[]> labelArray = buildLabelSqlArray(labels);
