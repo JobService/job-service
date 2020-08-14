@@ -500,7 +500,7 @@ public class JobServiceIT {
 
         Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        assertEquals(cancelledJob.getStatus(), Job.StatusEnum.CANCELLED);
+        assertEquals(cancelledJob.getStatus(), "Cancelled");
         assertTrue(new Date(cancelledJob.getLastUpdateTime()).after(new Date(initialJob.getLastUpdateTime())),
             "last-update-time should be updated on cancel");
     }
@@ -523,7 +523,7 @@ public class JobServiceIT {
         jobsApi.cancelJob(defaultPartitionId, jobId, jobCorrelationId); // shouldn't throw
         final Job cancelledAgainJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        assertEquals(cancelledJob.getStatus(), Job.StatusEnum.CANCELLED,
+        assertEquals(cancelledJob.getStatus(), "Cancelled",
             "status should remain cancelled");
         assertEquals(cancelledJob.getLastUpdateTime(), cancelledAgainJob.getLastUpdateTime(),
             "last-update-time should not be updated on second cancel");
@@ -591,7 +591,7 @@ public class JobServiceIT {
         assertThrowsApiException(Response.Status.NOT_FOUND,
             () -> jobsApi.deleteJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
         final Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-        assertEquals(job.getStatus(), Job.StatusEnum.WAITING, "job should still be waiting");
+        assertEquals(job.getStatus(), "Waiting", "job should still be waiting");
     }
 
     @Test
@@ -604,7 +604,7 @@ public class JobServiceIT {
         assertThrowsApiException(Response.Status.NOT_FOUND,
             () -> jobsApi.cancelJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
         final Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-        assertEquals(job.getStatus(), Job.StatusEnum.WAITING, "job should still be waiting");
+        assertEquals(job.getStatus(), "Waiting", "job should still be waiting");
     }
 
     @Test

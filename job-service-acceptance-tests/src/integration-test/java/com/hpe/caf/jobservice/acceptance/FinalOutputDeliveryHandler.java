@@ -123,19 +123,19 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
     private void verifyJobActive(final TaskMessage resultMessage) throws ApiException {
         boolean jobIsActive = jobsApi.getJobActive(
             expectation.getPartitionId(), expectation.getJobId(), expectation.getCorrelationId());
-        boolean expectJobActive = getCurrentMessageExpectedJobStatus() == Job.StatusEnum.ACTIVE;
+        boolean expectJobActive = "Active".equals(getCurrentMessageExpectedJobStatus());
         assertEqual("job active", String.valueOf(expectJobActive), String.valueOf(jobIsActive), resultMessage);
     }
 
 
     private void verifyJobStatus(final TaskMessage resultMessage, final Job job) throws ApiException {
-        assertEqual("job status", getCurrentMessageExpectedJobStatus().toString(), job.getStatus().toString(), resultMessage);
+        assertEqual("job status", getCurrentMessageExpectedJobStatus(), job.getStatus(), resultMessage);
     }
 
     private void verifyJobFailures(final TaskMessage resultMessage, final Job job) throws ApiException {
         int numFailures = job.getFailures().size();
         boolean failuresFound = numFailures > 0;
-        boolean expectedFailures = getCurrentMessageExpectedJobStatus() == Job.StatusEnum.FAILED;
+        boolean expectedFailures = "Failed".equals(getCurrentMessageExpectedJobStatus());
         if (expectedFailures != failuresFound) {
             String errorMessage = "Expected job " + expectation.getJobId() + " to have " + (expectedFailures ? "" : "no ") + "failures." + (expectedFailures ? "" : " Found " + String.valueOf(numFailures) + " failures: " + String.valueOf(getFailureMessages(job)));
             LOG.error(errorMessage);
@@ -154,8 +154,8 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
     }
 
 
-    private Job.StatusEnum getCurrentMessageExpectedJobStatus() {
-        return currentMessageIsLastExpected() ? Job.StatusEnum.COMPLETED : Job.StatusEnum.ACTIVE;
+    private String getCurrentMessageExpectedJobStatus() {
+        return currentMessageIsLastExpected() ? "Completed" : "Active";
     }
 
 
@@ -200,8 +200,8 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
         try {
             Job job = jobsApi.getJob(
                 expectation.getPartitionId(), expectation.getJobId(), expectation.getCorrelationId());
-            if (job.getStatus() != Job.StatusEnum.CANCELLED) {
-                String errorMessage = "Expected job " + expectation.getJobId() + " to have status = CANCELLED but it has STATUS = " + job.getStatus().toString();
+            if (!"Cancelled".equals(job.getStatus().toString())) {
+                String errorMessage = "Expected job " + expectation.getJobId() + " to have status = CANCELLED but it has STATUS = " + job.getStatus();
                 LOG.error(errorMessage);
                 context.failed(new TestItem("JobId=" + expectation.getJobId(), null, null), errorMessage);
             }

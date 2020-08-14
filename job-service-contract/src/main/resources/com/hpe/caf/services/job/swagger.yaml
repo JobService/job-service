@@ -372,14 +372,7 @@ definitions:
         description: The time the job status or progress last changed
       status:
         type: string
-        description: The status of the job
-        enum:
-          - Active
-          - Cancelled
-          - Completed
-          - Failed
-          - Paused
-          - Waiting
+        description: String value of the job status enum, possible values are Completed, Active, Waiting, Failed, Paused and Cancelled.
       percentageComplete:
         type: number
         format: float
