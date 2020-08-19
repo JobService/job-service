@@ -146,7 +146,7 @@
                             <alias>job-service-postgres</alias>
                             <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <build>
-                                <from>cafinternal/prereleases:java-postgres-2.0.0-SNAPSHOT</from>
+                                <from>cafapi/java-postgres:2</from>
                                 <labels>
                                     <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
