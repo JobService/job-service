@@ -41,7 +41,7 @@ public final class JobsStatsGetCount {
         long jobsCount;
 
         try {
-            LOG.info("getJobsCount: Starting...");
+            LOG.debug("getJobsCount: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
 
             //  Get app config settings.
@@ -53,14 +53,14 @@ public final class JobsStatsGetCount {
             final String convertedFilter = RsqlToSqlUtils.convertToSqlSyntax(filter);
 
             //  Get number of job definitions in the system.
-            LOG.info("getJobsCount: Getting number of job definitions...");
+            LOG.debug("getJobsCount: Getting number of job definitions...");
             jobsCount = databaseHelper.getJobsCount(partitionId, jobId, statusType, convertedFilter);
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());
             throw e;
         }
 
-        LOG.info("getJobsCount: Done.");
+        LOG.debug("getJobsCount: Done.");
         return jobsCount;
     }
 }
