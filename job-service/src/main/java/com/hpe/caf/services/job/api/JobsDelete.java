@@ -33,7 +33,7 @@ public final class JobsDelete {
      */
     public static void deleteJob(final String partitionId, String jobId) throws Exception {
         try {
-            LOG.info("deleteJob: Starting...");
+            LOG.debug("deleteJob: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
 
             //  Make sure the job id has been provided.
@@ -56,10 +56,10 @@ public final class JobsDelete {
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
             //  Delete the specified job from the system.
-            LOG.info("deleteJob: Deleting job...");
+            LOG.debug("deleteJob: Deleting job...");
             databaseHelper.deleteJob(partitionId, jobId);
 
-            LOG.info("deleteJob: Done.");
+            LOG.debug("deleteJob: Done.");
 
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());

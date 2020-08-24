@@ -33,7 +33,7 @@ public final class JobsCancel {
     public static void cancelJob(final String partitionId, String jobId) throws Exception {
 
         try {
-            LOG.info("cancel: Starting...");
+            LOG.debug("cancel: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
 
             //  Make sure the job id has been provided.
@@ -56,10 +56,10 @@ public final class JobsCancel {
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
             //  Cancel the specified job.
-            LOG.info("cancel: Cancelling the job...");
+            LOG.debug("cancel: Cancelling the job...");
             databaseHelper.cancelJob(partitionId, jobId);
 
-            LOG.info("cancel: Done.");
+            LOG.debug("cancel: Done.");
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());
             throw e;
