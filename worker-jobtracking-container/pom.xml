@@ -443,7 +443,7 @@
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Tracking Worker</JOB_SERVICE_DATABASE_APPNAME>
                                     <!-- DEBUGGING -->
-                                    <!-- <_JAVA_OPTIONS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</_JAVA_OPTIONS>-->
+                                    <!-- <_JAVA_OPTIONS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005</_JAVA_OPTIONS>-->
                                 </env>
                                 <volumes>
                                     <from>
