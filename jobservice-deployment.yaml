@@ -10,13 +10,13 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2020-08-08T13:42:34Z
+      creationTimestamp: 2020-08-27T06:39:26Z
       labels:
         io.kompose.service: jobservicedb
     spec:
       containers:
       - name: jobservicedb
-        image: postgres:9.6
+        image: postgres:11.7
         imagePullPolicy: Always
         env:
           - name: POSTGRES_PASSWORD
@@ -55,7 +55,7 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2020-08-08T13:42:34Z
+      creationTimestamp: 2020-08-27T06:39:26Z
       labels:
         io.kompose.service: rabbitmq
     spec:
@@ -86,13 +86,13 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2020-08-08T13:42:34Z
+      creationTimestamp: 2020-08-27T06:39:26Z
       labels:
         io.kompose.service: jobservice
     spec:
       containers:
       - name: jobservice
-        image: jobservice/job-service:3.3.0
+        image: jobservice/job-service:3.4.0
         imagePullPolicy: Always
         env:
           - name: JOB_SERVICE_DATABASE_APPNAME
@@ -158,13 +158,13 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2020-08-08T13:42:34Z
+      creationTimestamp: 2020-08-27T06:39:26Z
       labels:
         io.kompose.service: jobtrackingworker
     spec:
       containers:
       - name: worker-jobtracking
-        image: jobservice/worker-jobtracking:3.3.0
+        image: jobservice/worker-jobtracking:3.4.0
         imagePullPolicy: Always
         env:
           - name: JOB_SERVICE_DATABASE_APPNAME
@@ -232,13 +232,13 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2020-08-08T13:42:34Z
+      creationTimestamp: 2020-08-27T06:39:26Z
       labels:
         io.kompose.service: jobservicescheduledexecutor
     spec:
       containers:
       - name: jobservicescheduledexecutor
-        image: jobservice/job-service-scheduled-executor:3.3.0
+        image: jobservice/job-service-scheduled-executor:3.4.0
         imagePullPolicy: Always
         env:
           - name: JOB_SERVICE_DATABASE_APPNAME
@@ -307,7 +307,7 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2020-08-08T13:42:34Z
+      creationTimestamp: 2020-08-27T06:39:26Z
       labels:
         io.kompose.service: worker-globfilter
     spec:
@@ -365,7 +365,7 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2020-08-08T13:42:34Z
+      creationTimestamp: 2020-08-27T06:39:26Z
       labels:
         io.kompose.service: worker-langdetect
     spec:
@@ -425,7 +425,7 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2020-08-08T13:42:34Z
+      creationTimestamp: 2020-08-27T06:39:26Z
       labels:
         io.kompose.service: filebrowser
     spec:
