@@ -60,6 +60,10 @@ BEGIN
     -- Get the job id
     v_job_id = internal_get_job_id(in_task_id);
 
+    -- Adding sub-task details into a specific report table for analysis purpose ( SCMOD-10455 )
+    INSERT INTO subtask_report (partition_id, task_id, status, create_date, failure_details) values (in_partition_id, in_task_id, 'Failure', now(), in_failure_details);
+
+
     -- Get the job status
     -- And take out an exclusive update lock on the job row
     SELECT status INTO v_job_status
