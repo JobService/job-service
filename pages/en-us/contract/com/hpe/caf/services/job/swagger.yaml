@@ -102,6 +102,11 @@ paths:
         type: string
         required: false
         description: 'Filter to jobs with the specified labels, in the format label=<labelName>,<labelName>'
+      - name: filter
+        in: query
+        type: string
+        required: false
+        description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`'
     get:
       tags:
         - Jobs
@@ -250,6 +255,11 @@ paths:
           - Completed
           - Inactive
           - NotFinished
+      - name: filter
+        in: query
+        type: string
+        required: false
+        description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`'
     get:
       tags:
         - Jobs
@@ -353,23 +363,16 @@ definitions:
           DEPRECATED - Replaced by labels External data can be associated with the job for use by other
           components.
       createTime:
-        type: string
-        format: date-time
+        type: integer
+        format: int64
         description: The time the job was created
       lastUpdateTime:
-        type: string
-        format: date-time
+        type: integer
+        format: int64
         description: The time the job status or progress last changed
       status:
         type: string
-        description: The status of the job
-        enum:
-          - Active
-          - Cancelled
-          - Completed
-          - Failed
-          - Paused
-          - Waiting
+        description: String value of the job status enum, possible values are Completed, Active, Waiting, Failed, Paused and Cancelled.
       percentageComplete:
         type: number
         format: float
