@@ -23,7 +23,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>3.4.0-834</version>
+        <version>3.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>job-service-admin</artifactId>
