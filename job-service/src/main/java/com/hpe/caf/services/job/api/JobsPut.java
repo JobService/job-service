@@ -72,7 +72,7 @@ public final class JobsPut {
      */
     public static String createOrUpdateJob(final String partitionId, String jobId, NewJob job) throws Exception {
         try {
-            LOG.info("createOrUpdateJob: Starting...");
+            LOG.debug("createOrUpdateJob: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
 
             //  Make sure the job id has been provided.
@@ -181,7 +181,7 @@ public final class JobsPut {
 
             final boolean partitionSuspended = ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId);
             //  Create job in the database.
-            LOG.info("createOrUpdateJob: Creating job in the database for {} : {}...",
+            LOG.debug("createOrUpdateJob: Creating job in the database for {} : {}...",
                     partitionSuspended ? "suspended partition" : "partition", partitionId);
             final boolean jobCreated;
             if ((job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) || partitionSuspended) {
@@ -205,7 +205,7 @@ public final class JobsPut {
             //  Get database helper instance.
             try {
                 QueueServices queueServices = QueueServicesFactory.create(config, jobTask.getTaskPipe(),codec);
-                LOG.info("createOrUpdateJob: Sending task data to the target queue...");
+                LOG.debug("createOrUpdateJob: Sending task data to the target queue...");
                 queueServices.sendMessage(partitionId, jobId, jobTask, config);
                 queueServices.close();
             } catch(Exception ex) {
@@ -225,7 +225,7 @@ public final class JobsPut {
                 throw new Exception("Failed to add task data to the queue.");
             }
 
-            LOG.info("createOrUpdateJob: Done.");
+            LOG.debug("createOrUpdateJob: Done.");
 
             return "create";
         } catch (Exception e) {

@@ -52,7 +52,7 @@ public final class JobsGet {
         Job[] jobs;
 
         try {
-            LOG.info("getJobs: Starting...");
+            LOG.debug("getJobs: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
 
             final JobSortField sortField;
@@ -94,7 +94,7 @@ public final class JobsGet {
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
             //  Get list of job definitions in the system.
-            LOG.info("getJobs: Getting list of job definitions...");
+            LOG.debug("getJobs: Getting list of job definitions...");
             if (limit == null || limit <= 0) {
                 limit = config.getDefaultPageSize();
             }
@@ -106,7 +106,7 @@ public final class JobsGet {
         }
 
 
-        LOG.info("getJobs: Done.");
+        LOG.debug("getJobs: Done.");
         return jobs;
     }
 }

@@ -50,7 +50,7 @@ public final class JobsActive {
         int statusCheckIntervalMillis;
 
         try {
-            LOG.info("isJobActive: Starting...");
+            LOG.debug("isJobActive: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
 
             //  Make sure the job id has been provided.
@@ -76,7 +76,7 @@ public final class JobsActive {
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
             //  Check if the specified job is active or not.
-            LOG.info("isJobActive: Checking job status...");
+            LOG.debug("isJobActive: Checking job status...");
             active = databaseHelper.isJobActive(partitionId, jobId);
 
         } catch (Exception e) {
@@ -84,7 +84,7 @@ public final class JobsActive {
             throw e;
         }
 
-        LOG.info("isJobActive: Done.");
+        LOG.debug("isJobActive: Done.");
         return new JobsActiveResult(active,statusCheckIntervalMillis);
     }
 
