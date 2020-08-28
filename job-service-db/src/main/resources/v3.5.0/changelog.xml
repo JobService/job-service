@@ -23,22 +23,24 @@
                    http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
     <changeSet id="create_subtask_report" author="Gamma Team">
+        <sql>CREATE TYPE task_status AS ENUM ('Completed','Failed')</sql>
         <createTable tableName="subtask_report">
-            <column name="partition_id" type="VARCHAR(48)">
+            <column name="partition_id" type="VARCHAR(40)">
                 <constraints nullable="false"/>
+            </column>
+            <column name="job_id" type="VARCHAR(48)">
+                <constraints nullable="false" />
             </column>
             <column name="task_id" type="VARCHAR(58)">
-                <constraints primaryKey="false" />
+                <constraints nullable="false" />
             </column>
-            <!--true if completed, false if failed-->
-            <column name="status" type="VARCHAR(12)">
+            <column name="status" type="task_status">
                 <constraints nullable="false"/>
             </column>
-            <column name="create_date" type="TIMESTAMP" defaultValueComputed="now()">
+            <column name="report_date" type="TIMESTAMP" >
                 <constraints nullable="false"/>
             </column>
             <column name="failure_details" type="TEXT">
-                <constraints nullable="true"/>
             </column>
         </createTable>
     </changeSet>
