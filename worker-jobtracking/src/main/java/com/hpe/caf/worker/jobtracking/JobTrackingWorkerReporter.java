@@ -105,7 +105,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException
     {
-        LOG.trace("Received progress update message for task {}; taking no action", jobTaskId);
+        LOG.trace("Recieved progress update message for task {}; taking no action", jobTaskId);
     }
 
     /**
@@ -172,7 +172,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public void reportJobTaskRetry(final String jobTaskId, final String retryDetails) throws JobReportingException
     {
-        LOG.trace("Received retry report message for task {}; taking no action", jobTaskId);
+        LOG.trace("Recieved retry report message for task {}; taking no action", jobTaskId);
     }
 
     /**
