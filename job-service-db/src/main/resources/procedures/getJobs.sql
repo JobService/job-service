@@ -79,18 +79,18 @@ BEGIN
     -- Also accepts in_limit and in_offset params to support paging and limiting the number of rows returned.
     -- 'WORKER' is the only supported action type for now and this is returned.
     sql := $q$
-        SELECT job.job_id,
-               job.name,
-               job.description,
-               job.data,
-               job.create_date,
-               job.last_update_date,
-               job.status,
-               job.percentage_complete,
-               job.failure_details,
-               CAST('WORKER' AS CHAR(6)) AS actionType,
-               lbl.label,
-               lbl.value
+        SELECT job_lbl.job_id,
+               job_lbl.name,
+               job_lbl.description,
+               job_lbl.data,
+               job_lbl.create_date,
+               job_lbl.last_update_date,
+               job_lbl.status,
+               job_lbl.percentage_complete,
+               job_lbl.failure_details,
+               job_lbl.actionType,
+               job_lbl.label,
+               job_lbl.value
         FROM
         (SELECT
                job.partition_id,
@@ -103,14 +103,16 @@ BEGIN
                job.status,
                job.percentage_complete,
                job.failure_details,
-               CAST('WORKER' AS CHAR(6)) AS actionType
-        FROM job
+               CAST('WORKER' AS CHAR(6)) AS actionType,
+               lbl.label,
+               lbl.value
+        FROM public.job as job LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id
+        AND lbl.job_id = job.job_id
 
         $q$;
 
     IF in_labels IS NOT NULL AND ARRAY_LENGTH(in_labels, 1) > 0 THEN
-        sql := sql || whereOrAnd || ' EXISTS ( SELECT 1 FROM public.label lbl WHERE lbl.partition_id = job.partition_id'
-            || ' AND lbl.job_id = job.job_id AND lbl.label = ANY(' || quote_literal(in_labels) || ')) ';
+        sql := sql || whereOrAnd || ' lbl.label = ANY(' || quote_literal(in_labels) || ')) ';
         whereOrAnd := andConst;
     END IF;
 
@@ -145,7 +147,7 @@ BEGIN
         sql := sql || whereOrAnd || in_filter;
     END IF;
 
-    sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
+    sql := sql || ') as job_lbl ORDER BY ' || quote_ident(in_sort_field) ||
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
 
     IF in_limit > 0 THEN
@@ -157,11 +159,7 @@ BEGIN
     IF in_offset > 0 THEN
         sql := sql || ' OFFSET ' || in_offset;
     END IF;
-    -- Join onto the labels after paging to avoid them bloating the row count
-    sql := sql || ' ) as job LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id '
-               || 'AND lbl.job_id = job.job_id';
-    sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
-        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+
     RETURN QUERY EXECUTE sql;
 END
 $$;
