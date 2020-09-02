@@ -72,9 +72,9 @@ public final class JobsGetTest {
 
     @Test
     public void testGetJobs_Success_WithSort() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc", null, null);
+        JobsGet.getJobs("partition", "", null, 0, 0, "name:asc", null, null);
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null);
+            "partition", "", null, 0, 0, JobSortField.NAME, SortDirection.ASCENDING, null, null);
     }
 
     @Test(expected = BadRequestException.class)
