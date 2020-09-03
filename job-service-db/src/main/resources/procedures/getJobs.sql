@@ -112,7 +112,7 @@ BEGIN
         $q$;
 
     IF in_labels IS NOT NULL AND ARRAY_LENGTH(in_labels, 1) > 0 THEN
-        sql := sql || whereOrAnd || ' lbl.label = ANY(' || quote_literal(in_labels) || ')) ';
+        sql := sql || whereOrAnd || ' lbl.label = ANY(' || quote_literal(in_labels) || ') ';
         whereOrAnd := andConst;
     END IF;
 
