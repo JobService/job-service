@@ -147,7 +147,9 @@ BEGIN
         sql := sql || whereOrAnd || in_filter;
     END IF;
 
-    sql := sql || ') as job_lbl ORDER BY ' || quote_ident(in_sort_field) ||
+    sql := sql || ') as job_lbl';
+
+    sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
 
     IF in_limit > 0 THEN
