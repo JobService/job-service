@@ -112,7 +112,8 @@ BEGIN
         $q$;
 
     IF in_labels IS NOT NULL AND ARRAY_LENGTH(in_labels, 1) > 0 THEN
-        sql := sql || whereOrAnd || ' lbl.label = ANY(' || quote_literal(in_labels) || ') ';
+        sql := sql || whereOrAnd || ' EXISTS ( SELECT 1 FROM public.label lbl WHERE lbl.partition_id = job.partition_id'
+            || ' AND lbl.job_id = job.job_id AND lbl.label = ANY(' || quote_literal(in_labels) || ')) ';
         whereOrAnd := andConst;
     END IF;
 
@@ -147,8 +148,6 @@ BEGIN
         sql := sql || whereOrAnd || in_filter;
     END IF;
 
-    sql := sql || ') as job_lbl';
-
     sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
 
@@ -161,7 +160,7 @@ BEGIN
     IF in_offset > 0 THEN
         sql := sql || ' OFFSET ' || in_offset;
     END IF;
-
+    sql := sql || ' ) as job_lbl';
     RETURN QUERY EXECUTE sql;
 END
 $$;
