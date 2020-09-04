@@ -79,18 +79,18 @@ BEGIN
     -- Also accepts in_limit and in_offset params to support paging and limiting the number of rows returned.
     -- 'WORKER' is the only supported action type for now and this is returned.
     sql := $q$
-        SELECT job_lbl.job_id,
-               job_lbl.name,
-               job_lbl.description,
-               job_lbl.data,
-               job_lbl.create_date,
-               job_lbl.last_update_date,
-               job_lbl.status,
-               job_lbl.percentage_complete,
-               job_lbl.failure_details,
-               job_lbl.actionType,
-               job_lbl.label,
-               job_lbl.value
+        SELECT job.job_id,
+               job.name,
+               job.description,
+               job.data,
+               job.create_date,
+               job.last_update_date,
+               job.status,
+               job.percentage_complete,
+               job.failure_details,
+               CAST('WORKER' AS CHAR(6)) AS actionType,
+               lbl.label,
+               lbl.value
         FROM
         (SELECT
                job.partition_id,
@@ -103,11 +103,8 @@ BEGIN
                job.status,
                job.percentage_complete,
                job.failure_details,
-               CAST('WORKER' AS CHAR(6)) AS actionType,
-               lbl.label,
-               lbl.value
-        FROM public.job as job LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id
-        AND lbl.job_id = job.job_id
+               CAST('WORKER' AS CHAR(6)) AS actionType
+        FROM job
 
         $q$;
 
@@ -148,8 +145,7 @@ BEGIN
         sql := sql || whereOrAnd || in_filter;
     END IF;
 
-    sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
-        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+    sql := sql || ' ORDER BY create_date' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
 
     IF in_limit > 0 THEN
         sql := sql || ' LIMIT ' || in_limit;
@@ -160,7 +156,11 @@ BEGIN
     IF in_offset > 0 THEN
         sql := sql || ' OFFSET ' || in_offset;
     END IF;
-    sql := sql || ' ) as job_lbl';
+    -- Join onto the labels after paging to avoid them bloating the row count
+    sql := sql || ' ) as job LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id '
+               || 'AND lbl.job_id = job.job_id';
+    sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
+        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
     RETURN QUERY EXECUTE sql;
 END
 $$;

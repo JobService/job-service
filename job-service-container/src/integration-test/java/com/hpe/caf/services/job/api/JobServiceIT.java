@@ -486,6 +486,21 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testGetJobsWithSortByName() throws ApiException {
+        final String jobId = UUID.randomUUID().toString();
+        final String job1Id = createJob(jobId + "C");
+        final String job2Id = createJob(jobId + "A");
+        final String job3Id = createJob(jobId + "B");
+
+        final List<Job> jobs = jobsApi.getJobs(
+            defaultPartitionId, "1", null, null, null, null, "name:asc", null, null);
+        final List<String> resultJobIds =
+            jobs.stream().map(job -> job.getName()).collect(Collectors.toList());
+        assertEquals(resultJobIds, Arrays.asList("Job_"+jobId + "A", "Job_"+jobId + "B", "Job_"+jobId + "C"),
+            "should sort case-insensitively by ascending job name");
+    }
+
+    @Test
     public void testCancelJob() throws ApiException {
         //create a job
         String jobId = UUID.randomUUID().toString();
