@@ -25,11 +25,11 @@ public enum JobSortField {
     JOB_ID("jobId", "job_id"),
     CREATE_DATE("createTime", "create_date"),
     NAME("name", "name"),
-    LAST_UPDATE_TIME("lastUpdateTime", "last_update_date"),
+    LAST_UPDATE_DATE("lastUpdateTime", "last_update_date"),
     STATUS("status", "status"),
-    LABEL_NAME("labelName", "label"),
-    PERCENT_COMPLETE("percentComplete", "percentage_complete"),
-    LABEL_VALUE("labelValue", "value");
+    LABEL("label", "label"),
+    PERCENTAGE_COMPLETE("percentageComplete", "percentage_complete"),
+    VALUE("value", "value");
 
     private static final Map<String, JobSortField> apiValueLookup = new HashMap<>();
 
