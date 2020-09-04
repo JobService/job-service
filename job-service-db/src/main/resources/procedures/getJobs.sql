@@ -145,7 +145,7 @@ BEGIN
         sql := sql || whereOrAnd || in_filter;
     END IF;
 
-    sql := sql || ' ORDER BY create_date' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+    sql := sql || ' ORDER BY create_date ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
 
     IF in_limit > 0 THEN
         sql := sql || ' LIMIT ' || in_limit;
