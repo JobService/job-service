@@ -57,6 +57,7 @@ public final class JobsGet {
 
             final JobSortField sortField;
             final SortDirection sortDirection;
+            String sortByLabelValue = null;
 
             if (sort == null) {
                 sortField = DEFAULT_SORT_FIELD;
@@ -67,7 +68,14 @@ public final class JobsGet {
                 if (sortParts.length != 2) {
                     throw new BadRequestException("Invalid format for sort: " + sort);
                 }
+                if(sortParts[0].contains("=="))
+                {
+                    final String[] labelParts = sortParts[0].split("==", 2);
+                    sortField = JobSortField.fromApiValue(labelParts[0]);
+                    sortByLabelValue = labelParts[1];
+                }else{
                 sortField = JobSortField.fromApiValue(sortParts[0]);
+                }
                 if (sortField == null) {
                     throw new BadRequestException("Invalid value for sort field: " + sortParts[0]);
                 }
@@ -99,7 +107,8 @@ public final class JobsGet {
                 limit = config.getDefaultPageSize();
             }
             jobs = databaseHelper.getJobs(
-                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues, filterQuery);
+                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues,
+                                                                                         filterQuery, sortByLabelValue);
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;

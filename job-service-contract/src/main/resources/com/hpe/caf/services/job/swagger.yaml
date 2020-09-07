@@ -95,13 +95,13 @@ paths:
         in: query
         type: string
         required: false
-        description: 'How to order the returned results, in the format <field>:<direction>.  Allowed values for field: jobId, createTime.  Allowed values for direction: asc, desc.'
+        description: 'How to order the returned results. There are 2 formats used. Format 1 -- > `<field>:<direction>`, allowed values for field: jobId, createTime, name, status, lastUpdateTime, percentageComplete and allowed values for direction: asc, desc. Format 2 --> `<field>==<fieldValue>:<direction>` is allowed for field: label and for fieldValue: label names created by user and for direction: asc, desc.'
         default: createTime:desc
       - name: labelExist
         in: query
         type: string
         required: false
-        description: 'Filter to jobs with the specified labels, in the format label=<labelName>,<labelName>'
+        description: 'Filter to jobs with the specified labels, in the format label=<labelName1>,<labelName2>'
       - name: filter
         in: query
         type: string

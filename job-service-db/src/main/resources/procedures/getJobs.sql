@@ -43,7 +43,8 @@ CREATE OR REPLACE FUNCTION get_jobs(
     in_sort_field VARCHAR(20),
     in_sort_ascending BOOLEAN,
     in_labels VARCHAR(255)[],
-    in_filter VARCHAR(255)
+    in_filter VARCHAR(255),
+    in_sort_label_value VARCHAR(255)
 )
 RETURNS TABLE(
     job_id VARCHAR(48),
@@ -145,7 +146,16 @@ BEGIN
         sql := sql || whereOrAnd || in_filter;
     END IF;
 
-    sql := sql || ' ORDER BY create_date ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+    -- if sorting is request by label then add the below select query to ORDER BY expression
+    IF in_sort_label_value IS NOT NULL AND in_sort_label_value != '' THEN
+       sql := sql || ' ORDER BY ' || '(SELECT value FROM label l WHERE '
+        || 'job.partition_id = l.partition_id AND job.job_id = l.job_id '
+        || ' AND l.label = '|| quote_ident(in_sort_label_value) ||
+        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+    ELSE
+        sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
+        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+    END IF;
 
     IF in_limit > 0 THEN
         sql := sql || ' LIMIT ' || in_limit;
@@ -159,8 +169,15 @@ BEGIN
     -- Join onto the labels after paging to avoid them bloating the row count
     sql := sql || ' ) as job LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id '
                || 'AND lbl.job_id = job.job_id';
-    sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
+    IF in_sort_label_value IS NOT NULL AND in_sort_label_value != '' THEN
+       sql := sql || ' ORDER BY ' || '(SELECT value FROM label l WHERE '
+        || 'job.partition_id = l.partition_id AND job.job_id = l.job_id '
+        || ' AND l.label = '|| quote_ident(in_sort_label_value) ||
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+    ELSE
+        sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
+        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+    END IF;
     RETURN QUERY EXECUTE sql;
 END
 $$;

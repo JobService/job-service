@@ -28,8 +28,7 @@ public enum JobSortField {
     LAST_UPDATE_DATE("lastUpdateTime", "last_update_date"),
     STATUS("status", "status"),
     LABEL("label", "label"),
-    PERCENTAGE_COMPLETE("percentageComplete", "percentage_complete"),
-    VALUE("value", "value");
+    PERCENTAGE_COMPLETE("percentageComplete", "percentage_complete");
 
     private static final Map<String, JobSortField> apiValueLookup = new HashMap<>();
 

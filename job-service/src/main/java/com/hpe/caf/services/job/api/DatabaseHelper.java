@@ -68,13 +68,13 @@ public final class DatabaseHelper
 
     public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
                          Integer offset, final JobSortField sortField, final SortDirection sortDirection,
-                         final List<String> labels, final String filter) throws Exception {
+                         final List<String> labels, final String filter, String sortByLabelValue) throws Exception {
 
         final Map<String, Job> jobs = new LinkedHashMap<>(); //Linked rather than hash to preserve order of results.
 
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -87,6 +87,9 @@ public final class DatabaseHelper
             }
             if (offset == null) {
                 offset = 0;
+            }
+            if (sortByLabelValue == null) {
+                sortByLabelValue = "";
             }
             stmt.setString(1, partitionId);
             stmt.setString(2, jobIdStartsWith);
@@ -103,6 +106,7 @@ public final class DatabaseHelper
             }
             stmt.setArray(8, array);
             stmt.setString(9, filter);
+            stmt.setString(10, sortByLabelValue);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");

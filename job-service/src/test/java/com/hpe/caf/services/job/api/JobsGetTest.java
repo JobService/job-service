@@ -62,7 +62,7 @@ public final class JobsGetTest {
         JobsGet.getJobs("partition", "", null, 0, 0, null, null, null);
 
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null);
+            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null, null);
     }
 
     @Test(expected = BadRequestException.class)
@@ -74,14 +74,14 @@ public final class JobsGetTest {
     public void testGetJobs_Success_WithSort() throws Exception {
         JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc", null, null);
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null);
+            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null, null);
     }
 
     @Test
     public void testGetJobs_Success_WithNameSort() throws Exception {
         JobsGet.getJobs("partition", "", null, 0, 0, "name:asc", null, null);
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.NAME, SortDirection.ASCENDING, null, null);
+            "partition", "", null, 0, 0, JobSortField.NAME, SortDirection.ASCENDING, null, null, null);
     }
 
     @Test(expected = BadRequestException.class)
@@ -104,6 +104,6 @@ public final class JobsGetTest {
         JobsGet.getJobs("partition", "", null, 0, 0, null,"tag:4,tag:5", null);
         Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
                 "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
-                SortDirection.DESCENDING, Arrays.asList("tag:4", "tag:5"), null);
+                SortDirection.DESCENDING, Arrays.asList("tag:4", "tag:5"), null, null);
     }
 }
