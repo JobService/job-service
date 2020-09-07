@@ -68,9 +68,9 @@ public final class JobsGet {
                 if (sortParts.length != 2) {
                     throw new BadRequestException("Invalid format for sort: " + sort);
                 }
-                if(sortParts[0].contains("=="))
+                if(sortParts[0].contains("."))
                 {
-                    final String[] labelParts = sortParts[0].split("==", 2);
+                    final String[] labelParts = sortParts[0].split("\\.", 2);
                     sortField = JobSortField.fromApiValue(labelParts[0]);
                     sortByLabelValue = labelParts[1];
                 }else{

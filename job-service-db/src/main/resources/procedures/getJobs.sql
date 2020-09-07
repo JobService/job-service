@@ -150,8 +150,8 @@ BEGIN
     IF in_sort_label_value IS NOT NULL AND in_sort_label_value != '' THEN
        sql := sql || ' ORDER BY ' || '(SELECT value FROM label l WHERE '
         || 'job.partition_id = l.partition_id AND job.job_id = l.job_id '
-        || ' AND l.label = '|| quote_ident(in_sort_label_value) ||
-        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+        || ' AND l.label = '|| quote_literal(in_sort_label_value) ||
+        ') ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
     ELSE
         sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
@@ -172,8 +172,8 @@ BEGIN
     IF in_sort_label_value IS NOT NULL AND in_sort_label_value != '' THEN
        sql := sql || ' ORDER BY ' || '(SELECT value FROM label l WHERE '
         || 'job.partition_id = l.partition_id AND job.job_id = l.job_id '
-        || ' AND l.label = '|| quote_ident(in_sort_label_value) ||
-        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+        || ' AND l.label = '|| quote_literal(in_sort_label_value) ||
+        ') ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
     ELSE
         sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
