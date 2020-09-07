@@ -501,6 +501,41 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testGetJobsSortByLabel() throws ApiException {
+        final String jobId1 = UUID.randomUUID().toString();
+        final String jobId2 = UUID.randomUUID().toString();
+        final String jobId3 = UUID.randomUUID().toString();
+        final String correlationId = "1";
+        final NewJob job = makeJob(jobId1, "testFilterJobsByLabel");
+        job.getLabels().put("tag1", "someTag");
+        job.getLabels().put("tag2", "bbb");
+        final NewJob job2 = makeJob(jobId2, "testFilterJobsByLabel");
+        job2.getLabels().put("tag1", "aaa");
+        job2.getLabels().put("owner", "bob");
+        final NewJob job3 = makeJob(jobId3, "testFilterJobsByLabel");
+        job3.getLabels().put("random", "label");
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, job, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, job2, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, job3, correlationId);
+
+        //retrieve job using web method
+        List<Job> jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
+                null, null, "labels.tag1:asc", null, null);
+        assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()),
+                                                    new HashSet<>(Arrays.asList(jobId2, jobId1, jobId3)));
+
+        final List<String> sortJobIds =
+            jobs.stream().map(e -> e.getId()).collect(Collectors.toList());
+        assertEquals(sortJobIds, Arrays.asList(jobId2, jobId1, jobId3),
+            "should sort case-insensitively by ascending job name");
+
+        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,null,
+                "labels.owner:asc", "owner", null);
+        assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()),
+                                                new HashSet<>(Arrays.asList(jobId2)));
+    }
+
+    @Test
     public void testCancelJob() throws ApiException {
         //create a job
         String jobId = UUID.randomUUID().toString();
