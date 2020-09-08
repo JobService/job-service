@@ -95,7 +95,7 @@ paths:
         in: query
         type: string
         required: false
-        description: 'How to order the returned results. There are 2 formats used. Format 1 -- > `<field>:<direction>`, allowed values for field: jobId, createTime, name, status, lastUpdateTime, percentageComplete and allowed values for direction: asc, desc. Format 2 --> `<field>.<fieldKey>:<direction>` is allowed for field: labels and for fieldKey: label key present for the job and for direction: asc, desc.'
+        description: 'How to order the returned results. There are 2 formats used. `<field>:<direction>` or `labels.<label-key>:<direction>` where, allowed values for field: jobId, createTime, name, status, lastUpdateTime, percentageComplete, allowed values for direction: asc, desc and values for label-key: label key present for the job labels(which are key-value pair).'
         default: createTime:desc
       - name: labelExist
         in: query

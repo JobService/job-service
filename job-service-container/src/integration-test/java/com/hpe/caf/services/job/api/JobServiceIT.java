@@ -527,7 +527,7 @@ public class JobServiceIT {
         final List<String> sortJobIds =
             jobs.stream().map(e -> e.getId()).collect(Collectors.toList());
         assertEquals(sortJobIds, Arrays.asList(jobId2, jobId1, jobId3),
-            "should sort case-insensitively by ascending job name");
+            "should sort case-insensitively by ascending job labels for the label-key: tag1");
 
         jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,null,
                 "labels.owner:asc", "owner", null);
