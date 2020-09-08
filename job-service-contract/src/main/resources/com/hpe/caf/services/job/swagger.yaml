@@ -95,13 +95,14 @@ paths:
         in: query
         type: string
         required: false
-        description: 'How to order the returned results. There are 2 formats used. `<field>:<direction>` or `labels.<label-key>:<direction>` where, allowed values for field: jobId, createTime, name, status, lastUpdateTime, percentageComplete, allowed values for direction: asc, desc and values for label-key: label key present for the job labels(which are key-value pair).'
+        description: Used to specify the sort order, in the format `<field>:<direction>`.
+          Results can also be ordered by label by using `labels.<label-key>` as the field name.  The direction can be `asc` or `desc`.
         default: createTime:desc
       - name: labelExist
         in: query
         type: string
         required: false
-        description: 'Filter to jobs with the specified labels, in the format label=<labelName1>,<labelName2>'
+        description: 'Filter to jobs with the specified labels, in the format label=<labelName>,<labelName>'
       - name: filter
         in: query
         type: string

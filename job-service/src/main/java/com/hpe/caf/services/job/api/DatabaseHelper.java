@@ -67,8 +67,8 @@ public final class DatabaseHelper
     }
 
     public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
-                         Integer offset, final JobSortField sortField, final SortDirection sortDirection,
-                         final List<String> labels, final String filter, String sortByLabelValue) throws Exception {
+                         Integer offset, final JobSortField sortField, final String sortByLabelValue, final SortDirection sortDirection,
+                         final List<String> labels, final String filter) throws Exception {
 
         final Map<String, Job> jobs = new LinkedHashMap<>(); //Linked rather than hash to preserve order of results.
 
@@ -88,25 +88,27 @@ public final class DatabaseHelper
             if (offset == null) {
                 offset = 0;
             }
-            if (sortByLabelValue == null) {
-                sortByLabelValue = "";
-            }
             stmt.setString(1, partitionId);
             stmt.setString(2, jobIdStartsWith);
             stmt.setString(3, statusType);
             stmt.setInt(4, limit);
             stmt.setInt(5, offset);
-            stmt.setString(6, sortField.getDbField());
-            stmt.setBoolean(7, sortDirection.getDbValue());
+            if (sortField != null) {
+                stmt.setString(6, sortField.getDbField());
+                stmt.setString(7, "");
+            } else {
+                stmt.setString(6, "");
+                stmt.setString(7, sortByLabelValue);
+            }
+            stmt.setBoolean(8, sortDirection.getDbValue());
             Array array;
             if (labels != null) {
                 array = conn.createArrayOf("VARCHAR", labels.toArray());
             } else {
                 array = conn.createArrayOf("VARCHAR", new String[0]);
             }
-            stmt.setArray(8, array);
-            stmt.setString(9, filter);
-            stmt.setString(10, sortByLabelValue);
+            stmt.setArray(9, array);
+            stmt.setString(10, filter);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");

@@ -23,11 +23,12 @@ import java.util.Map;
  */
 public enum JobSortField {
     JOB_ID("jobId", "job_id"),
-    CREATE_DATE("createTime", "create_date"),
     NAME("name", "name"),
+    DESCRIPTION("description", "description"),
+    EXTERNAL_DATA("externalData", "data"),
+    CREATE_DATE("createTime", "create_date"),
     LAST_UPDATE_DATE("lastUpdateTime", "last_update_date"),
     STATUS("status", "status"),
-    LABELS("labels", "label"),
     PERCENTAGE_COMPLETE("percentageComplete", "percentage_complete");
 
     private static final Map<String, JobSortField> apiValueLookup = new HashMap<>();

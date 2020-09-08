@@ -57,27 +57,30 @@ public final class JobsGet {
 
             final JobSortField sortField;
             final SortDirection sortDirection;
-            String sortByLabelValue = null;
+            final String sortByLabelValue;
 
             if (sort == null) {
                 sortField = DEFAULT_SORT_FIELD;
                 sortDirection = DEFAULT_SORT_DIRECTION;
-
+                sortByLabelValue = null;
             } else {
                 final String[] sortParts = sort.split(":", 2);
                 if (sortParts.length != 2) {
                     throw new BadRequestException("Invalid format for sort: " + sort);
                 }
-                if(sortParts[0].contains("."))
-                {
+                if (sortParts[0].startsWith("labels.")) {
+                    sortField = null;
                     final String[] labelParts = sortParts[0].split("\\.", 2);
-                    sortField = JobSortField.fromApiValue(labelParts[0]);
                     sortByLabelValue = labelParts[1];
-                }else{
-                sortField = JobSortField.fromApiValue(sortParts[0]);
-                }
-                if (sortField == null) {
-                    throw new BadRequestException("Invalid value for sort field: " + sortParts[0]);
+                    if (sortByLabelValue.isEmpty()) {
+                        throw new BadRequestException("Sort by label field not specified");
+                    }
+                } else {
+                    sortField = JobSortField.fromApiValue(sortParts[0]);
+                    if (sortField == null) {
+                        throw new BadRequestException("Invalid value for sort field: " + sortParts[0]);
+                    }
+                    sortByLabelValue = null;
                 }
                 sortDirection = SortDirection.fromApiValue(sortParts[1]);
                 if (sortDirection == null) {
@@ -107,8 +110,8 @@ public final class JobsGet {
                 limit = config.getDefaultPageSize();
             }
             jobs = databaseHelper.getJobs(
-                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues,
-                                                                                         filterQuery, sortByLabelValue);
+                partitionId, jobId, statusType, limit, offset, sortField, sortByLabelValue, sortDirection, labelValues,
+                                                                                         filterQuery);
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;
