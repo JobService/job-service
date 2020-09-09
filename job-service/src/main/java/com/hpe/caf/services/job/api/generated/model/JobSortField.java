@@ -66,7 +66,7 @@ public enum JobSortField implements SortField
     @Override
     public String getSortField()
     {
-        return this.dbField;
+        return dbField;
     }
 
     @Override
