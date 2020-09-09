@@ -19,8 +19,8 @@ import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
+import com.hpe.caf.services.job.api.generated.model.SortField;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
@@ -67,14 +67,14 @@ public final class DatabaseHelper
     }
 
     public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
-                         Integer offset, final JobSortField sortField, final SortDirection sortDirection,
+                         Integer offset, final SortField sortField, final SortDirection sortDirection,
                          final List<String> labels, final String filter) throws Exception {
 
         final Map<String, Job> jobs = new LinkedHashMap<>(); //Linked rather than hash to preserve order of results.
 
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -94,15 +94,16 @@ public final class DatabaseHelper
             stmt.setInt(4, limit);
             stmt.setInt(5, offset);
             stmt.setString(6, sortField.getDbField());
-            stmt.setBoolean(7, sortDirection.getDbValue());
+            stmt.setString(7, sortField.getSortLabel());
+            stmt.setBoolean(8, sortDirection.getDbValue());
             Array array;
             if (labels != null) {
                 array = conn.createArrayOf("VARCHAR", labels.toArray());
             } else {
                 array = conn.createArrayOf("VARCHAR", new String[0]);
             }
-            stmt.setArray(8, array);
-            stmt.setString(9, filter);
+            stmt.setArray(9, array);
+            stmt.setString(10, filter);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
