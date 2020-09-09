@@ -73,7 +73,7 @@ public final class JobsGet {
                 }
                 if (sortParts[0].startsWith("labels.")) {
                     final String[] labelParts = sortParts[0].split("\\.", 2);
-                    if (labelParts.length != 2 || labelParts[1].isEmpty()) {
+                    if (labelParts[1].isEmpty()) {
                         throw new BadRequestException("Invalid format for label sort specified");
                     }
                     sortField = new LabelsSortField(labelParts[1]);
