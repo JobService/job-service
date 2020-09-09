@@ -18,15 +18,14 @@ package com.hpe.caf.services.job.api.generated.model;
 /**
  * Fields a list of jobs can be sorted by.
  */
-public final class LabelsSortField implements SortField{
-
+public final class LabelsSortField implements SortField
+{
     private final String label;
 
-
-    public LabelsSortField(final String label) {
+    public LabelsSortField(final String label)
+    {
         this.label = label;
     }
-
 
     @Override
     public String getSortField()
@@ -39,6 +38,4 @@ public final class LabelsSortField implements SortField{
     {
         return this.label;
     }
-
-
 }

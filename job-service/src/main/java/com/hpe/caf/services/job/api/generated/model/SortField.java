@@ -17,8 +17,7 @@ package com.hpe.caf.services.job.api.generated.model;
 
 public interface SortField
 {
-
     String getSortField();
-    String getSortLabelValue();
 
+    String getSortLabelValue();
 }

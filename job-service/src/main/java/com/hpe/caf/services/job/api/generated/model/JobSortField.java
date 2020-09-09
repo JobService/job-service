@@ -21,7 +21,8 @@ import java.util.Map;
 /**
  * Fields a list of jobs can be sorted by.
  */
-public enum JobSortField implements SortField{
+public enum JobSortField implements SortField
+{
     JOB_ID("jobId", "job_id"),
     NAME("name", "name"),
     DESCRIPTION("description", "description"),

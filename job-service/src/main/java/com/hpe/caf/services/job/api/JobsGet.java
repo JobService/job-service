@@ -65,6 +65,7 @@ public final class JobsGet {
             if (sort == null) {
                 sortField = DEFAULT_SORT_FIELD;
                 sortDirection = DEFAULT_SORT_DIRECTION;
+
             } else {
                 final String[] sortParts = sort.split(":", 2);
                 if (sortParts.length != 2) {
@@ -81,7 +82,6 @@ public final class JobsGet {
                     if (sortField == null) {
                         throw new BadRequestException("Invalid value for sort field: " + sort);
                     }
-
                 }
                 sortDirection = SortDirection.fromApiValue(sortParts[1]);
                 if (sortDirection == null) {
@@ -111,8 +111,7 @@ public final class JobsGet {
                 limit = config.getDefaultPageSize();
             }
             jobs = databaseHelper.getJobs(
-                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues,
-                                                                                         filterQuery);
+                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues, filterQuery);
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;
