@@ -16,7 +16,7 @@
 package com.hpe.caf.services.job.api.generated.model;
 
 /**
- * Fields a list of jobs can be sorted by.
+ * Represents the label that should be used for sorting.
  */
 public final class LabelsSortField implements SortField
 {
@@ -36,6 +36,6 @@ public final class LabelsSortField implements SortField
     @Override
     public String getSortLabel()
     {
-        return this.label;
+        return label;
     }
 }
