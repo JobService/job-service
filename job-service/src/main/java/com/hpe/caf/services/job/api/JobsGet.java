@@ -39,13 +39,13 @@ public final class JobsGet {
     /**
      * Gets a list of jobs from the job database specified by environment variable configuration.
      *
-     * @param partitionId
+     * @param partitionId   required partitionId of the job to get
      * @param jobId         optional id of the job to get
      * @param statusType    optional status of the job
      * @param limit         optional limit of jobs to return per page
      * @param offset        optional offset from which to return page of jobs
      * @param labelExists   optional metadata to filter against
-     * @param sort
+     * @param sort          optional sort field to order by
      * @param filter        optional filter to use when returning results
      * @return  jobs        list of jobs
      * @throws Exception    bad request or database exceptions

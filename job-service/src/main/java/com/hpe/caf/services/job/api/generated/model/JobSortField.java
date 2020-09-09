@@ -39,7 +39,7 @@ public enum JobSortField implements SortField{
     static {
         for (final JobSortField field : values()) {
             apiValueLookup.put(field.apiValue, field);
-    }
+        }
     }
 
     JobSortField(final String apiValue, final String dbField) {
