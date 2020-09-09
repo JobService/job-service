@@ -67,15 +67,12 @@ public enum JobSortField implements SortField
      * @return Database column name corresponding to this field.
      */
     @Override
-    public String getSortField()
-    {
+    public String getDbField() {
         return dbField;
     }
 
     @Override
-    public String getSortLabel()
-    {
+    public String getSortLabel() {
         return "";
     }
-
 }

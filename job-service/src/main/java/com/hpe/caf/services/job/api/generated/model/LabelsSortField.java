@@ -28,7 +28,7 @@ public final class LabelsSortField implements SortField
     }
 
     @Override
-    public String getSortField()
+    public String getDbField()
     {
         return "";
     }

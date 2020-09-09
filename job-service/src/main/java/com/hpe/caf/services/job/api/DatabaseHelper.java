@@ -93,7 +93,7 @@ public final class DatabaseHelper
             stmt.setString(3, statusType);
             stmt.setInt(4, limit);
             stmt.setInt(5, offset);
-            stmt.setString(6, sortField.getSortField());
+            stmt.setString(6, sortField.getDbField());
             stmt.setString(7, sortField.getSortLabel());
             stmt.setBoolean(8, sortDirection.getDbValue());
             Array array;
