@@ -63,6 +63,9 @@ public enum JobSortField implements SortField
         return apiValue;
     }
 
+    /**
+     * @return Database column name corresponding to this field.
+     */
     @Override
     public String getSortField()
     {
