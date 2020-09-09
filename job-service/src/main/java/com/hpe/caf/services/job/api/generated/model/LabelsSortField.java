@@ -34,7 +34,7 @@ public final class LabelsSortField implements SortField
     }
 
     @Override
-    public String getSortLabelValue()
+    public String getSortLabel()
     {
         return this.label;
     }

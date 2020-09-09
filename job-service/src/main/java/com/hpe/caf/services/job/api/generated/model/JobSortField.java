@@ -70,7 +70,7 @@ public enum JobSortField implements SortField
     }
 
     @Override
-    public String getSortLabelValue()
+    public String getSortLabel()
     {
         return "";
     }

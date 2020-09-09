@@ -19,5 +19,5 @@ public interface SortField
 {
     String getSortField();
 
-    String getSortLabelValue();
+    String getSortLabel();
 }
