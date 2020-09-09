@@ -21,6 +21,8 @@ import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.api.filter.RsqlToSqlUtils;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
+import com.hpe.caf.services.job.api.generated.model.SortField;
+import com.hpe.caf.services.job.api.generated.model.LabelsSortField;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +39,13 @@ public final class JobsGet {
     /**
      * Gets a list of jobs from the job database specified by environment variable configuration.
      *
+     * @param partitionId
      * @param jobId         optional id of the job to get
      * @param statusType    optional status of the job
      * @param limit         optional limit of jobs to return per page
      * @param offset        optional offset from which to return page of jobs
      * @param labelExists   optional metadata to filter against
+     * @param sort
      * @param filter        optional filter to use when returning results
      * @return  jobs        list of jobs
      * @throws Exception    bad request or database exceptions
@@ -55,32 +59,29 @@ public final class JobsGet {
             LOG.debug("getJobs: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
 
-            final JobSortField sortField;
+            final SortField sortField;
             final SortDirection sortDirection;
-            final String sortByLabelValue;
 
             if (sort == null) {
                 sortField = DEFAULT_SORT_FIELD;
                 sortDirection = DEFAULT_SORT_DIRECTION;
-                sortByLabelValue = null;
             } else {
                 final String[] sortParts = sort.split(":", 2);
                 if (sortParts.length != 2) {
                     throw new BadRequestException("Invalid format for sort: " + sort);
                 }
                 if (sortParts[0].startsWith("labels.")) {
-                    sortField = null;
                     final String[] labelParts = sortParts[0].split("\\.", 2);
-                    sortByLabelValue = labelParts[1];
-                    if (sortByLabelValue.isEmpty()) {
-                        throw new BadRequestException("Sort by label field not specified");
+                    if (labelParts.length != 2 || labelParts[1].isEmpty()) {
+                        throw new BadRequestException("Invalid format for label sort specified");
                     }
+                    sortField = new LabelsSortField(labelParts[1]);
                 } else {
                     sortField = JobSortField.fromApiValue(sortParts[0]);
                     if (sortField == null) {
-                        throw new BadRequestException("Invalid value for sort field: " + sortParts[0]);
+                        throw new BadRequestException("Invalid value for sort field: " + sort);
                     }
-                    sortByLabelValue = null;
+
                 }
                 sortDirection = SortDirection.fromApiValue(sortParts[1]);
                 if (sortDirection == null) {
@@ -110,7 +111,7 @@ public final class JobsGet {
                 limit = config.getDefaultPageSize();
             }
             jobs = databaseHelper.getJobs(
-                partitionId, jobId, statusType, limit, offset, sortField, sortByLabelValue, sortDirection, labelValues,
+                partitionId, jobId, statusType, limit, offset, sortField, sortDirection, labelValues,
                                                                                          filterQuery);
         } catch (Exception e) {
             LOG.error("Error - ", e);

@@ -501,7 +501,7 @@ public class JobServiceIT {
     }
 
     @Test
-    public void testGetJobsSortByLabel() throws ApiException {
+    public void testGetJobsWithSortByLabel() throws ApiException {
         final String jobId1 = UUID.randomUUID().toString();
         final String jobId2 = UUID.randomUUID().toString();
         final String jobId3 = UUID.randomUUID().toString();

@@ -21,6 +21,8 @@ import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
+import com.hpe.caf.services.job.api.generated.model.SortField;
+import com.hpe.caf.services.job.api.generated.model.LabelsSortField;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
@@ -67,7 +69,7 @@ public final class DatabaseHelper
     }
 
     public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
-                         Integer offset, final JobSortField sortField, final String sortByLabelValue, final SortDirection sortDirection,
+                         Integer offset, final SortField sortField, final SortDirection sortDirection,
                          final List<String> labels, final String filter) throws Exception {
 
         final Map<String, Job> jobs = new LinkedHashMap<>(); //Linked rather than hash to preserve order of results.
@@ -93,13 +95,8 @@ public final class DatabaseHelper
             stmt.setString(3, statusType);
             stmt.setInt(4, limit);
             stmt.setInt(5, offset);
-            if (sortField != null) {
-                stmt.setString(6, sortField.getDbField());
-                stmt.setString(7, "");
-            } else {
-                stmt.setString(6, "");
-                stmt.setString(7, sortByLabelValue);
-            }
+            stmt.setString(6, sortField.getSortField());
+            stmt.setString(7, sortField.getSortLabelValue());
             stmt.setBoolean(8, sortDirection.getDbValue());
             Array array;
             if (labels != null) {

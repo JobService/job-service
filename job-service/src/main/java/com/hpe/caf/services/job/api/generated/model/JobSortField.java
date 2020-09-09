@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Fields a list of jobs can be sorted by.
  */
-public enum JobSortField {
+public enum JobSortField implements SortField{
     JOB_ID("jobId", "job_id"),
     NAME("name", "name"),
     DESCRIPTION("description", "description"),
@@ -39,7 +39,7 @@ public enum JobSortField {
     static {
         for (final JobSortField field : values()) {
             apiValueLookup.put(field.apiValue, field);
-        }
+    }
     }
 
     JobSortField(final String apiValue, final String dbField) {
@@ -55,18 +55,16 @@ public enum JobSortField {
         return apiValueLookup.get(apiValue);
     }
 
-    /**
-     * @return Public identifier for this field
-     */
-    public String getApiValue() {
-        return apiValue;
+    @Override
+    public String getSortField()
+    {
+        return this.dbField;
     }
 
-    /**
-     * @return Database column name corresponding to this field.
-     */
-    public String getDbField() {
-        return dbField;
+    @Override
+    public String getSortLabelValue()
+    {
+        return "";
     }
 
 }
