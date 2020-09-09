@@ -56,6 +56,13 @@ public enum JobSortField implements SortField
         return apiValueLookup.get(apiValue);
     }
 
+    /**
+     * @return Public identifier for this field
+     */
+    public String getApiValue() {
+        return apiValue;
+    }
+
     @Override
     public String getSortField()
     {
