@@ -77,6 +77,13 @@ public final class JobsGetTest {
             "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null);
     }
 
+    @Test
+    public void testGetJobs_Success_WithNameSort() throws Exception {
+        JobsGet.getJobs("partition", "", null, 0, 0, "name:asc", null, null);
+        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
+            "partition", "", null, 0, 0, JobSortField.NAME, SortDirection.ASCENDING, null, null);
+    }
+
     @Test(expected = BadRequestException.class)
     public void testGetJobs_Failure_InvalidSort() throws Exception {
         JobsGet.getJobs("partition", "", null, 0, 0, "invalid", null, null);

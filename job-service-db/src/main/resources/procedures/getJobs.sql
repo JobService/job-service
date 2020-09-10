@@ -41,6 +41,7 @@ CREATE OR REPLACE FUNCTION get_jobs(
     in_limit INT,
     in_offset INT,
     in_sort_field VARCHAR(20),
+    in_sort_label VARCHAR(255),
     in_sort_ascending BOOLEAN,
     in_labels VARCHAR(255)[],
     in_filter VARCHAR(255)
@@ -145,7 +146,12 @@ BEGIN
         sql := sql || whereOrAnd || in_filter;
     END IF;
 
-    sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
+    sql := sql || ' ORDER BY ' ||
+       CASE WHEN in_sort_label IS NOT NULL AND in_sort_label != ''
+         THEN '(SELECT value FROM label l WHERE job.partition_id = l.partition_id AND job.job_id = l.job_id AND l.label = ' ||
+           quote_literal(in_sort_label) || ')'
+         ELSE quote_ident(in_sort_field)
+       END ||
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
 
     IF in_limit > 0 THEN
@@ -160,7 +166,12 @@ BEGIN
     -- Join onto the labels after paging to avoid them bloating the row count
     sql := sql || ' ) as job LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id '
                || 'AND lbl.job_id = job.job_id';
-    sql := sql || ' ORDER BY ' || quote_ident(in_sort_field) ||
+    sql := sql || ' ORDER BY ' ||
+       CASE WHEN in_sort_label IS NOT NULL AND in_sort_label != ''
+         THEN '(SELECT value FROM label l WHERE job.partition_id = l.partition_id AND job.job_id = l.job_id AND l.label = ' ||
+           quote_literal(in_sort_label) || ')'
+         ELSE quote_ident(in_sort_field)
+       END ||
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
     RETURN QUERY EXECUTE sql;
 END
