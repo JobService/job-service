@@ -27,29 +27,28 @@ CREATE FUNCTION internal_update_job_progress(in_partition_id VARCHAR(40),
 AS
 $$
 DECLARE
-    t_id          varchar(58);
+    taskId        varchar(58);
     subtask_array varchar[];
+    status        job_status :='Completed';
 BEGIN
 
     -- deleting the completed subtasks for that job from subtask_report table
     -- adding result to an array (subtask_array)
 
-    WITH subtask_completed AS (
-        delete from subtask_report sr where sr.job_id = in_job_id and sr.status = 'Completed'
-            RETURNING task_id
+    WITH completed_subtask AS (
+        delete from completed_subtask_report csr where csr.job_id = in_job_id
+            RETURNING csr.task_id
     )
     SELECT array_agg(task_id)
-    FROM subtask_completed
+    FROM completed_subtask
     INTO subtask_array;
 
     -- looping into subtask_array to update the job percentage_complete
-
-    if array_length(subtask_array, 1) > 0 then
-        FOREACH t_id IN ARRAY subtask_array
-            loop
-                RAISE NOTICE 'in_partition_id: %, task_id: %', in_partition_id, t_id;
-                PERFORM internal_report_task_status(in_partition_id, t_id , 'Completed', 100.00, NULL);
-                END LOOP;
-    end if;
+    IF subtask_array IS NOT NULL THEN
+    FOREACH taskId IN ARRAY subtask_array
+        LOOP
+            PERFORM internal_report_task_status(in_partition_id, taskId , status, 100.00, NULL);
+        END LOOP;
+    END IF;
 END
 $$;
