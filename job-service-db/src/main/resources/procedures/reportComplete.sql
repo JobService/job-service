@@ -42,7 +42,7 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     v_job_id VARCHAR(48);
-   -- v_job_status job_status;
+    v_job_status job_status;
 
 BEGIN
     -- Raise exception if task identifier has not been specified
@@ -50,14 +50,24 @@ BEGIN
         RAISE EXCEPTION 'Task identifier has not been specified';
     END IF;
 
-/*    -- Check that the job hasn't been deleted, cancelled or completed
-    IF NOT FOUND OR v_job_status IN ('Cancelled', 'Completed') THEN
-        RETURN;
-    END IF;*/
-
 
     -- Get the job id
     v_job_id = internal_get_job_id(in_task_id);
+
+    -- Get the job status
+    -- And take out an exclusive update lock on the job row
+    SELECT status INTO v_job_status
+    FROM job AS j
+    WHERE j.partition_id = in_partition_id
+      AND j.job_id = v_job_id
+        FOR UPDATE;
+
+    -- Check that the job hasn't been deleted, cancelled or completed
+    IF NOT FOUND OR v_job_status IN ('Cancelled', 'Completed') THEN
+        RETURN;
+    END IF;
+
+
 
     -- Insert values into table
     INSERT INTO completed_subtask_report (partition_id, job_id, task_id, report_date) VALUES (in_partition_id, v_job_id, in_task_id, now() AT TIME ZONE 'UTC');
