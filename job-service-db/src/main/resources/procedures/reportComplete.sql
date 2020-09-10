@@ -70,7 +70,8 @@ BEGIN
 
 
     -- Insert values into table
-    INSERT INTO completed_subtask_report (partition_id, job_id, task_id, report_date) VALUES (in_partition_id, v_job_id, in_task_id, now() AT TIME ZONE 'UTC');
+    INSERT INTO completed_subtask_report (partition_id, job_id, task_id, report_date)
+    VALUES (in_partition_id, v_job_id, in_task_id, now() AT TIME ZONE 'UTC');
 
 END
 $$;

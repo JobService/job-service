@@ -56,7 +56,7 @@ BEGIN
       AND j.job_id = in_job_id
         FOR UPDATE;
 
-
+    -- Process outstanding job updates
     PERFORM internal_update_job_progress(in_partition_id, in_job_id);
 
 

@@ -23,7 +23,7 @@
 CREATE FUNCTION internal_update_job_progress(in_partition_id VARCHAR(40),
                                              in_job_id VARCHAR(48))
     RETURNS VOID
-    LANGUAGE plpgsql
+    LANGUAGE plpgsql VOLATILE
 AS
 $$
 DECLARE
@@ -36,7 +36,7 @@ BEGIN
     -- adding result to an array (subtask_array)
 
     WITH completed_subtask AS (
-        delete from completed_subtask_report csr where csr.job_id = in_job_id
+        delete from completed_subtask_report csr where csr.partition_id = in_partition_id and csr.job_id = in_job_id
             RETURNING csr.task_id
     )
     SELECT array_agg(task_id)
@@ -47,7 +47,8 @@ BEGIN
     IF subtask_array IS NOT NULL THEN
     FOREACH taskId IN ARRAY subtask_array
         LOOP
-            PERFORM internal_report_task_status(in_partition_id, taskId , status, 100.00, NULL);
+            PERFORM internal_report_task_status(in_partition_id, taskId , status,
+                100.00, NULL);
         END LOOP;
     END IF;
 END
