@@ -15,12 +15,12 @@
 --
 
 /*
- *  Name: cleanup_completed_subtask_report
+ *  Name: internal_cleanup_completed_subtask_report
  *
  *  Description:
  *  Cleans up the completed_subtask_report based on the partition and job references provided.
  */
-CREATE OR REPLACE FUNCTION cleanup_completed_subtask_report(
+CREATE OR REPLACE FUNCTION internal_cleanup_completed_subtask_report(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
 )
