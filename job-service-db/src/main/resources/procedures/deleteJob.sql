@@ -30,7 +30,7 @@ CREATE OR REPLACE FUNCTION delete_job(
     in_job_id VARCHAR(48)
 )
 RETURNS VOID
-LANGUAGE plpgsql
+LANGUAGE plpgsql VOLATILE
 AS $$
 DECLARE
     v_tables_to_delete TEXT[];
@@ -68,5 +68,8 @@ BEGIN
     DELETE FROM job
     WHERE partition_id = in_partition_id
         AND job_id = in_job_id;
+
+    -- Removes all related subtasks from completed_subtask_report table
+    PERFORM cleanup_completed_subtask_report(in_partition_id, in_job_id);
 END
 $$;

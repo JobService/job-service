@@ -30,7 +30,7 @@ CREATE OR REPLACE FUNCTION cancel_job(
     in_job_id VARCHAR(48)
 )
 RETURNS VOID
-LANGUAGE plpgsql
+LANGUAGE plpgsql VOLATILE
 AS $$
 DECLARE
     v_is_finished BOOLEAN;
@@ -66,5 +66,9 @@ BEGIN
 
     -- Drop any task tables relating to the job
     PERFORM internal_drop_task_tables(in_partition_id, in_job_id);
+
+    -- Removes all related subtasks from completed_subtask_report table
+    PERFORM cleanup_completed_subtask_report(in_partition_id, in_job_id);
+
 END
 $$;
