@@ -67,11 +67,28 @@ BEGIN
         RETURN;
     END IF;
 
+    -- if Job has dependencies
+    IF internal_has_dependent_jobs(in_partition_id, v_job_id) THEN
 
+    -- Update the task statuses in the tables
+    PERFORM internal_report_task_status(in_partition_id, in_task_id, 'Completed',
+        100.00, NULL);
 
-    -- Insert values into table
+        -- If job has just completed, then return any jobs that can now be run
+        IF internal_is_task_completed(in_partition_id, v_job_id) THEN
+
+        -- Get a list of jobs that can run immediately and update the eligibility run date for others
+            RETURN QUERY
+                SELECT * FROM internal_process_dependent_jobs(in_partition_id, v_job_id);
+        END IF;
+
+    ELSE
+
+    -- insert values into completed_subtask_report table
     INSERT INTO completed_subtask_report (partition_id, job_id, task_id, report_date)
     VALUES (in_partition_id, v_job_id, in_task_id, now() AT TIME ZONE 'UTC');
+
+    END IF;
 
 END
 $$;

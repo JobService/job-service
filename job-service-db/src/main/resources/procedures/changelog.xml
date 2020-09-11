@@ -28,9 +28,9 @@
           If modifying an existing procedure, DO NOT add a new changeSet. The changes will be applied automatically.
      -->
 
-    <changeSet id="cleanup_completed_subtask_report_proc" runOnChange="true" author="Gamma Team">
+    <changeSet id="create_cleanup_completed_subtask_report_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/cleanupCompletedSubtaskReport.sql"
-                         procedureName="cleanup_completed_subtask_report"
+                         procedureName="internal_cleanup_completed_subtask_report"
                          schemaName="public">
         </createProcedure>
     </changeSet>
@@ -179,6 +179,12 @@
     <changeSet id="create_get_task_table_name_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/getTaskTableName.sql"
                          procedureName="internal_get_task_table_name"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="create_has_dependent_jobs" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/hasDependentJobs.sql"
+                         procedureName="internal_has_dependent_jobs"
                          schemaName="public">
         </createProcedure>
     </changeSet>
