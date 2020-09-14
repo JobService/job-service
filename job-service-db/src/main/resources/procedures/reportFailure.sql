@@ -60,7 +60,6 @@ BEGIN
     -- Get the job id
     v_job_id = internal_get_job_id(in_task_id);
 
-
     -- Get the job status
     -- And take out an exclusive update lock on the job row
     SELECT status INTO v_job_status

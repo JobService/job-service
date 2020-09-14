@@ -26,5 +26,5 @@ CREATE OR REPLACE FUNCTION internal_has_dependent_jobs(
 RETURNS BOOLEAN
 LANGUAGE SQL STABLE
 AS $$
-SELECT EXISTS(SELECT * FROM job_dependency WHERE partition_id= in_partition_id AND dependent_job_id = in_job_id);
+SELECT EXISTS(SELECT * FROM job_dependency WHERE partition_id = in_partition_id AND dependent_job_id = in_job_id);
 $$;

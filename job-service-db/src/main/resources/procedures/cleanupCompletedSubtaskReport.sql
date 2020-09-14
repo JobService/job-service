@@ -30,8 +30,8 @@ AS $$
 
 BEGIN
 
-    -- Deletes all rows from completed_subtask_report table matching the job and partition provided
-    DELETE  FROM completed_subtask_report
+    -- Delete all rows from completed_subtask_report table matching the job and partition provided
+    DELETE FROM completed_subtask_report
     WHERE partition_id = in_partition_id
       AND job_id = in_job_id;
 
