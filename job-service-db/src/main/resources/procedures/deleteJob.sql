@@ -30,7 +30,7 @@ CREATE OR REPLACE FUNCTION delete_job(
     in_job_id VARCHAR(48)
 )
 RETURNS VOID
-LANGUAGE plpgsql VOLATILE
+LANGUAGE plpgsql
 AS $$
 DECLARE
     v_tables_to_delete TEXT[];

@@ -30,7 +30,7 @@ CREATE OR REPLACE FUNCTION cancel_job(
     in_job_id VARCHAR(48)
 )
 RETURNS VOID
-LANGUAGE plpgsql VOLATILE
+LANGUAGE plpgsql
 AS $$
 DECLARE
     v_is_finished BOOLEAN;
