@@ -24,7 +24,7 @@
 CREATE OR REPLACE FUNCTION internal_has_dependent_jobs(
     in_partition_id VARCHAR(40), in_job_id VARCHAR(58))
 RETURNS BOOLEAN
-LANGUAGE SQL IMMUTABLE
+LANGUAGE SQL STABLE
 AS $$
 SELECT EXISTS(SELECT * FROM job_dependency WHERE partition_id= in_partition_id AND dependent_job_id = in_job_id);
 $$;
