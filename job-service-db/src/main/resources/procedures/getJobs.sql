@@ -60,13 +60,14 @@ RETURNS TABLE(
     label VARCHAR(255),
     label_value VARCHAR(255)
 )
-LANGUAGE plpgsql STABLE
+LANGUAGE plpgsql VOLATILE
 AS $$
 DECLARE
     sql VARCHAR;
     escapedJobIdStartsWith VARCHAR;
     whereOrAnd VARCHAR(7) = ' WHERE ';
     andConst CONSTANT VARCHAR(5) = ' AND ';
+    jobId VARCHAR(48);
 
 BEGIN
     -- Return all rows from the job table:
@@ -173,6 +174,17 @@ BEGIN
          ELSE quote_ident(in_sort_field)
        END ||
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+
+    -- Create temporary table as a base to update the job progress
+    EXECUTE 'CREATE TEMPORARY TABLE getJobTemp ON COMMIT DROP AS ' || sql ;
+
+    FOR jobId IN SELECT * FROM getJobTemp LOOP
+            -- Process outstanding job updates
+            PERFORM internal_update_job_progress(in_partition_id, jobId);
+    END LOOP;
+
+
+    -- Execute and return the table created
     RETURN QUERY EXECUTE sql;
 END
 $$;
