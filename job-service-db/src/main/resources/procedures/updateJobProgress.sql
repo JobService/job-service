@@ -21,7 +21,7 @@
  *  Updates the percentage_complete in the job table with data from subtask_report table.
  */
 CREATE FUNCTION internal_update_job_progress(in_partition_id VARCHAR(40),
-                                             in_job_id VARCHAR(48))
+                                             in_job_id ANYELEMENT)
     RETURNS VOID
     LANGUAGE plpgsql VOLATILE
 AS
@@ -29,13 +29,37 @@ $$
 DECLARE
     taskId        VARCHAR(58);
     subtask_array VARCHAR[];
+    type_param regtype = pg_typeof(in_job_id);
+    job_id_array varchar[];
 BEGIN
+
+
+    -- Check in_job_id type and return an exception if invalid
+    -- If in_job_id is an array, its value is passed onto job_id_array
+    -- If in_job_id is a varchar, it increments job_id_array
+
+    IF(type_param =  'character varying[]'::regtype) THEN
+
+        job_id_array = in_job_id;
+
+    ELSEIF(type_param ='character varying'::regtype) THEN
+
+        job_id_array = array_agg(in_job_id);
+
+    ELSE
+
+        RAISE EXCEPTION 'Invalid type for in_job_id: %', type_param;
+
+    END IF;
+
+
     -- Deleting the completed subtasks for that job from completed_subtask_report table
     -- Add the results to subtask_array
     WITH completed_subtask AS (
-        DELETE FROM completed_subtask_report csr WHERE csr.partition_id = in_partition_id AND csr.job_id = in_job_id
+        DELETE FROM completed_subtask_report csr WHERE csr.partition_id = in_partition_id AND csr.job_id = ANY(job_id_array)
             RETURNING csr.task_id
     )
+
     SELECT array_agg(task_id)
     FROM completed_subtask
     INTO subtask_array;
@@ -44,7 +68,8 @@ BEGIN
     IF subtask_array IS NOT NULL THEN
     FOREACH taskId IN ARRAY subtask_array
         LOOP
-            PERFORM internal_report_task_status(in_partition_id, taskId , 'Completed', 100.00, NULL);
+            PERFORM internal_report_task_status(in_partition_id, taskId , 'Completed',
+                100.00, NULL);
         END LOOP;
     END IF;
 END

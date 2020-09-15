@@ -266,12 +266,6 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
-    <changeSet id="create_update_job_progress_from_array_proc" runOnChange="true" author="Gamma Team">
-        <createProcedure path="procedures/updateJobProgressFromArray.sql"
-                         procedureName="internal_update_job_progress_from_array"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
     <changeSet id="create_upsert_into_task_table_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/upsertIntoTaskTable.sql"
                          procedureName="internal_upsert_into_task_table"

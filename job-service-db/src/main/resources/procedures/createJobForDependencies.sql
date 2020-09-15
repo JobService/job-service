@@ -151,10 +151,6 @@ BEGIN
     SELECT in_partition_id, in_job_id, prerequisite_job_id
     FROM all_incomplete_prereqs;
 
-    -- Process outstanding job updates
-    PERFORM internal_update_job_progress_from_array(in_partition_id, in_prerequisite_job_ids);
-
-
 
     IF FOUND OR in_delay > 0 OR in_suspended_partition THEN
         INSERT INTO public.job_task_data(
@@ -179,6 +175,10 @@ BEGIN
             in_suspended_partition
         );
     END IF;
+
+
+    -- Process outstanding job updates
+    PERFORM internal_update_job_progress(in_partition_id, in_prerequisite_job_ids);
 
     RETURN QUERY SELECT TRUE;
 END
