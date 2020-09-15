@@ -32,7 +32,7 @@
     </parent>
 
     <properties>
-        <tomcatBaseImage>cafapi/opensuse-tomcat-jre11:2</tomcatBaseImage>
+        <tomcatBaseImage>cafinternal/prereleases:opensuse-tomcat-jre11-2.2.0-SNAPSHOT</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
