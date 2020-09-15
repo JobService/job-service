@@ -151,9 +151,8 @@ BEGIN
     SELECT in_partition_id, in_job_id, prerequisite_job_id
     FROM all_incomplete_prereqs;
 
-    -- Clears all rows from completed_subtask_report for depending jobs passed in in_prerequisite_job_ids
-    -- and matching partition_id
-    DELETE from completed_subtask_report csr where csr.partition_id = in_partition_id AND csr.job_id = ANY (in_prerequisite_job_ids);
+    -- Process outstanding job updates
+    PERFORM internal_update_job_progress_from_array(in_partition_id, in_prerequisite_job_ids);
 
 
 
