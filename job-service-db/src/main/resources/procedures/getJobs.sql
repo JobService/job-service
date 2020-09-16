@@ -176,15 +176,15 @@ BEGIN
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
 
     -- Create temporary table as a base to update the job progress
-    EXECUTE 'CREATE TEMPORARY TABLE getJobTemp ON COMMIT DROP AS ' || sql ;
+    EXECUTE 'CREATE TEMPORARY TABLE get_job_temp ON COMMIT DROP AS ' || sql ;
 
-    FOR jobId IN SELECT * FROM getJobTemp LOOP
+    FOR jobId IN SELECT * FROM get_job_temp LOOP
             -- Process outstanding job updates
             PERFORM internal_update_job_progress(in_partition_id, jobId);
     END LOOP;
 
 
     -- Execute and return the table created
-    RETURN QUERY EXECUTE sql;
+    RETURN QUERY select * from get_job_temp;
 END
 $$;
