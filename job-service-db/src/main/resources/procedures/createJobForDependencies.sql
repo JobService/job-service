@@ -102,6 +102,11 @@ BEGIN
         RETURN;
     END IF;
 
+
+    -- Process outstanding job updates
+    PERFORM internal_update_job_progress(in_partition_id, in_prerequisite_job_ids);
+
+
     -- Store task data and job dependency rows if any of the prerequisite job identifiers are not yet complete
 
     -- Store dependency rows for those prerequisite job identifiers not yet complete
@@ -177,8 +182,7 @@ BEGIN
     END IF;
 
 
-    -- Process outstanding job updates
-    PERFORM internal_update_job_progress(in_partition_id, in_prerequisite_job_ids);
+
 
     RETURN QUERY SELECT TRUE;
 END
