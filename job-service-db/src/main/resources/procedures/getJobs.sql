@@ -188,13 +188,32 @@ BEGIN
     -- Create temporary table as a base to update the job progress
     EXECUTE 'CREATE TEMPORARY TABLE get_job_temp ON COMMIT DROP AS ' || sql ;
 
+    -- Create a duplicate of that temporary table to store the results after the update
+
+    CREATE TEMPORARY TABLE new_table ON COMMIT DROP AS TABLE get_job_temp;
+
+
+
     FOR jobId IN SELECT * FROM get_job_temp LOOP
+
+            -- Take out an exclusive update lock on the job row
+            PERFORM NULL FROM job j
+            WHERE j.partition_id = in_partition_id
+              AND j.job_id = jobId
+                FOR UPDATE;
+
             -- Process outstanding job updates
             PERFORM internal_update_job_progress(in_partition_id, jobId);
+            UPDATE new_table nt SET
+                    status = j.status,
+                    percentage_complete = j.percentage_complete,
+                    failure_details = j.failure_details
+            FROM job j WHERE nt.job_id = j.job_id;
+
     END LOOP;
 
 
     -- Execute and return the table created
-    RETURN QUERY select * from get_job_temp;
+    RETURN QUERY EXECUTE 'select * from new_table';
 END
 $$;
