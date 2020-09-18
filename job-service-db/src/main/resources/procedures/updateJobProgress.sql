@@ -23,8 +23,8 @@
 CREATE FUNCTION internal_update_job_progress(in_partition_id VARCHAR(40),
                                              in_job_id ANYELEMENT)
     RETURNS TABLE(
-        job_id  VARCHAR(48),
         partition_id VARCHAR(40),
+        job_id  VARCHAR(48),
         status job_status
     )
     LANGUAGE plpgsql VOLATILE
@@ -77,6 +77,6 @@ BEGIN
         END LOOP;
     END IF;
 
-    RETURN QUERY select j.job_id, j.partition_id, j.status from job j;
+    RETURN QUERY select  j.partition_id, j.job_id, j.status from job j;
 END
 $$;
