@@ -122,18 +122,18 @@ BEGIN
                      ) tbl
                  WHERE row_number = 1
              ),
-         updating_job AS(
+         updated_jobs AS(
              -- Process outstanding job updates
-             select internal_update_job_progress(in_partition_id, (select array(select job_id from prereqs)))
-            FOR SHARE
+             select * from internal_update_job_progress(in_partition_id, (select array(select job_id from prereqs)))
+
          ),
     prereqs_created_but_not_complete AS
     (
         -- These job rows are being locked (in job id order) so that they don't complete whilst they are being registered as reasons that
         -- this job is blocked from starting. Shared locks are being used as the rows themselves will not be updated by the operation.
         -- This means that there will be no contention when simultaneously creating multiple jobs which have the same pre-requisites.
-        SELECT * FROM job
-        WHERE partition_id = in_partition_id
+        SELECT * FROM updated_jobs uj
+        WHERE uj.partition_id = in_partition_id
             AND job_id IN (SELECT job_id FROM prereqs)
             AND status <> 'Completed'
         ORDER BY partition_id, job_id

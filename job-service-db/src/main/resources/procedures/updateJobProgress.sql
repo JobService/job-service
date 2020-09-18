@@ -22,7 +22,11 @@
  */
 CREATE FUNCTION internal_update_job_progress(in_partition_id VARCHAR(40),
                                              in_job_id ANYELEMENT)
-    RETURNS VOID
+    RETURNS TABLE(
+        job_id  VARCHAR(48),
+        partition_id VARCHAR(40),
+        status job_status
+    )
     LANGUAGE plpgsql VOLATILE
 AS
 $$
@@ -72,5 +76,7 @@ BEGIN
                 100.00, NULL);
         END LOOP;
     END IF;
+
+    RETURN QUERY select j.job_id, j.partition_id, j.status from job j;
 END
 $$;
