@@ -124,6 +124,9 @@
     <build>
         <testResources>
             <testResource>
+                <directory>${project.basedir}/src/test/resources</directory>
+            </testResource>
+            <testResource>
                 <!-- Include create_job_definition_container.json with project version substitution but place in auto-generated
                 location to avoid checkin. -->
                 <directory>${create.job.def.container.template.dir}</directory>
@@ -142,8 +145,16 @@
         <plugins>
             <!--Run integration tests.-->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven.failsafe.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
                     <systemPropertyVariables>
                         <docker.host.address>${docker.host.address}</docker.host.address>
@@ -163,7 +174,7 @@
                         <CAF_DOCKER_VERSION>1.22</CAF_DOCKER_VERSION>
                         <CAF_JOB_SERVICE_CALLER_IMAGE>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</CAF_JOB_SERVICE_CALLER_IMAGE>
                         <CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>http://job-service:8080</CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>
-                        <CAF_INTEGRATIONTESTS_FS_PATH>${caf.integrationtests.fs.path}</CAF_INTEGRATIONTESTS_FS_PATH>
+                        <CAF_INTEGRATIONTESTS_FS_PATH>\\${docker.host.address}@${webdav.apache.port}\webdav</CAF_INTEGRATIONTESTS_FS_PATH>
                         <JOB_SERVICE_DATABASE_APPNAME>Job Service Acceptance</JOB_SERVICE_DATABASE_APPNAME>
                         <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${job.database.name}</JOB_SERVICE_DATABASE_URL>
                         <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
@@ -176,7 +187,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.version}</version>
                 <executions>
                     <execution>
                         <phase>test-compile</phase>
@@ -191,7 +201,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven.resources.version}</version>
                 <executions>
                     <execution>
                         <phase>process-test-resources</phase>
