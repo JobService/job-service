@@ -206,14 +206,13 @@ BEGIN
             PERFORM internal_update_job_progress(in_partition_id, jobId);
             UPDATE new_table nt SET
                     status = j.status,
-                    percentage_complete = j.percentage_complete,
-                    failure_details = j.failure_details
+                    percentage_complete = j.percentage_complete
             FROM job j WHERE nt.job_id = j.job_id;
 
     END LOOP;
 
 
-    -- Execute and return the table created
-    RETURN QUERY EXECUTE 'select * from new_table';
+    -- Return the new table created
+    RETURN QUERY select * from new_table;
 END
 $$;

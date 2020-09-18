@@ -103,29 +103,30 @@ BEGIN
     END IF;
 
 
-    -- Process outstanding job updates
-    PERFORM internal_update_job_progress(in_partition_id, in_prerequisite_job_ids);
-
-
     -- Store task data and job dependency rows if any of the prerequisite job identifiers are not yet complete
 
     -- Store dependency rows for those prerequisite job identifiers not yet complete
     -- Include prerequisite job identifiers not yet in the system
     WITH prereqs_with_opts(job_id_with_opts) AS
-    (
-        SELECT unnest(in_prerequisite_job_ids)::VARCHAR(128)
-    ),
-    prereqs AS
-    (
-        -- Remove any duplicate pre-requisites, and if a pre-req is mentioned multiple times then merge the options
-        SELECT job_id, precreated FROM
-        (
-            SELECT ROW_NUMBER() OVER (PARTITION BY job_id ORDER BY precreated DESC), job_id, precreated
-            FROM prereqs_with_opts
-            CROSS JOIN internal_get_prereq_job_id_options(job_id_with_opts)
-        ) tbl
-        WHERE row_number = 1
-    ),
+             (
+                 SELECT unnest(in_prerequisite_job_ids)::VARCHAR(128)
+             ),
+         prereqs AS
+             (
+                 -- Remove any duplicate pre-requisites, and if a pre-req is mentioned multiple times then merge the options
+                 SELECT job_id, precreated FROM
+                     (
+                         SELECT ROW_NUMBER() OVER (PARTITION BY job_id ORDER BY precreated DESC), job_id, precreated
+                         FROM prereqs_with_opts
+                                  CROSS JOIN internal_get_prereq_job_id_options(job_id_with_opts)
+                     ) tbl
+                 WHERE row_number = 1
+             ),
+         updating_job AS(
+             -- Process outstanding job updates
+             select internal_update_job_progress(in_partition_id, (select array(select job_id from prereqs)))
+            FOR SHARE
+         ),
     prereqs_created_but_not_complete AS
     (
         -- These job rows are being locked (in job id order) so that they don't complete whilst they are being registered as reasons that
