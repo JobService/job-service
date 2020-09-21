@@ -23,9 +23,21 @@
 
 CREATE OR REPLACE FUNCTION internal_has_dependent_jobs(
     in_partition_id VARCHAR(40), in_job_id VARCHAR(58))
-RETURNS BOOLEAN
-LANGUAGE SQL STABLE
+    RETURNS BOOLEAN
+    LANGUAGE plpgsql
 AS $$
-SELECT EXISTS(SELECT * FROM job_dependency WHERE partition_id = in_partition_id AND (dependent_job_id = in_job_id
-        || job_id = in_job_id));
+DECLARE
+    is_dependency boolean :=false;
+    has_dependency boolean:=false;
+BEGIN
+    -- Checks if job has been flagged as dependency
+    SELECT dependency FROM job WHERE partition_id = in_partition_id AND job_id = in_job_id INTO is_dependency;
+
+    -- Checks if job has any dependency
+    SELECT EXISTS(SELECT * FROM job_dependency WHERE partition_id = in_partition_id AND dependent_job_id = in_job_id) INTO has_dependency;
+
+    -- Returns true if any dependency relationship
+    RETURN is_dependency OR has_dependency ;
+
+END
 $$;
