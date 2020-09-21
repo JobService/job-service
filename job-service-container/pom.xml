@@ -155,41 +155,6 @@
 
     <profiles>
         <profile>
-            <id>integration-test</id>
-            <activation>
-                <property>
-                    <name>RE_BUILD_TYPE</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <version>${fabric8.docker.maven.version}</version>
-                        <executions>
-                            <execution>
-                                <id>start</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>build</goal>
-                                    <goal>start</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>stop</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>stop</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
             <id>use-default-fixed-ports</id>
             <properties>
                 <webservice.adminport>25080</webservice.adminport>
@@ -211,7 +176,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.version}</version>
                 <executions>
                     <execution>
                         <phase>test-compile</phase>
@@ -231,7 +195,6 @@
             <!--<plugin>-->
             <!--<groupId>org.apache.maven.plugins</groupId>-->
             <!--<artifactId>maven-resources-plugin</artifactId>-->
-            <!--<version>${maven.resources.version}</version>-->
             <!--<executions>-->
             <!--<execution>-->
             <!--<phase>process-test-resources</phase>-->
@@ -244,8 +207,8 @@
 
             <!-- Run integration tests. -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven.failsafe.version}</version>
                 <executions>
                     <execution>
                         <id>webservice-Docker</id>
@@ -267,7 +230,7 @@
                         <CAF_CONFIG_PATH>${project.basedir}/test-config</CAF_CONFIG_PATH>
                         <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
                         <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
-                        <CAF_INTEGRATIONTESTS_FS_PATH>${caf.integrationtests.fs.path}</CAF_INTEGRATIONTESTS_FS_PATH>
+                        <CAF_INTEGRATIONTESTS_FS_PATH>\\${docker.host.address}@${webdav.apache.port}\webdav</CAF_INTEGRATIONTESTS_FS_PATH>
                         <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
                         <healthcheckurl>http://${docker.host.address}:${webservice.healthcheckport}/healthcheck</healthcheckurl>
@@ -281,6 +244,21 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>${fabric8.docker.maven.version}</version>
                 <executions>
+                    <execution>
+                        <id>start</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
                     <execution>
                         <id>upload-docker-container</id>
                         <phase>deploy</phase>
@@ -421,7 +399,7 @@
                                             <fileSet>
                                                 <fileMode>0644</fileMode>
                                                 <lineEnding>unix</lineEnding>
-                                                <directory>src/integration-test/resources/job-type-definitions</directory>
+                                                <directory>src/test/resources/job-type-definitions</directory>
                                                 <outputDirectory>test-job-type-definitions</outputDirectory>
                                             </fileSet>
                                         </fileSets>

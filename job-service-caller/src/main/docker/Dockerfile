@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-FROM cafapi/opensuse-python3:1
+FROM cafinternal/prereleases:opensuse-python3-2.1.0-SNAPSHOT
 
 # Install pip and requests
 RUN zypper -n install python3-pip && \
