@@ -74,7 +74,6 @@ LANGUAGE plpgsql VOLATILE
 AS $$
 DECLARE
     sql VARCHAR;
-    sql2 VARCHAR;
     escapedJobIdStartsWith VARCHAR;
     whereOrAnd VARCHAR(7) = ' WHERE ';
     andConst CONSTANT VARCHAR(5) = ' AND ';
@@ -191,17 +190,7 @@ BEGIN
 
     ALTER TABLE get_job_temp ADD COLUMN id SERIAL PRIMARY KEY;
 
-
-    FOR jobId IN SELECT * FROM get_job_temp
-    LOOP
-        -- Take out an exclusive update lock on the job row
-        PERFORM NULL FROM job j
-        WHERE j.partition_id = in_partition_id
-            AND j.job_id = jobId
-        FOR UPDATE;
-
     -- Create a duplicate of that temporary table to store the results after the update
-
     CREATE TEMPORARY TABLE new_table ON COMMIT DROP AS select * from get_job_temp order by id;
 
     FOR jobId IN SELECT * FROM get_job_temp LOOP
@@ -218,6 +207,7 @@ BEGIN
                     status = j.status,
                     percentage_complete = j.percentage_complete
             FROM job j WHERE nt.job_id = j.job_id;
+
 
     END LOOP;
 
