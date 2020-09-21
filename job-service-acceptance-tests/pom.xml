@@ -277,7 +277,7 @@
                     <logDate>default</logDate>
                     <autoPull>on</autoPull>
                     <images>
-                        WebDav image
+                        WebDav image 
                         <image>
                             <alias>webdav</alias>
                             <name>cloudesire/webdav</name>
@@ -306,7 +306,7 @@
                                 </log>
                             </run>
                         </image>
-
+                        
                         <!-- Image for configs -->
                         <image>
                             <alias>config</alias>

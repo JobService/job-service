@@ -102,38 +102,39 @@ BEGIN
         RETURN;
     END IF;
 
-
     -- Store task data and job dependency rows if any of the prerequisite job identifiers are not yet complete
 
     -- Store dependency rows for those prerequisite job identifiers not yet complete
     -- Include prerequisite job identifiers not yet in the system
     WITH prereqs_with_opts(job_id_with_opts) AS
-             (
-                 SELECT unnest(in_prerequisite_job_ids)::VARCHAR(128)
-             ),
-         prereqs AS
-             (
-                 -- Remove any duplicate pre-requisites, and if a pre-req is mentioned multiple times then merge the options
-                 SELECT job_id, precreated FROM
-                     (
-                         SELECT ROW_NUMBER() OVER (PARTITION BY job_id ORDER BY precreated DESC), job_id, precreated
-                         FROM prereqs_with_opts
-                                  CROSS JOIN internal_get_prereq_job_id_options(job_id_with_opts)
-                     ) tbl
-                 WHERE row_number = 1
-             ),
-         locked_jobs AS(
-            -- Lock table job for update
-           SELECT * FROM job
-           WHERE partition_id = in_partition_id
-           AND job_id IN(SELECT job_id FROM prereqs)
-           ORDER BY partition_id, job_id
-           FOR UPDATE
-         ),
-         updated_jobs AS(
-             -- Process outstanding job updates
-             select * from internal_update_job_progress(in_partition_id, (select array(select job_id from locked_jobs)))
-         ),
+    (
+        SELECT unnest(in_prerequisite_job_ids)::VARCHAR(128)
+    ),
+    prereqs AS
+    (
+        -- Remove any duplicate pre-requisites, and if a pre-req is mentioned multiple times then merge the options
+        SELECT job_id, precreated FROM
+        (
+            SELECT ROW_NUMBER() OVER (PARTITION BY job_id ORDER BY precreated DESC), job_id, precreated
+            FROM prereqs_with_opts
+            CROSS JOIN internal_get_prereq_job_id_options(job_id_with_opts)
+        ) tbl
+        WHERE row_number = 1
+    ),
+    locked_jobs AS
+    (
+        -- Lock table job for update
+        SELECT * FROM job
+        WHERE partition_id = in_partition_id
+            AND job_id IN (SELECT job_id FROM prereqs)
+        ORDER BY partition_id, job_id
+        FOR UPDATE
+    ),
+    updated_jobs AS
+    (
+        -- Process outstanding job updates
+        SELECT * FROM internal_update_job_progress(in_partition_id, (SELECT ARRAY(SELECT job_id FROM locked_jobs)))
+    ),
     prereqs_created_but_not_complete AS
     (
         SELECT * FROM updated_jobs uj
@@ -159,7 +160,6 @@ BEGIN
     SELECT in_partition_id, in_job_id, prerequisite_job_id
     FROM all_incomplete_prereqs;
 
-
     IF FOUND OR in_delay > 0 OR in_suspended_partition THEN
         INSERT INTO public.job_task_data(
             partition_id,
@@ -184,8 +184,10 @@ BEGIN
         );
     END IF;
 
-    UPDATE job SET dependency=TRUE WHERE partition_id = in_partition_id AND job_id = in_job_id;
-
+    UPDATE job
+    SET dependency=TRUE
+    WHERE partition_id = in_partition_id
+        AND job_id = in_job_id;
 
     RETURN QUERY SELECT TRUE;
 END
