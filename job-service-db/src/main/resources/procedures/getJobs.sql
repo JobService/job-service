@@ -191,38 +191,39 @@ BEGIN
     ALTER TABLE get_job_temp ADD COLUMN id SERIAL PRIMARY KEY;
 
     -- Create a duplicate of that temporary table to store the results after the update
-    CREATE TEMPORARY TABLE new_table ON COMMIT DROP AS select * from get_job_temp order by id;
+    CREATE TEMPORARY TABLE new_table ON COMMIT DROP AS SELECT * FROM get_job_temp ORDER BY id;
 
     FOR jobId IN SELECT * FROM get_job_temp LOOP
+        -- Take out an exclusive update lock on the job row
+        PERFORM NULL FROM job j
+        WHERE j.partition_id = in_partition_id
+            AND j.job_id = jobId
+        FOR UPDATE;
 
-            -- Take out an exclusive update lock on the job row
-            PERFORM NULL FROM job j
-            WHERE j.partition_id = in_partition_id
-              AND j.job_id = jobId
-                FOR UPDATE;
-
-            -- Process outstanding job updates
-            PERFORM internal_update_job_progress(in_partition_id, jobId);
-            UPDATE new_table nt SET
-                    status = j.status,
-                    percentage_complete = j.percentage_complete
-            FROM job j WHERE nt.job_id = j.job_id;
-
-
+        -- Process outstanding job updates
+        PERFORM internal_update_job_progress(in_partition_id, jobId);
+        UPDATE new_table nt SET
+               status = j.status,
+               percentage_complete = j.percentage_complete
+        FROM job j
+        WHERE nt.job_id = j.job_id;
     END LOOP;
 
     -- Return the new table created
-    RETURN query SELECT at.job_id,
-                        at.name,
-                        at.description,
-                        at.data,
-                        at.create_date,
-                        at.last_update_date,
-                        at.status,
-                        at.percentage_complete,
-                        at.failure_details,
-                        CAST('WORKER' AS CHAR(6)) AS actionType,
-                        at.label,
-                        at.value from new_table at order by id;
+    RETURN QUERY
+    SELECT job_id,
+           name,
+           description,
+           data,
+           create_date,
+           last_update_date,
+           status,
+           percentage_complete,
+           failure_details,
+           CAST('WORKER' AS CHAR(6)) AS actionType,
+           label,
+           value
+    FROM new_table
+    ORDER BY id;
 END
 $$;

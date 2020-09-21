@@ -37,25 +37,16 @@ DECLARE
     job_id_array varchar[];
 BEGIN
 
-
     -- Check in_job_id type and return an exception if invalid
     -- If in_job_id is an array, its value is passed onto job_id_array
     -- If in_job_id is a varchar, it increments job_id_array
-
     IF(type_param =  'character varying[]'::regtype) THEN
-
         job_id_array = in_job_id;
-
     ELSEIF(type_param ='character varying'::regtype) THEN
-
         job_id_array = array_agg(in_job_id);
-
     ELSE
-
         RAISE EXCEPTION 'Invalid type for in_job_id: %', type_param;
-
     END IF;
-
 
     -- Deleting the completed subtasks for that job from completed_subtask_report table
     -- Add the results to subtask_array
@@ -70,13 +61,14 @@ BEGIN
 
     -- Loop through subtask_array and update the job percentage_complete
     IF subtask_array IS NOT NULL THEN
-    FOREACH taskId IN ARRAY subtask_array
+        FOREACH taskId IN ARRAY subtask_array
         LOOP
-            PERFORM internal_report_task_status(in_partition_id, taskId , 'Completed',
-                100.00, NULL);
+            PERFORM internal_report_task_status(in_partition_id, taskId , 'Completed', 100.00, NULL);
         END LOOP;
     END IF;
 
-    RETURN QUERY select  j.partition_id, j.job_id, j.status from job j;
+    RETURN QUERY
+    SELECT partition_id, job_id, status
+    FROM job;
 END
 $$;
