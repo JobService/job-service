@@ -246,8 +246,8 @@ public class JobServiceEndToEndIT {
         // prereq job ids that should not hold the job back.
         createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id, "", null, "           ");
 
+        jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
         Thread.sleep(1000); // Add short delay to allow previous job to complete
-
         //  Verify job 3 has completed and no job dependency rows exist.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job1Id);
@@ -353,6 +353,8 @@ public class JobServiceEndToEndIT {
         // prereq job ids that should not hold the job back.
         createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id, "", null, "           ");
 
+        JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
+        jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
         Thread.sleep(1000); // Add short delay to allow previous job to complete
 
         //  Verify job 3 has completed and no job dependency rows exist.
@@ -496,7 +498,8 @@ public class JobServiceEndToEndIT {
         //  Verify J4 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job4Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
-
+        jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
+        jobsApi.getJob(defaultPartitionId, job4Id, jobCorrelationId);
         //  Add a Prerequisite job 1 that should be completed. This should trigger the completion of all
         //  other jobs.
         JobServiceEndToEndITExpectation job1Expectation =
@@ -527,7 +530,7 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        Thread.sleep(3000); // Add short delay to allow previous jobs to complete
+        Thread.sleep(8000); // Add short delay to allow previous jobs to complete
 
         //  Now that J1 has completed, verify this has triggered the completion of other jobs created
         //  with a prerequisite.
@@ -563,6 +566,7 @@ public class JobServiceEndToEndIT {
         Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job2Id) == null);
 
         createJobWithPrerequisites(job3Id, true, 10, job2Id);
+
         //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);

@@ -211,19 +211,19 @@ BEGIN
 
     -- Return the new table created
     RETURN query
-    SELECT job_id,
-           name,
-           description,
-           data,
-           create_date,
-           last_update_date,
-           status,
-           percentage_complete,
-           failure_details,
+    SELECT at.job_id,
+           at.name,
+           at.description,
+           at.data,
+           at.create_date,
+           at.last_update_date,
+           at.status,
+           at.percentage_complete,
+           at.failure_details,
            CAST('WORKER' AS CHAR(6)) AS actionType,
-           label,
+           at.label,
            VALUE
-    FROM new_table
-    ORDER BY id;
+    FROM new_table at
+    ORDER BY at.id;
 END
 $$;

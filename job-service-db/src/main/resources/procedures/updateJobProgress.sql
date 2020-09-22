@@ -68,7 +68,7 @@ BEGIN
     END IF;
 
     RETURN QUERY
-    SELECT partition_id, job_id, status
-    FROM job;
+    SELECT j.partition_id, j.job_id, j.status
+    FROM job j;
 END
 $$;
