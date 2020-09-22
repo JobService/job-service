@@ -18,7 +18,7 @@
  *  Name: internal_has_dependent_jobs
  *
  *  Description:
- *  Checks if the specified job has dependencies.
+ *  Checks if there are other jobs that are dependent on the specified job.
  */
 CREATE OR REPLACE FUNCTION internal_has_dependent_jobs(
     in_partition_id VARCHAR(40),

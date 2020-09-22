@@ -30,21 +30,20 @@ RETURNS TABLE(
     status job_status
 )
 LANGUAGE plpgsql VOLATILE
-AS
-$$
+AS $$
 DECLARE
-    taskId        VARCHAR(58);
+    taskId VARCHAR(58);
     subtask_array VARCHAR[];
     type_param regtype = pg_typeof(in_job_id);
-    job_id_array varchar[];
+    job_id_array VARCHAR[];
 
 BEGIN
     -- Check in_job_id type and return an exception if invalid
     -- If in_job_id is an array, its value is passed onto job_id_array
     -- If in_job_id is a varchar, it increments job_id_array
-    IF(type_param =  'character varying[]'::regtype) THEN
+    IF type_param = 'character varying[]'::regtype THEN
         job_id_array = in_job_id;
-    ELSEIF(type_param ='character varying'::regtype) THEN
+    ELSEIF type_param ='character varying'::regtype THEN
         job_id_array = array_agg(in_job_id);
     ELSE
         RAISE EXCEPTION 'Invalid type for in_job_id: %', type_param;
@@ -53,8 +52,10 @@ BEGIN
     -- Deleting the completed subtasks for that job from completed_subtask_report table
     -- Add the results to subtask_array
     WITH completed_subtask AS (
-        DELETE FROM completed_subtask_report csr WHERE csr.partition_id = in_partition_id AND csr.job_id = ANY(job_id_array)
-            RETURNING csr.task_id
+        DELETE FROM completed_subtask_report csr
+        WHERE csr.partition_id = in_partition_id
+            AND csr.job_id = ANY(job_id_array)
+        RETURNING csr.task_id
     )
 
     SELECT array_agg(task_id)
