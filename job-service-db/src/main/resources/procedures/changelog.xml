@@ -27,15 +27,15 @@
           When adding a new procedure add a corresponding changeSet here with `runOnChange="true"` set.
           If modifying an existing procedure, DO NOT add a new changeSet. The changes will be applied automatically.
      -->
-    <changeSet id="create_cleanup_completed_subtask_report_proc" runOnChange="true" author="Gamma Team">
-        <createProcedure path="procedures/cleanupCompletedSubtaskReport.sql"
-                         procedureName="internal_cleanup_completed_subtask_report"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
     <changeSet id="create_cancel_job_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/cancelJob.sql"
                          procedureName="cancel_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="create_cleanup_completed_subtask_report_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/cleanupCompletedSubtaskReport.sql"
+                         procedureName="internal_cleanup_completed_subtask_report"
                          schemaName="public">
         </createProcedure>
     </changeSet>

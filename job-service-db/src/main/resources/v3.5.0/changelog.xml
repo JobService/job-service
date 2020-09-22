@@ -19,13 +19,14 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
-                   http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
-
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                                       http://www.liquibase.org/xml/ns/dbchangelog
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
     <changeSet id="create_completed_subtask_report" author="Gamma Team">
         <createTable tableName="completed_subtask_report">
             <column name="partition_id" type="VARCHAR(40)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" />
             </column>
             <column name="job_id" type="VARCHAR(48)">
                 <constraints nullable="false" />
@@ -33,8 +34,8 @@
             <column name="task_id" type="VARCHAR(58)">
                 <constraints nullable="false" />
             </column>
-            <column name="report_date" type="TIMESTAMP" >
-                <constraints nullable="false"/>
+            <column name="report_date" type="TIMESTAMP">
+                <constraints nullable="false" />
             </column>
         </createTable>
     </changeSet>

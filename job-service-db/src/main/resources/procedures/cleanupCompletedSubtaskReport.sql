@@ -18,22 +18,19 @@
  *  Name: internal_cleanup_completed_subtask_report
  *
  *  Description:
- *  Cleans up the completed_subtask_report based on the partition and job references provided.
+ *  Deletes unprocessed subtask completion reports relating to the specified job.
  */
 CREATE OR REPLACE FUNCTION internal_cleanup_completed_subtask_report(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
 )
-    RETURNS VOID
-    LANGUAGE plpgsql VOLATILE
+RETURNS VOID
+LANGUAGE plpgsql VOLATILE
 AS $$
-
 BEGIN
-
     -- Delete all rows from completed_subtask_report table matching the job and partition provided
     DELETE FROM completed_subtask_report
     WHERE partition_id = in_partition_id
         AND job_id = in_job_id;
-
 END
 $$;

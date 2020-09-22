@@ -18,16 +18,18 @@
  *  Name: internal_update_job_progress
  *
  *  Description:
- *  Updates the percentage_complete in the job table with data from subtask_report table.
+ *  Updates the percentage_complete in the job table with data from completed_subtask_report table.
  */
-CREATE FUNCTION internal_update_job_progress(in_partition_id VARCHAR(40),
-                                             in_job_id ANYELEMENT)
-    RETURNS TABLE(
-        partition_id VARCHAR(40),
-        job_id  VARCHAR(48),
-        status job_status
-    )
-    LANGUAGE plpgsql VOLATILE
+CREATE FUNCTION internal_update_job_progress(
+    in_partition_id VARCHAR(40),
+    in_job_id ANYELEMENT
+)
+RETURNS TABLE(
+    partition_id VARCHAR(40),
+    job_id VARCHAR(48),
+    status job_status
+)
+LANGUAGE plpgsql VOLATILE
 AS
 $$
 DECLARE
@@ -35,8 +37,8 @@ DECLARE
     subtask_array VARCHAR[];
     type_param regtype = pg_typeof(in_job_id);
     job_id_array varchar[];
-BEGIN
 
+BEGIN
     -- Check in_job_id type and return an exception if invalid
     -- If in_job_id is an array, its value is passed onto job_id_array
     -- If in_job_id is a varchar, it increments job_id_array

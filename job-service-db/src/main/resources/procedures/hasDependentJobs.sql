@@ -18,14 +18,19 @@
  *  Name: internal_has_dependent_jobs
  *
  *  Description:
- *  Checks if the specified job has dependencies
+ *  Checks if the specified job has dependencies.
  */
-
 CREATE OR REPLACE FUNCTION internal_has_dependent_jobs(
-    in_partition_id VARCHAR(40), in_job_id VARCHAR(58))
-    RETURNS BOOLEAN
-    LANGUAGE SQL STABLE
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(58)
+)
+RETURNS BOOLEAN
+LANGUAGE SQL STABLE
 AS $$
     -- Checks if job has any dependency
-    SELECT EXISTS(SELECT * FROM job_dependency WHERE partition_id = in_partition_id AND dependent_job_id = in_job_id) ;
+    SELECT EXISTS(
+        SELECT NULL FROM job_dependency
+        WHERE partition_id = in_partition_id
+            AND dependent_job_id = in_job_id
+    );
 $$;

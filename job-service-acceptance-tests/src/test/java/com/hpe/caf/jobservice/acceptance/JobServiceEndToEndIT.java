@@ -572,7 +572,6 @@ public class JobServiceEndToEndIT {
         //  -> J2 (delay=2s)
         //      -> J3 (delay=10s)
         createJobWithPrerequisites(job2Id, true, 2, job1Id);
-
         //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);

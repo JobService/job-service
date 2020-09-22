@@ -210,7 +210,7 @@ BEGIN
     END LOOP;
 
     -- Return the new table created
-    RETURN query
+    RETURN QUERY
     SELECT at.job_id,
            at.name,
            at.description,
