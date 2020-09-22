@@ -184,11 +184,6 @@ BEGIN
         );
     END IF;
 
-    UPDATE job
-    SET dependency = TRUE
-    WHERE partition_id = in_partition_id
-        AND job_id = in_job_id;
-
     RETURN QUERY SELECT TRUE;
 END
 $$;

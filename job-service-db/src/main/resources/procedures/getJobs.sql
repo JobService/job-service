@@ -210,7 +210,7 @@ BEGIN
     END LOOP;
 
     -- Return the new table created
-    RETURN QUERY
+    RETURN query
     SELECT job_id,
            name,
            description,
@@ -222,7 +222,7 @@ BEGIN
            failure_details,
            CAST('WORKER' AS CHAR(6)) AS actionType,
            label,
-           value
+           VALUE
     FROM new_table
     ORDER BY id;
 END
