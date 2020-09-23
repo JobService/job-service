@@ -56,21 +56,21 @@ CREATE OR REPLACE FUNCTION get_jobs(
     in_labels VARCHAR(255)[],
     in_filter VARCHAR(255)
 )
-RETURNS TABLE(
-    job_id VARCHAR(48),
-    name VARCHAR(255),
-    description TEXT,
-    data TEXT,
-    create_date TEXT,
-    last_update_date TEXT,
-    status job_status,
-    percentage_complete DOUBLE PRECISION,
-    failure_details TEXT,
-    actionType CHAR(6),
-    label VARCHAR(255),
-    label_value VARCHAR(255)
-)
-LANGUAGE plpgsql VOLATILE
+    RETURNS TABLE(
+                     job_id VARCHAR(48),
+                     name VARCHAR(255),
+                     description TEXT,
+                     data TEXT,
+                     create_date TEXT,
+                     last_update_date TEXT,
+                     status job_status,
+                     percentage_complete DOUBLE PRECISION,
+                     failure_details TEXT,
+                     actionType CHAR(6),
+                     label VARCHAR(255),
+                     label_value VARCHAR(255)
+                 )
+    LANGUAGE plpgsql VOLATILE
 AS $$
 DECLARE
     sql VARCHAR;
@@ -122,7 +122,7 @@ BEGIN
 
     IF in_labels IS NOT NULL AND ARRAY_LENGTH(in_labels, 1) > 0 THEN
         sql := sql || whereOrAnd || ' EXISTS ( SELECT 1 FROM public.label lbl WHERE lbl.partition_id = job.partition_id'
-            || ' AND lbl.job_id = job.job_id AND lbl.label = ANY(' || quote_literal(in_labels) || ')) ';
+                   || ' AND lbl.job_id = job.job_id AND lbl.label = ANY(' || quote_literal(in_labels) || ')) ';
         whereOrAnd := andConst;
     END IF;
 
@@ -158,12 +158,12 @@ BEGIN
     END IF;
 
     sql := sql || ' ORDER BY ' ||
-       CASE WHEN in_sort_label IS NOT NULL AND in_sort_label != ''
-         THEN '(SELECT value FROM label l WHERE job.partition_id = l.partition_id AND job.job_id = l.job_id AND l.label = ' ||
-           quote_literal(in_sort_label) || ')'
-         ELSE quote_ident(in_sort_field)
-       END ||
-        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+           CASE WHEN in_sort_label IS NOT NULL AND in_sort_label != ''
+                    THEN '(SELECT value FROM label l WHERE job.partition_id = l.partition_id AND job.job_id = l.job_id AND l.label = ' ||
+                         quote_literal(in_sort_label) || ')'
+                ELSE quote_ident(in_sort_field)
+               END ||
+           ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
 
     IF in_limit > 0 THEN
         sql := sql || ' LIMIT ' || in_limit;
@@ -176,14 +176,14 @@ BEGIN
     END IF;
     -- Join onto the labels after paging to avoid them bloating the row count
     sql := sql || ' ) as job LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id '
-               || 'AND lbl.job_id = job.job_id';
+        || 'AND lbl.job_id = job.job_id';
     sql := sql || ' ORDER BY ' ||
-       CASE WHEN in_sort_label IS NOT NULL AND in_sort_label != ''
-         THEN '(SELECT value FROM label l WHERE job.partition_id = l.partition_id AND job.job_id = l.job_id AND l.label = ' ||
-           quote_literal(in_sort_label) || ')'
-         ELSE quote_ident(in_sort_field)
-       END ||
-        ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
+           CASE WHEN in_sort_label IS NOT NULL AND in_sort_label != ''
+                    THEN '(SELECT value FROM label l WHERE job.partition_id = l.partition_id AND job.job_id = l.job_id AND l.label = ' ||
+                         quote_literal(in_sort_label) || ')'
+                ELSE quote_ident(in_sort_field)
+               END ||
+           ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
 
     -- Create temporary table as a base to update the job progress
     EXECUTE 'CREATE TEMPORARY TABLE get_job_temp ON COMMIT DROP AS ' || sql;
@@ -193,37 +193,43 @@ BEGIN
     -- Create a duplicate of that temporary table to store the results after the update
     CREATE TEMPORARY TABLE new_table ON COMMIT DROP AS SELECT * FROM get_job_temp ORDER BY id;
 
-    FOR jobId IN SELECT * FROM get_job_temp LOOP
-        -- Take out an exclusive update lock on the job row
-        PERFORM NULL FROM job j
-        WHERE j.partition_id = in_partition_id
-            AND j.job_id = jobId
-        FOR UPDATE;
+    -- Remove duplicates based on the label
+    DELETE FROM get_job_temp a
+        USING get_job_temp b
+    WHERE a.id < b.id
+      AND a.label = b.label;
 
-        -- Process outstanding job updates
-        PERFORM internal_update_job_progress(in_partition_id, jobId);
-        UPDATE new_table nt SET
-               status = j.status,
-               percentage_complete = j.percentage_complete
-        FROM job j
-        WHERE nt.job_id = j.job_id;
-    END LOOP;
+    FOR jobId IN SELECT * FROM get_job_temp LOOP
+            -- Take out an exclusive update lock on the job row
+            PERFORM NULL FROM job j
+            WHERE j.partition_id = in_partition_id
+              AND j.job_id = jobId
+                FOR UPDATE;
+
+            -- Process outstanding job updates
+            PERFORM internal_update_job_progress(in_partition_id, jobId);
+            UPDATE new_table nt SET
+                                    status = j.status,
+                                    percentage_complete = j.percentage_complete
+            FROM job j
+            WHERE nt.job_id = j.job_id;
+        END LOOP;
 
     -- Return the new table created
     RETURN QUERY
-    SELECT at.job_id,
-           at.name,
-           at.description,
-           at.data,
-           at.create_date,
-           at.last_update_date,
-           at.status,
-           at.percentage_complete,
-           at.failure_details,
-           CAST('WORKER' AS CHAR(6)) AS actionType,
-           at.label,
-           VALUE
-    FROM new_table at
-    ORDER BY at.id;
+        SELECT at.job_id,
+               at.name,
+               at.description,
+               at.data,
+               at.create_date,
+               at.last_update_date,
+               at.status,
+               at.percentage_complete,
+               at.failure_details,
+               CAST('WORKER' AS CHAR(6)) AS actionType,
+               at.label,
+               at.value
+        FROM new_table at
+        ORDER BY at.id;
 END
 $$;
