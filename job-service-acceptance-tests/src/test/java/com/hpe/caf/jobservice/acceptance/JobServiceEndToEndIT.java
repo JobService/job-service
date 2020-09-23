@@ -142,7 +142,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         jobId,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -197,7 +197,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         job1Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -221,7 +221,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         job2Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -246,12 +246,10 @@ public class JobServiceEndToEndIT {
         // prereq job ids that should not hold the job back.
         createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id, "", null, "           ");
 
-        Thread.sleep(1000); // Add short delay to allow previous job to complete
+        Thread.sleep(4000); // Add short delay to allow previous job to complete
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
-
-        Thread.sleep(3000); // Add short delay to allow previous jobs to complete
 
         //  Verify job 3 has completed and no job dependency rows exist.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
@@ -269,7 +267,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         jobId,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -309,7 +307,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         job1Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -333,7 +331,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         job2Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -358,12 +356,10 @@ public class JobServiceEndToEndIT {
         // prereq job ids that should not hold the job back.
         createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id, "", null, "           ");
 
-        Thread.sleep(1000); // Add short delay to allow previous job to complete
+        Thread.sleep(4000); // Add short delay to allow previous job to complete
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
-
-        Thread.sleep(3000); // Add delay to allow job completion
 
         //  Verify job 3 has completed and no job dependency rows exist.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
@@ -382,7 +378,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         job1Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -425,7 +421,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         job1Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -513,7 +509,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         job2Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -537,13 +533,11 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        Thread.sleep(3000); // Add short delay to allow previous jobs to complete
+        Thread.sleep(6000); // Add short delay to allow previous jobs to complete
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
         jobsApi.getJob(defaultPartitionId, job4Id, jobCorrelationId);
-
-        Thread.sleep(3000); // Add delay to allow previous jobs to complete
 
         //  Now that J1 has completed, verify this has triggered the completion of other jobs created
         //  with a prerequisite.
@@ -572,6 +566,7 @@ public class JobServiceEndToEndIT {
         //  -> J2 (delay=2s)
         //      -> J3 (delay=10s)
         createJobWithPrerequisites(job2Id, true, 2, job1Id);
+
         //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
@@ -591,7 +586,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         job2Id,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -622,12 +617,10 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
         Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) != null);
 
-        Thread.sleep(45000); // Add delay to allow J3 to complete
+        Thread.sleep(90000); // Add delay to allow jobs to complete
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
-
-        Thread.sleep(45000); // Add delay to allow J3 to complete
 
         //  Verify J3 is complete.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
@@ -855,7 +848,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         true,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         jobId,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -895,7 +888,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         jobId,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -1080,7 +1073,7 @@ public class JobServiceEndToEndIT {
                 new JobServiceEndToEndITExpectation(
                         false,
                         exampleWorkerMessageOutQueue,
-                    defaultPartitionId,
+                        defaultPartitionId,
                         jobId,
                         jobCorrelationId,
                         ExampleWorkerConstants.WORKER_NAME,
@@ -1220,22 +1213,22 @@ public class JobServiceEndToEndIT {
     }
 
     private void createJobWithPrerequisites(final String partitionId, final String jobId,
-            final boolean useTaskDataObject, final String... prerequisiteJobs) throws Exception {
+                                            final boolean useTaskDataObject, final String... prerequisiteJobs) throws Exception {
         final NewJob newJob = constructNewJob(jobId, useTaskDataObject);
         newJob.setPrerequisiteJobIds(Arrays.asList(prerequisiteJobs));
         jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
     }
 
     private void createJobWithDelay(final String partitionId, final String jobId,
-            final boolean useTaskDataObject, final int delay) throws Exception {
+                                    final boolean useTaskDataObject, final int delay) throws Exception {
         final NewJob newJob = constructNewJob(jobId, useTaskDataObject);
         newJob.setDelay(delay);
         jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
     }
 
     private void createJobWithPrerequisitesAndDelay(final String partitionId, final String jobId,
-            final boolean useTaskDataObject, final int delay,
-            final String... prerequisiteJobs) throws Exception {
+                                                    final boolean useTaskDataObject, final int delay,
+                                                    final String... prerequisiteJobs) throws Exception {
         final NewJob newJob = constructNewJob(jobId, useTaskDataObject);
         newJob.setPrerequisiteJobIds(Arrays.asList(prerequisiteJobs));
         newJob.setDelay(delay);
@@ -1243,7 +1236,7 @@ public class JobServiceEndToEndIT {
     }
 
     private void createJobWithLabels(final String partitionId, final String jobId, final boolean useTaskDataObject,
-            final Map<String, String> labels) throws Exception {
+                                     final Map<String, String> labels) throws Exception {
         final NewJob newJob = constructNewJob(jobId, useTaskDataObject);
         newJob.getLabels().putAll(labels);
         jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
