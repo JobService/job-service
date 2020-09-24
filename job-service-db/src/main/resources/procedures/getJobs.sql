@@ -78,6 +78,8 @@ DECLARE
     whereOrAnd VARCHAR(7) = ' WHERE ';
     andConst CONSTANT VARCHAR(5) = ' AND ';
     jobId VARCHAR(48);
+    job VARCHAR(48)[];
+    jobArray VARCHAR(48)[];
 
 BEGIN
     -- Return all rows from the job table:
@@ -190,46 +192,45 @@ BEGIN
 
     ALTER TABLE get_job_temp ADD COLUMN id SERIAL PRIMARY KEY;
 
-    -- Create a duplicate of that temporary table to store the results after the update
-    CREATE TEMPORARY TABLE new_table ON COMMIT DROP AS SELECT * FROM get_job_temp ORDER BY id;
+    -- Create an array of job_id(s) based on the get_job_temp table
+    jobArray := ARRAY(SELECT DISTINCT (jt.job_id) FROM get_job_temp jt);
 
-    -- Remove duplicates based on the label
-    DELETE FROM get_job_temp a
-    USING get_job_temp b
-    WHERE a.id < b.id
-        AND a.label = b.label;
+    -- Check that the array is not empty
+    IF array_length(jobArray, 1) > 0 THEN
 
-    FOR jobId IN SELECT * FROM get_job_temp LOOP
-        -- Take out an exclusive update lock on the job row
-        PERFORM NULL FROM job j
-        WHERE j.partition_id = in_partition_id
-            AND j.job_id = jobId
-        FOR UPDATE;
+        FOREACH job SLICE 1 IN ARRAY jobArray LOOP
+            -- Take out an exclusive update lock on the job row
+            PERFORM NULL FROM job j
+            WHERE j.partition_id = in_partition_id
+              AND j.job_id = jobId
+                FOR UPDATE;
 
-        -- Process outstanding job updates
-        PERFORM internal_update_job_progress(in_partition_id, jobId);
-        UPDATE new_table nt
-        SET status = j.status,
-            percentage_complete = j.percentage_complete
-        FROM job j
-        WHERE nt.job_id = j.job_id;
-    END LOOP;
+            -- Process outstanding job updates
+            PERFORM internal_update_job_progress(in_partition_id, jobId);
+            UPDATE get_job_temp nt SET
+                                    status = j.status,
+                                    percentage_complete = j.percentage_complete
+            FROM job j
+            WHERE nt.job_id = j.job_id;
+        END LOOP;
+
+    END IF;
 
     -- Return the new table created
     RETURN QUERY
-    SELECT at.job_id,
-           at.name,
-           at.description,
-           at.data,
-           at.create_date,
-           at.last_update_date,
-           at.status,
-           at.percentage_complete,
-           at.failure_details,
-           CAST('WORKER' AS CHAR(6)) AS actionType,
-           at.label,
-           at.value
-    FROM new_table at
-    ORDER BY at.id;
+        SELECT at.job_id,
+               at.name,
+               at.description,
+               at.data,
+               at.create_date,
+               at.last_update_date,
+               at.status,
+               at.percentage_complete,
+               at.failure_details,
+               CAST('WORKER' AS CHAR(6)) AS actionType,
+               at.label,
+               at.value
+        FROM get_job_temp at
+        ORDER BY at.id;
 END
 $$;
