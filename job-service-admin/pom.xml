@@ -57,10 +57,6 @@
             <artifactId>amqp-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.jodah</groupId>
-            <artifactId>lyra</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-config</artifactId>
         </dependency>

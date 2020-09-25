@@ -20,8 +20,6 @@ import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 import com.rabbitmq.client.Channel;
-import net.jodah.lyra.ConnectionOptions;
-import net.jodah.lyra.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,12 +139,11 @@ public class HealthCheck extends HttpServlet
 
     private static com.rabbitmq.client.Connection createConnection() throws IOException, TimeoutException
     {
-        final ConnectionOptions lyraOpts = RabbitUtil.createLyraConnectionOptions(System.getenv("CAF_RABBITMQ_HOST"),
+        return RabbitUtil.createRabbitConnection(
+                System.getenv("CAF_RABBITMQ_HOST"),
                 Integer.parseInt(System.getenv("CAF_RABBITMQ_PORT")),
                 System.getenv("CAF_RABBITMQ_USERNAME"),
                 System.getenv("CAF_RABBITMQ_PASSWORD"));
-        final Config lyraConfig = RabbitUtil.createLyraConfig(1, 30, -1);
-        return RabbitUtil.createRabbitConnection(lyraOpts, lyraConfig);
     }
 
     private boolean performDBHealthCheck(final Map<String, Map<String, String>> statusResponseMap)
