@@ -15,9 +15,7 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
-import com.hpe.caf.config.system.SystemBootstrapConfiguration;
 import com.hpe.caf.services.job.client.ApiClient;
 import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.services.job.client.api.JobsApi;
