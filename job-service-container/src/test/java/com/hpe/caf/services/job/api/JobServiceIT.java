@@ -27,8 +27,11 @@ import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.services.job.client.model.Job;
 import com.hpe.caf.services.job.client.model.NewJob;
 import com.hpe.caf.services.job.client.model.WorkerAction;
+import com.hpe.caf.util.rabbitmq.RabbitUtil;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -66,6 +69,7 @@ public class JobServiceIT {
     private JobsApi jobsApi;
     // cleaned up after each test, if assigned
     private QueueManager testQueueManager;
+    private Connection rabbitConn;
 
     private static ServicePath servicePath;
     private static WorkerServices workerServices;
@@ -94,6 +98,15 @@ public class JobServiceIT {
         workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         workerActionTask.setTaskPipe("TaskQueue_" + jobId);
         workerActionTask.setTargetPipe("Queue_" + jobId);
+
+        try {
+            final Channel rabbitChannel = rabbitConn.createChannel();
+            rabbitChannel.queueDeclare("TaskQueue_" + jobId, true, false, false,
+                    new HashMap<>());
+            rabbitChannel.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         NewJob newJob = new NewJob();
         newJob.setName(jobName);
@@ -166,12 +179,16 @@ public class JobServiceIT {
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
         rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
         rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
+        rabbitConn = RabbitUtil.createRabbitConnection(rabbitConfiguration.getRabbitConfiguration());
     }
 
     @AfterTest
     public void tearDown() throws IOException {
         if (testQueueManager != null) {
             testQueueManager.close();
+        }
+        if(rabbitConn != null) {
+            rabbitConn.close();
         }
     }
 
@@ -405,6 +422,15 @@ public class JobServiceIT {
             workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
             workerActionTask.setTaskPipe("TaskQueue_" + randomUUID);
             workerActionTask.setTargetPipe("Queue_" +randomUUID);
+
+            try {
+                Channel rabbitChannel = rabbitConn.createChannel();
+                rabbitChannel.queueDeclare("TaskQueue_" + randomUUID, true, false, false,
+                        new HashMap<>());
+                rabbitChannel.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
 
             NewJob newJob = new NewJob();
             newJob.setName(jobName);
