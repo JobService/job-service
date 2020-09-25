@@ -616,7 +616,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
         Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) != null);
 
-        Thread.sleep(30000); // Add delay to allow jobs to complete
+        Thread.sleep(50000); // Add delay to allow jobs to complete
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
