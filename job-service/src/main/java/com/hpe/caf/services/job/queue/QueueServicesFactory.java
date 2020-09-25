@@ -46,8 +46,9 @@ public final class QueueServicesFactory {
 
         Channel publishChannel = connection.createChannel();
 
-        //  Declare target worker queue.
-        RabbitUtil.declareWorkerQueue(publishChannel, targetQueue);
+        //  Check target worker queue exists.
+        publishChannel.queueDeclarePassive(targetQueue);
+//        RabbitUtil.declareWorkerQueue(publishChannel, targetQueue);
 
         return new QueueServices(connection, publishChannel, targetQueue, codec);
     }

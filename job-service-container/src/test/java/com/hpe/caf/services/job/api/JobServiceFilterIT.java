@@ -15,16 +15,28 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.hpe.caf.api.BootstrapConfiguration;
+import com.hpe.caf.api.ConfigurationSource;
+import com.hpe.caf.config.system.SystemBootstrapConfiguration;
 import com.hpe.caf.services.job.client.ApiClient;
 import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.services.job.client.model.Job;
 import com.hpe.caf.services.job.client.model.NewJob;
 import com.hpe.caf.services.job.client.model.WorkerAction;
+import com.hpe.caf.util.rabbitmq.RabbitUtil;
+import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
+import com.hpe.caf.worker.testing.SettingNames;
+import com.hpe.caf.worker.testing.SettingsProvider;
+import com.hpe.caf.worker.testing.WorkerServices;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import static org.testng.Assert.*;
@@ -40,6 +52,7 @@ public class JobServiceFilterIT
     private String correlationId;
     private JobsApi jobsApi;
     private final ApiClient client = new ApiClient();
+    private Connection rabbitConn;
 
     @BeforeTest
     public void setup() throws Exception
@@ -49,6 +62,15 @@ public class JobServiceFilterIT
         final SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         client.setDateFormat(f);
         jobsApi = new JobsApi(client);
+        final WorkerServices workerServices = WorkerServices.getDefault();
+        final ConfigurationSource configurationSource = workerServices.getConfigurationSource();
+        final RabbitWorkerQueueConfiguration rabbitConfiguration =
+                configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
+        rabbitConfiguration.getRabbitConfiguration()
+                .setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(
+                        Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
+        rabbitConn = RabbitUtil.createRabbitConnection(rabbitConfiguration.getRabbitConfiguration());
     }
 
     @BeforeMethod
@@ -56,6 +78,14 @@ public class JobServiceFilterIT
     {
         defaultPartitionId = UUID.randomUUID().toString();
         correlationId = "1";
+    }
+
+    @AfterTest
+    public void tearDown() throws IOException
+    {
+        if(rabbitConn != null) {
+            rabbitConn.close();
+        }
     }
 
     @Test
@@ -300,6 +330,15 @@ public class JobServiceFilterIT
         workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         workerActionTask.setTaskPipe("TaskQueue_" + jobId);
         workerActionTask.setTargetPipe("Queue_" + jobId);
+
+        try {
+            final Channel rabbitChannel = rabbitConn.createChannel();
+            rabbitChannel.queueDeclare("TaskQueue_" + jobId, true, false, false,
+                    new HashMap<>());
+            rabbitChannel.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         final NewJob newJob = new NewJob();
         newJob.setName(jobName);

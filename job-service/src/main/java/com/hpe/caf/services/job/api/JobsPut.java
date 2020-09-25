@@ -222,7 +222,7 @@ public final class JobsPut {
                 databaseHelper.reportFailure(partitionId, jobId, mapper.writeValueAsString(f));
 
                 //  Throw error message to user.
-                throw new Exception("Failed to add task data to the queue.");
+                throw new Exception("Failed to add task data to the queue");
             }
 
             LOG.debug("createOrUpdateJob: Done.");
