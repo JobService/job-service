@@ -246,7 +246,7 @@ public class JobServiceEndToEndIT {
         // prereq job ids that should not hold the job back.
         createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id, "", null, "           ");
 
-        Thread.sleep(4000); // Add short delay to allow previous job to complete
+        Thread.sleep(1000); // Add short delay to allow previous job to complete
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
@@ -356,7 +356,7 @@ public class JobServiceEndToEndIT {
         // prereq job ids that should not hold the job back.
         createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id, "", null, "           ");
 
-        Thread.sleep(4000); // Add short delay to allow previous job to complete
+        Thread.sleep(1000); // Add short delay to allow previous job to complete
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
@@ -533,7 +533,7 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        Thread.sleep(6000); // Add short delay to allow previous jobs to complete
+        Thread.sleep(3000); // Add short delay to allow previous jobs to complete
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
@@ -609,14 +609,14 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        Thread.sleep(6000); // Add short delay to allow J1 + J2 to complete.
+        Thread.sleep(5000); // Add short delay to allow J1 + J2 to complete.
 
         //  Verify J2 is complete but J3 is still waiting.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
         Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) != null);
 
-        Thread.sleep(50000); // Add delay to allow jobs to complete
+        Thread.sleep(12000); // Add delay to allow jobs to complete
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
