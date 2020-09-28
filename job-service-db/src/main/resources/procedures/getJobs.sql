@@ -70,13 +70,16 @@ RETURNS TABLE(
     label VARCHAR(255),
     label_value VARCHAR(255)
 )
-LANGUAGE plpgsql STABLE
+LANGUAGE plpgsql VOLATILE
 AS $$
 DECLARE
     sql VARCHAR;
     escapedJobIdStartsWith VARCHAR;
     whereOrAnd VARCHAR(7) = ' WHERE ';
     andConst CONSTANT VARCHAR(5) = ' AND ';
+    jobId VARCHAR(48);
+    job VARCHAR(48)[];
+    jobArray VARCHAR(48)[];
 
 BEGIN
     -- Return all rows from the job table:
@@ -183,6 +186,51 @@ BEGIN
          ELSE quote_ident(in_sort_field)
        END ||
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
-    RETURN QUERY EXECUTE sql;
+
+    -- Create temporary table as a base to update the job progress
+    EXECUTE 'CREATE TEMPORARY TABLE get_job_temp ON COMMIT DROP AS ' || sql;
+
+    ALTER TABLE get_job_temp ADD COLUMN id SERIAL PRIMARY KEY;
+
+    -- Create an array of job_id(s) based on the get_job_temp table
+    jobArray := ARRAY(SELECT DISTINCT (jt.job_id) FROM get_job_temp jt);
+
+    -- Check that the array is not empty
+    IF array_length(jobArray, 1) > 0 THEN
+
+        FOREACH job SLICE 1 IN ARRAY jobArray LOOP
+            -- Take out an exclusive update lock on the job row
+            PERFORM NULL FROM job j
+            WHERE j.partition_id = in_partition_id
+              AND j.job_id = jobId
+                FOR UPDATE;
+
+            -- Process outstanding job updates
+            PERFORM internal_update_job_progress(in_partition_id, jobId);
+            UPDATE get_job_temp nt SET
+                                    status = j.status,
+                                    percentage_complete = j.percentage_complete
+            FROM job j
+            WHERE nt.job_id = j.job_id;
+        END LOOP;
+
+    END IF;
+
+    -- Return the new table created
+    RETURN QUERY
+        SELECT at.job_id,
+               at.name,
+               at.description,
+               at.data,
+               at.create_date,
+               at.last_update_date,
+               at.status,
+               at.percentage_complete,
+               at.failure_details,
+               CAST('WORKER' AS CHAR(6)) AS actionType,
+               at.label,
+               at.value
+        FROM get_job_temp at
+        ORDER BY at.id;
 END
 $$;

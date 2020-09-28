@@ -68,5 +68,8 @@ BEGIN
     DELETE FROM job
     WHERE partition_id = in_partition_id
         AND job_id = in_job_id;
+
+    -- Removes all related subtasks from completed_subtask_report table
+    PERFORM internal_cleanup_completed_subtask_report(in_partition_id, in_job_id);
 END
 $$;

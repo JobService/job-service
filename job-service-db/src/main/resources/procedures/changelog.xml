@@ -33,6 +33,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_cleanup_completed_subtask_report_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/cleanupCompletedSubtaskReport.sql"
+                         procedureName="internal_cleanup_completed_subtask_report"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_create_job_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/createJob.sql"
                          procedureName="create_job"
@@ -175,6 +181,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_has_dependent_jobs" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/hasDependentJobs.sql"
+                         procedureName="internal_has_dependent_jobs"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_internal_create_job_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/internalCreateJob.sql"
                          procedureName="internal_create_job"
@@ -244,6 +256,12 @@
     <changeSet id="create_resolve_status_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/resolveStatus.sql"
                          procedureName="internal_resolve_status"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="create_update_job_progress_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/updateJobProgress.sql"
+                         procedureName="internal_update_job_progress"
                          schemaName="public">
         </createProcedure>
     </changeSet>
