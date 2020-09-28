@@ -40,15 +40,9 @@
         </createTable>
     </changeSet>
     <changeSet id="add_job_dependency_sorting_index" author="Gamma Team">
-        <preConditions onFail="CONTINUE">
-            <not>
-                <indexExists schemaName="public" tableName="job_dependency" indexName="idx_job_partition_id_and_job_id"
-                             columnNames="partition_id"/>
-            </not>
-        </preConditions>
-        <createIndex schemaName="public" tableName="job_dependency" indexName="idx_job_partition_id_and_job_id">
+        <createIndex schemaName="public" tableName="job_dependency" indexName="idx_job_partition_id_and_dependent_job_id">
             <column name="partition_id" />
-            <column name="job_id" />
+            <column name="dependent_job_id" />
         </createIndex>
     </changeSet>
 </databaseChangeLog>
