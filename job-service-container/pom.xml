@@ -32,7 +32,7 @@
     </parent>
 
     <properties>
-        <tomcatBaseImage>cafinternal/prereleases:opensuse-tomcat-jre11-2.2.0-SNAPSHOT</tomcatBaseImage>
+        <tomcatBaseImage>${dockerHubPrivate}/cafinternal/prereleases:opensuse-tomcat-jre11-2.2.0-SNAPSHOT</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
@@ -278,7 +278,7 @@
                     <images>
                         <image>
                             <alias>webdav</alias>
-                            <name>cloudesire/webdav</name>
+                            <name>${dockerHubPublic}/cloudesire/webdav</name>
                             <run>
                                 <volumes>
                                     <bind>
@@ -307,7 +307,7 @@
                         <!-- pull in a normal postgres DB for integration tests -->
                         <image>
                             <alias>jobservice-integrationtests-postgres</alias>
-                            <name>postgres:11.7</name>
+                            <name>${dockerHubPublic}/library/postgres:11.7</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
@@ -331,7 +331,7 @@
                         <!--Run rabbitmq for tests. -->
                         <image>
                             <alias>rabbitmq</alias>
-                            <name>rabbitmq:3-management</name>
+                            <name>${dockerHubPublic}/library/rabbitmq:3-management</name>
                             <run>
                                 <ports>
                                     <port>${rabbitmq.ctrl.port}:15672</port>
@@ -376,7 +376,7 @@
                             <alias>keystore</alias>
                             <name>${project.artifactId}-keystore:${project.version}</name>
                             <build>
-                                <from>cafinternal/prereleases:opensuse-jre11-3.1.0-SNAPSHOT</from>
+                                <from>${dockerHubPrivate}/cafinternal/prereleases:opensuse-jre11-3.1.0-SNAPSHOT</from>
                                 <runCmds>
                                     <runCmd>mkdir /test-keystore</runCmd>
                                     <runCmd>$JRE_HOME/bin/keytool -genkey -noprompt -alias tomcat -dname "CN=myname, OU=myorganisational.unit, O=myorganisation, L=mycity, S=myprovince, C=GB" -keystore /test-keystore/tomcat.keystore -storepass changeit -keypass changeit -keyalg RSA</runCmd>

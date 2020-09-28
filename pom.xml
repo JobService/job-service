@@ -33,7 +33,7 @@
     <parent>
         <groupId>com.github.cafapi</groupId>
         <artifactId>caf-common-parent</artifactId>
-        <version>2.2.0-203</version>
+        <version>2.3.0-SNAPSHOT</version>
     </parent>
     
     <inceptionYear>2016</inceptionYear>
@@ -43,10 +43,12 @@
         <dockerHubOrganization>jobservice</dockerHubOrganization>
         <dockerJobServiceOrg>${dockerImagePrefix}${dockerHubOrganization}${dockerOrgSeperator}</dockerJobServiceOrg>
         <dockerProjectVersion>${dockerVersionSeperator}${project.version}</dockerProjectVersion>
+        <DOCKER_HUB_PRIVATE>${dockerHubPrivate}</DOCKER_HUB_PRIVATE>
+        <DOCKER_HUB_PUBLIC>${dockerHubPublic}</DOCKER_HUB_PUBLIC>
         <gitRepo>https://github.com/JobService/job-service</gitRepo>
         <enforceCorrectDependencies>true</enforceCorrectDependencies>
         <enforceBannedDependencies>true</enforceBannedDependencies>
-        <fabric8.docker.maven.version>0.20.1</fabric8.docker.maven.version>
+        <fabric8.docker.maven.version>0.26.1</fabric8.docker.maven.version>
     </properties>
 
     <dependencyManagement>

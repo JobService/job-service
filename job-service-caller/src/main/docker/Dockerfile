@@ -14,7 +14,8 @@
 # limitations under the License.
 #
 
-FROM cafinternal/prereleases:opensuse-python3-2.1.0-SNAPSHOT
+ARG DOCKER_HUB_PRIVATE=docker.io
+FROM ${DOCKER_HUB_PRIVATE}/cafinternal/prereleases:opensuse-python3-2.1.0-SNAPSHOT
 
 # Install pip and requests
 RUN zypper -n install python3-pip && \

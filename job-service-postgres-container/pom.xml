@@ -95,7 +95,7 @@
                         <!-- Postgres DB -->
                         <image>
                             <alias>${js.database.host}</alias>
-                            <name>postgres:11.7</name>
+                            <name>${dockerHubPublic}/library/postgres:11.7</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
@@ -119,7 +119,7 @@
                         <!-- Run old version of jobservice postgres container against postgres database to install jobservice schema. -->
                         <image>
                             <alias>job-service-postgres-old</alias>
-                            <name>jobservice/job-service-postgres:3.0</name>
+                            <name>${dockerHubPublic}/jobservice/job-service-postgres:3.0</name>
                             <run>
                                 <links>
                                     <link>${js.database.host}</link>
@@ -146,7 +146,7 @@
                             <alias>job-service-postgres</alias>
                             <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <build>
-                                <from>cafapi/java-postgres:2</from>
+                                <from>${dockerHubPublic}/cafapi/java-postgres:2</from>
                                 <labels>
                                     <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>

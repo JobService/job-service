@@ -300,7 +300,7 @@
                     <images>
                         <image>
                             <alias>webdav</alias>
-                            <name>cloudesire/webdav</name>
+                            <name>${dockerHubPublic}/cloudesire/webdav</name>
                             <run>
                                 <volumes>
                                     <bind>
@@ -329,7 +329,7 @@
                         <!-- pull in a normal postgres DB for integration tests -->
                         <image>
                             <alias>${job.database.host}</alias>
-                            <name>postgres:11.7</name>
+                            <name>${dockerHubPublic}/library/postgres:11.7</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
@@ -353,7 +353,7 @@
                         <!--Run RabbitMQ.-->
                         <image>
                             <alias>rabbitmq</alias>
-                            <name>rabbitmq:3-management</name>
+                            <name>${dockerHubPublic}/library/rabbitmq:3-management</name>
                             <run>
                                 <ports>
                                     <port>${rabbitmq.ctrl.port}:15672</port>
@@ -378,7 +378,7 @@
                             <alias>jobtracking-worker</alias>
                             <name>${dockerJobServiceOrg}worker-jobtracking${dockerProjectVersion}</name>
                             <build>
-                                <from>cafinternal/prereleases:opensuse-jre11-3.1.0-SNAPSHOT</from>
+                                <from>${dockerHubPrivate}/cafinternal/prereleases:opensuse-jre11-3.1.0-SNAPSHOT</from>
                                 <labels>
                                     <Build.Number>${project.version}</Build.Number>
                                     <Build.Date>${maven.build.timestamp}</Build.Date>
