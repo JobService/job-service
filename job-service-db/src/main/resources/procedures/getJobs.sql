@@ -206,7 +206,7 @@ BEGIN
                 FOR UPDATE;
 
             -- Process outstanding job updates
-            PERFORM internal_update_job_progress(in_partition_id, jobId);
+            PERFORM internal_update_job_progress(in_partition_id, job);
             UPDATE get_job_temp nt SET
                                     status = j.status,
                                     percentage_complete = j.percentage_complete
