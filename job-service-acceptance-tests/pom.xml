@@ -280,7 +280,7 @@
                         WebDav image 
                         <image>
                             <alias>webdav</alias>
-                            <name>cloudesire/webdav</name>
+                            <name>${dockerHubPublic}/cloudesire/webdav</name>
                             <run>
                                 <volumes>
                                     <bind>
@@ -385,7 +385,7 @@
                         <!-- Run a PostgreSQL DB -->
                         <image>
                             <alias>${job.database.host}</alias>
-                            <name>postgres:11.7</name>
+                            <name>${dockerHubPublic}/library/postgres:11.7</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
@@ -410,7 +410,7 @@
                         <!-- Run RabbitMQ -->
                         <image>
                             <alias>rabbitmq</alias>
-                            <name>rabbitmq:3-management</name>
+                            <name>${dockerHubPublic}/library/rabbitmq:3-management</name>
                             <run>
                                 <ports>
                                     <port>${rabbitmq.ctrl.port}:15672</port>
@@ -528,7 +528,7 @@
                         <!-- Run Batch worker -->
                         <image>
                             <alias>batch-worker</alias>
-                            <name>jobservice/worker-batchsplit:1.0</name>
+                            <name>${dockerHubPublic}/jobservice/worker-batchsplit:1.0</name>
                             <run>
                                 <ports>
                                     <port>${batch-worker.adminport}:8081</port>
@@ -564,7 +564,7 @@
                         <!-- Run Example worker -->
                         <image>
                             <alias>example-worker</alias>
-                            <name>cafdataprocessing/worker-example:1.8</name>
+                            <name>${dockerHubPublic}/cafdataprocessing/worker-example:1.8</name>
                             <run>
                                 <ports>
                                     <port>${example-worker.adminport}:8081</port>
