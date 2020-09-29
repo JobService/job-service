@@ -51,7 +51,7 @@ public final class QueueServicesFactory
 
         //  Declare target worker queue.
         LOG.debug("Declaring target worker queue ...");
-        RabbitUtil.declareWorkerQueue(publishChannel, targetQueue);
+        publishChannel.queueDeclarePassive(targetQueue);
 
         return new QueueServices(connection, publishChannel, targetQueue, codec);
     }
