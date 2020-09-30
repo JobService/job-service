@@ -78,8 +78,7 @@ DECLARE
     whereOrAnd VARCHAR(7) = ' WHERE ';
     andConst CONSTANT VARCHAR(5) = ' AND ';
     jobId VARCHAR(48);
-    job VARCHAR(48)[];
-    jobArray VARCHAR(48)[];
+    jobIdArray VARCHAR(48)[];
 
 BEGIN
     -- Return all rows from the job table:
@@ -193,12 +192,12 @@ BEGIN
     ALTER TABLE get_job_temp ADD COLUMN id SERIAL PRIMARY KEY;
 
     -- Create an array of job_id(s) based on the get_job_temp table
-    jobArray := ARRAY(SELECT DISTINCT (jt.job_id) FROM get_job_temp jt);
+    jobIdArray := ARRAY(SELECT DISTINCT (jt.job_id) FROM get_job_temp jt);
 
     -- Check that the array is not empty
-    IF array_length(jobArray, 1) > 0 THEN
+    IF array_length(jobIdArray, 1) > 0 THEN
 
-        FOREACH job SLICE 1 IN ARRAY jobArray LOOP
+        FOREACH jobId IN ARRAY jobIdArray LOOP
             -- Take out an exclusive update lock on the job row
             PERFORM NULL FROM job j
             WHERE j.partition_id = in_partition_id
@@ -206,7 +205,7 @@ BEGIN
                 FOR UPDATE;
 
             -- Process outstanding job updates
-            PERFORM internal_update_job_progress(in_partition_id, job);
+            PERFORM internal_update_job_progress(in_partition_id, jobId);
             UPDATE get_job_temp nt SET
                                     status = j.status,
                                     percentage_complete = j.percentage_complete
