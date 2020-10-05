@@ -32,7 +32,7 @@
     </parent>
 
     <properties>
-        <tomcatBaseImage>${dockerHubPrivate}/cafinternal/prereleases:opensuse-tomcat-jre11-2.2.0-SNAPSHOT</tomcatBaseImage>
+        <tomcatBaseImage>${dockerHubPublic}/cafapi/opensuse-tomcat-jre11:2</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
