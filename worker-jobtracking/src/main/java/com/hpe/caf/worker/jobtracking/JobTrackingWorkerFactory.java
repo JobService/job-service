@@ -18,7 +18,9 @@ package com.hpe.caf.worker.jobtracking;
 import com.hpe.caf.api.*;
 import com.hpe.caf.api.worker.*;
 import com.hpe.caf.util.rabbitmq.RabbitHeaders;
+import com.hpe.caf.worker.tracking.report.TrackingReport;
 import com.hpe.caf.worker.tracking.report.TrackingReportConstants;
+import com.hpe.caf.worker.tracking.report.TrackingReportStatus;
 import com.hpe.caf.worker.tracking.report.TrackingReportTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,7 @@ import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +49,8 @@ import java.util.Set;
  * The Job Tracking Worker reports the progress of the task to the Job Database and, if the job is active,
  * it will be forwarded to the correct destination pipe.
  */
-public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwardingEvaluator {
+public class JobTrackingWorkerFactory
+        implements WorkerFactory, TaskMessageForwardingEvaluator, BulkWorker {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerFactory.class);
 
@@ -56,7 +60,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     private final Class<JobTrackingWorkerTask> taskClass;
 
     @NotNull
-    private JobTrackingReporter reporter;
+    private final JobTrackingReporter reporter;
 
     /**
      * Constructor for JobTrackingWorkerFactory called by JobTrackingWorkerFactoryProvider
@@ -90,6 +94,162 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         this.reporter = reporter;
     }
 
+    private static byte[] validateVersionAndData(final WorkerTaskData workerTask, final int workerApiVersion)
+            throws InvalidTaskException, TaskRejectedException {
+        final int version = workerTask.getVersion();
+        if (workerApiVersion < version) {
+            throw new TaskRejectedException("Found task version " + version + ", which is newer than " +
+                    workerApiVersion);
+        }
+
+        final byte[] data = workerTask.getData();
+        if (data == null) {
+            throw new InvalidTaskException("Invalid input message: task not specified");
+        }
+
+        return data;
+    }
+
+    /**
+     * Returns the worker name from the source information in the task message or an "Unknown" string if it is not present.
+     *
+     * @param taskMessage the task message to be examined
+     * @return the name of the worker that created the task message
+     */
+    private static String getWorkerName(final TaskMessage taskMessage) {
+        final TaskSourceInfo sourceInfo = taskMessage.getSourceInfo();
+        if (sourceInfo == null) {
+            return "Unknown - no source info";
+        }
+
+        final String workerName = sourceInfo.getName();
+        if (workerName == null) {
+            return "Unknown - worker name not set";
+        }
+
+        return workerName;
+    }
+
+    @Override
+    public void processTasks(final BulkWorkerRuntime bwr) throws InterruptedException {
+
+        // TODO should come from configuration
+        // Calculate a batch timeframe
+        // Let's say 10 seconds
+        final long cutoffTime = System.currentTimeMillis() + 10000;
+        final String workerName = JobTrackingWorkerConstants.WORKER_NAME;
+        final List<WorkerTask> workerTasksThatWillNeedToGoToDatabase = new ArrayList<>();
+
+        // Reject tasks of the wrong type and tasks that require a newer version
+        final List<String> completedTrackingReports = new ArrayList<>();
+        WorkerTask workerTask;
+        for (; ; ) {
+            final long maxWaitTime = cutoffTime - System.currentTimeMillis();
+            workerTask= bwr.getNextWorkerTask(maxWaitTime);
+
+            final List<TrackingReport> failedTrackingReports = new ArrayList<>();
+
+            final String taskClassifier = workerTask.getClassifier();
+
+            if (workerTask == null) break;
+
+            // Some of these tasks can be processed right here
+            // (i.e. those that don't need to go to the database)
+            // Get those out of the way here
+
+            if (taskClassifier.equals(TrackingReportConstants.TRACKING_REPORT_TASK_NAME)) {
+                final byte[] data;
+                try {
+                    data = validateVersionAndData(workerTask,
+                            TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
+
+                    final TrackingReportTask jobTrackingWorkerTask
+                            = TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, data);
+
+                    for (TrackingReport report : jobTrackingWorkerTask.trackingReports) {
+
+                        // if report status is failed, add to the failed list
+                        if (report.status == TrackingReportStatus.Failed) failedTrackingReports.add(report);
+
+                            // if report status is complete, add to the complete list
+                        else if (report.status == TrackingReportStatus.Complete) completedTrackingReports
+                                .add(report.jobTaskId);
+
+                            // For the case of retry or progress, simply log
+                        else {
+                            LOG.trace("Received " + report.status.toString().toLowerCase() + " report message for task " +
+                                            "{}; taking no" +
+                                            " action",
+                                    report.jobTaskId);
+                        }
+
+                    }
+
+                } catch (InvalidTaskException | TaskRejectedException e) {
+                    LOG.warn("Error reporting task progress to the Job Database: ", e);
+                    e.printStackTrace();
+                }
+                // This task must be added to the list to deal with later
+                workerTasksThatWillNeedToGoToDatabase.add(workerTask);
+
+            }
+            // If the worker is a JobTrackingWorker, then we simply log the tasks and set the response
+            else if (taskClassifier.equals(JobTrackingWorkerConstants.WORKER_NAME)) {
+                final byte[] data;
+                try {
+                    data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
+                    final JobTrackingWorkerTask jobTrackingWorkerTask
+                            = TaskValidator.deserialiseAndValidateTask(codec, JobTrackingWorkerTask.class, data);
+                    LOG.trace("Received progress update message for task {}; taking no action",
+                            jobTrackingWorkerTask.getJobTaskId());
+
+                    workerTask.setResponse(new WorkerResponse(null,
+                            TaskStatus.RESULT_SUCCESS,
+                            new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
+                } catch (InvalidTaskException | TaskRejectedException e) {
+                    LOG.warn("Error reporting task progress to the Job Database: ", e.getStackTrace());
+                }
+
+            } else {
+                try {
+                    throw new InvalidTaskException("Task of type " + taskClassifier + " found on queue for " + workerName);
+                } catch (InvalidTaskException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+        try {
+            // Actually process the list (make the call to the database)
+            final List<JobTrackingWorkerDependency> jobDependencyList = reporter.reportJobTasksComplete(completedTrackingReports);
+
+            if (jobDependencyList != null && !jobDependencyList.isEmpty()) {
+                //  For each dependent job, create a TaskMessage object and publish to the
+                //  messaging queue.
+                for (final JobTrackingWorkerDependency dependency : jobDependencyList) {
+                    final TaskMessage dependentJobTaskMessage =
+                            JobTrackingWorkerUtil.createDependentJobTaskMessage(dependency, workerTask.getTo());
+                    workerTask.sendMessage(dependentJobTaskMessage);
+                }
+            }
+        } catch (JobReportingException e) {
+            LOG.warn("Error reporting task progress to the Job Database: ", e);
+            workerTask.setResponse(new WorkerResponse(null,
+                    TaskStatus.RESULT_FAILURE,
+                    new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
+        }
+
+
+
+        // xxx
+        for (final WorkerTask wTask : workerTasksThatWillNeedToGoToDatabase) {
+            wTask.setResponse(new WorkerResponse(null,
+                    TaskStatus.RESULT_SUCCESS,
+                    new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
+        }
+
+    }
+
     @Override
     public final Worker getWorker(final WorkerTaskData workerTask) throws TaskRejectedException, InvalidTaskException {
 
@@ -117,62 +277,6 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
     }
 
-    private static byte[] validateVersionAndData(final WorkerTaskData workerTask, final int workerApiVersion)
-            throws InvalidTaskException, TaskRejectedException
-    {
-        final int version = workerTask.getVersion();
-        if (workerApiVersion < version) {
-            throw new TaskRejectedException("Found task version " + version + ", which is newer than " +
-                    workerApiVersion);
-        }
-
-        final byte[] data = workerTask.getData();
-        if (data == null) {
-            throw new InvalidTaskException("Invalid input message: task not specified");
-        }
-
-        return data;
-    }
-
-    /**
-     * The purpose of this static nested class is just to delay the creation of the validator object until it is
-     * required.
-     */
-    private static class TaskValidator
-    {
-        /**
-         * Used to validate that the message being processed complies with the constraints that are declared.
-         */
-        private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-
-        /**
-         * Deserialise the given data into the specified class, and validate that any constraints specified have
-         * been met.
-         */
-        public static <T> T deserialiseAndValidateTask(final Codec codec, final Class<T> taskType, final byte[] data)
-                throws InvalidTaskException
-        {
-            final T jobTrackingWorkerTask;
-            try {
-                jobTrackingWorkerTask = codec.deserialise(data, taskType, DecodeMethod.STRICT);
-            } catch (final CodecException e) {
-                throw new InvalidTaskException("Invalid input message", e);
-            }
-
-            if (jobTrackingWorkerTask == null) {
-                throw new InvalidTaskException("Invalid input message: no result from deserialisation");
-            }
-
-            final Set<ConstraintViolation<T>> violations = validator.validate(jobTrackingWorkerTask);
-            if (violations.size() > 0) {
-                LOG.error("Task of type {} failed validation due to: {}", taskType.getSimpleName(), violations);
-                throw new InvalidTaskException("Task failed validation");
-            }
-
-            return jobTrackingWorkerTask;
-        }
-    }
-
     protected String getWorkerName() {
         return JobTrackingWorkerConstants.WORKER_NAME;
     }
@@ -185,7 +289,8 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     /**
      * Create a worker to process the given JobTrackingWorkerTask task.
      */
-    private Worker createWorker(final JobTrackingWorkerTask task, final WorkerTaskData workerTaskData) throws TaskRejectedException, InvalidTaskException {
+    private Worker createWorker(final JobTrackingWorkerTask task, final WorkerTaskData workerTaskData) throws
+            TaskRejectedException, InvalidTaskException {
         return new JobTrackingWorker(task, configuration.getOutputQueue(), codec, reporter, workerTaskData);
     }
 
@@ -210,6 +315,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
     /**
      * Health check which returns healthy if the Job Tracking Worker components are available.
+     *
      * @return
      */
     @Override
@@ -226,10 +332,11 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
     /**
      * Reports the progress of the proxied task message, then forwards it to its destination.
+     *
      * @param proxiedTaskMessage the proxied task message being diverted via the Job Tracking Worker
-     * @param taskInformation the reference to the message this task arrived on
-     * @param headers the map of key/value paired headers to be stamped on the message
-     * @param callback worker callback to enact the forwarding action determined by the worker
+     * @param taskInformation    the reference to the message this task arrived on
+     * @param headers            the map of key/value paired headers to be stamped on the message
+     * @param callback           worker callback to enact the forwarding action determined by the worker
      */
     @Override
     public void determineForwardingAction(TaskMessage proxiedTaskMessage, TaskInformation taskInformation,
@@ -254,9 +361,9 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
      * Report the task's status to the job database.
      *
      * @param proxiedTaskMessage the task to be reported
-     * @param headers task headers such as if the task was rejected
+     * @param headers            task headers such as if the task was rejected
      * @return List<JobTrackingWorkerDependency> containing any dependent jobs that are now available for processing
-     *         else returns null
+     * else returns null
      */
     private List<JobTrackingWorkerDependency> reportProxiedTask(final TaskMessage proxiedTaskMessage,
                                                                 Map<String, Object> headers) {
@@ -345,38 +452,16 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     }
 
     /**
-     * Returns the worker name from the source information in the task message or an "Unknown" string if it is not present.
-     *
-     * @param taskMessage the task message to be examined
-     * @return the name of the worker that created the task message
-     */
-    private static String getWorkerName(final TaskMessage taskMessage)
-    {
-        final TaskSourceInfo sourceInfo = taskMessage.getSourceInfo();
-        if (sourceInfo == null) {
-            return "Unknown - no source info";
-        }
-
-        final String workerName = sourceInfo.getName();
-        if (workerName == null) {
-            return "Unknown - worker name not set";
-        }
-
-        return workerName;
-    }
-
-    /**
-     *  Start the list of jobs that are now available to be run.
+     * Start the list of jobs that are now available to be run.
      *
      * @param jobDependencyList containing any dependent jobs that are now available for processing
-     * @param callback worker callback to enact the forwarding action determined by the worker
-     * @param trackingPipe target pipe where dependent jobs should be forwarded to.
+     * @param callback          worker callback to enact the forwarding action determined by the worker
+     * @param trackingPipe      target pipe where dependent jobs should be forwarded to.
      * @throws Exception
      */
     private void forwardAvailableJobs(final List<JobTrackingWorkerDependency> jobDependencyList,
                                       final WorkerCallback callback, final String trackingPipe,
-                                      TaskInformation taskInformation) throws Exception
-    {
+                                      TaskInformation taskInformation) throws Exception {
         // Walk the resultSet placing each returned job on the Rabbit Queue
         try {
             for (final JobTrackingWorkerDependency jobDependency : jobDependencyList) {
@@ -387,6 +472,43 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             }
         } catch (final Exception e) {
             LOG.error("Error retrieving Dependent Job Info from the Job Service Database {}", e);
+        }
+    }
+
+    /**
+     * The purpose of this static nested class is just to delay the creation of the validator object until it is
+     * required.
+     */
+    private static class TaskValidator {
+        /**
+         * Used to validate that the message being processed complies with the constraints that are declared.
+         */
+        private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+        /**
+         * Deserialise the given data into the specified class, and validate that any constraints specified have
+         * been met.
+         */
+        public static <T> T deserialiseAndValidateTask(final Codec codec, final Class<T> taskType, final byte[] data)
+                throws InvalidTaskException {
+            final T jobTrackingWorkerTask;
+            try {
+                jobTrackingWorkerTask = codec.deserialise(data, taskType, DecodeMethod.STRICT);
+            } catch (final CodecException e) {
+                throw new InvalidTaskException("Invalid input message", e);
+            }
+
+            if (jobTrackingWorkerTask == null) {
+                throw new InvalidTaskException("Invalid input message: no result from deserialisation");
+            }
+
+            final Set<ConstraintViolation<T>> violations = validator.validate(jobTrackingWorkerTask);
+            if (violations.size() > 0) {
+                LOG.error("Task of type {} failed validation due to: {}", taskType.getSimpleName(), violations);
+                throw new InvalidTaskException("Task failed validation");
+            }
+
+            return jobTrackingWorkerTask;
         }
     }
 }

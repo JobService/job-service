@@ -118,9 +118,19 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public List<JobTrackingWorkerDependency> reportJobTaskComplete(final String jobTaskId) throws JobReportingException
     {
-        LOG.debug("Reporting completion of job task {}...", jobTaskId);
+        List<String> jobTaskIds = new ArrayList<>();
+        jobTaskIds.add(jobTaskId);
+        return reportJobTasksComplete(jobTaskIds);
+    }
 
-        final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskId);
+
+    @Override
+    public List<JobTrackingWorkerDependency> reportJobTasksComplete(final List<String> jobTaskIds) throws JobReportingException
+    {
+        LOG.debug("Reporting completion of job task {}...", jobTaskIds);
+
+        // TODO complete so that the function takes all jobs from the list
+        final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskIds.get(0));
         final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
 
         try (final Connection conn = getConnection()) {
@@ -150,15 +160,15 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             }
         } catch (final SQLTransientException te) {
             throw new JobReportingTransientException(
-                MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
+                MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, te.getMessage()), te);
         } catch (final SQLException se) {
             if (isSqlStateIn(se, POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE,
                              POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(
-                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, se.getMessage()), se);
             }
             throw new JobReportingException(
-                MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
+                MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, se.getMessage()), se);
         }
     }
 
