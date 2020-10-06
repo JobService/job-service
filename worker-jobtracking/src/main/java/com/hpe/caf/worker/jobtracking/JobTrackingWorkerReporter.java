@@ -124,19 +124,49 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     }
 
 
+    /**
+     * Reports the specified job task as complete.
+     *
+     * @param jobTaskIds identifies the completed job tasks
+     * @return JobTrackingWorkerDependency list containing any dependent jobs that are now available for processing
+     * @throws JobReportingException
+     */
     @Override
     public List<JobTrackingWorkerDependency> reportJobTasksComplete(final List<String> jobTaskIds) throws JobReportingException
     {
-        LOG.debug("Reporting completion of job task {}...", jobTaskIds);
+        LOG.debug("Reporting completion of job task {}...", jobTaskIds  );
 
-        // TODO complete so that the function takes all jobs from the list
         final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskIds.get(0));
+        final String taskId = jobTaskIdObj.getId();
         final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
 
+        final String partition = jobTaskIdObj.getPartitionId();
+        final String jobId = taskId.substring(taskId.indexOf(":")+1, taskId.indexOf("."));
+
+        final List<String> newJobTaskIds = new ArrayList<>();
+
+        for (int i = 0; i < jobTaskIds.size(); i++) {
+            newJobTaskIds.add(jobTaskIdObj.getId());
+        }
+
+        LOG.debug("partition: "+partition+ "/ job: "+jobId);
+        LOG.debug("tasks: "+newJobTaskIds);
+
+
+
         try (final Connection conn = getConnection()) {
-            try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?)}")) {
-                stmt.setString(1, jobTaskIdObj.getPartitionId());
-                stmt.setString(2, jobTaskIdObj.getId());
+            try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?,?)}")) {
+                stmt.setString(1, partition);
+                // Convert jobTaskIds into an Array to be passed into the statement
+
+                stmt.setString(2,  jobId);
+                final Array jobIdsArray =
+                        conn.createArrayOf(
+                                "varchar",
+                                newJobTaskIds.toArray(new String[0]));
+                stmt.setArray(3, jobIdsArray);
+
+                LOG.debug("landing here! ");
                 stmt.execute();
 
                 final ResultSet resultSet = stmt.getResultSet();
@@ -160,15 +190,15 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             }
         } catch (final SQLTransientException te) {
             throw new JobReportingTransientException(
-                MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, te.getMessage()), te);
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, te.getMessage()), te);
         } catch (final SQLException se) {
             if (isSqlStateIn(se, POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE,
-                             POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+                    POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(
-                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, se.getMessage()), se);
+                        MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, se.getMessage()), se);
             }
             throw new JobReportingException(
-                MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, se.getMessage()), se);
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, se.getMessage()), se);
         }
     }
 

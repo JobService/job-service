@@ -27,64 +27,70 @@ DROP FUNCTION IF EXISTS report_complete(
 );
 CREATE OR REPLACE FUNCTION report_complete(
     in_partition_id VARCHAR(40),
-    in_task_id VARCHAR(58)
+    in_job_id VARCHAR(48),
+    in_task_ids VARCHAR[]
 )
-RETURNS TABLE(
-    partition_id VARCHAR(40),
-    job_id VARCHAR(48),
-    task_classifier VARCHAR(255),
-    task_api_version INT,
-    task_data BYTEA,
-    task_pipe VARCHAR(255),
-    target_pipe VARCHAR(255)
-)
-LANGUAGE plpgsql
+    RETURNS TABLE(
+                     partition_id VARCHAR(40),
+                     job_id VARCHAR(48),
+                     task_classifier VARCHAR(255),
+                     task_api_version INT,
+                     task_data BYTEA,
+                     task_pipe VARCHAR(255),
+                     target_pipe VARCHAR(255)
+                 )
+    LANGUAGE plpgsql
 AS $$
 DECLARE
-    v_job_id VARCHAR(48);
     v_job_status job_status;
+    taskId VARCHAR(58);
 
 BEGIN
     -- Raise exception if task identifier has not been specified
-    IF in_task_id IS NULL OR in_task_id = '' THEN
+    IF array_length(in_task_ids, 1) = 0  THEN
         RAISE EXCEPTION 'Task identifier has not been specified';
     END IF;
 
-    -- Get the job id
-    v_job_id = internal_get_job_id(in_task_id);
 
     -- Get the job status
     -- And take out an exclusive update lock on the job row
     SELECT status INTO v_job_status
     FROM job j
     WHERE j.partition_id = in_partition_id
-        AND j.job_id = v_job_id
-    FOR UPDATE;
+      AND j.job_id = in_job_id
+        FOR UPDATE;
 
     -- Check that the job hasn't been deleted, cancelled or completed
     IF NOT FOUND OR v_job_status IN ('Cancelled', 'Completed') THEN
         RETURN;
     END IF;
 
-    -- Check if the job has dependencies
-    IF internal_has_dependent_jobs(in_partition_id, v_job_id) THEN
+    FOREACH taskId IN ARRAY in_task_ids LOOP
 
-        -- Update the task statuses in the tables
-        PERFORM internal_report_task_status(in_partition_id, in_task_id, 'Completed', 100.00, NULL);
+            -- Check if the job has dependencies
+            IF internal_has_dependent_jobs(in_partition_id, in_job_id) THEN
 
-        -- If job has just completed, then return any jobs that can now be run
-        IF internal_is_task_completed(in_partition_id, v_job_id) THEN
-            -- Get a list of jobs that can run immediately and update the eligibility run date for others
-            RETURN QUERY
-            SELECT * FROM internal_process_dependent_jobs(in_partition_id, v_job_id);
-        END IF;
+                -- Update the task statuses in the tables
+                PERFORM internal_report_task_status(in_partition_id, taskId, 'Completed',
+                    100.00, NULL);
 
-    ELSE
+                -- If job has just completed, then return any jobs that can now be run
+                IF internal_is_task_completed(in_partition_id, in_job_id) THEN
+                    -- Get a list of jobs that can run immediately and update the eligibility run date for others
+                    RETURN QUERY
+                        SELECT * FROM internal_process_dependent_jobs(in_partition_id, in_job_id);
+                END IF;
 
-        -- Insert values into completed_subtask_report table
-        INSERT INTO completed_subtask_report (partition_id, job_id, task_id, report_date)
-        VALUES (in_partition_id, v_job_id, in_task_id, now() AT TIME ZONE 'UTC');
+            ELSE
 
-    END IF;
+                -- Insert values into completed_subtask_report table
+
+                INSERT INTO completed_subtask_report (partition_id, job_id, task_id, report_date)
+                VALUES (in_partition_id, in_job_id, taskId, now() AT TIME ZONE 'UTC');
+
+
+            END IF;
+
+        END LOOP;
 END
 $$;

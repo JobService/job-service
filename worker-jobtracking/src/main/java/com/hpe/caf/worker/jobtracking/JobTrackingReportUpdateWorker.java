@@ -192,7 +192,7 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
         reporter.reportJobTaskProgress(jobTaskId, 0);
     }
 
-    private void reportJobTaskAsRejected(final TrackingReport trackingReport)
+    protected void reportJobTaskAsRejected(final TrackingReport trackingReport)
             throws JobReportingException
     {
         final JobTrackingWorkerFailure f = new JobTrackingWorkerFailure();

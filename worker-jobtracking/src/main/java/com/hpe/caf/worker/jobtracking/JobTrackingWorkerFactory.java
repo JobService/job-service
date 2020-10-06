@@ -17,6 +17,7 @@ package com.hpe.caf.worker.jobtracking;
 
 import com.hpe.caf.api.*;
 import com.hpe.caf.api.worker.*;
+import com.hpe.caf.services.job.util.JobTaskId;
 import com.hpe.caf.util.rabbitmq.RabbitHeaders;
 import com.hpe.caf.worker.tracking.report.TrackingReport;
 import com.hpe.caf.worker.tracking.report.TrackingReportConstants;
@@ -139,6 +140,8 @@ public class JobTrackingWorkerFactory
         final long cutoffTime = System.currentTimeMillis() + 10000;
         final String workerName = JobTrackingWorkerConstants.WORKER_NAME;
         final List<WorkerTask> workerTasksThatWillNeedToGoToDatabase = new ArrayList<>();
+        String partition="";
+        String jobId="";
 
         // Reject tasks of the wrong type and tasks that require a newer version
         final List<String> completedTrackingReports = new ArrayList<>();
@@ -167,13 +170,35 @@ public class JobTrackingWorkerFactory
                             = TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, data);
 
                     for (TrackingReport report : jobTrackingWorkerTask.trackingReports) {
+                        final String taskId = report.jobTaskId;
+                        final String currentPartition = JobTaskId.fromMessageId(taskId).getPartitionId();
+                        final String currentJobId = taskId.substring(taskId.indexOf(":")+1, taskId.indexOf("."));
+
 
                         // if report status is failed, add to the failed list
                         if (report.status == TrackingReportStatus.Failed) failedTrackingReports.add(report);
 
-                            // if report status is complete, add to the complete list
-                        else if (report.status == TrackingReportStatus.Complete) completedTrackingReports
-                                .add(report.jobTaskId);
+                            // if report status is complete,
+                        else if (report.status == TrackingReportStatus.Complete){
+
+                            // if we are processing a new job,
+                            if (!currentPartition.equals(partition) || !currentJobId.equals(jobId)){
+
+                                // process the existing list if not empty
+                                if(completedTrackingReports.size()>0)processCompletedTrackingReports(completedTrackingReports,
+                                        workerTask);
+
+                                // clear the list
+                                completedTrackingReports.clear();
+
+                                // replace partition and jobId
+                                partition = currentPartition;
+                                jobId = currentJobId;
+                            }
+                            // add to the current list
+                            completedTrackingReports
+                                    .add(report.jobTaskId);
+                        }
 
                             // For the case of retry or progress, simply log
                         else {
@@ -219,6 +244,23 @@ public class JobTrackingWorkerFactory
             }
 
         }
+
+
+
+
+        processCompletedTrackingReports(completedTrackingReports, workerTask);
+
+
+        // xxx
+        for (final WorkerTask wTask : workerTasksThatWillNeedToGoToDatabase) {
+            wTask.setResponse(new WorkerResponse(null,
+                    TaskStatus.RESULT_SUCCESS,
+                    new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
+        }
+
+    }
+
+    private void processCompletedTrackingReports(List<String> completedTrackingReports, WorkerTask workerTask) {
         try {
             // Actually process the list (make the call to the database)
             final List<JobTrackingWorkerDependency> jobDependencyList = reporter.reportJobTasksComplete(completedTrackingReports);
@@ -238,16 +280,6 @@ public class JobTrackingWorkerFactory
                     TaskStatus.RESULT_FAILURE,
                     new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
         }
-
-
-
-        // xxx
-        for (final WorkerTask wTask : workerTasksThatWillNeedToGoToDatabase) {
-            wTask.setResponse(new WorkerResponse(null,
-                    TaskStatus.RESULT_SUCCESS,
-                    new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
-        }
-
     }
 
     @Override
