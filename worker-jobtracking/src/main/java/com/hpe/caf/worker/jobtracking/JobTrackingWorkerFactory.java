@@ -402,24 +402,21 @@ public class JobTrackingWorkerFactory
         // Calculate a batch timeframe
         // Let's say 10 seconds
         final long cutoffTime = System.currentTimeMillis() + 10000;
-        final String workerName = JobTrackingWorkerConstants.WORKER_NAME;
         final List<WorkerTask> workerTasksThatWillNeedToGoToDatabase = new ArrayList<>();
         String partition = "";
         String jobId = "";
 
         // Reject tasks of the wrong type and tasks that require a newer version
         final List<String> completedTrackingReports = new ArrayList<>();
-        final List<TrackingReport> failedTrackingReports = new ArrayList<>();
-        WorkerTask workerTask;
+
         for (;;) {
             final long maxWaitTime = cutoffTime - System.currentTimeMillis();
-            workerTask = bwr.getNextWorkerTask(maxWaitTime);
-
-            final String taskClassifier = workerTask.getClassifier();
-
+            final WorkerTask workerTask = bwr.getNextWorkerTask(maxWaitTime);
             if (workerTask == null) {
                 break;
             }
+
+            final String taskClassifier = workerTask.getClassifier();
 
             // Some of these tasks can be processed right here
             // (i.e. those that don't need to go to the database)
@@ -487,7 +484,8 @@ public class JobTrackingWorkerFactory
 
             } else {
                 try {
-                    throw new InvalidTaskException("Task of type " + taskClassifier + " found on queue for " + workerName);
+                    throw new InvalidTaskException(
+                        "Task of type " + taskClassifier + " found on queue for " + JobTrackingWorkerConstants.WORKER_NAME);
                 } catch (InvalidTaskException e) {
                     e.printStackTrace();
                 }
@@ -495,7 +493,7 @@ public class JobTrackingWorkerFactory
         }
 
         // Process the completed TrackingReports
-        processCompletedTrackingReports(completedTrackingReports, workerTask);
+        processCompletedTrackingReports(completedTrackingReports, null);
 
         // xxx
         for (final WorkerTask wTask : workerTasksThatWillNeedToGoToDatabase) {
