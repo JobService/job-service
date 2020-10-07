@@ -61,7 +61,7 @@ public class JobTrackingWorkerFactory
     private final Class<JobTrackingWorkerTask> taskClass;
 
     @NotNull
-    private final JobTrackingReporter reporter;
+    private JobTrackingReporter reporter;
 
     /**
      * Constructor for JobTrackingWorkerFactory called by JobTrackingWorkerFactoryProvider
@@ -371,7 +371,7 @@ public class JobTrackingWorkerFactory
     }
 
     /**
-     * Start the list of jobs that are now available to be run.
+     *  Start the list of jobs that are now available to be run.
      *
      * @param jobDependencyList containing any dependent jobs that are now available for processing
      * @param callback worker callback to enact the forwarding action determined by the worker
@@ -492,7 +492,6 @@ public class JobTrackingWorkerFactory
                     e.printStackTrace();
                 }
             }
-
         }
 
         // Process the completed TrackingReports
@@ -504,7 +503,6 @@ public class JobTrackingWorkerFactory
                                                  TaskStatus.RESULT_SUCCESS,
                                                  new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
         }
-
     }
 
     private void processJobTrackingWorker(WorkerTask workerTask)
@@ -537,7 +535,6 @@ public class JobTrackingWorkerFactory
         } catch (JobReportingException e) {
             e.printStackTrace();
         }
-
     }
 
     private void processCompletedTrackingReports(List<String> completedTrackingReports, WorkerTask workerTask)

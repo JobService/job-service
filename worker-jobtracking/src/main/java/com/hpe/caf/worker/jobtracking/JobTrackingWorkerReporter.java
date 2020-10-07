@@ -188,15 +188,15 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             }
         } catch (final SQLTransientException te) {
             throw new JobReportingTransientException(
-                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, te.getMessage()), te);
+                MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, te.getMessage()), te);
         } catch (final SQLException se) {
             if (isSqlStateIn(se, POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE,
-                    POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+                             POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(
-                        MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, se.getMessage()), se);
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, se.getMessage()), se);
             }
             throw new JobReportingException(
-                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, se.getMessage()), se);
+                MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskIds, se.getMessage()), se);
         }
     }
 
