@@ -421,16 +421,18 @@ public class JobTrackingWorkerFactory
             // Some of these tasks can be processed right here
             // (i.e. those that don't need to go to the database)
             // Get those out of the way here
+            
+            // Reject tasks of the wrong type and tasks that require a newer version
             if (taskClassifier.equals(TrackingReportConstants.TRACKING_REPORT_TASK_NAME)) {
-                final byte[] data;
+
                 try {
-                    data = validateVersionAndData(workerTask,
+                    final byte[] data = validateVersionAndData(workerTask,
                                                   TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
 
                     final TrackingReportTask jobTrackingWorkerTask
                         = TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, data);
 
-                    for (TrackingReport report : jobTrackingWorkerTask.trackingReports) {
+                    for (final TrackingReport report : jobTrackingWorkerTask.trackingReports) {
                         final String taskId = report.jobTaskId;
                         final String currentPartition = JobTaskId.fromMessageId(taskId).getPartitionId();
                         final String currentJobId = taskId.substring(taskId.indexOf(":") + 1, taskId.indexOf("."));
@@ -468,15 +470,18 @@ public class JobTrackingWorkerFactory
                                 + " action",
                                       report.jobTaskId);
                         }
-
                     }
 
-                } catch (InvalidTaskException | TaskRejectedException e) {
-                    LOG.warn("Error reporting task progress to the Job Database: ", e);
-                    e.printStackTrace();
+                    // This task must be added to the list to deal with later
+                    workerTasksThatWillNeedToGoToDatabase.add(workerTask);
+
+                } catch (final InvalidTaskException e) {
+                    LOG.warn("Invalid task received", e);
+                    workerTask.setResponse(e);
+                } catch (final TaskRejectedException e) {
+                    LOG.warn("Task rejected", e);
+                    workerTask.setResponse(e);
                 }
-                // This task must be added to the list to deal with later
-                workerTasksThatWillNeedToGoToDatabase.add(workerTask);
 
             } // If the worker is a JobTrackingWorker, then we simply log the tasks and set the response
             else if (taskClassifier.equals(JobTrackingWorkerConstants.WORKER_NAME)) {
@@ -521,7 +526,7 @@ public class JobTrackingWorkerFactory
         }
     }
 
-    private void processFailureTrackingReports(TrackingReport trackingReport)
+    private void processFailureTrackingReports(final TrackingReport trackingReport)
     {
         final JobTrackingWorkerFailure f = new JobTrackingWorkerFailure();
         f.setFailureId(trackingReport.failure.failureId);
@@ -530,7 +535,7 @@ public class JobTrackingWorkerFactory
         f.setFailureMessage(trackingReport.failure.failureMessage);
         try {
             reporter.reportJobTaskRejected(trackingReport.jobTaskId, f);
-        } catch (JobReportingException e) {
+        } catch (final JobReportingException e) {
             e.printStackTrace();
         }
     }
