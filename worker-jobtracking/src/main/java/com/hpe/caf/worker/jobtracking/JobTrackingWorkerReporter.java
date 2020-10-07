@@ -118,9 +118,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public List<JobTrackingWorkerDependency> reportJobTaskComplete(final String jobTaskId) throws JobReportingException
     {
-        List<String> jobTaskIds = new ArrayList<>();
-        jobTaskIds.add(jobTaskId);
-        return reportJobTasksComplete(jobTaskIds);
+        return reportJobTaskComplete(jobTaskId);
     }
 
 
