@@ -118,8 +118,50 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public List<JobTrackingWorkerDependency> reportJobTaskComplete(final String jobTaskId) throws JobReportingException
     {
-        return reportJobTaskComplete(jobTaskId);
+        LOG.debug("Reporting completion of job task {}...", jobTaskId);
+
+        final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskId);
+        final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
+
+        try (final Connection conn = getConnection()) {
+            try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?)}")) {
+                stmt.setString(1, jobTaskIdObj.getPartitionId());
+                stmt.setString(2, jobTaskIdObj.getId());
+                stmt.execute();
+
+                final ResultSet resultSet = stmt.getResultSet();
+
+                if (resultSet != null) {
+                    while (resultSet.next()) {
+                        final JobTrackingWorkerDependency dependency = new JobTrackingWorkerDependency();
+                        dependency.setPartitionId(stmt.getResultSet().getString(1));
+                        dependency.setJobId(stmt.getResultSet().getString(2));
+                        dependency.setTaskClassifier(stmt.getResultSet().getString(3));
+                        dependency.setTaskApiVersion(stmt.getResultSet().getInt(4));
+                        dependency.setTaskData(stmt.getResultSet().getBytes(5));
+                        dependency.setTaskPipe(stmt.getResultSet().getString(6));
+                        dependency.setTargetPipe(stmt.getResultSet().getString(7));
+
+                        jobDependencyList.add(dependency);
+                    }
+                }
+
+                return jobDependencyList;
+            }
+        } catch (final SQLTransientException te) {
+            throw new JobReportingTransientException(
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
+        } catch (final SQLException se) {
+            if (isSqlStateIn(se, POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE,
+                    POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+                throw new JobReportingTransientException(
+                        MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
+            }
+            throw new JobReportingException(
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
+        }
     }
+
 
 
     /**
