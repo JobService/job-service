@@ -427,6 +427,7 @@ public class JobTrackingWorkerFactory
                         // if report status is failed, process
                         if (report.status == TrackingReportStatus.Failed) {
                             processFailureTrackingReports(report);
+                            setWorkerResult(workerTask, TaskStatus.RESULT_FAILURE);
                         }
 
                         // if report status is complete, add to the bulkItemList
@@ -448,6 +449,7 @@ public class JobTrackingWorkerFactory
                                 + "{}; taking no"
                                 + " action",
                                       report.jobTaskId);
+                            setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
                         }
                     }
 
@@ -464,7 +466,7 @@ public class JobTrackingWorkerFactory
                     throw new InvalidTaskException(
                             "Task of type " +  " found on queue for " );
                 } catch (InvalidTaskException e) {
-                    LOG.warn("Invalid task received", e);
+                    workerTask.setResponse(e);
                 }
             }
 
@@ -473,6 +475,12 @@ public class JobTrackingWorkerFactory
         // Process the completed TrackingReports
         processCompletedTrackingReports(bulkItemList);
 
+    }
+
+    private void setWorkerResult(WorkerTask workerTask, TaskStatus resultFailure) {
+        workerTask.setResponse(new WorkerResponse(null,
+                resultFailure,
+                new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
     }
 
     private TrackingReportTask getTrackingReportTask(byte[] bytes) throws InvalidTaskException {
@@ -489,11 +497,10 @@ public class JobTrackingWorkerFactory
             LOG.trace("Received progress update message for task {}; taking no action",
                       jobTrackingWorkerTask.getJobTaskId());
 
-            workerTask.setResponse(new WorkerResponse(null,
-                                                      TaskStatus.RESULT_SUCCESS,
-                                                      new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
+            setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
         } catch (InvalidTaskException | TaskRejectedException e) {
             LOG.warn("Error reporting task progress to the Job Database: ", e.getStackTrace());
+            setWorkerResult(workerTask, TaskStatus.RESULT_FAILURE);
         }
     }
 
@@ -509,6 +516,7 @@ public class JobTrackingWorkerFactory
         } catch (final JobReportingException e) {
             LOG.warn("Error reporting task {} progress to the Job Database: ", trackingReport.jobTaskId, e);
         }
+
     }
 
     // Process the items from the map
@@ -534,14 +542,11 @@ public class JobTrackingWorkerFactory
                     workerTask.sendMessage(dependentJobTaskMessage);
                 }
             }
-            workerTask.setResponse(new WorkerResponse(null,
-                    TaskStatus.RESULT_SUCCESS,
-                    new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
+            setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
+
         } catch (JobReportingException e) {
             LOG.warn("Error reporting task progress to the Job Database: ", e);
-            workerTask.setResponse(new WorkerResponse(null,
-                                                      TaskStatus.RESULT_FAILURE,
-                                                      new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
+            setWorkerResult(workerTask, TaskStatus.RESULT_FAILURE);
         }
     }
     }
