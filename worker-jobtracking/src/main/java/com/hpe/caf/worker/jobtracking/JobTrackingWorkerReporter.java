@@ -52,26 +52,26 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
     @NotNull
     @Size(min = 1)
-    private String jobDatabaseURL;
+    final private String jobDatabaseURL;
 
     /**
      * The username to use when connecting to the Job Database.
      */
     @NotNull
     @Size(min = 1)
-    private String jobDatabaseUsername;
+    final private String jobDatabaseUsername;
 
     /**
      * The password to use with the configured username when connecting to the Job Database.
      */
     @NotNull
     @Size(min = 1)
-    private String jobDatabasePassword;
+    final private String jobDatabasePassword;
     
     /**
      * The application name when connecting to the Job Database.
      */
-    private String appName;
+    final private String appName;
 
 
     public JobTrackingWorkerReporter() throws JobReportingException {
@@ -105,7 +105,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException
     {
-        LOG.trace("Recieved progress update message for task {}; taking no action", jobTaskId);
+        LOG.trace("Received progress update message for task {}; taking no action", jobTaskId);
     }
 
     /**
@@ -252,7 +252,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public void reportJobTaskRetry(final String jobTaskId, final String retryDetails) throws JobReportingException
     {
-        LOG.trace("Recieved retry report message for task {}; taking no action", jobTaskId);
+        LOG.trace("Received retry report message for task {}; taking no action", jobTaskId);
     }
 
     /**
@@ -354,9 +354,10 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     }
 
     /**
-     * Checks wheter the "SQLSTATE" is the specified error condition.
+     * Checks whether the "SQLSTATE" is the specified error condition.
      * <p>
-     * The SQL Error Code should be a 5 letter code - the first 2 characters denote the class of the error and the final 3 indicate the
+     * The SQL Error Code should be a 5 letters code - the first 2 characters denote the class of the error and the
+     * final 3 indicate the
      * specific condition.
      */
     private static boolean isSqlStateIn(final SQLException ex, final String... errorClasses)
