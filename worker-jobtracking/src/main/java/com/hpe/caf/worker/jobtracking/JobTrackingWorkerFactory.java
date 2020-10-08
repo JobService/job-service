@@ -462,10 +462,9 @@ public class JobTrackingWorkerFactory
             } else {
                 try {
                     throw new InvalidTaskException(
-                        "Task of type " + workerTask.getClassifier() + " found on queue for " + JobTrackingWorkerConstants.WORKER_NAME);
+                            "Task of type " +  " found on queue for " );
                 } catch (InvalidTaskException e) {
-                    e.printStackTrace();
-                    break;
+                    LOG.warn("Invalid task received", e);
                 }
             }
 
@@ -508,7 +507,7 @@ public class JobTrackingWorkerFactory
         try {
             reporter.reportJobTaskRejected(trackingReport.jobTaskId, f);
         } catch (final JobReportingException e) {
-            e.printStackTrace();
+            LOG.warn("Error reporting task {} progress to the Job Database: ", trackingReport.jobTaskId, e);
         }
     }
 
