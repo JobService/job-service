@@ -32,8 +32,9 @@ import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -104,10 +105,8 @@ public class JobTrackingWorkerFactory
 
         switch (taskClassifier) {
             case TrackingReportConstants.TRACKING_REPORT_TASK_NAME: {
-                final byte[] data = validateVersionAndData(workerTask,
-                        TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
-                final TrackingReportTask jobTrackingWorkerTask
-                        = TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, data);
+                final TrackingReportTask jobTrackingWorkerTask = getTrackingReportTask(validateVersionAndData(workerTask,
+                        TrackingReportConstants.TRACKING_REPORT_TASK_API_VER));
                 return createWorker(jobTrackingWorkerTask, workerTask);
             }
             case JobTrackingWorkerConstants.WORKER_NAME: {
@@ -391,23 +390,18 @@ public class JobTrackingWorkerFactory
                 callback.send(taskInformation, dependentJobTaskMessage);
             }
         } catch (final Exception e) {
-            LOG.error("Error retrieving Dependent Job Info from the Job Service Database {}", e);
+            LOG.error("Error retrieving Dependent Job Info from the Job Service Database {}", e.getCause().toString());
         }
     }
 
     @Override
     public void processTasks(final BulkWorkerRuntime bwr) throws InterruptedException
     {
-        // TODO should come from configuration
-        // Calculate a batch timeframe
-        // Let's say 10 seconds
-        final long cutoffTime = System.currentTimeMillis() + 10000;
-        final List<WorkerTask> workerTasksThatWillNeedToGoToDatabase = new ArrayList<>();
-        String partition = "";
-        String jobId = "";
+        // Configured to wait 10 seconds between two batches
+        final long maxWaitingTime = Long.getLong(System.getenv("MAX_BATCH_WAITING_TIME"));
+        final long cutoffTime = System.currentTimeMillis() + maxWaitingTime;
 
-        // Reject tasks of the wrong type and tasks that require a newer version
-        final List<String> completedTrackingReports = new ArrayList<>();
+        final HashMap<WorkerTaskBulkItem, List<String>> bulkItemList = new HashMap<>();
 
         for (;;) {
             final long maxWaitTime = cutoffTime - System.currentTimeMillis();
@@ -416,54 +410,39 @@ public class JobTrackingWorkerFactory
                 break;
             }
 
-            final String taskClassifier = workerTask.getClassifier();
-
-            // Some of these tasks can be processed right here
-            // (i.e. those that don't need to go to the database)
-            // Get those out of the way here
-            
+            // If the worker is a JobTrackingWorker, then we simply log the tasks and set the response
+            if (workerTask.getClassifier().equals(JobTrackingWorkerConstants.WORKER_NAME)) {
+                processJobTrackingWorker(workerTask);
+                break;
+            }
             // Reject tasks of the wrong type and tasks that require a newer version
-            if (taskClassifier.equals(TrackingReportConstants.TRACKING_REPORT_TASK_NAME)) {
+            if (workerTask.getClassifier().equals(TrackingReportConstants.TRACKING_REPORT_TASK_NAME)) {
 
                 try {
-                    final byte[] data = validateVersionAndData(workerTask,
-                                                  TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
-
-                    final TrackingReportTask jobTrackingWorkerTask
-                        = TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, data);
+                    final TrackingReportTask jobTrackingWorkerTask = getTrackingReportTask(validateVersionAndData(workerTask,
+                            TrackingReportConstants.TRACKING_REPORT_TASK_API_VER));
 
                     for (final TrackingReport report : jobTrackingWorkerTask.trackingReports) {
-                        final String taskId = report.jobTaskId;
-                        final String currentPartition = JobTaskId.fromMessageId(taskId).getPartitionId();
-                        final String currentJobId = taskId.substring(taskId.indexOf(":") + 1, taskId.indexOf("."));
 
                         // if report status is failed, process
                         if (report.status == TrackingReportStatus.Failed) {
                             processFailureTrackingReports(report);
-                        } // if report status is complete,
+                        }
+
+                        // if report status is complete, add to the bulkItemList
+
                         else if (report.status == TrackingReportStatus.Complete) {
-
-                            // if we are processing a new job,
-                            if (!currentPartition.equals(partition) || !currentJobId.equals(jobId)) {
-
-                                // process the existing list if not empty
-                                if (completedTrackingReports.size() > 0) {
-                                    processCompletedTrackingReports(completedTrackingReports,
-                                                                    workerTask);
-                                }
-
-                                // clear the list
-                                completedTrackingReports.clear();
-
-                                // replace partition and jobId
-                                partition = currentPartition;
-                                jobId = currentJobId;
+                            final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(report.jobTaskId);
+                            final String taskId = jobTaskIdObj.getId();
+                            final String partitionId = JobTaskId.fromMessageId(taskId).getPartitionId();
+                            final String jobId = taskId.substring(taskId.indexOf(":") + 1, taskId.indexOf("."));
+                            final WorkerTaskBulkItem bulkItem = new WorkerTaskBulkItem(workerTask, partitionId, jobId);
+                            if (bulkItemList.containsKey(bulkItem))bulkItemList.get(bulkItem).add(taskId);
+                            else{
+                                bulkItemList.put(bulkItem, Collections.singletonList( taskId ));
                             }
-                            // add to the current list
-                            completedTrackingReports
-                                .add(report.jobTaskId);
                         } else {
-                            // If status equals "retry" or "progress", add to the logs
+                            // If status equals "retry" or "progress", Add to the logs
                             String status = report.status.toString().toLowerCase();
                             LOG.trace("Received " + status + " report message for task "
                                 + "{}; taking no"
@@ -472,9 +451,6 @@ public class JobTrackingWorkerFactory
                         }
                     }
 
-                    // This task must be added to the list to deal with later
-                    workerTasksThatWillNeedToGoToDatabase.add(workerTask);
-
                 } catch (final InvalidTaskException e) {
                     LOG.warn("Invalid task received", e);
                     workerTask.setResponse(e);
@@ -482,30 +458,26 @@ public class JobTrackingWorkerFactory
                     LOG.warn("Task rejected", e);
                     workerTask.setResponse(e);
                 }
-
-            } // If the worker is a JobTrackingWorker, then we simply log the tasks and set the response
-            else if (taskClassifier.equals(JobTrackingWorkerConstants.WORKER_NAME)) {
-                processJobTrackingWorker(workerTask);
-
+                break;
             } else {
                 try {
                     throw new InvalidTaskException(
-                        "Task of type " + taskClassifier + " found on queue for " + JobTrackingWorkerConstants.WORKER_NAME);
+                        "Task of type " + workerTask.getClassifier() + " found on queue for " + JobTrackingWorkerConstants.WORKER_NAME);
                 } catch (InvalidTaskException e) {
                     e.printStackTrace();
+                    break;
                 }
             }
+
         }
 
         // Process the completed TrackingReports
-        processCompletedTrackingReports(completedTrackingReports, null);
+        processCompletedTrackingReports(bulkItemList);
 
-        // xxx
-        for (final WorkerTask wTask : workerTasksThatWillNeedToGoToDatabase) {
-            wTask.setResponse(new WorkerResponse(null,
-                                                 TaskStatus.RESULT_SUCCESS,
-                                                 new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
-        }
+    }
+
+    private TrackingReportTask getTrackingReportTask(byte[] bytes) throws InvalidTaskException {
+        return TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, bytes);
     }
 
     private void processJobTrackingWorker(WorkerTask workerTask)
@@ -540,11 +512,19 @@ public class JobTrackingWorkerFactory
         }
     }
 
-    private void processCompletedTrackingReports(List<String> completedTrackingReports, WorkerTask workerTask)
-    {
+    // Process the items from the map
+    private void processCompletedTrackingReports(HashMap<WorkerTaskBulkItem, List<String>> bulkItemList){
+        // Loop on the Map
+        for (Map.Entry<WorkerTaskBulkItem, List<String>> entry: bulkItemList.entrySet()){
+            // extract the workerTask
+            WorkerTask workerTask = entry.getKey().getWorkerTask();
+
         try {
+
             // Actually process the list (make the call to the database)
-            final List<JobTrackingWorkerDependency> jobDependencyList = reporter.reportJobTasksComplete(completedTrackingReports);
+            final List<JobTrackingWorkerDependency> jobDependencyList =
+                    reporter.reportJobTasksComplete(entry.getKey().getPartitionId(), entry.getKey().getJobId(),
+                            entry.getValue());
 
             if (jobDependencyList != null && !jobDependencyList.isEmpty()) {
                 //  For each dependent job, create a TaskMessage object and publish to the
@@ -555,11 +535,15 @@ public class JobTrackingWorkerFactory
                     workerTask.sendMessage(dependentJobTaskMessage);
                 }
             }
+            workerTask.setResponse(new WorkerResponse(null,
+                    TaskStatus.RESULT_SUCCESS,
+                    new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
         } catch (JobReportingException e) {
             LOG.warn("Error reporting task progress to the Job Database: ", e);
             workerTask.setResponse(new WorkerResponse(null,
                                                       TaskStatus.RESULT_FAILURE,
                                                       new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
         }
+    }
     }
 }

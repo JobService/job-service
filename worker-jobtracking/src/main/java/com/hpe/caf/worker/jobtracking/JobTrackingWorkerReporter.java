@@ -172,38 +172,27 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * @throws JobReportingException
      */
     @Override
-    public List<JobTrackingWorkerDependency> reportJobTasksComplete(final List<String> jobTaskIds) throws JobReportingException
+    public List<JobTrackingWorkerDependency> reportJobTasksComplete(final String partitionId, final String jobId,
+                                                                    final List<String> jobTaskIds) throws JobReportingException
     {
         LOG.debug("Reporting completion of job task {}...", jobTaskIds  );
-
-        final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskIds.get(0));
-        final String taskId = jobTaskIdObj.getId();
         final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
 
-        final String partition = jobTaskIdObj.getPartitionId();
-        final String jobId = taskId.substring(taskId.indexOf(":")+1, taskId.indexOf("."));
-
-        final List<String> newJobTaskIds = new ArrayList<>();
-
-        for (int i = 0; i < jobTaskIds.size(); i++) {
-            newJobTaskIds.add(jobTaskIdObj.getId());
-        }
-
-        LOG.debug("partition: "+partition+ "/ job: "+jobId);
-        LOG.debug("tasks: "+newJobTaskIds);
+        LOG.debug("partition: "+partitionId+ "/ job: "+jobId);
+        LOG.debug("tasks: "+jobTaskIds);
 
 
 
         try (final Connection conn = getConnection()) {
             try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?,?)}")) {
-                stmt.setString(1, partition);
+                stmt.setString(1, partitionId);
                 // Convert jobTaskIds into an Array to be passed into the statement
 
                 stmt.setString(2,  jobId);
                 final Array jobIdsArray =
                         conn.createArrayOf(
                                 "varchar",
-                                newJobTaskIds.toArray(new String[0]));
+                                jobTaskIds.toArray(new String[0]));
                 stmt.setArray(3, jobIdsArray);
 
                 LOG.debug("landing here! ");

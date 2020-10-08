@@ -46,7 +46,8 @@ public interface JobTrackingReporter {
      * @return JobTrackingWorkerDependency list containing any dependent jobs that are now available for processing
      * @throws JobReportingException
      */
-    List<JobTrackingWorkerDependency> reportJobTasksComplete(final List<String> jobTaskIds) throws JobReportingException;
+    List<JobTrackingWorkerDependency> reportJobTasksComplete(final String partitionId, final String jobId,
+                                                             final List<String> jobTaskIds) throws JobReportingException;
 
 
     /**

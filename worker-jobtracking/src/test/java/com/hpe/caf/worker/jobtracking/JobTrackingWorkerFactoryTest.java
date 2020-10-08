@@ -81,13 +81,12 @@ public class JobTrackingWorkerFactoryTest {
         workerFactory.determineForwardingAction(tm, taskInformation, headers, mockCallback);
 
         //verify results
-        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
+        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm), Mockito.anyMap());
         Mockito.verify(reporter, Mockito.times(1)).reportJobTaskComplete(Mockito.eq(jobTaskId));
     }
 
     @Test
-    public void testTrackingReportTask() throws Exception
-    {
+    public void testTrackingReportTask() throws Exception {
         //Setup
         final Codec codec = new JsonCodec();
         final JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
@@ -95,14 +94,14 @@ public class JobTrackingWorkerFactoryTest {
         final TrackingReportTask trackingReport = new TrackingReportTask();
         trackingReport.trackingReports = new ArrayList<>();
         int completedPercentage = 0;
-        for(int i =0 ; i < 4; i++){
+        for (int i = 0; i < 4; i++) {
             final TrackingReport tr = new TrackingReport();
             completedPercentage = completedPercentage + 25;
             tr.retries = null;
             tr.estimatedPercentageCompleted = completedPercentage + 25;
             tr.status = tr.estimatedPercentageCompleted == 100
-                ? TrackingReportStatus.Complete
-                : TrackingReportStatus.Progress;
+                    ? TrackingReportStatus.Complete
+                    : TrackingReportStatus.Progress;
             tr.jobTaskId = taskId;
             tr.failure = null;
             trackingReport.trackingReports.add(tr);
@@ -147,7 +146,7 @@ public class JobTrackingWorkerFactoryTest {
         workerFactory.determineForwardingAction(tm, taskInformation, headers, mockCallback);
 
         //verify results
-        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
+        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm), Mockito.anyMap());
         Mockito.verify(reporter, Mockito.times(1)).reportJobTaskProgress(Mockito.eq(jobTaskId), Mockito.anyInt());
     }
 
@@ -176,7 +175,7 @@ public class JobTrackingWorkerFactoryTest {
         workerFactory.determineForwardingAction(tm, taskInformation, headers, mockCallback);
 
         //verify results
-        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
+        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm), Mockito.anyMap());
         Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRejected(Mockito.eq(jobTaskId), Mockito.any());
     }
 
@@ -205,8 +204,8 @@ public class JobTrackingWorkerFactoryTest {
         workerFactory.determineForwardingAction(tm, taskInformation, headers, mockCallback);
 
         //verify results
-        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
-        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskProgress(Mockito.eq(jobTaskId),Mockito.anyInt());
+        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm), Mockito.anyMap());
+        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskProgress(Mockito.eq(jobTaskId), Mockito.anyInt());
     }
 
 
@@ -218,7 +217,7 @@ public class JobTrackingWorkerFactoryTest {
 
         //Create the worker subject to testing
         JobTrackingWorker worker = new JobTrackingWorker(createTrackedTask(jobTaskId), outputQueue, codec, reporter,
-                                                         Mockito.mock(WorkerTaskData.class));
+                Mockito.mock(WorkerTaskData.class));
 
         //Test
         WorkerResponse response = worker.doWork();
