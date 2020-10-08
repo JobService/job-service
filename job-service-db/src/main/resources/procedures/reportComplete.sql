@@ -30,13 +30,13 @@ CREATE OR REPLACE FUNCTION report_complete(
     in_task_id VARCHAR(58)
 )
     RETURNS TABLE(
-                     partition_id VARCHAR(40),
-                     job_id VARCHAR(48),
-                     task_classifier VARCHAR(255),
-                     task_api_version INT,
-                     task_data BYTEA,
-                     task_pipe VARCHAR(255),
-                     target_pipe VARCHAR(255)
+    partition_id VARCHAR(40),
+    job_id VARCHAR(48),
+    task_classifier VARCHAR(255),
+    task_api_version INT,
+    task_data BYTEA,
+    task_pipe VARCHAR(255),
+    target_pipe VARCHAR(255)
                  )
     LANGUAGE plpgsql
 AS $$

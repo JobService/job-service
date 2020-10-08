@@ -44,7 +44,7 @@ CREATE OR REPLACE FUNCTION bulk_report_complete(
 AS $$
 DECLARE
     v_job_status job_status;
-    taskId VARCHAR(58);
+    v_task_id VARCHAR(58);
 
 BEGIN
     -- Raise exception if task identifier has not been specified
@@ -66,13 +66,13 @@ BEGIN
         RETURN;
     END IF;
 
-    FOREACH taskId IN ARRAY in_task_ids LOOP
+    FOREACH v_task_id IN ARRAY in_task_ids LOOP
 
             -- Check if the job has dependencies
             IF internal_has_dependent_jobs(in_partition_id, in_job_id) THEN
 
                 -- Update the task statuses in the tables
-                PERFORM internal_report_task_status(in_partition_id, taskId, 'Completed',
+                PERFORM internal_report_task_status(in_partition_id, v_task_id, 'Completed',
                     100.00, NULL);
 
                 -- If job has just completed, then return any jobs that can now be run
@@ -87,11 +87,11 @@ BEGIN
                 -- Insert values into completed_subtask_report table
 
                 INSERT INTO completed_subtask_report (partition_id, job_id, task_id, report_date)
-                VALUES (in_partition_id, in_job_id, taskId, now() AT TIME ZONE 'UTC');
+                VALUES (in_partition_id, in_job_id, v_task_id, now() AT TIME ZONE 'UTC');
 
 
             END IF;
 
-        END LOOP;
+    END LOOP;
 END
 $$;
