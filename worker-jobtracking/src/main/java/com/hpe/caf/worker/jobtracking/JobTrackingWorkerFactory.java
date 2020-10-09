@@ -398,7 +398,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     public void processTasks(final BulkWorkerRuntime bwr) throws InterruptedException
     {
         // Configured to wait 10 seconds between two batches
-        final long maxWaitingTime = Long.parseLong(System.getenv("MAX_BATCH_WAITING_TIME"));
+        final long maxWaitingTime = Long.parseLong("10000");
         final long cutoffTime = System.currentTimeMillis() + maxWaitingTime;
 
         final HashMap<WorkerTaskBulkItem, List<String>> bulkItemList = new HashMap<>();
