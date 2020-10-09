@@ -29,7 +29,7 @@ CREATE OR REPLACE FUNCTION report_complete(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58)
 )
-    RETURNS TABLE(
+RETURNS TABLE(
     partition_id VARCHAR(40),
     job_id VARCHAR(48),
     task_classifier VARCHAR(255),
@@ -37,8 +37,8 @@ CREATE OR REPLACE FUNCTION report_complete(
     task_data BYTEA,
     task_pipe VARCHAR(255),
     target_pipe VARCHAR(255)
-                 )
-    LANGUAGE plpgsql
+)
+LANGUAGE plpgsql
 AS $$
 DECLARE
     v_job_id VARCHAR(48);
@@ -58,8 +58,8 @@ BEGIN
     SELECT status INTO v_job_status
     FROM job j
     WHERE j.partition_id = in_partition_id
-      AND j.job_id = v_job_id
-        FOR UPDATE;
+        AND j.job_id = v_job_id
+    FOR UPDATE;
 
     -- Check that the job hasn't been deleted, cancelled or completed
     IF NOT FOUND OR v_job_status IN ('Cancelled', 'Completed') THEN
@@ -76,7 +76,7 @@ BEGIN
         IF internal_is_task_completed(in_partition_id, v_job_id) THEN
             -- Get a list of jobs that can run immediately and update the eligibility run date for others
             RETURN QUERY
-                SELECT * FROM internal_process_dependent_jobs(in_partition_id, v_job_id);
+            SELECT * FROM internal_process_dependent_jobs(in_partition_id, v_job_id);
         END IF;
 
     ELSE

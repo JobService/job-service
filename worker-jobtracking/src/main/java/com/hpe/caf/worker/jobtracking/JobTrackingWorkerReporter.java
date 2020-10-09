@@ -52,26 +52,26 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
     @NotNull
     @Size(min = 1)
-    final private String jobDatabaseURL;
+    private String jobDatabaseURL;
 
     /**
      * The username to use when connecting to the Job Database.
      */
     @NotNull
     @Size(min = 1)
-    final private String jobDatabaseUsername;
+    private String jobDatabaseUsername;
 
     /**
      * The password to use with the configured username when connecting to the Job Database.
      */
     @NotNull
     @Size(min = 1)
-    final private String jobDatabasePassword;
+    private String jobDatabasePassword;
     
     /**
      * The application name when connecting to the Job Database.
      */
-    final private String appName;
+    private String appName;
 
 
     public JobTrackingWorkerReporter() throws JobReportingException {
@@ -105,7 +105,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException
     {
-        LOG.trace("Received progress update message for task {}; taking no action", jobTaskId);
+        LOG.trace("Recieved progress update message for task {}; taking no action", jobTaskId);
     }
 
     /**
@@ -150,19 +150,17 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             }
         } catch (final SQLTransientException te) {
             throw new JobReportingTransientException(
-                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
+                MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, te.getMessage()), te);
         } catch (final SQLException se) {
             if (isSqlStateIn(se, POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE,
-                    POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+                             POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(
-                        MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
             }
             throw new JobReportingException(
-                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
+                MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
         }
     }
-
-
 
     /**
      * Reports the specified job task as complete.
@@ -172,27 +170,25 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      * @throws JobReportingException
      */
     @Override
-    public List<JobTrackingWorkerDependency> reportJobTasksComplete(final String partitionId, final String jobId,
-                                                                    final List<String> jobTaskIds) throws JobReportingException
+    public List<JobTrackingWorkerDependency> reportJobTasksComplete(
+        final String partitionId,
+        final String jobId,
+        final List<String> jobTaskIds
+    ) throws JobReportingException
     {
-        LOG.debug("Reporting completion of job task {}...", jobTaskIds  );
+        LOG.debug("Reporting completion of job task {}...", jobTaskIds);
         final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
 
-        LOG.debug("partition: "+partitionId+ "/ job: "+jobId);
-        LOG.debug("tasks: "+jobTaskIds);
-
-
+        LOG.debug("partition: " + partitionId + "/ job: " + jobId);
+        LOG.debug("tasks: " + jobTaskIds);
 
         try (final Connection conn = getConnection()) {
             try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?,?)}")) {
                 stmt.setString(1, partitionId);
-                // Convert jobTaskIds into an Array to be passed into the statement
+                stmt.setString(2, jobId);
 
-                stmt.setString(2,  jobId);
-                final Array jobIdsArray =
-                        conn.createArrayOf(
-                                "varchar",
-                                jobTaskIds.toArray(new String[0]));
+                // Convert jobTaskIds into an Array to be passed into the statement
+                final Array jobIdsArray = conn.createArrayOf("varchar", jobTaskIds.toArray(new String[0]));
                 stmt.setArray(3, jobIdsArray);
 
                 LOG.debug("landing here! ");
@@ -241,7 +237,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     @Override
     public void reportJobTaskRetry(final String jobTaskId, final String retryDetails) throws JobReportingException
     {
-        LOG.trace("Received retry report message for task {}; taking no action", jobTaskId);
+        LOG.trace("Recieved retry report message for task {}; taking no action", jobTaskId);
     }
 
     /**
@@ -343,10 +339,9 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     }
 
     /**
-     * Checks whether the "SQLSTATE" is the specified error condition.
+     * Checks wheter the "SQLSTATE" is the specified error condition.
      * <p>
-     * The SQL Error Code should be a 5 letters code - the first 2 characters denote the class of the error and the
-     * final 3 indicate the
+     * The SQL Error Code should be a 5 letter code - the first 2 characters denote the class of the error and the final 3 indicate the
      * specific condition.
      */
     private static boolean isSqlStateIn(final SQLException ex, final String... errorClasses)
