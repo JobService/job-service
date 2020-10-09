@@ -60,10 +60,20 @@ BEGIN
         RETURN;
     END IF;
 
+    -- Insert all the incoming tasks into the completed_subtask_report table
+    -- If they have no dependencies, the job status will be updated on getJob() or getJobs()
+    -- Otherwise, the internal_cleanup_completed_subtask_report will remove them
+    INSERT INTO completed_subtask_report (partition_id , job_id , task_id , report_date)
+    SELECT in_partition_id, in_job_id, x.task, current_timestamp
+    FROM unnest(in_task_ids) AS x(task);
+
+
     FOREACH v_task_id IN ARRAY in_task_ids
     LOOP
         -- Check if the job has dependencies
         IF internal_has_dependent_jobs(in_partition_id, in_job_id) THEN
+            -- Cleanup unnecessary rows from completed_subtask_report
+            PERFORM internal_cleanup_completed_subtask_report(in_partition_id, in_job_id);
 
             -- Update the task statuses in the tables
             PERFORM internal_report_task_status(in_partition_id, v_task_id, 'Completed', 100.00, NULL);
@@ -74,12 +84,6 @@ BEGIN
                 RETURN QUERY
                     SELECT * FROM internal_process_dependent_jobs(in_partition_id, in_job_id);
             END IF;
-
-        ELSE
-
-            -- Insert values into completed_subtask_report table
-            INSERT INTO completed_subtask_report (partition_id, job_id, task_id, report_date)
-            VALUES (in_partition_id, in_job_id, v_task_id, now() AT TIME ZONE 'UTC');
 
         END IF;
     END LOOP;
