@@ -214,7 +214,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
     /**
      * Health check which returns healthy if the Job Tracking Worker components are available.
-     * @return
+     * @return healthCheck result
      */
     @Override
     public HealthResult healthCheck() {
@@ -375,7 +375,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
      * @param jobDependencyList containing any dependent jobs that are now available for processing
      * @param callback worker callback to enact the forwarding action determined by the worker
      * @param trackingPipe target pipe where dependent jobs should be forwarded to.
-     * @throws Exception
+     * @throws Exception some exception
      */
     private void forwardAvailableJobs(final List<JobTrackingWorkerDependency> jobDependencyList,
                                       final WorkerCallback callback, final String trackingPipe,
