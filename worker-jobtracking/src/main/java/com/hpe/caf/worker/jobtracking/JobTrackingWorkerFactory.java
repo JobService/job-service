@@ -443,7 +443,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                             }
                         } else {
                             // If status equals "retry" or "progress", Add to the logs
-                            String status = report.status.toString().toLowerCase();
+                            final String status = report.status.toString().toLowerCase();
                             LOG.trace("Received " + status + " report message for task "
                                 + "{}; taking no"
                                 + " action",
@@ -474,29 +474,28 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         processCompletedTrackingReports(bulkItemList);
     }
 
-    private void setWorkerResult(WorkerTask workerTask, TaskStatus resultFailure)
+    private void setWorkerResult(final WorkerTask workerTask, final TaskStatus resultFailure)
     {
         workerTask.setResponse(
             new WorkerResponse(null, resultFailure, new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
     }
 
-    private TrackingReportTask getTrackingReportTask(byte[] bytes) throws InvalidTaskException
+    private TrackingReportTask getTrackingReportTask(final byte[] bytes) throws InvalidTaskException
     {
         return TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, bytes);
     }
 
-    private void processJobTrackingWorker(WorkerTask workerTask)
+    private void processJobTrackingWorker(final WorkerTask workerTask)
     {
-        final byte[] data;
         try {
-            data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
+            final byte[] data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
             final JobTrackingWorkerTask jobTrackingWorkerTask
                 = TaskValidator.deserialiseAndValidateTask(codec, JobTrackingWorkerTask.class, data);
             LOG.trace("Received progress update message for task {}; taking no action",
                       jobTrackingWorkerTask.getJobTaskId());
 
             setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
-        } catch (InvalidTaskException | TaskRejectedException e) {
+        } catch (final InvalidTaskException | TaskRejectedException e) {
             LOG.warn("Error reporting task progress to the Job Database: ", e.getStackTrace());
             setWorkerResult(workerTask, TaskStatus.RESULT_FAILURE);
         }
@@ -517,12 +516,12 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     }
 
     // Process the items from the map
-    private void processCompletedTrackingReports(HashMap<WorkerTaskBulkItem, List<String>> bulkItemList)
+    private void processCompletedTrackingReports(final HashMap<WorkerTaskBulkItem, List<String>> bulkItemList)
     {
         // Loop on the Map
-        for (Map.Entry<WorkerTaskBulkItem, List<String>> entry : bulkItemList.entrySet()) {
+        for (final Map.Entry<WorkerTaskBulkItem, List<String>> entry : bulkItemList.entrySet()) {
             // extract the workerTask
-            WorkerTask workerTask = entry.getKey().getWorkerTask();
+            final WorkerTask workerTask = entry.getKey().getWorkerTask();
 
             try {
                 // Actually process the list (make the call to the database)
@@ -541,7 +540,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                     }
                 }
                 setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
-            } catch (JobReportingException e) {
+            } catch (final JobReportingException e) {
                 LOG.warn("Error reporting task progress to the Job Database: ", e);
                 setWorkerResult(workerTask, TaskStatus.RESULT_FAILURE);
             }

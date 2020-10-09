@@ -19,7 +19,7 @@ import com.hpe.caf.api.worker.WorkerTask;
 
 import javax.validation.constraints.NotNull;
 
-class WorkerTaskBulkItem
+final class WorkerTaskBulkItem
 {
     @NotNull
     final String jobId;
