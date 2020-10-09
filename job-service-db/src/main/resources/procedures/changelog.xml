@@ -27,12 +27,6 @@
           When adding a new procedure add a corresponding changeSet here with `runOnChange="true"` set.
           If modifying an existing procedure, DO NOT add a new changeSet. The changes will be applied automatically.
      -->
-    <changeSet id="create_bulk_report_complete_proc" runOnChange="true" author="Gamma Team">
-        <createProcedure path="procedures/bulkReportComplete.sql"
-                         procedureName="bulk_report_complete"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
     <changeSet id="create_cancel_job_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/cancelJob.sql"
                          procedureName="cancel_job"
@@ -226,6 +220,12 @@
     <changeSet id="create_report_complete_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/reportComplete.sql"
                          procedureName="report_complete"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="create_report_complete_bulk_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/reportCompleteBulk.sql"
+                         procedureName="report_complete_bulk"
                          schemaName="public">
         </createProcedure>
     </changeSet>
