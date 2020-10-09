@@ -26,7 +26,7 @@ public interface JobTrackingReporter {
      * Reports the progress of a job task to the Job Database.
      * @param jobTaskId identifies the job task whose progress is to be reported
      * @param estimatedPercentageCompleted an indication of progress on the job task
-     * @throws JobReportingException
+     * @throws JobReportingException Thrown when a failure occurs in connecting or reporting to a Job Database
      */
     void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException;
 
@@ -35,16 +35,17 @@ public interface JobTrackingReporter {
      * Reports the completion of a job task to the Job Database.
      * @param jobTaskId identifies the completed job task
      * @return JobTrackingWorkerDependency list containing any dependent jobs that are now available for processing
-     * @throws JobReportingException
+     * @throws JobReportingException Thrown when a failure occurs in connecting or reporting to a Job Database
      */
     List<JobTrackingWorkerDependency> reportJobTaskComplete(final String jobTaskId) throws JobReportingException;
 
-
     /**
-     * Reports the completion of a job task list to the Job Database.
-     * @param jobTaskIds identifies the completed job task list
+     * Reports the completion of a list of job tasks to the Job Database.
+     * @param partitionId identifies the partition
+     * @param jobId identifies the job
+     * @param jobTaskIds identifies the task ids
      * @return JobTrackingWorkerDependency list containing any dependent jobs that are now available for processing
-     * @throws JobReportingException
+     * @throws JobReportingException Thrown when a failure occurs in connecting or reporting to a Job Database
      */
     List<JobTrackingWorkerDependency> reportJobTasksComplete(final String partitionId, final String jobId,
                                                              final List<String> jobTaskIds) throws JobReportingException;
@@ -54,7 +55,7 @@ public interface JobTrackingReporter {
      * Reports the failure and retry of a job task to the Job Database.
      * @param jobTaskId identifies the failed job task
      * @param retryDetails an explanation of the retry of this job task
-     * @throws JobReportingException
+     * @throws JobReportingException Thrown when a failure occurs in connecting or reporting to a Job Database
      */
     void reportJobTaskRetry(final String jobTaskId, final String retryDetails) throws JobReportingException;
 
@@ -63,7 +64,7 @@ public interface JobTrackingReporter {
      * Reports the failure and rejection of a job task to the Job Database.
      * @param jobTaskId identifies the rejected job task
      * @param rejectionDetails an explanation of the failure and rejection of the job task
-     * @throws JobReportingException
+     * @throws JobReportingException Thrown when a failure occurs in connecting or reporting to a Job Database
      */
     void reportJobTaskRejected(final String jobTaskId, final JobTrackingWorkerFailure rejectionDetails) throws JobReportingException;
 

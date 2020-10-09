@@ -97,7 +97,8 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
      * Reports the progress of the tracked task specified in the JobTrackingWorkerTask for which this Job Tracking
      * Worker instance was created.
      * @return indicator of successful reporting or otherwise
-     * @throws InterruptedException
+     * @throws InterruptedException Thrown when a thread is waiting, sleeping, or otherwise occupied,
+     *  * and the thread is interrupted, either before or during the activity.
      */
     private JobTrackingWorkerResult processTrackingEvent() throws InterruptedException, TaskRejectedException
     {
