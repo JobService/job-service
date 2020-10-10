@@ -176,14 +176,14 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         final List<String> jobTaskIds
     ) throws JobReportingException
     {
-        LOG.debug("Reporting completion of job task {}...", jobTaskIds);
+        LOG.debug("Reporting bulk completion of job task {}...", jobTaskIds);
         final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
 
         LOG.debug("partition: " + partitionId + "/ job: " + jobId);
         LOG.debug("tasks: " + jobTaskIds);
 
         try (final Connection conn = getConnection()) {
-            try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?,?)}")) {
+            try (final CallableStatement stmt = conn.prepareCall("{call report_complete_bulk(?,?,?)}")) {
                 stmt.setString(1, partitionId);
                 stmt.setString(2, jobId);
 

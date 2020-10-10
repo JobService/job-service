@@ -32,6 +32,7 @@ import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -394,6 +395,26 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         }
     }
 
+    final static class WorkerTaskObject{
+        @NotNull
+        private final WorkerTask workerTask;
+        @NotNull
+        private final String taskId;
+
+        public WorkerTaskObject(WorkerTask workerTask, String taskId) {
+            this.workerTask = workerTask;
+            this.taskId =taskId;
+        }
+
+        public WorkerTask getWorkerTask() {
+            return workerTask;
+        }
+
+        public String getTaskId() {
+            return taskId;
+        }
+    }
+
     @Override
     public void processTasks(final BulkWorkerRuntime bwr) throws InterruptedException
     {
@@ -401,7 +422,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         final long maxWaitingTime = Long.parseLong("10000");
         final long cutoffTime = System.currentTimeMillis() + maxWaitingTime;
 
-        final HashMap<WorkerTaskBulkItem, List<String>> bulkItemList = new HashMap<>();
+        final HashMap<WorkerTaskBulkItem, List<WorkerTaskObject>> bulkItemList = new HashMap<>();
 
         for (;;) {
             final long maxWaitTime = cutoffTime - System.currentTimeMillis();
@@ -433,13 +454,16 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                         else if (report.status == TrackingReportStatus.Complete) {
                             final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(report.jobTaskId);
                             final String taskId = jobTaskIdObj.getId();
-                            final String partitionId = JobTaskId.fromMessageId(taskId).getPartitionId();
+                            final String partitionId = jobTaskIdObj.getPartitionId();
                             final String jobId = taskId.substring(taskId.indexOf(":") + 1, taskId.indexOf("."));
-                            final WorkerTaskBulkItem bulkItem = new WorkerTaskBulkItem(workerTask, partitionId, jobId);
+                            final WorkerTaskBulkItem bulkItem = new WorkerTaskBulkItem(partitionId, jobId);
+
+                            LOG.debug("partition: "+partitionId+" job: "+jobId+" task: "+taskId);
                             if (bulkItemList.containsKey(bulkItem)) {
-                                bulkItemList.get(bulkItem).add(taskId);
+                                // Add workerTask and taskIds
+                                bulkItemList.get(bulkItem).add(new WorkerTaskObject(workerTask, taskId));
                             } else {
-                                bulkItemList.put(bulkItem, Collections.singletonList(taskId));
+                                bulkItemList.put(bulkItem, Collections.singletonList(new WorkerTaskObject(workerTask, taskId)));
                             }
                         } else {
                             // If status equals "retry" or "progress", Add to the logs
@@ -516,34 +540,49 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     }
 
     // Process the items from the map
-    private void processCompletedTrackingReports(final HashMap<WorkerTaskBulkItem, List<String>> bulkItemList)
+    private void processCompletedTrackingReports(final HashMap<WorkerTaskBulkItem, List<WorkerTaskObject>> bulkItemList)
     {
-        // Loop on the Map
-        for (final Map.Entry<WorkerTaskBulkItem, List<String>> entry : bulkItemList.entrySet()) {
-            // extract the workerTask
-            final WorkerTask workerTask = entry.getKey().getWorkerTask();
 
+        boolean success;
+        // Loop on the Map
+        for (final Map.Entry<WorkerTaskBulkItem, List<WorkerTaskObject>> entry : bulkItemList.entrySet()) {
+            // extract the workerTask
+            final List<WorkerTask> workerTasks = new ArrayList<>();
+            final List<String> taskIds = new ArrayList<>();
+            for (WorkerTaskObject obj:entry.getValue()) {
+                workerTasks.add(obj.getWorkerTask());
+                taskIds.add(obj.taskId);
+            }
+            LOG.debug("partition: "+entry.getKey().getPartitionId()+
+                    "job: "+entry.getKey().getJobId());
             try {
                 // Actually process the list (make the call to the database)
                 final List<JobTrackingWorkerDependency> jobDependencyList = reporter.reportJobTasksComplete(
                     entry.getKey().getPartitionId(),
                     entry.getKey().getJobId(),
-                    entry.getValue());
+                    taskIds
+                );
 
                 if (jobDependencyList != null && !jobDependencyList.isEmpty()) {
                     //  For each dependent job, create a TaskMessage object and publish to the
                     //  messaging queue.
                     for (final JobTrackingWorkerDependency dependency : jobDependencyList) {
                         final TaskMessage dependentJobTaskMessage
-                            = JobTrackingWorkerUtil.createDependentJobTaskMessage(dependency, workerTask.getTo());
-                        workerTask.sendMessage(dependentJobTaskMessage);
+                            = JobTrackingWorkerUtil.createDependentJobTaskMessage(dependency, workerTasks.get(0).getTo());
+                        workerTasks.get(0).sendMessage(dependentJobTaskMessage);
                     }
                 }
-                setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
+                for (WorkerTask workerTask: workerTasks) {
+                    setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
+                }
             } catch (final JobReportingException e) {
                 LOG.warn("Error reporting task progress to the Job Database: ", e);
-                setWorkerResult(workerTask, TaskStatus.RESULT_FAILURE);
+                for (WorkerTask workerTask: workerTasks) {
+                    setWorkerResult(workerTask, TaskStatus.RESULT_FAILURE);
+                }
             }
         }
+
+
     }
 }
