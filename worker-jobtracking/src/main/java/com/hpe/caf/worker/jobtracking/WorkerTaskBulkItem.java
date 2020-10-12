@@ -20,7 +20,7 @@ import javax.validation.constraints.NotNull;
 final class WorkerTaskBulkItem
 {
     @NotNull
-    final String jobId;
+    private final String jobId;
 
     @NotNull
     final private String partitionId;
