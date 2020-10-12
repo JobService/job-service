@@ -63,20 +63,18 @@ BEGIN
     -- Check if the job has dependencies
     IF internal_has_dependent_jobs(in_partition_id, in_job_id) THEN
 
+        -- Update the task statuses in the tables
         FOREACH v_task_id IN ARRAY in_task_ids
         LOOP
-
-            -- Update the task statuses in the tables
             PERFORM internal_report_task_status(in_partition_id, v_task_id, 'Completed', 100.00, NULL);
-
-            -- If job has just completed, then return any jobs that can now be run
-            IF internal_is_task_completed(in_partition_id, in_job_id) THEN
-                -- Get a list of jobs that can run immediately and update the eligibility run date for others
-                RETURN QUERY
-                SELECT * FROM internal_process_dependent_jobs(in_partition_id, in_job_id);
-            END IF;
-
         END LOOP;
+
+        -- If job has just completed, then return any jobs that can now be run
+        IF internal_is_task_completed(in_partition_id, in_job_id) THEN
+            -- Get a list of jobs that can run immediately and update the eligibility run date for others
+            RETURN QUERY
+            SELECT * FROM internal_process_dependent_jobs(in_partition_id, in_job_id);
+        END IF;
 
     ELSE
 
