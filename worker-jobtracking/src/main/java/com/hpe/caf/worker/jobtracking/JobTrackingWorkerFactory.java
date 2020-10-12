@@ -412,7 +412,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         final long maxWaitingTime = Long.parseLong("10000");
         final long cutoffTime = System.currentTimeMillis() + maxWaitingTime;
 
-        final HashMap<WorkerTaskBulkItem, List<WorkerTaskObject>> bulkItemList = new HashMap<>();
+        final HashMap<FullyQualifiedJobId, List<WorkerTaskObject>> bulkItemList = new HashMap<>();
 
         for (;;) {
             final long maxWaitTime = cutoffTime - System.currentTimeMillis();
@@ -420,7 +420,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             if (workerTask == null) {
                 break;
             }
-            
+
             final String taskClassifier = workerTask.getClassifier();
 
             // If the worker is a JobTrackingWorker, then we simply log the tasks and set the response
@@ -445,15 +445,15 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                             final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(report.jobTaskId);
                             final String taskId = jobTaskIdObj.getId();
                             final String partitionId = jobTaskIdObj.getPartitionId();
-                            final String jobId = taskId.substring(taskId.indexOf(":") + 1, taskId.indexOf("."));
-                            final WorkerTaskBulkItem bulkItem = new WorkerTaskBulkItem(partitionId, jobId);
+                            final String jobId = jobTaskIdObj.getJobId();
+                            final FullyQualifiedJobId fullJobId = new FullyQualifiedJobId(partitionId, jobId);
 
                             LOG.debug("partition: " + partitionId + " job: " + jobId + " task: " + taskId);
-                            if (bulkItemList.containsKey(bulkItem)) {
+                            if (bulkItemList.containsKey(fullJobId)) {
                                 // Add workerTask and taskIds
-                                bulkItemList.get(bulkItem).add(new WorkerTaskObject(workerTask, taskId));
+                                bulkItemList.get(fullJobId).add(new WorkerTaskObject(workerTask, taskId));
                             } else {
-                                bulkItemList.put(bulkItem, Collections.singletonList(new WorkerTaskObject(workerTask, taskId)));
+                                bulkItemList.put(fullJobId, Collections.singletonList(new WorkerTaskObject(workerTask, taskId)));
                             }
                         } else {
                             // If status equals "retry" or "progress", Add to the logs
@@ -523,10 +523,10 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     }
 
     // Process the items from the map
-    private void processCompletedTrackingReports(final HashMap<WorkerTaskBulkItem, List<WorkerTaskObject>> bulkItemList)
+    private void processCompletedTrackingReports(final HashMap<FullyQualifiedJobId, List<WorkerTaskObject>> bulkItemList)
     {
         // Loop on the Map
-        for (final Map.Entry<WorkerTaskBulkItem, List<WorkerTaskObject>> entry : bulkItemList.entrySet()) {
+        for (final Map.Entry<FullyQualifiedJobId, List<WorkerTaskObject>> entry : bulkItemList.entrySet()) {
             // extract the workerTask
             final List<WorkerTask> workerTasks = new ArrayList<>();
             final List<String> taskIds = new ArrayList<>();

@@ -17,12 +17,12 @@ package com.hpe.caf.worker.jobtracking;
 
 import java.util.Objects;
 
-final class WorkerTaskBulkItem
+final class FullyQualifiedJobId
 {
     private final String partitionId;
     private final String jobId;
 
-    public WorkerTaskBulkItem(
+    public FullyQualifiedJobId(
         final String partitionId,
         final String jobId
     )
@@ -39,5 +39,17 @@ final class WorkerTaskBulkItem
     public String getJobId()
     {
         return jobId;
+    }
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+        // TODO: Check values of partition id and job id
+    }
+
+    @Override
+    public int hashCode()
+    {
+        // TODO: Implement
     }
 }

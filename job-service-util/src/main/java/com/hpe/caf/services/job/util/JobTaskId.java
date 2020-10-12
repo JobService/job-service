@@ -70,6 +70,10 @@ public final class JobTaskId {
         return partitionId;
     }
 
+    public String getJobId() {
+        return jobId;
+    }
+
     public String getId() {
         return taskId;
     }
