@@ -42,14 +42,16 @@ final class FullyQualifiedJobId
     }
 
     @Override
-    public boolean equals(final Object obj)
-    {
-        // TODO: Check values of partition id and job id
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FullyQualifiedJobId)) return false;
+        FullyQualifiedJobId that = (FullyQualifiedJobId) o;
+        return getPartitionId().equals(that.getPartitionId()) &&
+                getJobId().equals(that.getJobId());
     }
 
     @Override
-    public int hashCode()
-    {
-        // TODO: Implement
+    public int hashCode() {
+        return Objects.hash(getPartitionId(), getJobId());
     }
 }
