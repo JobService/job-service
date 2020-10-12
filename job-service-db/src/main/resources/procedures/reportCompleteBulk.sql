@@ -66,9 +66,6 @@ BEGIN
         FOREACH v_task_id IN ARRAY in_task_ids
         LOOP
 
-            -- Cleanup unnecessary rows from completed_subtask_report
-            PERFORM internal_cleanup_completed_subtask_report(in_partition_id, in_job_id);
-
             -- Update the task statuses in the tables
             PERFORM internal_report_task_status(in_partition_id, v_task_id, 'Completed', 100.00, NULL);
 
