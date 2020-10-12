@@ -395,22 +395,26 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         }
     }
 
-    final static class WorkerTaskObject{
+    final static class WorkerTaskObject
+    {
         @NotNull
         private final WorkerTask workerTask;
         @NotNull
         private final String taskId;
 
-        public WorkerTaskObject(WorkerTask workerTask, String taskId) {
+        public WorkerTaskObject(WorkerTask workerTask, String taskId)
+        {
             this.workerTask = workerTask;
-            this.taskId =taskId;
+            this.taskId = taskId;
         }
 
-        public WorkerTask getWorkerTask() {
+        public WorkerTask getWorkerTask()
+        {
             return workerTask;
         }
 
-        public String getTaskId() {
+        public String getTaskId()
+        {
             return taskId;
         }
     }
@@ -436,7 +440,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 processJobTrackingWorker(workerTask);
                 break;
             }
-            
+
             // Reject tasks of the wrong type and tasks that require a newer version
             if (workerTask.getClassifier().equals(TrackingReportConstants.TRACKING_REPORT_TASK_NAME)) {
                 try {
@@ -458,7 +462,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                             final String jobId = taskId.substring(taskId.indexOf(":") + 1, taskId.indexOf("."));
                             final WorkerTaskBulkItem bulkItem = new WorkerTaskBulkItem(partitionId, jobId);
 
-                            LOG.debug("partition: "+partitionId+" job: "+jobId+" task: "+taskId);
+                            LOG.debug("partition: " + partitionId + " job: " + jobId + " task: " + taskId);
                             if (bulkItemList.containsKey(bulkItem)) {
                                 // Add workerTask and taskIds
                                 bulkItemList.get(bulkItem).add(new WorkerTaskObject(workerTask, taskId));
@@ -549,12 +553,12 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             // extract the workerTask
             final List<WorkerTask> workerTasks = new ArrayList<>();
             final List<String> taskIds = new ArrayList<>();
-            for (WorkerTaskObject obj:entry.getValue()) {
+            for (WorkerTaskObject obj : entry.getValue()) {
                 workerTasks.add(obj.getWorkerTask());
                 taskIds.add(obj.taskId);
             }
-            LOG.debug("partition: "+entry.getKey().getPartitionId()+
-                    "job: "+entry.getKey().getJobId());
+            LOG.debug("partition: " + entry.getKey().getPartitionId()
+                + "job: " + entry.getKey().getJobId());
             try {
                 // Actually process the list (make the call to the database)
                 final List<JobTrackingWorkerDependency> jobDependencyList = reporter.reportJobTasksComplete(
@@ -572,17 +576,15 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                         workerTasks.get(0).sendMessage(dependentJobTaskMessage);
                     }
                 }
-                for (WorkerTask workerTask: workerTasks) {
+                for (WorkerTask workerTask : workerTasks) {
                     setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
                 }
             } catch (final JobReportingException e) {
                 LOG.warn("Error reporting task progress to the Job Database: ", e);
-                for (WorkerTask workerTask: workerTasks) {
+                for (WorkerTask workerTask : workerTasks) {
                     setWorkerResult(workerTask, TaskStatus.RESULT_FAILURE);
                 }
             }
         }
-
-
     }
 }

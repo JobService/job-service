@@ -39,6 +39,7 @@ public interface JobTrackingReporter {
      */
     List<JobTrackingWorkerDependency> reportJobTaskComplete(final String jobTaskId) throws JobReportingException;
 
+
     /**
      * Reports the completion of a list of job tasks to the Job Database.
      * @param partitionId identifies the partition

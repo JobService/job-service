@@ -60,33 +60,31 @@ BEGIN
         RETURN;
     END IF;
 
-
     -- Check if the job has dependencies
     IF internal_has_dependent_jobs(in_partition_id, in_job_id) THEN
 
         FOREACH v_task_id IN ARRAY in_task_ids
         LOOP
 
-                -- Cleanup unnecessary rows from completed_subtask_report
-                PERFORM internal_cleanup_completed_subtask_report(in_partition_id, in_job_id);
+            -- Cleanup unnecessary rows from completed_subtask_report
+            PERFORM internal_cleanup_completed_subtask_report(in_partition_id, in_job_id);
 
-                -- Update the task statuses in the tables
-                PERFORM internal_report_task_status(in_partition_id, v_task_id, 'Completed', 100.00, NULL);
+            -- Update the task statuses in the tables
+            PERFORM internal_report_task_status(in_partition_id, v_task_id, 'Completed', 100.00, NULL);
 
-                -- If job has just completed, then return any jobs that can now be run
-                IF internal_is_task_completed(in_partition_id, in_job_id) THEN
-                    -- Get a list of jobs that can run immediately and update the eligibility run date for others
-                    RETURN QUERY
-                        SELECT * FROM internal_process_dependent_jobs(in_partition_id, in_job_id);
-                END IF;
-
+            -- If job has just completed, then return any jobs that can now be run
+            IF internal_is_task_completed(in_partition_id, in_job_id) THEN
+                -- Get a list of jobs that can run immediately and update the eligibility run date for others
+                RETURN QUERY
+                SELECT * FROM internal_process_dependent_jobs(in_partition_id, in_job_id);
+            END IF;
 
         END LOOP;
 
     ELSE
 
         -- Insert all the incoming tasks into the completed_subtask_report table
-        INSERT INTO completed_subtask_report (partition_id , job_id , task_id , report_date)
+        INSERT INTO completed_subtask_report (partition_id, job_id, task_id, report_date)
         SELECT in_partition_id, in_job_id, x.task, CURRENT_TIMESTAMP
         FROM UNNEST(in_task_ids) AS x(task);
 
