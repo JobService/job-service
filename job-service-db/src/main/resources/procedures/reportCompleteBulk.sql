@@ -24,7 +24,7 @@
 CREATE OR REPLACE FUNCTION report_complete_bulk(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),
-    in_task_ids VARCHAR[]
+    in_task_ids VARCHAR(58)[]
 )
 RETURNS TABLE(
     partition_id VARCHAR(40),
@@ -80,8 +80,8 @@ BEGIN
 
         -- Insert all the incoming tasks into the completed_subtask_report table
         INSERT INTO completed_subtask_report (partition_id, job_id, task_id, report_date)
-        SELECT in_partition_id, in_job_id, x.task, CURRENT_TIMESTAMP
-        FROM UNNEST(in_task_ids) AS x(task);
+        SELECT in_partition_id, in_job_id, x.task_id, now() AT TIME ZONE 'UTC'
+        FROM unnest(in_task_ids)::VARCHAR(58) AS x(task_id);
 
     END IF;
 END
