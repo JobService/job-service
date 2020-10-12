@@ -23,7 +23,7 @@ final class WorkerTaskBulkItem
     private final String jobId;
 
     @NotNull
-    final private String partitionId;
+    private final String partitionId;
 
     public WorkerTaskBulkItem(
         @NotNull final String partitionId,
