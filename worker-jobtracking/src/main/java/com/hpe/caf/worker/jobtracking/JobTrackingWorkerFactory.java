@@ -524,7 +524,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
             setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
         } catch (final InvalidTaskException | TaskRejectedException e) {
-            LOG.warn("Error reporting task progress to the Job Database: ", e.getStackTrace());
+            LOG.warn("Error reporting task progress to the Job Database: ", e);
             setWorkerResult(workerTask, TaskStatus.RESULT_FAILURE);
         }
     }
