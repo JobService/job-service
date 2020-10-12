@@ -42,16 +42,21 @@ final class FullyQualifiedJobId
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof FullyQualifiedJobId)) return false;
-        FullyQualifiedJobId that = (FullyQualifiedJobId) o;
-        return getPartitionId().equals(that.getPartitionId()) &&
-                getJobId().equals(that.getJobId());
+    public boolean equals(final Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FullyQualifiedJobId)) {
+            return false;
+        }
+        final FullyQualifiedJobId that = (FullyQualifiedJobId) o;
+        return partitionId.equals(that.partitionId) && jobId.equals(that.jobId);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(getPartitionId(), getJobId());
+    public int hashCode()
+    {
+        return Objects.hash(partitionId, jobId);
     }
 }
