@@ -402,7 +402,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         @NotNull
         private final String taskId;
 
-        public WorkerTaskObject(WorkerTask workerTask, String taskId)
+        public WorkerTaskObject(final WorkerTask workerTask, final String taskId)
         {
             this.workerTask = workerTask;
             this.taskId = taskId;
@@ -492,7 +492,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 try {
                     throw new InvalidTaskException(
                         "Task of type " + " found on queue for ");
-                } catch (InvalidTaskException e) {
+                } catch (final InvalidTaskException e) {
                     workerTask.setResponse(e);
                 }
             }
@@ -576,12 +576,12 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                         workerTasks.get(0).sendMessage(dependentJobTaskMessage);
                     }
                 }
-                for (WorkerTask workerTask : workerTasks) {
+                for (final WorkerTask workerTask : workerTasks) {
                     setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
                 }
             } catch (final JobReportingException e) {
                 LOG.warn("Error reporting task progress to the Job Database: ", e);
-                for (WorkerTask workerTask : workerTasks) {
+                for (final WorkerTask workerTask : workerTasks) {
                     setWorkerResult(workerTask, TaskStatus.RESULT_FAILURE);
                 }
             }
