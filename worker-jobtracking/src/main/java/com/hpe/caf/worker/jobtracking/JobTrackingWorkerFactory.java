@@ -33,7 +33,6 @@ import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -448,20 +447,15 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                             final String jobId = jobTaskIdObj.getJobId();
                             final FullyQualifiedJobId fullJobId = new FullyQualifiedJobId(partitionId, jobId);
 
-                            LOG.debug("partition: " + partitionId + " job: " + jobId + " task: " + taskId);
-                            if (bulkItemList.containsKey(fullJobId)) {
-                                // Add workerTask and taskIds
-                                bulkItemList.get(fullJobId).add(new WorkerTaskObject(workerTask, taskId));
-                            } else {
-                                bulkItemList.put(fullJobId, Collections.singletonList(new WorkerTaskObject(workerTask, taskId)));
-                            }
+                            LOG.debug("partition: {} job: {} task: {}", partitionId, jobId, taskId);
+
+                            // Add workerTask and taskIds
+                            getOrCreateList(bulkItemList, fullJobId)
+                                .add(new WorkerTaskObject(workerTask, taskId));
                         } else {
                             // If status equals "retry" or "progress", Add to the logs
                             final String status = report.status.toString().toLowerCase();
-                            LOG.trace("Received " + status + " report message for task "
-                                + "{}; taking no"
-                                + " action",
-                                      report.jobTaskId);
+                            LOG.trace("Received {} report message for task {}; taking no action", status, report.jobTaskId);
                             setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
                         }
                     }
@@ -563,5 +557,17 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 }
             }
         }
+    }
+
+    private static <K, E> List<E> getOrCreateList(final HashMap<K, List<E>> mapOfLists, final K key)
+    {
+        final List<E> currentList = mapOfLists.get(key);
+        if (currentList != null) {
+            return currentList;
+        }
+
+        final List<E> newList = new ArrayList<>();
+        mapOfLists.put(key, newList);
+        return newList;
     }
 }
