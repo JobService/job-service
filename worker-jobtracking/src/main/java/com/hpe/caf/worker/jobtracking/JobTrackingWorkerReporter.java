@@ -100,7 +100,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      *
      * @param jobTaskId identifies the job task whose progress is to be reported
      * @param estimatedPercentageCompleted an indication of progress on the job task
-     * @throws JobReportingException
+     * @throws JobReportingException if a failure occurs in connecting or reporting to a Job Database
      */
     @Override
     public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException
@@ -113,7 +113,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      *
      * @param jobTaskId identifies the completed job task
      * @return JobTrackingWorkerDependency list containing any dependent jobs that are now available for processing
-     * @throws JobReportingException
+     * @throws JobReportingException if a failure occurs in connecting or reporting to a Job Database
      */
     @Override
     public List<JobTrackingWorkerDependency> reportJobTaskComplete(final String jobTaskId) throws JobReportingException
@@ -167,7 +167,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      *
      * @param jobTaskId identifies the failed job task
      * @param retryDetails an explanation of the retry of this job task
-     * @throws JobReportingException
+     * @throws JobReportingException if a failure occurs in connecting or reporting to a Job Database
      */
     @Override
     public void reportJobTaskRetry(final String jobTaskId, final String retryDetails) throws JobReportingException
@@ -180,7 +180,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      *
      * @param jobTaskId identifies the rejected job task
      * @param rejectionDetails an explanation of the failure and rejection of the job task
-     * @throws JobReportingException
+     * @throws JobReportingException if a failure occurs in connecting or reporting to a Job Database
      */
     @Override
     public void reportJobTaskRejected(final String jobTaskId, final JobTrackingWorkerFailure rejectionDetails)

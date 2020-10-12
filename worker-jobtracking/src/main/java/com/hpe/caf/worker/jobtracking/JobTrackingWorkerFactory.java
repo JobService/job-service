@@ -210,7 +210,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
     /**
      * Health check which returns healthy if the Job Tracking Worker components are available.
-     * @return
+     * @return healthCheck result
      */
     @Override
     public HealthResult healthCheck() {
