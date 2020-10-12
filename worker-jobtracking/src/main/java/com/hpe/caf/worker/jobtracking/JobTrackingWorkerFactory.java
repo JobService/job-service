@@ -435,12 +435,8 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
                     for (final TrackingReport report : jobTrackingWorkerTask.trackingReports) {
 
-                        // if report status is failed, process
-                        if (report.status == TrackingReportStatus.Failed) {
-                            processFailureTrackingReports(report);
-                            setWorkerResult(workerTask, TaskStatus.RESULT_FAILURE);
-                        } // if report status is complete, add to the bulkItemList
-                        else if (report.status == TrackingReportStatus.Complete) {
+                        // Check report update status
+                        if (report.status == TrackingReportStatus.Complete) {
                             final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(report.jobTaskId);
                             final String taskId = jobTaskIdObj.getId();
                             final String partitionId = jobTaskIdObj.getPartitionId();
@@ -453,9 +449,14 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                             getOrCreateList(bulkItemList, fullJobId)
                                 .add(new WorkerTaskObject(workerTask, taskId));
                         } else {
-                            // If status equals "retry" or "progress", Add to the logs
-                            final String status = report.status.toString().toLowerCase();
-                            LOG.trace("Received {} report message for task {}; taking no action", status, report.jobTaskId);
+                            if (report.status == TrackingReportStatus.Failed) {
+                                processFailureTrackingReports(report);
+                            } // if report status is complete, add to the bulkItemList
+                            else {
+                                // If status equals "retry" or "progress", Add to the logs
+                                final String status = report.status.toString().toLowerCase();
+                                LOG.trace("Received {} report message for task {}; taking no action", status, report.jobTaskId);
+                            }
                             setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
                         }
                     }
@@ -512,7 +513,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         try {
             reporter.reportJobTaskRejected(trackingReport.jobTaskId, f);
         } catch (final JobReportingException e) {
-            LOG.warn("Error reporting task {} progress to the Job Database: ", trackingReport.jobTaskId, e);
+            LOG.warn("Error reporting task {} progress to the Job Database: {}", trackingReport.jobTaskId, e);
         }
     }
 
