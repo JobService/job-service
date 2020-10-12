@@ -395,28 +395,6 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         }
     }
 
-    final static class WorkerTaskObject
-    {
-        private final WorkerTask workerTask;
-        private final String taskId;
-
-        public WorkerTaskObject(final WorkerTask workerTask, final String taskId)
-        {
-            this.workerTask = Objects.requireNonNull(workerTask);
-            this.taskId = Objects.requireNonNull(taskId);
-        }
-
-        public WorkerTask getWorkerTask()
-        {
-            return workerTask;
-        }
-
-        public String getTaskId()
-        {
-            return taskId;
-        }
-    }
-
     @Override
     public void processTasks(final BulkWorkerRuntime bwr) throws InterruptedException
     {
@@ -549,9 +527,9 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             // extract the workerTask
             final List<WorkerTask> workerTasks = new ArrayList<>();
             final List<String> taskIds = new ArrayList<>();
-            for (WorkerTaskObject obj : entry.getValue()) {
+            for (final WorkerTaskObject obj : entry.getValue()) {
                 workerTasks.add(obj.getWorkerTask());
-                taskIds.add(obj.taskId);
+                taskIds.add(obj.getTaskId());
             }
             LOG.debug("partition: " + entry.getKey().getPartitionId()
                 + "job: " + entry.getKey().getJobId());
