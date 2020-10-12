@@ -111,9 +111,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 return createWorker(jobTrackingWorkerTask, workerTask);
             }
             case JobTrackingWorkerConstants.WORKER_NAME: {
-                final byte[] data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
-                final JobTrackingWorkerTask jobTrackingWorkerTask
-                        = TaskValidator.deserialiseAndValidateTask(codec, JobTrackingWorkerTask.class, data);
+                final JobTrackingWorkerTask jobTrackingWorkerTask = getJobTrackingWorkerTask(workerTask);
                 return createWorker(jobTrackingWorkerTask, workerTask);
             }
             default:
@@ -395,6 +393,13 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         }
     }
 
+    private JobTrackingWorkerTask getJobTrackingWorkerTask(final WorkerTaskData workerTask)
+        throws TaskRejectedException, InvalidTaskException
+    {
+        final byte[] data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
+        return TaskValidator.deserialiseAndValidateTask(codec, JobTrackingWorkerTask.class, data);
+    }
+
     @Override
     public void processTasks(final BulkWorkerRuntime bwr) throws InterruptedException
     {
@@ -492,9 +497,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     private void processJobTrackingWorker(final WorkerTask workerTask)
     {
         try {
-            final byte[] data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
-            final JobTrackingWorkerTask jobTrackingWorkerTask
-                = TaskValidator.deserialiseAndValidateTask(codec, JobTrackingWorkerTask.class, data);
+            final JobTrackingWorkerTask jobTrackingWorkerTask = getJobTrackingWorkerTask(workerTask);
             LOG.trace("Received progress update message for task {}; taking no action",
                       jobTrackingWorkerTask.getJobTaskId());
 
