@@ -15,23 +15,20 @@
  */
 package com.hpe.caf.worker.jobtracking;
 
-import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 final class WorkerTaskBulkItem
 {
-    @NotNull
+    private final String partitionId;
     private final String jobId;
 
-    @NotNull
-    private final String partitionId;
-
     public WorkerTaskBulkItem(
-        @NotNull final String partitionId,
-        @NotNull final String jobId
+        final String partitionId,
+        final String jobId
     )
     {
-        this.partitionId = partitionId;
-        this.jobId = jobId;
+        this.partitionId = Objects.requireNonNull(partitionId);
+        this.jobId = Objects.requireNonNull(jobId);
     }
 
     public String getPartitionId()

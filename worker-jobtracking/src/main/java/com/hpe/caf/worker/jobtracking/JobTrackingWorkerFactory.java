@@ -397,15 +397,13 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
     final static class WorkerTaskObject
     {
-        @NotNull
         private final WorkerTask workerTask;
-        @NotNull
         private final String taskId;
 
         public WorkerTaskObject(final WorkerTask workerTask, final String taskId)
         {
-            this.workerTask = workerTask;
-            this.taskId = taskId;
+            this.workerTask = Objects.requireNonNull(workerTask);
+            this.taskId = Objects.requireNonNull(taskId);
         }
 
         public WorkerTask getWorkerTask()
