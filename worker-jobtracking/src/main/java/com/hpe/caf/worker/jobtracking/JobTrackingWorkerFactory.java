@@ -376,7 +376,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
      * @param jobDependencyList containing any dependent jobs that are now available for processing
      * @param callback worker callback to enact the forwarding action determined by the worker
      * @param trackingPipe target pipe where dependent jobs should be forwarded to.
-     * @throws Exception some exception
+     * @throws Exception
      */
     private void forwardAvailableJobs(final List<JobTrackingWorkerDependency> jobDependencyList,
                                       final WorkerCallback callback, final String trackingPipe,
