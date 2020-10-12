@@ -546,8 +546,6 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     // Process the items from the map
     private void processCompletedTrackingReports(final HashMap<WorkerTaskBulkItem, List<WorkerTaskObject>> bulkItemList)
     {
-
-        boolean success;
         // Loop on the Map
         for (final Map.Entry<WorkerTaskBulkItem, List<WorkerTaskObject>> entry : bulkItemList.entrySet()) {
             // extract the workerTask
