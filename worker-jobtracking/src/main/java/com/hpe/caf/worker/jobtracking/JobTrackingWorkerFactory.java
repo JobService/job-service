@@ -105,9 +105,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
         switch (taskClassifier) {
             case TrackingReportConstants.TRACKING_REPORT_TASK_NAME: {
-                final byte[] data = validateVersionAndData(workerTask,
-                        TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
-                final TrackingReportTask jobTrackingWorkerTask = getTrackingReportTask(data);
+                final TrackingReportTask jobTrackingWorkerTask = getTrackingReportTask(workerTask);
                 return createWorker(jobTrackingWorkerTask, workerTask);
             }
             case JobTrackingWorkerConstants.WORKER_NAME: {
@@ -400,6 +398,13 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         return TaskValidator.deserialiseAndValidateTask(codec, JobTrackingWorkerTask.class, data);
     }
 
+    private TrackingReportTask getTrackingReportTask(final WorkerTaskData workerTask)
+        throws TaskRejectedException, InvalidTaskException
+    {
+        final byte[] bytes = validateVersionAndData(workerTask, TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
+        return TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, bytes);
+    }
+
     @Override
     public void processTasks(final BulkWorkerRuntime bwr) throws InterruptedException
     {
@@ -415,19 +420,19 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             if (workerTask == null) {
                 break;
             }
+            
+            final String taskClassifier = workerTask.getClassifier();
 
             // If the worker is a JobTrackingWorker, then we simply log the tasks and set the response
-            if (workerTask.getClassifier().equals(JobTrackingWorkerConstants.WORKER_NAME)) {
+            if (taskClassifier.equals(JobTrackingWorkerConstants.WORKER_NAME)) {
                 processJobTrackingWorker(workerTask);
                 break;
             }
 
             // Reject tasks of the wrong type and tasks that require a newer version
-            if (workerTask.getClassifier().equals(TrackingReportConstants.TRACKING_REPORT_TASK_NAME)) {
+            if (taskClassifier.equals(TrackingReportConstants.TRACKING_REPORT_TASK_NAME)) {
                 try {
-                    final TrackingReportTask jobTrackingWorkerTask = getTrackingReportTask(
-                        validateVersionAndData(workerTask,
-                                               TrackingReportConstants.TRACKING_REPORT_TASK_API_VER));
+                    final TrackingReportTask jobTrackingWorkerTask = getTrackingReportTask(workerTask);
 
                     for (final TrackingReport report : jobTrackingWorkerTask.trackingReports) {
 
@@ -487,11 +492,6 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     {
         workerTask.setResponse(
             new WorkerResponse(null, resultFailure, new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
-    }
-
-    private TrackingReportTask getTrackingReportTask(final byte[] bytes) throws InvalidTaskException
-    {
-        return TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, bytes);
     }
 
     private void processJobTrackingWorker(final WorkerTask workerTask)
