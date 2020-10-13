@@ -17,7 +17,7 @@ package com.hpe.caf.worker.jobtracking;
 
 import java.util.Objects;
 
-final class FullyQualifiedJobId
+final class FullyQualifiedJobId implements Comparable<FullyQualifiedJobId>
 {
     private final String partitionId;
     private final String jobId;
@@ -39,6 +39,16 @@ final class FullyQualifiedJobId
     public String getJobId()
     {
         return jobId;
+    }
+
+    @Override
+    public int compareTo(final FullyQualifiedJobId that)
+    {
+        final int partitionCompareResult = partitionId.compareTo(that.partitionId);
+
+        return (partitionCompareResult == 0)
+            ? jobId.compareTo(that.jobId)
+            : partitionCompareResult;
     }
 
     @Override

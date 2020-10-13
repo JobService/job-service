@@ -16,17 +16,21 @@
 package com.hpe.caf.worker.jobtracking;
 
 import com.hpe.caf.api.worker.WorkerTask;
+import com.hpe.caf.services.job.util.JobTaskId;
+import java.util.List;
 import java.util.Objects;
 
 final class WorkerTaskObject
 {
     private final WorkerTask workerTask;
-    private final String taskId;
+    private final List<JobTaskId> completedTaskIds;
+    private final boolean finalJob;
 
-    public WorkerTaskObject(final WorkerTask workerTask, final String taskId)
+    public WorkerTaskObject(final WorkerTask workerTask, final List<JobTaskId> completedTaskIds, final boolean finalJob)
     {
         this.workerTask = Objects.requireNonNull(workerTask);
-        this.taskId = Objects.requireNonNull(taskId);
+        this.completedTaskIds = Objects.requireNonNull(completedTaskIds);
+        this.finalJob = finalJob;
     }
 
     public WorkerTask getWorkerTask()
@@ -34,8 +38,13 @@ final class WorkerTaskObject
         return workerTask;
     }
 
-    public String getTaskId()
+    public List<JobTaskId> getCompletedTaskIds()
     {
-        return taskId;
+        return completedTaskIds;
+    }
+
+    public boolean isFinalJob()
+    {
+        return finalJob;
     }
 }
