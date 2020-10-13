@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 EntIT Software LLC, a Micro Focus company.
+ * Copyright 2016-2020 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.hpe.caf.worker.jobtracking;
 import java.util.Collections;
 import java.util.List;
 
-public final class JobTrackingReporterProxy implements JobTrackingReporter
+final class JobTrackingReporterProxy implements JobTrackingReporter
 {
     private final JobTrackingReporter reporter;
     private final List<String> completedTaskIds;

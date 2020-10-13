@@ -122,32 +122,13 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         LOG.debug("Reporting completion of job task {}...", jobTaskId);
 
         final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskId);
-        final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
 
         try (final Connection conn = getConnection()) {
             try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?)}")) {
                 stmt.setString(1, jobTaskIdObj.getPartitionId());
                 stmt.setString(2, jobTaskIdObj.getId());
-                stmt.execute();
 
-                final ResultSet resultSet = stmt.getResultSet();
-
-                if (resultSet != null) {
-                    while (resultSet.next()) {
-                        final JobTrackingWorkerDependency dependency = new JobTrackingWorkerDependency();
-                        dependency.setPartitionId(stmt.getResultSet().getString(1));
-                        dependency.setJobId(stmt.getResultSet().getString(2));
-                        dependency.setTaskClassifier(stmt.getResultSet().getString(3));
-                        dependency.setTaskApiVersion(stmt.getResultSet().getInt(4));
-                        dependency.setTaskData(stmt.getResultSet().getBytes(5));
-                        dependency.setTaskPipe(stmt.getResultSet().getString(6));
-                        dependency.setTargetPipe(stmt.getResultSet().getString(7));
-
-                        jobDependencyList.add(dependency);
-                    }
-                }
-
-                return jobDependencyList;
+                return executeToJobDependencyList(stmt);
             }
         } catch (final SQLTransientException te) {
             throw new JobReportingTransientException(
@@ -177,11 +158,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         final List<String> jobTaskIds
     ) throws JobReportingException
     {
-        LOG.debug("Reporting bulk completion of job task {}...", jobTaskIds);
-        final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
-
-        LOG.debug("partition: " + partitionId + "/ job: " + jobId);
-        LOG.debug("tasks: " + jobTaskIds);
+        LOG.debug("Reporting bulk completion: Partition: {}; Job: {}; Tasks: {}", partitionId, jobId, jobTaskIds);
 
         try (final Connection conn = getConnection()) {
             try (final CallableStatement stmt = conn.prepareCall("{call report_complete_bulk(?,?,?)}")) {
@@ -189,30 +166,10 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 stmt.setString(2, jobId);
 
                 // Convert jobTaskIds into an Array to be passed into the statement
-                final Array jobIdsArray = conn.createArrayOf("varchar", jobTaskIds.toArray(new String[0]));
+                final Array jobIdsArray = conn.createArrayOf("varchar", jobTaskIds.toArray());
                 stmt.setArray(3, jobIdsArray);
 
-                LOG.debug("landing here! ");
-                stmt.execute();
-
-                final ResultSet resultSet = stmt.getResultSet();
-
-                if (resultSet != null) {
-                    while (resultSet.next()) {
-                        final JobTrackingWorkerDependency dependency = new JobTrackingWorkerDependency();
-                        dependency.setPartitionId(stmt.getResultSet().getString(1));
-                        dependency.setJobId(stmt.getResultSet().getString(2));
-                        dependency.setTaskClassifier(stmt.getResultSet().getString(3));
-                        dependency.setTaskApiVersion(stmt.getResultSet().getInt(4));
-                        dependency.setTaskData(stmt.getResultSet().getBytes(5));
-                        dependency.setTaskPipe(stmt.getResultSet().getString(6));
-                        dependency.setTargetPipe(stmt.getResultSet().getString(7));
-
-                        jobDependencyList.add(dependency);
-                    }
-                }
-
-                return jobDependencyList;
+                return executeToJobDependencyList(stmt);
             }
         } catch (final SQLTransientException te) {
             throw new JobReportingTransientException(
@@ -226,6 +183,31 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             throw new JobReportingException(
                 MessageFormat.format(FAILED_TO_REPORT_COMPLETIONS, jobTaskIds, se.getMessage()), se);
         }
+    }
+
+    private static List<JobTrackingWorkerDependency> executeToJobDependencyList(final CallableStatement stmt) throws SQLException
+    {
+        stmt.execute();
+
+        final ResultSet resultSet = stmt.getResultSet();
+        final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
+
+        if (resultSet != null) {
+            while (resultSet.next()) {
+                final JobTrackingWorkerDependency dependency = new JobTrackingWorkerDependency();
+                dependency.setPartitionId(stmt.getResultSet().getString(1));
+                dependency.setJobId(stmt.getResultSet().getString(2));
+                dependency.setTaskClassifier(stmt.getResultSet().getString(3));
+                dependency.setTaskApiVersion(stmt.getResultSet().getInt(4));
+                dependency.setTaskData(stmt.getResultSet().getBytes(5));
+                dependency.setTaskPipe(stmt.getResultSet().getString(6));
+                dependency.setTargetPipe(stmt.getResultSet().getString(7));
+
+                jobDependencyList.add(dependency);
+            }
+        }
+
+        return jobDependencyList;
     }
 
     /**

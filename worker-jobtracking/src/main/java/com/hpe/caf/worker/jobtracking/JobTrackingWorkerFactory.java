@@ -19,7 +19,6 @@ import com.hpe.caf.api.*;
 import com.hpe.caf.api.worker.*;
 import com.hpe.caf.services.job.util.JobTaskId;
 import com.hpe.caf.util.rabbitmq.RabbitHeaders;
-import com.hpe.caf.worker.tracking.report.TrackingReport;
 import com.hpe.caf.worker.tracking.report.TrackingReportConstants;
 import com.hpe.caf.worker.tracking.report.TrackingReportTask;
 import org.slf4j.Logger;
@@ -34,17 +33,13 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
-import static java.util.stream.Collectors.toList;
-import java.util.stream.Stream;
 
 /**
  * Factory class for creating a JobTrackingWorker.
@@ -121,6 +116,20 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 throw new InvalidTaskException("Task of type " + taskClassifier + " found on queue for " + workerName);
         }
 
+    }
+
+    private TrackingReportTask getTrackingReportTask(final WorkerTaskData workerTask)
+        throws TaskRejectedException, InvalidTaskException
+    {
+        final byte[] bytes = validateVersionAndData(workerTask, TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
+        return TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, bytes);
+    }
+
+    private JobTrackingWorkerTask getJobTrackingWorkerTask(final WorkerTaskData workerTask)
+        throws TaskRejectedException, InvalidTaskException
+    {
+        final byte[] data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
+        return TaskValidator.deserialiseAndValidateTask(codec, JobTrackingWorkerTask.class, data);
     }
 
     private static byte[] validateVersionAndData(final WorkerTaskData workerTask, final int workerApiVersion)
@@ -396,20 +405,6 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         }
     }
 
-    private JobTrackingWorkerTask getJobTrackingWorkerTask(final WorkerTaskData workerTask)
-        throws TaskRejectedException, InvalidTaskException
-    {
-        final byte[] data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
-        return TaskValidator.deserialiseAndValidateTask(codec, JobTrackingWorkerTask.class, data);
-    }
-
-    private TrackingReportTask getTrackingReportTask(final WorkerTaskData workerTask)
-        throws TaskRejectedException, InvalidTaskException
-    {
-        final byte[] bytes = validateVersionAndData(workerTask, TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
-        return TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, bytes);
-    }
-
     @Override
     public void processTasks(final BulkWorkerRuntime bwr) throws InterruptedException
     {
@@ -483,7 +478,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             final TreeMap<FullyQualifiedJobId, List<JobTaskId>> taskIdsGrouped = completedTaskIds.stream()
                 .map(JobTaskId::fromMessageId)
                 .collect(Collectors.groupingBy(
-                    taskId -> new FullyQualifiedJobId(taskId.getPartitionId(), taskId.getJobId()), TreeMap::new, toList()));
+                    taskId -> new FullyQualifiedJobId(taskId.getPartitionId(), taskId.getJobId()), TreeMap::new, Collectors.toList()));
 
             final Iterator<Map.Entry<FullyQualifiedJobId, List<JobTaskId>>> entryIterator
                 = taskIdsGrouped.entrySet().iterator();
@@ -557,13 +552,18 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             try {
                 jobDependencyList = reporter.reportJobTasksComplete(jobId.getPartitionId(), jobId.getJobId(), taskIds);
             } catch (final JobReportingException ex) {
+                // Serialize the exception to include it in the response message
+                final byte[] failureData = getFailureData(ex);
+
                 // Respond that all remaining tasks have failed
                 List<WorkerTaskObject> failedWorkerTasks = workerTaskObjects;
                 for (;;) {
                     failedWorkerTasks.stream()
                         .filter(WorkerTaskObject::isFinalJob)
                         .map(WorkerTaskObject::getWorkerTask)
-                        .forEach(JobTrackingWorkerFactory::setWorkerResultFailure);
+                        .forEach(workerTask -> {
+                            setWorkerResultFailure(workerTask, failureData);
+                        });
 
                     if (!iterator.hasNext()) {
                         return;
@@ -595,33 +595,55 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         }
     }
 
-    private void processJobTrackingWorkerTask(final WorkerTask workerTask)
+    private static void setWorkerResultSuccess(final WorkerTask workerTask)
+    {
+        workerTask.setResponse(
+            new WorkerResponse(null, TaskStatus.RESULT_SUCCESS, new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
+    }
+
+    private byte[] getFailureData(final JobReportingException ex)
     {
         try {
-            final JobTrackingWorkerTask jobTrackingWorkerTask = getJobTrackingWorkerTask(workerTask);
-            LOG.trace("Received progress update message for task {}; taking no action",
-                      jobTrackingWorkerTask.getJobTaskId());
-
-            setWorkerResultSuccess(workerTask);
-        } catch (final InvalidTaskException | TaskRejectedException e) {
-            LOG.warn("Error reporting task progress to the Job Database: ", e);
-            setWorkerResultFailure(workerTask);
+            return codec.serialise(
+                JobTrackingWorkerUtil.createErrorResult(JobTrackingWorkerStatus.PROGRESS_UPDATE_FAILED, ex.getMessage()));
+        } catch (final CodecException codecEx) {
+            throw new TaskFailedException("Failed to serialise result", codecEx);
         }
     }
 
-    private static void setWorkerResultSuccess(final WorkerTask workerTask)
+    private void setWorkerResultFailure(final WorkerTask workerTask, final byte[] failureData)
     {
-        setWorkerResult(workerTask, TaskStatus.RESULT_SUCCESS);
+        workerTask.setResponse(new WorkerResponse(
+            configuration.getOutputQueue(),
+            TaskStatus.RESULT_FAILURE,
+            failureData,
+            JobTrackingWorkerConstants.WORKER_NAME,
+            JobTrackingWorkerConstants.WORKER_API_VER,
+            null)
+        );
     }
 
-    private static void setWorkerResultFailure(final WorkerTask workerTask)
+    private void processJobTrackingWorkerTask(final WorkerTask workerTask) throws InterruptedException
     {
-        setWorkerResult(workerTask, TaskStatus.RESULT_FAILURE);
-    }
+        try {
+            final JobTrackingWorkerTask jobTrackingWorkerTask = getJobTrackingWorkerTask(workerTask);
 
-    private static void setWorkerResult(final WorkerTask workerTask, final TaskStatus resultFailure)
-    {
-        workerTask.setResponse(
-            new WorkerResponse(null, resultFailure, new byte[]{}, JobTrackingWorkerConstants.WORKER_NAME, 1, null));
+            final JobTrackingWorker messageProcessor = new JobTrackingWorker(
+                jobTrackingWorkerTask,
+                configuration.getOutputQueue(),
+                codec,
+                reporter,
+                workerTask);
+
+            final WorkerResponse messageResponse = messageProcessor.doWork();
+            workerTask.setResponse(messageResponse);
+
+        } catch (final InvalidTaskException ex) {
+            LOG.warn("Invalid input message data", ex);
+            workerTask.setResponse(ex);
+        } catch (final TaskRejectedException ex) {
+            LOG.warn("Invalid input message version", ex);
+            workerTask.setResponse(ex);
+        }
     }
 }
