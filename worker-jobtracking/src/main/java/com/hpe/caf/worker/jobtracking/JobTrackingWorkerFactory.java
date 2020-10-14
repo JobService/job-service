@@ -419,16 +419,15 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
         final long maxWaitingTime = Long.parseLong(JobTrackingWorkerUtil.getmaxWaitingTime());
         final long cutoffTime = System.currentTimeMillis() + maxWaitingTime;
-        final int maxBulkSize = 20;
+        final int maxBulkSize = 40;
 
         final TreeMap<FullyQualifiedJobId, List<SuccessfulWorkerTaskEntity>> bulkItemList = new TreeMap<>();
 
         for (;;) {
             final long maxWaitTime = cutoffTime - System.currentTimeMillis();
             final WorkerTask workerTask = bwr.getNextWorkerTask(maxWaitTime);
-            if (workerTask == null) {
-                break;
-            }
+
+            if (workerTask == null)break;
 
             final String taskClassifier = workerTask.getClassifier();
 
@@ -447,6 +446,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         }
 
         // Process the completed TrackingReports
+        LOG.debug("Size of bulkItemList: {}", bulkItemList.size());
         processCompletedTrackingReports(bulkItemList);
     }
 

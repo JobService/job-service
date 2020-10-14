@@ -60,6 +60,10 @@ public class ScheduledExecutorConfig {
         return getPropertyOrEnvVar("CAF_TRACKING_PIPE");
     }
 
+    public static String getMaxWaitingTime() {
+        return getPropertyOrEnvVar("CAF_MAX_WAITING_TIME");
+    }
+
     public static String getStatusCheckTime() {
         return getPropertyOrEnvVar("CAF_STATUS_CHECK_TIME");
     }

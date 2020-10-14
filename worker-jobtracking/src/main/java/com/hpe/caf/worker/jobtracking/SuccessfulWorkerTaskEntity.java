@@ -17,16 +17,20 @@ package com.hpe.caf.worker.jobtracking;
 
 import com.hpe.caf.api.worker.WorkerTask;
 import com.hpe.caf.services.job.util.JobTaskId;
+
 import java.util.List;
 import java.util.Objects;
 
-final class WorkerTaskObject
+/**
+ * The WorkerTaskEntity allows to group the workerTask and the related completed Task ids
+ */
+final class SuccessfulWorkerTaskEntity
 {
     private final WorkerTask workerTask;
     private final List<JobTaskId> completedTaskIds;
     private final boolean finalJob;
 
-    public WorkerTaskObject(final WorkerTask workerTask, final List<JobTaskId> completedTaskIds, final boolean finalJob)
+    public SuccessfulWorkerTaskEntity(final WorkerTask workerTask, final List<JobTaskId> completedTaskIds, final boolean finalJob)
     {
         this.workerTask = Objects.requireNonNull(workerTask);
         this.completedTaskIds = Objects.requireNonNull(completedTaskIds);
@@ -43,6 +47,10 @@ final class WorkerTaskObject
         return completedTaskIds;
     }
 
+    /**
+     *
+     * @return true if final job of the list, false otherwise
+     */
     public boolean isFinalJob()
     {
         return finalJob;
