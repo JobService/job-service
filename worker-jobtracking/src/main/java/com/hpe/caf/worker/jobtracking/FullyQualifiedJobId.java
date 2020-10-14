@@ -17,6 +17,10 @@ package com.hpe.caf.worker.jobtracking;
 
 import java.util.Objects;
 
+/**
+ * FullyQualifiedJobId allows grouping by partition and jobId. It implements the comparable interface
+ * that will allow an ordering by partition/job
+ */
 final class FullyQualifiedJobId implements Comparable<FullyQualifiedJobId>
 {
     private final String partitionId;
@@ -41,6 +45,10 @@ final class FullyQualifiedJobId implements Comparable<FullyQualifiedJobId>
         return jobId;
     }
 
+    /**
+     * @param that object to compare
+     * @return 0 if equals, <0 if before, >0 if after
+     */
     @Override
     public int compareTo(final FullyQualifiedJobId that)
     {
@@ -51,16 +59,21 @@ final class FullyQualifiedJobId implements Comparable<FullyQualifiedJobId>
             : partitionCompareResult;
     }
 
+    /**
+     *
+     * @param obj object to be compared
+     * @return true if equals (same partitionId and jobId), false otherwise
+     */
     @Override
-    public boolean equals(final Object o)
+    public boolean equals(final Object obj)
     {
-        if (this == o) {
+        if (this == obj) {
             return true;
         }
-        if (!(o instanceof FullyQualifiedJobId)) {
+        if (!(obj instanceof FullyQualifiedJobId)) {
             return false;
         }
-        final FullyQualifiedJobId that = (FullyQualifiedJobId) o;
+        final FullyQualifiedJobId that = (FullyQualifiedJobId) obj;
         return partitionId.equals(that.partitionId) && jobId.equals(that.jobId);
     }
 
