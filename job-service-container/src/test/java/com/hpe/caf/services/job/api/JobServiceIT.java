@@ -761,6 +761,10 @@ public class JobServiceIT {
             throw new Exception("CAF_WEBSERVICE_URL environment variable is null.");
         }
 
+        String statusMaxWaitingTime = System.getenv("CAF_MAX_WAITING_TIME");
+        if(statusMaxWaitingTime==null)
+            throw new Exception("CAF_MAX_WAITING_TIME environment variable is null.");
+
         String trackingPipe = System.getenv("CAF_TRACKING_PIPE");
         if(trackingPipe==null)
             throw new Exception("CAF_TRACKING_PIPE environment variable is null.");

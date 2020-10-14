@@ -55,6 +55,10 @@ public class AppConfig {
             : environment.getProperty("JOB_SERVICE_DATABASE_APPNAME");
     }
 
+    public String getMaxWaitingTime() {
+        return environment.getProperty("CAF_MAX_WAITING_TIME");
+    }
+
     public String getRabbitMQHost(){
         return environment.getProperty("CAF_RABBITMQ_HOST");
     }

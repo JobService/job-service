@@ -164,6 +164,7 @@
                         <datastore.enabled>true</datastore.enabled>
                     </systemPropertyVariables>
                     <environmentVariables>
+                        <CAF_MAX_WAITING_TIME>10000</CAF_MAX_WAITING_TIME>
                         <CAF_APPNAME>test/jobservice-acceptance</CAF_APPNAME>
                         <CAF_CONFIG_PATH>${project.basedir}/test-configs</CAF_CONFIG_PATH>
                         <CAF_JOB_SERVICE_IMAGE>${dockerJobServiceOrg}job-service${dockerProjectVersion}</CAF_JOB_SERVICE_IMAGE>
@@ -445,6 +446,7 @@
                                     <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
+                                    <CAF_MAX_WAITING_TIME>10000</CAF_MAX_WAITING_TIME>
                                     <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
                                     <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
                                     <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
@@ -486,6 +488,7 @@
                                     <port>${jobtracking-worker.adminport}:8081</port>
                                 </ports>
                                 <env>
+                                    <CAF_MAX_WAITING_TIME>10000</CAF_MAX_WAITING_TIME>
                                     <CAF_RABBITMQ_BACKOFF_INTERVAL>1</CAF_RABBITMQ_BACKOFF_INTERVAL>
                                     <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
                                     <CAF_RABBITMQ_MAX_ATTEMPTS>20</CAF_RABBITMQ_MAX_ATTEMPTS>
@@ -612,6 +615,7 @@
                                     <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
+                                    <CAF_MAX_WAITING_TIME>10000</CAF_MAX_WAITING_TIME>
                                     <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
                                     <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
                                     <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
