@@ -29,6 +29,7 @@ import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -235,8 +236,8 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     public void determineForwardingAction(TaskMessage proxiedTaskMessage, TaskInformation taskInformation,
                                           Map<String, Object> headers, WorkerCallback callback) {
 
-        List<JobTrackingWorkerDependency> jobDependencyList = reportProxiedTask(proxiedTaskMessage, headers);
-        if (jobDependencyList != null && jobDependencyList.size() > 0) {
+        final List<JobTrackingWorkerDependency> jobDependencyList = reportProxiedTask(proxiedTaskMessage, headers);
+        if (!jobDependencyList.isEmpty()) {
             // Forward any dependent jobs which are now available for processing
             try {
                 forwardAvailableJobs(jobDependencyList, callback, proxiedTaskMessage.getTracking().getTrackingPipe(), taskInformation);
@@ -265,13 +266,13 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             TrackingInfo tracking = proxiedTaskMessage.getTracking();
             if (tracking == null) {
                 LOG.warn("Cannot report job task progress for task {} - the task message has no tracking info", proxiedTaskMessage.getTaskId());
-                return null;
+                return Collections.emptyList();
             }
 
             String jobTaskId = tracking.getJobTaskId();
             if (jobTaskId == null) {
                 LOG.warn("Cannot report job task progress for task {} - the tracking info has no jobTaskId", proxiedTaskMessage.getTaskId());
-                return null;
+                return Collections.emptyList();
             }
 
             final TaskStatus taskStatus = proxiedTaskMessage.getTaskStatus();
@@ -304,7 +305,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
                 reporter.reportJobTaskRejected(jobTaskId, f);
 
-                return null;
+                return Collections.emptyList();
             }
 
             boolean rejected = headers.getOrDefault(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED, null) != null;
@@ -330,7 +331,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             LOG.warn("Error reporting task {} progress to the Job Database: ", proxiedTaskMessage.getTaskId(), e);
             //TODO - should this ex be rethrown?
         }
-        return null;
+        return Collections.emptyList();
     }
 
     /**
