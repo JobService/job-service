@@ -134,6 +134,12 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
         return workerResult;
     }
 
+    /**
+     *
+     * @param trackingReportTask reports on the progress of a number of tracked job tasks
+     * @return list of dependent jobs
+     * @throws JobReportingException if a failure occurs in connecting or reporting to a Job Database
+     */
     private List<JobTrackingWorkerDependency> reportJobTasksProgress(final TrackingReportTask trackingReportTask)
             throws JobReportingException
     {
