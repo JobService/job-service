@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2020 EntIT Software LLC, a Micro Focus company.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package com.hpe.caf.worker.jobtracking;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * implementation of the JobTrackingReporter. Will be used to report the tasks into the database
+ */
 final class JobTrackingReporterProxy implements JobTrackingReporter
 {
     private final JobTrackingReporter reporter;
@@ -47,7 +50,7 @@ final class JobTrackingReporterProxy implements JobTrackingReporter
         final String partitionId,
         final String jobId,
         final List<String> jobTaskIds
-    ) throws JobReportingException
+    )
     {
         throw new UnsupportedOperationException();
     }

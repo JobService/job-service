@@ -119,7 +119,7 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
 
         //  As a result of reporting completion of job tasks, a number of dependent jobs
         //  may be ready for execution. If so, forward these to the tracking pipe.
-        if (jobDependencyList != null && !jobDependencyList.isEmpty()) {
+        if (!jobDependencyList.isEmpty()) {
             //  For each dependent job, create a TaskMessage object and publish to the
             //  messaging queue.
             for (final JobTrackingWorkerDependency dependency : jobDependencyList) {
