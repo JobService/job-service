@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The WorkerTaskEntity allows to group the workerTask and the related completed Task ids
+ * A sorted map of these objects is used in the {@link JobTrackingWorkerFactory} class when processing messages in bulk. This object holds
+ * the worker task object (i.e. the message), and the completed task ids that it contains, and also whether or not this is the final entry
+ * in the sorted map which contains a reference to this worker task.
  */
 final class CompletedWorkerTaskEntity
 {
@@ -47,10 +49,6 @@ final class CompletedWorkerTaskEntity
         return completedTaskIds;
     }
 
-    /**
-     *
-     * @return true if final job of the list, false otherwise
-     */
     public boolean isFinalJob()
     {
         return finalJob;
