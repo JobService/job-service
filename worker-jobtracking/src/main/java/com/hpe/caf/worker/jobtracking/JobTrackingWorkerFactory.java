@@ -252,8 +252,8 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     public void determineForwardingAction(TaskMessage proxiedTaskMessage, TaskInformation taskInformation,
                                           Map<String, Object> headers, WorkerCallback callback) {
 
-        List<JobTrackingWorkerDependency> jobDependencyList = reportProxiedTask(proxiedTaskMessage, headers);
-        if (jobDependencyList != null && jobDependencyList.size() > 0) {
+        final List<JobTrackingWorkerDependency> jobDependencyList = reportProxiedTask(proxiedTaskMessage, headers);
+        if (!jobDependencyList.isEmpty()) {
             // Forward any dependent jobs which are now available for processing
             try {
                 forwardAvailableJobs(jobDependencyList, callback, proxiedTaskMessage.getTracking().getTrackingPipe(), taskInformation);
@@ -321,7 +321,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
                 reporter.reportJobTaskRejected(jobTaskId, f);
 
-                return Collections.emptyList() ;
+                return Collections.emptyList();
             }
 
             boolean rejected = headers.getOrDefault(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED, null) != null;
@@ -402,7 +402,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 callback.send(taskInformation, dependentJobTaskMessage);
             }
         } catch (final Exception e) {
-            LOG.error("Error retrieving Dependent Job Info from the Job Service Database {}", jobDependencyList ,e);
+            LOG.error("Error retrieving Dependent Job Info from the Job Service Database", e);
         }
     }
 
