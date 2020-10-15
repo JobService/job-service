@@ -230,7 +230,6 @@
                         <CAF_CONFIG_PATH>${project.basedir}/test-config</CAF_CONFIG_PATH>
                         <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
                         <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
-                        <CAF_MAX_WAITING_TIME>10000</CAF_MAX_WAITING_TIME>
                         <CAF_INTEGRATIONTESTS_FS_PATH>\\${docker.host.address}@${webdav.apache.port}\webdav</CAF_INTEGRATIONTESTS_FS_PATH>
                         <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
@@ -488,7 +487,6 @@
                                     <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://jobservice-integrationtests-postgres:5432/${db.name}</JOB_SERVICE_DATABASE_URL>
                                     <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
-                                    <CAF_MAX_WAITING_TIME>10000</CAF_MAX_WAITING_TIME>
                                     <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
                                     <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
                                     <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>

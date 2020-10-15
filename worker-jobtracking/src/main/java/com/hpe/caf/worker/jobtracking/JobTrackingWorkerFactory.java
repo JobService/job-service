@@ -99,7 +99,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     @Override
     public final Worker getWorker(final WorkerTaskData workerTask) throws TaskRejectedException, InvalidTaskException {
 
-        LOG.debug("starting a single job");
+        LOG.debug("Starting a single job...");
 
         // Reject tasks of the wrong type and tasks that require a newer version
         final String taskClassifier = workerTask.getClassifier();
@@ -407,31 +407,32 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     }
 
     /**
-     * Main method for the bulk messages. It will process the incoming messages based on their "taskClassifier"
-     * An attempt is made to group them by jobId using a customizable variable "maxWaitingTime"
+     * Main method for the bulk messages. It will process the incoming messages based on their "taskClassifier". An attempt is made to
+     * group them by jobId using a customizable variable: "maxWaitingTime".
      *
      * @param bwr object supplied to CAF Workers, able to process multiple tasks together
-     * @throws InterruptedException when a thread is waiting, sleeping, or otherwise occupied,
-     *  * and the thread is interrupted, either before or during the activity
+     * @throws InterruptedException when a thread is waiting, sleeping, or otherwise occupied, and the thread is interrupted, either
+     * before or during the activity
      */
     @Override
     public void processTasks(final BulkWorkerRuntime bwr) throws InterruptedException
     {
         // Configured to wait 10 seconds between two batches
-        LOG.debug("starting a bulk job");
-        final long maxWaitingTime = Long.parseLong(JobTrackingWorkerUtil.getMaxWaitingTime());
+        LOG.debug("Starting a bulk job...");
+        final long maxWaitingTime = JobTrackingWorkerUtil.getMaxWaitingTime();
         final long cutoffTime = System.currentTimeMillis() + maxWaitingTime;
 
-        // a TreeMap is used here to group and order by fullyQualifiedJobId
-        final TreeMap<FullyQualifiedJobId, List<SuccessfulWorkerTaskEntity>> bulkItemList = new TreeMap<>();
+        // A TreeMap is used here to group and order by fullyQualifiedJobId
+        final TreeMap<FullyQualifiedJobId, List<CompletedWorkerTaskEntity>> bulkItemList = new TreeMap<>();
 
         for (;;) {
             final long maxWaitTime = cutoffTime - System.currentTimeMillis();
 
-            // if no more task coming in before maxWaitingTime, null is returned
+            // If no more task coming in before maxWaitingTime, null is returned
             final WorkerTask workerTask = bwr.getNextWorkerTask(maxWaitTime);
-
-            if (workerTask == null)break;
+            if (workerTask == null) {
+                break;
+            }
 
             final String taskClassifier = workerTask.getClassifier();
 
@@ -449,20 +450,19 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         }
 
         LOG.debug("Size of bulkItemList: {}", bulkItemList.size());
+
         // Process the completed TrackingReports
         processCompletedTrackingReports(bulkItemList);
     }
 
     /**
      *
-     * @param workerTask   provides access onto Worker Task Data and ability to set response
-     * @param bulkItemList groups the lists of workerTaskEntities by  FullyQualifiedJobId (partition and jobId)
-     * @throws InterruptedException if a thread is waiting, sleeping, or otherwise occupied,
-     *   and the thread is interrupted, either before or during the activity.
+     * @param workerTask provides access onto Worker Task Data and ability to set response
+     * @param bulkItemList the lists of workerTaskEntities grouped by FullyQualifiedJobId (partition and jobId)
      */
     private void processTrackingReportTask(
         final WorkerTask workerTask,
-        final TreeMap<FullyQualifiedJobId, List<SuccessfulWorkerTaskEntity>> bulkItemList
+        final TreeMap<FullyQualifiedJobId, List<CompletedWorkerTaskEntity>> bulkItemList
     ) throws InterruptedException
     {
         try {
@@ -477,22 +477,22 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     /**
      *
      * @param workerTask provides access onto Worker Task Data and ability to set response
-     * @param bulkItemList groups the lists of workerTaskEntities by  FullyQualifiedJobId (partition and jobId)
+     * @param bulkItemList groups the lists of workerTaskEntities by FullyQualifiedJobId (partition and jobId)
      * @throws InvalidTaskException if a task is invalid
-     * @throws InterruptedException if a thread is waiting, sleeping, or otherwise occupied,
-     *      and the thread is interrupted, either before or during the activity.
+     * @throws InterruptedException if a thread is waiting, sleeping, or otherwise occupied, and the thread is interrupted, either before
+     * or during the activity.
      * @throws TaskRejectedException if a task is rejected
      */
     private void processTrackingReportTaskImpl(
         final WorkerTask workerTask,
-        final TreeMap<FullyQualifiedJobId, List<SuccessfulWorkerTaskEntity>> bulkItemList
+        final TreeMap<FullyQualifiedJobId, List<CompletedWorkerTaskEntity>> bulkItemList
     ) throws InvalidTaskException, InterruptedException, TaskRejectedException
     {
         final TrackingReportTask trackingWorkerTask = getTrackingReportTask(workerTask);
 
         // list containing the stripped task ids to be incremented for bulk update in db
         final List<String> completedTaskIds = new ArrayList<>();
-        final JobTrackingReporterProxy reporterProxy = new JobTrackingReporterProxy(reporter, completedTaskIds);
+        final JobTrackingReporterPartialProxy reporterProxy = new JobTrackingReporterPartialProxy(reporter, completedTaskIds);
 
         final JobTrackingReportUpdateWorker messageProcessor = new JobTrackingReportUpdateWorker(
             trackingWorkerTask,
@@ -504,7 +504,9 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         final WorkerResponse messageResponse = messageProcessor.doWork();
 
         if (messageResponse.getTaskStatus() != TaskStatus.RESULT_SUCCESS || completedTaskIds.isEmpty()) {
-            if(completedTaskIds.isEmpty())LOG.debug("completedTaskIds is empty");
+            if (completedTaskIds.isEmpty()) {
+                LOG.debug("completedTaskIds is empty");
+            }
             workerTask.setResponse(messageResponse);
         } else {
             final TreeMap<FullyQualifiedJobId, List<JobTaskId>> taskIdsGrouped = completedTaskIds.stream()
@@ -528,13 +530,13 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     /**
      *
      * @param workerTask provides access onto Worker Task Data and ability to set response
-     * @param bulkItemList groups the lists of workerTaskEntities by  FullyQualifiedJobId (partition and jobId)
+     * @param bulkItemList groups the lists of workerTaskEntities by FullyQualifiedJobId (partition and jobId)
      * @param jobId id of the job
      * @param taskIds list of tasks ids related to the job
      * @param isFinalJob true if final job, false otherwise
      */
     private static void mergeIntoBulkItemList(
-        final TreeMap<FullyQualifiedJobId, List<SuccessfulWorkerTaskEntity>> bulkItemList,
+        final TreeMap<FullyQualifiedJobId, List<CompletedWorkerTaskEntity>> bulkItemList,
         final WorkerTask workerTask,
         final FullyQualifiedJobId jobId,
         final List<JobTaskId> taskIds,
@@ -543,7 +545,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     {
         bulkItemList.merge(
             jobId,
-            Collections.singletonList(new SuccessfulWorkerTaskEntity(workerTask, taskIds, isFinalJob)),
+            Collections.singletonList(new CompletedWorkerTaskEntity(workerTask, taskIds, isFinalJob)),
             (existingList, newList) -> {
                 // Assert that the existing list contains elements
                 assert (existingList != null && !existingList.isEmpty());
@@ -560,7 +562,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                     // (it would have already been changed to an ArrayList if this was not the case)
                     assert (existingList.size() == 1);
 
-                    final ArrayList<SuccessfulWorkerTaskEntity> arrayList = new ArrayList<>();
+                    final ArrayList<CompletedWorkerTaskEntity> arrayList = new ArrayList<>();
                     arrayList.add(existingList.get(0));
                     arrayList.add(newList.get(0));
                     return arrayList;
@@ -570,27 +572,25 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     }
 
     // Process the items from the map
-
     /**
      *
-     * processes the completed tracking reports by reporting them to the database
-     * sets the response to the related workerTask
-     * triggers the related job dependencies
+     * processes the completed tracking reports by reporting them to the database sets the response to the related workerTask triggers the
+     * related job dependencies
      *
-     * @param bulkItemList groups the lists of workerTaskEntities by  FullyQualifiedJobId (partition and jobId)
+     * @param bulkItemList groups the lists of workerTaskEntities by FullyQualifiedJobId (partition and jobId)
      */
-    private void processCompletedTrackingReports(final TreeMap<FullyQualifiedJobId, List<SuccessfulWorkerTaskEntity>> bulkItemList)
+    private void processCompletedTrackingReports(final TreeMap<FullyQualifiedJobId, List<CompletedWorkerTaskEntity>> bulkItemList)
     {
         // Loop on the Map
-        final Iterator<Map.Entry<FullyQualifiedJobId, List<SuccessfulWorkerTaskEntity>>> iterator = bulkItemList.entrySet().iterator();
+        final Iterator<Map.Entry<FullyQualifiedJobId, List<CompletedWorkerTaskEntity>>> iterator = bulkItemList.entrySet().iterator();
 
         while (iterator.hasNext()) {
-            final Map.Entry<FullyQualifiedJobId, List<SuccessfulWorkerTaskEntity>> entry = iterator.next();
+            final Map.Entry<FullyQualifiedJobId, List<CompletedWorkerTaskEntity>> entry = iterator.next();
 
             final FullyQualifiedJobId jobId = entry.getKey();
             LOG.debug("partition: {}; job: {}", jobId.getPartitionId(), jobId.getJobId());
 
-            final List<SuccessfulWorkerTaskEntity> workerTaskEntities = entry.getValue();
+            final List<CompletedWorkerTaskEntity> workerTaskEntities = entry.getValue();
 
             final List<String> taskIds = workerTaskEntities.stream()
                 .flatMap(workerTaskObj -> workerTaskObj.getCompletedTaskIds().stream().map(JobTaskId::getId))
@@ -605,11 +605,11 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 final byte[] failureData = getFailureData(ex);
 
                 // Respond that all remaining tasks have failed
-                List<SuccessfulWorkerTaskEntity> failedWorkerTasks = workerTaskEntities;
+                List<CompletedWorkerTaskEntity> failedWorkerTasks = workerTaskEntities;
                 for (;;) {
                     failedWorkerTasks.stream()
-                        .filter(SuccessfulWorkerTaskEntity::isFinalJob)
-                        .map(SuccessfulWorkerTaskEntity::getWorkerTask)
+                        .filter(CompletedWorkerTaskEntity::isFinalJob)
+                        .map(CompletedWorkerTaskEntity::getWorkerTask)
                         .forEach(workerTask -> setWorkerResultFailure(workerTask, failureData)
                         );
 
@@ -637,8 +637,8 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
             // Acknowledge the worker tasks that have been completed
             workerTaskEntities.stream()
-                .filter(SuccessfulWorkerTaskEntity::isFinalJob)
-                .map(SuccessfulWorkerTaskEntity::getWorkerTask)
+                .filter(CompletedWorkerTaskEntity::isFinalJob)
+                .map(CompletedWorkerTaskEntity::getWorkerTask)
                 .forEach(JobTrackingWorkerFactory::setWorkerResultSuccess);
         }
     }
@@ -687,8 +687,8 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
     /**
      * @param workerTask Provides access onto Worker Task Data and ability to set response
-     * @throws InterruptedException Thrown when a thread is waiting, sleeping, or otherwise occupied,
-     *  * and the thread is interrupted, either before or during the activity.
+     * @throws InterruptedException Thrown when a thread is waiting, sleeping, or otherwise occupied, * and the thread is interrupted,
+     * either before or during the activity.
      */
     private void processJobTrackingWorkerTask(final WorkerTask workerTask) throws InterruptedException
     {

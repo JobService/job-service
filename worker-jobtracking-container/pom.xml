@@ -451,6 +451,7 @@
 
                                 </ports>
                                 <env>
+                                    <CAF_MAX_WAITING_TIME>1000</CAF_MAX_WAITING_TIME>
                                     <CAF_RABBITMQ_BACKOFF_INTERVAL>1</CAF_RABBITMQ_BACKOFF_INTERVAL>
                                     <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
                                     <CAF_RABBITMQ_MAX_ATTEMPTS>20</CAF_RABBITMQ_MAX_ATTEMPTS>

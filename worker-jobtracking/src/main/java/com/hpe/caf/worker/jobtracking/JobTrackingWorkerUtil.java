@@ -101,13 +101,16 @@ public final class JobTrackingWorkerUtil
         return workerResult;
     }
 
-    public static String getMaxWaitingTime() {
-        String maxWaitingTime = System.getenv("CAF_MAX_WAITING_TIME");
+    public static long getMaxWaitingTime()
+    {
+        final String maxWaitingTime = System.getenv("CAF_MAX_WAITING_TIME");
+
+        // Default to 10000 if the environment variable is not present.
         if (null == maxWaitingTime) {
-            // Default to 10000 if the environment variable is not present.  This is to avoid introducing a breaking change.
-            maxWaitingTime = "10000";
+            return 10000;
         }
-        return maxWaitingTime;
+
+        return Long.parseLong(maxWaitingTime);
     }
 
     /**

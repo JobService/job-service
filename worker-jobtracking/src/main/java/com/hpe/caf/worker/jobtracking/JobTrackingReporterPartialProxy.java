@@ -19,14 +19,16 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * implementation of the JobTrackingReporter. Will be used to report the tasks into the database
+ * Implements the JobTrackingReporter interface. For most methods this is just a pass-through to an underlying JobTrackingReporter
+ * implementation. But for the {@link #reportJobTaskComplete} method it instead adds the task identifier to the supplied list. This is to
+ * allow these task ids to be reported in bulk at a later stage.
  */
-final class JobTrackingReporterProxy implements JobTrackingReporter
+final class JobTrackingReporterPartialProxy implements JobTrackingReporter
 {
     private final JobTrackingReporter reporter;
     private final List<String> completedTaskIds;
 
-    public JobTrackingReporterProxy(final JobTrackingReporter reporter, final List<String> completedTaskIds)
+    public JobTrackingReporterPartialProxy(final JobTrackingReporter reporter, final List<String> completedTaskIds)
     {
         this.reporter = reporter;
         this.completedTaskIds = completedTaskIds;

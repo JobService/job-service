@@ -91,7 +91,6 @@ public class JobTrackingWorkerIT {
      * Worker should report the progress of this task to the Job Database, reporting it as active; the test verifies this by querying the
      * database directly.
      */
-
     @Test
     public void testTrackingReportTasks() throws Exception
     {
@@ -126,7 +125,7 @@ public class JobTrackingWorkerIT {
             final JobDatabase database = new JobDatabase();
             // Increased the waiting time to match the 10s to wait induced by the batch
             // (see in JobtrackingWorkerFactory.processTasks())
-            wait(12000);
+            wait(2000);
             database.verifyJobStatus(defaultPartitionId, jobTaskId, expectation);
         }
     }

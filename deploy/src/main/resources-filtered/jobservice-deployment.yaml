@@ -115,8 +115,6 @@ spec:
               configMapKeyRef:
                 name: jobservice-config
                 key: JOB_SERVICE_DATABASE_PASSWORD
-          - name: CAF_MAX_WAITING_TIME
-              value: "10000"
           - name: CAF_RABBITMQ_HOST
             valueFrom:
               configMapKeyRef:
@@ -265,8 +263,6 @@ spec:
               configMapKeyRef:
                 name: jobservice-config
                 key: JOB_SERVICE_DATABASE_PASSWORD
-          - name: CAF_MAX_WAITING_TIME
-              value: "10000"
           - name: CAF_RABBITMQ_HOST
             valueFrom:
               configMapKeyRef:
