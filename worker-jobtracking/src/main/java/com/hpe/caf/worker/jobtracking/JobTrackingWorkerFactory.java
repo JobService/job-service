@@ -385,7 +385,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 callback.send(taskInformation, dependentJobTaskMessage);
             }
         } catch (final Exception e) {
-            LOG.error("Error retrieving Dependent Job Info from the Job Service Database {}", e);
+            LOG.error("Error retrieving Dependent Job Info from the Job Service Database", e);
         }
     }
 }
