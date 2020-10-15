@@ -261,7 +261,6 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
      */
     private List<JobTrackingWorkerDependency> reportProxiedTask(final TaskMessage proxiedTaskMessage,
                                                                 Map<String, Object> headers) {
-        List<JobTrackingWorkerDependency> jobDependencyList = null;
         try {
             TrackingInfo tracking = proxiedTaskMessage.getTracking();
             if (tracking == null) {
@@ -282,12 +281,12 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
                 if ((toPipe == null && trackToPipe == null) || (trackToPipe != null && trackToPipe.equalsIgnoreCase(toPipe))) {
                     // Now returns a JobTrackingWorkerDependency[].  This ResultSet may or may not contain a list of dependent job info.
-                    jobDependencyList = reporter.reportJobTaskComplete(jobTaskId);
+                    return reporter.reportJobTaskComplete(jobTaskId);
                 } else {
                     //TODO - FUTURE: supply an accurate estimatedPercentageCompleted
                     reporter.reportJobTaskProgress(jobTaskId, 0);
+                    return Collections.emptyList();
                 }
-                return jobDependencyList;
             }
 
             if (taskStatus == TaskStatus.RESULT_EXCEPTION || taskStatus == TaskStatus.INVALID_TASK) {
