@@ -172,8 +172,8 @@ spec:
               configMapKeyRef:
                 name: jobservice-config
                 key: JOB_SERVICE_DATABASE_APPNAME_JOBTRACKING
-          - name: CAF_MAX_WAITING_TIME
-              value: "10000"
+          - name: CAF_WORKER_MAX_BATCH_TIME
+            value: "10000"
           - name: CAF_RABBITMQ_HOST
             valueFrom:
               configMapKeyRef:

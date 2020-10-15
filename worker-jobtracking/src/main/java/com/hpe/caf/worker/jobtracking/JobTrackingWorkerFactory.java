@@ -418,8 +418,8 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     {
         // Configured to wait 10 seconds between two batches
         LOG.debug("Starting a bulk job...");
-        final long maxWaitingTime = JobTrackingWorkerUtil.getMaxWaitingTime();
-        final long cutoffTime = System.currentTimeMillis() + maxWaitingTime;
+        final long maxBatchTime = JobTrackingWorkerUtil.getMaxBatchTime();
+        final long cutoffTime = System.currentTimeMillis() + maxBatchTime;
 
         // Create a collection to hold the completed tasks in the tracking report messages (i.e. those which have TrackingReportTask as
         // their task classifier).  Rather than processing these immediately we are storing them here so that we can process them
