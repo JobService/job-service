@@ -394,6 +394,9 @@
                                     <cmd>curl -f http://localhost:8081/healthcheck || exit 1</cmd>
                                 </healthCheck>
                                 <cmd>/maven/worker.sh</cmd>
+                                <env>
+                                    <CAF_RABBITMQ_PREFETCH_BUFFER>1000</CAF_RABBITMQ_PREFETCH_BUFFER>
+                                </env>
                                 <assembly>
                                     <basedir>/</basedir>
                                     <mode>tar</mode>
