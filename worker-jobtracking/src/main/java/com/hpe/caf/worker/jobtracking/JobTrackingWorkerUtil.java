@@ -58,6 +58,7 @@ public final class JobTrackingWorkerUtil
             // Default to 5 if the environment variable is not present.  This is to avoid introducing a breaking change.
             statusCheckTime = "5";
         }
+
         final TrackingInfo trackingInfo = new TrackingInfo(
                 new JobTaskId(jobDependency.getPartitionId(), jobDependency.getJobId()).getMessageId(),
                 calculateStatusCheckDate(statusCheckTime), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
