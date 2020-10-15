@@ -99,6 +99,8 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     @Override
     public final Worker getWorker(final WorkerTaskData workerTask) throws TaskRejectedException, InvalidTaskException {
 
+        LOG.debug("starting a single job");
+
         // Reject tasks of the wrong type and tasks that require a newer version
         final String taskClassifier = workerTask.getClassifier();
         final String workerName = JobTrackingWorkerConstants.WORKER_NAME;
@@ -416,7 +418,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     public void processTasks(final BulkWorkerRuntime bwr) throws InterruptedException
     {
         // Configured to wait 10 seconds between two batches
-
+        LOG.debug("starting a bulk job");
         final long maxWaitingTime = Long.parseLong(JobTrackingWorkerUtil.getMaxWaitingTime());
         final long cutoffTime = System.currentTimeMillis() + maxWaitingTime;
 
