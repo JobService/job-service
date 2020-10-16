@@ -43,6 +43,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
     private static final String FAILED_TO_CONNECT = "Failed to connect to database {}. ";
     private static final String FAILED_TO_REPORT_COMPLETION = "Failed to report the completion of job task {0}. {1}";
+    private static final String FAILED_TO_REPORT_COMPLETIONS = "Failed to report the completion of job tasks {0}. {1}";
     private static final String FAILED_TO_REPORT_REJECTION = "Failed to report the failure and rejection of job task {0}. {1}";
 
     private static final String POSTGRES_OPERATOR_FAILURE_CODE_PREFIX = "57";
@@ -121,32 +122,13 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         LOG.debug("Reporting completion of job task {}...", jobTaskId);
 
         final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskId);
-        final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
 
         try (final Connection conn = getConnection()) {
             try (final CallableStatement stmt = conn.prepareCall("{call report_complete(?,?)}")) {
                 stmt.setString(1, jobTaskIdObj.getPartitionId());
                 stmt.setString(2, jobTaskIdObj.getId());
-                stmt.execute();
 
-                final ResultSet resultSet = stmt.getResultSet();
-
-                if (resultSet != null) {
-                    while (resultSet.next()) {
-                        final JobTrackingWorkerDependency dependency = new JobTrackingWorkerDependency();
-                        dependency.setPartitionId(stmt.getResultSet().getString(1));
-                        dependency.setJobId(stmt.getResultSet().getString(2));
-                        dependency.setTaskClassifier(stmt.getResultSet().getString(3));
-                        dependency.setTaskApiVersion(stmt.getResultSet().getInt(4));
-                        dependency.setTaskData(stmt.getResultSet().getBytes(5));
-                        dependency.setTaskPipe(stmt.getResultSet().getString(6));
-                        dependency.setTargetPipe(stmt.getResultSet().getString(7));
-
-                        jobDependencyList.add(dependency);
-                    }
-                }
-
-                return jobDependencyList;
+                return executeToJobDependencyList(stmt);
             }
         } catch (final SQLTransientException te) {
             throw new JobReportingTransientException(
@@ -160,6 +142,72 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             throw new JobReportingException(
                 MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
         }
+    }
+
+    /**
+     * Reports the specified job task as complete.
+     *
+     * @param jobTaskIds identifies the completed job tasks
+     * @return JobTrackingWorkerDependency list containing any dependent jobs that are now available for processing
+     * @throws JobReportingException if a failure occurs in connecting or reporting to a Job Database
+     */
+    @Override
+    public List<JobTrackingWorkerDependency> reportJobTasksComplete(
+        final String partitionId,
+        final String jobId,
+        final List<String> jobTaskIds
+    ) throws JobReportingException
+    {
+        LOG.debug("Reporting bulk completion: Partition: {}; Job: {}; Tasks: {}", partitionId, jobId, jobTaskIds);
+
+        try (final Connection conn = getConnection()) {
+            try (final CallableStatement stmt = conn.prepareCall("{call report_complete_bulk(?,?,?)}")) {
+                stmt.setString(1, partitionId);
+                stmt.setString(2, jobId);
+
+                // Convert jobTaskIds into an Array to be passed into the statement
+                final Array jobIdsArray = conn.createArrayOf("varchar", jobTaskIds.toArray());
+                stmt.setArray(3, jobIdsArray);
+
+                return executeToJobDependencyList(stmt);
+            }
+        } catch (final SQLTransientException te) {
+            throw new JobReportingTransientException(
+                MessageFormat.format(FAILED_TO_REPORT_COMPLETIONS, jobTaskIds, te.getMessage()), te);
+        } catch (final SQLException se) {
+            if (isSqlStateIn(se, POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE,
+                             POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+                throw new JobReportingTransientException(
+                    MessageFormat.format(FAILED_TO_REPORT_COMPLETIONS, jobTaskIds, se.getMessage()), se);
+            }
+            throw new JobReportingException(
+                MessageFormat.format(FAILED_TO_REPORT_COMPLETIONS, jobTaskIds, se.getMessage()), se);
+        }
+    }
+
+    private static List<JobTrackingWorkerDependency> executeToJobDependencyList(final CallableStatement stmt) throws SQLException
+    {
+        stmt.execute();
+
+        final ResultSet resultSet = stmt.getResultSet();
+        final List<JobTrackingWorkerDependency> jobDependencyList = new ArrayList<>();
+
+        if (resultSet != null) {
+            while (resultSet.next()) {
+                final JobTrackingWorkerDependency dependency = new JobTrackingWorkerDependency();
+                dependency.setPartitionId(stmt.getResultSet().getString(1));
+                dependency.setJobId(stmt.getResultSet().getString(2));
+                dependency.setTaskClassifier(stmt.getResultSet().getString(3));
+                dependency.setTaskApiVersion(stmt.getResultSet().getInt(4));
+                dependency.setTaskData(stmt.getResultSet().getBytes(5));
+                dependency.setTaskPipe(stmt.getResultSet().getString(6));
+                dependency.setTargetPipe(stmt.getResultSet().getString(7));
+
+                jobDependencyList.add(dependency);
+            }
+        }
+
+        return jobDependencyList;
     }
 
     /**

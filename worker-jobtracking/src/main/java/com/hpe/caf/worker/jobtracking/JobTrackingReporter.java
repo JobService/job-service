@@ -41,6 +41,18 @@ public interface JobTrackingReporter {
 
 
     /**
+     * Reports the completion of a list of job tasks to the Job Database.
+     * @param partitionId identifies the partition
+     * @param jobId identifies the job
+     * @param jobTaskIds identifies the task ids
+     * @return JobTrackingWorkerDependency list containing any dependent jobs that are now available for processing
+     * @throws JobReportingException if a failure occurs in connecting or reporting to a Job Database
+     */
+    List<JobTrackingWorkerDependency> reportJobTasksComplete(final String partitionId, final String jobId,
+                                                             final List<String> jobTaskIds) throws JobReportingException;
+
+
+    /**
      * Reports the failure and retry of a job task to the Job Database.
      * @param jobTaskId identifies the failed job task
      * @param retryDetails an explanation of the retry of this job task

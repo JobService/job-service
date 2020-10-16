@@ -494,6 +494,7 @@
                                     <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
                                     <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
                                     <CAF_WORKER_INPUT_QUEUE>jobtrackingworker-test-input-1</CAF_WORKER_INPUT_QUEUE>
+                                    <CAF_WORKER_MAX_BATCH_TIME>1000</CAF_WORKER_MAX_BATCH_TIME>
                                     <CAF_WORKER_OUTPUT_QUEUE>jobtrackingworker-test-output-1</CAF_WORKER_OUTPUT_QUEUE>
                                     <CAF_WORKER_RETRY_LIMIT>1</CAF_WORKER_RETRY_LIMIT>
                                     <CAF_WORKER_THREADS>1</CAF_WORKER_THREADS>

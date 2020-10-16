@@ -223,6 +223,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_report_complete_bulk_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/reportCompleteBulk.sql"
+                         procedureName="report_complete_bulk"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_report_failure_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/reportFailure.sql"
                          procedureName="report_failure"

@@ -101,6 +101,18 @@ public final class JobTrackingWorkerUtil
         return workerResult;
     }
 
+    public static long getMaxBatchTime()
+    {
+        final String maxBatchTime = System.getenv("CAF_WORKER_MAX_BATCH_TIME");
+
+        // Default to 10000 if the environment variable is not present.
+        if (null == maxBatchTime) {
+            return 10000;
+        }
+
+        return Long.parseLong(maxBatchTime);
+    }
+
     /**
      * Calculates the date of the next status check to be performed.
      *
