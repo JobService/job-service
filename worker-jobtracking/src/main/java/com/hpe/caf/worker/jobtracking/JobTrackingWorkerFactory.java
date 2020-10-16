@@ -453,7 +453,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             }
         }
 
-        LOG.debug("Size of bulkItemList: {}", bulkItemList.size());
+        LOG.info("Size of bulkItemList: {}", bulkItemList.size());
 
         // Process the completed TrackingReports
         processCompletedTrackingReports(bulkItemList);
