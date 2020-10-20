@@ -85,6 +85,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_drop_task_tables2_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/dropTaskTables2.sql"
+                         procedureName="internal_drop_task_tables2"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_get_dependent_jobs_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/getDependentJobs.sql"
                          procedureName="get_dependent_jobs"

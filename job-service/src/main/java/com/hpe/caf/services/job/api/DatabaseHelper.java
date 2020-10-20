@@ -472,14 +472,16 @@ public final class DatabaseHelper
      * Cancels the specified job.
      */
     public void cancelJob(final String partitionId, String jobId) throws Exception {
-
+        String query = "call cancel_job('"+partitionId+"','"+jobId+"')";
+        LOG.info("query built: {}",query);
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call cancel_job(?,?)}")
+                PreparedStatement  stmt = conn.prepareCall("call cancel_job(?,?)");
+
         ) {
-            stmt.setString(1, partitionId);
-            stmt.setString(2,jobId);
             LOG.debug("Calling cancel_job() database function...");
+            stmt.setString(1, partitionId);
+            stmt.setString(2, jobId);
             stmt.execute();
         } catch (SQLException se) {
             //  Determine source of SQL exception and throw appropriate error.

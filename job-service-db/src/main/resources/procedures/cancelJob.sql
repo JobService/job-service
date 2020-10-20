@@ -25,11 +25,14 @@ DROP FUNCTION IF EXISTS cancel_job(
     in_job_id VARCHAR(48),
     in_short_job_id VARCHAR(48)
 );
-CREATE OR REPLACE FUNCTION cancel_job(
+DROP FUNCTION IF EXISTS cancel_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
+);
+CREATE OR REPLACE PROCEDURE cancel_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(58)
 )
-RETURNS VOID
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -65,7 +68,7 @@ BEGIN
         AND status != 'Cancelled';
 
     -- Drop any task tables relating to the job
-    PERFORM internal_drop_task_tables(in_partition_id, in_job_id);
+    CALL internal_drop_task_tables2(in_partition_id, in_job_id);
 
     -- Removes all related subtasks from completed_subtask_report table
     PERFORM internal_cleanup_completed_subtask_report(in_partition_id, in_job_id);
