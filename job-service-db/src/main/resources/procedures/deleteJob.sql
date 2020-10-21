@@ -25,11 +25,14 @@ DROP FUNCTION IF EXISTS delete_job(
     in_job_id VARCHAR(48),
     in_short_job_id VARCHAR(48)
 );
-CREATE OR REPLACE FUNCTION delete_job(
+DROP FUNCTION IF EXISTS delete_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48)
+);
+CREATE OR REPLACE PROCEDURE delete_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
 )
-RETURNS VOID
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -55,7 +58,7 @@ BEGIN
     END IF;
 
     -- Drop the task tables associated with the specified job
-    PERFORM internal_drop_task_tables(in_partition_id, in_job_id);
+    CALL internal_drop_task_tables2(in_partition_id, in_job_id);
 
     -- Remove job dependency and job task data rows
     DELETE FROM job_dependency jd WHERE jd.partition_id = in_partition_id AND jd.job_id = in_job_id;

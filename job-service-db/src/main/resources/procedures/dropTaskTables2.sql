@@ -26,7 +26,7 @@ CREATE OR REPLACE PROCEDURE internal_drop_task_tables2(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58)
 )
-    LANGUAGE plpgsql
+LANGUAGE plpgsql
 AS $$
 DECLARE
     task_table_ident TEXT;
