@@ -58,9 +58,13 @@ BEGIN
         RETURNING csr.task_id
     )
 
+    -- converting table into array
     SELECT array_agg(task_id)
     FROM completed_subtask
     INTO subtask_array;
+
+    -- collapsing whenever possible
+    select * from task_collapse(subtask_array) into subtask_array;
 
     -- Loop through subtask_array and update the job percentage_complete
     IF subtask_array IS NOT NULL THEN
