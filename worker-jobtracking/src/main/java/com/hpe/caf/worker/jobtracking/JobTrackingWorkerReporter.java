@@ -159,7 +159,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     ) throws JobReportingException
     {
         LOG.debug("Reporting bulk completion: Partition: {}; Job: {}; Tasks: {}", partitionId, jobId, jobTaskIds);
-        LOG.info("Job passed: {} for {} subtasks ", jobId, jobTaskIds.size());
+        LOG.info("Job passed: {} for {} subtasks", jobId, jobTaskIds.size());
         
         try (final Connection conn = getConnection()) {
             try (final CallableStatement stmt = conn.prepareCall("{call report_complete_bulk(?,?,?)}")) {
