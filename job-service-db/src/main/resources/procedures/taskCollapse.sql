@@ -15,17 +15,18 @@ DECLARE
     collapsed VARCHAR:='';
     backup VARCHAR[]:='{}';
     modified BOOLEAN := 't';
-    maxi integer:=15;
+    maxi INTEGER:=1000;
+    regex_body VARCHAR :='.*(?=\.)\.'; -- takes everything up to the last dot
+    regex_last_nb VARCHAR :='([\d]+)\*?$';-- takes everything after the last dot, excluding the *
 
 BEGIN
-    tasks := array_agg(x ORDER BY x DESC) FROM unnest(tasks) x ;
-
-    raise notice '%', tasks;
+    -- tasks := array_agg(x ORDER BY x DESC) FROM unnest(tasks) x ;
+    SELECT array(SELECT id FROM unnest( tasks ) AS id ORDER BY substring(id,regex_body), substring(id, regex_last_nb)::INTEGER DESC ) INTO tasks;
 
     -- we loop until the array stop being modified
     WHILE (modified='t') LOOP
-        -- we create / update a backup to have something to compare against
-        -- as we will modify the initial tasks array
+            -- we create / update a backup to have something to compare against
+            -- as we will modify the initial tasks array
             backup:=tasks;
 
 
@@ -37,21 +38,16 @@ BEGIN
 
                     -- if the task ends with a *
                     IF (right(task, 1)='*') AND (right(tasks[2],1)!='*' )THEN
-                        raise notice 'task %', task;
                         -- nb of related subtasks expected
-                        --last_nb := left(right(task,2),1);
-                        last_nb := SUBSTRING(substr(task, 1, length(task) - 1), '.([0-9]+)$')::INTEGER;
-                        raise notice 'last_nb %', last_nb;
+                        last_nb := SUBSTRING(substr(task, 1, length(task) - 1), regex_last_nb)::INTEGER;
 
                         -- store the rest of the body
-                        body:= concat(SUBSTRING(task, '.*(?=\.)'),'.');
+                        body:= SUBSTRING(task, regex_body);
                         collapsed:= substr(body, 1, length(body) - 1);
 
                         WHILE(counter<=last_nb) loop
-                                raise notice E'body %\n', body;
                                 expected:= concat(body,(last_nb+1 -counter));
                                 currentT:=tasks[counter];
-                                raise notice E'expected % current %', expected, currentT;
 
                                 IF (currentT!=expected  OR currentT IS NULL) THEN
                                     tasks = array_remove(tasks, task);
@@ -84,6 +80,7 @@ BEGIN
                         tasks = array_remove(tasks, task);
                         final_array := array_append(final_array, task);
                     END IF;
+                    -- safety to avoid infinite loop
                     if maxi =0 then exit;maxi:=maxi-1;end if;
                 END LOOP;
 
@@ -93,64 +90,14 @@ BEGIN
 
             ELSE
                 tasks:=array_agg(x ORDER BY x DESC) FROM unnest(final_array) x;
+
                 final_array='{}';
 
             END IF;
 
         END LOOP;
-    raise notice '%', final_array;
 
     RETURN final_array;
 
 END
 $$;
-
-drop function test_collapse();
-create or replace function test_collapse()
-    RETURNS BOOLEAN
-
-    language plpgsql
-as $$
-declare
-begin
-
-    if task_collapse('{ job.7*, job.4.5, job.1.3*, job.1.2, job.1.1}') !=
-       '{job.7*,job.4.5, job.1}' then return 'false';
-
-    elsif task_collapse('{job.7*, job.4.5*, job.1.9*, job.1.8, job.1.7, job.1.6, job.1.5, job.1.4, job.1.3, job.1.2,  job.1.1, job.2.3*, job.2.2.2*, job.2.2.1, job.2.1}') !=
-          '{job.7*,job.4.5*, job.2, job.1}' then return 'false';
-
-    elsif task_collapse('{ job.2.2.2*, job.2.2.1}') !=
-          '{job.2.2}' then return 'false';
-
-    elsif task_collapse('{ job.8.1, job.8.3*, job.8.2}') !=
-          '{job.8}' then return 'false';
-
-    elsif task_collapse('{ job.8.1, job.8.3, job.8.2}') !=
-          '{job.8.3, job.8.2, job.8.1}' then return 'false';
-
-        /*elsif task_collapse('{ job.88.10*, job.88.9, job.88.8, job.88.7, job.88.6, job.88.5, job.88.4, job.88.3, job.88.2, job.88.1}') !=
-        '{job.88}' then return 'false';
-
-        */
-
-
-
-
-
-    end if;
-
-
-    return 'true';
-
-
-
-end
-$$;
-
-
-select * from test_collapse();
-
-
-
-
