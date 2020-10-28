@@ -31,7 +31,14 @@ import com.hpe.caf.worker.example.ExampleWorkerResult;
 import com.hpe.caf.worker.example.ExampleWorkerStatus;
 import com.hpe.caf.worker.example.ExampleWorkerTask;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
-import com.hpe.caf.worker.testing.*;
+import com.hpe.caf.worker.testing.ExecutionContext;
+import com.hpe.caf.worker.testing.QueueManager;
+import com.hpe.caf.worker.testing.QueueServices;
+import com.hpe.caf.worker.testing.QueueServicesFactory;
+import com.hpe.caf.worker.testing.SettingNames;
+import com.hpe.caf.worker.testing.SettingsProvider;
+import com.hpe.caf.worker.testing.TestResult;
+import com.hpe.caf.worker.testing.WorkerServices;
 import com.hpe.caf.worker.tracking.report.TrackingReport;
 import com.hpe.caf.worker.tracking.report.TrackingReportStatus;
 import com.hpe.caf.worker.tracking.report.TrackingReportTask;
@@ -39,11 +46,20 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -103,6 +119,15 @@ public class JobTrackingWorkerIT {
             final JobReportingExpectation expectation = getExpectation(jobTaskId, status);
             publishAndVerify(taskMessage, jobTaskId, expectation);
         }
+    }
+
+    @Test
+    public void taskCollapseTest() throws SQLException {
+        String[] tasks={ "job.7*", "job.4.5", "job.1.3*", "job.1.2", "job.1.1"};
+        String[] expectedResult={"job.7*", "job.1","job.4.5"};
+        assertTrue(jobDatabase.taskCollapseTest(Arrays.asList(tasks), Arrays.asList(expectedResult)));
+
+
     }
 
     private JobReportingExpectation getExpectation(final String jobTaskId, final JobStatus status){

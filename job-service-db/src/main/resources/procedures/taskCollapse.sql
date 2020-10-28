@@ -38,12 +38,11 @@ DECLARE
     collapsed     VARCHAR   := '';
     backup        VARCHAR[] := '{}';
     modified      BOOLEAN   := true;
-    maxi          INTEGER   := 1000;
     regex_body    VARCHAR   := '.*(?=\.)\.'; -- takes everything up to the last dot
     regex_last_nb VARCHAR   := '([\d]+)\*?$';-- takes everything after the last dot, excluding the *
 
 BEGIN
-    -- tasks := array_agg(x ORDER BY x DESC) FROM unnest(tasks) x ;
+
     SELECT array(
                    SELECT id
                    FROM unnest(tasks) AS id
@@ -51,7 +50,6 @@ BEGIN
                             substring(id, regex_last_nb)::NUMERIC DESC
                )
     INTO tasks;
-    --RAISE NOTICE 'final_array %', CARDINALITY(final_array);
 
 
     -- we loop until the array stop being modified
@@ -135,8 +133,6 @@ BEGIN
 
                     END IF;
 
-                    -- safety to avoid infinite loop
-                    IF maxi = 0 THEN EXIT;ELSE maxi := maxi - 1; END IF;
 
                 END LOOP;
 

@@ -271,6 +271,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_test_task_collapse_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/testTaskCollapse.sql"
+                         procedureName="internal_test_task_collapse"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_update_job_progress_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/updateJobProgress.sql"
                          procedureName="internal_update_job_progress"
