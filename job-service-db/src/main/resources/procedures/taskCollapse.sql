@@ -20,7 +20,6 @@
  *  Description:
  *  Collapses tasks whenever possible
  */
-
 CREATE OR REPLACE FUNCTION task_collapse(tasks VARCHAR[])
     RETURNS VARCHAR[]
     LANGUAGE plpgsql
@@ -49,7 +48,7 @@ BEGIN
                    SELECT id
                    FROM unnest(tasks) AS id
                    ORDER BY substring(id, regex_body),
-                            substring(id, regex_last_nb)::INTEGER DESC
+                            substring(id, regex_last_nb)::NUMERIC DESC
                )
     INTO tasks;
     --RAISE NOTICE 'final_array %', CARDINALITY(final_array);
@@ -76,9 +75,6 @@ BEGIN
                     IF right(task, 1) = '*'
                         -- and the next one too
                         AND right(tasks[2], 1) != '*'
-                        -- and contains at least 2 '.'
-                        AND (array_length(string_to_array(task, '.'), 1) - 1) > 1
-
                     THEN
 
                         -- nb of related subtasks expected
