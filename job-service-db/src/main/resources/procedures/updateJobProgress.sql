@@ -64,7 +64,7 @@ BEGIN
     INTO subtask_array;
 
     -- collapsing whenever possible
-    select * from task_collapse(subtask_array) into subtask_array;
+    SELECT * FROM task_collapse(subtask_array) INTO subtask_array;
 
     -- Loop through subtask_array and update the job percentage_complete
     IF subtask_array IS NOT NULL THEN
