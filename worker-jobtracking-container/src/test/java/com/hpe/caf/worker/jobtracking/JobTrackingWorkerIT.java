@@ -50,10 +50,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -123,9 +123,8 @@ public class JobTrackingWorkerIT {
 
     @Test
     public void taskCollapseTest() throws SQLException {
-        String[] tasks={ "job.7*", "job.4.5", "job.1.3*", "job.1.2", "job.1.1"};
-        String[] expectedResult={"job.7*", "job.1","job.4.5"};
-        assertTrue(jobDatabase.taskCollapseTest(Arrays.asList(tasks), Arrays.asList(expectedResult)));
+
+        assertTrue(jobDatabase.taskCollapseTest());
 
 
     }

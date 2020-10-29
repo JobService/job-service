@@ -19,11 +19,9 @@
  *
  *  Description:
  *  Unit tests for test_task_collapse()
- *  That function contains a list of different tests but also
- *  can take some new inputs to be tested
  *
  */
-CREATE OR REPLACE FUNCTION internal_test_task_collapse(tasks VARCHAR[], processed_tasks VARCHAR[])
+CREATE OR REPLACE FUNCTION internal_test_task_collapse()
     RETURNS BOOLEAN
 
     LANGUAGE plpgsql
@@ -31,12 +29,8 @@ AS
 $$
 DECLARE
 BEGIN
-    -- here we can test any new input
-    IF task_collapse(tasks) !=
-       processed_tasks THEN RAISE NOTICE 'failure';
-        RETURN 'false';
 
-    ELSIF task_collapse(
+    IF task_collapse(
                   '{job.7*, job.1.5, job.4.5*, job.2.3*,  job.1.9, job.1.8, job.1.7, job.1.6,  job.1.4, job.1.3, job.1.10*,job.1.2,  job.1.1, job.2.2.2*, job.2.2.1, job.2.1}') !=
           '{job.7*, job.2, job.1,job.4.5*}' THEN
         RETURN 'false';
@@ -62,7 +56,7 @@ BEGIN
         RETURN 'false';
 
     ELSIF task_collapse(
-                  '{ job.88.8 ,job.88.10*, job.88.9,  job.89.8, job.88.7, job.88.6, job.88.5, job.88.4, job.88.3, ' ||
+                  '{ job.88.8 ,job.88.10*, job.88.9,  job.89.8, job.88.7, job.88.6, job.88.5, job.88.4, job.88.3, '
                   'job.88.2, job.88.1}') !=
           '{job.88, job.89.8}' THEN
         RETURN 'false';
@@ -82,17 +76,19 @@ BEGIN
           '{job.2.3.5.6.7.4.2.21.1.4.6.7.8.8.5.54.3.23.2.2.54.56.34.5.34.54.3.3.3.3}' THEN
         RETURN 'false';
 
-     /*TODO Complete tests
-    -- checking that we can handle large lists
-    ELSIF task_collapse('{ job.88.8 ,job.88.10*, job.88.9,  job.89.8,job.88.10*, job.88.7, job.88.6,' ||
-                        'job.88.8 ,job.88.10*, job.88.9,  job.89.8,job.88.10*, job.88.7, job.88.6,
-	job.88.5, job.88.4, job.88.3, job.88.2, job.88.1, job.89.8,job.88.10*, job.88.7, job.88.6}') !=
-          '{job.88, job.89.8}' THEN
-        RETURN 'false';
-*/
-    -- dealing with big numbers
+        -- dealing with big numbers
     ELSIF task_collapse('{  job.8.12345678901234568912, job.8.12345678901234568913* }') !=
-          '{ job.8.12345678901234568912, job.8.12345678901234568913* }' THEN RETURN 'false';
+          '{ job.8.12345678901234568913*, job.8.12345678901234568912}' THEN RETURN 'false';
+
+        /*TODO Complete tests
+       -- checking that we can handle large lists
+       ELSIF task_collapse('{ job.88.8 ,job.88.10*, job.88.9,  job.89.8,job.88.10*, job.88.7, job.88.6,' ||
+                           'job.88.8 ,job.88.10*, job.88.9,  job.89.8,job.88.10*, job.88.7, job.88.6,
+       job.88.5, job.88.4, job.88.3, job.88.2, job.88.1, job.89.8,job.88.10*, job.88.7, job.88.6}') !=
+             '{job.88, job.89.8}' THEN
+           RETURN 'false';
+   */
+
 
 
     END IF;

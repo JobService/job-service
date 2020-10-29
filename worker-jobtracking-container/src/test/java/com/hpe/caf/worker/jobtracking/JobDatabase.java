@@ -19,7 +19,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -27,7 +26,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.Instant;
-import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
@@ -105,14 +103,10 @@ public class JobDatabase {
      * We process the brut values with the function then compare the result against the expected result provided
      * And return a boolean (true if success, false otherwise)
      */
-    public boolean taskCollapseTest(List<String> initialTaskList, List<String> expectedTaskList ) throws SQLException {
+    public boolean taskCollapseTest( ) throws SQLException {
 
         try(Connection connection = getConnection();
-            CallableStatement stmt = connection.prepareCall("{call internal_test_task_collapse(?,?)}")) {
-            final Array taskIdsArray = connection.createArrayOf("varchar", initialTaskList.toArray());
-            final Array processedIdsArray = connection.createArrayOf("varchar", expectedTaskList.toArray());
-            stmt.setArray(1, taskIdsArray);
-            stmt.setArray(2, processedIdsArray);
+            CallableStatement stmt = connection.prepareCall("{call internal_test_task_collapse()}")) {
             LOG.info("Calling test_task_collapse for job task ");
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next(); // expect exactly 1 record
