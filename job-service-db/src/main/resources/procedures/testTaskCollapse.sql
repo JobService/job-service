@@ -89,11 +89,11 @@ BEGIN
 	job.88.5, job.88.4, job.88.3, job.88.2, job.88.1, job.89.8,job.88.10*, job.88.7, job.88.6}') !=
           '{job.88, job.89.8}' THEN
         RETURN 'false';
-
+*/
     -- dealing with big numbers
     ELSIF task_collapse('{  job.8.12345678901234568912, job.8.12345678901234568913* }') !=
           '{ job.8.12345678901234568912, job.8.12345678901234568913* }' THEN RETURN 'false';
-*/
+
 
     END IF;
 

@@ -28,7 +28,7 @@ $$
 DECLARE
     final_array   VARCHAR[] := '{}';
     task          VARCHAR;
-    last_nb       INTEGER   := 0;
+    last_nb       NUMERIC   := 0;
     body          VARCHAR   := '';
     counter       INTEGER   := 2;
     expected      VARCHAR;
@@ -76,7 +76,8 @@ BEGIN
                     THEN
 
                         -- nb of related subtasks expected
-                        last_nb := SUBSTRING(substr(task, 1, length(task) - 1), regex_last_nb)::INTEGER;
+                        RAISE NOTICE 'HERE';
+                        last_nb := SUBSTRING(substr(task, 1, length(task) - 1), regex_last_nb)::NUMERIC;
 
                         -- store the rest of the body
                         body := SUBSTRING(task, regex_body);
@@ -85,7 +86,6 @@ BEGIN
                         collapsed := left(body, -1);
 
                         WHILE (counter <= last_nb)
-
                             LOOP
                                 expected := concat(body, (last_nb + 1 - counter));
                                 currentT := tasks[counter];
