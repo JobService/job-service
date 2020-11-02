@@ -30,10 +30,6 @@ DECLARE
     task          VARCHAR;
     last_nb       NUMERIC   := 0;
     body          VARCHAR   := '';
-    counter       INTEGER   := 2;
-    expected      VARCHAR;
-    collapsing    BOOLEAN   := false;
-    currentT      VARCHAR;
     starting      INTEGER   := 1;
     collapsed     VARCHAR   := '';
     backup        VARCHAR[] := '{}';
@@ -51,6 +47,7 @@ BEGIN
                )
     INTO tasks;
 
+    IF (cardinality(tasks) = 1) THEN RETURN tasks; END IF;
 
     -- we loop until the array stop being modified
     WHILE (modified)
@@ -68,68 +65,41 @@ BEGIN
 
                     -- we store the first element of the array
                     task = tasks[1];
+                    body := SUBSTRING(task, regex_body);
+                    last_nb := SUBSTRING(substr(task, 1, length(task) - 1), regex_last_nb)::NUMERIC;
 
                     -- if the task ends with a *
                     IF right(task, 1) = '*'
                         -- and the next one too
                         AND right(tasks[2], 1) != '*'
+                        AND cardinality(tasks) > 1
+                        AND tasks[last_nb] != '<NULL>'
+                        AND tasks[last_nb] = concat(body, 1)
                     THEN
-
-                        -- nb of related subtasks expected
-                        RAISE NOTICE 'HERE';
-                        last_nb := SUBSTRING(substr(task, 1, length(task) - 1), regex_last_nb)::NUMERIC;
-
-                        -- store the rest of the body
-                        body := SUBSTRING(task, regex_body);
 
                         -- create the collapsing result (body - last '.')
                         collapsed := left(body, -1);
 
-                        WHILE (counter <= last_nb)
+                        -- add it directly into the final array
+                        final_array := array_append(final_array, collapsed);
+
+                        -- remove the other items from the array
+                        WHILE (starting <= last_nb)
                             LOOP
-                                expected := concat(body, (last_nb + 1 - counter));
-                                currentT := tasks[counter];
-                                IF (currentT != expected OR currentT IS NULL) THEN
+                                -- remove items from tasks
+                                tasks := array_remove(tasks, tasks[1]);
 
-                                    tasks = array_remove(tasks, task);
-
-                                    IF final_array[array_upper(final_array, 1)] IS NULL OR
-                                       final_array[array_upper(final_array, 1)] != currentT THEN
-                                        final_array := array_append(final_array, task);
-                                    END IF;
-                                    collapsing := false;
-                                    EXIT;
-
-                                ELSE
-                                    collapsing := true;
-                                END IF;
-
-                                counter := counter + 1;
+                                starting := starting + 1;
 
                             END LOOP;
 
-                        IF (collapsing) THEN
-                            WHILE (starting <= last_nb)
-                                LOOP
-
-                                    -- remove items from tasks
-                                    tasks := array_remove(tasks, tasks[1]);
-
-                                    starting := starting + 1;
-
-                                END LOOP;
-
-                            final_array := array_append(final_array, collapsed);
-
-                        END IF;
-                        counter := 2;
+                        -- reset last_nb and starting
                         last_nb := 0;
                         starting := 1;
 
                     ELSE
-
-                        tasks = array_remove(tasks, task);
                         final_array := array_append(final_array, task);
+                        tasks = array_remove(tasks, task);
 
                     END IF;
 

@@ -78,8 +78,8 @@ BEGIN
         RETURN 'false';
 
         -- dealing with big numbers
-    ELSIF task_collapse('{  job.8.12345678901234568912, job.8.12345678901234568913* }') !=
-          '{ job.8.12345678901234568913*, job.8.12345678901234568912}' THEN
+    ELSIF task_collapse('{  job.8.999999998, job.8.999999999* }') !=
+          '{ job.8.999999999*, job.8.999999998}' THEN
         RETURN 'false';
 
         -- checking that we can handle large lists (9580 items)
