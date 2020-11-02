@@ -22,7 +22,7 @@
  */
 CREATE OR REPLACE FUNCTION task_collapse(tasks VARCHAR[])
     RETURNS VARCHAR[]
-    LANGUAGE plpgsql
+    LANGUAGE plpgsql IMMUTABLE
 AS
 $$
 DECLARE
