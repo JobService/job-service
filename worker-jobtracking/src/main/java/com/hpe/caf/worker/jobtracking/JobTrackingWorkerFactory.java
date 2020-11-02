@@ -419,6 +419,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         // Configured to wait 10 seconds between two batches
         LOG.debug("Starting a bulk job...");
         final long maxBatchTime = JobTrackingWorkerUtil.getMaxBatchTime();
+        final long maxBatchSize = JobTrackingWorkerUtil.getMaxBatchSize();
         final long cutoffTime = System.currentTimeMillis() + maxBatchTime;
 
         // Create a collection to hold the completed tasks in the tracking report messages (i.e. those which have TrackingReportTask as
@@ -432,9 +433,10 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         for (;;) {
             final long maxWaitTime = cutoffTime - System.currentTimeMillis();
 
-            // If no more task coming in before maxWaitingTime, null is returned
+            // Returns null if no more task coming in before maxWaitingTime
+            // Breaks if bulkItemList reaches the max batch size
             final WorkerTask workerTask = bwr.getNextWorkerTask(maxWaitTime);
-            if (workerTask == null) {
+            if (workerTask == null || bulkItemList.size()>=maxBatchSize) {
                 break;
             }
 

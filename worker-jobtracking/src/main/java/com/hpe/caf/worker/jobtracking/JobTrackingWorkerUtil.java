@@ -101,6 +101,18 @@ public final class JobTrackingWorkerUtil
         return workerResult;
     }
 
+    public static long getMaxBatchSize()
+    {
+        final String maxBatchSize = System.getenv("CAF_WORKER_MAX_BATCH_SIZE");
+
+        // Default to 1000 if the environment variable is not present.
+        if (null == maxBatchSize) {
+            return 1000;
+        }
+
+        return Long.parseLong(maxBatchSize);
+    }
+
     public static long getMaxBatchTime()
     {
         final String maxBatchTime = System.getenv("CAF_WORKER_MAX_BATCH_TIME");
