@@ -461,6 +461,7 @@
                                     <CAF_RABBITMQ_PREFETCH_BUFFER>0</CAF_RABBITMQ_PREFETCH_BUFFER>
                                     <CAF_WORKER_RETRY_LIMIT>1</CAF_WORKER_RETRY_LIMIT>
                                     <CAF_WORKER_MAX_BATCH_TIME>1000</CAF_WORKER_MAX_BATCH_TIME>
+                                    <CAF_WORKER_MAX_BATCH_TIME>10000</CAF_WORKER_MAX_BATCH_TIME>
                                     <CAF_WORKER_THREADS>1</CAF_WORKER_THREADS>
                                     <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
