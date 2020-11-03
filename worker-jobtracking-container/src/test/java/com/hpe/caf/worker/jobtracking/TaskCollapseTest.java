@@ -87,15 +87,6 @@ public class TaskCollapseTest extends JobTrackingWorkerIT{
         assertTrue(checkIfMaxExecutionTimeRespected(maxExecutionTime+maxExecutionTime));// 10 seconds
     }
 
-    private void startExecutionTimer(){
-        start= System.currentTimeMillis();
-    }
-
-    private boolean checkIfMaxExecutionTimeRespected(long maxExecutionTime){
-        long executionTime = start+System.currentTimeMillis();
-        LOG.info("execution time: "+executionTime);
-        return executionTime < maxExecutionTime;
-    }
 
     private String[] buildArrayFromFile(String fileName){
         LOG.info("building array from file "+fileName);

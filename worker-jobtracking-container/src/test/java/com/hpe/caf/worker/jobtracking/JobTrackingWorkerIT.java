@@ -77,7 +77,7 @@ public class JobTrackingWorkerIT {
     private static RabbitWorkerQueueConfiguration rabbitConfiguration;
     private static String jobTrackingWorkerInputQueue;
     protected static JobDatabase jobDatabase;
-
+    private long start;
     private String defaultPartitionId;
 
 
@@ -425,5 +425,14 @@ public class JobTrackingWorkerIT {
                 contextMap,
                 exampleWorkerResponse.getQueueReference(),
                 taskMessage.getTracking());
+    }
+
+    protected void startExecutionTimer(){
+        start= System.currentTimeMillis();
+    }
+
+    protected boolean checkIfMaxExecutionTimeRespected(long maxExecutionTime){
+        long executionTime = start+System.currentTimeMillis();
+        return executionTime < maxExecutionTime;
     }
 }

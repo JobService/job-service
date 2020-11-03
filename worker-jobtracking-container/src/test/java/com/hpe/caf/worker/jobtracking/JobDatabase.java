@@ -19,14 +19,20 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
@@ -99,6 +105,38 @@ public class JobDatabase {
         return jobStatus;
     }
 
+    public List<DBJob> getJobs(final String partitionId) throws SQLException {
+        final List<DBJob> dbJobs = new ArrayList<>();
+        try (Connection connection = getConnection();
+             CallableStatement stmt = connection.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?,?)}")) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2, null);
+            stmt.setString(3, null);
+            stmt.setInt(4, 200); // in_limit
+            stmt.setInt(5, -1);
+            stmt.setString(6, null);
+            stmt.setString(7, null);
+            stmt.setBoolean(8, true);
+            stmt.setString(9, null);
+            stmt.setString(10, null);
+
+
+            LOG.info("Calling get_jobs for partition {}", partitionId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                final DBJob jobStatus = new DBJob();
+                rs.next(); // expect exactly 1 record
+
+                jobStatus.setJobId(rs.getString("job_id"));
+                jobStatus.setStatus(JobStatus.valueOf(rs.getString("status")));
+                jobStatus.setPercentageComplete(rs.getFloat("percentage_complete"));
+                jobStatus.setCreateDate(Instant.parse(rs.getString("create_date")));
+                jobStatus.setLastUpdateDate(Instant.parse(rs.getString("last_update_date")));
+                jobStatus.setFailureDetails(rs.getString("failure_details"));
+                dbJobs.add(jobStatus);
+            }
+        }
+        return dbJobs;
+    }
     /**
      * Takes in two arrays. The first has the brut values and the second, the expected result after processing
      * We process the brut values with the function then compare the result against the expected result provided
@@ -118,6 +156,39 @@ public class JobDatabase {
             }
         }
     }
+
+
+    protected void databaseFiller(String scriptFilePath) throws SQLException, IOException {
+        BufferedReader reader = null;
+        Statement statement = null;
+        final Connection connection=getConnection();
+        try {
+            // create statement object
+            statement = connection.createStatement();
+            // initialize file reader
+            reader = new BufferedReader(new FileReader(scriptFilePath));
+            String line = null;
+            // read script line by line
+            while ((line = reader.readLine()) != null) {
+                // execute query
+                statement.execute(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // close file reader
+            if (reader != null) {
+                reader.close();
+            }
+            // close db connection
+            if (connection != null) {
+                connection.close();
+            }
+        }
+    }
+
+
+
 
     public void verifyJobStatus(
         final String partitionId, String jobTaskId, JobReportingExpectation jobReportingExpectation
