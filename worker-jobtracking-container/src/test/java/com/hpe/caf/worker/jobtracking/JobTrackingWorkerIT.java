@@ -46,20 +46,18 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
-import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -78,7 +76,7 @@ public class JobTrackingWorkerIT {
     private static ConfigurationSource configurationSource;
     private static RabbitWorkerQueueConfiguration rabbitConfiguration;
     private static String jobTrackingWorkerInputQueue;
-    private static JobDatabase jobDatabase;
+    protected static JobDatabase jobDatabase;
 
     private String defaultPartitionId;
 
@@ -121,13 +119,6 @@ public class JobTrackingWorkerIT {
         }
     }
 
-    @Test
-    public void taskCollapseTest() throws SQLException {
-
-        assertTrue(jobDatabase.taskCollapseTest());
-
-
-    }
 
     private JobReportingExpectation getExpectation(final String jobTaskId, final JobStatus status){
         final int percentageCompleted = status.equals(JobStatus.Completed) ? 100 : 0;
