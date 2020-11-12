@@ -107,8 +107,8 @@
                                 </env>
                                 <wait>
                                     <log>PostgreSQL init process complete</log>
-                                    <time>120000</time>
-                                    <shutdown>500</shutdown>
+                                    <time>200000</time>
+                                    <shutdown>1000</shutdown>
                                 </wait>
                                 <log>
                                     <enabled>true</enabled>

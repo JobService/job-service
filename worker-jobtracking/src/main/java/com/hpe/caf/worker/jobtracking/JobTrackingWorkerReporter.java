@@ -142,6 +142,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
             throw new JobReportingException(
                 MessageFormat.format(FAILED_TO_REPORT_COMPLETION, jobTaskId, se.getMessage()), se);
         }
+
     }
 
     /**
@@ -169,8 +170,9 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 // Convert jobTaskIds into an Array to be passed into the statement
                 final Array jobIdsArray = conn.createArrayOf("varchar", jobTaskIds.toArray());
                 stmt.setArray(3, jobIdsArray);
-
-                return executeToJobDependencyList(stmt);
+                List<JobTrackingWorkerDependency> listToReturn= executeToJobDependencyList(stmt);
+                conn.close();
+                return listToReturn;
             }
         } catch (final SQLTransientException te) {
             throw new JobReportingTransientException(
