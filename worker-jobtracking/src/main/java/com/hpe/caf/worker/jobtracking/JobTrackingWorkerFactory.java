@@ -596,43 +596,39 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             try {
                 jobDependencyList = reporter.reportJobTasksComplete(jobId.getPartitionId(), jobId.getJobId(), taskIds);
             } catch (final JobReportingTransientException ex) {
-
+                // Respond that all tasks have failed in a transient manner and can be resent
                 List<CompletedWorkerTaskEntity> failedWorkerTasks = workerTaskEntities;
+                for (;;) {
+                    failedWorkerTasks.stream()
+                        .filter(CompletedWorkerTaskEntity::isFinalJob)
+                        .map(CompletedWorkerTaskEntity::getWorkerTask)
+                        .forEach(workerTask -> setWorkerResultTransientFailure(workerTask, ex.getMessage()));
 
-                    // Respond that all tasks have failed in a transient manner and can be resent
-                    for (;;) {
-                        failedWorkerTasks.stream()
-                                .filter(CompletedWorkerTaskEntity::isFinalJob)
-                                .map(CompletedWorkerTaskEntity::getWorkerTask)
-                                .forEach(workerTask -> setWorkerResultTransientFailure(workerTask, ex.getMessage()));
-                        if (!iterator.hasNext()) {
-                            return;
-                        }
-
-                        failedWorkerTasks = iterator.next().getValue();
+                    if (!iterator.hasNext()) {
+                        return;
                     }
 
-            }catch (final JobReportingException ex) {
+                    failedWorkerTasks = iterator.next().getValue();
+                }
+            } catch (final JobReportingException ex) {
                 // Serialize the exception to include it in the response message
                 final byte[] failureData = getFailureData(ex);
 
+                // Respond that all remaining tasks have failed
                 List<CompletedWorkerTaskEntity> failedWorkerTasks = workerTaskEntities;
+                for (;;) {
+                    failedWorkerTasks.stream()
+                        .filter(CompletedWorkerTaskEntity::isFinalJob)
+                        .map(CompletedWorkerTaskEntity::getWorkerTask)
+                        .forEach(workerTask -> setWorkerResultFailure(workerTask, failureData));
 
-                    // Respond that all remaining tasks have failed
-                    for (; ; ) {
-                        failedWorkerTasks.stream()
-                                .filter(CompletedWorkerTaskEntity::isFinalJob)
-                                .map(CompletedWorkerTaskEntity::getWorkerTask)
-                                .forEach(workerTask -> setWorkerResultFailure(workerTask, failureData));
-
-                        if (!iterator.hasNext()) {
-                            return;
-                        }
-
-                        failedWorkerTasks = iterator.next().getValue();
+                    if (!iterator.hasNext()) {
+                        return;
                     }
-                }
 
+                    failedWorkerTasks = iterator.next().getValue();
+                }
+            }
 
             // The database function may return dependencies that are now eligable to be started
             if (jobDependencyList != null && !jobDependencyList.isEmpty()) {
