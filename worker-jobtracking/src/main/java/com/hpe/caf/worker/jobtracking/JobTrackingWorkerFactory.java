@@ -680,7 +680,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         );
     }
 
-    private void setWorkerResultTransientFailure(final WorkerTask workerTask, final String failureData)
+    private static void setWorkerResultTransientFailure(final WorkerTask workerTask, final String failureData)
     {
         workerTask.setResponse(new TaskRejectedException(failureData));
     }
