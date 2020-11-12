@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -600,37 +601,23 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 final String failureMessage = ex.getMessage();
 
                 // Respond that all tasks have failed in a transient manner and can be re-sent
-                List<CompletedWorkerTaskEntity> failedWorkerTasks = workerTaskEntities;
-                for (;;) {
-                    failedWorkerTasks.stream()
-                        .filter(CompletedWorkerTaskEntity::isFinalJob)
-                        .map(CompletedWorkerTaskEntity::getWorkerTask)
-                        .forEach(workerTask -> setWorkerResultTransientFailure(workerTask, failureMessage));
+                failRemainingCompletedTrackingReports(
+                    workerTaskEntities,
+                    iterator,
+                    workerTask -> setWorkerResultTransientFailure(workerTask, failureMessage));
 
-                    if (!iterator.hasNext()) {
-                        return;
-                    }
-
-                    failedWorkerTasks = iterator.next().getValue();
-                }
+                return;
             } catch (final JobReportingException ex) {
                 // Serialize the exception to include it in the response message
                 final byte[] failureData = getFailureData(ex);
 
                 // Respond that all remaining tasks have failed
-                List<CompletedWorkerTaskEntity> failedWorkerTasks = workerTaskEntities;
-                for (;;) {
-                    failedWorkerTasks.stream()
-                        .filter(CompletedWorkerTaskEntity::isFinalJob)
-                        .map(CompletedWorkerTaskEntity::getWorkerTask)
-                        .forEach(workerTask -> setWorkerResultFailure(workerTask, failureData));
+                failRemainingCompletedTrackingReports(
+                    workerTaskEntities,
+                    iterator,
+                    workerTask -> setWorkerResultFailure(workerTask, failureData));
 
-                    if (!iterator.hasNext()) {
-                        return;
-                    }
-
-                    failedWorkerTasks = iterator.next().getValue();
-                }
+                return;
             }
 
             // The database function may return dependencies that are now eligable to be started
@@ -652,6 +639,33 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 .filter(CompletedWorkerTaskEntity::isFinalJob)
                 .map(CompletedWorkerTaskEntity::getWorkerTask)
                 .forEach(JobTrackingWorkerFactory::setWorkerResultSuccess);
+        }
+    }
+
+    /**
+     * Utility function to be used when there is a failure from the database.<br>
+     * Executes the specified failure action for the current tasks specified, and for all other tasks that can be retrieved from the
+     * iterator.
+     */
+    private static void failRemainingCompletedTrackingReports(
+        final List<CompletedWorkerTaskEntity> currentFailedWorkerTasks,
+        final Iterator<Map.Entry<FullyQualifiedJobId, List<CompletedWorkerTaskEntity>>> bulkItemListIterator,
+        final Consumer<WorkerTask> failureAction
+    )
+    {
+        List<CompletedWorkerTaskEntity> failedWorkerTasks = currentFailedWorkerTasks;
+
+        for (;;) {
+            failedWorkerTasks.stream()
+                .filter(CompletedWorkerTaskEntity::isFinalJob)
+                .map(CompletedWorkerTaskEntity::getWorkerTask)
+                .forEach(failureAction);
+
+            if (!bulkItemListIterator.hasNext()) {
+                return;
+            }
+
+            failedWorkerTasks = bulkItemListIterator.next().getValue();
         }
     }
 
