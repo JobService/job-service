@@ -596,13 +596,16 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             try {
                 jobDependencyList = reporter.reportJobTasksComplete(jobId.getPartitionId(), jobId.getJobId(), taskIds);
             } catch (final JobReportingTransientException ex) {
-                // Respond that all tasks have failed in a transient manner and can be resent
+                // Get the message to include in the transient response
+                final String failureMessage = ex.getMessage();
+
+                // Respond that all tasks have failed in a transient manner and can be re-sent
                 List<CompletedWorkerTaskEntity> failedWorkerTasks = workerTaskEntities;
                 for (;;) {
                     failedWorkerTasks.stream()
                         .filter(CompletedWorkerTaskEntity::isFinalJob)
                         .map(CompletedWorkerTaskEntity::getWorkerTask)
-                        .forEach(workerTask -> setWorkerResultTransientFailure(workerTask, ex.getMessage()));
+                        .forEach(workerTask -> setWorkerResultTransientFailure(workerTask, failureMessage));
 
                     if (!iterator.hasNext()) {
                         return;
