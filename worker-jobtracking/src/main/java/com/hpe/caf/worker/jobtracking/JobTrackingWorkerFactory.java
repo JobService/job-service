@@ -598,6 +598,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             } catch (final JobReportingTransientException ex) {
 
                 List<CompletedWorkerTaskEntity> failedWorkerTasks = workerTaskEntities;
+
                     // Respond that all tasks have failed in a transient manner and can be resent
                     for (;;) {
                         failedWorkerTasks.stream()
@@ -611,14 +612,11 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                         failedWorkerTasks = iterator.next().getValue();
                     }
 
-            }
-            catch (final JobReportingException ex) {
+            }catch (final JobReportingException ex) {
                 // Serialize the exception to include it in the response message
                 final byte[] failureData = getFailureData(ex);
 
                 List<CompletedWorkerTaskEntity> failedWorkerTasks = workerTaskEntities;
-
-
 
                     // Respond that all remaining tasks have failed
                     for (; ; ) {
@@ -630,8 +628,6 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                         if (!iterator.hasNext()) {
                             return;
                         }
-
-                        // TaskRejectedException
 
                         failedWorkerTasks = iterator.next().getValue();
                     }
