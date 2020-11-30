@@ -92,7 +92,10 @@ BEGIN
     -- Also accepts in_limit and in_offset params to support paging and limiting the number of rows returned.
     -- 'WORKER' is the only supported action type for now and this is returned.
     sql := $q$
-        SELECT job.job_id,
+        SELECT ROW_NUMBER() OVER (
+                ORDER BY job.job_id ASC
+               ) row_client,
+               job.job_id,
                job.name,
                job.description,
                job.data,
@@ -189,10 +192,8 @@ BEGIN
     -- Create temporary table as a base to update the job progress
     EXECUTE 'CREATE TEMPORARY TABLE get_job_temp ON COMMIT DROP AS ' || sql;
 
-    ALTER TABLE get_job_temp ADD COLUMN id SERIAL PRIMARY KEY;
-
     -- Create an array of job_id(s) based on the get_job_temp table
-    jobIdArray := ARRAY(SELECT DISTINCT (jt.job_id) FROM get_job_temp jt);
+    jobIdArray := ARRAY(SELECT DISTINCT (jt.job_id) FROM get_job_temp jt order by jt.job_id);
 
     -- Check that the array is not empty
     IF array_length(jobIdArray, 1) > 0 THEN
@@ -230,6 +231,6 @@ BEGIN
                at.label,
                at.value
         FROM get_job_temp at
-        ORDER BY at.id;
+        ORDER BY at.row_client;
 END
 $$;
