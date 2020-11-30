@@ -193,7 +193,7 @@ BEGIN
     EXECUTE 'CREATE TEMPORARY TABLE get_job_temp ON COMMIT DROP AS ' || sql;
 
     -- Create an array of job_id(s) based on the get_job_temp table
-    jobIdArray := ARRAY(SELECT DISTINCT (jt.job_id) FROM get_job_temp jt order by jt.job_id);
+    jobIdArray := ARRAY(SELECT DISTINCT (jt.job_id) FROM get_job_temp jt order by jt.job_id );
 
     -- Check that the array is not empty
     IF array_length(jobIdArray, 1) > 0 THEN
