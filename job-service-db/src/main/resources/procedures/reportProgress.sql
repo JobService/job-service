@@ -17,9 +17,51 @@
 /*
  *  Name: report_progress
  *
- *  REMOVED
+ *  Description:
+ *  Reports a task progress to the database
  */
 DROP FUNCTION IF EXISTS report_progress(
     in_task_id VARCHAR(58),
     in_status job_status
 );
+CREATE OR REPLACE PROCEDURE report_progress(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(58),
+    in_task_id VARCHAR(58),
+    in_task_completion DOUBLE PRECISION
+)
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    in_status job_status;
+BEGIN
+
+    -- Raise exception if the job identifier has not been specified
+    IF in_job_id IS NULL OR in_job_id = '' THEN
+        RAISE EXCEPTION 'Job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data
+    END IF;
+
+    -- Exit the procedure if task progress is 0
+    IF in_task_completion = 0
+        THEN RETURN;
+    END IF;
+
+    -- Take out an exclusive update lock on the job row
+    PERFORM NULL
+    FROM job j
+    WHERE j.partition_id = in_partition_id
+      AND j.job_id = in_job_id
+        FOR UPDATE;
+
+    IF in_task_completion = 100
+    THEN
+        in_status = 'Completed';
+    ELSE
+        in_status = 'Active';
+    END IF;
+
+    -- Process outstanding job updates
+    PERFORM internal_report_task_status(in_partition_id, in_task_id , in_status, in_task_completion, NULL);
+
+END
+$$;
