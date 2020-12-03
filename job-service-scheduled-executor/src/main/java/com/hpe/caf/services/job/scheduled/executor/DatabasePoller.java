@@ -84,6 +84,9 @@ public class DatabasePoller
                     try {
                         queueServices = QueueServicesFactory.create(jtd.getTaskPipe(),codec);
                         LOG.debug(MessageFormat.format("Sending task data to the target queue {0} ...", workerAction.toString()));
+                        if (jtd.getJobId().startsWith("TAG_rory")) {
+                            throw new RuntimeException("Rory testing SCMOD-10792");
+                        }
                         queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
                     } catch(final Exception ex) {
                         //  TODO - in future we need to consider consequence of reaching here as this means we have
