@@ -154,9 +154,6 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
                 final TrackingReportStatus trackingReportStatus = trackingReport.status;
 
                 final List<JobTrackingWorkerDependency> jobTaskCompletionDependencyList;
-                if(trackingReport.estimatedPercentageCompleted==100 && trackingReportStatus!= TrackingReportStatus.Complete){
-                    LOG.warn("The task estimatedPercentageCompleted is 100 but the status isn't Complete");
-                }
 
                 //  Check report update status.
                 if (trackingReportStatus == TrackingReportStatus.Complete) {
@@ -172,7 +169,7 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
                     }
                 } else if (trackingReportStatus == TrackingReportStatus.Progress) {
                     //  Job task is still in progress so flag as still active in the database.
-                    reportJobTaskAsInProgress(jobTaskId,trackingReport.estimatedPercentageCompleted);
+                    reportJobTaskAsInProgress(jobTaskId, trackingReport.estimatedPercentageCompleted);
                 } else if (trackingReportStatus == TrackingReportStatus.Failed) {
                     //  Job task has failed so flag as much in the database.
                     reportJobTaskAsRejected(trackingReport);

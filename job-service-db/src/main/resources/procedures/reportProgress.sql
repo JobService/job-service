@@ -34,36 +34,35 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     v_job_id VARCHAR(48);
-    v_status job_status:='Active';
+
 BEGIN
+    -- Raise exception if task identifier has not been specified
+    IF in_task_id IS NULL OR in_task_id = '' THEN
+        RAISE EXCEPTION 'Task identifier has not been specified';
+    END IF;
 
     -- Raise exception if task progress is < 0 or > 100
     IF in_percentage_complete < 0 OR in_percentage_complete > 100 THEN
         RAISE EXCEPTION 'Invalid in_percentage_complete %', in_percentage_complete USING ERRCODE = '22023'; -- invalid_parameter_value
     END IF;
 
-    -- Round down if 100 value passed in
-    IF in_percentage_complete = 100 THEN
-       in_percentage_complete=99.9;
-    END IF;
-
     -- Get the job id
     v_job_id = internal_get_job_id(in_task_id);
 
-    -- Raise exception if the job identifier has not been specified
-    IF v_job_id IS NULL OR v_job_id = '' THEN
-        RAISE EXCEPTION 'Invalid Job identifier' USING ERRCODE = '02000'; -- sqlstate no data
-    END IF;
-
-    -- Take out an exclusive update lock on the job row
-    PERFORM NULL
+    -- Get the job status
+    -- And take out an exclusive update lock on the job row
+    SELECT status INTO v_job_status
     FROM job j
     WHERE j.partition_id = in_partition_id
-      AND j.job_id = v_job_id
-        FOR UPDATE;
+        AND j.job_id = v_job_id
+    FOR UPDATE;
 
-    -- Process outstanding job updates
-    PERFORM internal_report_task_status(in_partition_id, in_task_id , v_status, in_percentage_complete, NULL);
+    -- Check that the job hasn't been deleted, cancelled or completed
+    IF NOT FOUND OR v_job_status IN ('Cancelled', 'Completed') THEN
+        RETURN;
+    END IF;
 
+    -- Update the task tables
+    PERFORM internal_report_task_status(in_partition_id, in_task_id, 'Active', LEAST(in_percentage_complete, 99.9), NULL);
 END
 $$;

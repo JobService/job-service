@@ -43,8 +43,8 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
     private static final String FAILED_TO_CONNECT = "Failed to connect to database {}. ";
     private static final String FAILED_TO_REPORT_COMPLETION = "Failed to report the completion of job task {0}. {1}";
-    private static final String FAILED_TO_REPORT_PROGRESS = "Failed to report the progress of job task {0}. {1} {2}";
     private static final String FAILED_TO_REPORT_COMPLETIONS = "Failed to report the completion of job tasks {0}. {1}";
+    private static final String FAILED_TO_REPORT_PROGRESS = "Failed to report the progress of job task {0}. {1} {2}";
     private static final String FAILED_TO_REPORT_REJECTION = "Failed to report the failure and rejection of job task {0}. {1}";
 
     private static final String POSTGRES_OPERATOR_FAILURE_CODE_PREFIX = "57";
@@ -100,50 +100,49 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     /**
      * Reports the percentage completed of the specified task id.
      *
-     * @param jobTaskId identifies the job task in progress
+     * @param jobTaskId identifies the job task whose progress is to be reported
      * @param estimatedPercentageCompleted an indication of progress on the job task
      * @throws JobReportingException if a failure occurs in connecting or reporting to a Job Database
      */
     @Override
     public void reportJobTaskProgress(final String jobTaskId, final int estimatedPercentageCompleted) throws JobReportingException
     {
-        final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskId);
-        final String partitionId = jobTaskIdObj.getPartitionId();
-        final String jobId = jobTaskIdObj.getJobId();
-        final String taskId = jobTaskIdObj.getId();
+        LOG.trace("Received progress update message for task {}; {}% complete", jobTaskId, estimatedPercentageCompleted);
 
-        LOG.trace("Received progress update message for task {} / {} .Progress: {};", taskId, partitionId, estimatedPercentageCompleted);
-
-        // End if estimatedPercentageCompleted = 0
-        if(estimatedPercentageCompleted==0)return;
-
-        // Throws exception if estimatedPercentageCompleted invalid
-        if(estimatedPercentageCompleted < 0 || estimatedPercentageCompleted > 100) {
-            throw new JobReportingException("Invalid estimatedPercentageCompleted "+estimatedPercentageCompleted);
+        // Check that the percentage complete is valid
+        if (estimatedPercentageCompleted < 0 || estimatedPercentageCompleted > 100) {
+            throw new JobReportingException("Invalid estimatedPercentageCompleted " + estimatedPercentageCompleted);
         }
 
+        // Discard zero progress reports
+        if (estimatedPercentageCompleted == 0) {
+            return;
+        }
+
+        final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskId);
+        final String partitionId = jobTaskIdObj.getPartitionId();
+        final String taskId = jobTaskIdObj.getId();
+
         try (final Connection conn = getConnection()) {
-            try (final CallableStatement stmt = conn.prepareCall("{call report_progress(?,?,?,?)}")) {
+            try (final CallableStatement stmt = conn.prepareCall("{call report_progress(?,?,?)}")) {
                 stmt.setString(1, partitionId);
-                stmt.setString(2, jobId);
-                stmt.setString(3, taskId);
-                stmt.setDouble(4, estimatedPercentageCompleted);
+                stmt.setString(2, taskId);
+                stmt.setDouble(3, estimatedPercentageCompleted);
 
                 stmt.execute();
             }
         } catch (final SQLTransientException te) {
             throw new JobReportingTransientException(
-                    MessageFormat.format(FAILED_TO_REPORT_PROGRESS, taskId, te.getMessage()), te);
+                MessageFormat.format(FAILED_TO_REPORT_PROGRESS, partitionId, taskId, te.getMessage()), te);
         } catch (final SQLException se) {
             if (isSqlStateIn(se, POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE,
-                    POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
+                             POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {
                 throw new JobReportingTransientException(
-                        MessageFormat.format(FAILED_TO_REPORT_PROGRESS, partitionId, taskId, se.getMessage()), se);
+                    MessageFormat.format(FAILED_TO_REPORT_PROGRESS, partitionId, taskId, se.getMessage()), se);
             }
             throw new JobReportingException(
-                    MessageFormat.format(FAILED_TO_REPORT_PROGRESS, partitionId, taskId, se.getMessage()), se);
+                MessageFormat.format(FAILED_TO_REPORT_PROGRESS, partitionId, taskId, se.getMessage()), se);
         }
-
     }
 
     /**
