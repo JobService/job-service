@@ -24,44 +24,46 @@ DROP FUNCTION IF EXISTS report_progress(
     in_task_id VARCHAR(58),
     in_status job_status
 );
-CREATE OR REPLACE PROCEDURE report_progress(
+CREATE OR REPLACE FUNCTION report_progress(
     in_partition_id VARCHAR(40),
-    in_job_id VARCHAR(58),
     in_task_id VARCHAR(58),
-    in_task_completion DOUBLE PRECISION
+    in_percentage_complete DOUBLE PRECISION
 )
-    LANGUAGE plpgsql
+RETURNS VOID
+LANGUAGE plpgsql
 AS $$
 DECLARE
-    in_status job_status;
+    v_job_id VARCHAR(48);
+    v_status job_status:='Active';
 BEGIN
 
-    -- Raise exception if the job identifier has not been specified
-    IF in_job_id IS NULL OR in_job_id = '' THEN
-        RAISE EXCEPTION 'Job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data
+    -- Raise exception if task progress is < 0 or > 100
+    IF in_percentage_complete < 0 OR in_percentage_complete > 100 THEN
+        RAISE EXCEPTION 'Invalid in_percentage_complete %', in_percentage_complete USING ERRCODE = '22023'; -- invalid_parameter_value
     END IF;
 
-    -- Exit the procedure if task progress is 0
-    IF in_task_completion = 0
-        THEN RETURN;
+    -- Round down if 100 value passed in
+    IF in_percentage_complete = 100 THEN
+       in_percentage_complete=99.9;
+    END IF;
+
+    -- Get the job id
+    v_job_id = internal_get_job_id(in_task_id);
+
+    -- Raise exception if the job identifier has not been specified
+    IF v_job_id IS NULL OR v_job_id = '' THEN
+        RAISE EXCEPTION 'Invalid Job identifier' USING ERRCODE = '02000'; -- sqlstate no data
     END IF;
 
     -- Take out an exclusive update lock on the job row
     PERFORM NULL
     FROM job j
     WHERE j.partition_id = in_partition_id
-      AND j.job_id = in_job_id
+      AND j.job_id = v_job_id
         FOR UPDATE;
 
-    IF in_task_completion = 100
-    THEN
-        in_status = 'Completed';
-    ELSE
-        in_status = 'Active';
-    END IF;
-
     -- Process outstanding job updates
-    PERFORM internal_report_task_status(in_partition_id, in_task_id , in_status, in_task_completion, NULL);
+    PERFORM internal_report_task_status(in_partition_id, in_task_id , v_status, in_percentage_complete, NULL);
 
 END
 $$;

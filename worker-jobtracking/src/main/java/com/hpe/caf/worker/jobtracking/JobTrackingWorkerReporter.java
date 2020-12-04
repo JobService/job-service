@@ -114,6 +114,14 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
         LOG.trace("Received progress update message for task {} / {} .Progress: {};", taskId, partitionId, estimatedPercentageCompleted);
 
+        // End if estimatedPercentageCompleted = 0
+        if(estimatedPercentageCompleted==0)return;
+
+        // Throws exception if estimatedPercentageCompleted invalid
+        if(estimatedPercentageCompleted < 0 || estimatedPercentageCompleted > 100) {
+            throw new JobReportingException("Invalid estimatedPercentageCompleted "+estimatedPercentageCompleted);
+        }
+
         try (final Connection conn = getConnection()) {
             try (final CallableStatement stmt = conn.prepareCall("{call report_progress(?,?,?,?)}")) {
                 stmt.setString(1, partitionId);
@@ -121,11 +129,11 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
                 stmt.setString(3, taskId);
                 stmt.setDouble(4, estimatedPercentageCompleted);
 
-                executeToJobDependencyList(stmt);
+                stmt.execute();
             }
         } catch (final SQLTransientException te) {
             throw new JobReportingTransientException(
-                    MessageFormat.format(FAILED_TO_REPORT_COMPLETION, taskId, te.getMessage()), te);
+                    MessageFormat.format(FAILED_TO_REPORT_PROGRESS, taskId, te.getMessage()), te);
         } catch (final SQLException se) {
             if (isSqlStateIn(se, POSTGRES_UNABLE_TO_EXECUTE_READ_ONLY_TRANSACTION_FAILURE_CODE,
                     POSTGRES_OPERATOR_FAILURE_CODE_PREFIX)) {

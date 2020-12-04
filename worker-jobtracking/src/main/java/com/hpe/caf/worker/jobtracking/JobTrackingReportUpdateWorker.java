@@ -154,6 +154,9 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
                 final TrackingReportStatus trackingReportStatus = trackingReport.status;
 
                 final List<JobTrackingWorkerDependency> jobTaskCompletionDependencyList;
+                if(trackingReport.estimatedPercentageCompleted==100 && trackingReportStatus!= TrackingReportStatus.Complete){
+                    LOG.warn("The task estimatedPercentageCompleted is 100 but the status isn't Complete");
+                }
 
                 //  Check report update status.
                 if (trackingReportStatus == TrackingReportStatus.Complete) {
