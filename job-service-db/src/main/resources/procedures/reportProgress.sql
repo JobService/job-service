@@ -34,6 +34,7 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     v_job_id VARCHAR(48);
+    v_job_status job_status;
 
 BEGIN
     -- Raise exception if task identifier has not been specified
@@ -52,9 +53,9 @@ BEGIN
     -- Get the job status
     -- And take out an exclusive update lock on the job row
     SELECT status INTO v_job_status
-    FROM job j
-    WHERE j.partition_id = in_partition_id
-        AND j.job_id = v_job_id
+    FROM job
+    WHERE partition_id = in_partition_id
+      AND job_id = v_job_id
     FOR UPDATE;
 
     -- Check that the job hasn't been deleted, cancelled or completed
