@@ -114,8 +114,7 @@ public class JobTrackingWorkerFactoryTest {
         }
         //Setup
         final Codec codec = new JsonCodec();
-        BulkWorkerRuntimeImplTest bwr = new BulkWorkerRuntimeImplTest();
-
+        final BulkWorkerRuntimeImplTest bwr = new BulkWorkerRuntimeImplTest();
         final JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
         final TrackingReportTask trackingReport = new TrackingReportTask();
         trackingReport.trackingReports = new ArrayList<>();
