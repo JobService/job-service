@@ -30,6 +30,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -40,6 +43,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
 
 /**
  * JUnit test to verify the worker correctly performs the desired action.
@@ -88,10 +92,33 @@ public class JobTrackingWorkerFactoryTest {
     @Test
     public void testTrackingReportTask() throws Exception
     {
+        final WorkerTask wtd = Mockito.mock(WorkerTask.class);
+        class BulkWorkerRuntimeImplTest implements BulkWorkerRuntime{
+            boolean over = false;
+
+            @Override
+            public WorkerTask getNextWorkerTask() {
+                if(!over){
+                    over=true;
+                    return wtd;
+                }
+                return null;
+            }
+
+            @Override
+            public WorkerTask getNextWorkerTask(long millis) throws InterruptedException {
+                if(!over){
+                    over=true;
+                    return wtd;
+                }
+                return null;
+            }
+        }
         //Setup
         final Codec codec = new JsonCodec();
+        BulkWorkerRuntimeImplTest bwr = new BulkWorkerRuntimeImplTest();
+
         final JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
-        final WorkerTaskData wtd = Mockito.mock(WorkerTaskData.class);
         final TrackingReportTask trackingReport = new TrackingReportTask();
         trackingReport.trackingReports = new ArrayList<>();
         int completedPercentage = 0;
@@ -113,15 +140,10 @@ public class JobTrackingWorkerFactoryTest {
 
         //Create the worker factory subject to testing
         final JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
+        workerFactory.processTasks(bwr);
 
-        //Test
-        final WorkerResponse response = workerFactory.getWorker(wtd).doWork();
-
-        assertEquals(TaskStatus.RESULT_SUCCESS, response.getTaskStatus());
-        assertEquals(1, response.getApiVersion());
-        assertEquals("JobTrackingWorker", response.getMessageType());
         verify(reporter, Mockito.times(3)).reportJobTaskProgress(eq(taskId), anyInt());
-        verify(reporter, Mockito.times(1)).reportJobTaskComplete(eq(taskId));
+        verify(reporter, Mockito.times(1)).reportJobTasksComplete(anyString(), anyString(), anyList());
     }
 
     @Test
