@@ -35,6 +35,7 @@ import com.hpe.caf.worker.testing.*;
 import com.hpe.caf.worker.tracking.report.TrackingReport;
 import com.hpe.caf.worker.tracking.report.TrackingReportStatus;
 import com.hpe.caf.worker.tracking.report.TrackingReportTask;
+import org.springframework.context.annotation.Description;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
@@ -42,8 +43,14 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
+
+import static java.lang.Math.round;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -104,6 +111,67 @@ public class JobTrackingWorkerIT {
             publishAndVerify(taskMessage, jobTaskId, expectation);
         }
     }
+
+    @Test
+    @Description("Report a task progression and update the job" +
+            "Prevent from reporting more than 99% completion")
+    public void testProgressReportingMessages() throws Exception
+    {
+        // Create job
+        final String jobTaskId = jobDatabase.createJobId();
+        jobDatabase.createJobTask(defaultPartitionId, jobTaskId, "");
+
+        // Validate Waiting status
+        DBJob job = jobDatabase.getJob(defaultPartitionId, jobTaskId);
+        assertEquals(JobStatus.Waiting, job.getStatus());
+
+        // Report the final task fully completed
+        final String finalTaskId = jobTaskId+".2*";
+        jobDatabase.reportTaskProgress(defaultPartitionId, finalTaskId, 100);
+
+        // Report the remaining task
+        final String remainingTaskId = jobTaskId+".1";
+        jobDatabase.reportTaskProgress(defaultPartitionId, remainingTaskId, 25);
+
+        // Check the progression
+        job = jobDatabase.getJob(defaultPartitionId, jobTaskId);
+        assertEquals(62, round(job.getPercentageComplete()));
+
+        // Check that reporting a 100 complete with that method blocks at 99
+        jobDatabase.reportTaskProgress(defaultPartitionId, remainingTaskId, 100);
+        job = jobDatabase.getJob(defaultPartitionId, jobTaskId);
+        assertEquals(99, (int)job.getPercentageComplete());
+        assertEquals(JobStatus.Active, job.getStatus());
+    }
+
+    @Test
+    @Description("Throws an exception if taskId is empty or null")
+    public void testProgressReportingMessagesEmptyTaskId() {
+        final Exception exception1 = assertThrows(SQLException.class,
+                ()->jobDatabase.reportTaskProgress(defaultPartitionId, "", 18));
+        final Exception exception2 = assertThrows(SQLException.class,
+                ()->jobDatabase.reportTaskProgress(defaultPartitionId, null, 18));
+
+        final String expectedMessage = "Task identifier has not been specified";
+
+        assertTrue(exception1.getMessage().contains(expectedMessage));
+        assertTrue(exception2.getMessage().contains(expectedMessage));
+    }
+
+    @Test
+    @Description("Throws an exception if percentage_complete is invalid")
+    public void testProgressReportingMessagesInvalidProgressionValue() {
+        final Exception exception1 = assertThrows(SQLException.class,
+                ()->jobDatabase.reportTaskProgress(defaultPartitionId, "fakeJob", -18));
+        final Exception exception2 = assertThrows(SQLException.class,
+                ()->jobDatabase.reportTaskProgress(defaultPartitionId, "fakeJob", 118));
+
+        final String expectedMessage = "Invalid in_percentage_complete";
+
+        assertTrue(exception1.getMessage().contains(expectedMessage));
+        assertTrue(exception2.getMessage().contains(expectedMessage));
+    }
+
 
     private JobReportingExpectation getExpectation(final String jobTaskId, final JobStatus status){
         final int percentageCompleted = status.equals(JobStatus.Completed) ? 100 : 0;
