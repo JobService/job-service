@@ -84,7 +84,7 @@ public class DatabasePoller
                     try {
                         queueServices = QueueServicesFactory.create(jtd.getTaskPipe(),codec);
                         LOG.debug(MessageFormat.format("Sending task data to the target queue {0} ...", workerAction.toString()));
-                        if (jtd.getJobId().startsWith("TAG_rory")) {
+                        if (jtd.getJobId().contains("xla")) {
                             throw new RuntimeException("Rory testing SCMOD-10792");
                         }
                         queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
