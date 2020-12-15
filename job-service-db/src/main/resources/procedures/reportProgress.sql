@@ -30,7 +30,7 @@ CREATE OR REPLACE FUNCTION report_progress(
     in_percentage_complete DOUBLE PRECISION
 )
 RETURNS VOID
-LANGUAGE plsql
+LANGUAGE plpgsql
 AS $$
 DECLARE
     v_job_id VARCHAR(48);
