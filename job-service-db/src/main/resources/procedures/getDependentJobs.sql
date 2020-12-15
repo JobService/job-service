@@ -58,10 +58,5 @@ BEGIN
     SELECT *
     FROM tmp_dependent_jobs;
 
-    -- Remove corresponding task data rows
-    DELETE FROM job_task_data jtd
-    USING tmp_dependent_jobs tdj
-    WHERE tdj.partition_id = jtd.partition_id
-        AND tdj.job_id = jtd.job_id;
 END
 $$;
