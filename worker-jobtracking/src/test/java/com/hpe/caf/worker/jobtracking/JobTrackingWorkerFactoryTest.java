@@ -26,19 +26,17 @@ import com.hpe.caf.worker.tracking.report.TrackingReportConstants;
 import com.hpe.caf.worker.tracking.report.TrackingReportStatus;
 import com.hpe.caf.worker.tracking.report.TrackingReportTask;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-
-import static junit.framework.TestCase.assertEquals;
-import static org.mockito.Mockito.verify;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Collections;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 
