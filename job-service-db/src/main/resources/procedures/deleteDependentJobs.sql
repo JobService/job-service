@@ -24,7 +24,7 @@ CREATE OR REPLACE FUNCTION delete_dependent_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48))
 RETURNS void
-LANGUAGE 'plpgsql'
+LANGUAGE plpgsql VOLATILE
 AS $$
 
 BEGIN
