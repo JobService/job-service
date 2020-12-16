@@ -21,14 +21,15 @@ package com.hpe.caf.worker.jobtracking;
 public class JobReportingExpectation {
     private String jobId;
     private JobStatus status;
-    private float percentageComplete;
+    private int percentageComplete;
     private boolean failureDetailsPresent;
     private boolean failureDetailsIdPresent;
     private boolean failureDetailsTimePresent;
     private boolean failureDetailsSourcePresent;
     private boolean failureDetailsMessagePresent;
 
-    public JobReportingExpectation(String jobId, JobStatus status, float percentageComplete, boolean failureDetailsPresent, boolean failureDetailsIdPresent, boolean failureDetailsTimePresent, boolean failureDetailsSourcePresent, boolean failureDetailsMessagePresent) {
+    public JobReportingExpectation(String jobId, JobStatus status, int percentageComplete, boolean failureDetailsPresent,
+            boolean failureDetailsIdPresent, boolean failureDetailsTimePresent, boolean failureDetailsSourcePresent, boolean failureDetailsMessagePresent) {
         this.jobId = jobId;
         this.status = status;
         this.percentageComplete = percentageComplete;
@@ -65,7 +66,7 @@ public class JobReportingExpectation {
     }
 
 
-    public void setPercentageComplete(float percentageComplete) {
+    public void setPercentageComplete(int percentageComplete) {
         this.percentageComplete = percentageComplete;
     }
 

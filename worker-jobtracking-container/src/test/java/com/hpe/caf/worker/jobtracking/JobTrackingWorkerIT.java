@@ -105,43 +105,28 @@ public class JobTrackingWorkerIT {
         jobDatabase.createJobTask(defaultPartitionId, jobTaskId, "testProxiedActiveMessage");
         for (int i = 0; i <= 4; i++) {
             final JobStatus status = i < 4 ? JobStatus.Waiting : JobStatus.Completed;
+            final int percentageCompleted = i < 4 ?  0 : 100;
             final TrackingReportStatus trackingReportStatus = i < 4 ? TrackingReportStatus.Progress : TrackingReportStatus.Complete;
-            final TaskMessage taskMessage = getExampleTrackingReportMessage(defaultPartitionId, jobTaskId, trackingReportStatus);
-            final JobReportingExpectation expectation = getExpectation(jobTaskId, status);
+            final TaskMessage taskMessage = getExampleTrackingReportMessage(defaultPartitionId, jobTaskId, trackingReportStatus,
+                    percentageCompleted);
+            final JobReportingExpectation expectation = getExpectation(jobTaskId, status, percentageCompleted);
             publishAndVerify(taskMessage, jobTaskId, expectation);
         }
     }
 
     @Test
-    @Description("Report a task progression and update the job" +
-            "Prevent from reporting more than 99% completion")
-    public void testProgressReportingMessages() throws Exception
+    public void testTrackingReportProgressTasks() throws Exception
     {
-        // Create job
         final String jobTaskId = jobDatabase.createJobId();
-        jobDatabase.createJobTask(defaultPartitionId, jobTaskId, "");
-
-        // Validate Waiting status
-        DBJob job = jobDatabase.getJob(defaultPartitionId, jobTaskId);
-        assertEquals(JobStatus.Waiting, job.getStatus());
-
-        // Report the final task fully completed
-        final String finalTaskId = jobTaskId+".2*";
-        jobDatabase.reportTaskProgress(defaultPartitionId, finalTaskId, 100);
-
-        // Report the remaining task
-        final String remainingTaskId = jobTaskId+".1";
-        jobDatabase.reportTaskProgress(defaultPartitionId, remainingTaskId, 25);
-
-        // Check the progression
-        job = jobDatabase.getJob(defaultPartitionId, jobTaskId);
-        assertEquals(62, round(job.getPercentageComplete()));
-
-        // Check that reporting a 100 complete with that method blocks at 99
-        jobDatabase.reportTaskProgress(defaultPartitionId, remainingTaskId, 100);
-        job = jobDatabase.getJob(defaultPartitionId, jobTaskId);
-        assertEquals(99, (int)job.getPercentageComplete());
-        assertEquals(JobStatus.Active, job.getStatus());
+        jobDatabase.createJobTask(defaultPartitionId, jobTaskId, "testProxiedActiveMessage");
+        for (int i = 0; i <= 4; i++) {
+            final JobStatus status = (i == 0) ? JobStatus.Waiting : JobStatus.Active;
+            final int percentageCompleted = ((25*i) == 100) ? 99 : (25*i);
+            final TaskMessage taskMessage = getExampleTrackingReportMessage(defaultPartitionId, jobTaskId,
+                    TrackingReportStatus.Progress, percentageCompleted);
+            final JobReportingExpectation expectation = getExpectation(jobTaskId, status, percentageCompleted);
+            publishAndVerify(taskMessage, jobTaskId, expectation);
+        }
     }
 
     @Test
@@ -173,8 +158,7 @@ public class JobTrackingWorkerIT {
     }
 
 
-    private JobReportingExpectation getExpectation(final String jobTaskId, final JobStatus status){
-        final int percentageCompleted = status.equals(JobStatus.Completed) ? 100 : 0;
+    private JobReportingExpectation getExpectation(final String jobTaskId, final JobStatus status, final int percentageCompleted){
         return new JobReportingExpectation(jobTaskId, status, percentageCompleted, false, false, false, false, false);
     }
 
@@ -418,13 +402,13 @@ public class JobTrackingWorkerIT {
     }
 
     private TaskMessage getExampleTrackingReportMessage(
-        final String partitionId, final String jobTaskId, final TrackingReportStatus status
+        final String partitionId, final String jobTaskId, final TrackingReportStatus status, final int percentageCompleted
     ) throws CodecException {
         final TrackingReportTask exampleTask = new TrackingReportTask();
         exampleTask.trackingReports = new ArrayList<>();
         final TrackingReport report = new TrackingReport();
         report.jobTaskId = new JobTaskId(partitionId, jobTaskId).getMessageId();
-        report.estimatedPercentageCompleted = status.equals(TrackingReportStatus.Complete) ? 100 : 0;
+        report.estimatedPercentageCompleted = percentageCompleted;
         report.failure = null;
         report.retries = null;
         report.status = status;
