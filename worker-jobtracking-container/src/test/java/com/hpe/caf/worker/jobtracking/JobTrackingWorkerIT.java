@@ -47,10 +47,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
-import static java.lang.Math.round;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -139,8 +136,8 @@ public class JobTrackingWorkerIT {
 
         final String expectedMessage = "Task identifier has not been specified";
 
-        assertTrue(exception1.getMessage().contains(expectedMessage));
-        assertTrue(exception2.getMessage().contains(expectedMessage));
+        Assert.assertTrue(exception1.getMessage().contains(expectedMessage));
+        Assert.assertTrue(exception2.getMessage().contains(expectedMessage));
     }
 
     @Test
@@ -153,8 +150,8 @@ public class JobTrackingWorkerIT {
 
         final String expectedMessage = "Invalid in_percentage_complete";
 
-        assertTrue(exception1.getMessage().contains(expectedMessage));
-        assertTrue(exception2.getMessage().contains(expectedMessage));
+        Assert.assertTrue(exception1.getMessage().contains(expectedMessage));
+        Assert.assertTrue(exception2.getMessage().contains(expectedMessage));
     }
 
 
