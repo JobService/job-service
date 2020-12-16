@@ -15,7 +15,7 @@
 --
 
 /*
- *  Name: delete_dependent_jobs
+ *  Name: delete_dependent_job
  *
  *  Description:
  *  Deletes dependent jobs related to a specific job
