@@ -31,12 +31,10 @@ RETURNS TABLE(
     task_pipe VARCHAR(255),
     target_pipe VARCHAR(255)
 )
-LANGUAGE plpgsql
+LANGUAGE plpgsql STABLE
 AS $$
 BEGIN
-    CREATE TEMPORARY TABLE tmp_dependent_jobs
-        ON COMMIT DROP
-    AS
+    RETURN QUERY
         SELECT
             jtd.partition_id,
             jtd.job_id,
@@ -52,11 +50,6 @@ BEGIN
             AND jtd.eligible_to_run_date IS NOT NULL
             AND jtd.eligible_to_run_date <= now() AT TIME ZONE 'UTC'  -- now eligible for running
             AND jd.job_id IS NULL;  -- no other dependencies to wait on
-
-    -- Get list of jobs that can now be run
-    RETURN QUERY
-    SELECT *
-    FROM tmp_dependent_jobs;
 
 END
 $$;

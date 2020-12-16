@@ -28,8 +28,8 @@ LANGUAGE plpgsql VOLATILE
 AS $$
 
 BEGIN
-	DELETE FROM job_task_data jtd
-	WHERE delete_dependent_job.partition_id = jtd.partition_id
-	AND delete_dependent_job.job_id = jtd.job_id;
+DELETE FROM job_task_data
+    WHERE in_partition_id = partition_id
+    AND in_job_id = job_id;
 END
 $$;
