@@ -49,7 +49,6 @@ import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertThrows;
 
-
 /**
  * Integration tests for Job Tracking Worker.
  */
