@@ -21,8 +21,8 @@
  *  Deletes dependent jobs related to a specific job
  */
 CREATE OR REPLACE FUNCTION delete_dependent_job(
-    partition_id varchar(40),
-    job_id varchar(48))
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48))
 RETURNS void
 LANGUAGE 'plpgsql'
 AS $$
