@@ -64,7 +64,7 @@
         </createProcedure>
     </changeSet>
     <changeSet id="create_delete_dependent_jobs_proc" runOnChange="true" author="Gamma Team">
-        <createProcedure path="procedures/deleteDependentJobs.sql"
+        <createProcedure path="procedures/deleteDependentJob.sql"
                          procedureName="delete_dependent_job"
                          schemaName="public">
         </createProcedure>
