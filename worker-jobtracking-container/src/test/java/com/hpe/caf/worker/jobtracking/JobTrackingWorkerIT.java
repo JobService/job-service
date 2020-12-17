@@ -114,7 +114,7 @@ public class JobTrackingWorkerIT {
     public void testTrackingReportProgressTasks() throws Exception
     {
         final String jobTaskId = jobDatabase.createJobId();
-        jobDatabase.createJobTask(defaultPartitionId, jobTaskId, "testProxiedActiveMessage");
+        jobDatabase.createJobTask(defaultPartitionId, jobTaskId, "testTrackingReportProgressTasks");
         for (int i = 0; i <= 4; i++) {
             final JobStatus status = (i == 0) ? JobStatus.Waiting : JobStatus.Active;
             final int percentageCompleted = ((25*i) == 100) ? 99 : (25*i);
