@@ -35,7 +35,6 @@ import com.hpe.caf.worker.testing.*;
 import com.hpe.caf.worker.tracking.report.TrackingReport;
 import com.hpe.caf.worker.tracking.report.TrackingReportStatus;
 import com.hpe.caf.worker.tracking.report.TrackingReportTask;
-import org.springframework.context.annotation.Description;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
@@ -102,14 +101,16 @@ public class JobTrackingWorkerIT {
         for (int i = 0; i <= 4; i++) {
             final JobStatus status;
             final int percentageCompleted;
+            final TrackingReportStatus trackingReportStatus;
             if (i < 4) {
                 status = JobStatus.Waiting;
                 percentageCompleted = 0;
+                trackingReportStatus = TrackingReportStatus.Progress;
             } else {
                 status = JobStatus.Completed;
                 percentageCompleted = 100;
+                trackingReportStatus = TrackingReportStatus.Complete;
             }
-            final TrackingReportStatus trackingReportStatus = i < 4 ? TrackingReportStatus.Progress : TrackingReportStatus.Complete;
             final TaskMessage taskMessage = getExampleTrackingReportMessage(defaultPartitionId, jobTaskId, trackingReportStatus,
                     percentageCompleted);
             final JobReportingExpectation expectation = getExpectation(jobTaskId, status, percentageCompleted);
@@ -117,6 +118,13 @@ public class JobTrackingWorkerIT {
         }
     }
 
+    /**
+     * Tests reporting of an in-progress task. This test creates a task suitable for input to the Job Tracking worker. The Job Tracking
+     * Worker should report the progress of this task to the Job Database, reporting it as active; the test verifies this by querying the
+     * database directly.
+     * The task is being sent containing a percentageCompleted value. If that value reaches 100 with a TrackingReportStatus as "Progress",
+     * the percentageCompleted is rounded down to 99 as only a TrackingReportStatus should report 100% completion
+     */
     @Test
     public void testTrackingReportProgressTasks() throws Exception
     {
@@ -132,8 +140,10 @@ public class JobTrackingWorkerIT {
         }
     }
 
+    /**
+     * Throws an exception if taskId is empty or null
+     */
     @Test
-    @Description("Throws an exception if taskId is empty or null")
     public void testProgressReportingMessagesEmptyTaskId() {
         final Exception exception1 = assertThrows(SQLException.class,
                 ()->jobDatabase.reportTaskProgress(defaultPartitionId, "", 18));
@@ -146,8 +156,10 @@ public class JobTrackingWorkerIT {
         Assert.assertTrue(exception2.getMessage().contains(expectedMessage));
     }
 
+    /**
+     * Throws an exception if percentage_complete is invalid
+     */
     @Test
-    @Description("Throws an exception if percentage_complete is invalid")
     public void testProgressReportingMessagesInvalidProgressionValue() {
         final Exception exception1 = assertThrows(SQLException.class,
                 ()->jobDatabase.reportTaskProgress(defaultPartitionId, "fakeJob", -18));
