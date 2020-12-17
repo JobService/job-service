@@ -42,9 +42,11 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
+import static org.junit.Assert.assertThrows;
 
 /**
  * Integration tests for Job Tracking Worker.
@@ -97,16 +99,81 @@ public class JobTrackingWorkerIT {
         final String jobTaskId = jobDatabase.createJobId();
         jobDatabase.createJobTask(defaultPartitionId, jobTaskId, "testProxiedActiveMessage");
         for (int i = 0; i <= 4; i++) {
-            final JobStatus status = i < 4 ? JobStatus.Waiting : JobStatus.Completed;
-            final TrackingReportStatus trackingReportStatus = i < 4 ? TrackingReportStatus.Progress : TrackingReportStatus.Complete;
-            final TaskMessage taskMessage = getExampleTrackingReportMessage(defaultPartitionId, jobTaskId, trackingReportStatus);
-            final JobReportingExpectation expectation = getExpectation(jobTaskId, status);
+            final JobStatus status;
+            final int percentageCompleted;
+            final TrackingReportStatus trackingReportStatus;
+            if (i < 4) {
+                status = JobStatus.Waiting;
+                percentageCompleted = 0;
+                trackingReportStatus = TrackingReportStatus.Progress;
+            } else {
+                status = JobStatus.Completed;
+                percentageCompleted = 100;
+                trackingReportStatus = TrackingReportStatus.Complete;
+            }
+            final TaskMessage taskMessage = getExampleTrackingReportMessage(defaultPartitionId, jobTaskId, trackingReportStatus,
+                    percentageCompleted);
+            final JobReportingExpectation expectation = getExpectation(jobTaskId, status, percentageCompleted);
             publishAndVerify(taskMessage, jobTaskId, expectation);
         }
     }
 
-    private JobReportingExpectation getExpectation(final String jobTaskId, final JobStatus status){
-        final int percentageCompleted = status.equals(JobStatus.Completed) ? 100 : 0;
+    /**
+     * Tests reporting of an in-progress task. This test creates a task suitable for input to the Job Tracking worker. The Job Tracking
+     * Worker should report the progress of this task to the Job Database, reporting it as active; the test verifies this by querying the
+     * database directly.
+     * The task is being sent containing a percentageCompleted value. If that value reaches 100 with a TrackingReportStatus as "Progress",
+     * the percentageCompleted is rounded down to 99 as only a TrackingReportStatus should report 100% completion
+     */
+    @Test
+    public void testTrackingReportProgressTasks() throws Exception
+    {
+        final String jobTaskId = jobDatabase.createJobId();
+        jobDatabase.createJobTask(defaultPartitionId, jobTaskId, "testTrackingReportProgressTasks");
+        for (int i = 0; i <= 4; i++) {
+            final JobStatus status = (i == 0) ? JobStatus.Waiting : JobStatus.Active;
+            final int percentageCompleted = ((25*i) == 100) ? 99 : (25*i);
+            final TaskMessage taskMessage = getExampleTrackingReportMessage(defaultPartitionId, jobTaskId,
+                    TrackingReportStatus.Progress, percentageCompleted);
+            final JobReportingExpectation expectation = getExpectation(jobTaskId, status, percentageCompleted);
+            publishAndVerify(taskMessage, jobTaskId, expectation);
+        }
+    }
+
+    /**
+     * Throws an exception if taskId is empty or null
+     */
+    @Test
+    public void testProgressReportingMessagesEmptyTaskId() {
+        final Exception exception1 = assertThrows(SQLException.class,
+                ()->jobDatabase.reportTaskProgress(defaultPartitionId, "", 18));
+        final Exception exception2 = assertThrows(SQLException.class,
+                ()->jobDatabase.reportTaskProgress(defaultPartitionId, null, 18));
+
+        final String expectedMessage = "Task identifier has not been specified";
+
+        Assert.assertTrue(exception1.getMessage().contains(expectedMessage));
+        Assert.assertTrue(exception2.getMessage().contains(expectedMessage));
+    }
+
+    /**
+     * Throws an exception if percentage_complete is invalid
+     */
+    @Test
+    public void testProgressReportingMessagesInvalidProgressionValue() {
+        final Exception exception1 = assertThrows(SQLException.class,
+                ()->jobDatabase.reportTaskProgress(defaultPartitionId, "fakeJob", -18));
+        final Exception exception2 = assertThrows(SQLException.class,
+                ()->jobDatabase.reportTaskProgress(defaultPartitionId, "fakeJob", 118));
+
+        final String expectedMessage = "Invalid in_percentage_complete";
+
+        Assert.assertTrue(exception1.getMessage().contains(expectedMessage));
+        Assert.assertTrue(exception2.getMessage().contains(expectedMessage));
+    }
+
+
+    private JobReportingExpectation getExpectation(final String jobTaskId, final JobStatus status, final int percentageCompleted){
         return new JobReportingExpectation(jobTaskId, status, percentageCompleted, false, false, false, false, false);
     }
 
@@ -350,13 +417,13 @@ public class JobTrackingWorkerIT {
     }
 
     private TaskMessage getExampleTrackingReportMessage(
-        final String partitionId, final String jobTaskId, final TrackingReportStatus status
+        final String partitionId, final String jobTaskId, final TrackingReportStatus status, final int percentageCompleted
     ) throws CodecException {
         final TrackingReportTask exampleTask = new TrackingReportTask();
         exampleTask.trackingReports = new ArrayList<>();
         final TrackingReport report = new TrackingReport();
         report.jobTaskId = new JobTaskId(partitionId, jobTaskId).getMessageId();
-        report.estimatedPercentageCompleted = status.equals(TrackingReportStatus.Complete) ? 100 : 0;
+        report.estimatedPercentageCompleted = percentageCompleted;
         report.failure = null;
         report.retries = null;
         report.status = status;
