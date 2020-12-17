@@ -100,8 +100,15 @@ public class JobTrackingWorkerIT {
         final String jobTaskId = jobDatabase.createJobId();
         jobDatabase.createJobTask(defaultPartitionId, jobTaskId, "testProxiedActiveMessage");
         for (int i = 0; i <= 4; i++) {
-            final JobStatus status = i < 4 ? JobStatus.Waiting : JobStatus.Completed;
-            final int percentageCompleted = i < 4 ?  0 : 100;
+            final JobStatus status;
+            final int percentageCompleted;
+            if (i < 4) {
+                status = JobStatus.Waiting;
+                percentageCompleted = 0;
+            } else {
+                status = JobStatus.Completed;
+                percentageCompleted = 100;
+            }
             final TrackingReportStatus trackingReportStatus = i < 4 ? TrackingReportStatus.Progress : TrackingReportStatus.Complete;
             final TaskMessage taskMessage = getExampleTrackingReportMessage(defaultPartitionId, jobTaskId, trackingReportStatus,
                     percentageCompleted);
