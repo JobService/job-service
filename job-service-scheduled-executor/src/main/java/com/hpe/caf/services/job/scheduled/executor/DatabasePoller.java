@@ -85,15 +85,17 @@ public class DatabasePoller
             QueueServices queueServices = null;
             try {
                 queueServices = QueueServicesFactory.create(jtd.getTaskPipe(), codec);
+
                 LOG.debug("Sending task data to the target queue {} ...", workerAction);
                 queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
+
                 deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
             } catch(final Exception ex) {
                 //  TODO - in future we need to consider consequence of reaching here as this means we have
                 //  deleted job_task_data rows from the database. For now we will log details as part of
                 //  failure details in the Job database row.
 
-                final String errorMessage = "Failed to add task data "+workerAction+" to the queue.";
+                final String errorMessage = MessageFormat.format("Failed to add task data {} to the queue.",workerAction);
                 final QueueFailure f = getQueueFailure(jtd, ex);
                 reportFailure(jtd, f);
 
