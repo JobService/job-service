@@ -37,8 +37,8 @@ public class ScheduledExecutor {
             try {
                 DatabasePoller.pollDatabaseForJobsToRun();
             } catch (final Throwable t ) {   // Catch Exceptions and Errors to prevent scheduler stoppage.
-                LOG.error("Caught exception while polling the Job Service database. Message:\n" + t.getMessage()
-                        + "StackTrace:\n" + Arrays.toString(t.getStackTrace()));
+                LOG.error("Caught exception while polling the Job Service database. Message:\n {}"
+                        + "StackTrace:\n{}",t.getMessage(), Arrays.toString(t.getStackTrace()));
             }
         };
 

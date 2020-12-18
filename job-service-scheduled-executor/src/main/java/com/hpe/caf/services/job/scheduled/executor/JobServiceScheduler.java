@@ -15,7 +15,6 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
-import com.hpe.caf.worker.document.exceptions.DocumentWorkerTransientException;
 import com.hpe.caf.worker.document.extensibility.DocumentWorker;
 import com.hpe.caf.worker.document.model.Document;
 import com.hpe.caf.worker.document.model.HealthMonitor;
@@ -39,7 +38,7 @@ public class JobServiceScheduler implements DocumentWorker
     }
 
     @Override
-    public void processDocument(Document document) throws InterruptedException, DocumentWorkerTransientException
+    public void processDocument(Document document)
     {
     }
 }

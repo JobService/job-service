@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
@@ -45,6 +44,25 @@ import java.util.concurrent.TimeoutException;
 public final class QueueServices
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
+
+    /**
+     * The QueueServiceException is a custom Runtime Exception for the QueueServices
+     */
+    private class QueueServiceException extends RuntimeException{
+        public QueueServiceException(String message) {
+            super(message);
+            LOG.error(message);
+        }
+
+        public QueueServiceException(String message, Throwable cause) {
+            super(message, cause);
+            LOG.error(message);
+        }
+
+        public QueueServiceException(Throwable cause) {
+            super(cause);
+        }
+    }
 
     private final Connection connection;
     private final Channel publisherChannel;
@@ -68,7 +86,7 @@ public final class QueueServices
      */
     public void sendMessage(
         final String partitionId, final String jobId, final WorkerAction workerAction
-    ) throws IOException, URISyntaxException {
+    ) throws IOException {
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
@@ -90,21 +108,18 @@ public final class QueueServices
                 taskData = Base64.decodeBase64(taskDataStr);
             } else {
                 final String errorMessage = "Unknown taskDataEncoding";
-                LOG.error(errorMessage);
-                throw new RuntimeException(errorMessage);
+                throw new QueueServiceException(errorMessage);
             }
         } else if (taskDataObj instanceof Map<?, ?>) {
             try {
                 taskData = codec.serialise(taskDataObj);
             } catch (final CodecException e) {
                 final String errorMessage = "Failed to serialise TaskData";
-                LOG.error(errorMessage);
-                throw new RuntimeException(errorMessage, e);
+                throw new QueueServiceException(errorMessage, e);
             }
         } else {
             final String errorMessage = "The taskData is an unexpected type";
-            LOG.error(errorMessage);
-            throw new RuntimeException(errorMessage);
+            throw new QueueServiceException(errorMessage);
         }
 
         //  Set up string for statusCheckUrl
@@ -137,8 +152,7 @@ public final class QueueServices
             LOG.debug("Serialise the task message ...");
             taskMessageBytes = codec.serialise(taskMessage);
         } catch (final CodecException e) {
-            LOG.error(e.getMessage());
-            throw new RuntimeException(e);
+            throw new QueueServiceException(e);
         }
 
         //  Send the message.
@@ -157,8 +171,7 @@ public final class QueueServices
             seconds = Long.parseLong(statusCheckTime);
         } catch (final NumberFormatException e) {
             final String errorMessage = "Please provide a valid integer for statusCheckTime in seconds. " + e;
-            LOG.error(errorMessage);
-            throw new RuntimeException(errorMessage);
+            throw new QueueServiceException(errorMessage);
         }
 
         //set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
@@ -171,7 +184,7 @@ public final class QueueServices
      * Closes the queue connection.
      * @throws Exception thrown if the queue connection cannot be closed.
      */
-    public void close() throws Exception {
+    public void close(){
         try {
             //  Close channel.
             if (publisherChannel != null) {
@@ -187,8 +200,7 @@ public final class QueueServices
 
         } catch (IOException | TimeoutException e) {
             final String errorMessage = "Failed to close the queuing connection.";
-            LOG.error(errorMessage);
-            throw new RuntimeException(errorMessage);
+            throw new QueueServiceException(errorMessage);
         }
     }
 

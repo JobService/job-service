@@ -18,12 +18,12 @@ package com.hpe.caf.services.job.scheduled.executor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.Codec;
-import com.hpe.caf.services.job.util.JobTaskId;
 import com.hpe.caf.util.ModuleLoader;
 import com.hpe.caf.util.ModuleLoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -51,8 +51,10 @@ public class DatabasePoller
 
     static {
         final String propDepJoFailures = System.getenv("CAF_JOB_SCHEDULER_PROPAGATE_FAILURES");
-        PROP_DEPENDENT_JOB_FAILURES = propDepJoFailures != null ? Boolean.parseBoolean(propDepJoFailures) : false;
+        PROP_DEPENDENT_JOB_FAILURES = Boolean.parseBoolean(propDepJoFailures);
     }
+
+    private DatabasePoller() {}
 
     public static void pollDatabaseForJobsToRun() {
         try {
@@ -61,73 +63,92 @@ public class DatabasePoller
             final List<JobTaskData> jobsToRun = getDependentJobsToRun();
 
             //  Determine if there are any jobs to run.
-            if (jobsToRun.size() > 0) {
+            if (!jobsToRun.isEmpty()) {
                 //  Load serialization class.
                 LOG.debug("Loading serialization class ...");
                 final Codec codec = ModuleLoader.getService(Codec.class);
-
-                //  For each job to run, submit message to the rabbitMQ queue for further processing.
-                for (final JobTaskData jtd : jobsToRun) {
-                    LOG.info(MessageFormat.format("Processing job id {0} ...", jtd.getJobId()));
-
-                    final WorkerAction workerAction = new WorkerAction();
-                    workerAction.setTaskClassifier(jtd.getTaskClassifier());
-                    workerAction.setTaskApiVersion(jtd.getTaskApiVersion());
-                    if (jtd.getTaskData() != null) {
-                        workerAction.setTaskData(new String(jtd.getTaskData(), StandardCharsets.UTF_8));
-                    }
-                    workerAction.setTaskPipe(jtd.getTaskPipe());
-                    workerAction.setTargetPipe(jtd.getTargetPipe());
-
-                    //  Get database helper instance.
-                    QueueServices queueServices = null;
-                    try {
-                        queueServices = QueueServicesFactory.create(jtd.getTaskPipe(),codec);
-                        LOG.debug(MessageFormat.format("Sending task data to the target queue {0} ...", workerAction.toString()));
-                        queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
-                        deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
-                    } catch(final Exception ex) {
-                        //  TODO - in future we need to consider consequence of reaching here as this means we have
-                        //  deleted job_task_data rows from the database. For now we will log details as part of
-                        //  failure details in the Job database row.
-
-                        final String errorMessage = MessageFormat.format("Failed to add task data {0} to the queue.", workerAction.toString());
-
-                        //  Failure adding job data to queue. Update the job with the failure details.
-                        final QueueFailure f = new QueueFailure();
-                        f.setFailureId("ADD_TO_QUEUE_FAILURE");
-                        f.setFailureTime(new Date());
-                        f.failureSource(MessageFormat.format("Job Service Scheduled Executor for job id {0}", jtd.getJobId()));
-                        f.failureMessage(ex.getMessage());
-
-                        final ObjectMapper mapper = new ObjectMapper();
-                        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                        mapper.setDateFormat(df);
-                        try {
-                            reportFailure(
-                                jtd.getPartitionId(), jtd.getJobId(), mapper.writeValueAsString(f));
-                        } catch (final JsonProcessingException e) {
-                            LOG.error("Failed to serialize the failure details.");
-                        }
-
-                        LOG.error(errorMessage);
-                        throw new ScheduledExecutorException(errorMessage);
-                    } finally {
-                        if (queueServices != null) {
-                            try {
-                                queueServices.close();
-                            } catch (final Exception e) {
-                                throw new ScheduledExecutorException(e.getMessage());
-                            }
-                        }
-                    }
-                }
+                submitMessageToRabbitMQ(jobsToRun, codec);
             }
         } catch (final ScheduledExecutorException e) {
             LOG.error(MessageFormat.format("Exception caught polling the Job Service database for jobs to run. {0}", e.getMessage()));
         } catch (final ModuleLoaderException e) {
             LOG.error(MessageFormat.format("Exception caught when loading the serialization class. {0}", e.getMessage()));
         }
+    }
+
+    private static void submitMessageToRabbitMQ(final List<JobTaskData> jobsToRun, final Codec codec) throws ScheduledExecutorException {
+        //  For each job to run, submit message to the rabbitMQ queue for further processing.
+        for (final JobTaskData jtd : jobsToRun) {
+            LOG.info("Processing job id {} ...", jtd.getJobId());
+            final WorkerAction workerAction = getWorkerAction(jtd);
+            //  Get database helper instance.
+            QueueServices queueServices = null;
+            try {
+                queueServices = QueueServicesFactory.create(jtd.getTaskPipe(), codec);
+                LOG.debug("Sending task data to the target queue {} ...", workerAction);
+                queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
+                deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
+            } catch(final Exception ex) {
+                //  TODO - in future we need to consider consequence of reaching here as this means we have
+                //  deleted job_task_data rows from the database. For now we will log details as part of
+                //  failure details in the Job database row.
+
+                final String errorMessage = "Failed to add task data "+workerAction+" to the queue.";
+                final QueueFailure f = getQueueFailure(jtd, ex);
+                reportFailure(jtd, f);
+
+                LOG.error(errorMessage);
+                throw new ScheduledExecutorException(errorMessage);
+            } finally {
+                closeQueueServices(queueServices);
+            }
+        }
+    }
+
+    private static void closeQueueServices(final QueueServices queueServices) throws ScheduledExecutorException {
+        if (queueServices != null) {
+            try {
+                queueServices.close();
+            } catch (final Exception e) {
+                throw new ScheduledExecutorException(e.getMessage());
+            }
+        }
+    }
+
+    private static void reportFailure(final JobTaskData jtd, final QueueFailure f) throws ScheduledExecutorException {
+        final ObjectMapper mapper = new ObjectMapper();
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        mapper.setDateFormat(df);
+        try {
+            reportFailure(
+                jtd.getPartitionId(), jtd.getJobId(), mapper.writeValueAsString(f));
+        } catch (final JsonProcessingException e) {
+            LOG.error("Failed to serialize the failure details.");
+        }
+    }
+
+    @NotNull
+    private static QueueFailure getQueueFailure(final JobTaskData jtd, final Exception ex) {
+        //  Failure adding job data to queue. Update the job with the failure details.
+        final QueueFailure f = new QueueFailure();
+        f.setFailureId("ADD_TO_QUEUE_FAILURE");
+        f.setFailureTime(new Date());
+        f.failureSource(MessageFormat.format("Job Service Scheduled Executor for job id {0}", jtd.getJobId()));
+        f.failureMessage(ex.getMessage());
+        return f;
+    }
+
+    @NotNull
+    private static WorkerAction getWorkerAction(final JobTaskData jtd) {
+        final WorkerAction workerAction = new WorkerAction();
+        workerAction.setTaskClassifier(jtd.getTaskClassifier());
+        workerAction.setTaskApiVersion(jtd.getTaskApiVersion());
+        if (jtd.getTaskData() != null) {
+            workerAction.setTaskData(new String(jtd.getTaskData(), StandardCharsets.UTF_8));
+        }
+        workerAction.setTaskPipe(jtd.getTaskPipe());
+        workerAction.setTargetPipe(jtd.getTargetPipe());
+        return workerAction;
     }
 
     /**
@@ -140,10 +161,10 @@ public class DatabasePoller
                 CallableStatement stmt = connection.prepareCall("{call delete_dependent_job(?,?)}")) {
             stmt.setString(1, partitionId);
             stmt.setString(2, jobId);
-            LOG.info(MessageFormat.format("Calling delete_dependent_job({0},{1}) database function ...", partitionId, jobId));
+            LOG.info("Calling delete_dependent_job({},{}) database function ...", partitionId, jobId);
             stmt.execute();
         } catch (final SQLException e) {
-            final String errorMessage = MessageFormat.format("Failed in call to delete_dependent_job({0},{1}) database function.{3}",
+            final String errorMessage = MessageFormat.format("Failed in call to delete_dependent_job({},{}) database function.{}",
                     partitionId, jobId,e.getMessage());
             LOG.error(errorMessage);
             throw new ScheduledExecutorException(errorMessage);
@@ -235,7 +256,6 @@ public class DatabasePoller
 
         try {
             LOG.debug("Registering JDBC driver \"{}\" ...", JDBC_DRIVER);
-            Class.forName(JDBC_DRIVER);
         } catch (final Exception e){
             final String errorMessage = MessageFormat.format("Failed to register JDBC driver \"{0}\". {1}.", JDBC_DRIVER, e.getMessage());
             LOG.error(errorMessage);
@@ -248,7 +268,7 @@ public class DatabasePoller
             myProp.put("user", dbUser);
             myProp.put("password", dbPass);
             myProp.put("ApplicationName", appName);
-            LOG.debug(MessageFormat.format("Connecting to database {0} with username {1} and password {2} ...", databaseUrl, dbUser, dbPass));
+            LOG.debug("Connecting to database {} with username {} and password {} ...", databaseUrl, dbUser, dbPass);
             conn = DriverManager.getConnection(databaseUrl, myProp);
             LOG.debug("Connected to database.");
         } catch (final SQLException se) {
