@@ -46,6 +46,7 @@ public final class QueueServicesFactory
         //  Create connection and channel for publishing messages.
         LOG.debug("Creating connection ...");
         final Connection connection = createConnection();
+
         LOG.debug("Creating channel ...");
         final Channel publishChannel = connection.createChannel();
 
