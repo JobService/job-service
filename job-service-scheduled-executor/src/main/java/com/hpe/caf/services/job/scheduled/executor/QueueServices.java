@@ -27,7 +27,7 @@ import com.rabbitmq.client.MessageProperties;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -48,7 +48,7 @@ public final class QueueServices
     /**
      * The QueueServiceException is a custom Runtime Exception for the QueueServices
      */
-    private class QueueServiceException extends RuntimeException{
+    private static class QueueServiceException extends RuntimeException{
         public QueueServiceException(String message) {
             super(message);
             LOG.error(message);
@@ -58,10 +58,6 @@ public final class QueueServices
             super(message, cause);
             LOG.error(message);
         }
-
-        public QueueServiceException(Throwable cause) {
-            super(cause);
-    }
     }
 
     private final Connection connection;
@@ -91,13 +87,67 @@ public final class QueueServices
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
 
+        LOG.debug("extract and validate WorkerAction task data");
+        final byte[] taskData = extractTaskDataFromWorkerActionAndValidate(workerAction);
+
+        final String statusCheckUrl = setupStringForStatusCheckUrl(partitionId, jobId);
+
+        LOG.debug("Constructing the task message ...");
+        final TaskMessage taskMessage = generateTaskMessage(partitionId, jobId, workerAction, taskId, taskData, statusCheckUrl);
+
+        LOG.debug("Serialize task Message");
+        final byte[] taskMessageBytes = serializeTaskMessage(taskMessage);
+
+        //  Send the message.
+        LOG.debug("Publishing the message ...");
+        publisherChannel.basicPublish(
+                "", targetQueue, MessageProperties.TEXT_PLAIN, taskMessageBytes);
+    }
+
+    @NotNull
+    private TaskMessage generateTaskMessage(final String partitionId, final String jobId, final WorkerAction workerAction, final String taskId,
+            final byte[] taskData, final String statusCheckUrl) {
+        final TrackingInfo trackingInfo = new TrackingInfo(
+                new JobTaskId(partitionId, jobId).getMessageId(),
+                calculateStatusCheckDate(ScheduledExecutorConfig.getStatusCheckTime()),
+                statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
+
+        return new TaskMessage(
+                taskId,
+                workerAction.getTaskClassifier(),
+                workerAction.getTaskApiVersion(),
+                taskData,
+                TaskStatus.NEW_TASK,
+                Collections.emptyMap(),
+                targetQueue,
+                trackingInfo);
+    }
+
+    private byte[] serializeTaskMessage(final TaskMessage taskMessage) {
+        //  Wrap any CodecException as a RuntimeException as it shouldn't happen
+        try {
+            LOG.debug("Serialize the task message ...");
+            return codec.serialise(taskMessage);
+        } catch (final CodecException e) {
+            throw new QueueServiceException("There was an issue with the codec", e);
+        }
+    }
+
+    private String setupStringForStatusCheckUrl(final String partitionId, final String jobId) {
+        return UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
+            .path("partitions").path(partitionId)
+            .path("jobs").path(jobId)
+            .path("isActive").build().toString();
+    }
+
+    private byte[] extractTaskDataFromWorkerActionAndValidate(final WorkerAction workerAction) {
         //  Serialise the data payload. Encoding type is provided in the WorkerAction.
         final byte[] taskData;
 
         //  Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
         LOG.debug("Validating the task data ...");
         final Object taskDataObj = workerAction.getTaskData();
-        
+
         if (taskDataObj instanceof String) {
             final String taskDataStr = (String) taskDataObj;
             final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
@@ -121,44 +171,7 @@ public final class QueueServices
             final String errorMessage = "The taskData is an unexpected type";
             throw new QueueServiceException(errorMessage);
         }
-
-        //  Set up string for statusCheckUrl
-        final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
-            .path("partitions").path(partitionId)
-            .path("jobs").path(jobId)
-            .path("isActive").build().toString();
-
-        //  Construct the task message.
-        LOG.debug("Constructing the task message ...");
-        final TrackingInfo trackingInfo = new TrackingInfo(
-                new JobTaskId(partitionId, jobId).getMessageId(),
-                calculateStatusCheckDate(ScheduledExecutorConfig.getStatusCheckTime()),
-                statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
-
-        final TaskMessage taskMessage = new TaskMessage(
-                taskId,
-                workerAction.getTaskClassifier(),
-                workerAction.getTaskApiVersion(),
-                taskData,
-                TaskStatus.NEW_TASK,
-                Collections.<String, byte[]>emptyMap(),
-                targetQueue,
-                trackingInfo);
-
-        //  Serialise the task message.
-        //  Wrap any CodecException as a RuntimeException as it shouldn't happen
-        final byte[] taskMessageBytes;
-        try {
-            LOG.debug("Serialise the task message ...");
-            taskMessageBytes = codec.serialise(taskMessage);
-        } catch (final CodecException e) {
-            throw new QueueServiceException(e);
-        }
-
-        //  Send the message.
-        LOG.debug("Publishing the message ...");
-        publisherChannel.basicPublish(
-                "", targetQueue, MessageProperties.TEXT_PLAIN, taskMessageBytes);
+        return taskData;
     }
 
     /**
@@ -181,8 +194,8 @@ public final class QueueServices
     }
 
     /**
-     * Closes the queue connection.
-     * @throws Exception thrown if the queue connection cannot be closed.
+     * Closes the publisherChannel and the connection.
+     * @throws QueueServiceException thrown if the queue connection cannot be closed.
      */
     public void close(){
         try {
@@ -198,7 +211,7 @@ public final class QueueServices
                 connection.close();
             }
 
-        } catch (IOException | TimeoutException e) {
+        } catch (final IOException | TimeoutException e) {
             final String errorMessage = "Failed to close the queuing connection.";
             throw new QueueServiceException(errorMessage);
         }
