@@ -35,7 +35,6 @@ public class JobTaskData
     private byte[] taskData;
     @NotNull
     private String taskPipe;
-    @NotNull
     private String targetPipe;
 
     public String getPartitionId() {
