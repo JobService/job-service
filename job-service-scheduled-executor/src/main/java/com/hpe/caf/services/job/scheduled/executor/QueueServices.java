@@ -61,7 +61,7 @@ public final class QueueServices
 
         public QueueServiceException(Throwable cause) {
             super(cause);
-        }
+    }
     }
 
     private final Connection connection;
