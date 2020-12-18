@@ -173,26 +173,7 @@ public class DatabasePoller
             throw new ScheduledExecutorException(errorMessage);
         }
     }
-
-    /**
-     * Deletes the supplied job from the job_task_data database table.
-     */
-    private static void deleteDependentJob(final String partitionId, final String jobId) throws ScheduledExecutorException
-    {
-        try (
-                Connection connection = getConnection();
-                CallableStatement stmt = connection.prepareCall("{call delete_dependent_job(?,?)}")) {
-            stmt.setString(1, partitionId);
-            stmt.setString(2, jobId);
-            LOG.info(MessageFormat.format("Calling delete_dependent_job({0},{1}) database function ...", partitionId, jobId));
-            stmt.execute();
-        } catch (final SQLException e) {
-            final String errorMessage = MessageFormat.format("Failed in call to delete_dependent_job({0},{1}) database function.{3}",
-                    partitionId, jobId,e.getMessage());
-            LOG.error(errorMessage);
-            throw new ScheduledExecutorException(errorMessage);
-        }
-    }
+    
 
     /**
      * Returns a list of dependent jobs that are now available to run.
