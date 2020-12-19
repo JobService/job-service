@@ -546,7 +546,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             Collections.singletonList(new CompletedWorkerTaskEntity(workerTask, taskIds, isFinalJob)),
             (existingList, newList) -> {
                 // Assert that the existing list contains elements
-                assert (existingList != null && !existingList.isEmpty());
+                assert !existingList.isEmpty();
 
                 // Assert that the new list contains only one element (since it was created using singletonList)
                 assert (newList != null && newList.size() == 1);
