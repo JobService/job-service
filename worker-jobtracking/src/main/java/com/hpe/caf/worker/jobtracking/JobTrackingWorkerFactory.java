@@ -181,7 +181,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             }
 
             final Set<ConstraintViolation<T>> violations = validator.validate(jobTrackingWorkerTask);
-            if (violations.size() > 0) {
+            if (!violations.isEmpty()) {
                 LOG.error("Task of type {} failed validation due to: {}", taskType.getSimpleName(), violations);
                 throw new InvalidTaskException("Task failed validation");
             }
