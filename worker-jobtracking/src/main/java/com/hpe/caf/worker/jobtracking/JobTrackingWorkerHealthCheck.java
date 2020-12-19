@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JobTrackingWorkerHealthCheck implements HealthReporter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerHealthCheck.class);
 
     private final JobTrackingReporter reporter;
 
