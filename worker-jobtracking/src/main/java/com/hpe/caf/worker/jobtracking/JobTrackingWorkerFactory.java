@@ -279,74 +279,102 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                                                                 final Map<String, Object> headers) {
         try {
             final TrackingInfo tracking = proxiedTaskMessage.getTracking();
-            if (tracking == null) {
-                LOG.warn("Cannot report job task progress for task {} - the task message has no tracking info", proxiedTaskMessage.getTaskId());
-                return Collections.emptyList();
-            }
+            final String jobTaskId = tracking.getJobTaskId();
 
-            String jobTaskId = tracking.getJobTaskId();
-            if (jobTaskId == null) {
-                LOG.warn("Cannot report job task progress for task {} - the tracking info has no jobTaskId", proxiedTaskMessage.getTaskId());
-                return Collections.emptyList();
-            }
+            // return an empty list if tracking or jobTaskId is null
+            if(isTrackingOrJobTaskIdNull(proxiedTaskMessage)) return Collections.emptyList();
 
             final TaskStatus taskStatus = proxiedTaskMessage.getTaskStatus();
+
+            // Report JobComplete or in progress if task correctly performed (New_TASK, RESULT_SUCCESS or RESULT_FAILURE)
             if (taskStatus == TaskStatus.NEW_TASK || taskStatus == TaskStatus.RESULT_SUCCESS || taskStatus == TaskStatus.RESULT_FAILURE) {
-                final String trackToPipe = tracking.getTrackTo();
-                final String toPipe = proxiedTaskMessage.getTo();
-
-                if ((toPipe == null && trackToPipe == null) || (trackToPipe != null && trackToPipe.equalsIgnoreCase(toPipe))) {
-                    // Now returns a JobTrackingWorkerDependency[].  This ResultSet may or may not contain a list of dependent job info.
-                    return reporter.reportJobTaskComplete(jobTaskId);
-                } else {
-                    //TODO - FUTURE: supply an accurate estimatedPercentageCompleted
-                    reporter.reportJobTaskProgress(jobTaskId, 0);
-                    return Collections.emptyList();
-                }
+                return reportJobCompleteOrInProgress(proxiedTaskMessage, jobTaskId);
             }
 
+            // Report JobRejected if any issue (RESULT_EXCEPTION or INVALID_TASK)
             if (taskStatus == TaskStatus.RESULT_EXCEPTION || taskStatus == TaskStatus.INVALID_TASK) {
-
-                //  Failed to execute job task.
-                JobTrackingWorkerFailure f = new JobTrackingWorkerFailure();
-                f.setFailureId(taskStatus.toString());
-                f.setFailureTime(new Date());
-                f.setFailureSource(getWorkerName(proxiedTaskMessage));
-
-                final byte[] taskData = proxiedTaskMessage.getTaskData();
-                if (taskData != null) {
-                    f.setFailureMessage(new String(taskData, StandardCharsets.UTF_8));
-                }
-
-                reporter.reportJobTaskRejected(jobTaskId, f);
-
-                return Collections.emptyList();
+                return reportJobRejected(proxiedTaskMessage, taskStatus);
             }
 
-            boolean rejected = headers.getOrDefault(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED, null) != null;
-            int retries = Integer.parseInt(String.valueOf(headers.getOrDefault(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_RETRY, "0")));
-            if (rejected) {
-                String rejectedHeader = String.valueOf(headers.get(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED));
-                String rejectionDetails = MessageFormat.format("{0}. Execution of this job task was retried {1} times.", rejectedHeader, retries);
-
-                //  Failed to execute job task.
-                JobTrackingWorkerFailure f = new JobTrackingWorkerFailure();
-                f.setFailureId(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED);
-                f.setFailureTime(new Date());
-                f.setFailureSource(getWorkerName(proxiedTaskMessage));
-                f.setFailureMessage(rejectionDetails);
-
-                reporter.reportJobTaskRejected(jobTaskId, f);
-
-            } else {
-                String retryDetails = MessageFormat.format("This job task encountered a problem and will be retried. This will be retry attempt number {0} for this job task.", retries);
-                reporter.reportJobTaskRetry(jobTaskId, retryDetails);
-            }
-        } catch (JobReportingException e) {
+            reportRejectOrRetry(proxiedTaskMessage, headers);
+        } catch (final JobReportingException e) {
             LOG.warn("Error reporting task {} progress to the Job Database: ", proxiedTaskMessage.getTaskId(), e);
             //TODO - should this ex be rethrown?
         }
         return Collections.emptyList();
+    }
+
+    private boolean isTrackingOrJobTaskIdNull(final TaskMessage proxiedTaskMessage) {
+        final TrackingInfo tracking = proxiedTaskMessage.getTracking();
+        if (tracking == null) {
+            LOG.warn("Cannot report job task progress for task {} - the task message has no tracking info", proxiedTaskMessage.getTaskId());
+            return true;
+        }
+
+        if (tracking.getJobTaskId() == null) {
+            LOG.warn("Cannot report job task progress for task {} - the tracking info has no jobTaskId", proxiedTaskMessage.getTaskId());
+            return true;
+        }
+        return false;
+    }
+
+    @NotNull
+    private List<JobTrackingWorkerDependency> reportJobRejected(final TaskMessage proxiedTaskMessage, final TaskStatus status) throws JobReportingException {
+        //  Failed to execute job task.
+        JobTrackingWorkerFailure f = new JobTrackingWorkerFailure();
+        f.setFailureId(status.toString());
+        f.setFailureTime(new Date());
+        f.setFailureSource(getWorkerName(proxiedTaskMessage));
+
+        final byte[] taskData = proxiedTaskMessage.getTaskData();
+        if (taskData != null) {
+            f.setFailureMessage(new String(taskData, StandardCharsets.UTF_8));
+        }
+
+        reporter.reportJobTaskRejected(proxiedTaskMessage.getTracking().getJobTaskId(), f);
+
+        return Collections.emptyList();
+    }
+
+    private List<JobTrackingWorkerDependency> reportJobCompleteOrInProgress(final TaskMessage proxiedTaskMessage,
+            final String jobTaskId) throws JobReportingException {
+        final TrackingInfo tracking = proxiedTaskMessage.getTracking();
+        final String trackToPipe = tracking.getTrackTo();
+        final String toPipe = proxiedTaskMessage.getTo();
+
+        if ((toPipe == null && trackToPipe == null) || (trackToPipe != null && trackToPipe.equalsIgnoreCase(toPipe))) {
+            // Now returns a JobTrackingWorkerDependency[].  This ResultSet may or may not contain a list of dependent job info.
+            return reporter.reportJobTaskComplete(jobTaskId);
+        } else {
+            //TODO - FUTURE: supply an accurate estimatedPercentageCompleted
+            reporter.reportJobTaskProgress(jobTaskId, 0);
+            return Collections.emptyList();
+        }
+    }
+
+    private void reportRejectOrRetry(final TaskMessage proxiedTaskMessage, final Map<String, Object> headers) throws JobReportingException {
+        final boolean rejected = headers.getOrDefault(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED, null) != null;
+        final int retries = Integer.parseInt(String.valueOf(headers.getOrDefault(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_RETRY, "0")));
+        final String jobTaskId= proxiedTaskMessage.getTracking().getJobTaskId();
+        if (rejected) {
+            final String rejectedHeader = String.valueOf(headers.get(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED));
+            final String rejectionDetails = MessageFormat.format("{0}. Execution of this job task was retried {1} times.", rejectedHeader,
+                    retries);
+
+            //  Failed to execute job task.
+            final JobTrackingWorkerFailure f = new JobTrackingWorkerFailure();
+            f.setFailureId(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED);
+            f.setFailureTime(new Date());
+            f.setFailureSource(getWorkerName(proxiedTaskMessage));
+            f.setFailureMessage(rejectionDetails);
+
+            reporter.reportJobTaskRejected(jobTaskId, f);
+
+        } else {
+            final String retryDetails = MessageFormat.format("This job task encountered a problem and will be retried. This will be " +
+                    "retry attempt number {0} for this job task.", retries);
+            reporter.reportJobTaskRetry(jobTaskId, retryDetails);
+        }
     }
 
     /**
