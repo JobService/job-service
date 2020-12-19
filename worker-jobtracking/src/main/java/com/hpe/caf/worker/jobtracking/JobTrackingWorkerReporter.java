@@ -54,26 +54,26 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
     @NotNull
     @Size(min = 1)
-    private String jobDatabaseURL;
+    private final String jobDatabaseURL;
 
     /**
      * The username to use when connecting to the Job Database.
      */
     @NotNull
     @Size(min = 1)
-    private String jobDatabaseUsername;
+    private final String jobDatabaseUsername;
 
     /**
      * The password to use with the configured username when connecting to the Job Database.
      */
     @NotNull
     @Size(min = 1)
-    private String jobDatabasePassword;
+    private final String jobDatabasePassword;
     
     /**
      * The application name when connecting to the Job Database.
      */
-    private String appName;
+    private final String appName;
 
 
     public JobTrackingWorkerReporter() throws JobReportingException {
@@ -270,7 +270,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     public void reportJobTaskRejected(final String jobTaskId, final JobTrackingWorkerFailure rejectionDetails)
         throws JobReportingException
     {
-        LOG.info(Thread.currentThread() + ": Reporting failure of job task {} ...", jobTaskId);
+        LOG.info("{}: Reporting failure of job task {} ...", Thread.currentThread(), jobTaskId);
 
         final JobTaskId jobTaskIdObj = JobTaskId.fromMessageId(jobTaskId);
         final String failureDetails = getFailureDetailsString(rejectionDetails);
@@ -303,12 +303,12 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      */
     @Override
     public boolean verifyJobDatabase() {
-        try (Connection conn = getConnection()) {
-        } catch (Exception e) {
+        try (final Connection conn = getConnection()) {
+            return true;
+        } catch (final Exception e) {
             LOG.error("Failed to verify connection to the Job Database. ", e);
             return false;
         }
-        return true;
     }
 
 
@@ -352,7 +352,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
         try {
             return mapper.writeValueAsString(rejectionDetails);
-        } catch (JsonProcessingException ex) {
+        } catch (final JsonProcessingException ex) {
             throw new JobReportingException("Cannot serialize job task failure details.", ex);
         }
     }
