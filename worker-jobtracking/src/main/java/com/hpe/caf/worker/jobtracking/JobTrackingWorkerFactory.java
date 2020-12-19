@@ -202,7 +202,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     /**
      * Create a worker to process the given JobTrackingWorkerTask task.
      */
-    private Worker createWorker(final JobTrackingWorkerTask task, final WorkerTaskData workerTaskData) throws TaskRejectedException, InvalidTaskException {
+    private Worker createWorker(final JobTrackingWorkerTask task, final WorkerTaskData workerTaskData) throws InvalidTaskException {
         return new JobTrackingWorker(task, configuration.getOutputQueue(), codec, reporter, workerTaskData);
     }
 
