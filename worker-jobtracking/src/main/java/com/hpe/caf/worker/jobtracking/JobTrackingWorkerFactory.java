@@ -99,7 +99,6 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
     @Override
     public final Worker getWorker(final WorkerTaskData workerTask) throws TaskRejectedException, InvalidTaskException {
-
         LOG.debug("Starting a single job...");
 
         // Reject tasks of the wrong type and tasks that require a newer version
