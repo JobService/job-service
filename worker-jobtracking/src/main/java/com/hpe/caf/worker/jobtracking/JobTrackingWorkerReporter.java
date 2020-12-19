@@ -89,7 +89,6 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
         try {
             LOG.debug("Registering JDBC driver \"{}\" ...", JDBC_DRIVER);
-            Class.forName(JDBC_DRIVER);
         } catch (final Exception e){
             LOG.error("Failed to register JDBC driver \"{}\" ...", JDBC_DRIVER);
             throw new JobReportingException(MessageFormat.format("Failed to register JDBC driver \"{0}\". {1}", 
