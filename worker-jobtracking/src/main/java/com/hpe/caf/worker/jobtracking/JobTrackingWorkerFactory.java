@@ -63,7 +63,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     private final Class<JobTrackingWorkerTask> taskClass;
 
     @NotNull
-    private JobTrackingReporter reporter;
+    private final JobTrackingReporter reporter;
 
     /**
      * Constructor for JobTrackingWorkerFactory called by JobTrackingWorkerFactoryProvider
@@ -75,7 +75,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         this.dataStore = Objects.requireNonNull(store);
         try {
             this.configuration = configSource.getConfiguration(JobTrackingWorkerConfiguration.class);
-        } catch (ConfigurationException e) {
+        } catch (final ConfigurationException e) {
             throw new WorkerException("Failed to create worker factory", e);
         }
         this.reporter = createReporter();
@@ -91,7 +91,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         this.dataStore = Objects.requireNonNull(store);
         try {
             this.configuration = configSource.getConfiguration(JobTrackingWorkerConfiguration.class);
-        } catch (ConfigurationException e) {
+        } catch (final ConfigurationException e) {
             throw new WorkerException("Failed to create worker factory", e);
         }
         this.reporter = reporter;
@@ -233,9 +233,9 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     @Override
     public HealthResult healthCheck() {
         try {
-            JobTrackingWorkerHealthCheck healthCheck = new JobTrackingWorkerHealthCheck(reporter);
+            final JobTrackingWorkerHealthCheck healthCheck = new JobTrackingWorkerHealthCheck(reporter);
             return healthCheck.healthCheck();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return new HealthResult(HealthStatus.UNHEALTHY, "Failed to perform Job Tracking Worker health check. " +
                     e.getMessage());
         }
@@ -250,15 +250,15 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
      * @param callback worker callback to enact the forwarding action determined by the worker
      */
     @Override
-    public void determineForwardingAction(TaskMessage proxiedTaskMessage, TaskInformation taskInformation,
-                                          Map<String, Object> headers, WorkerCallback callback) {
+    public void determineForwardingAction(final TaskMessage proxiedTaskMessage, final TaskInformation taskInformation,
+                                          final Map<String, Object> headers, final WorkerCallback callback) {
 
         final List<JobTrackingWorkerDependency> jobDependencyList = reportProxiedTask(proxiedTaskMessage, headers);
         if (!jobDependencyList.isEmpty()) {
             // Forward any dependent jobs which are now available for processing
             try {
                 forwardAvailableJobs(jobDependencyList, callback, proxiedTaskMessage.getTracking().getTrackingPipe(), taskInformation);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.error("Failed to create dependent jobs.");
                 throw new RuntimeException("Failed to create dependent jobs.", e);
             }
@@ -277,9 +277,9 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
      *         else returns null
      */
     private List<JobTrackingWorkerDependency> reportProxiedTask(final TaskMessage proxiedTaskMessage,
-                                                                Map<String, Object> headers) {
+                                                                final Map<String, Object> headers) {
         try {
-            TrackingInfo tracking = proxiedTaskMessage.getTracking();
+            final TrackingInfo tracking = proxiedTaskMessage.getTracking();
             if (tracking == null) {
                 LOG.warn("Cannot report job task progress for task {} - the task message has no tracking info", proxiedTaskMessage.getTaskId());
                 return Collections.emptyList();
@@ -356,7 +356,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     private JobTrackingReporter createReporter() throws TaskRejectedException {
         try {
             return new JobTrackingWorkerReporter();
-        } catch (JobReportingException e) {
+        } catch (final JobReportingException e) {
             throw new TaskRejectedException("Failed to create Job Database reporter for Job Tracking Worker. ", e);
         }
     }
@@ -391,7 +391,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
      */
     private void forwardAvailableJobs(final List<JobTrackingWorkerDependency> jobDependencyList,
                                       final WorkerCallback callback, final String trackingPipe,
-                                      TaskInformation taskInformation)
+                                      final TaskInformation taskInformation)
     {
         // Walk the resultSet placing each returned job on the Rabbit Queue
         try {
