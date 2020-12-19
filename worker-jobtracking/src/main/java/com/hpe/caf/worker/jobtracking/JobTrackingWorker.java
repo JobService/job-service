@@ -30,7 +30,7 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorker.class);
 
     @NotNull
-    private JobTrackingReporter reporter;
+    private final JobTrackingReporter reporter;
 
     /**
      * Constructor called by the JobTrackingWorkerFactory.
@@ -96,7 +96,7 @@ public class JobTrackingWorker extends AbstractWorker<JobTrackingWorkerTask, Job
             JobTrackingWorkerResult workerResult = new JobTrackingWorkerResult();
             workerResult.setStatus(JobTrackingWorkerStatus.COMPLETED);
             return workerResult;
-        } catch (JobReportingException e) {
+        } catch (final JobReportingException e) {
             LOG.warn("Error reporting task progress to the Job Database: ", e);
             return JobTrackingWorkerUtil.createErrorResult(JobTrackingWorkerStatus.PROGRESS_UPDATE_FAILED, e.getMessage());
         }

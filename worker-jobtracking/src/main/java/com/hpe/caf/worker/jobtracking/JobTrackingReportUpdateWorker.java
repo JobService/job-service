@@ -39,9 +39,9 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingReportUpdateWorker.class);
 
     @NotNull
-    private JobTrackingReporter reporter;
+    private final JobTrackingReporter reporter;
 
-    private WorkerTaskData workerTask;
+    private final WorkerTaskData workerTask;
 
     /**
      * Constructor called by the JobTrackingWorkerFactory.
