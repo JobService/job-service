@@ -19,8 +19,6 @@ import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.api.worker.TrackingInfo;
 import com.hpe.caf.services.job.util.JobTaskId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.time.Instant;
@@ -31,8 +29,6 @@ import java.util.UUID;
 public final class JobTrackingWorkerUtil
 {
     private JobTrackingWorkerUtil(){}
-
-    private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerUtil.class);
 
     /**
      *  Start the list of jobs that are now available to be run.
