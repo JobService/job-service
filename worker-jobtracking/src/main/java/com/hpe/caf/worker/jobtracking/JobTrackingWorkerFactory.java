@@ -124,14 +124,14 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         throws TaskRejectedException, InvalidTaskException
     {
         final byte[] bytes = validateVersionAndData(workerTask, TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
-        return TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, bytes);
+        return TaskValidator.deserializeAndValidateTask(codec, TrackingReportTask.class, bytes);
     }
 
     private JobTrackingWorkerTask getJobTrackingWorkerTask(final WorkerTaskData workerTask)
         throws TaskRejectedException, InvalidTaskException
     {
         final byte[] data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
-        return TaskValidator.deserialiseAndValidateTask(codec, JobTrackingWorkerTask.class, data);
+        return TaskValidator.deserializeAndValidateTask(codec, JobTrackingWorkerTask.class, data);
     }
 
     private static byte[] validateVersionAndData(final WorkerTaskData workerTask, final int workerApiVersion)
@@ -166,7 +166,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
          * Deserialise the given data into the specified class, and validate that any constraints specified have
          * been met.
          */
-        public static <T> T deserialiseAndValidateTask(final Codec codec, final Class<T> taskType, final byte[] data)
+        public static <T> T deserializeAndValidateTask(final Codec codec, final Class<T> taskType, final byte[] data)
                 throws InvalidTaskException
         {
             final T jobTrackingWorkerTask;
