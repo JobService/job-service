@@ -1351,14 +1351,15 @@ public class JobServiceEndToEndIT {
      * @throws InterruptedException
      */
     private void waitUntilJobCompletes(String jobId) throws ApiException, InterruptedException {
-        long currentTime= System.currentTimeMillis();
-        long endTime = currentTime+5000;
-        while(System.currentTimeMillis() < endTime) {
-            Job job=jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-            String currentJobStatus= job.getStatus();
-            LOG.info("Current "+jobId+" status: "+currentJobStatus);
-            if(currentJobStatus.equalsIgnoreCase("Completed")){
+        for (int counter = 0; counter < 60; counter++) {
+            Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+            String currentJobStatus = job.getStatus();
+            LOG.info("Job " + jobId + " current status: " + currentJobStatus);
+            if (currentJobStatus.equalsIgnoreCase("Completed")) {
                 break;
+            }
+            else {
+                Thread.sleep(500);
             }
         }
     }
