@@ -240,7 +240,8 @@ public class JobServiceEndToEndIT {
             createJob(job2Id, true);
         }
 
-        //Wait for the job to complete
+        //Wait for the jobs to complete
+        waitUntilJobCompletes(job1Id);
         waitUntilJobCompletes(job2Id);
 
         // Add job that has prerequisite job 1 (completed) and job 2 (completed). Also supply blank, null and empty
@@ -353,6 +354,7 @@ public class JobServiceEndToEndIT {
         }
 
         //Wait for the job to complete
+        waitUntilJobCompletes(job1Id);
         waitUntilJobCompletes(job2Id);
 
         // Add job that has prerequisite job 1 (completed) and job 2 (completed). Also supply blank, null and empty
@@ -1349,11 +1351,15 @@ public class JobServiceEndToEndIT {
      * @throws InterruptedException
      */
     private void waitUntilJobCompletes(String jobId) throws ApiException, InterruptedException {
-        Job job=jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-        String currentJobStatus= job.getStatus();
-        if(!currentJobStatus.equalsIgnoreCase("Completed")){
+        long currentTime= System.currentTimeMillis();
+        long endTime = currentTime+5000;
+        while(System.currentTimeMillis() < endTime) {
+            Job job=jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+            String currentJobStatus= job.getStatus();
             LOG.info("Current "+jobId+" status: "+currentJobStatus);
-            waitUntilJobCompletes(jobId);
+            if(currentJobStatus.equalsIgnoreCase("Completed")){
+                break;
+            }
         }
     }
 }
