@@ -47,6 +47,8 @@ import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Integration tests for Job Tracking Worker.
@@ -67,6 +69,8 @@ public class JobTrackingWorkerIT {
     private static JobDatabase jobDatabase;
 
     private String defaultPartitionId;
+    
+    private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerIT.class);
 
 
     @BeforeClass
@@ -192,8 +196,17 @@ public class JobTrackingWorkerIT {
             final JobDatabase database = new JobDatabase();
             // Increased the waiting time to match the 10s to wait induced by the batch
             // (see in JobtrackingWorkerFactory.processTasks())
-            wait(2000);
-            database.verifyJobStatus(defaultPartitionId, jobTaskId, expectation);
+            //wait(2000);
+            for (int i = 0; i < 20; i++) {
+                try {
+                    database.verifyJobStatus(defaultPartitionId, jobTaskId, expectation);
+                    LOG.info("Job status: true");
+                }
+                catch (Exception exception){
+                    Thread.sleep(100);
+                    LOG.info("sleep");
+                }
+            }
         }
     }
 
