@@ -194,17 +194,12 @@ public class JobTrackingWorkerIT {
                         defaultPartitionId, jobTaskId, jobTaskId, true, expectation)));
             queueManager.publish(taskMessage);
             final JobDatabase database = new JobDatabase();
-            // Increased the waiting time to match the 10s to wait induced by the batch
-            // (see in JobtrackingWorkerFactory.processTasks())
-            //wait(2000);
             for (int i = 0; i < 20; i++) {
                 try {
                     database.verifyJobStatus(defaultPartitionId, jobTaskId, expectation);
-                    LOG.info("Job status: true");
                 }
                 catch (Exception exception){
                     Thread.sleep(100);
-                    LOG.info("sleep");
                 }
             }
         }
