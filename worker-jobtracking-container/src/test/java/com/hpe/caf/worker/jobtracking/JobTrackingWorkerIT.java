@@ -47,8 +47,6 @@ import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertThrows;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Integration tests for Job Tracking Worker.
@@ -69,9 +67,6 @@ public class JobTrackingWorkerIT {
     private static JobDatabase jobDatabase;
 
     private String defaultPartitionId;
-    
-    private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerIT.class);
-
 
     @BeforeClass
     public static void setup() throws Exception {
