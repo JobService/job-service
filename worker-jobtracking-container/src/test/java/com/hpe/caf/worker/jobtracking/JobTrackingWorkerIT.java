@@ -68,7 +68,7 @@ public class JobTrackingWorkerIT {
 
     private String defaultPartitionId;
 
-    
+
     @BeforeClass
     public static void setup() throws Exception {
         BootstrapConfiguration bootstrap = new SystemBootstrapConfiguration();
