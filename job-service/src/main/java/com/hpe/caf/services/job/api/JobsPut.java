@@ -207,8 +207,8 @@ public final class JobsPut {
             //  Get database helper instance.
             try {
                 QueueServices queueServices = QueueServicesFactory.create(config, jobTask.getTaskPipe(),codec);
-                queueServices.sendMessage(partitionId, jobId, jobTask, config);
                 LOG.debug("createOrUpdateJob: Sending task data to the target queue...");
+                queueServices.sendMessage(partitionId, jobId, jobTask, config);
                 closeQueueConnection(queueServices);
             } catch (final IOException | TimeoutException ex) {
                 //  Failure adding job data to queue. Update the job with the failure details.
