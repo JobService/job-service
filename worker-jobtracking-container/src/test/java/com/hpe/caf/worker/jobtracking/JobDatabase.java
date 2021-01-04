@@ -99,6 +99,20 @@ public class JobDatabase {
         return jobStatus;
     }
 
+    /**
+     * Reports task progress with the given ID from the job-service database.
+     */
+    public void reportTaskProgress(final String partitionId, final String jobTaskId, final double percentage_complete) throws SQLException {
+        try(Connection connection = getConnection();
+            CallableStatement stmt = connection.prepareCall("{call report_progress(?,?,?)}")) {
+
+            stmt.setString(1, partitionId);
+            stmt.setString(2, jobTaskId);
+            stmt.setDouble(3, percentage_complete);
+            stmt.executeQuery();
+        }
+    }
+
     public void verifyJobStatus(
         final String partitionId, String jobTaskId, JobReportingExpectation jobReportingExpectation
     ) throws Exception {

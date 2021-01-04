@@ -63,6 +63,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_delete_dependent_job_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/deleteDependentJob.sql"
+                         procedureName="delete_dependent_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_delete_task_table_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/deleteTaskTable.sql"
                          procedureName="internal_delete_task_table"

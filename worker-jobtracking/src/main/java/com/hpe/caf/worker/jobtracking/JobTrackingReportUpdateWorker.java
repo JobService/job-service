@@ -169,7 +169,7 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
                     }
                 } else if (trackingReportStatus == TrackingReportStatus.Progress) {
                     //  Job task is still in progress so flag as still active in the database.
-                    reportJobTaskAsInProgress(jobTaskId);
+                    reportJobTaskAsInProgress(jobTaskId, trackingReport.estimatedPercentageCompleted);
                 } else if (trackingReportStatus == TrackingReportStatus.Failed) {
                     //  Job task has failed so flag as much in the database.
                     reportJobTaskAsRejected(trackingReport);
@@ -193,10 +193,10 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
         return reporter.reportJobTaskComplete(jobTaskId);
     }
 
-    private void reportJobTaskAsInProgress(final String jobTaskId)
+    private void reportJobTaskAsInProgress(final String jobTaskId, final int estimatedPercentageCompleted)
             throws JobReportingException
     {
-        reporter.reportJobTaskProgress(jobTaskId, 0);
+        reporter.reportJobTaskProgress(jobTaskId, estimatedPercentageCompleted);
     }
 
     private void reportJobTaskAsRejected(final TrackingReport trackingReport)

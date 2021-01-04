@@ -307,7 +307,7 @@
                         <!-- pull in a normal postgres DB for integration tests -->
                         <image>
                             <alias>jobservice-integrationtests-postgres</alias>
-                            <name>${dockerHubPublic}/library/postgres:11.7</name>
+                            <name>${dockerHubPublic}/library/postgres:11</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
@@ -355,7 +355,9 @@
                             <alias>config</alias>
                             <name>${project.artifactId}-test-config:${project.version}</name>
                             <build>
+                                <from>${dockerHubPublic}/library/busybox:latest</from>
                                 <assembly>
+                                    <exportTargetDir>true</exportTargetDir>
                                     <basedir>/config</basedir>
                                     <inline>
                                         <fileSets>
@@ -392,7 +394,9 @@
                             <alias>job-type-definitions</alias>
                             <name>${project.artifactId}-job-type-definitions:${project.version}</name>
                             <build>
+                                <from>${dockerHubPublic}/library/busybox:latest</from>
                                 <assembly>
+                                    <exportTargetDir>true</exportTargetDir>
                                     <basedir>/</basedir>
                                     <inline>
                                         <fileSets>

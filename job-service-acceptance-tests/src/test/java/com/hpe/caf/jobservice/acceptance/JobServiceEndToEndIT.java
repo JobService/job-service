@@ -240,13 +240,16 @@ public class JobServiceEndToEndIT {
             createJob(job2Id, true);
         }
 
-        Thread.sleep(1000); // Add short delay to allow previous jobs to complete
+        //Wait for the jobs to complete
+        waitUntilJobCompletes(job1Id);
+        waitUntilJobCompletes(job2Id);
 
         // Add job that has prerequisite job 1 (completed) and job 2 (completed). Also supply blank, null and empty
         // prereq job ids that should not hold the job back.
         createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id, "", null, "           ");
 
-        Thread.sleep(1000); // Add short delay to allow previous job to complete
+        //Wait for the job to complete
+        waitUntilJobCompletes(job3Id);
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
@@ -350,13 +353,16 @@ public class JobServiceEndToEndIT {
             createJob(job2Id, true);
         }
 
-        Thread.sleep(1000); // Add short delay to allow previous jobs to complete
+        //Wait for the job to complete
+        waitUntilJobCompletes(job1Id);
+        waitUntilJobCompletes(job2Id);
 
         // Add job that has prerequisite job 1 (completed) and job 2 (completed). Also supply blank, null and empty
         // prereq job ids that should not hold the job back.
         createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id, "", null, "           ");
 
-        Thread.sleep(1000); // Add short delay to allow previous job to complete
+        //Wait for the job to complete
+        waitUntilJobCompletes(job3Id);
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
@@ -445,7 +451,8 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        Thread.sleep(1000); // Add short delay to allow previous job to complete
+        //Wait for the job to complete
+        waitUntilJobCompletes(job1Id);
 
         // Add job that has prerequisite job 1 (completed) and job 2 (unknown)
         createJobWithPrerequisites(job3Id, true, 0, job1Id, job2Id);
@@ -533,7 +540,11 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        Thread.sleep(3000); // Add short delay to allow previous jobs to complete
+        //Wait for the jobs to complete
+        waitUntilJobCompletes(job1Id);
+        waitUntilJobCompletes(job2Id);
+        waitUntilJobCompletes(job3Id);
+        waitUntilJobCompletes(job4Id);
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
@@ -609,14 +620,17 @@ public class JobServiceEndToEndIT {
             context.getTestResult();
         }
 
-        Thread.sleep(5000); // Add short delay to allow J1 + J2 to complete.
+        //Wait for the jobs to complete
+        waitUntilJobCompletes(job1Id);
+        waitUntilJobCompletes(job2Id);
 
         //  Verify J2 is complete but J3 is still waiting.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
         Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) != null);
 
-        Thread.sleep(12000); // Add delay to allow jobs to complete
+        //Wait for the job to complete
+        waitUntilJobCompletes(job3Id);
 
         // Call getJob to trigger the subtask completion
         jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
@@ -1328,5 +1342,25 @@ public class JobServiceEndToEndIT {
             }
         }, timeout);
         return timer;
+    }
+
+    /**
+     * Desc: Waits till the job is Completed
+     * @param jobId
+     * @throws ApiException
+     * @throws InterruptedException
+     */
+    private void waitUntilJobCompletes(String jobId) throws ApiException, InterruptedException {
+        for (int counter = 0; counter < 60; counter++) {
+            Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+            String currentJobStatus = job.getStatus();
+            LOG.info("Job " + jobId + " current status: " + currentJobStatus);
+            if (currentJobStatus.equalsIgnoreCase("Completed")) {
+                break;
+            }
+            else {
+                Thread.sleep(500);
+            }
+        }
     }
 }

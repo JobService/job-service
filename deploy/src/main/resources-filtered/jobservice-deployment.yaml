@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: jobservicedb
-        image: postgres:11.7
+        image: postgres:11
         imagePullPolicy: Always
         env:
           - name: POSTGRES_PASSWORD

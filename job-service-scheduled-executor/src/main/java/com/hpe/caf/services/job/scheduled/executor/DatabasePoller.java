@@ -85,6 +85,7 @@ public class DatabasePoller
                         queueServices = QueueServicesFactory.create(jtd.getTaskPipe(),codec);
                         LOG.debug(MessageFormat.format("Sending task data to the target queue {0} ...", workerAction.toString()));
                         queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
+                        deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
                     } catch(final Exception ex) {
                         //  TODO - in future we need to consider consequence of reaching here as this means we have
                         //  deleted job_task_data rows from the database. For now we will log details as part of
@@ -126,6 +127,26 @@ public class DatabasePoller
             LOG.error(MessageFormat.format("Exception caught polling the Job Service database for jobs to run. {0}", e.getMessage()));
         } catch (final ModuleLoaderException e) {
             LOG.error(MessageFormat.format("Exception caught when loading the serialization class. {0}", e.getMessage()));
+        }
+    }
+
+    /**
+     * Deletes the supplied job from the job_task_data database table.
+     */
+    private static void deleteDependentJob(final String partitionId, final String jobId) throws ScheduledExecutorException
+    {
+        try (
+                Connection connection = getConnection();
+                CallableStatement stmt = connection.prepareCall("{call delete_dependent_job(?,?)}")) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2, jobId);
+            LOG.info(MessageFormat.format("Calling delete_dependent_job({0},{1}) database function ...", partitionId, jobId));
+            stmt.execute();
+        } catch (final SQLException e) {
+            final String errorMessage = MessageFormat.format("Failed in call to delete_dependent_job({0},{1}) database function.{3}",
+                    partitionId, jobId,e.getMessage());
+            LOG.error(errorMessage);
+            throw new ScheduledExecutorException(errorMessage);
         }
     }
 
