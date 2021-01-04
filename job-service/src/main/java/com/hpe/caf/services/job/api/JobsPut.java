@@ -34,11 +34,13 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -207,8 +209,8 @@ public final class JobsPut {
                 QueueServices queueServices = QueueServicesFactory.create(config, jobTask.getTaskPipe(),codec);
                 LOG.debug("createOrUpdateJob: Sending task data to the target queue...");
                 queueServices.sendMessage(partitionId, jobId, jobTask, config);
-                queueServices.close();
-            } catch(Exception ex) {
+                closeQueueConnection(queueServices);
+            } catch (final IOException | TimeoutException ex) {
                 //  Failure adding job data to queue. Update the job with the failure details.
                 Failure f = new Failure();
                 f.setFailureId("ADD_TO_QUEUE_FAILURE");
@@ -222,17 +224,27 @@ public final class JobsPut {
                 databaseHelper.reportFailure(partitionId, jobId, mapper.writeValueAsString(f));
 
                 //  Throw error message to user.
-                throw new Exception("Failed to add task data to the queue");
+                throw new Exception("Failed to add task data to the queue", ex);
             }
 
             LOG.debug("createOrUpdateJob: Done.");
 
             return "create";
         } catch (Exception e) {
-            LOG.error("Error - '{}'", e.toString());
+            LOG.error("Error - ", e);
             throw e;
         }
     }
+
+    private static void closeQueueConnection(final QueueServices queueServices)
+    {
+        try {
+            queueServices.close();
+        } catch (final Exception e) {
+            LOG.warn("Error on connection close to RabbitMQ", e);
+        }
+    }
+
     private static byte[] getTaskDataBytes(final WorkerAction workerAction, final Codec codec)
     {
         final Object taskDataObj = workerAction.getTaskData();
