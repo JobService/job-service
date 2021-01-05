@@ -27,6 +27,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.MessageProperties;
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
@@ -43,6 +45,7 @@ import java.util.concurrent.TimeoutException;
  */
 public final class QueueServices {
 
+    private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
     private final Connection connection;
     private final Channel publisherChannel;
     private final String targetQueue;
@@ -61,7 +64,8 @@ public final class QueueServices {
      */
     public void sendMessage(
         final String partitionId, String jobId, WorkerAction workerAction, AppConfig config
-    ) throws IOException {
+    ) throws IOException, InterruptedException, TimeoutException
+    {
         //  Generate a random task id.
         String taskId = UUID.randomUUID().toString();
 
@@ -124,8 +128,20 @@ public final class QueueServices {
         }
 
         //  Send the message.
+        try {
+            publishMessage(taskMessageBytes);
+        } catch (IOException | TimeoutException e) {
+            LOG.warn("Failed to publish message. Will retry", e);
+            publishMessage(taskMessageBytes);
+        }
+    }
+
+    private void publishMessage(final byte[] taskMessageBytes)
+            throws IOException, InterruptedException, TimeoutException
+    {
         publisherChannel.basicPublish(
                 "", targetQueue, MessageProperties.TEXT_PLAIN, taskMessageBytes);
+        publisherChannel.waitForConfirmsOrDie(10000);
     }
 
     /**

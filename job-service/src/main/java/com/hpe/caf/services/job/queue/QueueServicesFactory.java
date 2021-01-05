@@ -45,7 +45,8 @@ public final class QueueServicesFactory {
         Connection connection = createConnection(configuration);
 
         Channel publishChannel = connection.createChannel();
-
+        // Enable publishing acknowledgements
+        publishChannel.confirmSelect();
         //  Check target worker queue exists.
         publishChannel.queueDeclarePassive(targetQueue);
 
