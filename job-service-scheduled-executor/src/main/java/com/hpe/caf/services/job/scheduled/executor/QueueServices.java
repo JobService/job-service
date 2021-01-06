@@ -144,7 +144,7 @@ public final class QueueServices
         //  Send the message.
         LOG.debug("Publishing the message ...");
         publisherChannel.basicPublish(
-                "", targetQueue, MessageProperties.TEXT_PLAIN, taskMessageBytes);
+                "", targetQueue, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
     }
 
     /**
