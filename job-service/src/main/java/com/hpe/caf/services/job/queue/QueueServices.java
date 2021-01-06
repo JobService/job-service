@@ -140,7 +140,7 @@ public final class QueueServices {
             throws IOException, InterruptedException, TimeoutException
     {
         publisherChannel.basicPublish(
-                "", targetQueue, MessageProperties.TEXT_PLAIN, taskMessageBytes);
+                "", targetQueue, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
         publisherChannel.waitForConfirmsOrDie(10000);
     }
 
