@@ -162,7 +162,7 @@ public class JobServiceEndToEndIT {
             // Waits for the final result message to appear on the Example worker's output queue.
             // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
             TestResult result = context.getTestResult();
-            Assert.assertTrue(result.isSuccess());
+            Assert.assertTrue(result.isSuccess(), "Job "+jobId+" is successfully completed");
         }
     }
 
@@ -290,7 +290,7 @@ public class JobServiceEndToEndIT {
             // Waits for the final result message to appear on the Example worker's output queue.
             // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
             TestResult result = context.getTestResult();
-            Assert.assertTrue(result.isSuccess());
+            Assert.assertTrue(result.isSuccess(), "Job "+jobId+" is successfully completed");
         }
     }
 
@@ -407,7 +407,7 @@ public class JobServiceEndToEndIT {
             // Waits for the final result message to appear on the Example worker's output queue.
             // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
             TestResult result = context.getTestResult();
-            Assert.assertTrue(result.isSuccess());
+            Assert.assertTrue(result.isSuccess(), "Job "+job1Id+" is successfully completed");
         }
     }
 
@@ -580,15 +580,15 @@ public class JobServiceEndToEndIT {
         //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
-        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job2Id) == 2);
-        Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job2Id) == null);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job2Id) == 2, "Job "+job2Id+" is successfully delayed by 2s");
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job2Id) == null, "Job "+job2Id+" is ready to run");
 
         createJobWithPrerequisites(job3Id, true, 10, job2Id);
         //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
-        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job3Id) == 10);
-        Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) == null);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job3Id) == 10, "Job "+job3Id+" is successfully delayed by 10s");
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) == null, "Job "+job3Id+" is ready to run");
 
         //  Add a Prerequisite job 1 that should be completed. This should trigger the completion of all
         //  other jobs eventually after all the delays have been respected.
@@ -627,7 +627,7 @@ public class JobServiceEndToEndIT {
         //  Verify J2 is complete but J3 is still waiting.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "completed");
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
-        Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) != null);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id) != null, "Job "+job3Id+" is not ready for Run");
 
         //Wait for the job to complete
         waitUntilJobCompletes(job3Id);
@@ -687,10 +687,10 @@ public class JobServiceEndToEndIT {
         //  Verify J1 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job1Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job1Id, preReqJobId, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
-        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job1Id) == 0);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job1Id) == 0, "Job "+job1Id+" is not delayed");
         final String job1EligibleRunDate = JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job1Id);
         LOG.info("--testCreateJobNoDelayAndSomePreReq : job1EligibleRunDate: ", job1EligibleRunDate);
-        Assert.assertTrue(job1EligibleRunDate == null);
+        Assert.assertTrue(job1EligibleRunDate == null, "Job "+job1Id+" is eligible to Run");
 
         final NewJob preReqJobJob = constructNewJob(preReqJobId, true);
         jobsApi.createOrUpdateJob(partitionId, preReqJobId, preReqJobJob, jobCorrelationId);
@@ -712,10 +712,10 @@ public class JobServiceEndToEndIT {
         //  Verify J1 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job1Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job1Id, preReqJobId, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
-        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job1Id) == 0);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job1Id) == 0, "Job "+job1Id+" is not Delayed.");
         final String job1EligibleRunDate = JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job1Id);
         LOG.info("--testCreateJobNoDelayAndSomePreReqWithDelay : job1EligibleRunDate: ", job1EligibleRunDate);
-        Assert.assertTrue(job1EligibleRunDate == null);
+        Assert.assertTrue(job1EligibleRunDate == null, "Job "+job1Id+" is eligible to Run");
 
         createJobWithDelay(partitionId, preReqJobId, true, 15);
 
@@ -803,19 +803,19 @@ public class JobServiceEndToEndIT {
         //  Verify J2 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job2Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job2Id, job1Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
-        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job2Id) == 2);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job2Id) == 2, "Job "+job2Id+" is successfully delayed for 2s");
         final String job2EligibleRunDate = JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job2Id);
         LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays : job2EligibleRunDate: ", job2EligibleRunDate);
-        Assert.assertTrue(job2EligibleRunDate == null);
+        Assert.assertTrue(job2EligibleRunDate == null, "Job "+job2Id+" is eligible to run");
 
         createJobWithPrerequisitesAndDelay(partitionId, job3Id, true, 10, job2Id);
         //  Verify J3 is in 'waiting' state and job dependency rows exist as expected.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job3Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
-        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job3Id) == 10);
+        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job3Id) == 10, "Job "+job3Id+" is successfully delayed for 10s");
         String job3EligibleRunDate = JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job3Id);
         LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays : job3EligibleRunDate: ", job3EligibleRunDate);
-        Assert.assertTrue(job3EligibleRunDate == null);
+        Assert.assertTrue(job3EligibleRunDate == null, "Job "+job3Id+" is eligible to run");
 
         final Map<String, String> labels = new HashMap<>();
         labels.put("tag:4", "4");
@@ -881,7 +881,7 @@ public class JobServiceEndToEndIT {
             cancelJob(jobId);
 
             TestResult result = context.getTestResult();
-            Assert.assertTrue(result.isSuccess());
+            Assert.assertTrue(result.isSuccess(), "Job "+jobId+ "is cancelled successfully" );
         }
     }
 
@@ -982,7 +982,7 @@ public class JobServiceEndToEndIT {
             // Waits for the final result message to appear on the Example worker's output queue.
             // When we read it from this queue it should have been processed fully and its status reported to the Job Database as Completed.
             TestResult result = context.getTestResult();
-            Assert.assertTrue(result.isSuccess());
+            Assert.assertTrue(result.isSuccess(), "Job "+jobId+" is completed successfully.");
         } catch (Exception e){
             LOG.error("Error while running testJobServiceCaller_Success().", e);
             throw e;
@@ -1057,7 +1057,7 @@ public class JobServiceEndToEndIT {
 
             //  Expecting StatusCode > 0 for failure.
             Assert.assertNotNull(statusCode);
-            Assert.assertTrue(statusCode > 0);
+            Assert.assertTrue(statusCode > 0, "Job "+jobId+" status code is: "+statusCode);
         } catch (Exception e){
             LOG.error("Error while running testJobServiceCaller_Failure().", e);
             throw e;
@@ -1105,7 +1105,7 @@ public class JobServiceEndToEndIT {
             JobServiceDatabaseUtil.assertJobRowExists(jobId);
 
             TestResult result = context.getTestResult();
-            Assert.assertTrue(result.isSuccess());
+            Assert.assertTrue(result.isSuccess(), "Job "+jobId+" is completed successfully");
         }
 
         deleteJob(jobId);

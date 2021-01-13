@@ -47,7 +47,8 @@ public class JobServiceDatabaseUtil
             st.setString(1, jobId);
             final ResultSet jobRS = st.executeQuery();
             jobRS.next();
-            Assert.assertEquals(jobRS.getString(1).toLowerCase(Locale.ENGLISH), expectedStatus);
+            Assert.assertEquals(jobRS.getString(1).toLowerCase(Locale.ENGLISH), expectedStatus,
+                    "Status of Job "+jobId+" is: "+jobRS.getString(1).toLowerCase(Locale.ENGLISH)+ ", Expected status: "+expectedStatus+".");
             jobRS.close();
 
             st.close();
