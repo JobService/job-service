@@ -7,7 +7,7 @@
             "instances": 1,
             "container": {
                 "docker": {
-                    "image": "jobservice/job-service:3.4.0",
+                    "image": "jobservice/job-service:3.5.0",
                     "network": "BRIDGE",
                     "portMappings": [{
                         "containerPort": 8080,
@@ -50,7 +50,7 @@
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "jobservice/worker-jobtracking:3.4.0",
+                    "image": "jobservice/worker-jobtracking:3.5.0",
                     "network": "BRIDGE",
                     "forcePullImage": true,
                     "portMappings": [{
@@ -109,7 +109,7 @@
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "jobservice/job-service-scheduled-executor:3.4.0",
+                    "image": "jobservice/job-service-scheduled-executor:3.5.0",
                     "network": "BRIDGE",
                     "forcePullImage": true,
                     "portMappings": [{
