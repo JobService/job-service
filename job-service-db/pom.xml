@@ -27,7 +27,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>3.5.0-979</version>
+        <version>3.6.0-SNAPSHOT</version>
     </parent>
     <!-- version can be removed when we upgrade th workerfrmework -->
     <dependencies>
