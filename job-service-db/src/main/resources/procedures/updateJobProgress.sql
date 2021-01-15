@@ -20,7 +20,7 @@
  *  Description:
  *  Updates the percentage_complete in the job table with data from completed_subtask_report table.
  */
-CREATE FUNCTION internal_update_job_progress(
+CREATE OR REPLACE FUNCTION internal_update_job_progress(
     in_partition_id VARCHAR(40),
     in_job_id ANYELEMENT
 )
