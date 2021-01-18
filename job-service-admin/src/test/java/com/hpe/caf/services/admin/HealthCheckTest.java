@@ -15,52 +15,34 @@
  */
 package com.hpe.caf.services.admin;
 
+import com.google.gson.Gson;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.util.Map;
+import org.junit.Rule;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
 /**
  * JUnit test to verify health check negative testing. Positive test is held within container module's JobServiceIT.
  */
 public class HealthCheckTest {
 
-    /**
-     * Class that enables overriding of environment variables without effecting the environment variables set on the host
-     */
-    static class TestEnvironmentVariablesOverrider
-    {
-        @SuppressWarnings("unchecked")
-        public static void configureEnvironmentVariable(String name, String value) throws Exception
-        {
-            Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
-            Field theEnvironmentField = processEnvironmentClass.getDeclaredField("theEnvironment");
-            theEnvironmentField.setAccessible(true);
-            Map<String, String> env = (Map<String, String>) theEnvironmentField.get(null);
-            env.put(name, value);
-            Field theCaseInsensitiveEnvironmentField = processEnvironmentClass
-                    .getDeclaredField("theCaseInsensitiveEnvironment");
-            theCaseInsensitiveEnvironmentField.setAccessible(true);
-            Map<String, String> cienv = (Map<String, String>) theCaseInsensitiveEnvironmentField.get(null);
-            cienv.put(name, value);
-        }
-    }
+    @Rule
+    public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
     @Test
     public void testHealthCheckWithUnavailableDatabaseAndRabbitMQ() throws Exception
     {
         // Setup dud DB environment variables
-        TestEnvironmentVariablesOverrider.configureEnvironmentVariable("JOB_SERVICE_DATABASE_URL",
-                "jdbc:postgresql://UNKNOWNHOST1234567890:9999/jobservicedb");
-        TestEnvironmentVariablesOverrider.configureEnvironmentVariable("JOB_SERVICE_DATABASE_APPNAME", "unknownapplicationname");
-        TestEnvironmentVariablesOverrider.configureEnvironmentVariable("JOB_SERVICE_DATABASE_USERNAME", "unknownuser");
-        TestEnvironmentVariablesOverrider.configureEnvironmentVariable("JOB_SERVICE_DATABASE_PASSWORD", "unknownpass");
+        environmentVariables.set("JOB_SERVICE_DATABASE_URL", "jdbc:postgresql://UNKNOWNHOST1234567890:9999/jobservicedb");
+        environmentVariables.set("JOB_SERVICE_DATABASE_APPNAME", "unknownapplicationname");
+        environmentVariables.set("JOB_SERVICE_DATABASE_USERNAME", "unknownuser");
+        environmentVariables.set("JOB_SERVICE_DATABASE_PASSWORD", "unknownpass");
         // Setup dud RabbitMQ environment variables
-        TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_RABBITMQ_HOST", "unknown-rabbitmq-host");
-        TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_RABBITMQ_PORT", "9999");
-        TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_RABBITMQ_USERNAME", "unknownuser");
-        TestEnvironmentVariablesOverrider.configureEnvironmentVariable("CAF_RABBITMQ_PASSWORD", "unknownpass");
+        environmentVariables.set("CAF_RABBITMQ_HOST", "unknown-rabbitmq-host");
+        environmentVariables.set("CAF_RABBITMQ_PORT", "9999");
+        environmentVariables.set("CAF_RABBITMQ_USERNAME", "unknownuser");
+        environmentVariables.set("CAF_RABBITMQ_PASSWORD", "unknownpass");
 
         final HealthCheck healthCheck = new HealthCheck();
 
@@ -68,14 +50,51 @@ public class HealthCheckTest {
 
         healthCheck.doGet(null, httpServletResponse);
 
-        final String expectedResponse = "{\"database\":{\"healthy\":\"false\"," +
-                "\"message\":\"org.postgresql.util.PSQLException: The connection attempt failed.\"}," +
-                "\"queue\":{\"healthy\":\"false\"," +
-                "\"message\":\"java.net.UnknownHostException: unknown-rabbitmq-host\"}}";
+        final HealthCheckResponse healthCheckResponse =
+            new Gson().fromJson(new String(httpServletResponse.getContent()), HealthCheckResponse.class);
 
-        Assert.assertEquals("Expected Health Check response should match actual response", expectedResponse,
-                new String(httpServletResponse.getContent()));
+        Assert.assertFalse("database.healthy should be false in health check response",
+                           healthCheckResponse.database.healthy);
+        Assert.assertEquals("database.message has unexpected value in health check response",
+                            "org.postgresql.util.PSQLException: The connection attempt failed.", healthCheckResponse.database.message);
+        Assert.assertFalse("queue.healthy should be false in health check response",
+                           healthCheckResponse.queue.healthy);
+
+        // The content of queue.message in the health check response will be different depending on what Java version and/or env is being
+        // used:
+        //
+        // AdoptOpenJDK jdk-8.0.222.10-hotspot on Windows: java.net.UnknownHostException: unknown-rabbitmq-host
+        // AdoptOpenJDK jdk-11.0.7.10-hotspot on Windows:  java.net.UnknownHostException: No such host is known (unknown-rabbitmq-host)
+        // IcedTea 1.8.0_252 on Linux:                     java.net.UnknownHostException: unknown-rabbitmq-host: Name or service not known
+        //
+        // so we're just asserting that it contains the host here, rather than an exact match.
+        Assert.assertTrue("queue.message should contain the failed host: unknown-rabbitmq-host",
+                          healthCheckResponse.queue.message.contains("unknown-rabbitmq-host"));
 
         Assert.assertEquals("Status code set should be 500", 500, httpServletResponse.getStatus());
+    }
+
+    private final class HealthCheckResponse
+    {
+        private final HealthCheckItem database;
+        private final HealthCheckItem queue;
+
+        private HealthCheckResponse(final HealthCheckItem database, final HealthCheckItem queue)
+        {
+            this.database = database;
+            this.queue = queue;
+        }
+
+        private final class HealthCheckItem
+        {
+            private final boolean healthy;
+            private final String message;
+
+            private HealthCheckItem(final boolean healthy, final String message)
+            {
+                this.healthy = healthy;
+                this.message = message;
+            }
+        }
     }
 }
