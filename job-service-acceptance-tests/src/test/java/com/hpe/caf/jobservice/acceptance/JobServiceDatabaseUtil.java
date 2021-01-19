@@ -48,7 +48,7 @@ public class JobServiceDatabaseUtil
             final ResultSet jobRS = st.executeQuery();
             jobRS.next();
             Assert.assertEquals(jobRS.getString(1).toLowerCase(Locale.ENGLISH), expectedStatus,
-                    "Status of Job "+jobId+" is: "+jobRS.getString(1).toLowerCase(Locale.ENGLISH)+ ", Expected status: "+expectedStatus+".");
+                    "Status of Job "+jobId+": "+jobRS.getString(1).toLowerCase(Locale.ENGLISH)+ " is not matching with Expected status: "+expectedStatus+".");
             jobRS.close();
 
             st.close();
@@ -96,8 +96,8 @@ public class JobServiceDatabaseUtil
             st.setString(1, jobId);
             final ResultSet jobRS = st.executeQuery();
             jobRS.next();
-            Assert.assertEquals(jobRS.getString(1), jobId, "Job "+jobId+" exists in job table");
-            Assert.assertTrue(!jobRS.next(), "No dupliacte job "+jobId+" exists in job table");
+            Assert.assertEquals(jobRS.getString(1), jobId, "Job "+jobId+" does not exist in job table");
+            Assert.assertTrue(!jobRS.next(), "Duplicate job "+jobId+" should not have been existed in job table");
             st.clearBatch();
             jobRS.close();
 
@@ -113,7 +113,7 @@ public class JobServiceDatabaseUtil
             PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job WHERE job_id = ?");
             st.setString(1, jobId);
             final ResultSet jobRS = st.executeQuery();
-            Assert.assertTrue(!jobRS.next(), "Job "+jobId+" does not exist in job table");
+            Assert.assertTrue(!jobRS.next(), "Job "+jobId+" should not have been existed in job table");
             jobRS.close();
 
             st.close();
@@ -131,13 +131,13 @@ public class JobServiceDatabaseUtil
             st.setString(1, jobId);
             final ResultSet jobTaskDataRS = st.executeQuery();
             jobTaskDataRS.next();
-            Assert.assertEquals(jobTaskDataRS.getString(1), jobId, "Job "+jobId+" exists in job_task_data table");
-            Assert.assertEquals(jobTaskDataRS.getString(2), BatchWorkerConstants.WORKER_NAME, "Worker "+BatchWorkerConstants.WORKER_NAME+" exists in job_task_data table");
-            Assert.assertEquals(jobTaskDataRS.getInt(3), BatchWorkerConstants.WORKER_API_VERSION, "Worker API Version "+BatchWorkerConstants.WORKER_API_VERSION+" exists in job_task_data table");
-            Assert.assertTrue(jobTaskDataRS.getBytes(4).length > 0, jobTaskDataRS.getBytes(4)+" array is not null");
-            Assert.assertEquals(jobTaskDataRS.getString(5), batchWorkerMessageInQueue, "batchWorkerMessageInQueue is matching as: "+jobTaskDataRS.getString(5));
-            Assert.assertEquals(jobTaskDataRS.getString(6), exampleWorkerMessageOutQueue, "exampleWorkerMessageOutQueue is matching as: "+jobTaskDataRS.getString(6));
-            Assert.assertTrue(!jobTaskDataRS.next(), "No Duplicate result for Job "+jobId+" exists in job_task_data table");
+            Assert.assertEquals(jobTaskDataRS.getString(1), jobId, "Job "+jobId+" does not exist in job_task_data table");
+            Assert.assertEquals(jobTaskDataRS.getString(2), BatchWorkerConstants.WORKER_NAME, "Worker "+BatchWorkerConstants.WORKER_NAME+" does not exist in job_task_data table");
+            Assert.assertEquals(jobTaskDataRS.getInt(3), BatchWorkerConstants.WORKER_API_VERSION, "Worker API Version "+BatchWorkerConstants.WORKER_API_VERSION+" does not exist in job_task_data table");
+            Assert.assertTrue(jobTaskDataRS.getBytes(4).length > 0, jobTaskDataRS.getBytes(4)+" array is empty");
+            Assert.assertEquals(jobTaskDataRS.getString(5), batchWorkerMessageInQueue, "batchWorkerMessageInQueue: "+jobTaskDataRS.getString(5)+" is not matching as: "+batchWorkerMessageInQueue);
+            Assert.assertEquals(jobTaskDataRS.getString(6), exampleWorkerMessageOutQueue, "exampleWorkerMessageOutQueue: "+jobTaskDataRS.getString(6)+" is not matching as: "+exampleWorkerMessageOutQueue);
+            Assert.assertTrue(!jobTaskDataRS.next(), "Duplicate result for Job "+jobId+" should not have been existed in job_task_data table");
             st.clearBatch();
             jobTaskDataRS.close();
 
@@ -146,9 +146,9 @@ public class JobServiceDatabaseUtil
             st.setString(1, jobId);
             final ResultSet jobDependencyRS = st.executeQuery();
             jobDependencyRS.next();
-            Assert.assertEquals(jobDependencyRS.getString(1), jobId, "Job "+jobId+" exists in job_dependency table");
-            Assert.assertEquals(jobDependencyRS.getString(2), dependentJobId, "Dependent Job "+dependentJobId+" exists in job_dependency table");
-            Assert.assertTrue(!jobDependencyRS.next(), "No Duplicate result for Job "+jobId+" exists job_dependency table");
+            Assert.assertEquals(jobDependencyRS.getString(1), jobId, "Job "+jobId+" does not exist in job_dependency table");
+            Assert.assertEquals(jobDependencyRS.getString(2), dependentJobId, "Dependent Job "+dependentJobId+" does not exist in job_dependency table");
+            Assert.assertTrue(!jobDependencyRS.next(), "Duplicate result for Job "+jobId+" should not have been in job_dependency table");
             jobDependencyRS.close();
 
             st.close();
@@ -165,8 +165,8 @@ public class JobServiceDatabaseUtil
             st.setString(1, jobId);
             final ResultSet jobTaskDataRS = st.executeQuery();
             jobTaskDataRS.next();
-            Assert.assertEquals(jobTaskDataRS.getString(1), jobId, "Job "+jobId+" exists in job_task_data table");
-            Assert.assertTrue(!jobTaskDataRS.next(), "No duplicate Job "+jobId+" exists in job_task_data table");
+            Assert.assertEquals(jobTaskDataRS.getString(1), jobId, "Job "+jobId+" does not exist in job_task_data table");
+            Assert.assertTrue(!jobTaskDataRS.next(), "Duplicate Job "+jobId+" should not have been existed in job_task_data table");
             st.clearBatch();
             jobTaskDataRS.close();
         }
@@ -181,7 +181,7 @@ public class JobServiceDatabaseUtil
             // Verify job task data row does not exist.
             st.setString(1, jobId);
             final ResultSet jobTaskDataRS = st.executeQuery();
-            Assert.assertTrue(!jobTaskDataRS.next(), "Job "+jobId+" does not exist in job_task_data table");
+            Assert.assertTrue(!jobTaskDataRS.next(), "Job "+jobId+" should not have been existed in job_task_data table");
             jobTaskDataRS.close();
         }
     }
@@ -195,7 +195,7 @@ public class JobServiceDatabaseUtil
             PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?");
             st.setString(1, jobId);
             final ResultSet jobTaskDataRS = st.executeQuery();
-            Assert.assertTrue(!jobTaskDataRS.next(), "Job "+jobId+" is removed from job_task_data table.");
+            Assert.assertTrue(!jobTaskDataRS.next(), "Job "+jobId+" is not removed from job_task_data table.");
             jobTaskDataRS.close();
 
             //  Verify job dependency row does not exist.
@@ -203,7 +203,7 @@ public class JobServiceDatabaseUtil
             st.setString(1, jobId);
             st.setString(2, dependentJobId);
             final ResultSet jobDependencyRS = st.executeQuery();
-            Assert.assertTrue(!jobDependencyRS.next(), "Job "+dependentJobId+" does not exist in job_dependency table");
+            Assert.assertTrue(!jobDependencyRS.next(), "Job "+dependentJobId+" should not have been existed in job_dependency table");
             jobDependencyRS.close();
 
             st.close();
@@ -218,7 +218,7 @@ public class JobServiceDatabaseUtil
                 st.setString(1, jobId);
                 try (final ResultSet rs = st.executeQuery()) {
                     rs.next();
-                    Assert.assertEquals(rs.getInt("result"), 0, "Job "+jobId+" row is removed");
+                    Assert.assertEquals(rs.getInt("result"), 0, "Job "+jobId+" row is not removed");
                 }
             }
         }
