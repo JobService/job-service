@@ -48,7 +48,7 @@ public class JobServiceDatabaseUtil
             final ResultSet jobRS = st.executeQuery();
             jobRS.next();
             Assert.assertEquals(jobRS.getString(1).toLowerCase(Locale.ENGLISH), expectedStatus,
-                    "Status of Job "+jobId+": "+jobRS.getString(1).toLowerCase(Locale.ENGLISH)+ " is not matching with Expected status: "+expectedStatus+".");
+                    "Status of Job "+jobId+": "+jobRS.getString(1).toLowerCase(Locale.ENGLISH)+ " does not match with Expected status: "+expectedStatus+".");
             jobRS.close();
 
             st.close();
