@@ -658,7 +658,7 @@ public class JobServiceEndToEndIT {
         final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
         final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(retrievedJob.getId());
         LOG.info("--testCreateJobLongDelay job {} in partition: {}, canRun? {}", retrievedJob.getId(), partitionId, canRun);
-        assertEquals(false, canRun, "Job "+jobId+" is eligible to run despite a configured delay");
+        assertEquals(canRun, false, "Job "+jobId+" is eligible to run despite a configured delay");
     }
 
     @Test
@@ -697,7 +697,7 @@ public class JobServiceEndToEndIT {
 
         final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(job1Id);
         LOG.info("--testCreateJobNoDelayAndSomePreReq job {} in partition: {}, canRun? {}", job1Id, partitionId, canRun);
-        assertEquals(false, canRun, "Job "+job1Id+" is eligible to run despite incomplete prerequisite jobs");
+        assertEquals(canRun, false, "Job "+job1Id+" is eligible to run despite incomplete prerequisite jobs");
 
         JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(preReqJobId);
     }
@@ -721,12 +721,12 @@ public class JobServiceEndToEndIT {
 
         final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(job1Id);
         LOG.info("--testCreateJobNoDelayAndSomePreReqWithDelay job {} in partition: {}, canRun? {}", job1Id, partitionId, canRun);
-        assertEquals(false, canRun, "Job "+job1Id+" is eligible to run despite incomplete prerequisite jobs");
+        assertEquals(canRun, false, "Job "+job1Id+" is eligible to run despite incomplete prerequisite jobs");
 
         final boolean preReqJobCanRun = JobServiceDatabaseUtil.isJobEligibleToRun(preReqJobId);
         LOG.info("--testCreateJobNoDelayAndSomePreReqWithDelay job {} in partition: {}, canRun? {}",
                 preReqJobId, partitionId, preReqJobCanRun);
-        assertEquals(false, preReqJobCanRun, "Job "+preReqJobId+" is eligible to run despite configured delay");
+        assertEquals(preReqJobCanRun, false, "Job "+preReqJobId+" is eligible to run despite configured delay");
     }
 
     @Test
@@ -742,7 +742,7 @@ public class JobServiceEndToEndIT {
         final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
         final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(retrievedJob.getId());
         LOG.info("--testCreateJobSuspendedPartition job {} in partition: {}, canRun? {}", retrievedJob.getId(), partitionId, canRun);
-        assertEquals(false, canRun, "Job "+jobId+" is eligible to run despite being in a suspended partition");
+        assertEquals(canRun, false, "Job "+jobId+" is eligible to run despite being in a suspended partition");
     }
 
     @Test
@@ -760,7 +760,7 @@ public class JobServiceEndToEndIT {
         final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(retrievedJob.getId());
         LOG.info("--testCreateJobWithPreReqSuspendedPartition job {} in partition: {}, canRun? {}",
                 retrievedJob.getId(), partitionId, canRun);
-        assertEquals(false, canRun, "Job "+jobId+" is eligible to run despite being in a suspended partition and incomplete prerequisite jobs");
+        assertEquals(canRun, false, "Job "+jobId+" is eligible to run despite being in a suspended partition and incomplete prerequisite jobs");
     }
 
     @Test
@@ -778,7 +778,7 @@ public class JobServiceEndToEndIT {
         final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(retrievedJob.getId());
         LOG.info("--testCreateJobWithDelaySuspendedPartition job {} in partition: {}, canRun? {}",
                 retrievedJob.getId(), partitionId, canRun);
-        assertEquals(false, canRun, "Job "+jobId+" is eligible to run despite being in a suspended partition and a configured delay");
+        assertEquals(canRun, false, "Job "+jobId+" is eligible to run despite being in a suspended partition and a configured delay");
     }
 
     @Test
@@ -839,9 +839,9 @@ public class JobServiceEndToEndIT {
         final boolean canRunJob3 = JobServiceDatabaseUtil.isJobEligibleToRun(job3Id);
         LOG.info("--testSuspendedJobWithPrerequisiteJobsAndDelays job3 {} in partition: {}, canRun? {}",
                 job3Id, partitionId, canRunJob3);
-        assertEquals(false, canRunJob1, "Job "+job1Id+" is eligible to run despite being in a suspended partition");
-        assertEquals(false, canRunJob2, "Job "+job2Id+" is eligible to run despite prerequisite "+job1Id+" failed");
-        assertEquals(false, canRunJob3, "Job "+job3Id+" is eligible to run despite prerequisite "+job2Id+" failed");
+        assertEquals(canRunJob1, false, "Job "+job1Id+" is eligible to run despite being in a suspended partition");
+        assertEquals(canRunJob2, false, "Job "+job2Id+" is eligible to run despite prerequisite "+job1Id+" failed");
+        assertEquals(canRunJob3, false, "Job "+job3Id+" is eligible to run despite prerequisite "+job2Id+" failed");
     }
 
     @Test
