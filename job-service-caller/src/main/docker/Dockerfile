@@ -15,7 +15,6 @@
 #
 
 ARG DOCKER_HUB_PUBLIC=docker.io
-ARG DOCKER_HUB_PRIVATE=docker.io
 FROM ${DOCKER_HUB_PUBLIC}/cafapi/opensuse-python3:2
 
 # Install pip and requests
