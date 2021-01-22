@@ -380,11 +380,6 @@
                             <build>
                                 <from>${dockerHubPublic}/cafapi/opensuse-jre11:3</from>
                                 <labels>
-                                    <Build.Number>${project.version}</Build.Number>
-                                    <Build.Date>${maven.build.timestamp}</Build.Date>
-                                    <Git.Repo>${gitRepo}</Git.Repo>
-                                    <Git.Branch>${git.branch}</Git.Branch>
-                                    <Git.Commit>${git.revision}</Git.Commit>
                                     <caf.worker-queue.impl>${caf.worker-queue.impl}</caf.worker-queue.impl>
                                     <caf.worker-store.impl>${caf.worker-store.impl}</caf.worker-store.impl>
                                     <caf.config.impl>${caf.config.impl}</caf.config.impl>

@@ -147,13 +147,6 @@
                             <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <build>
                                 <from>${dockerHubPublic}/cafapi/java-postgres:2</from>
-                                <labels>
-                                    <Build.Number>${project.version}</Build.Number>
-                                    <Build.Date>${maven.build.timestamp}</Build.Date>
-                                    <Git.Repo>${gitRepo}</Git.Repo>
-                                    <Git.Branch>${git.branch}</Git.Branch>
-                                    <Git.Commit>${git.revision}</Git.Commit>
-                                </labels>
                                 <optimise>true</optimise>
                                 <assembly>
                                     <mode>tar</mode>

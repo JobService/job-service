@@ -45,7 +45,6 @@
         <dockerProjectVersion>${dockerVersionSeperator}${project.version}</dockerProjectVersion>
         <DOCKER_HUB_PRIVATE>${dockerHubPrivate}</DOCKER_HUB_PRIVATE>
         <DOCKER_HUB_PUBLIC>${dockerHubPublic}</DOCKER_HUB_PUBLIC>
-        <gitRepo>https://github.com/JobService/job-service</gitRepo>
         <enforceCorrectDependencies>true</enforceCorrectDependencies>
         <enforceBannedDependencies>true</enforceBannedDependencies>
         <fabric8.docker.maven.version>0.26.1</fabric8.docker.maven.version>
@@ -280,7 +279,7 @@
     <scm>
         <connection>scm:git:https://github.com/JobService/job-service.git</connection>
         <developerConnection>scm:git:https://github.com/JobService/job-service.git</developerConnection>
-        <url>${gitRepo}</url>
+        <url>https://github.com/JobService/job-service</url>
     </scm>
 
 </project>

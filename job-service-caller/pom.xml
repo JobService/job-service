@@ -69,13 +69,6 @@
                             <build>
                                 <dockerFileDir>.</dockerFileDir>
                                 <args>
-                                    <!-- Labels used for image tagging -->
-                                    <BUILD_NUMBER>${project.version}</BUILD_NUMBER>
-                                    <BUILD_DATE>${maven.build.timestamp}</BUILD_DATE>
-                                    <GIT_REPO>${gitRepo}</GIT_REPO>
-                                    <GIT_BRANCH>${git.branch}</GIT_BRANCH>
-                                    <GIT_COMMIT>${git.revision}</GIT_COMMIT>
-
                                     <!-- Enable internet access -->
                                     <http_proxy>${env.HTTP_PROXY}</http_proxy>
                                     <https_proxy>${env.HTTPS_PROXY}</https_proxy>
