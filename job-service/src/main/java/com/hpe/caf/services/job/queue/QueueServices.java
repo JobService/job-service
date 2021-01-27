@@ -15,6 +15,8 @@
  */
 package com.hpe.caf.services.job.queue;
 
+import static com.github.cafapi.http.filters.correlationid.CorrelationIdConfigurationConstants.mdcKey;
+
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.api.worker.TaskMessage;
@@ -29,6 +31,7 @@ import com.rabbitmq.client.MessageProperties;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
@@ -116,7 +119,9 @@ public final class QueueServices {
                 TaskStatus.NEW_TASK,
                 Collections.<String, byte[]>emptyMap(),
                 targetQueue,
-                trackingInfo);
+                trackingInfo,
+                null,
+                MDC.get(mdcKey));
 
         //  Serialise the task message.
         //  Wrap any CodecException as a RuntimeException as it shouldn't happen

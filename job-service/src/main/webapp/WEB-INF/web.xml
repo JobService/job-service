@@ -69,6 +69,14 @@
     <filter-name>ApiOriginFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
+  <filter-mapping>
+    <filter-name>CorrelationIdFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter>
+    <filter-name>CorrelationIdFilter</filter-name>
+    <filter-class>com.github.cafapi.http.filters.correlationid.CorrelationIdFilter</filter-class>
+  </filter>
   <listener>
     <listener-class>com.hpe.caf.services.job.jobtype.JobTypesContextListener</listener-class>
   </listener>
