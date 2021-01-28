@@ -219,12 +219,6 @@
             <artifactId>caf-logging-logback</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>com.github.cafapi.logging</groupId>
-            <artifactId>caf-correlation-id</artifactId>
-            <version>1.4.0-SCMOD-12257-SNAPSHOT</version>
-            <scope>runtime</scope>
-        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>commons-io</groupId>

@@ -75,7 +75,7 @@
   </filter-mapping>
   <filter>
     <filter-name>CorrelationIdFilter</filter-name>
-    <filter-class>com.github.cafapi.http.filters.correlationid.CorrelationIdFilter</filter-class>
+    <filter-class>com.hpe.caf.services.job.api.filter.CorrelationIdFilter</filter-class>
   </filter>
   <listener>
     <listener-class>com.hpe.caf.services.job.jobtype.JobTypesContextListener</listener-class>
