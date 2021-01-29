@@ -15,6 +15,8 @@
  */
 package com.hpe.caf.services.job.queue;
 
+import static com.github.cafapi.http.filters.correlationid.CorrelationIdConfigurationConstants.mdcKey;
+
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.api.worker.TaskMessage;
@@ -119,7 +121,7 @@ public final class QueueServices {
                 targetQueue,
                 trackingInfo,
                 null,
-                MDC.get("correlationId"));
+                MDC.get(mdcKey));
 
         //  Serialise the task message.
         //  Wrap any CodecException as a RuntimeException as it shouldn't happen
