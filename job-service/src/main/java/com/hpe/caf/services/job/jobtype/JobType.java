@@ -83,7 +83,7 @@ public final class JobType {
             final JsonNode taskApiVersion = getNonNullPropertyFromTask(task, "taskApiVersion");
             if (!taskApiVersion.isInt()) {
                 throw new InvalidJobTypeDefinitionException(
-                    id + ": taskScript should contain an int value for: taskApiVersion");
+                    id + ": taskScript should contain an integer value for: taskApiVersion");
             }
             workerAction.setTaskApiVersion(taskApiVersion.asInt());
 
@@ -104,12 +104,14 @@ public final class JobType {
             workerAction.setTaskPipe(taskPipe.asText());
 
             // targetPipe
-            final JsonNode targetPipe = getNonNullPropertyFromTask(task, "targetPipe");
-            if (!targetPipe.isTextual() || targetPipe.asText().isEmpty()) {
-                throw new InvalidJobTypeDefinitionException(
-                    id + ": taskScript should contain a non-empty string value for: targetPipe");
+            final JsonNode targetPipe = task.get("targetPipe");
+            if (targetPipe != null && !targetPipe.isNull()) {
+                if (!targetPipe.isTextual()) {
+                    throw new InvalidJobTypeDefinitionException(
+                        id + ": taskScript should contain a string value for: targetPipe (when it has been provided)");
+                }
+                workerAction.setTargetPipe(targetPipe.asText());
             }
-            workerAction.setTargetPipe(targetPipe.asText());
         } catch (final IllegalArgumentException e) {
             throw new InvalidJobTypeDefinitionException(
                 id + ": incorrect output type for taskScript", e);
@@ -121,7 +123,7 @@ public final class JobType {
         throws InvalidJobTypeDefinitionException
     {
         final JsonNode jsonNode = task.get(property);
-        if (jsonNode == null) {
+        if (jsonNode == null || jsonNode.isNull()) {
             throw new InvalidJobTypeDefinitionException(
                 id + ": taskScript should contain a non-null value for: " + property);
         }

@@ -14,8 +14,7 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskApiVersion: 1
+
 jobParametersSchema:
   type: object
   properties:
@@ -26,13 +25,18 @@ jobParametersSchema:
     forObjectMap:
       type: object
       additionalProperties: { type: number }
-taskDataScript: |
-  {
-    "reqParams": {
-      "joined": join(.parameters.forJoin, ">"),
-      "concatenatedJson": "{ \"start\": " + to-json(.parameters.forJsonConcat + "_end") + " }",
-      "mappedObject": {
-        for (.parameters.forObjectMap) "incremented:" + .key : .value + 1
-      }
+taskScript: |
+    { "taskClassifier": "classifier",
+      "taskApiVersion": 1,
+      "taskData": {
+        "reqParams": {
+          "joined": join(.parameters.forJoin, ">"),
+          "concatenatedJson": "{ \"start\": " + to-json(.parameters.forJsonConcat + "_end") + " }",
+          "mappedObject": {
+            for (.parameters.forObjectMap) "incremented:" + .key : .value + 1
+          }
+        }
+      },
+      "taskPipe": .taskPipe,
+      "targetPipe": .targetPipe
     }
-  }

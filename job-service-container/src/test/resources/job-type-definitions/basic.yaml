@@ -14,14 +14,17 @@
 # limitations under the License.
 #
 
-taskClassifier: basic classifier
-taskApiVersion: 74
-taskDataScript: |
-  {
-    "config": .configuration,
-    "taskQueue": .taskPipe,
-    "targetQueue": .targetPipe,
-    "partitionIdent": .partitionId,
-    "jobIdent": .jobId,
-    "reqParams": .parameters,
-  }
+taskScript: |
+    { "taskClassifier": "basic classifier",
+      "taskApiVersion": 74,
+      "taskData": {
+        "config": .configuration,
+        "taskQueue": .taskPipe,
+        "targetQueue": .targetPipe,
+        "partitionIdent": .partitionId,
+        "jobIdent": .jobId,
+        "reqParams": .parameters
+      },
+      "taskPipe": .taskPipe,
+      "targetPipe": .targetPipe
+    }

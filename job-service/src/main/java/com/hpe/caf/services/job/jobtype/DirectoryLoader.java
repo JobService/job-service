@@ -48,6 +48,8 @@ public final class DirectoryLoader implements Loader {
         for (final Path file : (Iterable<Path>) Files.list(dir)::iterator) {
             final String filename = file.getFileName().toString();
             if (Files.isRegularFile(file) && filename.endsWith(".yaml")) {
+                System.out.println("rory");
+                System.out.println(file.getFileName().toString());
                 final String id = filename.substring(0, filename.length() - 5);
                 try (final InputStream defnStream = Files.newInputStream(file)) {
                     defns.add(parser.parse(id, defnStream));

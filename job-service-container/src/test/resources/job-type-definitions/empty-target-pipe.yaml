@@ -14,10 +14,13 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskApiVersion: 1
-taskDataScript: |
-  {
-    "targetQueue": .targetPipe,
-  }
+taskScript: |
+    { "taskClassifier": "classifier",
+      "taskApiVersion": 1,
+      "taskData": {
+        "targetQueue": .targetPipe,
+      },
+      "taskPipe": .taskPipe,
+      "targetPipe": .targetPipe
+    }
 

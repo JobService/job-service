@@ -31,20 +31,6 @@ The configured `targetPipe` value may be empty, in which case the `targetPipe` p
 
 A definition is a YAML file containing an object.  The subsections here correspond to properties of that object.
 
-### taskClassifier
-
-- required: true
-- type: string
-
-Value used as the `taskClassifier` property in the constructed `task` object.
-
-### taskApiVersion
-
-- required: true
-- type: integer
-
-Value used as the `taskClassifier` property in the constructed `task` object.
-
 ### configurationProperties
 
 - required: false (default: empty array)
@@ -71,18 +57,18 @@ Notes on what the property means, and what value should be configured for it.
 - required: false (default: input must be missing or null)
 - type: YAML (not a string containing JSON or YAML)
 
-An embedded schema which is used to validate parameters provided with the job before executing `taskDataScript` (below).  The schema language is JSON Schema (`draft-03` or `draft-04`); language reference can be found here:
+An embedded schema which is used to validate parameters provided with the job before executing `taskScript` (below).  The schema language is JSON Schema (`draft-03` or `draft-04`); language reference can be found here:
 
 - <http://json-schema.org/specification-links.html#draft-4>
 
 Parameters can only be specified as an object, so the schema must expect an object as the outer value.  The schema also serves as documentation for job creators, so it is recommended to use the `description` annotation throughout.
 
-### taskDataScript
+### taskScript
 
 - required: true
 - type: string
 
-An embedded script which is executed to construct the `taskData` part of the `task` object.  The script language is JSLT (version 0.1.9), configured to preserve all output values.  Language reference can be found here:
+An embedded script which is executed to construct the `task` object.  The script language is JSLT (version 0.1.9), configured to preserve all output values.  Language reference can be found here:
 
 - <https://github.com/schibsted/jslt/blob/0.1.9/tutorial.md>
 - <https://github.com/schibsted/jslt/blob/0.1.9/functions.md>
@@ -96,4 +82,4 @@ The script input is an object with the following properties:
 - `jobId`: the job's ID
 - `parameters`: as provided with the submitted job, and already validated according to `jobParameterSchema`
 
-The script output is the `taskData` value, and should be an object.
+The script output is the `task` value, and should be an object.

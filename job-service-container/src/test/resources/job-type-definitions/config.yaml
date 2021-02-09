@@ -14,8 +14,6 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskApiVersion: 1
 configurationProperties:
   - name: UPPER
     description: upper desc
@@ -28,5 +26,10 @@ configurationProperties:
   - name: nodesc
   - name: number
     description: number desc
-taskDataScript: |
-  { "config": .configuration }
+taskScript: |
+  { "taskClassifier": "classifier",
+    "taskApiVersion": 1,
+    "taskData": { "config": .configuration },
+    "taskPipe": .taskPipe,
+    "targetPipe": .targetPipe
+  }
