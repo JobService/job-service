@@ -23,3 +23,4 @@ taskScript: |
     "taskPipe": "basic task pipe",
     "targetPipe": "basic target pipe"
   }
+
