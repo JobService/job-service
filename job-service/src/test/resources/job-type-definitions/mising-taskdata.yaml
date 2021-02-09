@@ -14,5 +14,9 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskApiVersion: 1
+taskScript: |
+    { "taskClassifier": "basic classifier",
+      "taskApiVersion": 74,
+      "taskPipe": "basic task pipe",
+      "targetPipe": "basic target pipe"
+    }

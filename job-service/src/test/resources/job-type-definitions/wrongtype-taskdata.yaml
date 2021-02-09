@@ -15,9 +15,9 @@
 #
 
 taskScript: |
-    { "taskClassifier": { this: is invalid,
+    { "taskClassifier": "basic classifier",
       "taskApiVersion": 74,
-      "taskData": {"cfg": .configuration},
+      "taskData": "not a map",
       "taskPipe": "basic task pipe",
       "targetPipe": "basic target pipe"
     }

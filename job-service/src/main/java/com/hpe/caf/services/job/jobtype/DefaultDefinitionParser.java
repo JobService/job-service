@@ -62,17 +62,12 @@ public final class DefaultDefinitionParser implements DefinitionParser {
 
         // `JobTypeDefinition` getters perform validation, so try to only call them once
         // it throws on missing values and fills in defaults, so there are no checks needed here
-        final String taskPipe = definition.getTaskPipe(id, appConfig);
-        final String targetPipe = definition.getTargetPipe(id, appConfig);
         final ParametersValidator parametersValidator =
             new JsonSchemaParametersValidator(id, definition.getParametersSchema());
-        final TaskDataBuilder taskDataBuilder = new JsltTaskDataBuilder(
-            id, taskPipe, targetPipe, definition.getConfiguration(id, appConfig),
-            parametersValidator, definition.getTaskDataScript(id));
-
-        return new JobType(
-            id, definition.getTaskClassifier(id), definition.getTaskApiVersion(id),
-            taskPipe, targetPipe, taskDataBuilder);
+        final TaskBuilder taskBuilder = new JsltTaskBuilder(
+            id, definition.getConfiguration(id, appConfig),
+            parametersValidator, definition.getTaskScript(id));
+        return new JobType(id, taskBuilder);
     }
 
 
@@ -100,58 +95,32 @@ public final class DefaultDefinitionParser implements DefinitionParser {
         private static final Object DEFAULT_JOB_PARAMETERS_SCHEMA =
             Collections.singletonMap("type", "null");
 
-        private String taskClassifier;
-        private Integer taskApiVersion;
         private List<ConfigurationProperty> configurationProperties;
         private Object jobParametersSchema;
-        private String taskDataScript;
+        private String taskScript;
 
-        public void setTaskClassifier(final String taskClassifier) {
-            this.taskClassifier = taskClassifier;
-        }
-
-        public String getTaskClassifier(final String id) throws InvalidJobTypeDefinitionException {
-            if (taskClassifier == null) {
-                throw new InvalidJobTypeDefinitionException(
-                    id + ": missing property: taskClassifier");
-            }
-            return taskClassifier;
-        }
-
-        public void setTaskApiVersion(final Integer taskApiVersion) {
-            this.taskApiVersion = taskApiVersion;
-        }
-
-        public Integer getTaskApiVersion(final String id) throws InvalidJobTypeDefinitionException {
-            if (taskApiVersion == null) {
-                throw new InvalidJobTypeDefinitionException(
-                    id + ": missing property: taskApiVersion");
-            }
-            return taskApiVersion;
-        }
-
-        public String getTaskPipe(final String id, final AppConfig appConfig)
-            throws InvalidJobTypeDefinitionException
-        {
-            final String taskPipe = appConfig.getJobTypeProperty(id, "task_pipe");
-            if (taskPipe == null) {
-                throw new InvalidJobTypeDefinitionException(id + ": task pipe is not configured");
-            }
-            return taskPipe;
-        }
-
-        public String getTargetPipe(final String id, final AppConfig appConfig)
-            throws InvalidJobTypeDefinitionException
-        {
-            final String targetPipe = appConfig.getJobTypeProperty(id, "target_pipe");
-            if (targetPipe == null) {
-                throw new InvalidJobTypeDefinitionException(id + ": target pipe is not configured");
-            } else if (targetPipe.equals("")) {
-                return null;
-            } else {
-                return targetPipe;
-            }
-        }
+//        public String getTaskPipe(final String id, final AppConfig appConfig)
+//            throws InvalidJobTypeDefinitionException
+//        {
+//            final String taskPipe = appConfig.getJobTypeProperty(id, "task_pipe");
+//            if (taskPipe == null) {
+//                throw new InvalidJobTypeDefinitionException(id + ": task pipe is not configured");
+//            }
+//            return taskPipe;
+//        }
+//
+//        public String getTargetPipe(final String id, final AppConfig appConfig)
+//            throws InvalidJobTypeDefinitionException
+//        {
+//            final String targetPipe = appConfig.getJobTypeProperty(id, "target_pipe");
+//            if (targetPipe == null) {
+//                throw new InvalidJobTypeDefinitionException(id + ": target pipe is not configured");
+//            } else if (targetPipe.equals("")) {
+//                return null;
+//            } else {
+//                return targetPipe;
+//            }
+//        }
 
         public void setConfigurationProperties(
             final List<ConfigurationProperty> configurationProperties
@@ -192,16 +161,16 @@ public final class DefaultDefinitionParser implements DefinitionParser {
                 JsonNode.class);
         }
 
-        public void setTaskDataScript(final String taskDataScript) {
-            this.taskDataScript = taskDataScript;
+        public void setTaskScript(final String taskScript) {
+            this.taskScript = taskScript;
         }
 
-        public String getTaskDataScript(final String id) throws InvalidJobTypeDefinitionException {
-            if (taskDataScript == null) {
+        public String getTaskScript(final String id) throws InvalidJobTypeDefinitionException {
+            if (taskScript == null) {
                 throw new InvalidJobTypeDefinitionException(
-                    id + ": missing property: taskDataScript");
+                    id + ": missing property: taskScript");
             }
-            return taskDataScript;
+            return taskScript;
         }
 
     }

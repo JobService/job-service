@@ -28,39 +28,23 @@ import java.util.Map;
  */
 public final class JobType {
     /**
-     * Used to convert the built output to the expected task data format.
+     * Used to convert the built output to the expected task format.
      */
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final String id;
-    private final String taskClassifier;
-    private final int taskApiVersion;
-    private final String taskPipe;
-    private final String targetPipe;
-    private final TaskDataBuilder taskDataBuilder;
+    private final TaskBuilder taskBuilder;
 
     /**
      * @param id Identifier for the job type which is unique within a {@link JobTypes} instance
-     * @param taskClassifier Value to use for `taskClassifier` in the transformed job
-     * @param taskApiVersion Value to use for `taskApiVersion` in the transformed job
-     * @param taskPipe Value to use for `taskPipe` in the transformed job
-     * @param targetPipe Value to use for `targetPipe` in the transformed job; may be null
-     * @param taskDataBuilder How to construct the final job task data
+     * @param taskBuilder How to construct the final job task
      */
     public JobType(
         final String id,
-        final String taskClassifier,
-        final int taskApiVersion,
-        final String taskPipe,
-        final String targetPipe,
-        final TaskDataBuilder taskDataBuilder
+        final TaskBuilder taskBuilder
     ) {
         this.id = id;
-        this.taskClassifier = taskClassifier;
-        this.taskApiVersion = taskApiVersion;
-        this.taskPipe = taskPipe;
-        this.targetPipe = targetPipe;
-        this.taskDataBuilder = taskDataBuilder;
+        this.taskBuilder = taskBuilder;
     }
 
     /**
@@ -71,8 +55,8 @@ public final class JobType {
     }
 
     /**
-     * @param partitionId The job's partition ID, provided to {@link TaskDataBuilder} as input
-     * @param jobId The job's ID, provided to {@link TaskDataBuilder} as input
+     * @param partitionId The job's partition ID, provided to {@link TaskBuilder} as input
+     * @param jobId The job's ID, provided to {@link TaskBuilder} as input
      * @param parameters Configuration submitted along with the job
      * @return Job task built according to the job type
      * @throws BadRequestException When the parameters are invalid
@@ -81,21 +65,66 @@ public final class JobType {
      */
     public WorkerAction buildTask(
         final String partitionId, final String jobId, final JsonNode parameters
-    ) throws BadRequestException, InvalidJobTypeDefinitionException {
-        final WorkerAction task = new WorkerAction();
-        task.setTaskClassifier(taskClassifier);
-        task.setTaskApiVersion(taskApiVersion);
-        task.setTaskPipe(taskPipe);
-        task.setTargetPipe(targetPipe);
-        final JsonNode taskData = taskDataBuilder.build(partitionId, jobId, parameters);
+    ) throws BadRequestException, InvalidJobTypeDefinitionException
+    {
+        final WorkerAction workerAction = new WorkerAction();
+        final JsonNode task = taskBuilder.build(partitionId, jobId, parameters);
         // job-put expects `Map` (or `String`), but only does a shallow type check
         try {
-            task.setTaskData(objectMapper.convertValue(taskData, Map.class));
+            // taskClassifier
+            final JsonNode taskClassifier = getNonNullPropertyFromTask(task, "taskClassifier");
+            if (!taskClassifier.isTextual() || taskClassifier.asText().isEmpty()) {
+                throw new InvalidJobTypeDefinitionException(
+                    id + ": taskScript should contain a non-empty string value for: taskClassifier");
+            }
+            workerAction.setTaskClassifier(taskClassifier.asText());
+
+            // taskApiVersion
+            final JsonNode taskApiVersion = getNonNullPropertyFromTask(task, "taskApiVersion");
+            if (!taskApiVersion.isInt()) {
+                throw new InvalidJobTypeDefinitionException(
+                    id + ": taskScript should contain an int value for: taskApiVersion");
+            }
+            workerAction.setTaskApiVersion(taskApiVersion.asInt());
+
+            // taskData
+            final JsonNode taskData = getNonNullPropertyFromTask(task, "taskData");
+            if (!taskData.isObject()) {
+                throw new InvalidJobTypeDefinitionException(
+                    id + ": taskScript should contain an object value for: taskData");
+            }
+            workerAction.setTaskData(objectMapper.convertValue(taskData, Map.class));
+
+            // taskPipe
+            final JsonNode taskPipe = getNonNullPropertyFromTask(task, "taskPipe");
+            if (!taskPipe.isTextual() || taskPipe.asText().isEmpty()) {
+                throw new InvalidJobTypeDefinitionException(
+                    id + ": taskScript should contain a non-empty string value for: taskPipe");
+            }
+            workerAction.setTaskPipe(taskPipe.asText());
+
+            // targetPipe
+            final JsonNode targetPipe = getNonNullPropertyFromTask(task, "targetPipe");
+            if (!targetPipe.isTextual() || targetPipe.asText().isEmpty()) {
+                throw new InvalidJobTypeDefinitionException(
+                    id + ": taskScript should contain a non-empty string value for: targetPipe");
+            }
+            workerAction.setTargetPipe(targetPipe.asText());
         } catch (final IllegalArgumentException e) {
             throw new InvalidJobTypeDefinitionException(
-                id + ": incorrect output type for taskDataScript", e);
+                id + ": incorrect output type for taskScript", e);
         }
-        return task;
+        return workerAction;
     }
 
+    private JsonNode getNonNullPropertyFromTask(final JsonNode task, final String property)
+        throws InvalidJobTypeDefinitionException
+    {
+        final JsonNode jsonNode = task.get(property);
+        if (jsonNode == null) {
+            throw new InvalidJobTypeDefinitionException(
+                id + ": taskScript should contain a non-null value for: " + property);
+        }
+        return jsonNode;
+    }
 }

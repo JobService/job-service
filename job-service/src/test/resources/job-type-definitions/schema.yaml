@@ -14,8 +14,12 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskApiVersion: 1
 jobParametersSchema:
   type: string
-taskDataScript: .
+taskScript: |
+  { "taskClassifier": "basic classifier",
+    "taskApiVersion": 74,
+    "taskData": {"cfg": .configuration},
+    "taskPipe": "basic task pipe",
+    "targetPipe": "basic target pipe"
+  }

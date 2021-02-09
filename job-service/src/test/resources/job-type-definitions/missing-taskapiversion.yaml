@@ -14,5 +14,9 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskDataScript: .
+taskScript: |
+    { "taskClassifier": "basic classifier",
+      "taskData": {"cfg": .configuration},
+      "taskPipe": "basic task pipe",
+      "targetPipe": "basic target pipe"
+    }

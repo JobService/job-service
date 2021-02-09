@@ -14,5 +14,9 @@
 # limitations under the License.
 #
 
-taskApiVersion: 1
-taskDataScript: .
+taskScript: |
+    { "taskApiVersion": 74,
+      "taskData": {"cfg": .configuration},
+      "taskPipe": "basic task pipe",
+      "targetPipe": "basic target pipe"
+    }

@@ -14,10 +14,6 @@
 # limitations under the License.
 #
 
-taskScript: |
-    { "taskClassifier": { this: is invalid,
-      "taskApiVersion": 74,
-      "taskData": {"cfg": .configuration},
-      "taskPipe": "basic task pipe",
-      "targetPipe": "basic target pipe"
-    }
+configurationProperties:
+  - name: prop_a
+
