@@ -39,6 +39,8 @@ final class JsltTaskBuilder implements TaskBuilder {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final String jobTypeId;
+    private final String taskPipe;
+    private final String targetPipe;
     private final Map<String, String> configuration;
     private final ParametersValidator parametersValidator;
     /**
@@ -48,6 +50,8 @@ final class JsltTaskBuilder implements TaskBuilder {
 
     /**
      * @param jobTypeId Job type's ID, used in error messages
+     * @param taskPipe The job's `taskPipe`
+     * @param targetPipe The job's `targetPipe`; may be null
      * @param configuration object containing string values which are fixed for the job type;
      *                      generally obtained from global configuration
      * @param parametersValidator used to validate the `parameters` argument to {@link #build}
@@ -57,11 +61,15 @@ final class JsltTaskBuilder implements TaskBuilder {
      */
     public JsltTaskBuilder(
         final String jobTypeId,
+        final String taskPipe,
+        final String targetPipe,
         final Map<String, String> configuration,
         final ParametersValidator parametersValidator,
         final String taskScript
     ) throws InvalidJobTypeDefinitionException {
         this.jobTypeId = jobTypeId;
+        this.taskPipe = taskPipe;
+        this.targetPipe = targetPipe;
         this.configuration = configuration;
         this.parametersValidator = parametersValidator;
 
@@ -84,6 +92,9 @@ final class JsltTaskBuilder implements TaskBuilder {
 
         final Map<String, Object> input = new HashMap<>();
         input.put("configuration", configuration);
+        input.put("taskPipe", taskPipe);
+        if (targetPipe != null)
+            input.put("targetPipe", targetPipe);
         input.put("partitionId", partitionId);
         input.put("jobId", jobId);
         input.put("parameters", parameters);

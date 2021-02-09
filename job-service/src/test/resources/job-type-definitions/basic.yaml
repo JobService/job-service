@@ -18,6 +18,6 @@ taskScript: |
     { "taskClassifier": "basic classifier",
       "taskApiVersion": 74,
       "taskData": {"cfg": .configuration},
-      "taskPipe": "basic task pipe",
-      "targetPipe": "basic target pipe"
+      "taskPipe": .taskPipe,
+      "targetPipe": .targetPipe
     }

@@ -16,6 +16,7 @@
 package com.hpe.caf.services.job.jobtype;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.junit.Assert;
@@ -32,30 +33,45 @@ public class JsltTaskBuilderTest {
     public void testBuild() throws Exception {
         final Map<String, String> config = Collections.singletonMap("cfg key", "cfg val");
         final TaskBuilder builder = new JsltTaskBuilder(
-            "type", config, paramValidatorSuccess, ".");
+            "type", "task pipe", "target pipe", config, paramValidatorSuccess, ".");
         final JsonNode actualTask =
             builder.build("partition id", "job id", TextNode.valueOf("params"));
 
         final Map<String, Object> expectedTask = new HashMap<>();
         expectedTask.put("configuration", config);
+        expectedTask.put("taskPipe", "task pipe");
+        expectedTask.put("targetPipe", "target pipe");
         expectedTask.put("partitionId", "partition id");
         expectedTask.put("jobId", "job id");
         expectedTask.put("parameters", "params");
         Assert.assertEquals(JobTypeTestUtil.convertJson(expectedTask), actualTask);
     }
 
+    @Test
+    public void testBuildWithNullTargetPipe() throws Exception
+    {
+        final Map<String, String> config = Collections.singletonMap("cfg key", "cfg val");
+        final TaskBuilder builder = new JsltTaskBuilder(
+            "type", "task pipe", null, config, paramValidatorSuccess, ".targetPipe");
+        final JsonNode actualTaskData
+            = builder.build("partition id", "job id", TextNode.valueOf("params"));
+
+        Assert.assertEquals("targetPipe should not be passed to script",
+                            NullNode.getInstance(), actualTaskData);
+    }
+
     @SuppressWarnings("ResultOfObjectAllocationIgnored")
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testBuildWithIncorrectScriptSyntax() throws Exception {
         new JsltTaskBuilder(
-            "type", Collections.emptyMap(), paramValidatorSuccess,
+            "type", "task pipe", "target pipe", Collections.emptyMap(), paramValidatorSuccess,
             "not a valid script");
     }
 
     @Test(expected = BadRequestException.class)
     public void testBuildWithParamValidationError() throws Exception {
         final TaskBuilder builder = new JsltTaskBuilder(
-            "type", Collections.emptyMap(),
+            "type", "task pipe", "target pipe", Collections.emptyMap(),
             params -> { throw new BadRequestException("invalid params"); },
             ".");
         builder.build("partition id", "job id", TextNode.valueOf("params"));
@@ -65,7 +81,7 @@ public class JsltTaskBuilderTest {
     @Test(expected = BadRequestException.class)
     public void testBuildWithFailingScript() throws Exception {
         final TaskBuilder builder = new JsltTaskBuilder(
-            "type", Collections.emptyMap(), paramValidatorSuccess,
+            "type", "task pipe", "target pipe", Collections.emptyMap(), paramValidatorSuccess,
             "error(\"input not quite right\")");
         builder.build("partition id", "job id", TextNode.valueOf("params"));
     }
@@ -74,7 +90,7 @@ public class JsltTaskBuilderTest {
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testBuildWithInvalidScript() throws Exception {
         final TaskBuilder builder = new JsltTaskBuilder(
-            "type", Collections.emptyMap(), paramValidatorSuccess,
+            "type", "task pipe", "target pipe", Collections.emptyMap(), paramValidatorSuccess,
             "{ \"result\": .jobId[\"key\"] }"); // can't index string with string
         builder.build("partition id", "job id", TextNode.valueOf("params"));
     }
@@ -83,7 +99,7 @@ public class JsltTaskBuilderTest {
     public void testBuildWithEmptyObjectInScriptResult() throws Exception {
         final Map<String, String> config = Collections.singletonMap("cfg key", "cfg val");
         final TaskBuilder builder = new JsltTaskBuilder(
-            "type", config, paramValidatorSuccess,
+            "type", "task pipe", "target pipe", config, paramValidatorSuccess,
             "{ \"empty\": {} }");
         final JsonNode actualTaskData =
             builder.build("partition id", "job id", TextNode.valueOf("params"));

@@ -84,9 +84,9 @@ public class DefaultDefinitionParserTest {
         Assert.assertEquals("should parse classifier",
             "basic classifier", task.getTaskClassifier());
         Assert.assertEquals("should parse api version", 74, task.getTaskApiVersion().intValue());
-        Assert.assertEquals("should parse task pipe",
+        Assert.assertEquals("should get task pipe from config",
             "basic task pipe", task.getTaskPipe());
-        Assert.assertEquals("should parse target pipe",
+        Assert.assertEquals("should get target pipe from config",
             "basic target pipe", task.getTargetPipe());
 
         final Map<String, Map<String, String>> taskData = JobTypeTestUtil.objectMapper.convertValue(
@@ -175,6 +175,13 @@ public class DefaultDefinitionParserTest {
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
+    public void testMissingTaskPipeFromConfig() throws Exception
+    {
+        Mockito.when(appConfig.getJobTypeProperty("id", "task_pipe")).thenReturn(null);
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("basic"));
+    }
+
+    @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testTaskPipeWithWrongType() throws Exception
     {
         final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("wrongtype-taskpipe"));
@@ -193,6 +200,13 @@ public class DefaultDefinitionParserTest {
     {
         final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-targetpipe"));
         jobType.buildTask("partition id", "id", NullNode.getInstance());
+    }
+
+    @Test(expected = InvalidJobTypeDefinitionException.class)
+    public void testMissingTargetPipeFromConfig() throws Exception
+    {
+        Mockito.when(appConfig.getJobTypeProperty("id", "target_pipe")).thenReturn(null);
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("basic"));
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
