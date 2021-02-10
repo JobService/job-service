@@ -940,7 +940,6 @@ public class JobServiceIT {
         final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
-
         final NewJob newJob = makeRestrictedJob(jobId, "empty-target-pipe", null);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 

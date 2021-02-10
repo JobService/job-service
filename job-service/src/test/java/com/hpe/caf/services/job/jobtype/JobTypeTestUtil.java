@@ -43,13 +43,6 @@ public class JobTypeTestUtil {
     public static JsonNode convertJson(final Object object) {
         return objectMapper.convertValue(object, JsonNode.class);
     }
-
-//    public final static JobType testJobType1 = new JobType(
-//        "id 1", "classifier 1", 101, "task pipe 1", "target pipe 1",
-//        (partitionId, jobId, params) -> buildJson("{ \"inside\": \"task data 1\" }"));
-//    public final static JobType testJobType2 = new JobType(
-//        "id 2", "classifier 2", 102, "task pipe 2", "target pipe 2",
-//        (partitionId, jobId, params) -> buildJson("{ \"inside\": \"task data 2\" }"));
     
     public final static JobType testJobType1 = new JobType(
         "id 1", (partitionId, jobId, params) -> buildJson("{ \"inside\": \"task data 1\" }"));
