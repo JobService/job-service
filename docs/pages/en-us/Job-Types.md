@@ -82,4 +82,14 @@ The script input is an object with the following properties:
 - `jobId`: the job's ID
 - `parameters`: as provided with the submitted job, and already validated according to `jobParameterSchema`
 
-The script output is the `task` value, and should be an object.
+The script output is the `task` value, and should be an object with the following properties:
+
+Required properties:
+ - `taskClassifier`: String
+ - `taskApiVersion`: Integer
+ - `taskData`: Object
+ - `taskPipe`: String
+
+Optional properties:
+ - `targetPipe`: String
+
