@@ -93,8 +93,9 @@ final class JsltTaskBuilder implements TaskBuilder {
         final Map<String, Object> input = new HashMap<>();
         input.put("configuration", configuration);
         input.put("taskPipe", taskPipe);
-        if (targetPipe != null)
+        if (targetPipe != null) {
             input.put("targetPipe", targetPipe);
+        }
         input.put("partitionId", partitionId);
         input.put("jobId", jobId);
         input.put("parameters", parameters);
