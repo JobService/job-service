@@ -15,16 +15,17 @@
 #
 
 taskScript: |
-    { "taskClassifier": "basic classifier",
-      "taskApiVersion": 74,
-      "taskData": {
-        "config": .configuration,
-        "taskQueue": .taskPipe,
-        "targetQueue": .targetPipe,
-        "partitionIdent": .partitionId,
-        "jobIdent": .jobId,
-        "reqParams": .parameters
-      },
-      "taskPipe": .taskPipe,
-      "targetPipe": .targetPipe
-    }
+  {
+    "taskClassifier": "basic classifier",
+    "taskApiVersion": 74,
+    "taskData": {
+      "config": .configuration,
+      "taskQueue": .taskPipe,
+      "targetQueue": .targetPipe,
+      "partitionIdent": .partitionId,
+      "jobIdent": .jobId,
+      "reqParams": .parameters
+    },
+    "taskPipe": .taskPipe,
+    "targetPipe": .targetPipe
+  }

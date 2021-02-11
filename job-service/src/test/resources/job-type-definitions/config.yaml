@@ -19,8 +19,8 @@ configurationProperties:
     description: the first property
   - name: prop_b
 taskScript: |
-  { "taskClassifier": "basic classifier",
-    "taskApiVersion": 74,
+  { "taskClassifier": "classifier",
+    "taskApiVersion": 1,
     "taskData": {"cfg": .configuration},
     "taskPipe": "basic task pipe",
     "targetPipe": "basic target pipe"

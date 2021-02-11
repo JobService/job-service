@@ -111,7 +111,14 @@ public class DefaultDefinitionParserTest {
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testInvalidYamlSyntax() throws Exception {
         setupValidConfig("id");
-        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("invalid-syntax"));
+        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("invalid-yaml-syntax"));
+    }
+
+    @Test(expected = InvalidJobTypeDefinitionException.class)
+    public void testInvalidTaskScriptSyntax() throws Exception
+    {
+      setupValidConfig("id");
+      new DefaultDefinitionParser(appConfig).parse("id", getDefinition("invalid-taskscript-syntax"));
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
@@ -241,10 +248,10 @@ public class DefaultDefinitionParserTest {
     }
 
     @Test
-    public void testSchema() throws Exception {
+    public void testJobParametersSchemaValidation() throws Exception {
         setupValidConfig("id");
         final JobType jobType =
-            new DefaultDefinitionParser(appConfig).parse("id", getDefinition("schema"));
+            new DefaultDefinitionParser(appConfig).parse("id", getDefinition("job-parameters-schema-expects-string"));
 
         // expects string - should not throw with string
         jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
