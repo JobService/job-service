@@ -222,6 +222,7 @@
         <dependency>
             <groupId>com.github.cafapi.correlation</groupId>
             <artifactId>caf-correlation-jservlet</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.github.cafapi.correlation</groupId>
