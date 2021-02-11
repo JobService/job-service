@@ -23,12 +23,12 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.BeforeClass;
+import org.junit.Before;
 
 public class JobTypeTest {
 
-    @BeforeClass
-    public void beforeClass() {
+    @Before
+    public void setUp() {
         new TaskScriptSchemaContextListener().contextInitialized(null);
     }
 
@@ -84,12 +84,11 @@ public class JobTypeTest {
         jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test(expected = BadRequestException.class)
     public void testBuildTaskWithInvalidTask() throws Exception {
         final JobType jobType = new JobType(
             "id",
             (partitionId, jobId, params) -> TextNode.valueOf("should be object"));
         jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
     }
-
 }

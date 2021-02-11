@@ -14,26 +14,24 @@
 # limitations under the License.
 #
 
-taskOutputSchema:
-  type: object
-  required:
-  - taskClassifier
-  - taskApiVersion
-  - taskData
-  - taskPipe
-  properties:
-    taskClassifier:
-      type: string
-      minLength: 1
-    taskApiVersion:
-      type: integer
-      minimum: 1
-    taskData:
-      type: object
-    taskPipe:
-      type: string
-      minLength: 1
-    targetPipe:
-      type: string
-      minLength: 1
-  additionalProperties: false
+type: object
+required:
+- taskClassifier
+- taskApiVersion
+- taskData
+- taskPipe
+properties:
+  taskClassifier:
+    type: string
+    minLength: 1
+  taskApiVersion:
+    type: integer
+    minimum: 1
+  taskData:
+    type: object
+  taskPipe:
+    type: string
+    minLength: 1
+  targetPipe:
+    type: ["string", "null"]
+additionalProperties: false
