@@ -220,9 +220,12 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.logging</groupId>
-            <artifactId>caf-correlation-id</artifactId>
-            <version>1.4.0-SCMOD-12257-SNAPSHOT</version>
+            <groupId>com.github.cafapi.correlation</groupId>
+            <artifactId>caf-correlation-jservlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cafapi.correlation</groupId>
+            <artifactId>caf-correlation-constants</artifactId>
         </dependency>
         <!-- Test dependencies -->
         <dependency>

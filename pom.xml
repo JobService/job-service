@@ -94,6 +94,16 @@
                 <version>1.20.0-288</version>
             </dependency>
             <dependency>
+                <groupId>com.github.cafapi.correlation</groupId>
+                <artifactId>caf-correlation-jservlet</artifactId>
+                <version>1.0.0-SCMOD-12257-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cafapi.correlation</groupId>
+                <artifactId>caf-correlation-constants</artifactId>
+                <version>1.0.0-SCMOD-12257-SNAPSHOT</version>
+            </dependency>
+            <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service</artifactId>
                 <version>3.6.0-SNAPSHOT</version>
