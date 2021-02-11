@@ -15,12 +15,11 @@
  */
 package com.hpe.caf.services.job.jobtype;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-
-import java.util.Map;
 
 /**
  * A job type: defines a way of transforming a job in a specific format to a job in the normal,
@@ -67,66 +66,13 @@ public final class JobType {
         final String partitionId, final String jobId, final JsonNode parameters
     ) throws BadRequestException, InvalidJobTypeDefinitionException
     {
-        final WorkerAction workerAction = new WorkerAction();
         final JsonNode task = taskBuilder.build(partitionId, jobId, parameters);
-        // job-put expects `Map` (or `String`), but only does a shallow type check
+        JsonSchemaTaskScriptValidator.getInstance().validate(task);
         try {
-            // taskClassifier
-            final JsonNode taskClassifier = getNonNullPropertyFromTask(task, "taskClassifier");
-            if (!taskClassifier.isTextual() || taskClassifier.asText().isEmpty()) {
-                throw new InvalidJobTypeDefinitionException(
-                    id + ": taskScript should contain a non-empty string value for: taskClassifier");
-            }
-            workerAction.setTaskClassifier(taskClassifier.asText());
-
-            // taskApiVersion
-            final JsonNode taskApiVersion = getNonNullPropertyFromTask(task, "taskApiVersion");
-            if (!taskApiVersion.isInt()) {
-                throw new InvalidJobTypeDefinitionException(
-                    id + ": taskScript should contain an integer value for: taskApiVersion");
-            }
-            workerAction.setTaskApiVersion(taskApiVersion.asInt());
-
-            // taskData
-            final JsonNode taskData = getNonNullPropertyFromTask(task, "taskData");
-            if (!taskData.isObject()) {
-                throw new InvalidJobTypeDefinitionException(
-                    id + ": taskScript should contain an object value for: taskData");
-            }
-            workerAction.setTaskData(objectMapper.convertValue(taskData, Map.class));
-
-            // taskPipe
-            final JsonNode taskPipe = getNonNullPropertyFromTask(task, "taskPipe");
-            if (!taskPipe.isTextual() || taskPipe.asText().isEmpty()) {
-                throw new InvalidJobTypeDefinitionException(
-                    id + ": taskScript should contain a non-empty string value for: taskPipe");
-            }
-            workerAction.setTaskPipe(taskPipe.asText());
-
-            // targetPipe
-            final JsonNode targetPipe = task.get("targetPipe");
-            if (targetPipe != null && !targetPipe.isNull()) {
-                if (!targetPipe.isTextual()) {
-                    throw new InvalidJobTypeDefinitionException(
-                        id + ": taskScript should contain a string value for: targetPipe (when it has been provided)");
-                }
-                workerAction.setTargetPipe(targetPipe.asText());
-            }
-        } catch (final IllegalArgumentException e) {
-            throw new InvalidJobTypeDefinitionException(
-                id + ": incorrect output type for taskScript", e);
+          return objectMapper.treeToValue(task, WorkerAction.class);
+        } catch (JsonProcessingException e) {
+          // Should never happen, since we've already validated the task against the schema above.
+          throw new InvalidJobTypeDefinitionException(id + ": unable to convert taskScript to WorkerAction", e);
         }
-        return workerAction;
-    }
-
-    private JsonNode getNonNullPropertyFromTask(final JsonNode task, final String property)
-        throws InvalidJobTypeDefinitionException
-    {
-        final JsonNode jsonNode = task.get(property);
-        if (jsonNode == null || jsonNode.isNull()) {
-            throw new InvalidJobTypeDefinitionException(
-                id + ": taskScript should contain a non-null value for: " + property);
-        }
-        return jsonNode;
     }
 }

@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.BeforeClass;
 
 public class DefaultDefinitionParserTest {
     /**
@@ -66,6 +67,11 @@ public class DefaultDefinitionParserTest {
 
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
+
+    @BeforeClass
+    public void beforeClass() {
+        new TaskScriptSchemaContextListener().contextInitialized(null);
+    }
 
     @Before
     public void setUp() {

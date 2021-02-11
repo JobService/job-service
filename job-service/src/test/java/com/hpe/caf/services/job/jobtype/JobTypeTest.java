@@ -23,8 +23,14 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.BeforeClass;
 
 public class JobTypeTest {
+
+    @BeforeClass
+    public void beforeClass() {
+        new TaskScriptSchemaContextListener().contextInitialized(null);
+    }
 
     @Test
     public void testGetId() {
