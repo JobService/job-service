@@ -28,11 +28,7 @@ import org.junit.Before;
 public class JobTypeTest {
 
     @Before
-    public void setUp() {
-        loadTaskScriptSchema();
-    }
-
-    private void loadTaskScriptSchema() {
+    public void loadTaskScriptSchema() {
         new TaskScriptSchemaContextListener().contextInitialized(null);
     }
 
