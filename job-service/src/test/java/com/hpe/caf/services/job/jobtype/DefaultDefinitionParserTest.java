@@ -70,6 +70,10 @@ public class DefaultDefinitionParserTest {
     @Before
     public void setUp() {
         appConfig = Mockito.mock(AppConfig.class);
+        loadTaskScriptSchema();
+    }
+
+    private void loadTaskScriptSchema() {
         new TaskScriptSchemaContextListener().contextInitialized(null);
     }
 
