@@ -14,13 +14,10 @@
 # limitations under the License.
 #
 
-configurationProperties:
-  - name: TASK_PIPE
-  - name: TARGET_PIPE
 taskScript: |
-  { "taskClassifier": "classifier",
-    "taskApiVersion": 1,
-    "taskData": {"cfg": .configuration},
-    "taskPipe": .configuration.TASK_PIPE,
-    "targetPipe": .configuration.TARGET_PIPE
-  }
+    { "taskClassifier": "basic classifier",
+      "taskApiVersion": 74,
+      "taskData": {"cfg": .configuration},
+      "taskPipe": "task pipe not from config",
+      "targetPipe": "target pipe not from config"
+    }

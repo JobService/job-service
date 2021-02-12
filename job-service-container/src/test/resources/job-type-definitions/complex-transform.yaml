@@ -24,6 +24,9 @@ jobParametersSchema:
     forObjectMap:
       type: object
       additionalProperties: { type: number }
+configurationProperties:
+  - name: TASK_PIPE
+  - name: TARGET_PIPE
 taskScript: |
     { "taskClassifier": "classifier",
       "taskApiVersion": 1,
@@ -36,6 +39,6 @@ taskScript: |
           }
         }
       },
-      "taskPipe": .taskPipe,
-      "targetPipe": .targetPipe
+      "taskPipe": .configuration.TASK_PIPE,
+      "targetPipe": .configuration.TARGET_PIPE
     }

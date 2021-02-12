@@ -14,4 +14,7 @@
 # limitations under the License.
 #
 
+configurationProperties:
+  - name: TASK_PIPE
+  - name: TARGET_PIPE
 taskScript: { this: is invalid

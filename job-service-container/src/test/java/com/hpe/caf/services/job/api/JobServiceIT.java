@@ -807,8 +807,8 @@ public class JobServiceIT {
 
         final JobTypeTestTaskData messageTaskData =
             objectMapper.readValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
-        assertEquals(messageTaskData.config.size(), 0,
-            "configuration passed to task data script should be empty");
+        assertEquals(messageTaskData.config.size(), 2,
+            "configuration passed to task data script should contain 2 items: TASK_PIPE and TARGET_PIPE");
         assertEquals(messageTaskData.taskQueue, "basic task-pipe",
             "task pipe passed to task data script should come from configuration");
         assertEquals(messageTaskData.targetQueue, "basic target-pipe",

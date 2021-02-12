@@ -14,18 +14,21 @@
 # limitations under the License.
 #
 
+configurationProperties:
+  - name: TASK_PIPE
+  - name: TARGET_PIPE
 taskScript: |
   {
     "taskClassifier": "basic classifier",
     "taskApiVersion": 74,
     "taskData": {
       "config": .configuration,
-      "taskQueue": .taskPipe,
-      "targetQueue": .targetPipe,
+      "taskQueue":.configuration.TASK_PIPE,
+      "targetQueue": .configuration.TARGET_PIPE,
       "partitionIdent": .partitionId,
       "jobIdent": .jobId,
       "reqParams": .parameters
     },
-    "taskPipe": .taskPipe,
-    "targetPipe": .targetPipe
+    "taskPipe": .configuration.TASK_PIPE,
+    "targetPipe": .configuration.TARGET_PIPE
   }

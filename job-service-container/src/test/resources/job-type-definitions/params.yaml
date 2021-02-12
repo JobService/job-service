@@ -18,10 +18,13 @@ jobParametersSchema:
   type: object
   properties: { s: { type: string } }
   additionalProperties: { type: number }
+configurationProperties:
+  - name: TASK_PIPE
+  - name: TARGET_PIPE
 taskScript: |
     { "taskClassifier": "classifier",
       "taskApiVersion": 1,
       "taskData": { "reqParams": .parameters },
-      "taskPipe": .taskPipe,
-      "targetPipe": .targetPipe
+      "taskPipe": .configuration.TASK_PIPE,
+      "targetPipe": .configuration.TARGET_PIPE
     }

@@ -69,10 +69,10 @@ public final class JobType {
         final JsonNode task = taskBuilder.build(partitionId, jobId, parameters);
         JsonSchemaTaskScriptValidator.getInstance().validate(task);
         try {
-          return objectMapper.treeToValue(task, WorkerAction.class);
+            return objectMapper.treeToValue(task, WorkerAction.class);
         } catch (JsonProcessingException e) {
-          // Should never happen, since we've already validated the task against the schema above.
-          throw new InvalidJobTypeDefinitionException(id + ": unable to convert taskScript to WorkerAction", e);
+            // Should never happen, since we've already validated the task against the schema above.
+            throw new InvalidJobTypeDefinitionException(id + ": unable to convert taskScript to WorkerAction", e);
         }
     }
 }
