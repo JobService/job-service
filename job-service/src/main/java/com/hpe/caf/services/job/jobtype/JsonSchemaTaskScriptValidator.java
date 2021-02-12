@@ -22,9 +22,8 @@ import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
-import com.hpe.caf.services.job.exceptions.BadRequestException;
 
-public final class JsonSchemaTaskScriptValidator implements ParametersValidator {
+public final class JsonSchemaTaskScriptValidator {
 
     private static JsonSchemaTaskScriptValidator INSTANCE;
 
@@ -54,13 +53,12 @@ public final class JsonSchemaTaskScriptValidator implements ParametersValidator 
         return INSTANCE;
     }
 
-    @Override
-    public void validate(final JsonNode taskScript) throws BadRequestException {
+    public void validate(final JsonNode taskScript) throws InvalidJobTypeDefinitionException {
         final ProcessingReport results;
         try {
             results = compiledTaskScriptSchema.validate(taskScript);
         } catch (final ProcessingException e) {
-            throw new BadRequestException("Invalid taskScript", e);
+            throw new InvalidJobTypeDefinitionException("Invalid taskScript", e);
         }
 
         if (!results.isSuccess()) {
@@ -73,7 +71,7 @@ public final class JsonSchemaTaskScriptValidator implements ParametersValidator 
                     errorMessage.append(result.getMessage());
                 }
             }
-            throw new BadRequestException(errorMessage.toString());
+            throw new InvalidJobTypeDefinitionException(errorMessage.toString());
         }
     }
 }

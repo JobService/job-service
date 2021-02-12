@@ -84,7 +84,7 @@ public class JobTypeTest {
         jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testBuildTaskWithInvalidTask() throws Exception {
         final JobType jobType = new JobType(
             "id",
