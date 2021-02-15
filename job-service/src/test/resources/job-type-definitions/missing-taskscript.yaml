@@ -14,5 +14,7 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskApiVersion: 1
+configurationProperties:
+  - name: prop_a
+  - name: TASK_PIPE
+  - name: TARGET_PIPE

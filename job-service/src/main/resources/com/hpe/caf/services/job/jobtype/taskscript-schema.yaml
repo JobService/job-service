@@ -14,8 +14,25 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskApiVersion: 1
-jobParametersSchema:
-  type: string
-taskDataScript: .
+type: object
+required:
+- taskClassifier
+- taskApiVersion
+- taskData
+- taskPipe
+properties:
+  taskClassifier:
+    type: string
+    minLength: 1
+  taskApiVersion:
+    type: integer
+    minimum: 1
+  taskData:
+    type: object
+  taskPipe:
+    type: string
+    minLength: 1
+  targetPipe:
+    type: ["string", "null"]
+    minLength: 1
+additionalProperties: false

@@ -14,11 +14,17 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskApiVersion: 1
 jobParametersSchema:
   type: object
   properties: { s: { type: string } }
   additionalProperties: { type: number }
-taskDataScript: |
-  { "reqParams": .parameters }
+configurationProperties:
+  - name: TASK_PIPE
+  - name: TARGET_PIPE
+taskScript: |
+    { "taskClassifier": "classifier",
+      "taskApiVersion": 1,
+      "taskData": { "reqParams": .parameters },
+      "taskPipe": .configuration.TASK_PIPE,
+      "targetPipe": .configuration.TARGET_PIPE
+    }

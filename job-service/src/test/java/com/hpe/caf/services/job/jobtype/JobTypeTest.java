@@ -23,8 +23,14 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.Before;
 
 public class JobTypeTest {
+
+    @Before
+    public void loadTaskScriptSchema() {
+        new TaskScriptSchemaContextListener().contextInitialized(null);
+    }
 
     @Test
     public void testGetId() {
@@ -34,12 +40,19 @@ public class JobTypeTest {
     @Test
     public void testBuildTask() throws Exception {
         final JobType jobType = new JobType(
-            "id", "classifier", 123, "task pipe", "target pipe",
+            "id",
             (partitionId, jobId, params) -> {
+                final HashMap<String, Object> taskData = new HashMap<>();
+                taskData.put("partitionId", partitionId);
+                taskData.put("jobId", jobId);
+                taskData.put("parameters", params);
+                
                 final Map<String, Object> result = new HashMap<>();
-                result.put("partitionId", partitionId);
-                result.put("jobId", jobId);
-                result.put("parameters", params);
+                result.put("taskClassifier", "classifier");
+                result.put("taskApiVersion", 123);
+                result.put("taskData", taskData);
+                result.put("taskPipe", "task pipe");
+                result.put("targetPipe", "target pipe");
                 return JobTypeTestUtil.convertJson(result);
             });
 
@@ -60,35 +73,22 @@ public class JobTypeTest {
         expectedTaskData.put("jobId", "job id");
         expectedTaskData.put("parameters", "params");
         Assert.assertEquals("task data should be as returned by provided builder",
-            expectedTaskData, task.getTaskData());
-    }
-
-    @Test
-    public void testBuildTaskWithNullTargetPipe() throws Exception {
-        final JobType jobType = new JobType(
-            "id", "classifier", 123, "task pipe", null,
-            (partitionId, jobId, params) -> {
-                return JobTypeTestUtil.convertJson(new HashMap<String, String>());
-            });
-        final WorkerAction task =
-            jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
-        Assert.assertNull("target pipe in task should null", task.getTargetPipe());
+                            expectedTaskData, task.getTaskData());
     }
 
     @Test(expected = BadRequestException.class)
     public void testBuildTaskWithInvalidParams() throws Exception {
         final JobType jobType = new JobType(
-            "id", "classifier", 123, "task pipe", "target pipe",
+            "id",
             (partitionId, jobId, params) -> { throw new BadRequestException("invalid params"); });
         jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
-    public void testBuildTaskWithInvalidTaskData() throws Exception {
+    public void testBuildTaskWithInvalidTask() throws Exception {
         final JobType jobType = new JobType(
-            "id", "classifier", 123, "task pipe", "target pipe",
+            "id",
             (partitionId, jobId, params) -> TextNode.valueOf("should be object"));
         jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
     }
-
 }

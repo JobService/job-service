@@ -138,7 +138,7 @@ public final class JobsPutTest {
                 Collections.singletonMap("key", "val"),
                 JsonNode.class);
         basicJobType = new JobType(
-            "basic", "classifier", 2, "task pipe", "target pipe",
+            "basic",
             (partitionId, jobId, params) -> jsonObject);
         JobTypes.initialise(() -> Collections.singletonList(basicJobType));
 
@@ -237,8 +237,10 @@ public final class JobsPutTest {
     @Test(expected = BadRequestException.class)
     public void testCreateRestrictedJob_Failure_invalidParams() throws Exception {
         final JobType failingJobType = new JobType(
-            "id", "classifier", 2, "task pipe", "target pipe",
-            (partitionId, jobId, params) -> { throw new BadRequestException("invalid params"); });
+            "id",
+            (partitionId, jobId, params) -> {
+                throw new BadRequestException("invalid params");
+            });
         JobTypes.initialise(() -> Collections.singletonList(failingJobType));
         JobsPut.createOrUpdateJob("partition", "id", makeRestrictedJob("basic", null));
     }

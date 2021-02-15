@@ -18,9 +18,9 @@ configurationProperties:
   - name: TASK_PIPE
   - name: TARGET_PIPE
 taskScript: |
-  { "taskClassifier": "classifier",
-    "taskApiVersion": 1,
-    "taskData": {"cfg": .configuration},
-    "taskPipe": .configuration.TASK_PIPE,
-    "targetPipe": .configuration.TARGET_PIPE
-  }
+    { "taskClassifier": { this: is invalid,
+      "taskApiVersion": 74,
+      "taskData": {"cfg": .configuration},
+      "taskPipe": .configuration.TASK_PIPE,
+      "targetPipe": .configuration.TARGET_PIPE
+    }

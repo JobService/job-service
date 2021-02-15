@@ -14,7 +14,5 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskApiVersion: 1
-taskDataScript: |
-  ["this is bad", "should be object"]
+taskScript: |
+    ["this is bad", "should be object"]

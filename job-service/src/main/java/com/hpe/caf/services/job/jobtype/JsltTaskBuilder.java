@@ -28,19 +28,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Constructs task data using a JSLT script.  See the `Job-Types.md` document for a specification.
+ * Constructs task using a JSLT script. See the `Job-Types.md` document for a specification.
  *
  * @see com.schibsted.spt.data.jslt
  */
-final class JsltTaskDataBuilder implements TaskDataBuilder {
+final class JsltTaskBuilder implements TaskBuilder {
     /**
      * Used for building script input.
      */
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final String jobTypeId;
-    private final String taskPipe;
-    private final String targetPipe;
     private final Map<String, String> configuration;
     private final ParametersValidator parametersValidator;
     /**
@@ -50,31 +48,25 @@ final class JsltTaskDataBuilder implements TaskDataBuilder {
 
     /**
      * @param jobTypeId Job type's ID, used in error messages
-     * @param taskPipe The job's `taskPipe`
-     * @param targetPipe The job's `targetPipe`; may be null
      * @param configuration object containing string values which are fixed for the job type;
      *                      generally obtained from global configuration
      * @param parametersValidator used to validate the `parameters` argument to {@link #build}
      *                            before passing them to the script
-     * @param taskDataScript the uncompiled JSLT script
+     * @param taskScript the uncompiled JSLT script
      * @throws InvalidJobTypeDefinitionException
      */
-    public JsltTaskDataBuilder(
+    public JsltTaskBuilder(
         final String jobTypeId,
-        final String taskPipe,
-        final String targetPipe,
         final Map<String, String> configuration,
         final ParametersValidator parametersValidator,
-        final String taskDataScript
+        final String taskScript
     ) throws InvalidJobTypeDefinitionException {
         this.jobTypeId = jobTypeId;
-        this.taskPipe = taskPipe;
-        this.targetPipe = targetPipe;
         this.configuration = configuration;
         this.parametersValidator = parametersValidator;
 
         try {
-            script = new Parser(new StringReader(taskDataScript))
+            script = new Parser(new StringReader(taskScript))
                 .withSource(jobTypeId)
                 .withObjectFilter(new TrueJsonFilter())
                 .compile();
@@ -92,8 +84,6 @@ final class JsltTaskDataBuilder implements TaskDataBuilder {
 
         final Map<String, Object> input = new HashMap<>();
         input.put("configuration", configuration);
-        input.put("taskPipe", taskPipe);
-        if (targetPipe != null) input.put("targetPipe", targetPipe);
         input.put("partitionId", partitionId);
         input.put("jobId", jobId);
         input.put("parameters", parameters);
@@ -109,7 +99,7 @@ final class JsltTaskDataBuilder implements TaskDataBuilder {
                 throw new BadRequestException(jobTypeId + ": " + e.getMessage());
             } else {
                 throw new InvalidJobTypeDefinitionException(
-                    jobTypeId + ": taskDataScript execution failed", e);
+                    jobTypeId + ": taskScript execution failed", e);
             }
         }
     }

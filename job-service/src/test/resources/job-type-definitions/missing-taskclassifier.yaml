@@ -14,5 +14,12 @@
 # limitations under the License.
 #
 
-taskApiVersion: 1
-taskDataScript: .
+configurationProperties:
+  - name: TASK_PIPE
+  - name: TARGET_PIPE
+taskScript: |
+    { "taskApiVersion": 74,
+      "taskData": {"cfg": .configuration},
+      "taskPipe": .configuration.TASK_PIPE,
+      "targetPipe": .configuration.TARGET_PIPE
+    }

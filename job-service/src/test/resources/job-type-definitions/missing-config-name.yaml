@@ -14,10 +14,16 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskApiVersion: 1
 configurationProperties:
   - name: prop_a
     description: the first property
   - description: the second property
-taskDataScript: .
+  - name: TASK_PIPE
+  - name: TARGET_PIPE
+taskScript: |
+  { "taskClassifier": "basic classifier",
+    "taskApiVersion": 74,
+    "taskData": {"cfg": .configuration},
+    "taskPipe": .configuration.TASK_PIPE,
+    "targetPipe": .configuration.TARGET_PIPE
+  }
