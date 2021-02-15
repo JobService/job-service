@@ -218,6 +218,15 @@
             <artifactId>caf-logging-logback</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.cafapi.correlation</groupId>
+            <artifactId>caf-correlation-jservlet</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cafapi.correlation</groupId>
+            <artifactId>caf-correlation-constants</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>commons-io</groupId>
