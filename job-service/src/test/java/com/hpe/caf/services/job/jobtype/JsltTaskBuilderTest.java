@@ -16,7 +16,6 @@
 package com.hpe.caf.services.job.jobtype;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.junit.Assert;

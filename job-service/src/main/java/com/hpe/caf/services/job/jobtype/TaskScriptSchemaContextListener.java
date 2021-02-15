@@ -28,7 +28,7 @@ import org.yaml.snakeyaml.Yaml;
  */
 public final class TaskScriptSchemaContextListener implements ServletContextListener
 {
-    private static final String TASK_SCRIPT_SCHEMA_NAME = "jobtype/taskscript-schema.yaml";
+    private static final String TASK_SCRIPT_SCHEMA_NAME = "com/hpe/caf/services/job/jobtype/taskscript-schema.yaml";
 
     @Override
     public void contextInitialized(final ServletContextEvent event)

@@ -14,13 +14,25 @@
 # limitations under the License.
 #
 
-configurationProperties:
-  - name: TASK_PIPE
-  - name: TARGET_PIPE
-taskScript: |
-    { "taskClassifier": "basic classifier",
-      "taskApiVersion": 74,
-      "taskData": {"cfg": .configuration},
-      "taskPipe": .configuration.TASK_PIPE,
-      "targetPipe": .configuration.TARGET_PIPE
-    }
+type: object
+required:
+- taskClassifier
+- taskApiVersion
+- taskData
+- taskPipe
+properties:
+  taskClassifier:
+    type: string
+    minLength: 1
+  taskApiVersion:
+    type: integer
+    minimum: 1
+  taskData:
+    type: object
+  taskPipe:
+    type: string
+    minLength: 1
+  targetPipe:
+    type: ["string", "null"]
+    minLength: 1
+additionalProperties: false

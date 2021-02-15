@@ -198,23 +198,23 @@ public class DefaultDefinitionParserTest {
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testTaskPipeMissingFromConfig() throws Exception {
-        Mockito.when(appConfig.getJobTypeProperty("id", "task_pipe")).thenReturn(null);
-        Mockito.when(appConfig.getJobTypeProperty("id", "target_pipe")).thenReturn("basic target pipe");
+        Mockito.when(appConfig.getJobTypeProperty("id", "TASK_PIPE")).thenReturn(null);
+        Mockito.when(appConfig.getJobTypeProperty("id", "TARGET_PIPE")).thenReturn("basic target pipe");
         final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("basic"));
         jobType.buildTask("partition id", "id", NullNode.getInstance());
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testEmptyStringTaskPipe() throws Exception {
-        Mockito.when(appConfig.getJobTypeProperty("id", "task_pipe")).thenReturn("");
-        Mockito.when(appConfig.getJobTypeProperty("id", "target_pipe")).thenReturn("basic target pipe");
-        final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("empty-taskpipe"));
+        Mockito.when(appConfig.getJobTypeProperty("id", "TASK_PIPE")).thenReturn("");
+        Mockito.when(appConfig.getJobTypeProperty("id", "TARGET_PIPE")).thenReturn("basic target pipe");
+        final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("basic"));
         jobType.buildTask("partition id", "id", NullNode.getInstance());
     }
 
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testTargetPipeMissingFromConfig() throws Exception {
-        Mockito.when(appConfig.getJobTypeProperty("id", "TASK_PIPR")).thenReturn("basic task pipe");
+        Mockito.when(appConfig.getJobTypeProperty("id", "TASK_PIPE")).thenReturn("basic task pipe");
         Mockito.when(appConfig.getJobTypeProperty("id", "TARGET_PIPE")).thenReturn(null);
         final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("basic"));
         jobType.buildTask("partition id", "id", NullNode.getInstance());
