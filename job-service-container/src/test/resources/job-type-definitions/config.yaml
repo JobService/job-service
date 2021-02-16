@@ -15,23 +15,23 @@
 #
 
 configurationProperties:
-  - name: JOB_TYPE_CONFIG_UPPER
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER
     description: upper desc
-  - name: JOB_TYPE_CONFIG_lower
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_lower
     description: lower desc
-  - name: JOB_TYPE_CONFIG_multiple
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_multiple
     description: multiple desc
-  - name: JOB_TYPE_CONFIG_MULTIPLE
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_MULTIPLE
     description: multiple desc
-  - name: JOB_TYPE_CONFIG_nodesc
-  - name: JOB_TYPE_CONFIG_number
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_nodesc
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_number
     description: number desc
-  - name: JOB_TYPE_CONFIG_TASK_PIPE
-  - name: JOB_TYPE_CONFIG_TARGET_PIPE
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TASK_PIPE
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TARGET_PIPE
 taskScript: |
   { "taskClassifier": "classifier",
     "taskApiVersion": 1,
     "taskData": { "config": .configuration },
-    "taskPipe": .configuration.JOB_TYPE_CONFIG_TASK_PIPE,
-    "targetPipe": .configuration.JOB_TYPE_CONFIG_TARGET_PIPE
+    "taskPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TASK_PIPE,
+    "targetPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TARGET_PIPE
   }

@@ -494,22 +494,22 @@
                                     <SSL_TOMCAT_CA_CERT_LOCATION>/test-keystore/tomcat.keystore</SSL_TOMCAT_CA_CERT_LOCATION>
                                     <CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR>/test-job-type-definitions</CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR>
 
-                                    <JOB_TYPE_BASIC_TASK_PIPE>basic task-pipe</JOB_TYPE_BASIC_TASK_PIPE>
-                                    <JOB_TYPE_BASIC_TARGET_PIPE>basic target-pipe</JOB_TYPE_BASIC_TARGET_PIPE>
-                                    <JOB_TYPE_CONFIG_TASK_PIPE>config task-pipe</JOB_TYPE_CONFIG_TASK_PIPE>
-                                    <JOB_TYPE_CONFIG_TARGET_PIPE>config target-pipe</JOB_TYPE_CONFIG_TARGET_PIPE>
-                                    <JOB_TYPE_CONFIG_UPPER>upper value</JOB_TYPE_CONFIG_UPPER>
-                                    <JOB_TYPE_CONFIG_LOWER>lower value</JOB_TYPE_CONFIG_LOWER>
-                                    <JOB_TYPE_CONFIG_MULTIPLE>multiple value</JOB_TYPE_CONFIG_MULTIPLE>
-                                    <JOB_TYPE_CONFIG_NODESC>nodesc value</JOB_TYPE_CONFIG_NODESC>
-                                    <JOB_TYPE_CONFIG_NUMBER>123</JOB_TYPE_CONFIG_NUMBER>
-                                    <JOB_TYPE_PARAMS_TASK_PIPE>params task-pipe</JOB_TYPE_PARAMS_TASK_PIPE>
-                                    <JOB_TYPE_PARAMS_TARGET_PIPE>params target-pipe</JOB_TYPE_PARAMS_TARGET_PIPE>
-                                    <JOB_TYPE_COMPLEX-TRANSFORM_TASK_PIPE>complex task-pipe</JOB_TYPE_COMPLEX-TRANSFORM_TASK_PIPE>
-                                    <JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE>complex target-pipe</JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE>
-                                    <JOB_TYPE_INVALID-OUTPUT_TASK_PIPE>invalid-output task-pipe</JOB_TYPE_INVALID-OUTPUT_TASK_PIPE>
-                                    <JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>invalid-output target-pipe</JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>
-                                    <JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE>null-target-pipe task-pipe</JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE>basic task-pipe</CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE>basic target-pipe</CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TASK_PIPE>config task-pipe</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TARGET_PIPE>config target-pipe</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER>upper value</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_LOWER>lower value</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_LOWER>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_MULTIPLE>multiple value</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_MULTIPLE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_NODESC>nodesc value</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_NODESC>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_NUMBER>123</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_NUMBER>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TASK_PIPE>params task-pipe</CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TARGET_PIPE>params target-pipe</CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TASK_PIPE>complex task-pipe</CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE>complex target-pipe</CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TASK_PIPE>invalid-output task-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TASK_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>invalid-output target-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE>null-target-pipe task-pipe</CAF_JOB_SERVICE_JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE>
                                 </env>
                                 <volumes>
                                     <from>

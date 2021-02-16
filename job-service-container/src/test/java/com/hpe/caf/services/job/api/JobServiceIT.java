@@ -880,19 +880,19 @@ public class JobServiceIT {
 
         final JobTypeTestTaskData messageTaskData
             = objectMapper.readValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
-        assertEquals(messageTaskData.config.get("JOB_TYPE_CONFIG_UPPER"), "upper value",
+        assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER"), "upper value",
                      "property with upper-case name should be passed to task data script");
-        assertEquals(messageTaskData.config.get("JOB_TYPE_CONFIG_lower"), "lower value",
+        assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_lower"), "lower value",
                      "property with lower-case name should be passed to task data script");
-        assertEquals(messageTaskData.config.get("JOB_TYPE_CONFIG_multiple"), "multiple value",
+        assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_multiple"), "multiple value",
                      "property specified with multiple cases should be passed to task data script "
                      + "in lower-case variant");
-        assertEquals(messageTaskData.config.get("JOB_TYPE_CONFIG_MULTIPLE"), "multiple value",
+        assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_MULTIPLE"), "multiple value",
                      "property specified with multiple cases should be passed to task data script "
                      + "in upper-case variant");
-        assertEquals(messageTaskData.config.get("JOB_TYPE_CONFIG_nodesc"), "nodesc value",
+        assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_nodesc"), "nodesc value",
                      "property with no description should be passed to task data script");
-        assertEquals(messageTaskData.config.get("JOB_TYPE_CONFIG_number"), "123",
+        assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_number"), "123",
                      "property with numeric value should be passed to task data script as string");
     }
 
