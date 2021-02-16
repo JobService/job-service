@@ -15,15 +15,14 @@
 #
 
 configurationProperties:
-  - name: TASK_PIPE
-  - name: TARGET_PIPE
+  - name: JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE
 taskScript: |
     { "taskClassifier": "classifier",
       "taskApiVersion": 1,
       "taskData": {
-        "targetQueue": .configuration.TARGET_PIPE
+        "targetQueue": .configuration.JOB_TYPE_NULL-TARGET-PIPE_TARGET_PIPE
       },
-      "taskPipe": .configuration.TASK_PIPE,
-      "targetPipe": .configuration.TARGET_PIPE
+      "taskPipe": .configuration.JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE,
+      "targetPipe": .configuration.JOB_TYPE_NULL-TARGET-PIPE_TARGET_PIPE
     }
 

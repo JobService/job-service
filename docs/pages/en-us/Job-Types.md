@@ -19,9 +19,9 @@ Job Service can be configured with job types by including a number of job type d
 
 To configure Job Service with job types, define the environment variable `CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR`.  This is the path to a directory containing job type definition files with the '.yaml' extension.  The filename, excluding the '.yaml' extension, is used as a unique identifier for the job type.  Changes to these files do not take effect until Job Service is restarted.
 
-A job type definition may specify additional properties (see `configurationProperties` below).  To configure these values, define environment variables using the job type ID (specified in the job type definition) and the property name.  For example, a job type with ID `standard_ingest`, defining the additional property `storeName`, must have the following environment variables defined:
+A job type definition may specify additional properties (see `configurationProperties` below). To configure these values, define environment variables for them.  For example, to define the additional property `storeName`, this environment variable must be defined:
  
- - `CAF_JOB_SERVICE_JOB_TYPE_STANDARD_INGEST_STORENAME`
+ - `STORENAME`
 
 ## Defining a Job Type
 
