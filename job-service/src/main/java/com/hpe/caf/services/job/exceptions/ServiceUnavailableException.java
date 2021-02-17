@@ -20,12 +20,12 @@ package com.hpe.caf.services.job.exceptions;
  */
 public class ServiceUnavailableException extends Exception
 {
-    public ServiceUnavailableException(String message)
+    public ServiceUnavailableException(final String message)
     {
         super(message);
     }
 
-    public ServiceUnavailableException(String message, Throwable throwable)
+    public ServiceUnavailableException(final String message, final Throwable throwable)
     {
         super(message, throwable);
     }
