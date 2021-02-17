@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
+import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,6 +55,19 @@ public final class ApiExceptionMapperTest {
 
         //  Expected response status should map onto NOT FOUND (i.e. 404)
         Assert.assertEquals(r.getStatus(),404);
+
+    }
+
+    @Test
+    public void testToResponseServiceUnavailableException () {
+
+        ApiExceptionMapper aem = new ApiExceptionMapper();
+
+        ServiceUnavailableException sue = new ServiceUnavailableException("Test ServiceUnavailableException");
+        Response r = aem.toResponse(sue);
+
+        //  Expected response status should map onto SERVICE UNAVAILABLE (i.e. 503)
+        Assert.assertEquals(r.getStatus(),503);
 
     }
 
