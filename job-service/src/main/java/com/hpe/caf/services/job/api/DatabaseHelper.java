@@ -13,6 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+* Copyright 2016-2021 Micro Focus or one of its affiliates.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
@@ -24,6 +39,7 @@ import com.hpe.caf.services.job.api.generated.model.SortField;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
+import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import com.hpe.caf.services.job.util.JobTaskId;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -42,11 +58,17 @@ import java.util.stream.Collectors;
 import org.codehaus.jettison.json.JSONException;
 
 /**
- * The DatabaseHelper class is responsible for database operations.
- */
+* The DatabaseHelper class is responsible for database operations.
+*/
 public final class DatabaseHelper
 {
     private static final String FAILURE_PROPERTY_MISSING = "Unknown";
+
+    // PostgreSQL Error Codes: https://www.postgresql.org/docs/current/errcodes-appendix.html
+    private static final String POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX = "08";
+    private static final String POSTGRES_NO_DATA_ERROR_CODE = "02000";
+    private static final String POSTGRES_NO_DATA_FOUND_ERROR_CODE = "P0002";
+    private static final String POSTGRES_UNIQUE_VIOLATION_ERROR_CODE = "23505";
 
     private static AppConfig appConfig;
 
@@ -140,6 +162,13 @@ public final class DatabaseHelper
                     array.free();
                 }
             }
+        } catch (final SQLException se) {
+            final String sqlState = se.getSQLState();
+            if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                throw new ServiceUnavailableException(se.getMessage());
+            } else {
+                throw se;
+            }
         }
 
         //  Convert arraylist to array of jobs.
@@ -176,6 +205,13 @@ public final class DatabaseHelper
                 if (rs.next()) {
                     jobsCount = rs.getLong(1);
                 }
+            }
+        } catch (final SQLException se) {
+            final String sqlState = se.getSQLState();
+            if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                throw new ServiceUnavailableException(se.getMessage());
+            } else {
+                throw se;
             }
         }
 
@@ -221,19 +257,21 @@ public final class DatabaseHelper
                     }
                 }
             }
-        } catch (SQLException se) {
+        } catch (final SQLException se) {
             //  Determine source of SQL exception and throw appropriate error.
-            String sqlState = se.getSQLState();
+            final String sqlState = se.getSQLState();
 
-            switch (sqlState) {
-                case "02000":
-                    //  Job id has not been provided.
-                    throw new BadRequestException(se.getMessage());
-                case "P0002":
-                    //  No data found for the specified job id.
-                    throw new NotFoundException(se.getMessage());
-                default:
-                    throw se;
+            if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
+                //  Job id has not been provided.
+                throw new BadRequestException(se.getMessage());
+            } else if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
+                //  No data found for the specified job id.
+                throw new NotFoundException(se.getMessage());
+            } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                // Connection exception.
+                throw new ServiceUnavailableException(se.getMessage());
+            } else  {
+                throw se;
             }
         }
 
@@ -253,15 +291,17 @@ public final class DatabaseHelper
             final ResultSet rs = statement.executeQuery();
             rs.next();
             return rs.getBoolean("job_created");
-        } catch (SQLException se) {
+        } catch (final SQLException se) {
             //  Determine source of SQL exception and throw appropriate error.
-            String sqlState = se.getSQLState();
+            final String sqlState = se.getSQLState();
 
-            if (sqlState.equals("02000")) {
+            if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
                 //  Job id has not been provided.
                 throw new BadRequestException(se.getMessage());
-            } else if (sqlState.equals("23505")) {
+            } else if (sqlState.equals(POSTGRES_UNIQUE_VIOLATION_ERROR_CODE)) {
                 throw new ForbiddenException("Job already exists");
+            } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                throw new ServiceUnavailableException(se.getMessage());
             } else {
                 throw se;
             }
@@ -298,6 +338,13 @@ public final class DatabaseHelper
                 return callCreateJobFunction(stmt);
             } finally {
                 array.free();
+            }
+        } catch (final SQLException se) {
+            final String sqlState = se.getSQLState();
+            if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                throw new ServiceUnavailableException(se.getMessage());
+            } else {
+                throw se;
             }
         }
     }
@@ -350,6 +397,13 @@ public final class DatabaseHelper
                 array.free();
                 prerequisiteJobIdSQLArray.free();
             }
+        } catch (final SQLException se) {
+            final String sqlState = se.getSQLState();
+            if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                throw new ServiceUnavailableException(se.getMessage());
+            } else {
+                throw se;
+            }
         }
     }
 
@@ -383,20 +437,22 @@ public final class DatabaseHelper
             stmt.setString(2,jobId);
             LOG.debug("Calling delete_job() database function...");
             stmt.execute();
-        } catch (SQLException se) {
+        } catch (final SQLException se) {
             //  Determine source of SQL exception and throw appropriate error.
-            String sqlState = se.getSQLState();
+            final String sqlState = se.getSQLState();
 
-            switch (sqlState) {
-                case "02000":
-                    //  Job id has not been provided.
-                    throw new BadRequestException(se.getMessage());
-                case "P0002":
-                    //  No data found for the specified job id.
-                    throw new NotFoundException(se.getMessage());
-                default:
-                    throw se;
-            }
+            if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
+                //  Job id has not been provided.
+                throw new BadRequestException(se.getMessage());
+            } else if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
+                //  No data found for the specified job id.
+                throw new NotFoundException(se.getMessage());
+            } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                // Connection exception
+                throw new ServiceUnavailableException(se.getMessage());
+            } else {
+                throw se;
+            } 
         }
     }
 
@@ -421,12 +477,15 @@ public final class DatabaseHelper
                 canBeProgressed = rs.getBoolean("can_be_progressed");
             }
 
-        } catch (SQLException e) {
-            final String sqlState = e.getSQLState();
-            if (sqlState.equals("P0002")) {
+        } catch (final SQLException se) {
+            final String sqlState = se.getSQLState();
+            if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
                 // job missing - return false
+            } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                // Connection exception
+                throw new ServiceUnavailableException(se.getMessage());
             } else {
-                throw e;
+                throw se;
             }
         }
 
@@ -456,12 +515,15 @@ public final class DatabaseHelper
                 active = status == Job.StatusEnum.ACTIVE || status == Job.StatusEnum.WAITING;
             }
 
-        } catch (SQLException e) {
-            final String sqlState = e.getSQLState();
-            if (sqlState.equals("P0002")) {
+        } catch (final SQLException se) {
+            final String sqlState = se.getSQLState();
+            if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
                 // job missing - return false
+            } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                // Connection exception
+                throw new ServiceUnavailableException(se.getMessage());
             } else {
-                throw e;
+                throw se;
             }
         }
 
@@ -481,20 +543,22 @@ public final class DatabaseHelper
             stmt.setString(2,jobId);
             LOG.debug("Calling cancel_job() database function...");
             stmt.execute();
-        } catch (SQLException se) {
+        } catch (final SQLException se) {
             //  Determine source of SQL exception and throw appropriate error.
-            String sqlState = se.getSQLState();
+            final String sqlState = se.getSQLState();
 
-            switch (sqlState) {
-                case "02000":
-                    //  Job id has not been provided.
-                    throw new BadRequestException(se.getMessage());
-                case "P0002":
-                    //  No data found for the specified job id.
-                    throw new NotFoundException(se.getMessage());
-                default:
-                    throw se;
-            }
+            if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
+                //  Job id has not been provided.
+                throw new BadRequestException(se.getMessage());
+            } else if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
+                //  No data found for the specified job id.
+                throw new NotFoundException(se.getMessage());
+            } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                // Connection exception
+                throw new ServiceUnavailableException(se.getMessage());
+            } else {
+                throw se;
+            } 
         }
     }
 
@@ -516,8 +580,14 @@ public final class DatabaseHelper
 
             LOG.debug("Calling report_failure() database function...");
             stmt.execute();
+        } catch (final SQLException se) {
+            final String sqlState = se.getSQLState();
+            if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                throw new ServiceUnavailableException(se.getMessage());
+            } else {
+                throw se;
+            }
         }
-
     }
 
     /**
