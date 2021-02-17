@@ -509,8 +509,7 @@
                                     <CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE>complex target-pipe</CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE>
                                     <CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TASK_PIPE>invalid-output task-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TASK_PIPE>
                                     <CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>invalid-output target-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TASK_PIPE>empty-target-pipe task-pipe</CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TASK_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TARGET_PIPE></CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE>null-target-pipe task-pipe</CAF_JOB_SERVICE_JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE>
                                 </env>
                                 <volumes>
                                     <from>

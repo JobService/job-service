@@ -25,8 +25,8 @@ jobParametersSchema:
       type: object
       additionalProperties: { type: number }
 configurationProperties:
-  - name: TASK_PIPE
-  - name: TARGET_PIPE
+  - name: CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TASK_PIPE
+  - name: CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE
 taskScript: |
     { "taskClassifier": "classifier",
       "taskApiVersion": 1,
@@ -39,6 +39,6 @@ taskScript: |
           }
         }
       },
-      "taskPipe": .configuration.TASK_PIPE,
-      "targetPipe": .configuration.TARGET_PIPE
+      "taskPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TASK_PIPE,
+      "targetPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE
     }

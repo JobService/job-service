@@ -115,18 +115,14 @@ public final class DefaultDefinitionParser implements DefinitionParser {
             final Map<String, String> configuration = new HashMap<>();
             for (final ConfigurationProperty property : properties) {
                 final String propertyName = property.getName(id, this);
-                final String propertyValue = appConfig.getJobTypeProperty(id, propertyName);
+                final String propertyValue = appConfig.getJobProperty(propertyName);
                 if (propertyValue == null) {
                     throw new InvalidJobTypeDefinitionException(
                         id + ": configuration is not available: " + propertyName);
                 }
                 // preserve property name case in the output, even though the configuration lookup
                 // ignores it
-                if (propertyName.equals("TARGET_PIPE") && propertyValue.equals("")) {
-                    configuration.put(propertyName, null);
-                } else {
-                    configuration.put(propertyName, propertyValue);
-                }
+                configuration.put(propertyName, propertyValue);
             }
 
             return configuration;
