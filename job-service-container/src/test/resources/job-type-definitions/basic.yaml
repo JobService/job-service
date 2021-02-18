@@ -15,20 +15,20 @@
 #
 
 configurationProperties:
-  - name: TASK_PIPE
-  - name: TARGET_PIPE
+  - name: CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE
+  - name: CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE
 taskScript: |
   {
     "taskClassifier": "basic classifier",
     "taskApiVersion": 74,
     "taskData": {
       "config": .configuration,
-      "taskQueue":.configuration.TASK_PIPE,
-      "targetQueue": .configuration.TARGET_PIPE,
+      "taskQueue":.configuration.CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE,
+      "targetQueue": .configuration.CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE,
       "partitionIdent": .partitionId,
       "jobIdent": .jobId,
       "reqParams": .parameters
     },
-    "taskPipe": .configuration.TASK_PIPE,
-    "targetPipe": .configuration.TARGET_PIPE
+    "taskPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE,
+    "targetPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE
   }

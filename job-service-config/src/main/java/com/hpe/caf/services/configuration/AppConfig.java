@@ -102,15 +102,13 @@ public class AppConfig {
     }
 
     /**
-     * Retrieve a configuration property specific to a job type.
+     * Retrieve a configuration property.
      *
-     * @param jobTypeId
      * @param propertyName
      * @return Property value, possibly `null`
      */
-    public String getJobTypeProperty(final String jobTypeId, final String propertyName) {
-        return environment.getProperty("CAF_JOB_SERVICE_JOB_TYPE_" +
-            jobTypeId.toUpperCase(Locale.ENGLISH) + "_" + propertyName.toUpperCase(Locale.ENGLISH));
+    public String getJobProperty(final String propertyName) {
+        return environment.getProperty(propertyName.toUpperCase(Locale.ENGLISH));
     }
 
     public Pattern getSuspendedPartitionsPattern() {

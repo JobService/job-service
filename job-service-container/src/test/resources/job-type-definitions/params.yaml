@@ -19,12 +19,12 @@ jobParametersSchema:
   properties: { s: { type: string } }
   additionalProperties: { type: number }
 configurationProperties:
-  - name: TASK_PIPE
-  - name: TARGET_PIPE
+  - name: CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TASK_PIPE
+  - name: CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TARGET_PIPE
 taskScript: |
     { "taskClassifier": "classifier",
       "taskApiVersion": 1,
       "taskData": { "reqParams": .parameters },
-      "taskPipe": .configuration.TASK_PIPE,
-      "targetPipe": .configuration.TARGET_PIPE
+      "taskPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TASK_PIPE,
+      "targetPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TARGET_PIPE
     }
