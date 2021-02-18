@@ -89,7 +89,6 @@ public final class JobsGetByIdTest {
         Mockito.when(mockDatabaseHelper.getJob(
             "partition", "067e6162-3b6f-4ae2-a171-2470b63dff00"))
             .thenThrow(ServiceUnavailableException.class);
-        //  Test successful run of job retrieval.
         JobsGetById.getJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
     }
 }
