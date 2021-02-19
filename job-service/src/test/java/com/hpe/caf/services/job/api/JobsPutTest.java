@@ -35,6 +35,7 @@ import com.hpe.caf.services.job.api.generated.model.RestrictedTask;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import com.hpe.caf.services.job.jobtype.JobType;
 import com.hpe.caf.services.job.jobtype.JobTypes;
 import com.hpe.caf.services.job.queue.QueueServices;
@@ -490,6 +491,30 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where target queue has not been specified.
+        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+    }
+
+    @Test(expected = ServiceUnavailableException.class)
+    public void testCreateJob_Failure_DatabaseConnection() throws Exception {
+        when(mockDatabaseHelper.createJob(
+            eq("partition"), eq("067e6162-3b6f-4ae2-a171-2470b63dff00"),anyString(), anyString(), anyString(), anyInt(), anyMap()))
+            .thenThrow(ServiceUnavailableException.class);
+
+        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", makeJob());
+    }
+
+    @Test(expected = ServiceUnavailableException.class)
+    public void testCreateJobWithDependencies_Failure_DatabaseConnection() throws Exception
+    {
+        when(mockDatabaseHelper.createJobWithDependencies(
+            anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), eq(false)
+        )).thenThrow(ServiceUnavailableException.class);
+
+        final NewJob job = makeJob();
+        job.setPrerequisiteJobIds(Arrays.asList(new String[]{"J1", "J2"}));
+        job.setDelay(0);
+
         JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
     }
 }
