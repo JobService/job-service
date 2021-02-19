@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -84,4 +85,11 @@ public final class JobsCancelTest {
         JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00");
     }
 
+    @Test(expected = ServiceUnavailableException.class)
+    public void testCancelJob_Failure_DatabaseConnection() throws Exception {
+        Mockito.doThrow(ServiceUnavailableException.class)
+            .when(mockDatabaseHelper).cancelJob(Mockito.anyString(), Mockito.anyString());
+
+        JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+    }
 }
