@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,4 +66,11 @@ public final class JobStatsGetCountTest {
         JobsStatsGetCount.getJobsCount("", "", null, null);
     }
 
+    @Test(expected = ServiceUnavailableException.class)
+    public void testGetJobCount_Failure_DatabaseConnection() throws Exception {
+        Mockito.when(mockDatabaseHelper.getJobsCount(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+            .thenThrow(ServiceUnavailableException.class);
+
+        JobsStatsGetCount.getJobsCount("partition", "", null, null);
+    }
 }
