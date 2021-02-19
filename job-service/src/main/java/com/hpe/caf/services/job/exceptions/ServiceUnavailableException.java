@@ -18,7 +18,7 @@ package com.hpe.caf.services.job.exceptions;
 /**
  * Custom exception implemented for the job service api. Exceptions of this type map directly onto http 503 status codes.
  */
-public class ServiceUnavailableException extends Exception
+public final class ServiceUnavailableException extends Exception
 {
     public ServiceUnavailableException(final String message)
     {
