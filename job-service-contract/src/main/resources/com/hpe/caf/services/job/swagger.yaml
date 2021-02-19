@@ -121,6 +121,8 @@ paths:
             type: array
             items:
               $ref: "#/definitions/job"
+        503:
+          description: The request failed due to a database connection error.
   /partitions/{partitionId}/jobs/{jobId}:
     parameters:
       - $ref: '#/parameters/partitionId'
@@ -146,6 +148,8 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         404:
           description: The specified job is not found.
+        503:
+          description: The request failed due to a database connection error.
     put:
       tags:
         - Jobs
@@ -168,6 +172,8 @@ paths:
           description: Indicates that the job was successfully updated.
         400:
           description: The `jobId` parameter contains invalid characters.
+        503:
+          description: The request failed due to a database connection error.
     delete:
       tags:
         - Jobs
@@ -181,6 +187,8 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         404:
           description: The specified job is not found.
+        503:
+          description: The request failed due to a database connection error.
   /partitions/{partitionId}/jobs/{jobId}/isActive:
     parameters:
       - $ref: '#/parameters/partitionId'
@@ -208,6 +216,8 @@ paths:
                 type: boolean
         400:
           description: The `jobId` parameter contains invalid characters.
+        503:
+          description: The request failed due to a database connection error.
   /partitions/{partitionId}/jobs/{jobId}/cancel:
     parameters:
       - $ref: '#/parameters/partitionId'
@@ -231,6 +241,8 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         404:
           description: The specified job is not found.
+        503:
+          description: The request failed due to a database connection error.
   /partitions/{partitionId}/jobStats/count:
     parameters:
       - $ref: '#/parameters/partitionId'
@@ -273,6 +285,8 @@ paths:
           schema:
             type: integer
             format: int64
+        503:
+          description: The request failed due to a database connection error.
 definitions:
   newJob:
     type: object
