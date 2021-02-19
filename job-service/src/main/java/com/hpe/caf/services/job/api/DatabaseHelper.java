@@ -150,7 +150,7 @@ public final class DatabaseHelper
         } catch (final SQLException se) {
             final String sqlState = se.getSQLState();
             if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-                throw new ServiceUnavailableException(se.getMessage());
+                throw new ServiceUnavailableException(se.getMessage(), se);
             } else {
                 throw se;
             }
@@ -194,7 +194,7 @@ public final class DatabaseHelper
         } catch (final SQLException se) {
             final String sqlState = se.getSQLState();
             if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-                throw new ServiceUnavailableException(se.getMessage());
+                throw new ServiceUnavailableException(se.getMessage(), se);
             } else {
                 throw se;
             }
@@ -254,7 +254,7 @@ public final class DatabaseHelper
                 throw new NotFoundException(se.getMessage());
             } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
                 // Connection exception.
-                throw new ServiceUnavailableException(se.getMessage());
+                throw new ServiceUnavailableException(se.getMessage(), se);
             } else  {
                 throw se;
             }
@@ -286,7 +286,7 @@ public final class DatabaseHelper
             } else if (sqlState.equals(POSTGRES_UNIQUE_VIOLATION_ERROR_CODE)) {
                 throw new ForbiddenException("Job already exists");
             } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-                throw new ServiceUnavailableException(se.getMessage());
+                throw new ServiceUnavailableException(se.getMessage(), se);
             } else {
                 throw se;
             }
@@ -327,7 +327,7 @@ public final class DatabaseHelper
         } catch (final SQLException se) {
             final String sqlState = se.getSQLState();
             if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-                throw new ServiceUnavailableException(se.getMessage());
+                throw new ServiceUnavailableException(se.getMessage(), se);
             } else {
                 throw se;
             }
@@ -385,7 +385,7 @@ public final class DatabaseHelper
         } catch (final SQLException se) {
             final String sqlState = se.getSQLState();
             if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-                throw new ServiceUnavailableException(se.getMessage());
+                throw new ServiceUnavailableException(se.getMessage(), se);
             } else {
                 throw se;
             }
@@ -434,7 +434,7 @@ public final class DatabaseHelper
                 throw new NotFoundException(se.getMessage());
             } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
                 // Connection exception
-                throw new ServiceUnavailableException(se.getMessage());
+                throw new ServiceUnavailableException(se.getMessage(), se);
             } else {
                 throw se;
             } 
@@ -468,7 +468,7 @@ public final class DatabaseHelper
                 // job missing - return false
             } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
                 // Connection exception
-                throw new ServiceUnavailableException(se.getMessage());
+                throw new ServiceUnavailableException(se.getMessage(), se);
             } else {
                 throw se;
             }
@@ -506,7 +506,7 @@ public final class DatabaseHelper
                 // job missing - return false
             } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
                 // Connection exception
-                throw new ServiceUnavailableException(se.getMessage());
+                throw new ServiceUnavailableException(se.getMessage(), se);
             } else {
                 throw se;
             }
@@ -540,7 +540,7 @@ public final class DatabaseHelper
                 throw new NotFoundException(se.getMessage());
             } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
                 // Connection exception
-                throw new ServiceUnavailableException(se.getMessage());
+                throw new ServiceUnavailableException(se.getMessage(), se);
             } else {
                 throw se;
             } 
@@ -568,7 +568,7 @@ public final class DatabaseHelper
         } catch (final SQLException se) {
             final String sqlState = se.getSQLState();
             if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-                throw new ServiceUnavailableException(se.getMessage());
+                throw new ServiceUnavailableException(se.getMessage(), se);
             } else {
                 throw se;
             }
