@@ -37,7 +37,7 @@ BEGIN
             SELECT partition_id, dependent_job_id, job_id
             FROM job_dependency
             WHERE partition_id = in_partition_id AND job_id = in_job_id
-            UNION ALL
+            UNION
             SELECT adj.partition_id, adj.dependent_job_id, jd.job_id
             FROM all_job_dependencies adj
             INNER JOIN job_dependency jd ON adj.partition_id = jd.partition_id AND adj.job_id = jd.dependent_job_id
