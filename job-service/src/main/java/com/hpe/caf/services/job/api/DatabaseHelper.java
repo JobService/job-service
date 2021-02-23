@@ -148,7 +148,7 @@ public final class DatabaseHelper
                 }
             }
         } catch (final SQLException se) {
-            throw mapSqlException(se);
+           throw mapSqlConnectionException(se);
         }
 
         //  Convert arraylist to array of jobs.
@@ -187,12 +187,12 @@ public final class DatabaseHelper
                 }
             }
         } catch (final SQLException se) {
-            throw mapSqlException(se);
+            throw mapSqlConnectionException(se);
         }
 
         return jobsCount;
     }
-
+    
     /**
      * Returns the job definition for the specified job.
      */
@@ -233,7 +233,7 @@ public final class DatabaseHelper
                 }
             }
         } catch (final SQLException se) {
-            throw mapSqlException(se);
+           throw mapSqlNoDataException(se);
         }
 
         return job;
@@ -253,7 +253,19 @@ public final class DatabaseHelper
             rs.next();
             return rs.getBoolean("job_created");
         } catch (final SQLException se) {
-            throw mapSqlException(se);
+            //  Determine source of SQL exception and throw appropriate error.
+            final String sqlState = se.getSQLState();
+
+            if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
+                //  Job id has not been provided.
+                throw new BadRequestException(se.getMessage());
+            } else if (sqlState.equals(POSTGRES_UNIQUE_VIOLATION_ERROR_CODE)) {
+                throw new ForbiddenException("Job already exists");
+            } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                throw new ServiceUnavailableException(se.getMessage());
+            } else {
+                throw se;
+            }
         }
     }
 
@@ -289,7 +301,7 @@ public final class DatabaseHelper
                 array.free();
             }
         } catch (final SQLException se) {
-            throw mapSqlException(se);
+            throw mapSqlConnectionException(se);
         }
     }
 
@@ -342,7 +354,7 @@ public final class DatabaseHelper
                 prerequisiteJobIdSQLArray.free();
             }
         } catch (final SQLException se) {
-            throw mapSqlException(se);
+            throw mapSqlConnectionException(se);
         }
     }
 
@@ -377,7 +389,7 @@ public final class DatabaseHelper
             LOG.debug("Calling delete_job() database function...");
             stmt.execute();
         } catch (final SQLException se) {
-            throw mapSqlException(se);
+           throw mapSqlNoDataException(se);
         }
     }
 
@@ -403,7 +415,15 @@ public final class DatabaseHelper
             }
 
         } catch (final SQLException se) {
-            throw mapSqlException(se);
+            final String sqlState = se.getSQLState();
+            if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
+                // job missing - return false
+            } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                // Connection exception
+                throw new ServiceUnavailableException(se.getMessage());
+            } else {
+                throw se;
+            }
         }
 
         return canBeProgressed;
@@ -433,7 +453,15 @@ public final class DatabaseHelper
             }
 
         } catch (final SQLException se) {
-            throw mapSqlException(se);
+            final String sqlState = se.getSQLState();
+            if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
+                // job missing - return false
+            } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+                // Connection exception
+                throw new ServiceUnavailableException(se.getMessage());
+            } else {
+                throw se;
+            }
         }
 
         return active;
@@ -453,7 +481,7 @@ public final class DatabaseHelper
             LOG.debug("Calling cancel_job() database function...");
             stmt.execute();
         } catch (final SQLException se) {
-            throw mapSqlException(se);
+            throw mapSqlNoDataException(se);
         }
     }
 
@@ -476,7 +504,7 @@ public final class DatabaseHelper
             LOG.debug("Calling report_failure() database function...");
             stmt.execute();
         } catch (final SQLException se) {
-            throw mapSqlException(se);
+            throw mapSqlConnectionException(se);
         }
     }
 
@@ -534,22 +562,28 @@ public final class DatabaseHelper
 
     }
 
-    private static Exception mapSqlException(final SQLException se) throws Exception
+    private Exception mapSqlConnectionException(final SQLException se) throws Exception
     {
-        //  Determine source of SQL exception and throw appropriate error.
         final String sqlState = se.getSQLState();
-
+        if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+            return new ServiceUnavailableException(se.getMessage());
+        } else {
+            return se;
+        }
+    }
+    
+    private Exception mapSqlNoDataException(final SQLException se) throws Exception
+    {
+        final String sqlState = se.getSQLState();
         if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
             //  Job id has not been provided.
             return new BadRequestException(se.getMessage());
         } else if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
             //  No data found for the specified job id.
             return new NotFoundException(se.getMessage());
-        } else if (sqlState.equals(POSTGRES_UNIQUE_VIOLATION_ERROR_CODE)) {
-            throw new ForbiddenException("Job already exists");
         } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-            //  Connection exception.
-            return new ServiceUnavailableException(se.getMessage(), se);
+            // Connection exception.
+            return new ServiceUnavailableException(se.getMessage());
         } else {
             return se;
         }
