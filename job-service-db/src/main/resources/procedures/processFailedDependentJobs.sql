@@ -43,7 +43,7 @@ BEGIN
             INNER JOIN job_dependency jd ON adj.partition_id = jd.partition_id AND adj.job_id = jd.dependent_job_id
             WHERE adj.partition_id = in_partition_id
         )
-        SELECT DISTINCT job_id FROM all_job_dependencies
+        SELECT DISTINCT job_id FROM all_job_dependencies;
 
     -- Ensure that no other `job_dependency` deletion can run until we've committed.
     -- Lock ALL possibly conflicting rows up-front to avoid deadlocks.
