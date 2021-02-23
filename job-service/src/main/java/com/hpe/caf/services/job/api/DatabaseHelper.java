@@ -258,11 +258,11 @@ public final class DatabaseHelper
 
             if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
                 //  Job id has not been provided.
-                throw new BadRequestException(se.getMessage());
+                throw new BadRequestException(se.getMessage(), se);
             } else if (sqlState.equals(POSTGRES_UNIQUE_VIOLATION_ERROR_CODE)) {
-                throw new ForbiddenException("Job already exists");
+                throw new ForbiddenException("Job already exists", se);
             } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-                throw new ServiceUnavailableException(se.getMessage());
+                throw new ServiceUnavailableException(se.getMessage(), se);
             } else {
                 throw se;
             }
@@ -415,15 +415,7 @@ public final class DatabaseHelper
             }
 
         } catch (final SQLException se) {
-            final String sqlState = se.getSQLState();
-            if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
-                // job missing - return false
-            } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-                // Connection exception
-                throw new ServiceUnavailableException(se.getMessage());
-            } else {
-                throw se;
-            }
+            throwIfUnexpectedException(se);
         }
 
         return canBeProgressed;
@@ -453,15 +445,7 @@ public final class DatabaseHelper
             }
 
         } catch (final SQLException se) {
-            final String sqlState = se.getSQLState();
-            if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
-                // job missing - return false
-            } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-                // Connection exception
-                throw new ServiceUnavailableException(se.getMessage());
-            } else {
-                throw se;
-            }
+            throwIfUnexpectedException(se);
         }
 
         return active;
@@ -562,30 +546,43 @@ public final class DatabaseHelper
 
     }
 
-    private Exception mapSqlConnectionException(final SQLException se) throws Exception
+    private static Exception mapSqlConnectionException(final SQLException se) throws Exception
     {
         final String sqlState = se.getSQLState();
         if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-            return new ServiceUnavailableException(se.getMessage());
+            return new ServiceUnavailableException(se.getMessage(), se);
         } else {
             return se;
         }
     }
 
-    private Exception mapSqlNoDataException(final SQLException se) throws Exception
+    private static Exception mapSqlNoDataException(final SQLException se) throws Exception
     {
         final String sqlState = se.getSQLState();
         if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
             //  Job id has not been provided.
-            return new BadRequestException(se.getMessage());
+            return new BadRequestException(se.getMessage(), se);
         } else if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
             //  No data found for the specified job id.
-            return new NotFoundException(se.getMessage());
+            return new NotFoundException(se.getMessage(), se);
         } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
             // Connection exception.
-            return new ServiceUnavailableException(se.getMessage());
+            return new ServiceUnavailableException(se.getMessage(), se);
         } else {
             return se;
+        }
+    }
+
+    private static void throwIfUnexpectedException(final SQLException se) throws Exception
+    {
+        final String sqlState = se.getSQLState();
+        if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
+            // job missing - don't throw anything, return void
+        } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+            // Connection exception
+            throw new ServiceUnavailableException(se.getMessage(), se);
+        } else {
+            throw se;
         }
     }
 }
