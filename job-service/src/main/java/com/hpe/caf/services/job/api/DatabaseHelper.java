@@ -192,7 +192,7 @@ public final class DatabaseHelper
 
         return jobsCount;
     }
-    
+
     /**
      * Returns the job definition for the specified job.
      */
@@ -571,7 +571,7 @@ public final class DatabaseHelper
             return se;
         }
     }
-    
+
     private Exception mapSqlNoDataException(final SQLException se) throws Exception
     {
         final String sqlState = se.getSQLState();
