@@ -257,7 +257,11 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
         if (!jobDependencyList.isEmpty()) {
             // Forward any dependent jobs which are now available for processing
             try {
-                forwardAvailableJobs(jobDependencyList, callback, proxiedTaskMessage.getTracking().getTrackingPipe(), proxiedTaskMessage.getCorrelationId(), taskInformation);
+                forwardAvailableJobs(jobDependencyList,
+                                     callback,
+                                     proxiedTaskMessage.getTracking().getTrackingPipe(),
+                                     proxiedTaskMessage.getCorrelationId(),
+                                     taskInformation);
             } catch (Exception e) {
                 LOG.error("Failed to create dependent jobs.");
                 throw new RuntimeException("Failed to create dependent jobs.", e);
