@@ -384,21 +384,21 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
     /**
      *  Start the list of jobs that are now available to be run.
-     *  @param jobDependencyList containing any dependent jobs that are now available for processing
+     *
+     * @param jobDependencyList containing any dependent jobs that are now available for processing
      * @param callback worker callback to enact the forwarding action determined by the worker
      * @param trackingPipe target pipe where dependent jobs should be forwarded to.
-     * @param correlationId
      */
     private void forwardAvailableJobs(final List<JobTrackingWorkerDependency> jobDependencyList,
-        final WorkerCallback callback, final String trackingPipe,
-        String correlationId, TaskInformation taskInformation)
+                                      final WorkerCallback callback, final String trackingPipe,
+                                      final String correlationId,
+                                      TaskInformation taskInformation)
     {
         // Walk the resultSet placing each returned job on the Rabbit Queue
         try {
             for (final JobTrackingWorkerDependency jobDependency : jobDependencyList) {
                 final TaskMessage dependentJobTaskMessage =
-                        JobTrackingWorkerUtil.createDependentJobTaskMessage(jobDependency, trackingPipe,
-                            correlationId);
+                        JobTrackingWorkerUtil.createDependentJobTaskMessage(jobDependency, trackingPipe, correlationId);
 
                 callback.send(taskInformation, dependentJobTaskMessage);
             }
@@ -628,9 +628,8 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
                 // For each dependent job, create a TaskMessage object and publish to the messaging queue
                 for (final JobTrackingWorkerDependency dependency : jobDependencyList) {
-                    final TaskMessage dependentJobTaskMessage
-                        = JobTrackingWorkerUtil.createDependentJobTaskMessage(dependency, workerTask.getTo(),
-                        workerTask.getCorrelationId());
+                    final TaskMessage dependentJobTaskMessage = JobTrackingWorkerUtil.createDependentJobTaskMessage(
+                        dependency, workerTask.getTo(), workerTask.getCorrelationId());
 
                     workerTask.sendMessage(dependentJobTaskMessage);
                 }
