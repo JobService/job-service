@@ -124,7 +124,8 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
             //  messaging queue.
             for (final JobTrackingWorkerDependency dependency : jobDependencyList) {
                 final TaskMessage dependentJobTaskMessage =
-                        JobTrackingWorkerUtil.createDependentJobTaskMessage(dependency, workerTask.getTo());
+                        JobTrackingWorkerUtil.createDependentJobTaskMessage(dependency, workerTask.getTo(),
+                            workerTask.getCorrelationId());
                 workerTask.sendMessage(dependentJobTaskMessage);
             }
         }

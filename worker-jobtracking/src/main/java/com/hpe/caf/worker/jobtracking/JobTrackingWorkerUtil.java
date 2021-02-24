@@ -36,12 +36,13 @@ public final class JobTrackingWorkerUtil
 
     /**
      *  Start the list of jobs that are now available to be run.
-     *
-     * @param jobDependency dependent job that is now available for processing
+     *  @param jobDependency dependent job that is now available for processing
      * @param trackingPipe target pipe where dependent jobs should be forwarded to.
+     * @param correlationId
      */
-    public static TaskMessage createDependentJobTaskMessage(final JobTrackingWorkerDependency jobDependency,
-                                                            final String trackingPipe)
+    public static TaskMessage createDependentJobTaskMessage(
+        final JobTrackingWorkerDependency jobDependency,
+        final String trackingPipe, String correlationId)
     {
         //  Generate a random task id.
         final String taskId = UUID.randomUUID().toString();
@@ -71,7 +72,9 @@ public final class JobTrackingWorkerUtil
                 TaskStatus.NEW_TASK,
                 Collections.<String, byte[]>emptyMap(),
                 jobDependency.getTaskPipe(),
-                trackingInfo);
+                trackingInfo,
+                null,
+                correlationId);
     }
 
     /**
