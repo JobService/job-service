@@ -100,14 +100,6 @@ public final class JobsGetTest {
         JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random", null, null);
     }
 
-    @Test(expected = ServiceUnavailableException.class)
-    public void testGetJobs_Failure_DatabaseConnection() throws Exception {
-        Mockito.when(mockDatabaseHelper.getJobs(
-            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null))
-            .thenThrow(ServiceUnavailableException.class);
-        JobsGet.getJobs("partition", "", null, 0, 0, null, null, null);
-    }
-
     @Test
     public void testGetJobs_Success_WithLabelFilter() throws Exception {
         JobsGet.getJobs("partition", "", null, 0, 0, null,"tag:4,tag:5", null);
