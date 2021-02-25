@@ -17,7 +17,6 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,13 +95,5 @@ public final class JobsActiveTest {
     public void testIsJobActive_Failure_InvalidJobId_Asterisk() throws Exception {
         //  Test failed run of job isActive with job id containing invalid characters.
         JobsActive.isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00");
-    }
-
-    @Test(expected = ServiceUnavailableException.class)
-    public void testIsJobActive_Failure_DatabaseConnection() throws Exception {
-        Mockito.when(mockDatabaseHelper.isJobActive(Mockito.anyString(), Mockito.anyString()))
-            .thenThrow(ServiceUnavailableException.class);
-
-        JobsActive.isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
     }
 }
