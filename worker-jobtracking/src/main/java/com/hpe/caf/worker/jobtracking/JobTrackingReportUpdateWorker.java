@@ -123,8 +123,9 @@ public final class JobTrackingReportUpdateWorker extends AbstractWorker<Tracking
             //  For each dependent job, create a TaskMessage object and publish to the
             //  messaging queue.
             for (final JobTrackingWorkerDependency dependency : jobDependencyList) {
-                final TaskMessage dependentJobTaskMessage =
-                        JobTrackingWorkerUtil.createDependentJobTaskMessage(dependency, workerTask.getTo());
+                final TaskMessage dependentJobTaskMessage = JobTrackingWorkerUtil.createDependentJobTaskMessage(
+                    dependency, workerTask.getTo(), workerTask.getCorrelationId());
+
                 workerTask.sendMessage(dependentJobTaskMessage);
             }
         }
