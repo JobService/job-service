@@ -17,7 +17,6 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
