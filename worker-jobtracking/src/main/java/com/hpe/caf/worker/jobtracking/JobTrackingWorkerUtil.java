@@ -41,7 +41,8 @@ public final class JobTrackingWorkerUtil
      * @param trackingPipe target pipe where dependent jobs should be forwarded to.
      */
     public static TaskMessage createDependentJobTaskMessage(final JobTrackingWorkerDependency jobDependency,
-                                                            final String trackingPipe)
+                                                            final String trackingPipe,
+                                                            final String correlationId)
     {
         //  Generate a random task id.
         final String taskId = UUID.randomUUID().toString();
@@ -71,7 +72,9 @@ public final class JobTrackingWorkerUtil
                 TaskStatus.NEW_TASK,
                 Collections.<String, byte[]>emptyMap(),
                 jobDependency.getTaskPipe(),
-                trackingInfo);
+                trackingInfo,
+                null,
+                correlationId);
     }
 
     /**
