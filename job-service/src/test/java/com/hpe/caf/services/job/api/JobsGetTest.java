@@ -19,7 +19,6 @@ import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -98,21 +97,5 @@ public final class JobsGetTest {
     @Test(expected = BadRequestException.class)
     public void testGetJobs_Failure_InvalidSortDirection() throws Exception {
         JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random", null, null);
-    }
-
-    @Test(expected = ServiceUnavailableException.class)
-    public void testGetJobs_Failure_DatabaseConnection() throws Exception {
-        Mockito.when(mockDatabaseHelper.getJobs(
-            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null))
-            .thenThrow(ServiceUnavailableException.class);
-        JobsGet.getJobs("partition", "", null, 0, 0, null, null, null);
-    }
-
-    @Test
-    public void testGetJobs_Success_WithLabelFilter() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, null,"tag:4,tag:5", null);
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-                "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
-                SortDirection.DESCENDING, Arrays.asList("tag:4", "tag:5"), null);
     }
 }
