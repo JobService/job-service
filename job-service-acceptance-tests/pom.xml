@@ -115,7 +115,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-client</artifactId>
+            <artifactId>job-service-internal-client</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

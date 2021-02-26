@@ -22,10 +22,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.jobservice</groupId>
-    <artifactId>job-service-client</artifactId>
+    <artifactId>job-service-internal-client</artifactId>
     <version>4.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>job-service-client</name>
+    <name>job-service-internal-client</name>
 
     <parent>
         <groupId>com.github.cafapi</groupId>
