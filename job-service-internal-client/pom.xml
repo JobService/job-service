@@ -45,7 +45,7 @@
         <copyrightYear>2021</copyrightYear>
         <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Micro Focus or one of its affiliates.</copyrightNotice>
         <swagger-contract-version>${project.version}</swagger-contract-version>
-        <maven.deploy.skip>true</maven.deploy.skip>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
     </properties>
 
     <dependencies>
