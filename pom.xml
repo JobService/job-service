@@ -117,7 +117,7 @@
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
-                <artifactId>job-service-client</artifactId>
+                <artifactId>job-service-internal-client</artifactId>
                 <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -248,8 +248,7 @@
         <module>job-service</module>
         <module>job-service-admin</module>
         <module>job-service-container</module>
-        <module>job-service-client</module>
-        <module>job-service-client2</module>
+        <module>job-service-internal-client</module>
         <module>job-service-html</module>
         <module>job-service-scheduled-executor</module>
         <module>job-service-scheduled-executor-container</module>
