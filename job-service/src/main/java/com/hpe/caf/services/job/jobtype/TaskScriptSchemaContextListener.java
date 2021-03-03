@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.io.IOException;
 import java.io.InputStream;
 import org.yaml.snakeyaml.Yaml;
 
@@ -33,12 +34,11 @@ public final class TaskScriptSchemaContextListener implements ServletContextList
     @Override
     public void contextInitialized(final ServletContextEvent event)
     {
-        try {
-            final InputStream schemaAsInputStream = getClass().getClassLoader().getResourceAsStream(TASK_SCRIPT_SCHEMA_NAME);
+        try (final InputStream schemaAsInputStream = getClass().getClassLoader().getResourceAsStream(TASK_SCRIPT_SCHEMA_NAME)){
             final Object schemaAsObject = new Yaml().load(schemaAsInputStream);
             final JsonNode schemaAsJsonNode = new ObjectMapper().convertValue(schemaAsObject, JsonNode.class);
             JsonSchemaTaskScriptValidator.initialise(schemaAsJsonNode);
-        } catch (final IllegalArgumentException e) {
+        } catch (final IllegalArgumentException | IOException e) {
             // note: this doesn't cause the application to shut down
             throw new RuntimeException("Error loading taskScript schema", e);
         }
