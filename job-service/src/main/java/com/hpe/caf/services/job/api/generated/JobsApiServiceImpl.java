@@ -75,6 +75,20 @@ public class JobsApiServiceImpl extends JobsApiService {
     }
 
     @Override
+    public Response pauseJob(final String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
+            throws Exception {
+        JobsPause.pauseJob(partitionId, jobId);
+        return Response.noContent().build();
+    }
+
+    @Override
+    public Response resumeJob(final String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
+            throws Exception {
+        JobsResume.resumeJob(partitionId, jobId);
+        return Response.noContent().build();
+    }
+
+    @Override
     public Response getJobActive(final String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
         JobsActive.JobsActiveResult result = JobsActive.isJobActive(partitionId, jobId);

@@ -243,6 +243,56 @@ paths:
           description: The specified job is not found.
         503:
           description: The request failed due to a database connection error.
+  /partitions/{partitionId}/jobs/{jobId}/pause:
+    parameters:
+      - $ref: '#/parameters/partitionId'
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that correlates events 
+          across different CAF services
+      - $ref: '#/parameters/jobId'
+    post:
+      tags:
+        - Jobs
+      summary: Pauses the job.
+      description: Pauses the specified job.
+      operationId: pauseJob
+      responses:
+        204:
+          description: The pause request has been accepted.
+        400:
+          description: The request could not be processed because one or more arguments are invalid.
+        404:
+          description: The specified job is not found.
+        503:
+          description: The request failed due to a database connection error.
+  /partitions/{partitionId}/jobs/{jobId}/resume:
+    parameters:
+      - $ref: '#/parameters/partitionId'
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that correlates events 
+          across different CAF services
+      - $ref: '#/parameters/jobId'
+    post:
+      tags:
+        - Jobs
+      summary: Resumes the job.
+      description: Resumes the specified job.
+      operationId: resumeJob
+      responses:
+        204:
+          description: The resume request has been accepted.
+        400:
+          description: The request could not be processed because one or more arguments are invalid.
+        404:
+          description: The specified job is not found.
+        503:
+          description: The request failed due to a database connection error.
   /partitions/{partitionId}/jobStats/count:
     parameters:
       - $ref: '#/parameters/partitionId'

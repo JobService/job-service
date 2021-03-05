@@ -470,6 +470,42 @@ public final class DatabaseHelper
     }
 
     /**
+     * Pauses the specified job.
+     */
+    public void pauseJob(final String partitionId, String jobId) throws Exception {
+
+        try (
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                CallableStatement stmt = conn.prepareCall("{call pause_job(?,?)}")
+        ) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2, jobId);
+            LOG.debug("Calling pause_job() database function...");
+            stmt.execute();
+        } catch (final SQLException se) {
+            throw mapSqlNoDataException(se);
+        }
+    }
+
+    /**
+     * Resumes the specified job.
+     */
+    public void resumeJob(final String partitionId, String jobId) throws Exception {
+
+        try (
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                CallableStatement stmt = conn.prepareCall("{call resume_job(?,?)}")
+        ) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2, jobId);
+            LOG.debug("Calling resume_job() database function...");
+            stmt.execute();
+        } catch (final SQLException se) {
+            throw mapSqlNoDataException(se);
+        }
+    }
+
+    /**
      * Creates the specified job.
      */
     public void reportFailure(final String partitionId, String jobId, String failureDetails)
@@ -560,7 +596,7 @@ public final class DatabaseHelper
     {
         final String sqlState = se.getSQLState();
         if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
-            //  Job id has not been provided.
+            //  Job id has not been provided, or trying to move job status to invalid state, e.g. pausing a cancelled job etc.
             return new BadRequestException(se.getMessage(), se);
         } else if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
             //  No data found for the specified job id.
