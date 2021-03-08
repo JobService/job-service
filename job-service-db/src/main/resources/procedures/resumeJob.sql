@@ -33,7 +33,7 @@ RETURNS VOID
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    v_current_status TEXT;
+    v_job_status job_status;
 
 BEGIN
     -- Raise exception if job identifier has not been specified
@@ -42,7 +42,7 @@ BEGIN
     END IF;
 
     -- Only support Resume operation on jobs with current status 'Paused'
-    SELECT status INTO v_current_status
+    SELECT status INTO v_job_status
     FROM job
     WHERE partition_id = in_partition_id
         AND job_id = in_job_id
@@ -52,8 +52,9 @@ BEGIN
         RAISE EXCEPTION 'job_id {%} not found', in_job_id USING ERRCODE = 'P0002'; -- sqlstate no_data_found
     END IF;
 
-    IF v_current_status <> 'Paused' THEN
-        RAISE EXCEPTION 'job_id {%} cannot be resumed as it is not paused (status is {%})', in_job_id, v_current_status USING ERRCODE = '02000';
+    IF v_job_status <> 'Paused' THEN
+        RAISE EXCEPTION 'job_id {%} cannot be resumed as it has a status of {%}. Only jobs with a status of Paused can be resumed.',
+            in_job_id, v_job_status USING ERRCODE = '02000';
     END IF;
 
     -- Mark the job Active in the job table
