@@ -24,7 +24,7 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
-    <changeSet id="update_job_add_expiration_date" author="Gamma Team">
+    <changeSet id="update_job_add_column_expiration_date" author="Gamma Team">
         <addColumn schemaName="public" tableName="job">
             <column name="expiration_date" type="TIMESTAMP" >
                 <constraints nullable="true"/>
