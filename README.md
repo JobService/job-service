@@ -4,7 +4,7 @@ Manifest of the components which make up the Job Service:
 * [job-service](job-service)
 * [job-service-acceptance-tests](job-service-acceptance-tests)
 * [job-service-caller](job-service-caller)
-* [job-service-client](job-service-client)
+* [job-service-internal-client](job-service-internal-client)
 * [job-service-container](job-service-container)
 * [job-service-contract](job-service-contract)
 * [job-service-db](job-service-db)
