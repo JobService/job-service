@@ -35,7 +35,6 @@ public class Job   {
     private String id = null;
     private String name = null;
     private String description = null;
-    private ExpirationPolicy expirationPolicy = null;
     /**
      * @deprecated 21/01/2020 - Replaced by labels functionality.
      */
@@ -127,15 +126,6 @@ public class Job   {
         this.description = description;
     }
 
-    @ApiModelProperty("")
-    @JsonProperty("expiration-policy")
-    public ExpirationPolicy getExpirationPolicy() {
-        return this.expirationPolicy;
-    }
-
-    public void setExpirationPolicy(ExpirationPolicy expirationPolicy) {
-        this.expirationPolicy = expirationPolicy;
-    }
 
     /**
      * External data can be associated with the job for use by other components
@@ -270,7 +260,6 @@ public class Job   {
         return Objects.equals(id, job.id) &&
                 Objects.equals(name, job.name) &&
                 Objects.equals(description, job.description) &&
-                Objects.equals(this.expirationPolicy, job.expirationPolicy) &&
                 Objects.equals(externalData, job.externalData) &&
                 Objects.equals(createTime, job.createTime) &&
                 Objects.equals(this.lastUpdateTime, job.lastUpdateTime) &&
@@ -281,8 +270,7 @@ public class Job   {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, expirationPolicy, externalData, createTime, lastUpdateTime, status,
-                percentageComplete, failures);
+        return Objects.hash(id, name, description, externalData, createTime, lastUpdateTime, status, percentageComplete, failures);
     }
 
     @Override
@@ -293,7 +281,6 @@ public class Job   {
         sb.append("    id: ").append(toIndentedString(id)).append("\n");
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    description: ").append(toIndentedString(description)).append("\n");
-        sb.append("    expirationPolicy: ").append(this.toIndentedString(this.expirationPolicy)).append("\n");
         sb.append("    externalData: ").append(toIndentedString(externalData)).append("\n");
         sb.append("    createTime: ").append(toIndentedString(createTime)).append("\n");
         sb.append("    lastUpdateTime: ").append(toIndentedString(lastUpdateTime)).append("\n");
