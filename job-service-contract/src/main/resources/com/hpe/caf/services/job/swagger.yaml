@@ -298,10 +298,8 @@ definitions:
       description:
         type: string
         description: The description of the job
-      expirationDays:
-        type: integer
-        format: int32
-        description: The number of days before the job expires
+      expiration-policy:
+        $ref: "#/definitions/expiration-policy"
       externalData:
         # TODO: Should we make this more structured than just string
         #       Name/Value Pairs perhaps
@@ -339,6 +337,30 @@ definitions:
         example:
           "tag:4": "4"
           owner: "bob"
+  expiration-policy:
+    type: object
+    properties:
+      "Active":
+        $ref: "#/definitions/policy"
+      "Completed":
+        $ref: "#/definitions/policy"
+      "Failed":
+        $ref: "#/definitions/policy"
+    required:
+      - default
+    description: The expiration policy to be applied on the job
+  policy:
+    type: object
+    properties:
+      referenceDate:
+        type: string
+        enum:
+          - createDate
+          - lastUpdatedate
+      numberOfDays:
+        type: integer
+        format: int32
+    description: The expiration details to be applied on the job
   worker-action:
     type: object
     required:
@@ -376,10 +398,8 @@ definitions:
       description:
         type: string
         description: The description of the job
-      expirationDays:
-        type: integer
-        format: int32
-        description: The number of days before the job expires
+      expiration-policy:
+        $ref: "#/definitions/expiration-policy"
       externalData:
         type: string
         description: |
