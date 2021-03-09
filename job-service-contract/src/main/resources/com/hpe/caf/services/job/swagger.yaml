@@ -346,8 +346,12 @@ definitions:
         $ref: "#/definitions/policy"
       "Failed":
         $ref: "#/definitions/policy"
-    required:
-      - default
+      "Cancelled":
+        $ref: "#/definitions/policy"
+      "Waiting":
+        $ref: "#/definitions/policy"
+      "Paused":
+        $ref: "#/definitions/policy"
     description: The expiration policy to be applied on the job
   policy:
     type: object
@@ -356,10 +360,18 @@ definitions:
         type: string
         enum:
           - createDate
-          - lastUpdatedate
-      numberOfDays:
+          - lastUpdateDate
+        default: createDate
+      duration:
         type: integer
         format: int32
+        default: 5
+      action:
+        type: string
+        enum:
+          - keep
+          - delete
+        default: keep
     description: The expiration details to be applied on the job
   worker-action:
     type: object
