@@ -225,7 +225,7 @@ paths:
         in: header
         type: string
         description: |
-          An identifier that correlates events 
+          An identifier that correlates events
           across different CAF services
       - $ref: '#/parameters/jobId'
     post:
@@ -298,8 +298,8 @@ definitions:
       description:
         type: string
         description: The description of the job
-      expiration-policy:
-        $ref: "#/definitions/expiration-policy"
+      expirationPolicy:
+        $ref: "#/definitions/expirationPolicy"
       externalData:
         # TODO: Should we make this more structured than just string
         #       Name/Value Pairs perhaps
@@ -325,7 +325,7 @@ definitions:
       delay:
         type: integer
         format: int32
-        default: 0		
+        default: 0
         description: The time in seconds after the prerequisite job identifiers have completed before this job is eligible for running.
       labels:
         type: object
@@ -337,7 +337,7 @@ definitions:
         example:
           "tag:4": "4"
           owner: "bob"
-  expiration-policy:
+  expirationPolicy:
     type: object
     properties:
       "Active":
@@ -352,27 +352,28 @@ definitions:
         $ref: "#/definitions/policy"
       "Paused":
         $ref: "#/definitions/policy"
+      "Default":
+        $ref: "#/definitions/policy"
     description: The expiration policy to be applied on the job
   policy:
     type: object
     properties:
-      referenceDate:
-        type: string
-        enum:
-          - createDate
-          - lastUpdateDate
-        default: createDate
-      duration:
-        type: integer
-        format: int32
-        default: 5
+      expiryTime:
+        $ref: "#/definitions/expiryTime"
       action:
-        type: string
-        enum:
-          - keep
-          - delete
-        default: keep
+        $ref: "#/definitions/action"
     description: The expiration details to be applied on the job
+  action:
+    type: string
+    enum:
+      - expire
+      - delete
+    default: expire
+    description: The action to apply on expired jobs
+  expiryTime:
+    type: string
+    format: date-time
+    default: 2222-04-12T23:20:50.52Z
   worker-action:
     type: object
     required:
@@ -410,8 +411,8 @@ definitions:
       description:
         type: string
         description: The description of the job
-      expiration-policy:
-        $ref: "#/definitions/expiration-policy"
+      expirationPolicy:
+        $ref: "#/definitions/expirationPolicy"
       externalData:
         type: string
         description: |
