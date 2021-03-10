@@ -99,4 +99,16 @@ public class JobsApiServiceImpl extends JobsApiService {
         return Response.ok().header("CacheableJobStatus", true).entity(result.active).cacheControl(cc).build();
     }
 
+    @Override
+    public Response getJobStatus(final String partitionId, final String jobId, final String cAFCorrelationId,
+                                 final SecurityContext securityContext)
+            throws Exception {
+        final JobsStatus.JobsStatusResult jobStatusResult = JobsStatus.getJobStatus(partitionId, jobId);
+
+        final CacheControl cacheControl = new CacheControl();
+        cacheControl.setMaxAge(jobStatusResult.statusCheckIntervalSecs);
+
+        return Response.ok().header("CacheableJobStatus", true).entity(jobStatusResult.jobStatus).cacheControl(cacheControl).build();
+    }
+
 }

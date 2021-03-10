@@ -255,7 +255,7 @@
         <module>worker-jobtracking</module>
         <module>worker-jobtracking-shared</module>
         <module>worker-jobtracking-container</module>
-        <module>job-service-acceptance-tests</module>
+<!--        <module>job-service-acceptance-tests</module>-->
         <module>job-service-util</module>
     </modules>
 

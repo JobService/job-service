@@ -218,6 +218,37 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         503:
           description: The request failed due to a database connection error.
+  /partitions/{partitionId}/jobs/{jobId}/status:
+    parameters:
+      - $ref: '#/parameters/partitionId'
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that correlates events 
+          across different services.
+      - $ref: '#/parameters/jobId'
+    get:
+      tags:
+        - Jobs
+      summary: Gets the status of the job.
+      description: Gets the status of the specified job.
+      operationId: getJobStatus
+      responses:
+        200:
+          description: Returns the status of the job.
+          schema:
+            $ref: "#/definitions/job-status"
+          headers:
+            CacheableJobStatus:
+                description: A response that includes this header with the value ‘true’ is eligible for caching in a cache specific to job status responses.
+                type: boolean
+        400:
+          description: The `jobId` parameter contains invalid characters.
+        404:
+          description: The specified job is not found.
+        503:
+          description: The request failed due to a database connection error.
   /partitions/{partitionId}/jobs/{jobId}/cancel:
     parameters:
       - $ref: '#/parameters/partitionId'
@@ -453,7 +484,23 @@ definitions:
           type: string
         description: |
           A map of meta data associated with this job. Note that the keys can only include alphanumeric, '_', '-' and
-          ':' characters
+          ':' characters      
+  job-status:
+    type: object
+    required:
+      - status
+    properties:
+      status:
+        $ref: "#/definitions/job-status-enum"
+  job-status-enum:
+    type: string
+    enum:
+      - Active
+      - Cancelled
+      - Completed
+      - Failed
+      - Paused
+      - Waiting
   failure:
     type: object
     properties:

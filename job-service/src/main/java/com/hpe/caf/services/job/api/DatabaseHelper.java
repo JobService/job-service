@@ -19,6 +19,7 @@ import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.api.generated.model.SortField;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
@@ -419,6 +420,27 @@ public final class DatabaseHelper
         }
 
         return canBeProgressed;
+    }
+
+    public JobStatus getJobStatus(final String partitionId, final String jobId) throws Exception
+    {
+        try (
+            final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+            final CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2, jobId);
+
+            //  Execute a query to get the staus of the specified job.
+            LOG.debug("Calling get_job() database function...");
+            final ResultSet rs = stmt.executeQuery();
+            rs.next();
+            final JobStatus jobStatus = new JobStatus();
+            jobStatus.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
+            return jobStatus;
+        } catch (final SQLException se) {
+            // TODO throws 404 if job not found - implications for clients (isJobActive does not return 404, just returns false for non-existing jobs)
+            throw mapSqlNoDataException(se);
+        }
     }
 
     /**

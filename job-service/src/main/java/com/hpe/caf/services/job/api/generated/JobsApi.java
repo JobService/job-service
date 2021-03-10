@@ -196,6 +196,24 @@ public class JobsApi  {
     }
 
     @GET
+    @Path("/{partitionId}/jobs/{jobId}/status")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @io.swagger.annotations.ApiOperation(value = "Gets the status of the job.", notes = "Gets the status of the specified job.", response = Boolean.class, tags = {"Jobs"})
+    @io.swagger.annotations.ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 200, message = "Returns the status of the job.", response = Boolean.class),
+            @io.swagger.annotations.ApiResponse(code = 400, message = "The `jobId` parameter contains invalid characters.", response = Boolean.class),
+            @io.swagger.annotations.ApiResponse(code = 404, message = "The specified job is not found.", response = void.class),
+            @io.swagger.annotations.ApiResponse(code = 503, message = "The request failed due to a database connection error.", response = void.class)})
+    public Response getJobStatus(
+            @ApiParam(value = "Only allow access to jobs in the container with this name", required = true) @PathParam("partitionId") String partitionId,
+            @ApiParam(value = "The identifier of the job", required = true) @PathParam("jobId") String jobId,
+            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services") @HeaderParam("CAF-Correlation-Id") String cAFCorrelationId, @Context SecurityContext securityContext)
+            throws Exception {
+        return delegate.getJobStatus(partitionId, jobId, cAFCorrelationId, securityContext);
+    }
+
+    @GET
     @Path("/{partitionId}/jobStats/count")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
@@ -213,5 +231,4 @@ public class JobsApi  {
         throws Exception {
         return statsDelegate.getJobStatsCount(partitionId, jobIdStartsWith, statusType, filter, cAFCorrelationId, securityContext);
     }
-
 }
