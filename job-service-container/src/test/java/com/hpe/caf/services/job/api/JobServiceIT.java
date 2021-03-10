@@ -27,7 +27,7 @@ import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.services.job.client.model.Job;
 import com.hpe.caf.services.job.client.model.NewJob;
 import com.hpe.caf.services.job.client.model.WorkerAction;
-import com.hpe.caf.services.job.client.model.JobStatusEnum;
+import com.hpe.caf.services.job.client.model.JobStatus;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
@@ -577,7 +577,7 @@ public class JobServiceIT {
 
         Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        assertEquals(cancelledJob.getStatus(), JobStatusEnum.Cancelled);
+        assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
         assertTrue(new Date(cancelledJob.getLastUpdateTime()).after(new Date(initialJob.getLastUpdateTime())),
             "last-update-time should be updated on cancel");
     }
@@ -600,7 +600,7 @@ public class JobServiceIT {
         jobsApi.cancelJob(defaultPartitionId, jobId, jobCorrelationId); // shouldn't throw
         final Job cancelledAgainJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        assertEquals(cancelledJob.getStatus(), JobStatusEnum.Cancelled,
+        assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled,
             "status should remain cancelled");
         assertEquals(cancelledJob.getLastUpdateTime(), cancelledAgainJob.getLastUpdateTime(),
             "last-update-time should not be updated on second cancel");
@@ -668,7 +668,7 @@ public class JobServiceIT {
         assertThrowsApiException(Response.Status.NOT_FOUND,
             () -> jobsApi.deleteJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
         final Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-        assertEquals(job.getStatus(), JobStatusEnum.Waiting, "job should still be waiting");
+        assertEquals(job.getStatus(), JobStatus.Waiting, "job should still be waiting");
     }
 
     @Test
@@ -681,7 +681,7 @@ public class JobServiceIT {
         assertThrowsApiException(Response.Status.NOT_FOUND,
             () -> jobsApi.cancelJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
         final Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-        assertEquals(job.getStatus(), JobStatusEnum.Waiting, "job should still be waiting");
+        assertEquals(job.getStatus(), JobStatus.Waiting, "job should still be waiting");
     }
 
     @Test

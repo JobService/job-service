@@ -23,7 +23,7 @@ import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.services.job.client.model.Failure;
 import com.hpe.caf.services.job.client.model.Job;
-import com.hpe.caf.services.job.client.model.JobStatusEnum;
+import com.hpe.caf.services.job.client.model.JobStatus;
 import com.hpe.caf.worker.example.ExampleWorkerResult;
 import com.hpe.caf.worker.testing.ExecutionContext;
 import com.hpe.caf.worker.testing.ResultHandler;
