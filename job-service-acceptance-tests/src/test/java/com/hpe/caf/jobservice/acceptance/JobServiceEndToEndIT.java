@@ -1300,6 +1300,25 @@ public class JobServiceEndToEndIT {
         }
     }
 
+    @Test
+    public void testGetJobStatus() throws Exception {
+        final String jobId = generateJobId();
+        createJob(jobId, true);
+        waitUntilJobStatusIs(JobStatusEnum.Waiting, jobId);
+    }
+
+    @Test
+    public void testGetJobStatusForUnknownJob() throws Exception {
+        try {
+            jobsApi.getJobStatus(defaultPartitionId, "unknown-job-id", jobCorrelationId);
+        } catch (final ApiException e) {
+            Assert.assertEquals(e.getCode(), 404, "Unexpected HTTP response code");
+            Assert.assertEquals(e.getMessage(),
+                                "{\"message\": \"ERROR: job_id {unknown-job-id} not found\\n  "
+                                + "Where: PL/pgSQL function get_job(character varying,character varying) line 39 at RAISE\"}");
+        }
+    }
+
     private List<String> generateWorkerBatch() throws DataStoreException {
         List<String> assetIds = new ArrayList<>();
         String containerId = getContainerId();
