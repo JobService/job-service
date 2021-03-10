@@ -359,7 +359,9 @@ definitions:
     type: object
     properties:
       expiryTime:
-        $ref: "#/definitions/expiryTime"
+        type: string
+        format: date-time
+        default: 2222-04-12T23:20:50.52Z
       action:
         $ref: "#/definitions/action"
     description: The expiration details to be applied on the job
@@ -370,10 +372,6 @@ definitions:
       - delete
     default: expire
     description: The action to apply on expired jobs
-  expiryTime:
-    type: string
-    format: date-time
-    default: 2222-04-12T23:20:50.52Z
   worker-action:
     type: object
     required:
