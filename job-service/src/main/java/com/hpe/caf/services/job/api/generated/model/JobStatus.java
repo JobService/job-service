@@ -27,7 +27,7 @@ public class JobStatus   {
 
     private StatusEnum status = null;
 
-    @ApiModelProperty(value = "The status of the job")
+    @ApiModelProperty(value = "The status of the job.")
     @JsonProperty("status")
     public StatusEnum getStatus() {
         return status;

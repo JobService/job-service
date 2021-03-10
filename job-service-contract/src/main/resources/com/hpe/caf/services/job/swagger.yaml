@@ -466,8 +466,7 @@ definitions:
         format: int64
         description: The time the job status or progress last changed
       status:
-        type: string
-        description: String value of the job status enum, possible values are Completed, Active, Waiting, Failed, Paused and Cancelled.
+        $ref: "#/definitions/job-status-enum"
       percentageComplete:
         type: number
         format: float
@@ -486,6 +485,7 @@ definitions:
           ':' characters      
   job-status:
     type: object
+    description: Response containing the status of the job.
     required:
       - status
     properties:
@@ -493,6 +493,7 @@ definitions:
         $ref: "#/definitions/job-status-enum"
   job-status-enum:
     type: string
+    description: The status of the job.
     enum:
       - Active
       - Cancelled
