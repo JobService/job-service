@@ -1314,7 +1314,7 @@ public class JobServiceEndToEndIT {
         } catch (final ApiException e) {
             Assert.assertEquals(e.getCode(), 404, "Unexpected HTTP response code");
             Assert.assertEquals(e.getMessage(),
-                                "{\"message\": \"ERROR: job_id {unknown-job-id} not found\\n  "
+                                "{\"message\":\"ERROR: job_id {unknown-job-id} not found\\n  "
                                 + "Where: PL/pgSQL function get_job(character varying,character varying) line 39 at RAISE\"}");
         }
     }
