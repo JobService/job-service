@@ -225,7 +225,7 @@ paths:
         in: header
         type: string
         description: |
-          An identifier that correlates events
+          An identifier that correlates events 
           across different CAF services
       - $ref: '#/parameters/jobId'
     post:
