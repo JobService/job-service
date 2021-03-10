@@ -17,7 +17,7 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.api.generated.model.Job;
-import com.hpe.caf.services.job.api.generated.model.JobStatus;
+import com.hpe.caf.services.job.api.generated.model.JobStatusResponse;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
 import org.junit.Before;
@@ -45,10 +45,10 @@ public final class JobsStatusTest {
     public void setup() throws Exception {
 
         //  Mock DatabaseHelper calls.
-        final JobStatus jobStatus = new JobStatus();
-        jobStatus.setStatus(Job.StatusEnum.ACTIVE);
+        final JobStatusResponse jobStatusResponse = new JobStatusResponse();
+        jobStatusResponse.setStatus(Job.StatusEnum.ACTIVE);
         Mockito.when(mockDatabaseHelper.getJobStatus(Mockito.anyString(), Mockito.anyString()))
-            .thenReturn(jobStatus);
+            .thenReturn(jobStatusResponse);
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(Mockito.any()).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
@@ -74,7 +74,7 @@ public final class JobsStatusTest {
         final JobsStatus.JobsStatusResult jobStatusResult =
             JobsStatus.getJobStatus("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
 
-        Assert.assertEquals(jobStatusResult.jobStatus.getStatus(), Job.StatusEnum.ACTIVE, "Unexpected job status");
+        Assert.assertEquals(jobStatusResult.jobStatusResponse.getStatus(), Job.StatusEnum.ACTIVE, "Unexpected job status");
         Assert.assertEquals(jobStatusResult.statusCheckIntervalSecs, 1, "Unexpected status check interval secs");
         Mockito.verify(mockDatabaseHelper, Mockito.times(1))
             .getJobStatus("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");

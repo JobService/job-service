@@ -22,12 +22,12 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
-@XmlRootElement(name = "JobStatus")
-public class JobStatus   {
+@XmlRootElement(name = "JobStatusResponse")
+public class JobStatusResponse   {
 
     private StatusEnum status = null;
 
-    @ApiModelProperty(value = "The status of the job.")
+    @ApiModelProperty(value = "Response containing the status of the job.")
     @JsonProperty("status")
     public StatusEnum getStatus() {
         return status;
@@ -45,7 +45,7 @@ public class JobStatus   {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        JobStatus job = (JobStatus) o;
+        JobStatusResponse job = (JobStatusResponse) o;
         return Objects.equals(status, job.status);
     }
 
@@ -57,7 +57,7 @@ public class JobStatus   {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("class JobStatus {\n");
+        sb.append("class JobStatusResponse {\n");
 
         sb.append("    status: ").append(toIndentedString(status)).append("\n");
         sb.append("}");

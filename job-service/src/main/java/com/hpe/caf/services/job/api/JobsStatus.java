@@ -18,7 +18,7 @@ package com.hpe.caf.services.job.api;
 import com.hpe.caf.services.job.api.*;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigProvider;
-import com.hpe.caf.services.job.api.generated.model.JobStatus;
+import com.hpe.caf.services.job.api.generated.model.JobStatusResponse;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,17 +28,17 @@ public final class JobsStatus {
     private static final Logger LOG = LoggerFactory.getLogger(JobsStatus.class);
 
     public static class JobsStatusResult {
-        public final JobStatus jobStatus;
+        public final JobStatusResponse jobStatusResponse;
         public final int statusCheckIntervalSecs;
 
-        public JobsStatusResult(final JobStatus jobStatus, final int statusCheckIntervalSecs) {
-            this.jobStatus = jobStatus;
+        public JobsStatusResult(final JobStatusResponse jobStatus, final int statusCheckIntervalSecs) {
+            this.jobStatusResponse = jobStatus;
             this.statusCheckIntervalSecs = statusCheckIntervalSecs;
         }
     }
 
     public static JobsStatusResult getJobStatus(final String partitionId, final String jobId) throws Exception {
-        JobStatus jobStatus;
+        JobStatusResponse jobStatusResponse;
         int statusCheckIntervalMillis;
 
         try {
@@ -69,7 +69,7 @@ public final class JobsStatus {
 
             //  Get the status of the specified job.
             LOG.debug("getJobStatus: Getting job status...");
-            jobStatus = databaseHelper.getJobStatus(partitionId, jobId);
+            jobStatusResponse = databaseHelper.getJobStatus(partitionId, jobId);
 
         } catch (final Exception e) {
             LOG.error("Error - '{}'", e.toString());
@@ -77,6 +77,6 @@ public final class JobsStatus {
         }
 
         LOG.debug("getJobStatus: Done.");
-        return new JobsStatusResult(jobStatus, statusCheckIntervalMillis);
+        return new JobsStatusResult(jobStatusResponse, statusCheckIntervalMillis);
     }
 }
