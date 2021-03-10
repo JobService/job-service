@@ -35,6 +35,7 @@ public class NewJob   {
 
     private String name = null;
     private String description = null;
+    private ExpirationPolicy expirationPolicy = null;
     /**
      * @deprecated 21/01/2020 - Replaced by labels functionality.
      */
@@ -83,6 +84,19 @@ public class NewJob   {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    /**
+     **/
+
+    @ApiModelProperty(value = "")
+    @JsonProperty("expirationPolicy")
+    public ExpirationPolicy getExpirationPolicy() {
+        return expirationPolicy;
+    }
+    public void setExpirationPolicy(ExpirationPolicy expirationPolicy) {
+        this.expirationPolicy = expirationPolicy;
+    }
+
 
 
     /**
@@ -221,6 +235,7 @@ public class NewJob   {
         NewJob newJob = (NewJob) o;
         return Objects.equals(name, newJob.name) &&
                 Objects.equals(description, newJob.description) &&
+                Objects.equals(expirationPolicy, newJob.expirationPolicy) &&
                 Objects.equals(externalData, newJob.externalData) &&
                 Objects.equals(task, newJob.task) &&
                 Objects.equals(prerequisiteJobIds, newJob.prerequisiteJobIds) &&
@@ -229,7 +244,7 @@ public class NewJob   {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, externalData, task, prerequisiteJobIds, delay);
+        return Objects.hash(name, description, expirationPolicy, externalData, task, prerequisiteJobIds, delay);
     }
 
     @Override
@@ -239,6 +254,7 @@ public class NewJob   {
 
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    description: ").append(toIndentedString(description)).append("\n");
+        sb.append("    expirationPolicy: ").append(toIndentedString(expirationPolicy)).append("\n");
         sb.append("    externalData: ").append(toIndentedString(externalData)).append("\n");
         sb.append("    task: ").append(toIndentedString(task)).append("\n");
         sb.append("    prerequisiteJobIds: ").append(toIndentedString(prerequisiteJobIds)).append("\n");
