@@ -30,8 +30,10 @@ import static org.mockito.Mockito.times;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.hpe.caf.services.job.api.generated.model.ExpirationOperation;
+import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
-import com.hpe.caf.services.job.api.generated.model.RestrictedTask;
+import com.hpe.caf.services.job.api.generated.model.Policy;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
@@ -45,7 +47,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.exceptions.base.MockitoAssertionError;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -80,6 +81,12 @@ public final class JobsPutTest {
         job.setName("TestName");
         job.setDescription("TestDescription");
         job.setExternalData("TestExternalData");
+        final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
+        final Policy policy = new Policy();
+        policy.setExpiryTime("createDate+10D");
+        policy.setExpirationOperation(ExpirationOperation.delete);
+        expirationPolicy.setDefault(policy);
+        job.setExpirationPolicy(expirationPolicy);
         return job;
     }
 
@@ -94,7 +101,6 @@ public final class JobsPutTest {
         action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         action.setTaskPipe("TaskQueue");
         action.setTargetPipe("JobServiceQueue");
-
         final NewJob job = makeBaseJob();
         job.setTask(action);
         return job;
@@ -116,12 +122,12 @@ public final class JobsPutTest {
     public void setup() throws Exception {
         //  Mock DatabaseHelper calls.
         when(mockDatabaseHelper.createJob(
-            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap()
-        )).thenReturn(true);
+            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap(),
+                any(HashMap.class))).thenReturn(true);
         when(mockDatabaseHelper.createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false)
-        )).thenReturn(true);
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false),
+                any(HashMap.class))).thenReturn(true);
         doNothing().when(mockDatabaseHelper).deleteJob(anyString(), anyString());
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(any()).thenReturn(mockDatabaseHelper);
 
@@ -175,7 +181,7 @@ public final class JobsPutTest {
             "partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", makeJob());
 
         verify(mockDatabaseHelper, times(1))
-            .createJob(eq("partition"), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap());
+            .createJob(eq("partition"), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap(), any(HashMap.class));
         verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any());
         assertEquals("create", result);
     }
@@ -183,15 +189,15 @@ public final class JobsPutTest {
     @Test
     public void testCreateJob_Success_MatchingJobRow() throws Exception {
         when(mockDatabaseHelper.createJob(
-            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap()
-        )).thenReturn(false);
+            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap(),
+                any(HashMap.class))).thenReturn(false);
 
         //  Test successful run of job creation when a matching job row already exists.
         final String result = JobsPut.createOrUpdateJob(
             "partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", makeJob());
 
         verify(mockDatabaseHelper, times(1))
-            .createJob(anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap());
+            .createJob(anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap(), any(HashMap.class));
         verify(mockQueueServices, times(0)).sendMessage(any(), any(), any(), any());
         assertEquals("update", result);
     }
@@ -251,7 +257,7 @@ public final class JobsPutTest {
             makeRestrictedJob("basic", TextNode.valueOf("params")));
 
         verify(mockDatabaseHelper, times(1))
-            .createJob(eq("partition"), eq("id"), anyString(), anyString(), anyString(), anyInt(), anyMap());
+            .createJob(eq("partition"), eq("id"), anyString(), anyString(), anyString(), anyInt(), anyMap(), any(HashMap.class));
         final ArgumentCaptor<WorkerAction> workerActionCaptor =
             ArgumentCaptor.forClass(WorkerAction.class);
         verify(mockQueueServices, times(1))
@@ -309,7 +315,7 @@ public final class JobsPutTest {
         JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
         
         verify(mockDatabaseHelper, times(1)).createJob(
-            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap());
+            anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap(), any(HashMap.class));
         verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any());
     }
 
@@ -340,7 +346,7 @@ public final class JobsPutTest {
 
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false));
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false), any(HashMap.class));
         verify(mockDatabaseHelper, times(1)).canJobBeProgressed(anyString(), anyString());
     }
 
@@ -348,8 +354,8 @@ public final class JobsPutTest {
     public void testJobCreationWithPrerequisites_MatchingJobRow() throws Exception {
         when(mockDatabaseHelper.createJobWithDependencies(
             anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false)
-        )).thenReturn(false);
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false),
+                any(HashMap.class))).thenReturn(false);
 
         final NewJob job = makeJob();
         job.setPrerequisiteJobIds(Arrays.asList(new String[]{"J1", "J2"}));
@@ -361,7 +367,7 @@ public final class JobsPutTest {
         assertEquals("update", result);
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false));
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false), any(HashMap.class));
         verify(mockDatabaseHelper, times(0)).canJobBeProgressed(anyString(), anyString());
     }
 

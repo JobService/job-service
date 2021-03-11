@@ -19,88 +19,63 @@ package com.hpe.caf.services.job.api.generated.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
-import java.util.Date;
 import java.util.Objects;
 
-
-/**
- * The expiration details to be applied on the job
- **/
-
-@ApiModel(description = "The expiration details to be applied on the job")
-@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2021-03-10T17:25:43.851Z")
-public class Policy   {
-
-    private Date expiryTime = null;
+@ApiModel(
+        description = "The expiration details to be applied on the job"
+)
+public class Policy {
+    private String expiryTime = "createDate+10D";
     private ExpirationOperation expirationOperation = null;
 
-
-    /**
-     **/
-
-    @ApiModelProperty(value = "")
-    @JsonProperty("expiryTime")
-    public Date getExpiryTime() {
-        return expiryTime;
+    public Policy() {
     }
-    public void setExpiryTime(Date expiryTime) {
+
+    @ApiModelProperty("")
+    @JsonProperty("expiryTime")
+    public String getExpiryTime() {
+        return this.expiryTime;
+    }
+
+    public void setExpiryTime(String expiryTime) {
         this.expiryTime = expiryTime;
     }
 
-
-    /**
-     **/
-
-    @ApiModelProperty(value = "")
-    @JsonProperty("action")
-    public ExpirationOperation getAction() {
-        return expirationOperation;
+    @ApiModelProperty("")
+    @JsonProperty("expirationOperation")
+    public ExpirationOperation getExpirationOperation() {
+        return this.expirationOperation;
     }
-    public void setAction(ExpirationOperation expirationOperation) {
+
+    public void setExpirationOperation(ExpirationOperation expirationOperation) {
         this.expirationOperation = expirationOperation;
     }
 
-
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
+        } else if (o != null && this.getClass() == o.getClass()) {
+            Policy policy = (Policy)o;
+            return Objects.equals(this.expiryTime, policy.expiryTime) && Objects.equals(this.expirationOperation, policy.expirationOperation);
+        } else {
             return false;
         }
-        Policy policy = (Policy) o;
-        return Objects.equals(expiryTime, policy.expiryTime) &&
-                Objects.equals(expirationOperation, policy.expirationOperation);
     }
 
-    @Override
     public int hashCode() {
-        return Objects.hash(expiryTime, expirationOperation);
+        return Objects.hash(new Object[]{this.expiryTime, this.expirationOperation});
     }
 
-    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class Policy {\n");
-
-        sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
-        sb.append("    action: ").append(toIndentedString(expirationOperation)).append("\n");
+        sb.append("    expiryTime: ").append(this.toIndentedString(this.expiryTime)).append("\n");
+        sb.append("    expirationOperation: ").append(this.toIndentedString(this.expirationOperation)).append("\n");
         sb.append("}");
         return sb.toString();
     }
 
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
     private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
+        return o == null ? "null" : o.toString().replace("\n", "\n    ");
     }
 }
-

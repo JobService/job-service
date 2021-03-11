@@ -26,8 +26,11 @@ import com.hpe.caf.naming.ServicePath;
 import com.hpe.caf.services.job.client.ApiClient;
 import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.services.job.client.api.JobsApi;
+import com.hpe.caf.services.job.client.model.ExpirationOperation;
+import com.hpe.caf.services.job.client.model.ExpirationPolicy;
 import com.hpe.caf.services.job.client.model.Job;
 import com.hpe.caf.services.job.client.model.NewJob;
+import com.hpe.caf.services.job.client.model.Policy;
 import com.hpe.caf.services.job.client.model.WorkerAction;
 import com.hpe.caf.worker.batch.BatchWorkerConstants;
 import com.hpe.caf.worker.batch.BatchWorkerTask;
@@ -1268,12 +1271,12 @@ public class JobServiceEndToEndIT {
         String jobName = "Job_" + jobId;
         NewJob newJob = new NewJob();
         newJob.setName(jobName);
-        /*final Policy policyActive = new Policy();
+        final Policy policyActive = new Policy();
         policyActive.setExpirationOperation(ExpirationOperation.delete);
         policyActive.setExpiryTime("createDate+10D");
         final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
         expirationPolicy.setActive(policyActive);
-        newJob.setExpirationPolicy(expirationPolicy);*/
+        newJob.setExpirationPolicy(expirationPolicy);
         newJob.setDescription(jobName + " description");
         newJob.setExternalData(jobName + " external data");
         newJob.setTask(batchWorkerAction);
