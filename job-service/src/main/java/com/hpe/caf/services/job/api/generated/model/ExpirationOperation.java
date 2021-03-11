@@ -18,6 +18,6 @@ package com.hpe.caf.services.job.api.generated.model;
 /**
  * The action to apply on expired jobs
  **/
-public enum Action {
+public enum ExpirationOperation {
     expire, delete
 }

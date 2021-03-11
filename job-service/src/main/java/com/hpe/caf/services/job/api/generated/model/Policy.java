@@ -33,7 +33,7 @@ import java.util.Objects;
 public class Policy   {
 
     private Date expiryTime = null;
-    private Action action = null;
+    private ExpirationOperation expirationOperation = null;
 
 
     /**
@@ -54,11 +54,11 @@ public class Policy   {
 
     @ApiModelProperty(value = "")
     @JsonProperty("action")
-    public Action getAction() {
-        return action;
+    public ExpirationOperation getAction() {
+        return expirationOperation;
     }
-    public void setAction(Action action) {
-        this.action = action;
+    public void setAction(ExpirationOperation expirationOperation) {
+        this.expirationOperation = expirationOperation;
     }
 
 
@@ -73,12 +73,12 @@ public class Policy   {
         }
         Policy policy = (Policy) o;
         return Objects.equals(expiryTime, policy.expiryTime) &&
-                Objects.equals(action, policy.action);
+                Objects.equals(expirationOperation, policy.expirationOperation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(expiryTime, action);
+        return Objects.hash(expiryTime, expirationOperation);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class Policy   {
         sb.append("class Policy {\n");
 
         sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
-        sb.append("    action: ").append(toIndentedString(action)).append("\n");
+        sb.append("    action: ").append(toIndentedString(expirationOperation)).append("\n");
         sb.append("}");
         return sb.toString();
     }

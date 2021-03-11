@@ -352,20 +352,34 @@ definitions:
         $ref: "#/definitions/policy"
       "Paused":
         $ref: "#/definitions/policy"
+      "Expired":
+        $ref: "#/definitions/deletePolicy"
       "Default":
         $ref: "#/definitions/policy"
     description: The expiration policy to be applied on the job
+  deletePolicy:
+    type: object
+    properties:
+      expiryTime:
+        type: string
+        pattern: '^((lastUpdateDate)|(createDate))(\+P)([1-9]\d?|[12]\d{2}|3[0-5]\d|36[0-5])D$'
+        default: "createDate+10D"
+      expirationOperation:
+        type: string
+        enum:
+          - delete
+    description: The expiration details to be applied on the job
   policy:
     type: object
     properties:
       expiryTime:
         type: string
-        format: date-time
-        default: 2222-04-12T23:20:50.52Z
-      action:
-        $ref: "#/definitions/action"
+        pattern: '^((lastUpdateDate)|(createDate))(\+P)([1-9]\d?|[12]\d{2}|3[0-5]\d|36[0-5])D$'
+        default: "createDate+10D"
+      expirationOperation:
+        $ref: "#/definitions/expirationOperation"
     description: The expiration details to be applied on the job
-  action:
+  expirationOperation:
     type: string
     enum:
       - expire
