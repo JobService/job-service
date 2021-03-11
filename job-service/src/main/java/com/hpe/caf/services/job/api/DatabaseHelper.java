@@ -435,7 +435,6 @@ public final class DatabaseHelper
             rs.next();
             return Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH));
         } catch (final SQLException se) {
-            // TODO throws 404 if job not found - implications for clients (isJobActive does not return 404, just returns false for non-existing jobs)
             throw mapSqlNoDataException(se);
         }
     }
@@ -615,7 +614,7 @@ public final class DatabaseHelper
     {
         final String sqlState = se.getSQLState();
         if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
-            //  Job id has not been provided, or trying to move job status to invalid state, e.g. pausing a cancelled job etc.
+            //  Client error, such as not providing a job id, or trying to pause a cancelled job etc.
             return new BadRequestException(se.getMessage(), se);
         } else if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
             //  No data found for the specified job id.
