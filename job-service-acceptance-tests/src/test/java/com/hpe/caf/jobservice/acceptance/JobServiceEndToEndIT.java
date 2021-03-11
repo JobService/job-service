@@ -129,7 +129,6 @@ public class JobServiceEndToEndIT {
     @BeforeMethod
     public void testSetup() throws Exception {
         defaultPartitionId = UUID.randomUUID().toString();
-        System.out.println("RORY partition id is " + defaultPartitionId);
         numTestItemsToGenerate = 50;        // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();
         exampleWorkerMessageOutQueue = "exampleworker-test-output-1";
@@ -196,9 +195,6 @@ public class JobServiceEndToEndIT {
         final String job1Id = generateJobId();
         final String job2Id = generateJobId();
         final String job3Id = generateJobId();
-        System.out.println("rory job1 " + job1Id);
-        System.out.println("rory job2 " + job2Id);
-        System.out.println("rory job3 " + job3Id);
 
         // Add a Prerequisite job 1 that should be completed
         JobServiceEndToEndITExpectation job1Expectation =
