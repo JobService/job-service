@@ -236,7 +236,7 @@ paths:
       responses:
         200:
           schema:
-            $ref: "#/definitions/job-status-response"
+            $ref: "#/definitions/job-status"                
           headers:
             CacheableJobStatus:
                 description: A response that includes this header with the value ‘true’ is eligible for caching in a cache specific to job status responses.
@@ -482,14 +482,6 @@ definitions:
         description: |
           A map of meta data associated with this job. Note that the keys can only include alphanumeric, '_', '-' and
           ':' characters      
-  job-status-response:
-    type: object
-    description: Response containing the status of the job.
-    required:
-      - status
-    properties:
-      status:
-        $ref: "#/definitions/job-status"
   job-status:
     type: string
     description: The status of the job.
