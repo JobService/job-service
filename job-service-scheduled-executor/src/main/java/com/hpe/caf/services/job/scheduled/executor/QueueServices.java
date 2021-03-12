@@ -111,7 +111,7 @@ public final class QueueServices
         final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
             .path("partitions").path(partitionId)
             .path("jobs").path(jobId)
-            .path("isActive").build().toString();
+            .path("status").build().toString();
 
         //  Construct the task message.
         LOG.debug("Constructing the task message ...");

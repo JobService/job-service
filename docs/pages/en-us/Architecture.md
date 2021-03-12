@@ -75,6 +75,7 @@ If it instead splits the batch into a set of items, then it generates and dispat
 When a worker receives a message for processing, then the Worker Framework first compares the current time to the time specified in the statusCheckTime field. If the expiry time has passed, then the statusCheckUrl is used to re-check the job status.
 
 * If the job has been cancelled or aborted, then the message is simply discarded and not processed.
+* If the job has been paused, then the message is sent to the `CAF_WORKER_PAUSED_QUEUE`.
 * If the specified URL could not be reached for some reason, then this failure is logged as a warning, but the work package still progresses on the assumption that the job is still active.
 * If the job is confirmed to still be active, then the work package progresses, and, when the worker ultimately dispatches another message relating to this task, it has the statusCheckTime field updated to a new value. Consequently, a downstream worker may not have to repeat this work and check the job status again.
 

@@ -103,7 +103,7 @@ public final class QueueServices {
         String statusCheckUrl = UriBuilder.fromUri(config.getWebserviceUrl())
             .path("partitions").path(partitionId)
             .path("jobs").path(jobId)
-            .path("isActive").build().toString();
+            .path("status").build().toString();
 
         //  Construct the task message.
         final TrackingInfo trackingInfo = new TrackingInfo(

@@ -15,6 +15,11 @@ ${version-number}
   - The names used for the `configurationProperties` now have a direct mapping to the environment variables used to populate them. For
   example, if a configuration property is named `TASK_PIPE` in a job type yaml definition, then the value for that configuration property
  is expected to be available in an environment variable named `TASK_PIPE`.
+- SCMOD-12730: The `statusCheckUrl` now points to the `status` endpoint instead of the `isActive` endpoint.
+  - Instead of returning `true` or `false`, the `statusCheckUrl` will now return one of `Active`, `Cancelled`, `Completed`, `Failed`,
+  `Paused`, or `Waiting`
+  - If the `statusCheckUrl` refers to a job that does not exist, the response from the endpoint will return a HTTP 404 status. Previously,
+  the `statusCheckUrl` would have returned a HTTP 200 status with a response body of `false` when a job did not exist.
 
 #### Known Issues
 - None

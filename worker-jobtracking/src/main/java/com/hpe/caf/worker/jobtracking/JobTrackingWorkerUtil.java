@@ -51,7 +51,7 @@ public final class JobTrackingWorkerUtil
         final String statusCheckUrl = UriBuilder.fromUri(System.getenv("CAF_WEBSERVICE_URL") )
             .path("partitions").path(jobDependency.getPartitionId())
             .path("jobs").path(jobDependency.getJobId())
-            .path("isActive").build().toString();
+            .path("status").build().toString();
 
         //  Construct the task message.
         String statusCheckTime = System.getenv("CAF_STATUS_CHECK_TIME");

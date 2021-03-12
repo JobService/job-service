@@ -36,7 +36,7 @@ public class JobServiceTrackingInfoExpectation {
     private String statusCheckTime;
 
     /**
-     * The full URL address to access the isActive job service web method
+     * The full URL address to access the status job service web method
      */
     private String statusCheckUrl;
 

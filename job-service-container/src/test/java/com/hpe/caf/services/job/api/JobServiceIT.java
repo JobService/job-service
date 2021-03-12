@@ -757,7 +757,7 @@ public class JobServiceIT {
         String statusCheckUrl = System.getenv("CAF_WEBSERVICE_URL");
         if(statusCheckUrl!=null) {
             statusCheckUrl = statusCheckUrl +
-                "/partitions/" + defaultPartitionId + "/jobs/" + jobId + "/isActive";
+                "/partitions/" + defaultPartitionId + "/jobs/" + jobId + "/status";
         } else {
             throw new Exception("CAF_WEBSERVICE_URL environment variable is null.");
         }
