@@ -52,7 +52,7 @@ BEGIN
         RAISE EXCEPTION 'job_id {%} not found', in_job_id USING ERRCODE = 'P0002'; -- sqlstate no_data_found
     END IF;
 
-    IF v_job_status <> 'Paused' THEN
+    IF v_job_status NOT IN ('Active', 'Paused') THEN
         RAISE EXCEPTION 'job_id {%} cannot be resumed as it has a status of {%}. Only jobs with a status of Paused can be resumed.',
             in_job_id, v_job_status USING ERRCODE = '02000';
     END IF;

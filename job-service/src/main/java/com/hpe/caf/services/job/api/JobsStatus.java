@@ -15,7 +15,6 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.job.api.*;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.api.generated.model.Job;

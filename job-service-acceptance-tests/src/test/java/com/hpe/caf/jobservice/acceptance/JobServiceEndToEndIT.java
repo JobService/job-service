@@ -1207,11 +1207,9 @@ public class JobServiceEndToEndIT {
             pauseJob(jobId);
         } catch (final ApiException e) {
             Assert.assertEquals(e.getCode(), 400, "Unexpected HTTP response code");
-            Assert.assertEquals(e.getMessage(),
-                                "{\"message\":\"ERROR: job_id {" + jobId + "} cannot be paused as it has a status of {Completed}. "
-                                + "Only jobs with a status of Active or Waiting can be paused.\\n  "
-                                + "Where: PL/pgSQL function pause_job(character varying,character varying) line 23 at RAISE\"}",
-                                "Error message returned in HTTP 400 response is not as expected");
+            Assert.assertTrue(e.getMessage().contains("job_id {" + jobId + "} cannot be paused as it has a status of {Completed}. "
+                + "Only jobs with a status of Active or Waiting can be paused."),
+                                                      "Error message returned in HTTP 400 response does not contain the expected text");
         }
     }
 
@@ -1226,11 +1224,9 @@ public class JobServiceEndToEndIT {
             pauseJob(jobId);
         } catch (final ApiException e) {
             Assert.assertEquals(e.getCode(), 400, "Unexpected HTTP response code");
-            Assert.assertEquals(e.getMessage(),
-                                "{\"message\":\"ERROR: job_id {" + jobId + "} cannot be paused as it has a status of {Cancelled}. "
-                                + "Only jobs with a status of Active or Waiting can be paused.\\n  "
-                                + "Where: PL/pgSQL function pause_job(character varying,character varying) line 23 at RAISE\"}",
-                                "Error message returned in HTTP 400 response is not as expected");
+            Assert.assertTrue(e.getMessage().contains("job_id {" + jobId + "} cannot be paused as it has a status of {Cancelled}. "
+                + "Only jobs with a status of Active or Waiting can be paused."),
+                                                      "Error message returned in HTTP 400 response does not contain the expected text");
         }
     }
 
@@ -1256,11 +1252,9 @@ public class JobServiceEndToEndIT {
             resumeJob(jobId);
         } catch (final ApiException e) {
             Assert.assertEquals(e.getCode(), 400, "Unexpected HTTP response code");
-            Assert.assertEquals(e.getMessage(),
-                                "{\"message\":\"ERROR: job_id {" + jobId + "} cannot be resumed as it has a status of {Completed}. "
-                                + "Only jobs with a status of Paused can be resumed.\\n  "
-                                + "Where: PL/pgSQL function resume_job(character varying,character varying) line 23 at RAISE\"}",
-                                "Error message returned in HTTP 400 response is not as expected");
+            Assert.assertTrue(e.getMessage().contains("job_id {" + jobId + "} cannot be resumed as it has a status of {Completed}. "
+                + "Only jobs with a status of Paused can be resumed."),
+                                                      "Error message returned in HTTP 400 response does not contain the expected text");
         }
     }
 
@@ -1275,11 +1269,9 @@ public class JobServiceEndToEndIT {
             resumeJob(jobId);
         } catch (final ApiException e) {
             Assert.assertEquals(e.getCode(), 400, "Unexpected HTTP response code");
-            Assert.assertEquals(e.getMessage(),
-                                "{\"message\":\"ERROR: job_id {" + jobId + "} cannot be resumed as it has a status of {Cancelled}. "
-                                + "Only jobs with a status of Paused can be resumed.\\n  "
-                                + "Where: PL/pgSQL function resume_job(character varying,character varying) line 23 at RAISE\"}",
-                                "Error message returned in HTTP 400 response is not as expected");
+            Assert.assertTrue(e.getMessage().contains("job_id {" + jobId + "} cannot be resumed as it has a status of {Cancelled}. "
+                + "Only jobs with a status of Paused can be resumed."),
+                                                      "Error message returned in HTTP 400 response does not contain the expected text");
         }
     }
 
@@ -1292,11 +1284,9 @@ public class JobServiceEndToEndIT {
             resumeJob(jobId);
         } catch (final ApiException e) {
             Assert.assertEquals(e.getCode(), 400, "Unexpected HTTP response code");
-            Assert.assertEquals(e.getMessage(),
-                                "{\"message\":\"ERROR: job_id {" + jobId + "} cannot be resumed as it has a status of {Waiting}. "
-                                + "Only jobs with a status of Paused can be resumed.\\n  "
-                                + "Where: PL/pgSQL function resume_job(character varying,character varying) line 23 at RAISE\"}",
-                                "Error message returned in HTTP 400 response is not as expected");
+            Assert.assertTrue(e.getMessage().contains("job_id {" + jobId + "} cannot be resumed as it has a status of {Waiting}. "
+                + "Only jobs with a status of Paused can be resumed."),
+                                                      "Error message returned in HTTP 400 response does not contain the expected text");
         }
     }
 
@@ -1313,9 +1303,8 @@ public class JobServiceEndToEndIT {
             jobsApi.getJobStatus(defaultPartitionId, "unknown-job-id", jobCorrelationId);
         } catch (final ApiException e) {
             Assert.assertEquals(e.getCode(), 404, "Unexpected HTTP response code");
-            Assert.assertEquals(e.getMessage(),
-                                "{\"message\":\"ERROR: job_id {unknown-job-id} not found\\n  "
-                                + "Where: PL/pgSQL function get_job(character varying,character varying) line 39 at RAISE\"}");
+            Assert.assertTrue(e.getMessage().contains("job_id {unknown-job-id} not found"),
+                              "Error message returned in HTTP 400 response does not contain the expected text");
         }
     }
 

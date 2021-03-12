@@ -53,7 +53,8 @@ BEGIN
     END IF;
 
     IF v_job_status NOT IN ('Active', 'Paused', 'Waiting') THEN
-        RAISE EXCEPTION 'job_id {%} cannot be paused as it has a status of {%}. Only jobs with a status of Active or Waiting can be paused.',
+        RAISE EXCEPTION 'job_id {%} cannot be paused as it has a status of {%}. '
+                        'Only jobs with a status of Active or Waiting can be paused.',
             in_job_id, v_job_status USING ERRCODE = '02000';
     END IF;
 

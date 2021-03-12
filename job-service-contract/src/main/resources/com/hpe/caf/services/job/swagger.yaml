@@ -235,8 +235,9 @@ paths:
       operationId: getJobStatus
       responses:
         200:
+          description: Returns the status of the job.
           schema:
-            $ref: "#/definitions/job-status"                
+            $ref: "#/definitions/job-status"
           headers:
             CacheableJobStatus:
                 description: A response that includes this header with the value ‘true’ is eligible for caching in a cache specific to job status responses.
@@ -481,7 +482,7 @@ definitions:
           type: string
         description: |
           A map of meta data associated with this job. Note that the keys can only include alphanumeric, '_', '-' and
-          ':' characters      
+          ':' characters
   job-status:
     type: string
     description: The status of the job.
