@@ -3,6 +3,10 @@
 #### Version Number
 ${version-number}
 
+#### New Features
+- SCMOD-12707: Added support for pausing and resuming jobs.
+  - Three new endpoints have been added to pause, resume, and get the status of a job.
+
 #### Breaking Changes
 - SCMOD-12505: Various updates to the 'Job Types' functionality.  
   - The `taskDataScript` property should no longer be provided when adding a new job type yaml file. Instead, a `taskScript` property

@@ -29,6 +29,7 @@ import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.services.job.client.model.Job;
 import com.hpe.caf.services.job.client.model.NewJob;
 import com.hpe.caf.services.job.client.model.WorkerAction;
+import com.hpe.caf.services.job.client.model.JobStatus;
 import com.hpe.caf.worker.batch.BatchWorkerConstants;
 import com.hpe.caf.worker.batch.BatchWorkerTask;
 import com.hpe.caf.worker.example.ExampleWorkerConstants;
@@ -56,6 +57,7 @@ import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 
+
 /**
  * End to end integration test of the full Job Service solution, including
  * the Job Service itself, Job Service Database, Batch Worker, and Job Tracking Worker.
@@ -68,6 +70,8 @@ public class JobServiceEndToEndIT {
     private static final String datastoreContainerId = "datastore.container.id";
     private static final String jobCorrelationId = "1";
     private static final long defaultTimeOutMs = 600000; // 10 minutes
+    private static final long JOB_STATUS_CHECK_TIMEOUT_MS = 30000; // 30 seconds
+    private static final long JOB_STATUS_CHECK_SLEEP_MS = 500; // 0.5 seconds
     private static ServicePath servicePath;
     private static WorkerServices workerServices;
     private static ConfigurationSource configurationSource;
@@ -110,7 +114,6 @@ public class JobServiceEndToEndIT {
         jobServiceCallerContainerJSON = JobServiceCallerTestsHelper.getJSONFromFile(CREATE_JOB_SERVICE_CALLER_CONTAINER_JSON_FILENAME);
         jobServiceCallerImage = System.getenv("CAF_JOB_SERVICE_CALLER_IMAGE");
         jobServiceCallerWebServiceLinkURL = System.getenv("CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL");
-        exampleWorkerMessageOutQueue="exampleworker-test-output-1";
     }
 
     private static JobsApi createJobsApi() {
@@ -128,6 +131,7 @@ public class JobServiceEndToEndIT {
         defaultPartitionId = UUID.randomUUID().toString();
         numTestItemsToGenerate = 50;        // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();
+        exampleWorkerMessageOutQueue = "exampleworker-test-output-1";
     }
 
 //    @Test
@@ -1173,6 +1177,137 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobLabelRowsDoNotExist(job1Id);
     }
 
+    @Test
+    public void testPauseWaitingJobIsSuccessful() throws Exception {
+        final String jobId = generateJobId();
+        createJob(jobId, true);
+        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+        pauseJob(jobId);
+        waitUntilJobStatusIs(JobStatus.Paused, jobId);
+    }
+
+    @Test
+    public void testPausePausedJobIsSuccessful() throws Exception {
+        final String jobId = generateJobId();
+        createJob(jobId, true);
+        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+        pauseJob(jobId);
+        waitUntilJobStatusIs(JobStatus.Paused, jobId);
+        pauseJob(jobId);
+        waitUntilJobStatusIs(JobStatus.Paused, jobId);
+    }
+
+    @Test
+    public void testPauseCompletedJobIsNotAllowed() throws Exception {
+        exampleWorkerMessageOutQueue = null; // Setting this to null means the job completes rather than being stuck in a 'Waiting' state
+        final String jobId = generateJobId();
+        createJob(jobId, true);
+        waitUntilJobCompletes(jobId);
+        try {
+            pauseJob(jobId);
+        } catch (final ApiException e) {
+            Assert.assertEquals(e.getCode(), 400, "Unexpected HTTP response code");
+            Assert.assertTrue(e.getMessage().contains("job_id {" + jobId + "} cannot be paused as it has a status of {Completed}. "
+                + "Only jobs with a status of Active or Waiting can be paused."),
+                                                      "Error message returned in HTTP 400 response does not contain the expected text");
+        }
+    }
+
+    @Test
+    public void testPauseCancelledJobIsNotAllowed() throws Exception {
+        final String jobId = generateJobId();
+        createJob(jobId, true);
+        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+        cancelJob(jobId);
+        waitUntilJobStatusIs(JobStatus.Cancelled, jobId);
+        try {
+            pauseJob(jobId);
+        } catch (final ApiException e) {
+            Assert.assertEquals(e.getCode(), 400, "Unexpected HTTP response code");
+            Assert.assertTrue(e.getMessage().contains("job_id {" + jobId + "} cannot be paused as it has a status of {Cancelled}. "
+                + "Only jobs with a status of Active or Waiting can be paused."),
+                                                      "Error message returned in HTTP 400 response does not contain the expected text");
+        }
+    }
+
+    @Test
+    public void testResumePausedJobThatWasPreviouslyWaitingMovesJobToActiveStatus() throws Exception {
+        final String jobId = generateJobId();
+        createJob(jobId, true);
+        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+        pauseJob(jobId);
+        waitUntilJobStatusIs(JobStatus.Paused, jobId);
+        resumeJob(jobId);
+        waitUntilJobStatusIs(JobStatus.Active, jobId);
+    }
+
+    @Test
+    public void testResumeCompletedJobIsNotAllowed() throws Exception {
+        exampleWorkerMessageOutQueue = null; // Setting this to null means the job completes rather than being stuck in a 'Waiting' state
+        final String jobId = generateJobId();
+        createJob(jobId, true);
+        waitUntilJobCompletes(jobId);
+        waitUntilJobStatusIs(JobStatus.Completed, jobId);
+        try {
+            resumeJob(jobId);
+        } catch (final ApiException e) {
+            Assert.assertEquals(e.getCode(), 400, "Unexpected HTTP response code");
+            Assert.assertTrue(e.getMessage().contains("job_id {" + jobId + "} cannot be resumed as it has a status of {Completed}. "
+                + "Only jobs with a status of Paused can be resumed."),
+                                                      "Error message returned in HTTP 400 response does not contain the expected text");
+        }
+    }
+
+    @Test
+    public void testResumeCancelledJobIsNotAllowed() throws Exception {
+        final String jobId = generateJobId();
+        createJob(jobId, true);
+        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+        cancelJob(jobId);
+        waitUntilJobStatusIs(JobStatus.Cancelled, jobId);
+        try {
+            resumeJob(jobId);
+        } catch (final ApiException e) {
+            Assert.assertEquals(e.getCode(), 400, "Unexpected HTTP response code");
+            Assert.assertTrue(e.getMessage().contains("job_id {" + jobId + "} cannot be resumed as it has a status of {Cancelled}. "
+                + "Only jobs with a status of Paused can be resumed."),
+                                                      "Error message returned in HTTP 400 response does not contain the expected text");
+        }
+    }
+
+    @Test
+    public void testResumeWaitingJobIsNotAllowed() throws Exception {
+        final String jobId = generateJobId();
+        createJob(jobId, true);
+        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+        try {
+            resumeJob(jobId);
+        } catch (final ApiException e) {
+            Assert.assertEquals(e.getCode(), 400, "Unexpected HTTP response code");
+            Assert.assertTrue(e.getMessage().contains("job_id {" + jobId + "} cannot be resumed as it has a status of {Waiting}. "
+                + "Only jobs with a status of Paused can be resumed."),
+                                                      "Error message returned in HTTP 400 response does not contain the expected text");
+        }
+    }
+
+    @Test
+    public void testGetJobStatus() throws Exception {
+        final String jobId = generateJobId();
+        createJob(jobId, true);
+        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+    }
+
+    @Test
+    public void testGetJobStatusForUnknownJob() throws Exception {
+        try {
+            jobsApi.getJobStatus(defaultPartitionId, "unknown-job-id", jobCorrelationId);
+        } catch (final ApiException e) {
+            Assert.assertEquals(e.getCode(), 404, "Unexpected HTTP response code");
+            Assert.assertTrue(e.getMessage().contains("job_id {unknown-job-id} not found"),
+                              "Error message returned in HTTP 400 response does not contain the expected text");
+        }
+    }
+
     private List<String> generateWorkerBatch() throws DataStoreException {
         List<String> assetIds = new ArrayList<>();
         String containerId = getContainerId();
@@ -1263,6 +1398,14 @@ public class JobServiceEndToEndIT {
         jobsApi.deleteJob(defaultPartitionId, jobId, jobCorrelationId);
     }
 
+    private void pauseJob(final String jobId) throws Exception{
+        jobsApi.pauseJob(defaultPartitionId, jobId, jobCorrelationId);
+    }
+
+    private void resumeJob(final String jobId) throws Exception {
+        jobsApi.resumeJob(defaultPartitionId, jobId, jobCorrelationId);
+    }
+
     private NewJob constructNewJob(String jobId, final boolean useTaskDataObject) throws Exception {
         WorkerAction batchWorkerAction = constructBatchWorkerAction(useTaskDataObject);
         String jobName = "Job_" + jobId;
@@ -1351,16 +1494,19 @@ public class JobServiceEndToEndIT {
      * @throws InterruptedException
      */
     private void waitUntilJobCompletes(String jobId) throws ApiException, InterruptedException {
-        for (int counter = 0; counter < 60; counter++) {
-            Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-            String currentJobStatus = job.getStatus();
-            LOG.info("Job " + jobId + " current status: " + currentJobStatus);
-            if (currentJobStatus.equalsIgnoreCase("Completed")) {
-                break;
+        waitUntilJobStatusIs(JobStatus.Completed, jobId);
+    }
+
+    private void waitUntilJobStatusIs(final JobStatus expectedJobStatus, final String jobId) throws ApiException, InterruptedException {
+        long deadline = System.currentTimeMillis() + JOB_STATUS_CHECK_TIMEOUT_MS;
+        JobStatus currentJobStatus = jobsApi.getJobStatus(defaultPartitionId, jobId, jobCorrelationId);
+        while (currentJobStatus != expectedJobStatus) {
+            Thread.sleep(JOB_STATUS_CHECK_SLEEP_MS);
+            long remaining = deadline - System.currentTimeMillis();
+            if (remaining < 0) {
+                Assert.fail("Job " + jobId + " has unexpected status: " + currentJobStatus + " (expected: " + expectedJobStatus + ")");
             }
-            else {
-                Thread.sleep(500);
-            }
+            currentJobStatus = jobsApi.getJobStatus(defaultPartitionId, jobId, jobCorrelationId);
         }
     }
 }

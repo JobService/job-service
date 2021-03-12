@@ -22,8 +22,7 @@ info:
     Allows background operations to be sent to the workers, and for the
     operations to be tracked and controlled.
 
-    You can check the progress of operations, and request to cancel, pause, or resume them.  *NB: Pause and Resume are future
-    requirements.*
+    You can check the progress of operations, and request to cancel, pause, or resume them.
 
     The primary use of this functionality is batch document
     processing.  The service can send work to the Batch Worker, and
@@ -218,6 +217,37 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         503:
           description: The request failed due to a database connection error.
+  /partitions/{partitionId}/jobs/{jobId}/status:
+    parameters:
+      - $ref: '#/parameters/partitionId'
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that correlates events 
+          across different services.
+      - $ref: '#/parameters/jobId'
+    get:
+      tags:
+        - Jobs
+      summary: Gets the status of the job
+      description: Gets the status of the specified job.
+      operationId: getJobStatus
+      responses:
+        200:
+          description: Returns the status of the job.
+          schema:
+            $ref: "#/definitions/job-status"
+          headers:
+            CacheableJobStatus:
+                description: A response that includes this header with the value ‘true’ is eligible for caching in a cache specific to job status responses.
+                type: boolean
+        400:
+          description: The `jobId` parameter contains invalid characters.
+        404:
+          description: The specified job is not found.
+        503:
+          description: The request failed due to a database connection error.
   /partitions/{partitionId}/jobs/{jobId}/cancel:
     parameters:
       - $ref: '#/parameters/partitionId'
@@ -239,6 +269,56 @@ paths:
           description: The cancellation has been accepted.
         400:
           description: The `jobId` parameter contains invalid characters.
+        404:
+          description: The specified job is not found.
+        503:
+          description: The request failed due to a database connection error.
+  /partitions/{partitionId}/jobs/{jobId}/pause:
+    parameters:
+      - $ref: '#/parameters/partitionId'
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that correlates events 
+          across different CAF services
+      - $ref: '#/parameters/jobId'
+    post:
+      tags:
+        - Jobs
+      summary: Pauses the job.
+      description: Pauses the specified job.
+      operationId: pauseJob
+      responses:
+        204:
+          description: The pause request has been accepted.
+        400:
+          description: The request could not be processed because one or more arguments are invalid.
+        404:
+          description: The specified job is not found.
+        503:
+          description: The request failed due to a database connection error.
+  /partitions/{partitionId}/jobs/{jobId}/resume:
+    parameters:
+      - $ref: '#/parameters/partitionId'
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that correlates events 
+          across different CAF services
+      - $ref: '#/parameters/jobId'
+    post:
+      tags:
+        - Jobs
+      summary: Resumes the job.
+      description: Resumes the specified job.
+      operationId: resumeJob
+      responses:
+        204:
+          description: The resume request has been accepted.
+        400:
+          description: The request could not be processed because one or more arguments are invalid.
         404:
           description: The specified job is not found.
         503:
@@ -386,8 +466,7 @@ definitions:
         format: int64
         description: The time the job status or progress last changed
       status:
-        type: string
-        description: String value of the job status enum, possible values are Completed, Active, Waiting, Failed, Paused and Cancelled.
+        $ref: "#/definitions/job-status"
       percentageComplete:
         type: number
         format: float
@@ -404,6 +483,16 @@ definitions:
         description: |
           A map of meta data associated with this job. Note that the keys can only include alphanumeric, '_', '-' and
           ':' characters
+  job-status:
+    type: string
+    description: The status of the job.
+    enum:
+      - Active
+      - Cancelled
+      - Completed
+      - Failed
+      - Paused
+      - Waiting
   failure:
     type: object
     properties:
