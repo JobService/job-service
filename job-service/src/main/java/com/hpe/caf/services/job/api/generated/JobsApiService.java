@@ -43,7 +43,16 @@ public abstract class JobsApiService {
       public abstract Response cancelJob(String partitionId,String jobId,String cAFCorrelationId,SecurityContext securityContext)
               throws Exception;
 
+      public abstract Response pauseJob(String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
+              throws Exception;
+
+      public abstract Response resumeJob(String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
+              throws Exception;
+
       public abstract Response getJobActive(String partitionId,String jobId,String cAFCorrelationId,SecurityContext securityContext)
               throws Exception;
+
+      public abstract Response getJobStatus(String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
+        throws Exception;
 
 }

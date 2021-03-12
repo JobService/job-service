@@ -15,7 +15,7 @@
  */
 /*
  * Job Service
- * Allows background operations to be sent to the workers, and for the operations to be tracked and controlled.  You can check the progress of operations, and request to cancel, pause, or resume them.  *NB: Pause and Resume are future requirements.*  The primary use of this functionality is batch document processing.  The service can send work to the Batch Worker, and then track the progress of that work.
+ * Allows background operations to be sent to the workers, and for the operations to be tracked and controlled.  You can check the progress of operations, and request to cancel, pause, or resume them. The primary use of this functionality is batch document processing.  The service can send work to the Batch Worker, and then track the progress of that work.
  *
  * OpenAPI spec version: 1.0
  *

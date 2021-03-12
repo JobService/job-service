@@ -211,6 +211,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_pause_job_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/pauseJob.sql"
+                         procedureName="pause_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_process_dependent_jobs_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/processDependentJobs.sql"
                          procedureName="internal_process_dependent_jobs"
@@ -268,6 +274,12 @@
     <changeSet id="create_resolve_status_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/resolveStatus.sql"
                          procedureName="internal_resolve_status"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="create_resume_job_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/resumeJob.sql"
+                         procedureName="resume_job"
                          schemaName="public">
         </createProcedure>
     </changeSet>

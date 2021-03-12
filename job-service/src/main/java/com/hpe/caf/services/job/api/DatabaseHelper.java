@@ -423,6 +423,24 @@ public final class DatabaseHelper
         return canBeProgressed;
     }
 
+    public Job.StatusEnum getJobStatus(final String partitionId, final String jobId) throws Exception
+    {
+        try (
+            final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+            final CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2, jobId);
+
+            //  Execute a query to get the staus of the specified job.
+            LOG.debug("Calling get_job() database function...");
+            final ResultSet rs = stmt.executeQuery();
+            rs.next();
+            return Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH));
+        } catch (final SQLException se) {
+            throw mapSqlNoDataException(se);
+        }
+    }
+
     /**
      * Returns TRUE if the specified job id is active, otherwise FALSE.
      */
@@ -465,6 +483,42 @@ public final class DatabaseHelper
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
             LOG.debug("Calling cancel_job() database function...");
+            stmt.execute();
+        } catch (final SQLException se) {
+            throw mapSqlNoDataException(se);
+        }
+    }
+
+    /**
+     * Pauses the specified job.
+     */
+    public void pauseJob(final String partitionId, String jobId) throws Exception {
+
+        try (
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                CallableStatement stmt = conn.prepareCall("{call pause_job(?,?)}")
+        ) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2, jobId);
+            LOG.debug("Calling pause_job() database function...");
+            stmt.execute();
+        } catch (final SQLException se) {
+            throw mapSqlNoDataException(se);
+        }
+    }
+
+    /**
+     * Resumes the specified job.
+     */
+    public void resumeJob(final String partitionId, String jobId) throws Exception {
+
+        try (
+                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                CallableStatement stmt = conn.prepareCall("{call resume_job(?,?)}")
+        ) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2, jobId);
+            LOG.debug("Calling resume_job() database function...");
             stmt.execute();
         } catch (final SQLException se) {
             throw mapSqlNoDataException(se);
@@ -562,7 +616,7 @@ public final class DatabaseHelper
     {
         final String sqlState = se.getSQLState();
         if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
-            //  Job id has not been provided.
+            //  Client error, such as not providing a job id, or trying to pause a cancelled job etc.
             return new BadRequestException(se.getMessage(), se);
         } else if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
             //  No data found for the specified job id.

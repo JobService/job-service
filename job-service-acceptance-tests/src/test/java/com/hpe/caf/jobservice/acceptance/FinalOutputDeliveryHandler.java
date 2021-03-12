@@ -129,7 +129,7 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
 
 
     private void verifyJobStatus(final TaskMessage resultMessage, final Job job) throws ApiException {
-        assertEqual("job status", getCurrentMessageExpectedJobStatus(), job.getStatus(), resultMessage);
+        assertEqual("job status", getCurrentMessageExpectedJobStatus(), job.getStatus().toString(), resultMessage);
     }
 
     private void verifyJobFailures(final TaskMessage resultMessage, final Job job) throws ApiException {
