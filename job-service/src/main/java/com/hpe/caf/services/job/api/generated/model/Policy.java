@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 package com.hpe.caf.services.job.api.generated.model;
-
-
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,30 +27,30 @@ import java.util.Objects;
         description = "The expiration details to be applied on the job"
 )
 public class Policy {
-    private String expiryTime = "createDate+10D";
-    private ExpirationOperation expirationOperation = null;
+    private ExpiryTimePattern expiryTime = null;
+    private Operation operation = null;
 
     public Policy() {
     }
 
     @ApiModelProperty("")
     @JsonProperty("expiryTime")
-    public String getExpiryTime() {
+    public ExpiryTimePattern getExpiryTime() {
         return this.expiryTime;
     }
 
-    public void setExpiryTime(String expiryTime) {
+    public void setExpiryTime(ExpiryTimePattern expiryTime) {
         this.expiryTime = expiryTime;
     }
 
     @ApiModelProperty("")
-    @JsonProperty("expirationOperation")
-    public ExpirationOperation getExpirationOperation() {
-        return this.expirationOperation;
+    @JsonProperty("operation")
+    public Operation getOperation() {
+        return this.operation;
     }
 
-    public void setExpirationOperation(ExpirationOperation expirationOperation) {
-        this.expirationOperation = expirationOperation;
+    public void setOperation(Operation operation) {
+        this.operation = operation;
     }
 
     public boolean equals(Object o) {
@@ -56,21 +58,21 @@ public class Policy {
             return true;
         } else if (o != null && this.getClass() == o.getClass()) {
             Policy policy = (Policy)o;
-            return Objects.equals(this.expiryTime, policy.expiryTime) && Objects.equals(this.expirationOperation, policy.expirationOperation);
+            return Objects.equals(this.expiryTime, policy.expiryTime) && Objects.equals(this.operation, policy.operation);
         } else {
             return false;
         }
     }
 
     public int hashCode() {
-        return Objects.hash(new Object[]{this.expiryTime, this.expirationOperation});
+        return Objects.hash(new Object[]{this.expiryTime, this.operation});
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class Policy {\n");
         sb.append("    expiryTime: ").append(this.toIndentedString(this.expiryTime)).append("\n");
-        sb.append("    expirationOperation: ").append(this.toIndentedString(this.expirationOperation)).append("\n");
+        sb.append("    operation: ").append(this.toIndentedString(this.operation)).append("\n");
         sb.append("}");
         return sb.toString();
     }

@@ -35,7 +35,7 @@ public class Job   {
     private String id = null;
     private String name = null;
     private String description = null;
-    private ExpirationPolicy expirationPolicy = null;
+    private Expiry expirationPolicy = null;
     /**
      * @deprecated 21/01/2020 - Replaced by labels functionality.
      */
@@ -129,11 +129,11 @@ public class Job   {
 
     @ApiModelProperty("")
     @JsonProperty("expirationPolicy")
-    public ExpirationPolicy getExpirationPolicy() {
+    public Expiry getExpirationPolicy() {
         return this.expirationPolicy;
     }
 
-    public void setExpirationPolicy(ExpirationPolicy expirationPolicy) {
+    public void setExpirationPolicy(Expiry expirationPolicy) {
         this.expirationPolicy = expirationPolicy;
     }
 

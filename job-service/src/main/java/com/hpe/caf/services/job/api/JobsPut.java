@@ -20,7 +20,8 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.services.configuration.AppConfigProvider;
-import com.hpe.caf.services.job.api.generated.model.ExpirationOperation;
+import com.hpe.caf.services.job.api.generated.model.Operation;
+import com.hpe.caf.services.job.api.generated.model.ExpiryTimePattern;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.Policy;
@@ -249,8 +250,10 @@ public final class JobsPut {
             defaultPolicy= job.getExpirationPolicy().getDefault();
         }else{
             defaultPolicy = new Policy();
-            defaultPolicy.setExpirationOperation(ExpirationOperation.expire);
-            defaultPolicy.setExpiryTime("lastUpdateDate+10D");
+            defaultPolicy.setOperation(Operation.expire);
+            ExpiryTimePattern timePattern = new ExpiryTimePattern();
+            timePattern.setPattern("createDate+10D");
+            defaultPolicy.setExpiryTime(timePattern);
         }
 
         // Pass each policy if set, otherwise use default

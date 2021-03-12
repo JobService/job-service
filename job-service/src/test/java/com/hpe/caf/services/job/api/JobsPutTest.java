@@ -30,8 +30,9 @@ import static org.mockito.Mockito.times;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.hpe.caf.services.job.api.generated.model.ExpirationOperation;
-import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
+import com.hpe.caf.services.job.api.generated.model.Operation;
+import com.hpe.caf.services.job.api.generated.model.Expiry;
+import com.hpe.caf.services.job.api.generated.model.ExpiryTimePattern;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.Policy;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
@@ -81,12 +82,13 @@ public final class JobsPutTest {
         job.setName("TestName");
         job.setDescription("TestDescription");
         job.setExternalData("TestExternalData");
-        final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
+        final Expiry expirationPolicy = new Expiry();
         final Policy policy = new Policy();
-        policy.setExpiryTime("createDate+10D");
-        policy.setExpirationOperation(ExpirationOperation.delete);
-        expirationPolicy.setDefault(policy);
+        policy.setOperation(Operation.expire);
         job.setExpirationPolicy(expirationPolicy);
+        ExpiryTimePattern timePattern = new ExpiryTimePattern();
+        timePattern.setPattern("createDate+10D");
+        policy.setExpiryTime(timePattern);
         return job;
     }
 
