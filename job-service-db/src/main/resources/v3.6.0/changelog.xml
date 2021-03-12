@@ -37,7 +37,7 @@
             <column name="reference_date" type="VARCHAR(58)">
                 <constraints nullable="false" />
             </column>
-            <column name="duration" type="INTEGER(58)">
+            <column name="duration" type="INT">
                 <constraints nullable="false" />
             </column>
         </createTable>
