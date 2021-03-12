@@ -1272,13 +1272,7 @@ public class JobServiceEndToEndIT {
         String jobName = "Job_" + jobId;
         NewJob newJob = new NewJob();
         newJob.setName(jobName);
-        final Policy policyActive = new Policy();
-        policyActive.setOperation(ExpirationOperation.delete);
-        ExpiryTimePattern expiryTimePattern = new ExpiryTimePattern();
-        policyActive.setExpiryTime(expiryTimePattern);
-        final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
-        expirationPolicy.setActive(policyActive);
-        newJob.setExpirationPolicy(expirationPolicy);
+        newJob.setExpirationPolicy(new ExpirationPolicy());
         newJob.setDescription(jobName + " description");
         newJob.setExternalData(jobName + " external data");
         newJob.setTask(batchWorkerAction);
