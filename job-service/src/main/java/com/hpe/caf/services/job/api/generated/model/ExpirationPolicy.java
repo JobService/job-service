@@ -15,126 +15,185 @@
  */
 package com.hpe.caf.services.job.api.generated.model;
 
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Objects;
 
-@ApiModel(
-        description = "The expiration policy to be applied on the job"
-)
-public class ExpirationPolicy {
+
+
+/**
+ * The expiration policy to be applied on the job
+ **/
+
+@ApiModel(description = "The expiration policy to be applied on the job")
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2021-03-12T12:28:51.784Z")
+public class ExpirationPolicy   {
+
     private Policy active = null;
     private Policy completed = null;
     private Policy failed = null;
     private Policy cancelled = null;
     private Policy waiting = null;
     private Policy paused = null;
+    private DeletePolicy expired = null;
     private Policy _default = null;
 
-    public ExpirationPolicy() {
-    }
 
-    @ApiModelProperty("")
+    /**
+     **/
+
+    @ApiModelProperty(value = "")
     @JsonProperty("Active")
     public Policy getActive() {
-        return this.active;
+        return active;
     }
-
     public void setActive(Policy active) {
         this.active = active;
     }
 
-    @ApiModelProperty("")
+
+    /**
+     **/
+
+    @ApiModelProperty(value = "")
     @JsonProperty("Completed")
     public Policy getCompleted() {
-        return this.completed;
+        return completed;
     }
-
     public void setCompleted(Policy completed) {
         this.completed = completed;
     }
 
-    @ApiModelProperty("")
+
+    /**
+     **/
+
+    @ApiModelProperty(value = "")
     @JsonProperty("Failed")
     public Policy getFailed() {
-        return this.failed;
+        return failed;
     }
-
     public void setFailed(Policy failed) {
         this.failed = failed;
     }
 
-    @ApiModelProperty("")
+
+    /**
+     **/
+
+    @ApiModelProperty(value = "")
     @JsonProperty("Cancelled")
     public Policy getCancelled() {
-        return this.cancelled;
+        return cancelled;
     }
-
     public void setCancelled(Policy cancelled) {
         this.cancelled = cancelled;
     }
 
-    @ApiModelProperty("")
+
+    /**
+     **/
+
+    @ApiModelProperty(value = "")
     @JsonProperty("Waiting")
     public Policy getWaiting() {
-        return this.waiting;
+        return waiting;
     }
-
     public void setWaiting(Policy waiting) {
         this.waiting = waiting;
     }
 
-    @ApiModelProperty("")
+
+    /**
+     **/
+
+    @ApiModelProperty(value = "")
     @JsonProperty("Paused")
     public Policy getPaused() {
-        return this.paused;
+        return paused;
     }
-
     public void setPaused(Policy paused) {
         this.paused = paused;
     }
 
-    @ApiModelProperty("")
-    @JsonProperty("Default")
-    public Policy getDefault() {
-        return this._default;
+
+    /**
+     **/
+
+    @ApiModelProperty(value = "")
+    @JsonProperty("Expired")
+    public DeletePolicy getExpired() {
+        return expired;
+    }
+    public void setExpired(DeletePolicy expired) {
+        this.expired = expired;
     }
 
+
+    /**
+     **/
+
+    @ApiModelProperty(value = "")
+    @JsonProperty("Default")
+    public Policy getDefault() {
+        return _default;
+    }
     public void setDefault(Policy _default) {
         this._default = _default;
     }
 
+
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        } else if (o != null && this.getClass() == o.getClass()) {
-            ExpirationPolicy expirationPolicy = (ExpirationPolicy)o;
-            return Objects.equals(this.active, expirationPolicy.active) && Objects.equals(this.completed, expirationPolicy.completed) && Objects.equals(this.failed, expirationPolicy.failed) && Objects.equals(this.cancelled, expirationPolicy.cancelled) && Objects.equals(this.waiting, expirationPolicy.waiting) && Objects.equals(this.paused, expirationPolicy.paused) && Objects.equals(this._default, expirationPolicy._default);
-        } else {
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
+        ExpirationPolicy expirationPolicy = (ExpirationPolicy) o;
+        return Objects.equals(active, expirationPolicy.active) &&
+                Objects.equals(completed, expirationPolicy.completed) &&
+                Objects.equals(failed, expirationPolicy.failed) &&
+                Objects.equals(cancelled, expirationPolicy.cancelled) &&
+                Objects.equals(waiting, expirationPolicy.waiting) &&
+                Objects.equals(paused, expirationPolicy.paused) &&
+                Objects.equals(expired, expirationPolicy.expired) &&
+                Objects.equals(_default, expirationPolicy._default);
     }
 
+    @Override
     public int hashCode() {
-        return Objects.hash(new Object[]{this.active, this.completed, this.failed, this.cancelled, this.waiting, this.paused, this._default});
+        return Objects.hash(active, completed, failed, cancelled, waiting, paused, expired, _default);
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class ExpirationPolicy {\n");
-        sb.append("    active: ").append(this.toIndentedString(this.active)).append("\n");
-        sb.append("    completed: ").append(this.toIndentedString(this.completed)).append("\n");
-        sb.append("    failed: ").append(this.toIndentedString(this.failed)).append("\n");
-        sb.append("    cancelled: ").append(this.toIndentedString(this.cancelled)).append("\n");
-        sb.append("    waiting: ").append(this.toIndentedString(this.waiting)).append("\n");
-        sb.append("    paused: ").append(this.toIndentedString(this.paused)).append("\n");
-        sb.append("    _default: ").append(this.toIndentedString(this._default)).append("\n");
+
+        sb.append("    active: ").append(toIndentedString(active)).append("\n");
+        sb.append("    completed: ").append(toIndentedString(completed)).append("\n");
+        sb.append("    failed: ").append(toIndentedString(failed)).append("\n");
+        sb.append("    cancelled: ").append(toIndentedString(cancelled)).append("\n");
+        sb.append("    waiting: ").append(toIndentedString(waiting)).append("\n");
+        sb.append("    paused: ").append(toIndentedString(paused)).append("\n");
+        sb.append("    expired: ").append(toIndentedString(expired)).append("\n");
+        sb.append("    _default: ").append(toIndentedString(_default)).append("\n");
         sb.append("}");
         return sb.toString();
     }
 
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
     private String toIndentedString(Object o) {
-        return o == null ? "null" : o.toString().replace("\n", "\n    ");
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
     }
 }
