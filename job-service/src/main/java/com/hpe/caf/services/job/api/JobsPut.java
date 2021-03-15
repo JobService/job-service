@@ -245,8 +245,8 @@ public final class JobsPut {
         final HashMap<String, Policy> expirationPolicy = new HashMap<>();
         // Set default policy
         final Policy defaultPolicy;
-        if (job.getExpirationPolicy().getDefault() != null) {
-            defaultPolicy= job.getExpirationPolicy().getDefault();
+        if (job.getExpiry().getDefault() != null) {
+            defaultPolicy= job.getExpiry().getDefault();
         }else{
             defaultPolicy = new Policy();
             defaultPolicy.setOperation(Operation.expire);
@@ -254,13 +254,13 @@ public final class JobsPut {
         }
 
         // Pass each policy if set, otherwise use default
-        if(job.getExpirationPolicy()!=null){
-            setPolicy(expirationPolicy, defaultPolicy, job.getExpirationPolicy().getActive(), "Active");
-            setPolicy(expirationPolicy, defaultPolicy, job.getExpirationPolicy().getCompleted(), "Completed");
-            setPolicy(expirationPolicy, defaultPolicy, job.getExpirationPolicy().getCancelled(), "Cancelled");
-            setPolicy(expirationPolicy, defaultPolicy, job.getExpirationPolicy().getFailed(), "Failed");
-            setPolicy(expirationPolicy, defaultPolicy, job.getExpirationPolicy().getWaiting(), "Waiting");
-            setPolicy(expirationPolicy, defaultPolicy, job.getExpirationPolicy().getPaused(), "Paused");
+        if(job.getExpiry()!=null){
+            setPolicy(expirationPolicy, defaultPolicy, job.getExpiry().getActive(), "Active");
+            setPolicy(expirationPolicy, defaultPolicy, job.getExpiry().getCompleted(), "Completed");
+            setPolicy(expirationPolicy, defaultPolicy, job.getExpiry().getCancelled(), "Cancelled");
+            setPolicy(expirationPolicy, defaultPolicy, job.getExpiry().getFailed(), "Failed");
+            setPolicy(expirationPolicy, defaultPolicy, job.getExpiry().getWaiting(), "Waiting");
+            setPolicy(expirationPolicy, defaultPolicy, job.getExpiry().getPaused(), "Paused");
         }
         return expirationPolicy;
     }

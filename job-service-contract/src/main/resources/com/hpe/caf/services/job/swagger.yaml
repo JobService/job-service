@@ -378,8 +378,8 @@ definitions:
       description:
         type: string
         description: The description of the job
-      expirationPolicy:
-        $ref: "#/definitions/expiry"
+      expiry:
+        $ref: "#/definitions/expirationPolicy"
       externalData:
         # TODO: Should we make this more structured than just string
         #       Name/Value Pairs perhaps
@@ -417,7 +417,7 @@ definitions:
         example:
           "tag:4": "4"
           owner: "bob"
-  expiry:
+  expirationPolicy:
     type: object
     properties:
       "Active":
@@ -503,8 +503,8 @@ definitions:
       description:
         type: string
         description: The description of the job
-      expirationPolicy:
-        $ref: "#/definitions/expiry"
+      expiry:
+        $ref: "#/definitions/expirationPolicy"
       externalData:
         type: string
         description: |

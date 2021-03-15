@@ -35,7 +35,7 @@ public class Job   {
     private String id = null;
     private String name = null;
     private String description = null;
-    private Expiry expirationPolicy = null;
+    private ExpirationPolicy expiry = null;
     /**
      * @deprecated 21/01/2020 - Replaced by labels functionality.
      */
@@ -128,13 +128,13 @@ public class Job   {
     }
 
     @ApiModelProperty("")
-    @JsonProperty("expirationPolicy")
-    public Expiry getExpirationPolicy() {
-        return this.expirationPolicy;
+    @JsonProperty("expiry")
+    public ExpirationPolicy getExpiry() {
+        return this.expiry;
     }
 
-    public void setExpirationPolicy(Expiry expirationPolicy) {
-        this.expirationPolicy = expirationPolicy;
+    public void setExpiry(ExpirationPolicy expiry) {
+        this.expiry = expiry;
     }
 
     /**
@@ -270,7 +270,7 @@ public class Job   {
         return Objects.equals(id, job.id) &&
                 Objects.equals(name, job.name) &&
                 Objects.equals(description, job.description) &&
-                Objects.equals(this.expirationPolicy, job.expirationPolicy) &&
+                Objects.equals(this.expiry, job.expiry) &&
                 Objects.equals(externalData, job.externalData) &&
                 Objects.equals(createTime, job.createTime) &&
                 Objects.equals(this.lastUpdateTime, job.lastUpdateTime) &&
@@ -281,7 +281,7 @@ public class Job   {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, this.expirationPolicy, externalData, createTime, lastUpdateTime, status,
+        return Objects.hash(id, name, description, this.expiry, externalData, createTime, lastUpdateTime, status,
                 percentageComplete, failures);
     }
 
@@ -293,7 +293,7 @@ public class Job   {
         sb.append("    id: ").append(toIndentedString(id)).append("\n");
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    description: ").append(toIndentedString(description)).append("\n");
-        sb.append("    expirationPolicy: ").append(this.toIndentedString(this.expirationPolicy)).append("\n");
+        sb.append("    expiry: ").append(this.toIndentedString(this.expiry)).append("\n");
         sb.append("    externalData: ").append(toIndentedString(externalData)).append("\n");
         sb.append("    createTime: ").append(toIndentedString(createTime)).append("\n");
         sb.append("    lastUpdateTime: ").append(toIndentedString(lastUpdateTime)).append("\n");

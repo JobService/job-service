@@ -23,7 +23,7 @@ import java.util.Objects;
 @ApiModel(
         description = "The expiration policy to be applied on the job"
 )
-public class Expiry {
+public class ExpirationPolicy {
     private Policy active = null;
     private Policy completed = null;
     private Policy failed = null;
@@ -33,7 +33,7 @@ public class Expiry {
     private DeletePolicy expired = null;
     private Policy _default = null;
 
-    public Expiry() {
+    public ExpirationPolicy() {
     }
 
     @ApiModelProperty("")
@@ -120,8 +120,8 @@ public class Expiry {
         if (this == o) {
             return true;
         } else if (o != null && this.getClass() == o.getClass()) {
-            Expiry expiry = (Expiry)o;
-            return Objects.equals(this.active, expiry.active) && Objects.equals(this.completed, expiry.completed) && Objects.equals(this.failed, expiry.failed) && Objects.equals(this.cancelled, expiry.cancelled) && Objects.equals(this.waiting, expiry.waiting) && Objects.equals(this.paused, expiry.paused) && Objects.equals(this.expired, expiry.expired) && Objects.equals(this._default, expiry._default);
+            ExpirationPolicy expirationPolicy = (ExpirationPolicy)o;
+            return Objects.equals(this.active, expirationPolicy.active) && Objects.equals(this.completed, expirationPolicy.completed) && Objects.equals(this.failed, expirationPolicy.failed) && Objects.equals(this.cancelled, expirationPolicy.cancelled) && Objects.equals(this.waiting, expirationPolicy.waiting) && Objects.equals(this.paused, expirationPolicy.paused) && Objects.equals(this.expired, expirationPolicy.expired) && Objects.equals(this._default, expirationPolicy._default);
         } else {
             return false;
         }
@@ -133,7 +133,7 @@ public class Expiry {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("class Expiry {\n");
+        sb.append("class ExpirationPolicy {\n");
         sb.append("    active: ").append(this.toIndentedString(this.active)).append("\n");
         sb.append("    completed: ").append(this.toIndentedString(this.completed)).append("\n");
         sb.append("    failed: ").append(this.toIndentedString(this.failed)).append("\n");
