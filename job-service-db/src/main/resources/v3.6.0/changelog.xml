@@ -42,11 +42,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet id="update_job_status_enum_type_add_expired" author="Gamma Team">
-        <sql>ALTER TABLE job ALTER COLUMN status TYPE VARCHAR(255);
-            DROP TYPE IF EXISTS job_status CASCADE;
-            CREATE TYPE job_status AS ENUM ('Active','Cancelled','Completed','Failed','Paused','Waiting','Expired');
-            ALTER TABLE job ALTER COLUMN status TYPE job_status USING (status::job_status);
-        </sql>
+    <changeSet id="update_job_status_enum_type_add_expired" author="Gamma Team" runInTransaction="false">
+        <sql>ALTER TYPE job_status ADD VALUE 'Expired';</sql>
     </changeSet>
 </databaseChangeLog>
