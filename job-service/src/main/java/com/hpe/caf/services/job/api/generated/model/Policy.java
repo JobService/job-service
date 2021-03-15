@@ -27,7 +27,7 @@ import java.util.Objects;
         description = "The expiration details to be applied on the job"
 )
 public class Policy {
-    private ExpiryTimePattern expiryTime = null;
+    private String expiryTime = null;
     private Operation operation = null;
 
     public Policy() {
@@ -35,11 +35,11 @@ public class Policy {
 
     @ApiModelProperty("")
     @JsonProperty("expiryTime")
-    public ExpiryTimePattern getExpiryTime() {
+    public String getExpiryTime() {
         return this.expiryTime;
     }
 
-    public void setExpiryTime(ExpiryTimePattern expiryTime) {
+    public void setExpiryTime(String expiryTime) {
         this.expiryTime = expiryTime;
     }
 

@@ -31,7 +31,7 @@ import io.swagger.annotations.ApiModelProperty;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2021-03-12T12:28:51.784Z")
 public class DeletePolicy   {
 
-    private ExpiryTimePattern expiryTime = null;
+    private String expiryTime = null;
 
 
     public enum ExpirationOperationEnum {
@@ -58,10 +58,10 @@ public class DeletePolicy   {
 
     @ApiModelProperty(value = "")
     @JsonProperty("expiryTime")
-    public ExpiryTimePattern getExpiryTime() {
+    public String getExpiryTime() {
         return expiryTime;
     }
-    public void setExpiryTime(ExpiryTimePattern expiryTime) {
+    public void setExpiryTime(String expiryTime) {
         this.expiryTime = expiryTime;
     }
 

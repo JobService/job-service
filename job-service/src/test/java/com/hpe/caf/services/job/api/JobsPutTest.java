@@ -32,7 +32,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.hpe.caf.services.job.api.generated.model.Operation;
 import com.hpe.caf.services.job.api.generated.model.Expiry;
-import com.hpe.caf.services.job.api.generated.model.ExpiryTimePattern;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.Policy;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
@@ -86,9 +85,7 @@ public final class JobsPutTest {
         final Policy policy = new Policy();
         policy.setOperation(Operation.expire);
         job.setExpirationPolicy(expirationPolicy);
-        ExpiryTimePattern timePattern = new ExpiryTimePattern();
-        timePattern.setPattern("createDate+10D");
-        policy.setExpiryTime(timePattern);
+        policy.setExpiryTime("createDate+10D");
         return job;
     }
 
