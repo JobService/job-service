@@ -182,8 +182,7 @@ public final class JobsPut {
                         .collect(Collectors.toList()));
             }
 
-            //final HashMap<String, Policy> expirationPolicy = buildPolicyMap(job);
-            final HashMap<String, Policy> expirationPolicy = new HashMap<>();
+            final HashMap<String, Policy> expirationPolicy = buildPolicyMap(job);
 
             final boolean partitionSuspended = ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId);
             //  Create job in the database.
@@ -243,6 +242,7 @@ public final class JobsPut {
 
     private static HashMap<String, Policy> buildPolicyMap(final NewJob job) {
         final HashMap<String, Policy> expirationPolicy = new HashMap<>();
+        if (job.getExpiry()==null)return expirationPolicy;
         // Set default policy
         final Policy defaultPolicy;
         if (job.getExpiry().getDefault() != null) {
@@ -250,7 +250,7 @@ public final class JobsPut {
         }else{
             defaultPolicy = new Policy();
             defaultPolicy.setOperation(Operation.expire);
-            defaultPolicy.setExpiryTime("createDate+10D");
+            defaultPolicy.setExpiryTime(null);
         }
 
         // Pass each policy if set, otherwise use default
