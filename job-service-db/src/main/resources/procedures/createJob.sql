@@ -37,7 +37,8 @@ CREATE OR REPLACE FUNCTION create_job(
     in_description TEXT,
     in_data TEXT,
     in_job_hash INT,
-    in_labels VARCHAR(255)[][] default null
+    in_labels VARCHAR(255)[][] default null,
+    in_policies VARCHAR(255)[][] default null
 )
 RETURNS TABLE(
     job_created BOOLEAN
@@ -51,7 +52,7 @@ BEGIN
     END IF;
 
     RETURN QUERY
-    SELECT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, 0, in_job_hash, in_labels);
+    SELECT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, 0, in_job_hash, in_labels, in_policies);
 
 END
 $$;

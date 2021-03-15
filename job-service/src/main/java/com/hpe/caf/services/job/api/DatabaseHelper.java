@@ -35,6 +35,7 @@ import java.sql.*;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -276,10 +277,10 @@ public final class DatabaseHelper
      * @return Whether the job was created
      */
     public boolean createJob(final String partitionId, String jobId, String name, String description, String data,
-                             int jobHash, final Map<String, String> labels, HashMap<String, Policy> expirationPolicy) throws Exception {
+                             int jobHash, final Map<String, String> labels, Map<String, Policy> expirationPolicy) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?)}")
         ) {
             final List<String[]> labelArray = buildLabelSqlArray(labels);
 
@@ -290,17 +291,25 @@ public final class DatabaseHelper
             stmt.setString(5,data);
             stmt.setInt(6,jobHash);
 
-            Array array;
+            Array arrayL;
+            Array arrayP;
             if (!labelArray.isEmpty()) {
-                array = conn.createArrayOf("VARCHAR", labelArray.toArray());
+                arrayL = conn.createArrayOf("VARCHAR", labelArray.toArray());
             } else {
-                array = conn.createArrayOf("VARCHAR", new String[0]);
+                arrayL = conn.createArrayOf("VARCHAR", new String[0]);
             }
-            stmt.setArray(7, array);
+            stmt.setArray(7, arrayL);if (!labelArray.isEmpty()) {
+                final Collection<Policy> values = expirationPolicy.values();
+                arrayP = conn.createArrayOf("VARCHAR", values.toArray(new Policy[0]));
+            } else {
+                arrayP = conn.createArrayOf("VARCHAR", new Policy[0]);
+            }
+            stmt.setArray(8, arrayP);
             try {
                 return callCreateJobFunction(stmt);
             } finally {
-                array.free();
+                arrayL.free();
+                arrayP.free();
             }
         } catch (final SQLException se) {
             throw mapSqlConnectionException(se);
