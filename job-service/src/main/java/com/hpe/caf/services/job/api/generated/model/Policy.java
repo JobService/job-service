@@ -18,66 +18,110 @@ package com.hpe.caf.services.job.api.generated.model;
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by FernFlower decompiler)
 //
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Objects;
 
-@ApiModel(
-        description = "The expiration details to be applied on the job"
-)
-public class Policy {
+
+
+/**
+ * The expiration details to be applied on the job
+ **/
+
+@ApiModel(description = "The expiration details to be applied on the job")
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2021-03-16T14:04:09.471Z")
+public class Policy   {
+
     private String expiryTime = null;
-    private Operation operation = null;
 
-    public Policy() {
+
+    public enum OperationEnum {
+        EXPIRE("expire"),
+        DELETE("delete");
+
+        private String value;
+
+        OperationEnum(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return value;
+        }
     }
 
-    @ApiModelProperty("")
+    private OperationEnum operation = OperationEnum.EXPIRE;
+
+
+    /**
+     **/
+
+    @ApiModelProperty(value = "")
     @JsonProperty("expiryTime")
     public String getExpiryTime() {
-        return this.expiryTime;
+        return expiryTime;
     }
-
     public void setExpiryTime(String expiryTime) {
         this.expiryTime = expiryTime;
     }
 
-    @ApiModelProperty("")
-    @JsonProperty("operation")
-    public Operation getOperation() {
-        return this.operation;
-    }
 
-    public void setOperation(Operation operation) {
+    /**
+     * The action to apply on expired jobs
+     **/
+
+    @ApiModelProperty(value = "The action to apply on expired jobs")
+    @JsonProperty("operation")
+    public OperationEnum getOperation() {
+        return operation;
+    }
+    public void setOperation(OperationEnum operation) {
         this.operation = operation;
     }
 
+
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        } else if (o != null && this.getClass() == o.getClass()) {
-            Policy policy = (Policy)o;
-            return Objects.equals(this.expiryTime, policy.expiryTime) && Objects.equals(this.operation, policy.operation);
-        } else {
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
+        Policy policy = (Policy) o;
+        return Objects.equals(expiryTime, policy.expiryTime) &&
+                Objects.equals(operation, policy.operation);
     }
 
+    @Override
     public int hashCode() {
-        return Objects.hash(new Object[]{this.expiryTime, this.operation});
+        return Objects.hash(expiryTime, operation);
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class Policy {\n");
-        sb.append("    expiryTime: ").append(this.toIndentedString(this.expiryTime)).append("\n");
-        sb.append("    operation: ").append(this.toIndentedString(this.operation)).append("\n");
+
+        sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
+        sb.append("    operation: ").append(toIndentedString(operation)).append("\n");
         sb.append("}");
         return sb.toString();
     }
 
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
     private String toIndentedString(Object o) {
-        return o == null ? "null" : o.toString().replace("\n", "\n    ");
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
     }
 }

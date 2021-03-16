@@ -26,7 +26,7 @@ import com.hpe.caf.naming.ServicePath;
 import com.hpe.caf.services.job.client.ApiClient;
 import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.services.job.client.api.JobsApi;
-import com.hpe.caf.services.job.client.model.Operation;
+import com.hpe.caf.services.job.client.model.Policy.OperationEnum;
 import com.hpe.caf.services.job.client.model.ExpirationPolicy;
 import com.hpe.caf.services.job.client.model.Job;
 import com.hpe.caf.services.job.client.model.NewJob;
@@ -1416,7 +1416,7 @@ public class JobServiceEndToEndIT {
         newJob.setName(jobName);
         final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
         final Policy policy = new Policy();
-        policy.setOperation(Operation.expire);
+        policy.setOperation(OperationEnum.EXPIRE);
         newJob.setExpiry(expirationPolicy);
         policy.setExpiryTime("createDate+10D");
         newJob.setDescription(jobName + " description");
