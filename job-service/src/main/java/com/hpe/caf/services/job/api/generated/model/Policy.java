@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 package com.hpe.caf.services.job.api.generated.model;
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
