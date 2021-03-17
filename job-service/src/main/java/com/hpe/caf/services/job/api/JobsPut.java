@@ -20,10 +20,10 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.services.configuration.AppConfigProvider;
+import com.hpe.caf.services.job.utilities.PolicyBuilder;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.Policy;
-import com.hpe.caf.services.job.api.generated.model.Policy.OperationEnum;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
@@ -182,8 +182,7 @@ public final class JobsPut {
                         .collect(Collectors.toList()));
             }
 
-            final HashMap<String, Policy> expirationPolicy = buildPolicyMap(job);
-
+            final HashMap<String, Policy> expirationPolicy = PolicyBuilder.buildPolicyMap(job);
             final boolean partitionSuspended = ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId);
             //  Create job in the database.
             LOG.debug("createOrUpdateJob: Creating job in the database for {} : {}...",
@@ -240,38 +239,6 @@ public final class JobsPut {
         }
     }
 
-    private static HashMap<String, Policy> buildPolicyMap(final NewJob job) {
-        final HashMap<String, Policy> expirationPolicy = new HashMap<>();
-        if (job.getExpiry()==null)return expirationPolicy;
-        // Set default policy
-        final Policy defaultPolicy;
-        if (job.getExpiry().getDefault() != null) {
-            defaultPolicy= job.getExpiry().getDefault();
-        }else{
-            defaultPolicy = new Policy();
-            defaultPolicy.setOperation(OperationEnum.EXPIRE);
-            defaultPolicy.setExpiryTime(null);
-        }
-
-        // Pass each policy if set, otherwise use default
-        if(job.getExpiry()!=null){
-            setPolicy(expirationPolicy, defaultPolicy, job.getExpiry().getActive(), "Active");
-            setPolicy(expirationPolicy, defaultPolicy, job.getExpiry().getCompleted(), "Completed");
-            setPolicy(expirationPolicy, defaultPolicy, job.getExpiry().getCancelled(), "Cancelled");
-            setPolicy(expirationPolicy, defaultPolicy, job.getExpiry().getFailed(), "Failed");
-            setPolicy(expirationPolicy, defaultPolicy, job.getExpiry().getWaiting(), "Waiting");
-            setPolicy(expirationPolicy, defaultPolicy, job.getExpiry().getPaused(), "Paused");
-        }
-        return expirationPolicy;
-    }
-
-    private static void setPolicy(final HashMap<String, Policy> expirationPolicy, final Policy defaultPolicy, final Policy policy, final String jobStatus) {
-        if (policy != null) {
-            expirationPolicy.put(jobStatus, policy);
-        } else {
-            expirationPolicy.put(jobStatus, defaultPolicy);
-        }
-    }
 
     private static void closeQueueConnection(final QueueServices queueServices)
     {

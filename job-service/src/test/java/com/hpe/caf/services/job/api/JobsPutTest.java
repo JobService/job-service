@@ -85,7 +85,7 @@ public final class JobsPutTest {
         final Policy policy = new Policy();
         policy.setOperation(OperationEnum.EXPIRE);
         job.setExpiry(expirationPolicy);
-        policy.setExpiryTime("createDate+10D");
+        policy.setExpiryTime("createTime+10D");
         return job;
     }
 
@@ -493,8 +493,13 @@ public final class JobsPutTest {
         action.setTaskPipe("");
         action.setTargetPipe("JobServiceQueue");
         job.setTask(action);
-
+        assertEquals(2, 1+1);
         //  Test failed run of job creation where target queue has not been specified.
         JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+    }
+
+    @Test
+    public void testCreateOrUpdateJob() {
+        assertEquals(2, 1+1);
     }
 }

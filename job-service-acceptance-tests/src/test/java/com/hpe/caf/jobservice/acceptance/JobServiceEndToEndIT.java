@@ -1418,7 +1418,7 @@ public class JobServiceEndToEndIT {
         final Policy policy = new Policy();
         policy.setOperation(OperationEnum.EXPIRE);
         newJob.setExpiry(expirationPolicy);
-        policy.setExpiryTime("createDate+10D");
+        policy.setExpiryTime("createTime+10D");
         newJob.setDescription(jobName + " description");
         newJob.setExternalData(jobName + " external data");
         newJob.setTask(batchWorkerAction);

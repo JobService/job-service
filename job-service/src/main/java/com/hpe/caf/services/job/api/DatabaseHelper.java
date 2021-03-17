@@ -289,6 +289,8 @@ public final class DatabaseHelper
             stmt.setString(4,description);
             stmt.setString(5,data);
             stmt.setInt(6,jobHash);
+            LOG.debug("passing job: {}",jobId);
+            printExpirationPolicy(expirationPolicy);
 
             Array arrayL;
             Array arrayP;
@@ -312,6 +314,16 @@ public final class DatabaseHelper
             }
         } catch (final SQLException se) {
             throw mapSqlConnectionException(se);
+        }
+    }
+
+    private void printExpirationPolicy(Map<String, Policy> expirationPolicy) {
+        if(expirationPolicy !=null) {
+            LOG.debug("size: {}", expirationPolicy.size());
+            for (final Map.Entry<String, Policy> entry : expirationPolicy.entrySet()) {
+                final Policy policy = entry.getValue();
+                LOG.debug("Policy: {} / {} / {}", entry.getKey(), policy.getOperation(), policy.getExpiryTime());
+            }
         }
     }
 
