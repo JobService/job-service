@@ -336,7 +336,7 @@ public final class DatabaseHelper
                                           final int taskApiVersion, final byte[] taskData, final String taskPipe,
                                           final String targetPipe, final List<String> prerequisiteJobIds,
                                           final int delay, final Map<String, String> labels,
-                                          final boolean partitionSuspended, HashMap<String, Policy> expirationPolicy) throws Exception {
+                                          final boolean partitionSuspended, Map<String, Policy> expirationPolicy) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")

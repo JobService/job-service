@@ -182,7 +182,7 @@ public final class JobsPut {
                         .collect(Collectors.toList()));
             }
 
-            final HashMap<String, Policy> expirationPolicy = PolicyBuilder.buildPolicyMap(job);
+            final Map<String, Policy> expirationPolicy = PolicyBuilder.buildPolicyMap(job);
             final boolean partitionSuspended = ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId);
             //  Create job in the database.
             LOG.debug("createOrUpdateJob: Creating job in the database for {} : {}...",

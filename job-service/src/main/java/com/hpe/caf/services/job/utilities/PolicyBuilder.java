@@ -26,6 +26,7 @@ import java.util.HashMap;
 public final class PolicyBuilder {
 
     public static HashMap<String, Policy> buildPolicyMap(final NewJob job) throws BadRequestException {
+    public static Map<String, Policy> buildPolicyMap(final NewJob job) throws BadRequestException {
         final HashMap<String, Policy> finalExpirationPolicy = new HashMap<>();
         final ExpirationPolicy expirationPolicies;
         // create new policies if none provided
