@@ -44,7 +44,7 @@ public final class PolicyBuilder {
         }else {
             expirationPolicies = new ExpirationPolicy();
         }
-        final Policy defaultPolicy = defineDefaultPolicy(finalExpirationPolicy, expirationPolicies);
+        final Policy defaultPolicy = defineDefaultPolicy(expirationPolicies);
 
         // define active policy
         definePolicy(finalExpirationPolicy, defaultPolicy, expirationPolicies.getActive(), "Active");
@@ -69,13 +69,11 @@ public final class PolicyBuilder {
 
     /**
      *
-     * @param finalExpirationPolicy the expiration object to build
      * @param expirationPolicies the expiration object provided
      * @return the default policy
      * @throws BadRequestException if any invalid parameter
      */
-    private static Policy defineDefaultPolicy(final HashMap<String, Policy> finalExpirationPolicy,
-            final ExpirationPolicy expirationPolicies) throws BadRequestException {
+    private static Policy defineDefaultPolicy(final ExpirationPolicy expirationPolicies) throws BadRequestException {
         // define default policy
         final Policy defaultPolicy;
         if(null != expirationPolicies.getDefault()){
@@ -87,7 +85,6 @@ public final class PolicyBuilder {
             defaultPolicy.setOperation(OperationEnum.EXPIRE);
             defaultPolicy.setExpiryTime(null);
         }
-        finalExpirationPolicy.put("Default", defaultPolicy);
         return defaultPolicy;
     }
 
