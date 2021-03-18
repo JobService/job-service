@@ -31,7 +31,7 @@ AS
 $$
 BEGIN
 
-    INSERT INTO expiration_policy (partition_id, job_id, job_status, expiration_operation, expiration_after_last_update,
+    INSERT INTO job_expiration_policy (partition_id, job_id, job_status, expiration_operation, expiration_after_last_update,
                                    expiration_date)
     SELECT in_partition_id,
            in_job_id,

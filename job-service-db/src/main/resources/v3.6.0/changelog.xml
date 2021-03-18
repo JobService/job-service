@@ -32,8 +32,8 @@
     <changeSet id="create_policy_enum_type" author="Gamma Team">
         <sql>CREATE TYPE job_policy AS (job_status job_status, expiration_operation expiration_operation, expiration_after_last_update BIGINT, expiration_date TIMESTAMP)</sql>
     </changeSet>
-    <changeSet id="create_expiration_policy" author="Gamma Team">
-        <createTable tableName="expiration_policy">
+    <changeSet id="create_job_expiration_policy" author="Gamma Team">
+        <createTable tableName="job_expiration_policy">
             <column name="partition_id" type="VARCHAR(48)">
                 <constraints nullable="false" />
             </column>
