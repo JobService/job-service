@@ -39,7 +39,7 @@ CREATE OR REPLACE FUNCTION internal_create_job(
     in_delay INT,
     in_job_hash INT,
     in_labels VARCHAR(255)[][] default null,
-    in_policies VARCHAR(255)[][] default null
+    in_policies job_policy[] default null
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql
@@ -88,7 +88,7 @@ BEGIN
         END LOOP;
     END IF;
 
-    --PERFORM internal_upsert_job_policy(in_partition_id, in_job_id);
+    PERFORM internal_upsert_job_policy(in_partition_id, in_job_id, in_policies);
 
     RETURN TRUE;
 
