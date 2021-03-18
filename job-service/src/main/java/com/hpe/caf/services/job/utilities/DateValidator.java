@@ -23,13 +23,24 @@ import java.time.format.DateTimeParseException;
 
 public final class DateValidator {
 
+    private DateValidator() {
+    }
+
+    /**
+     *
+     * @param dateToCheck the date to validate
+     * @throws BadRequestException if any invalid parameter
+     */
     public static void validate(final String dateToCheck) throws BadRequestException {
         final String dateRegex = "^(lastUpdateTime|createTime)(\\+P)[1-9]\\d*[DYHM]$|^none$";
         if(!dateToCheck.matches(dateRegex)){
             try{
-                Instant.parse(dateToCheck);
+                // validate date format
+                final Instant instantPassed = Instant.parse(dateToCheck);
+                // verify that date is in the future
+                if (instantPassed.isBefore(Instant.now()))throw new BadRequestException("Date should be in the future ,"+dateToCheck);
             }catch (final DateTimeParseException e){
-                throw new BadRequestException("invalid date "+dateToCheck);
+                throw new BadRequestException("Invalid date "+dateToCheck);
             }
         }
 
