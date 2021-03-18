@@ -34,9 +34,7 @@
             <column name="job_status" type="VARCHAR(58)">
                 <constraints nullable="false" />
             </column>
-            <column name="reference_date" type="VARCHAR(58)">
-            </column>
-            <column name="duration" type="INT">
+            <column name="expiration_after_last_update" type="BIGINT">
             </column>
             <column name="expiration_date" type="TIMESTAMP">
             </column>
