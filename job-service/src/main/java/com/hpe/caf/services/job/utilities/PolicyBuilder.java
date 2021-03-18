@@ -82,7 +82,7 @@ public final class PolicyBuilder {
 
         // define Paused policy
         final Policy pausedPolicy;
-        if(null != expirationPolicies.getActive()){
+        if(null != expirationPolicies.getPaused()){
             final String dateActive = expirationPolicies.getPaused().getExpiryTime();
             DateValidator.validate(dateActive);
             pausedPolicy = expirationPolicies.getPaused();
@@ -104,10 +104,10 @@ public final class PolicyBuilder {
 
         // define Cancelled policy
         final Policy cancelledPolicy;
-        if(null != expirationPolicies.getActive()){
-            final String dateActive = expirationPolicies.getActive().getExpiryTime();
+        if(null != expirationPolicies.getCancelled()){
+            final String dateActive = expirationPolicies.getCancelled().getExpiryTime();
             DateValidator.validate(dateActive);
-            cancelledPolicy = expirationPolicies.getActive();
+            cancelledPolicy = expirationPolicies.getCancelled();
         }else {
             cancelledPolicy = defaultPolicy;
         }
