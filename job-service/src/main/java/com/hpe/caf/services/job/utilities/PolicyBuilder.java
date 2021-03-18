@@ -22,10 +22,19 @@ import com.hpe.caf.services.job.api.generated.model.Policy.OperationEnum;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public final class PolicyBuilder {
 
-    public static HashMap<String, Policy> buildPolicyMap(final NewJob job) throws BadRequestException {
+    private PolicyBuilder() {
+    }
+
+    /**
+     *
+     * @param job the job to be created
+     * @return a map of the policies for the job
+     * @throws BadRequestException if any invalid parameter
+     */
     public static Map<String, Policy> buildPolicyMap(final NewJob job) throws BadRequestException {
         final HashMap<String, Policy> finalExpirationPolicy = new HashMap<>();
         final ExpirationPolicy expirationPolicies;
@@ -35,6 +44,38 @@ public final class PolicyBuilder {
         }else {
             expirationPolicies = new ExpirationPolicy();
         }
+        final Policy defaultPolicy = defineDefaultPolicy(finalExpirationPolicy, expirationPolicies);
+
+        // define active policy
+        definePolicy(finalExpirationPolicy, defaultPolicy, expirationPolicies.getActive(), "Active");
+
+        // define completed policy
+        definePolicy(finalExpirationPolicy, defaultPolicy, expirationPolicies.getCompleted(), "Completed");
+
+        // define failed policy
+        definePolicy(finalExpirationPolicy, defaultPolicy, expirationPolicies.getFailed(), "Failed");
+
+        // define Paused policy
+        definePolicy(finalExpirationPolicy, defaultPolicy, expirationPolicies.getPaused(), "Paused");
+
+        // define Waiting policy
+        definePolicy(finalExpirationPolicy, defaultPolicy, expirationPolicies.getWaiting(), "Waiting");
+
+        // define Cancelled policy
+        definePolicy(finalExpirationPolicy, defaultPolicy, expirationPolicies.getCancelled(), "Cancelled");
+
+        return finalExpirationPolicy;
+    }
+
+    /**
+     *
+     * @param finalExpirationPolicy the expiration object to build
+     * @param expirationPolicies the expiration object provided
+     * @return the default policy
+     * @throws BadRequestException if any invalid parameter
+     */
+    private static Policy defineDefaultPolicy(final HashMap<String, Policy> finalExpirationPolicy,
+            final ExpirationPolicy expirationPolicies) throws BadRequestException {
         // define default policy
         final Policy defaultPolicy;
         if(null != expirationPolicies.getDefault()){
@@ -47,73 +88,30 @@ public final class PolicyBuilder {
             defaultPolicy.setExpiryTime(null);
         }
         finalExpirationPolicy.put("Default", defaultPolicy);
+        return defaultPolicy;
+    }
 
-        // define active policy
-        final Policy activePolicy;
-        if(null != expirationPolicies.getActive()){
-            final String dateActive = expirationPolicies.getActive().getExpiryTime();
+    /**
+     *
+     * @param finalExpirationPolicy the expiration object to build
+     * @param defaultPolicy the default policy
+     * @param providedPolicy the provided policy
+     * @param jobStatus the job status for the policy provided
+     * @throws BadRequestException if any invalid parameter
+     */
+    private static void definePolicy(final HashMap<String, Policy> finalExpirationPolicy, final Policy defaultPolicy,
+            final Policy providedPolicy,
+            final String jobStatus) throws BadRequestException {
+        // transfer provided policy if not null
+        // replace with default otherwise
+        final Policy policy;
+        if (null != providedPolicy) {
+            final String dateActive = providedPolicy.getExpiryTime();
             DateValidator.validate(dateActive);
-            activePolicy = expirationPolicies.getActive();
-        }else {
-            activePolicy = defaultPolicy;
+            policy = providedPolicy;
+        } else {
+            policy = defaultPolicy;
         }
-        finalExpirationPolicy.put("Active", activePolicy);
-
-        // define completed policy
-        final Policy completedPolicy;
-        if(null != expirationPolicies.getCompleted()){
-            final String dateActive = expirationPolicies.getCompleted().getExpiryTime();
-            DateValidator.validate(dateActive);
-            completedPolicy = expirationPolicies.getCompleted();
-        }else {
-            completedPolicy = defaultPolicy;
-        }
-        finalExpirationPolicy.put("Completed", completedPolicy);
-
-        // define failed policy
-        final Policy failedPolicy;
-        if(null != expirationPolicies.getFailed()){
-            final String dateActive = expirationPolicies.getFailed().getExpiryTime();
-            DateValidator.validate(dateActive);
-            failedPolicy = expirationPolicies.getFailed();
-        }else {
-            failedPolicy = defaultPolicy;
-        }
-        finalExpirationPolicy.put("Failed", failedPolicy);
-
-        // define Paused policy
-        final Policy pausedPolicy;
-        if(null != expirationPolicies.getPaused()){
-            final String dateActive = expirationPolicies.getPaused().getExpiryTime();
-            DateValidator.validate(dateActive);
-            pausedPolicy = expirationPolicies.getPaused();
-        }else {
-            pausedPolicy = defaultPolicy;
-        }
-        finalExpirationPolicy.put("Paused", pausedPolicy);
-
-        // define Waiting policy
-        final Policy waitingPolicy;
-        if(null != expirationPolicies.getWaiting()){
-            final String dateActive = expirationPolicies.getWaiting().getExpiryTime();
-            DateValidator.validate(dateActive);
-            waitingPolicy = expirationPolicies.getWaiting();
-        }else {
-            waitingPolicy = defaultPolicy;
-        }
-        finalExpirationPolicy.put("Waiting", waitingPolicy);
-
-        // define Cancelled policy
-        final Policy cancelledPolicy;
-        if(null != expirationPolicies.getCancelled()){
-            final String dateActive = expirationPolicies.getCancelled().getExpiryTime();
-            DateValidator.validate(dateActive);
-            cancelledPolicy = expirationPolicies.getCancelled();
-        }else {
-            cancelledPolicy = defaultPolicy;
-        }
-        finalExpirationPolicy.put("Cancelled", cancelledPolicy);
-
-        return finalExpirationPolicy;
+        finalExpirationPolicy.put(jobStatus, policy);
     }
 }
