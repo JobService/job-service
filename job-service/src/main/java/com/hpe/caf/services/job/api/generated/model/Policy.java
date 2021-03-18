@@ -35,8 +35,8 @@ public class Policy   {
 
 
     public enum OperationEnum {
-        EXPIRE("expire"),
-        DELETE("delete");
+        EXPIRE("Expire"),
+        DELETE("Delete");
 
         private String value;
 

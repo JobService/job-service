@@ -459,9 +459,9 @@ definitions:
       operation:
         type: string
         enum:
-          - expire
-          - delete
-        default: expire
+          - Expire
+          - Delete
+        default: Expire
         description: The action to apply on expired jobs
     description: The expiration details to be applied on the job
   worker-action:
