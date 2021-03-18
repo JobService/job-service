@@ -652,6 +652,10 @@
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
                 <postgres.db.port>5432</postgres.db.port>
                 <webdav.apache.port>32775</webdav.apache.port>
+                <jobservice.adminport>32776</jobservice.adminport>
+                <jobtracking-worker.adminport>32777</jobtracking-worker.adminport>
+                <batch-worker.adminport>32778</batch-worker.adminport>
+                <example-worker.adminport>32779</example-worker.adminport>
             </properties>
         </profile>
     </profiles>
