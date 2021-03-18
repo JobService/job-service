@@ -88,7 +88,7 @@ BEGIN
         END LOOP;
     END IF;
 
-    PERFORM internal_upsert_job_policy(in_partition_id, in_job_id);
+    --PERFORM internal_upsert_job_policy(in_partition_id, in_job_id);
 
     RETURN TRUE;
 

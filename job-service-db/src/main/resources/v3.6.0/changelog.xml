@@ -23,6 +23,15 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
                                        http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+    <changeSet id="create_expiration_operation_enum_type" author="Gamma Team">
+        <sql>CREATE TYPE expiration_operation AS ENUM('Expire', 'Delete')</sql>
+    </changeSet>
+    <changeSet id="update_job_status_enum_type_add_expired" author="Gamma Team" runInTransaction="false">
+        <sql>ALTER TYPE job_status ADD VALUE 'Expired';</sql>
+    </changeSet>
+    <changeSet id="create_policy_enum_type" author="Gamma Team">
+        <sql>CREATE TYPE job_policy AS (job_status job_status, expiration_operation expiration_operation, expiration_after_last_update BIGINT, expiration_date TIMESTAMP)</sql>
+    </changeSet>
     <changeSet id="create_expiration_policy" author="Gamma Team">
         <createTable tableName="expiration_policy">
             <column name="partition_id" type="VARCHAR(48)">
@@ -31,7 +40,10 @@
             <column name="job_id" type="VARCHAR(48)">
                 <constraints nullable="false" />
             </column>
-            <column name="job_status" type="VARCHAR(58)">
+            <column name="job_status" type="job_status">
+                <constraints nullable="false" />
+            </column>
+            <column name="operation" type="expiration_operation">
                 <constraints nullable="false" />
             </column>
             <column name="expiration_after_last_update" type="BIGINT">
@@ -39,8 +51,5 @@
             <column name="expiration_date" type="TIMESTAMP">
             </column>
         </createTable>
-    </changeSet>
-    <changeSet id="update_job_status_enum_type_add_expired" author="Gamma Team" runInTransaction="false">
-        <sql>ALTER TYPE job_status ADD VALUE 'Expired';</sql>
     </changeSet>
 </databaseChangeLog>

@@ -22,16 +22,24 @@
  */
 CREATE OR REPLACE FUNCTION internal_upsert_job_policy(
     in_partition_id VARCHAR(40),
-    in_job_id VARCHAR(58)/*,
-    in_status job_status,
-    in_reference_date VARCHAR(58),
-    in_duration INT*/
+    in_job_id VARCHAR(58),
+    in_policies job_policy[]
 )
-RETURNS VOID
-LANGUAGE plpgsql
-AS $$
+    RETURNS VOID
+    LANGUAGE plpgsql
+AS
+$$
 BEGIN
 
-    RAISE NOTICE 'Hello world';
+    INSERT INTO expiration_policy (partition_id, job_id, job_status, expiration_operation, expiration_after_last_update,
+                                   expiration_date)
+    SELECT in_partition_id,
+           in_job_id,
+           p.job_status,
+           p.expiration_operation,
+           p.expiration_after_last_update,
+           p.expiration_date
+    FROM unnest(in_policies) AS p;
+    RETURN;
 END
 $$;
