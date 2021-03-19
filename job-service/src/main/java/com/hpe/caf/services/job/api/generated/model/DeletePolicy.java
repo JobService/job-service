@@ -35,7 +35,7 @@ public class DeletePolicy   {
 
 
     public enum ExpirationOperationEnum {
-        DELETE("delete");
+        DELETE("Delete");
 
         private String value;
 

@@ -447,7 +447,7 @@ definitions:
       operation:
         type: string
         enum:
-          - delete
+          - Delete
     description: The expiration details to be applied on the job
   policy:
     type: object
