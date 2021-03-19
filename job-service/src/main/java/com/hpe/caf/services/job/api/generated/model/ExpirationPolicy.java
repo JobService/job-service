@@ -156,29 +156,29 @@ public class ExpirationPolicy {
     public List<String> toDBString() {
         List<String> policyList = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
-        addPolicy(policyList, sb, "Active");
+        builDbExpirationPolicy(policyList, sb, "Active,", this.active);
+        builDbExpirationPolicy(policyList, sb, "Completed,", this.completed);
+        builDbExpirationPolicy(policyList, sb, "Failed,", this.failed);
+        builDbExpirationPolicy(policyList, sb, "Cancelled,", this.cancelled);
+        builDbExpirationPolicy(policyList, sb, "Waiting,", this.waiting);
+        builDbExpirationPolicy(policyList, sb, "Paused,", this.paused);
         sb.setLength(0);
-        addPolicy(policyList, sb, "Completed");
-        sb.setLength(0);
-        addPolicy(policyList, sb, "Failed");
-        sb.setLength(0);
-        addPolicy(policyList, sb, "Cancelled");
-        sb.setLength(0);
-        addPolicy(policyList, sb, "Waiting");
-        sb.setLength(0);
-        addPolicy(policyList, sb, "Paused");
-        sb.setLength(0);
-        addPolicy(policyList, sb, "Expired");
+        sb.append("(");
+        sb.append("Expired,")
+                .append(this.toIndentedString(this.expired.getExpirationOperation().toString())).append(",")
+                .append(this.toIndentedString(this.expired.getExpiryTime()))
+                .append(")");
+        policyList.add(sb.toString());
 
         return policyList;
     }
 
-    private void addPolicy(List<String> policyList, StringBuilder sb, String s) {
+    private void builDbExpirationPolicy(List<String> policyList, StringBuilder sb, String s, Policy active) {
+        sb.setLength(0);
         sb.append("(");
         sb.append(s)
-                .append(",")
-                .append(this.toIndentedString(this.active.getOperation().toString())).append(",")
-                .append(this.toIndentedString(this.active.getExpiryTime())).append(",")
+                .append(this.toIndentedString(active.getOperation().toString())).append(",")
+                .append(this.toIndentedString(active.getExpiryTime()))
                 .append(")");
         policyList.add(sb.toString());
     }
