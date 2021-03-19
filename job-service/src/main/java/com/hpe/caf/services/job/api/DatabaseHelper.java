@@ -16,6 +16,7 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
+import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
@@ -34,9 +35,7 @@ import java.sql.*;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -276,7 +275,7 @@ public final class DatabaseHelper
      * @return Whether the job was created
      */
     public boolean createJob(final String partitionId, String jobId, String name, String description, String data,
-                             int jobHash, final Map<String, String> labels, Map<String, Policy> expirationPolicy) throws Exception {
+                             int jobHash, final Map<String, String> labels, ExpirationPolicy expirationPolicy) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?)}")
@@ -289,8 +288,8 @@ public final class DatabaseHelper
             stmt.setString(4,description);
             stmt.setString(5,data);
             stmt.setInt(6,jobHash);
-            LOG.debug("passing job: {}",jobId);
-            printExpirationPolicy(expirationPolicy);
+            LOG.debug("passing job: {}\n ExpiryPolicy {}",jobId, expirationPolicy);
+
 
             Array arrayL;
             Array arrayP;
@@ -312,16 +311,6 @@ public final class DatabaseHelper
         }
     }
 
-    private void printExpirationPolicy(Map<String, Policy> expirationPolicy) {
-        if(expirationPolicy !=null) {
-            LOG.debug("size: {}", expirationPolicy.size());
-            for (final Map.Entry<String, Policy> entry : expirationPolicy.entrySet()) {
-                final Policy policy = entry.getValue();
-                LOG.debug("Policy: {} / {} / {}", entry.getKey(), policy.getOperation(), policy.getExpiryTime());
-            }
-        }
-    }
-
     /**
      * Creates the specified job.
      * @return Whether the job was created
@@ -331,7 +320,7 @@ public final class DatabaseHelper
                                           final int taskApiVersion, final byte[] taskData, final String taskPipe,
                                           final String targetPipe, final List<String> prerequisiteJobIds,
                                           final int delay, final Map<String, String> labels,
-                                          final boolean partitionSuspended, Map<String, Policy> expirationPolicy) throws Exception {
+                                          final boolean partitionSuspended, ExpirationPolicy expirationPolicy) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")

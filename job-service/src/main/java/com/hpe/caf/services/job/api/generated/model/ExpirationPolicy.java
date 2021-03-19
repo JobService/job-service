@@ -18,6 +18,9 @@ package com.hpe.caf.services.job.api.generated.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @ApiModel(
@@ -148,5 +151,35 @@ public class ExpirationPolicy {
 
     private String toIndentedString(Object o) {
         return o == null ? "null" : o.toString().replace("\n", "\n    ");
+    }
+
+    public List<String> toDBString() {
+        List<String> policyList = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        addPolicy(policyList, sb, "Active");
+        sb.setLength(0);
+        addPolicy(policyList, sb, "Completed");
+        sb.setLength(0);
+        addPolicy(policyList, sb, "Failed");
+        sb.setLength(0);
+        addPolicy(policyList, sb, "Cancelled");
+        sb.setLength(0);
+        addPolicy(policyList, sb, "Waiting");
+        sb.setLength(0);
+        addPolicy(policyList, sb, "Paused");
+        sb.setLength(0);
+        addPolicy(policyList, sb, "Expired");
+
+        return policyList;
+    }
+
+    private void addPolicy(List<String> policyList, StringBuilder sb, String s) {
+        sb.append("(");
+        sb.append(s)
+                .append(",")
+                .append(this.toIndentedString(this.active.getOperation().toString())).append(",")
+                .append(this.toIndentedString(this.active.getExpiryTime())).append(",")
+                .append(")");
+        policyList.add(sb.toString());
     }
 }

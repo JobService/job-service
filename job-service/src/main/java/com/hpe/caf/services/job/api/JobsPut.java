@@ -182,7 +182,6 @@ public final class JobsPut {
                         .collect(Collectors.toList()));
             }
 
-            final Map<String, Policy> expirationPolicy = PolicyBuilder.buildPolicyMap(job);
             final boolean partitionSuspended = ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId);
             //  Create job in the database.
             LOG.debug("createOrUpdateJob: Creating job in the database for {} : {}...",
@@ -192,11 +191,11 @@ public final class JobsPut {
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
-                        job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended, expirationPolicy);
+                        job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended, job.getExpiry());
 
             } else {
                 jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(),
-                        job.getExternalData(), jobHash, job.getLabels(), expirationPolicy);
+                        job.getExternalData(), jobHash, job.getLabels(), job.getExpiry());
             }
 
             if (!jobCreated) {
