@@ -768,11 +768,11 @@ public class JobServiceIT {
 
         String statusCheckTime = System.getenv("CAF_STATUS_CHECK_TIME");
         if(statusCheckTime==null)
-            throw new Exception("CAF_TRACKING_PIPE environment variable is null.");
+            throw new Exception("CAF_STATUS_CHECK_TIME environment variable is null.");
 
         //create expectation object for comparing message on RabbitMQ
         JobServiceTrackingInfoExpectation expectation = new JobServiceTrackingInfoExpectation(
-            defaultPartitionId, jobId, statusCheckTime, statusCheckUrl,
+            defaultPartitionId, jobId, null, Long.parseLong(statusCheckTime) * 1000, statusCheckUrl,
             trackingPipe, trackingToQueue, true);
 
         testMessagesPutOnQueue(

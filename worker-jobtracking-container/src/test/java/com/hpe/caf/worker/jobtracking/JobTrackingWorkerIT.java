@@ -401,7 +401,8 @@ public class JobTrackingWorkerIT {
         TrackingInfo tracking =
                 new TrackingInfo(
                         new JobTaskId(partitionId, jobTaskId).getMessageId(),
-                        new Date(),
+                        null,
+                        0,
                         STATUS_CHECK_URL,
                         jobTrackingWorkerInputQueue, //trackingPipe is Job Tracking Worker's input queue
                         trackTo);

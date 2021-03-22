@@ -108,7 +108,8 @@ public final class QueueServices {
         //  Construct the task message.
         final TrackingInfo trackingInfo = new TrackingInfo(
                 new JobTaskId(partitionId, jobId).getMessageId(),
-                calculateStatusCheckDate(config.getStatusCheckTime()),
+                null,
+                getStatusCheckIntervalMillis(config.getStatusCheckTime()),
                 statusCheckUrl, config.getTrackingPipe(), workerAction.getTargetPipe());
 
         final TaskMessage taskMessage = new TaskMessage(
@@ -149,22 +150,12 @@ public final class QueueServices {
         publisherChannel.waitForConfirmsOrDie(10000);
     }
 
-    /**
-     * Calculates the date of the next status check to be performed.
-     */
-    private Date calculateStatusCheckDate(String statusCheckTime){
-        //make sure statusCheckTime is a valid long
-        long seconds = 0;
+    private static long getStatusCheckIntervalMillis(final String statusCheckTimeSeconds){
         try{
-            seconds = Long.parseLong(statusCheckTime);
+            return Long.parseLong(statusCheckTimeSeconds) * 1000;
         } catch (NumberFormatException e) {
-            throw new RuntimeException("Please provide a valid integer for statusCheckTime in seconds. " +e);
+            throw new RuntimeException("Please provide a valid integer for statusCheckTime in seconds. " + e);
         }
-
-        //set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
-        Instant now = Instant.now();
-        Instant later = now.plusSeconds(seconds);
-        return java.util.Date.from( later );
     }
 
     /**

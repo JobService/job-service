@@ -62,7 +62,7 @@ public final class JobTrackingWorkerUtil
 
         final TrackingInfo trackingInfo = new TrackingInfo(
                 new JobTaskId(jobDependency.getPartitionId(), jobDependency.getJobId()).getMessageId(),
-                calculateStatusCheckDate(statusCheckTime), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
+                null, getStatusCheckIntervalMillis(statusCheckTime), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
 
         return new TaskMessage(
                 taskId,
@@ -116,25 +116,13 @@ public final class JobTrackingWorkerUtil
         return Long.parseLong(maxBatchTime);
     }
 
-    /**
-     * Calculates the date of the next status check to be performed.
-     *
-     * @param statusCheckTime - This is the number of seconds after which it is appropriate to try to confirm that the
-     * task has not been cancelled or aborted.
-     */
-    public static Date calculateStatusCheckDate(final String statusCheckTime){
-        //  Make sure statusCheckTime is a valid long
-        long seconds = 0;
-        try{
-            seconds = Long.parseLong(statusCheckTime);
+    private static long getStatusCheckIntervalMillis(final String statusCheckTimeSeconds)
+    {
+        try {
+            return Long.parseLong(statusCheckTimeSeconds) * 1000;
         } catch (NumberFormatException e) {
             throw new RuntimeException("Please provide a valid integer for statusCheckTime in seconds. " + e);
         }
-
-        //  Set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
-        final Instant now = Instant.now();
-        final Instant later = now.plusSeconds(seconds);
-        return java.util.Date.from( later );
     }
 
 }
