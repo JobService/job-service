@@ -24,13 +24,13 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
     <changeSet id="create_expiration_operation_enum_type" author="Gamma Team">
-        <sql>CREATE TYPE expiration_operation AS ENUM('Expire', 'Delete')</sql>
+        <sql>CREATE TYPE EXPIRATION_OPERATION AS ENUM('Expire', 'Delete')</sql>
     </changeSet>
     <changeSet id="update_job_status_enum_type_add_expired" author="Gamma Team" runInTransaction="false">
-        <sql>ALTER TYPE job_status ADD VALUE 'Expired';</sql>
+        <sql>ALTER TYPE JOB_STATUS ADD VALUE 'Expired';</sql>
     </changeSet>
     <changeSet id="create_policy_type" author="Gamma Team">
-        <sql>CREATE TYPE job_policy AS (status job_status, operation expiration_operation, expiration_time VARCHAR(58), expiration_after_last_update BIGINT, expiration_date TIMESTAMP)</sql>
+        <sql>CREATE TYPE JOB_POLICY AS (status JOB_STATUS, operation EXPIRATION_OPERATION, expiration_time VARCHAR(58), expiration_after_last_update BIGINT, expiration_date TIMESTAMP)</sql>
     </changeSet>
     <changeSet id="create_job_expiration_policy" author="Gamma Team">
         <createTable tableName="job_expiration_policy">

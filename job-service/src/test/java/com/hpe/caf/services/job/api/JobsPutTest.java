@@ -84,8 +84,9 @@ public final class JobsPutTest {
         final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
         final Policy policy = new Policy();
         policy.setOperation(OperationEnum.EXPIRE);
-        job.setExpiry(expirationPolicy);
         policy.setExpiryTime("createTime+10D");
+        expirationPolicy.setDefault(policy);
+        job.setExpiry(expirationPolicy);
         return job;
     }
 

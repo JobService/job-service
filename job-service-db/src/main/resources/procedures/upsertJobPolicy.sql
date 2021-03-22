@@ -1,35 +1,49 @@
---
--- Copyright 2016-2021 Micro Focus or one of its affiliates.
---
--- Licensed under the Apache License, Version 2.0 (the "License");
--- you may not use this file except in compliance with the License.
--- You may obtain a copy of the License at
---
---      http://www.apache.org/licenses/LICENSE-2.0
---
--- Unless required by applicable law or agreed to in writing, software
--- distributed under the License is distributed on an "AS IS" BASIS,
--- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
--- See the License for the specific language governing permissions and
--- limitations under the License.
---
-
-/*
- *  Name: internal_upsert_job_policy
- *
- *  Description:
- *  Inserts or updates the policy for a specific job.
- */
 CREATE OR REPLACE FUNCTION internal_upsert_job_policy(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(58),
-    in_policies job_policy[]
+    in_policies JOB_POLICY[]
 )
     RETURNS VOID
     LANGUAGE plpgsql
 AS
 $$
+DECLARE
+    dateToTest     VARCHAR;
+    policy     JOB_POLICY;
+    policies       JOB_POLICY[];
+    reference_date VARCHAR(58);
+    duration       BIGINT;
+    create_date    DATE;
 BEGIN
+
+    IF in_policies IS NULL OR CARDINALITY(in_policies) = 0 THEN
+        RETURN;
+    END IF;
+    -- Get create_date and store it
+    SELECT j.create_date INTO create_date FROM job j WHERE j.partition_id = in_partition_id AND j.job_id = in_job_id;
+    FOREACH policy IN ARRAY in_policies
+        LOOP
+            dateToTest = policy.expiration_time;
+            IF (dateToTest IS NULL) OR (dateToTest = '') THEN CONTINUE; END IF;
+            BEGIN
+                PERFORM dateToTest::DATE;
+                policy.expiration_date = dateToTest;
+                policy.expiration_time = '';
+            EXCEPTION
+                WHEN OTHERS THEN
+                    reference_date = split_part(dateToTest, '+', 1);
+                    duration = split_part(dateToTest, '+', 2);
+                    IF LEFT(reference_date, 1) = 'l' THEN
+                        policy.expiration_after_last_update = EXTRACT(epoch FROM duration) / 3600;
+                        policy.expiration_time = '';
+                    ELSE
+                        policy.expiration_date = create_date + duration;
+                        policy.expiration_time = '';
+
+                    END IF;
+                    SELECT ARRAY_APPEND(policies, policy) INTO policies;
+            END;
+        END LOOP;
 
     INSERT INTO job_expiration_policy (partition_id, job_id, job_status, operation, expiration_after_last_update,
                                        expiration_date)
@@ -39,7 +53,7 @@ BEGIN
            p.operation,
            p.expiration_after_last_update,
            p.expiration_date
-    FROM unnest(in_policies) AS p;
+    FROM UNNEST(policies) AS p;
     RETURN;
 END
 $$;

@@ -21,9 +21,9 @@ import com.hpe.caf.services.job.exceptions.BadRequestException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 
-public final class DateValidator {
+public final class DateHelper {
 
-    private DateValidator() {
+    private DateHelper() {
     }
 
     /**
@@ -31,7 +31,7 @@ public final class DateValidator {
      * @param dateToCheck the date to validate
      * @throws BadRequestException if any invalid parameter
      */
-    public static void validate(final String dateToCheck) throws BadRequestException {
+    public static String validateAndConvert(final String dateToCheck) throws BadRequestException {
         final String dateRegex = "^(lastUpdateTime|createTime)(\\+P)[1-9]\\d*[DYHM]$|^none$";
         if(!dateToCheck.matches(dateRegex)){
             try{
@@ -39,10 +39,45 @@ public final class DateValidator {
                 final Instant instantPassed = Instant.parse(dateToCheck);
                 // verify that date is in the future
                 if (instantPassed.isBefore(Instant.now()))throw new BadRequestException("Date should be in the future ,"+dateToCheck);
+                return dateToCheck;
             }catch (final DateTimeParseException e){
                 throw new BadRequestException("Invalid date "+dateToCheck);
             }
+        }else {
+            return convertDate(dateToCheck);
+        }
+    }
+
+    /**
+     *
+     * @param dateToConvert date to be converted
+     * @return the converted date
+     */
+    private static String convertDate(final String dateToConvert) {
+        if (dateToConvert.equalsIgnoreCase("none"))return null;
+        final String[] firstSplit = dateToConvert.split("P");
+        final String referenceDate = firstSplit[0];
+        char symbol = Character.toUpperCase(firstSplit[1].charAt(firstSplit[1].length()-1));
+        long duration = Long.parseLong(firstSplit[1].substring(0, firstSplit[1].length()-1));
+        long finalDuration=0;
+        switch (symbol){
+            case 'M':
+                // 1 day = 86400000 ms
+                finalDuration = duration * 60000;
+                break;
+            case 'H':
+                // 1 day = 3600000 ms
+                finalDuration = duration * 3600000;
+                break;
+            case 'D':
+                // 1 day = 86400000 ms
+                finalDuration = duration * 86400000;
+                break;
+            default:
+                // 1 year = 31536000000 ms
+                finalDuration = duration * 31536000000L;
         }
 
+        return referenceDate+ finalDuration;
     }
 }

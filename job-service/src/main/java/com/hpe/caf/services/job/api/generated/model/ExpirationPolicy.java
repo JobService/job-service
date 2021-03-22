@@ -16,6 +16,7 @@
 package com.hpe.caf.services.job.api.generated.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hpe.caf.services.job.api.generated.model.DeletePolicy.ExpirationOperationEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -166,7 +167,7 @@ public class ExpirationPolicy {
         sb.setLength(0);
         sb.append("(");
         sb.append("Expired,")
-                .append(this.toIndentedString(this.expired.getExpirationOperation().toString())).append(",")
+                .append(this.toIndentedString(ExpirationOperationEnum.DELETE.toString())).append(",")
                 .append(this.toIndentedString(this.expired.getExpiryTime())).append(",")
                 .append(EXPIRATION_AFTER_LAST_UPDATE).append(",")
                 .append(")");

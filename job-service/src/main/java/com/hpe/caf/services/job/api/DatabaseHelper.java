@@ -292,19 +292,25 @@ public final class DatabaseHelper
 
 
             Array arrayL;
-            Array arrayP;
+            final Array arrayP;
             if (!labelArray.isEmpty()) {
                 arrayL = conn.createArrayOf("VARCHAR", labelArray.toArray());
             } else {
                 arrayL = conn.createArrayOf("VARCHAR", new String[0]);
             }
             stmt.setArray(7, arrayL);
-            stmt.setArray(8, null);
+            if(expirationPolicy!=null) {
+                arrayP = conn.createArrayOf("job_policy", expirationPolicy.toDBString().toArray(new String[0]));
+            } else{
+                arrayP = conn.createArrayOf("job_policy", new Policy[0]);
+            }
+            stmt.setArray(8, arrayP);
 
             try {
                 return callCreateJobFunction(stmt);
             } finally {
                 arrayL.free();
+                arrayP.free();
             }
         } catch (final SQLException se) {
             throw mapSqlConnectionException(se);
