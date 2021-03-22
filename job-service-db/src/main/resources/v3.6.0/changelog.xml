@@ -30,7 +30,7 @@
         <sql>ALTER TYPE job_status ADD VALUE 'Expired';</sql>
     </changeSet>
     <changeSet id="create_policy_type" author="Gamma Team">
-        <sql>CREATE TYPE job_policy AS (job_status job_status, expiration_operation expiration_operation, expiration_after_last_update BIGINT, expiration_date TIMESTAMP)</sql>
+        <sql>CREATE TYPE job_policy AS (status job_status, operation expiration_operation, expiration_time VARCHAR(58), expiration_after_last_update BIGINT, expiration_date TIMESTAMP)</sql>
     </changeSet>
     <changeSet id="create_job_expiration_policy" author="Gamma Team">
         <createTable tableName="job_expiration_policy">

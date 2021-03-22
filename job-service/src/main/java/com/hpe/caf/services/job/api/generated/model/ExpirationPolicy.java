@@ -27,6 +27,7 @@ import java.util.Objects;
         description = "The expiration policy to be applied on the job"
 )
 public class ExpirationPolicy {
+    private static final int EXPIRATION_AFTER_LAST_UPDATE = 0;
     private Policy active = null;
     private Policy completed = null;
     private Policy failed = null;
@@ -34,7 +35,7 @@ public class ExpirationPolicy {
     private Policy waiting = null;
     private Policy paused = null;
     private DeletePolicy expired = null;
-    private Policy _default = null;
+    private Policy default_policy = null;
 
     public ExpirationPolicy() {
     }
@@ -112,11 +113,11 @@ public class ExpirationPolicy {
     @ApiModelProperty("")
     @JsonProperty("Default")
     public Policy getDefault() {
-        return this._default;
+        return this.default_policy;
     }
 
     public void setDefault(Policy _default) {
-        this._default = _default;
+        this.default_policy = _default;
     }
 
     public boolean equals(Object o) {
@@ -124,14 +125,14 @@ public class ExpirationPolicy {
             return true;
         } else if (o != null && this.getClass() == o.getClass()) {
             ExpirationPolicy expirationPolicy = (ExpirationPolicy)o;
-            return Objects.equals(this.active, expirationPolicy.active) && Objects.equals(this.completed, expirationPolicy.completed) && Objects.equals(this.failed, expirationPolicy.failed) && Objects.equals(this.cancelled, expirationPolicy.cancelled) && Objects.equals(this.waiting, expirationPolicy.waiting) && Objects.equals(this.paused, expirationPolicy.paused) && Objects.equals(this.expired, expirationPolicy.expired) && Objects.equals(this._default, expirationPolicy._default);
+            return Objects.equals(this.active, expirationPolicy.active) && Objects.equals(this.completed, expirationPolicy.completed) && Objects.equals(this.failed, expirationPolicy.failed) && Objects.equals(this.cancelled, expirationPolicy.cancelled) && Objects.equals(this.waiting, expirationPolicy.waiting) && Objects.equals(this.paused, expirationPolicy.paused) && Objects.equals(this.expired, expirationPolicy.expired) && Objects.equals(this.default_policy, expirationPolicy.default_policy);
         } else {
             return false;
         }
     }
 
     public int hashCode() {
-        return Objects.hash(new Object[]{this.active, this.completed, this.failed, this.cancelled, this.waiting, this.paused, this.expired, this._default});
+        return Objects.hash(new Object[]{this.active, this.completed, this.failed, this.cancelled, this.waiting, this.paused, this.expired, this.default_policy});
     }
 
     public String toString() {
@@ -144,7 +145,7 @@ public class ExpirationPolicy {
         sb.append("    waiting: ").append(this.toIndentedString(this.waiting)).append("\n");
         sb.append("    paused: ").append(this.toIndentedString(this.paused)).append("\n");
         sb.append("    expired: ").append(this.toIndentedString(this.expired)).append("\n");
-        sb.append("    _default: ").append(this.toIndentedString(this._default)).append("\n");
+        sb.append("    _default: ").append(this.toIndentedString(this.default_policy)).append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -166,7 +167,8 @@ public class ExpirationPolicy {
         sb.append("(");
         sb.append("Expired,")
                 .append(this.toIndentedString(this.expired.getExpirationOperation().toString())).append(",")
-                .append(this.toIndentedString(this.expired.getExpiryTime()))
+                .append(this.toIndentedString(this.expired.getExpiryTime())).append(",")
+                .append(EXPIRATION_AFTER_LAST_UPDATE).append(",")
                 .append(")");
         policyList.add(sb.toString());
 
@@ -178,7 +180,8 @@ public class ExpirationPolicy {
         sb.append("(");
         sb.append(s)
                 .append(this.toIndentedString(active.getOperation().toString())).append(",")
-                .append(this.toIndentedString(active.getExpiryTime()))
+                .append(this.toIndentedString(active.getExpiryTime())).append(",")
+                .append(EXPIRATION_AFTER_LAST_UPDATE).append(",")
                 .append(")");
         policyList.add(sb.toString());
     }

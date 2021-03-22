@@ -35,8 +35,8 @@ BEGIN
                                        expiration_date)
     SELECT in_partition_id,
            in_job_id,
-           p.job_status,
-           p.expiration_operation,
+           p.status,
+           p.operation,
            p.expiration_after_last_update,
            p.expiration_date
     FROM unnest(in_policies) AS p;
