@@ -104,7 +104,6 @@ public class Policy   {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class Policy {\n");
-
         sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
         sb.append("    operation: ").append(toIndentedString(operation)).append("\n");
         sb.append("}");

@@ -37,7 +37,7 @@ BEGIN
                         reference_date = split_part(dateToTest, '+', 1);
                         duration = split_part(dateToTest, '+', 2);
                         IF LEFT(reference_date, 1) = 'l' THEN
-                            policy.expiration_after_last_update = EXTRACT(epoch FROM duration) / 3600;
+                            policy.expiration_after_last_update = EXTRACT(epoch FROM duration);
                             policy.expiration_time = '';
                         ELSE
                             policy.expiration_date = create_date + duration;

@@ -49,7 +49,7 @@ public final class DateHelper {
     }
 
     /**
-     *
+     * Converts the date reference provided into "referenceDate + duration" -> unit is minute
      * @param dateToConvert date to be converted
      * @return the converted date
      */
@@ -62,20 +62,20 @@ public final class DateHelper {
         long finalDuration=0;
         switch (symbol){
             case 'M':
-                // 1 minute = 60000 ms
-                finalDuration = duration * 60000;
+                // 1 minute
+                finalDuration = duration;
                 break;
             case 'H':
-                // 1 hour = 3600000 ms
-                finalDuration = duration * 3600000;
+                // 1 hour = 60 mn
+                finalDuration = duration * 60;
                 break;
             case 'D':
-                // 1 day = 86400000 ms
-                finalDuration = duration * 86400000;
+                // 1 day = 1 440 mn
+                finalDuration = duration * 1440;
                 break;
             default:
-                // 1 year = 31536000000 ms
-                finalDuration = duration * 31536000000L;
+                // 1 year = 525 600 mn
+                finalDuration = duration * 525600;
         }
 
         return referenceDate+ finalDuration;
