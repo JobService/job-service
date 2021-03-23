@@ -72,7 +72,7 @@ If it instead splits the batch into a set of items, then it generates and dispat
 
 ## Worker Framework
 
-When a worker receives a message for processing, then the Worker Framework first compares the current time to the time specified by summing the lastStatusCheckTime field with the statusCheckIntervalMilliseconds field. If the expiry time has passed, then the statusCheckUrl is used to re-check the job status.
+When a worker receives a message for processing, then the Worker Framework first compares the current time to the time specified by summing the lastStatusCheckTime field with the statusCheckIntervalMillis field. If the expiry time has passed, then the statusCheckUrl is used to re-check the job status.
 
 * If the job has been cancelled or aborted, then the message is simply discarded and not processed.
 * If the job has been paused, then the message is sent to the `CAF_WORKER_PAUSED_QUEUE`.

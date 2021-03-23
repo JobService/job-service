@@ -18,7 +18,7 @@ The message will contain the following tracking information:
 - jobId
 - statusCheckURL
 - lastStatusCheckTime
-- statusCheckIntervalMilliseconds
+- statusCheckIntervalMillis
 - trackingPipe
 - trackTo
 
