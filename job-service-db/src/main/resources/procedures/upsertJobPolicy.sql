@@ -9,7 +9,7 @@ AS
 $$
 DECLARE
     dateToTest     VARCHAR;
-    policy     JOB_POLICY;
+    policy         JOB_POLICY;
     policies       JOB_POLICY[];
     reference_date VARCHAR(58);
     duration       BIGINT;

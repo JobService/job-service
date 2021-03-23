@@ -28,6 +28,7 @@ import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.services.job.jobtype.JobTypes;
+import com.hpe.caf.services.job.utilities.PolicyBuilder;
 import com.hpe.caf.util.ModuleLoader;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -178,6 +179,8 @@ public final class JobsPut {
                         .filter(prereqJobId -> prereqJobId != null && !prereqJobId.trim().isEmpty())
                         .collect(Collectors.toList()));
             }
+            // sets the expirationPolicy
+            job.setExpiry(PolicyBuilder.buildPolicyMap(job));
 
             final boolean partitionSuspended = ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId);
             //  Create job in the database.

@@ -158,12 +158,12 @@ public class ExpirationPolicy {
     public List<String> toDBString() {
         List<String> policyList = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
-        builDbExpirationPolicy(policyList, sb, "Active,", this.active);
-        builDbExpirationPolicy(policyList, sb, "Completed,", this.completed);
-        builDbExpirationPolicy(policyList, sb, "Failed,", this.failed);
-        builDbExpirationPolicy(policyList, sb, "Cancelled,", this.cancelled);
-        builDbExpirationPolicy(policyList, sb, "Waiting,", this.waiting);
-        builDbExpirationPolicy(policyList, sb, "Paused,", this.paused);
+        buildPolicy(policyList, sb, "Active,", this.active);
+        buildPolicy(policyList, sb, "Cancelled,", this.cancelled);
+        buildPolicy(policyList, sb, "Completed,", this.completed);
+        buildPolicy(policyList, sb, "Failed,", this.failed);
+        buildPolicy(policyList, sb, "Waiting,", this.waiting);
+        buildPolicy(policyList, sb, "Paused,", this.paused);
         sb.setLength(0);
         sb.append("(");
         sb.append("Expired,")
@@ -176,12 +176,12 @@ public class ExpirationPolicy {
         return policyList;
     }
 
-    private void builDbExpirationPolicy(List<String> policyList, StringBuilder sb, String s, Policy active) {
+    private void buildPolicy(final List<String> policyList, final StringBuilder sb, final String s, final Policy policy) {
         sb.setLength(0);
         sb.append("(");
         sb.append(s)
-                .append(this.toIndentedString(active.getOperation().toString())).append(",")
-                .append(this.toIndentedString(active.getExpiryTime())).append(",")
+                .append(this.toIndentedString(policy.getOperation().toString())).append(",")
+                .append(this.toIndentedString(policy.getExpiryTime())).append(",")
                 .append(EXPIRATION_AFTER_LAST_UPDATE).append(",")
                 .append(")");
         policyList.add(sb.toString());

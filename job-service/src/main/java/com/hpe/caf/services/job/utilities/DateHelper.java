@@ -54,7 +54,7 @@ public final class DateHelper {
      * @return the converted date
      */
     private static String convertDate(final String dateToConvert) {
-        if (dateToConvert.equalsIgnoreCase("none"))return null;
+        if (dateToConvert.equalsIgnoreCase("none"))return "";
         final String[] firstSplit = dateToConvert.split("P");
         final String referenceDate = firstSplit[0];
         char symbol = Character.toUpperCase(firstSplit[1].charAt(firstSplit[1].length()-1));
@@ -62,11 +62,11 @@ public final class DateHelper {
         long finalDuration=0;
         switch (symbol){
             case 'M':
-                // 1 day = 86400000 ms
+                // 1 minute = 60000 ms
                 finalDuration = duration * 60000;
                 break;
             case 'H':
-                // 1 day = 3600000 ms
+                // 1 hour = 3600000 ms
                 finalDuration = duration * 3600000;
                 break;
             case 'D':

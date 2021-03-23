@@ -18,8 +18,6 @@ package com.hpe.caf.services.job.api.generated.model;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.hpe.caf.services.job.exceptions.BadRequestException;
-import com.hpe.caf.services.job.utilities.DateHelper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -65,10 +63,7 @@ public class Policy   {
         return expiryTime;
     }
     public void setExpiryTime(String expiryTime) {
-        try {
-            this.expiryTime = DateHelper.validateAndConvert(expiryTime);
-        } catch (final BadRequestException e) {
-        }
+        this.expiryTime = expiryTime;
     }
 
 

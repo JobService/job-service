@@ -50,7 +50,7 @@ public class DateHelperTest
     }
     @Test
     public void testDateConversion() throws BadRequestException {
-        assertNull(validateAndConvert("none"));
+        assertEquals("", validateAndConvert("none"));
         assertEquals("lastUpdateTime+60000", validateAndConvert("lastUpdateTime+P1M"));
         assertEquals("lastUpdateTime+3600000", validateAndConvert("lastUpdateTime+P1H"));
         assertEquals("lastUpdateTime+86400000", validateAndConvert("lastUpdateTime+P1D"));
