@@ -301,6 +301,7 @@ public final class DatabaseHelper
             stmt.setArray(7, arrayL);
             if(expirationPolicy!=null) {
                 arrayP = conn.createArrayOf("job_policy", expirationPolicy.toDBString().toArray(new String[0]));
+                LOG.debug("expirationPolicyDB: "+expirationPolicy.toDBString());
             } else{
                 arrayP = conn.createArrayOf("job_policy", new Policy[0]);
             }
