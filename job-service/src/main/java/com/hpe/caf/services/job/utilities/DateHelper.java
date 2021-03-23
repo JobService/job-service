@@ -54,7 +54,7 @@ public final class DateHelper {
      * @return the converted date
      */
     private static String convertDate(final String dateToConvert) {
-        if (dateToConvert.equalsIgnoreCase("none"))return "";
+        if (dateToConvert.equalsIgnoreCase("none"))return "none";
         final String[] firstSplit = dateToConvert.split("P");
         final String referenceDate = firstSplit[0];
         char symbol = Character.toUpperCase(firstSplit[1].charAt(firstSplit[1].length()-1));

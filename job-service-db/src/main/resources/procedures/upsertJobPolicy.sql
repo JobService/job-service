@@ -24,7 +24,7 @@ BEGIN
     FOREACH policy IN ARRAY in_policies
         LOOP
             dateToTest = policy.expiration_time;
-            IF (dateToTest IS NULL) OR (dateToTest = '') THEN
+            IF dateToTest = 'none' THEN
                 policy.expiration_date = NULL;
                 POLICY.expiration_after_last_update = 0;
             ELSE
