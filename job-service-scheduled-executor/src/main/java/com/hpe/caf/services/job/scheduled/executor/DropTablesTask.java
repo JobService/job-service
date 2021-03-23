@@ -15,8 +15,8 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -36,7 +36,7 @@ public class DropTablesTask implements Runnable
             {
                 try(
                         Connection connection = DBConnection.get();
-                        CallableStatement stmt = connection.prepareCall("{call drop_tables()}")
+                        PreparedStatement stmt = connection.prepareStatement("CALL  drop_tables()")
                 )
                 {
                     LOG.debug("Calling drop_tables() database procedure ...");
