@@ -18,16 +18,12 @@ package com.hpe.caf.services.job.scheduled.executor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.Codec;
-import com.hpe.caf.services.job.util.JobTaskId;
 import com.hpe.caf.util.ModuleLoader;
 import com.hpe.caf.util.ModuleLoaderException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -36,7 +32,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is used to poll the Job Service database for jobs that can now run.
@@ -45,8 +42,6 @@ public class DatabasePoller
 {
     private static final Logger LOG = LoggerFactory.getLogger(DatabasePoller.class);
 
-    private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
-    private static final String JDBC_DRIVER = "org.postgresql.Driver";
     private static final boolean PROP_DEPENDENT_JOB_FAILURES;
 
     static {
@@ -136,7 +131,7 @@ public class DatabasePoller
     private static void deleteDependentJob(final String partitionId, final String jobId) throws ScheduledExecutorException
     {
         try (
-                Connection connection = getConnection();
+                Connection connection = DBConnection.get();
                 CallableStatement stmt = connection.prepareCall("{call delete_dependent_job(?,?)}")) {
             stmt.setString(1, partitionId);
             stmt.setString(2, jobId);
@@ -159,7 +154,7 @@ public class DatabasePoller
         SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Unreleased Resource: Database.
         */
         try (
-                Connection connection = getConnection();
+                Connection connection = DBConnection.get();
                 CallableStatement stmt = connection.prepareCall("{call get_dependent_jobs()}")
         ) {
             LOG.debug("Calling get_dependent_jobs() database function ...");
@@ -198,7 +193,7 @@ public class DatabasePoller
         SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Unreleased Resource: Database.
         */
         try (
-                Connection conn = getConnection();
+                Connection conn = DBConnection.get();
                 CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
@@ -214,54 +209,6 @@ public class DatabasePoller
             throw new ScheduledExecutorException(errorMessage);
         }
 
-    }
-
-    /**
-     * Creates a connection to the PostgreSQL database.
-     */
-    private static Connection getConnection() throws ScheduledExecutorException
-    {
-        final String databaseUrl = ScheduledExecutorConfig.getDatabaseURL();
-        final String dbUser = ScheduledExecutorConfig.getDatabaseUsername();
-        final String dbPass = ScheduledExecutorConfig.getDatabasePassword();
-        final String appName = ScheduledExecutorConfig.getApplicationName() != null ? ScheduledExecutorConfig.getApplicationName()
-                                 : "Job Service Scheduled Executor";
-
-        // Only JDBC/PostgreSQL connections are supported.
-        if ( !databaseUrl.startsWith(JDBC_POSTGRESQL_PREFIX) )
-        {
-            throw new ScheduledExecutorException("Invalid database url string format - must start with jdbc:postgresql:");
-        }
-
-        try {
-            LOG.debug("Registering JDBC driver \"{}\" ...", JDBC_DRIVER);
-            Class.forName(JDBC_DRIVER);
-        } catch (final Exception e){
-            final String errorMessage = MessageFormat.format("Failed to register JDBC driver \"{0}\". {1}.", JDBC_DRIVER, e.getMessage());
-            LOG.error(errorMessage);
-            throw new ScheduledExecutorException(errorMessage, e);
-        }
-
-        final Connection conn;
-        try {
-            final Properties myProp = new Properties();
-            myProp.put("user", dbUser);
-            myProp.put("password", dbPass);
-            myProp.put("ApplicationName", appName);
-            LOG.debug(MessageFormat.format("Connecting to database {0} with username {1} and password {2} ...", databaseUrl, dbUser, dbPass));
-            conn = DriverManager.getConnection(databaseUrl, myProp);
-            LOG.debug("Connected to database.");
-        } catch (final SQLException se) {
-            final String errorMessage = MessageFormat.format("Failed to connect to database {0} with username {1} and password {2}.", databaseUrl, dbUser, dbPass);
-            /*
-            SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Log forging. The values of databaseUrl, dbUser, dbPass are all set using
-            properties or env variables.
-            */
-            LOG.error(errorMessage);
-            throw new ScheduledExecutorException(errorMessage);
-        }
-
-        return conn;
     }
 
 

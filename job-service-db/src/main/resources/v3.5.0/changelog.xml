@@ -45,4 +45,14 @@
             <column name="dependent_job_id" />
         </createIndex>
     </changeSet>
+    <changeSet id="create_table_delete_log" author="Gamma Team">
+        <createTable tableName="delete_log">
+            <column name="table_name" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <createIndex schemaName="public" tableName="delete_log" indexName="idx_delete_log_table_name">
+            <column name="table_name" />
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

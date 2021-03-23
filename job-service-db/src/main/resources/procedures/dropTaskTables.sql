@@ -47,8 +47,8 @@ BEGIN
             PERFORM internal_drop_task_tables(in_partition_id, in_task_id || subtask_suffix);
         END LOOP;
 
-        -- Drop the table itself
-        EXECUTE 'DROP TABLE ' || task_table_ident;
+        -- Insert table name to be dropped later
+        INSERT INTO public.delete_log VALUES ( task_table_ident );
     END IF;
 END
 $$;

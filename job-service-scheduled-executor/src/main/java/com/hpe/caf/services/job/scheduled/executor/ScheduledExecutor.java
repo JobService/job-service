@@ -15,13 +15,12 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScheduledExecutor {
 
@@ -29,8 +28,8 @@ public class ScheduledExecutor {
 
     public static void main(final String[] args)
     {
-        // Create a scheduler with one thread to process the pollDatabaseForJobsToRun() scheduled task.
-        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        // Create a scheduler to process scheduled tasks.
+        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
         LOG.info("Starting Job Service Scheduled Executor service ...");
         final Runnable task = () -> {
@@ -46,5 +45,10 @@ public class ScheduledExecutor {
         //  scheduled task is run.
         scheduler.scheduleWithFixedDelay(task, 20, ScheduledExecutorConfig.getScheduledExecutorPeriod(),
                 TimeUnit.SECONDS);
+
+        LOG.info("Starting task for dropping soft deleted tables ...");
+        //  Execute the dropTablesTask periodically.
+        scheduler.scheduleWithFixedDelay(new DropTablesTask(), 20, 60, TimeUnit.SECONDS);
     }
+
 }
