@@ -118,7 +118,7 @@ public final class QueueServices
         final TrackingInfo trackingInfo = new TrackingInfo(
                 new JobTaskId(partitionId, jobId).getMessageId(),
                 null,
-                getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckTime()),
+                getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 
         final TaskMessage taskMessage = new TaskMessage(
@@ -148,12 +148,12 @@ public final class QueueServices
                 "", targetQueue, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
     }
 
-    private static long getStatusCheckIntervalMillis(final String statusCheckTimeSeconds)
+    private static long getStatusCheckIntervalMillis(final String statusCheckIntervalSeconds)
     {
         try {
-            return Long.parseLong(statusCheckTimeSeconds) * 1000;
+            return Long.parseLong(statusCheckIntervalSeconds) * 1000;
         } catch (NumberFormatException e) {
-            throw new RuntimeException("Please provide a valid integer for statusCheckTime in seconds. " + e);
+            throw new RuntimeException("Please provide a valid integer for statusCheckIntervalSeconds. " + e);
         }
     }
 

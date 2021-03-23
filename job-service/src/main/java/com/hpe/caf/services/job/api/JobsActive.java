@@ -47,7 +47,7 @@ public final class JobsActive {
      */
     public static JobsActiveResult isJobActive(final String partitionId, String jobId) throws Exception {
         boolean active;
-        int statusCheckIntervalMillis;
+        int statusCheckIntervalSeconds;
 
         try {
             LOG.debug("isJobActive: Starting...");
@@ -70,7 +70,7 @@ public final class JobsActive {
             AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get the number of seconds after which it is appropriate to try to confirm that the task has not been cancelled or aborted.
-            statusCheckIntervalMillis = Integer.parseInt(config.getStatusCheckTime());
+            statusCheckIntervalSeconds = Integer.parseInt(config.getStatusCheckIntervalSeconds());
 
             //  Get database helper instance.
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
@@ -85,7 +85,7 @@ public final class JobsActive {
         }
 
         LOG.debug("isJobActive: Done.");
-        return new JobsActiveResult(active,statusCheckIntervalMillis);
+        return new JobsActiveResult(active,statusCheckIntervalSeconds);
     }
 
 }

@@ -54,15 +54,15 @@ public final class JobTrackingWorkerUtil
             .path("status").build().toString();
 
         //  Construct the task message.
-        String statusCheckTime = System.getenv("CAF_STATUS_CHECK_TIME");
-        if (null == statusCheckTime) {
+        String statusCheckIntervalSeconds = System.getenv("CAF_STATUS_CHECK_INTERVAL_SECONDS");
+        if (null == statusCheckIntervalSeconds) {
             // Default to 5 if the environment variable is not present.  This is to avoid introducing a breaking change.
-            statusCheckTime = "5";
+            statusCheckIntervalSeconds = "5";
         }
 
         final TrackingInfo trackingInfo = new TrackingInfo(
                 new JobTaskId(jobDependency.getPartitionId(), jobDependency.getJobId()).getMessageId(),
-                null, getStatusCheckIntervalMillis(statusCheckTime), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
+                null, getStatusCheckIntervalMillis(statusCheckIntervalSeconds), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
 
         return new TaskMessage(
                 taskId,
@@ -116,12 +116,12 @@ public final class JobTrackingWorkerUtil
         return Long.parseLong(maxBatchTime);
     }
 
-    private static long getStatusCheckIntervalMillis(final String statusCheckTimeSeconds)
+    private static long getStatusCheckIntervalMillis(final String statusCheckIntervalSeconds)
     {
         try {
-            return Long.parseLong(statusCheckTimeSeconds) * 1000;
+            return Long.parseLong(statusCheckIntervalSeconds) * 1000;
         } catch (NumberFormatException e) {
-            throw new RuntimeException("Please provide a valid integer for statusCheckTime in seconds. " + e);
+            throw new RuntimeException("Please provide a valid integer for statusCheckIntervalSeconds. " + e);
         }
     }
 

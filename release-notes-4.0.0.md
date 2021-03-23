@@ -21,6 +21,7 @@ ${version-number}
   `Paused`, or `Waiting`
   - If the `statusCheckUrl` refers to a job that does not exist, the response from the endpoint will return a HTTP 404 status. Previously,
   the `statusCheckUrl` would have returned a HTTP 200 status with a response body of `false` when a job did not exist.
+  - The `CAF_STATUS_CHECK_TIME` environment variable has been renamed to `CAF_STATUS_CHECK_INTERVAL_SECONDS`.
 
 #### Known Issues
 - None

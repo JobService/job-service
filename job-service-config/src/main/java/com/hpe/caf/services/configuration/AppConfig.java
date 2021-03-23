@@ -75,8 +75,8 @@ public class AppConfig {
         return environment.getProperty("CAF_TRACKING_PIPE");
     }
 
-    public String getStatusCheckTime() {
-        return environment.getProperty("CAF_STATUS_CHECK_TIME");
+    public String getStatusCheckIntervalSeconds() {
+        return environment.getProperty("CAF_STATUS_CHECK_INTERVAL_SECONDS");
     }
 
     public String getWebserviceUrl() {
