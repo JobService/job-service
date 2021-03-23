@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,7 +138,7 @@ public final class JobsPutTest {
                 Collections.singletonMap("key", "val"),
                 JsonNode.class);
         basicJobType = new JobType(
-            "basic", "classifier", 2, "task pipe", "target pipe",
+            "basic",
             (partitionId, jobId, params) -> jsonObject);
         JobTypes.initialise(() -> Collections.singletonList(basicJobType));
 
@@ -237,8 +237,10 @@ public final class JobsPutTest {
     @Test(expected = BadRequestException.class)
     public void testCreateRestrictedJob_Failure_invalidParams() throws Exception {
         final JobType failingJobType = new JobType(
-            "id", "classifier", 2, "task pipe", "target pipe",
-            (partitionId, jobId, params) -> { throw new BadRequestException("invalid params"); });
+            "id",
+            (partitionId, jobId, params) -> {
+                throw new BadRequestException("invalid params");
+            });
         JobTypes.initialise(() -> Collections.singletonList(failingJobType));
         JobsPut.createOrUpdateJob("partition", "id", makeRestrictedJob("basic", null));
     }

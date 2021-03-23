@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2016-2020 Micro Focus or one of its affiliates.
+    Copyright 2016-2021 Micro Focus or one of its affiliates.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-aggregator</artifactId>
-    <version>3.5.0-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <parent>
@@ -39,13 +39,11 @@
     <inceptionYear>2016</inceptionYear>
 
     <properties>
-        <copyrightYear>2020</copyrightYear>
+        <copyrightYear>2021</copyrightYear>
         <dockerHubOrganization>jobservice</dockerHubOrganization>
         <dockerJobServiceOrg>${dockerImagePrefix}${dockerHubOrganization}${dockerOrgSeperator}</dockerJobServiceOrg>
         <dockerProjectVersion>${dockerVersionSeperator}${project.version}</dockerProjectVersion>
-        <DOCKER_HUB_PRIVATE>${dockerHubPrivate}</DOCKER_HUB_PRIVATE>
         <DOCKER_HUB_PUBLIC>${dockerHubPublic}</DOCKER_HUB_PUBLIC>
-        <gitRepo>https://github.com/JobService/job-service</gitRepo>
         <enforceCorrectDependencies>true</enforceCorrectDependencies>
         <enforceBannedDependencies>true</enforceBannedDependencies>
         <fabric8.docker.maven.version>0.26.1</fabric8.docker.maven.version>
@@ -85,7 +83,7 @@
             <dependency>
                 <groupId>com.github.cafapi</groupId>
                 <artifactId>caf-dependency-management-bom</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>2.1.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -93,61 +91,71 @@
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>
                 <artifactId>util-liquibase-installer</artifactId>
-                <version>1.20.0-SNAPSHOT</version>
+                <version>1.20.0-288</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cafapi.correlation</groupId>
+                <artifactId>caf-correlation-jservlet</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cafapi.correlation</groupId>
+                <artifactId>caf-correlation-constants</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service</artifactId>
-                <version>3.5.0-SNAPSHOT</version>
+                <version>4.0.0-SNAPSHOT</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-admin</artifactId>
-                <version>3.5.0-SNAPSHOT</version>
+                <version>4.0.0-SNAPSHOT</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
-                <artifactId>job-service-client</artifactId>
-                <version>3.5.0-SNAPSHOT</version>
+                <artifactId>job-service-internal-client</artifactId>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-config</artifactId>
-                <version>3.5.0-SNAPSHOT</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-contract</artifactId>
-                <version>3.5.0-SNAPSHOT</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db</artifactId>
-                <version>3.5.0-SNAPSHOT</version>
+                <version>4.0.0-SNAPSHOT</version>
                 <classifier>jar-with-dependencies</classifier>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db-client</artifactId>
-                <version>3.5.0-SNAPSHOT</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-scheduled-executor</artifactId>
-                <version>3.5.0-SNAPSHOT</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-ui</artifactId>
-                <version>3.5.0-SNAPSHOT</version>
+                <version>4.0.0-SNAPSHOT</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-util</artifactId>
-                <version>3.5.0-SNAPSHOT</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
@@ -157,12 +165,17 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>worker-jobtracking</artifactId>
-                <version>3.5.0-SNAPSHOT</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>worker-jobtracking-shared</artifactId>
-                <version>3.5.0-SNAPSHOT</version>
+                <version>4.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.stefanbirkner</groupId>
+                <artifactId>system-rules</artifactId>
+                <version>1.19.0</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
@@ -235,8 +248,7 @@
         <module>job-service</module>
         <module>job-service-admin</module>
         <module>job-service-container</module>
-        <module>job-service-client</module>
-        <module>job-service-client2</module>
+        <module>job-service-internal-client</module>
         <module>job-service-html</module>
         <module>job-service-scheduled-executor</module>
         <module>job-service-scheduled-executor-container</module>
@@ -275,7 +287,7 @@
     <scm>
         <connection>scm:git:https://github.com/JobService/job-service.git</connection>
         <developerConnection>scm:git:https://github.com/JobService/job-service.git</developerConnection>
-        <url>${gitRepo}</url>
+        <url>https://github.com/JobService/job-service</url>
     </scm>
 
 </project>

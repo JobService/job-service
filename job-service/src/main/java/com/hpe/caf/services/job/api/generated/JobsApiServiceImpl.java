@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,20 @@ public class JobsApiServiceImpl extends JobsApiService {
     }
 
     @Override
+    public Response pauseJob(final String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
+            throws Exception {
+        JobsPause.pauseJob(partitionId, jobId);
+        return Response.noContent().build();
+    }
+
+    @Override
+    public Response resumeJob(final String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
+            throws Exception {
+        JobsResume.resumeJob(partitionId, jobId);
+        return Response.noContent().build();
+    }
+
+    @Override
     public Response getJobActive(final String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
         JobsActive.JobsActiveResult result = JobsActive.isJobActive(partitionId, jobId);
@@ -83,6 +97,18 @@ public class JobsApiServiceImpl extends JobsApiService {
         cc.setMaxAge(result.statusCheckIntervalSecs);
 
         return Response.ok().header("CacheableJobStatus", true).entity(result.active).cacheControl(cc).build();
+    }
+
+    @Override
+    public Response getJobStatus(final String partitionId, final String jobId, final String cAFCorrelationId,
+                                 final SecurityContext securityContext)
+            throws Exception {
+        final JobsStatus.JobsStatusResult jobStatusResult = JobsStatus.getJobStatus(partitionId, jobId);
+
+        final CacheControl cacheControl = new CacheControl();
+        cacheControl.setMaxAge(jobStatusResult.statusCheckIntervalSecs);
+
+        return Response.ok().header("CacheableJobStatus", true).entity(jobStatusResult.jobStatus).cacheControl(cacheControl).build();
     }
 
 }

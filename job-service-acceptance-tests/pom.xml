@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2016-2020 Micro Focus or one of its affiliates.
+    Copyright 2016-2021 Micro Focus or one of its affiliates.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>3.5.0-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -115,7 +115,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-client</artifactId>
+            <artifactId>job-service-internal-client</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -652,6 +652,10 @@
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
                 <postgres.db.port>5432</postgres.db.port>
                 <webdav.apache.port>32775</webdav.apache.port>
+                <jobservice.adminport>32776</jobservice.adminport>
+                <jobtracking-worker.adminport>32777</jobtracking-worker.adminport>
+                <batch-worker.adminport>32778</batch-worker.adminport>
+                <example-worker.adminport>32779</example-worker.adminport>
             </properties>
         </profile>
     </profiles>

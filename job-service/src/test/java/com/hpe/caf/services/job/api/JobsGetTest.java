@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,13 +97,5 @@ public final class JobsGetTest {
     @Test(expected = BadRequestException.class)
     public void testGetJobs_Failure_InvalidSortDirection() throws Exception {
         JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random", null, null);
-    }
-
-    @Test
-    public void testGetJobs_Success_WithLabelFilter() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, null,"tag:4,tag:5", null);
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-                "partition", "", null, 0, 0, JobSortField.CREATE_DATE,
-                SortDirection.DESCENDING, Arrays.asList("tag:4", "tag:5"), null);
     }
 }

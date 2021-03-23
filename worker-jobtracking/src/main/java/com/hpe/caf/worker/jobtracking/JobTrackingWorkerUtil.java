@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@ public final class JobTrackingWorkerUtil
      * @param trackingPipe target pipe where dependent jobs should be forwarded to.
      */
     public static TaskMessage createDependentJobTaskMessage(final JobTrackingWorkerDependency jobDependency,
-                                                            final String trackingPipe)
+                                                            final String trackingPipe,
+                                                            final String correlationId)
     {
         //  Generate a random task id.
         final String taskId = UUID.randomUUID().toString();
@@ -71,7 +72,9 @@ public final class JobTrackingWorkerUtil
                 TaskStatus.NEW_TASK,
                 Collections.<String, byte[]>emptyMap(),
                 jobDependency.getTaskPipe(),
-                trackingInfo);
+                trackingInfo,
+                null,
+                correlationId);
     }
 
     /**

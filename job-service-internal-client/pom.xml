@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2016-2020 Micro Focus or one of its affiliates.
+    Copyright 2016-2021 Micro Focus or one of its affiliates.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.jobservice</groupId>
-    <artifactId>job-service-client</artifactId>
-    <version>3.5.0-SNAPSHOT</version>
+    <artifactId>job-service-internal-client</artifactId>
+    <version>4.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>job-service-client</name>
+    <name>job-service-internal-client</name>
 
     <parent>
         <groupId>com.github.cafapi</groupId>
@@ -42,9 +42,10 @@
     </organization>
 
     <properties>
-        <copyrightYear>2020</copyrightYear>
+        <copyrightYear>2021</copyrightYear>
         <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Micro Focus or one of its affiliates.</copyrightNotice>
         <swagger-contract-version>${project.version}</swagger-contract-version>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
     </properties>
 
     <dependencies>

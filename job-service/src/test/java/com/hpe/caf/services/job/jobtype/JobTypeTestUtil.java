@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,10 +45,8 @@ public class JobTypeTestUtil {
     }
 
     public final static JobType testJobType1 = new JobType(
-        "id 1", "classifier 1", 101, "task pipe 1", "target pipe 1",
-        (partitionId, jobId, params) -> buildJson("{ \"inside\": \"task data 1\" }"));
+        "id 1", (partitionId, jobId, params) -> buildJson("{ \"inside\": \"task data 1\" }"));
     public final static JobType testJobType2 = new JobType(
-        "id 2", "classifier 2", 102, "task pipe 2", "target pipe 2",
-        (partitionId, jobId, params) -> buildJson("{ \"inside\": \"task data 2\" }"));
+        "id 2", (partitionId, jobId, params) -> buildJson("{ \"inside\": \"task data 2\" }"));
 
 }

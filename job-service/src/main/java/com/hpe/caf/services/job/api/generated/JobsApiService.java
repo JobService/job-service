@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,16 @@ public abstract class JobsApiService {
       public abstract Response cancelJob(String partitionId,String jobId,String cAFCorrelationId,SecurityContext securityContext)
               throws Exception;
 
+      public abstract Response pauseJob(String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
+              throws Exception;
+
+      public abstract Response resumeJob(String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
+              throws Exception;
+
       public abstract Response getJobActive(String partitionId,String jobId,String cAFCorrelationId,SecurityContext securityContext)
               throws Exception;
+
+      public abstract Response getJobStatus(String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
+        throws Exception;
 
 }

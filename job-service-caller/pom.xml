@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2016-2020 Micro Focus or one of its affiliates.
+    Copyright 2016-2021 Micro Focus or one of its affiliates.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>3.5.0-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -69,13 +69,6 @@
                             <build>
                                 <dockerFileDir>.</dockerFileDir>
                                 <args>
-                                    <!-- Labels used for image tagging -->
-                                    <BUILD_NUMBER>${project.version}</BUILD_NUMBER>
-                                    <BUILD_DATE>${maven.build.timestamp}</BUILD_DATE>
-                                    <GIT_REPO>${gitRepo}</GIT_REPO>
-                                    <GIT_BRANCH>${git.branch}</GIT_BRANCH>
-                                    <GIT_COMMIT>${git.revision}</GIT_COMMIT>
-
                                     <!-- Enable internet access -->
                                     <http_proxy>${env.HTTP_PROXY}</http_proxy>
                                     <https_proxy>${env.HTTPS_PROXY}</https_proxy>

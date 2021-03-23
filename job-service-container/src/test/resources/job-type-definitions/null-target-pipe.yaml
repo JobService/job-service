@@ -1,5 +1,5 @@
 #
-# Copyright 2016-2020 Micro Focus or one of its affiliates.
+# Copyright 2016-2021 Micro Focus or one of its affiliates.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,15 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskApiVersion: 1
-jobParametersSchema:
-  type: string
-taskDataScript: .
+configurationProperties:
+  - name: CAF_JOB_SERVICE_JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE
+taskScript: |
+    { "taskClassifier": "classifier",
+      "taskApiVersion": 1,
+      "taskData": {
+        "targetQueue": .configuration.CAF_JOB_SERVICE_JOB_TYPE_NULL-TARGET-PIPE_TARGET_PIPE
+      },
+      "taskPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE,
+      "targetPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_NULL-TARGET-PIPE_TARGET_PIPE
+    }
+

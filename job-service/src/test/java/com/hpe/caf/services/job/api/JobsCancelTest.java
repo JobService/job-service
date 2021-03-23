@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,5 +83,4 @@ public final class JobsCancelTest {
         //  Test failed run of job cancellation with job id containing invalid characters.
         JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00");
     }
-
 }

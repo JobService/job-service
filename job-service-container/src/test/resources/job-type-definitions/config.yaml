@@ -1,5 +1,5 @@
 #
-# Copyright 2016-2020 Micro Focus or one of its affiliates.
+# Copyright 2016-2021 Micro Focus or one of its affiliates.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,19 +14,24 @@
 # limitations under the License.
 #
 
-taskClassifier: classifier
-taskApiVersion: 1
 configurationProperties:
-  - name: UPPER
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER
     description: upper desc
-  - name: lower
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_lower
     description: lower desc
-  - name: multiple
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_multiple
     description: multiple desc
-  - name: MULTIPLE
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_MULTIPLE
     description: multiple desc
-  - name: nodesc
-  - name: number
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_nodesc
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_number
     description: number desc
-taskDataScript: |
-  { "config": .configuration }
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TASK_PIPE
+  - name: CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TARGET_PIPE
+taskScript: |
+  { "taskClassifier": "classifier",
+    "taskApiVersion": 1,
+    "taskData": { "config": .configuration },
+    "taskPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TASK_PIPE,
+    "targetPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TARGET_PIPE
+  }

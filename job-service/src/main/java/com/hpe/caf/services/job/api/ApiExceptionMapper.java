@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.hpe.caf.services.job.api.generated.ApiResponseMessage;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
+import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -46,6 +47,8 @@ public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
             httpStatus = Response.Status.NOT_FOUND;
         } else if (exception instanceof ForbiddenException) {
             httpStatus = Response.Status.FORBIDDEN;
+        } else if (exception instanceof ServiceUnavailableException) {
+            httpStatus = Response.Status.SERVICE_UNAVAILABLE;
         } else {
             httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
         }

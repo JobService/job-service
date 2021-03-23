@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2016-2020 Micro Focus or one of its affiliates.
+    Copyright 2016-2021 Micro Focus or one of its affiliates.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>3.5.0-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -108,7 +108,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-client</artifactId>
+            <artifactId>job-service-internal-client</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -420,13 +420,6 @@
                             <name>${dockerJobServiceOrg}job-service${dockerProjectVersion}</name>
                             <build>
                                 <from>${tomcatBaseImage}</from>
-                                <labels>
-                                    <Build.Number>${project.version}</Build.Number>
-                                    <Build.Date>${maven.build.timestamp}</Build.Date>
-                                    <Git.Repo>${gitRepo}</Git.Repo>
-                                    <Git.Branch>${git.branch}</Git.Branch>
-                                    <Git.Commit>${git.revision}</Git.Commit>
-                                </labels>
                                 <assembly>
                                     <basedir>/</basedir>
                                     <mode>tar</mode>
@@ -516,8 +509,7 @@
                                     <CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE>complex target-pipe</CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE>
                                     <CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TASK_PIPE>invalid-output task-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TASK_PIPE>
                                     <CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>invalid-output target-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TASK_PIPE>empty-target-pipe task-pipe</CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TASK_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TARGET_PIPE></CAF_JOB_SERVICE_JOB_TYPE_EMPTY-TARGET-PIPE_TARGET_PIPE>
+                                    <CAF_JOB_SERVICE_JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE>null-target-pipe task-pipe</CAF_JOB_SERVICE_JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE>
                                 </env>
                                 <volumes>
                                     <from>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,8 @@ public final class QueueServicesFactory {
         Connection connection = createConnection(configuration);
 
         Channel publishChannel = connection.createChannel();
-
+        // Enable publishing acknowledgements
+        publishChannel.confirmSelect();
         //  Check target worker queue exists.
         publishChannel.queueDeclarePassive(targetQueue);
 

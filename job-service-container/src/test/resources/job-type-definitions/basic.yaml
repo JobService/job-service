@@ -1,5 +1,5 @@
 #
-# Copyright 2016-2020 Micro Focus or one of its affiliates.
+# Copyright 2016-2021 Micro Focus or one of its affiliates.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,14 +14,21 @@
 # limitations under the License.
 #
 
-taskClassifier: basic classifier
-taskApiVersion: 74
-taskDataScript: |
+configurationProperties:
+  - name: CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE
+  - name: CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE
+taskScript: |
   {
-    "config": .configuration,
-    "taskQueue": .taskPipe,
-    "targetQueue": .targetPipe,
-    "partitionIdent": .partitionId,
-    "jobIdent": .jobId,
-    "reqParams": .parameters,
+    "taskClassifier": "basic classifier",
+    "taskApiVersion": 74,
+    "taskData": {
+      "config": .configuration,
+      "taskQueue":.configuration.CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE,
+      "targetQueue": .configuration.CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE,
+      "partitionIdent": .partitionId,
+      "jobIdent": .jobId,
+      "reqParams": .parameters
+    },
+    "taskPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE,
+    "targetPipe": .configuration.CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE
   }

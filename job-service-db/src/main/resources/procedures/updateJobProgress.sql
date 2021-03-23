@@ -1,5 +1,5 @@
 --
--- Copyright 2016-2020 Micro Focus or one of its affiliates.
+-- Copyright 2016-2021 Micro Focus or one of its affiliates.
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
  *  Description:
  *  Updates the percentage_complete in the job table with data from completed_subtask_report table.
  */
-CREATE FUNCTION internal_update_job_progress(
+CREATE OR REPLACE FUNCTION internal_update_job_progress(
     in_partition_id VARCHAR(40),
     in_job_id ANYELEMENT
 )

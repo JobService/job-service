@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,6 +141,42 @@ public class JobsApi  {
         return delegate.cancelJob(partitionId, jobId,cAFCorrelationId,securityContext);
     }
 
+    @POST
+    @Path("/{partitionId}/jobs/{jobId}/pause")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @io.swagger.annotations.ApiOperation(value = "Pauses the job.", notes = "Pauses the specified job.", response = void.class, tags = {"Jobs",})
+    @io.swagger.annotations.ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 204, message = "The pause request has been accepted.", response = void.class),
+            @io.swagger.annotations.ApiResponse(code = 400, message = "The request could not be processed because one or more arguments are invalid.", response = void.class),
+            @io.swagger.annotations.ApiResponse(code = 404, message = "The specified job is not found.", response = void.class),
+            @io.swagger.annotations.ApiResponse(code = 503, message = "The request failed due to a database connection error.", response = void.class)})
+    public Response pauseJob(
+            @ApiParam(value = "Only allow access to jobs in the container with this name", required = true) @PathParam("partitionId") String partitionId,
+            @ApiParam(value = "The identifier of the job", required = true) @PathParam("jobId") String jobId,
+            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services") @HeaderParam("CAF-Correlation-Id") String cAFCorrelationId, @Context SecurityContext securityContext)
+            throws Exception {
+        return delegate.pauseJob(partitionId, jobId, cAFCorrelationId, securityContext);
+    }
+
+    @POST
+    @Path("/{partitionId}/jobs/{jobId}/resume")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @io.swagger.annotations.ApiOperation(value = "Pauses the job.", notes = "Pauses the specified job.", response = void.class, tags = {"Jobs",})
+    @io.swagger.annotations.ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 204, message = "The resume request has been accepted.", response = void.class),
+            @io.swagger.annotations.ApiResponse(code = 400, message = "The request could not be processed because one or more arguments are invalid.", response = void.class),
+            @io.swagger.annotations.ApiResponse(code = 404, message = "The specified job is not found.", response = void.class),
+            @io.swagger.annotations.ApiResponse(code = 503, message = "The request failed due to a database connection error.", response = void.class)})
+    public Response resumeJob(
+            @ApiParam(value = "Only allow access to jobs in the container with this name", required = true) @PathParam("partitionId") String partitionId,
+            @ApiParam(value = "The identifier of the job", required = true) @PathParam("jobId") String jobId,
+            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services") @HeaderParam("CAF-Correlation-Id") String cAFCorrelationId, @Context SecurityContext securityContext)
+            throws Exception {
+        return delegate.resumeJob(partitionId, jobId, cAFCorrelationId, securityContext);
+    }
+
     @GET
     @Path("/{partitionId}/jobs/{jobId}/isActive")
     @Consumes({ "application/json" })
@@ -157,6 +193,24 @@ public class JobsApi  {
             @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,@Context SecurityContext securityContext)
             throws Exception {
         return delegate.getJobActive(partitionId, jobId,cAFCorrelationId,securityContext);
+    }
+
+    @GET
+    @Path("/{partitionId}/jobs/{jobId}/status")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @io.swagger.annotations.ApiOperation(value = "Gets the status of the job.", notes = "Gets the status of the specified job.", response = Boolean.class, tags = {"Jobs"})
+    @io.swagger.annotations.ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 200, message = "Returns the status of the job.", response = Boolean.class),
+            @io.swagger.annotations.ApiResponse(code = 400, message = "The `jobId` parameter contains invalid characters.", response = Boolean.class),
+            @io.swagger.annotations.ApiResponse(code = 404, message = "The specified job is not found.", response = void.class),
+            @io.swagger.annotations.ApiResponse(code = 503, message = "The request failed due to a database connection error.", response = void.class)})
+    public Response getJobStatus(
+            @ApiParam(value = "Only allow access to jobs in the container with this name", required = true) @PathParam("partitionId") String partitionId,
+            @ApiParam(value = "The identifier of the job", required = true) @PathParam("jobId") String jobId,
+            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services") @HeaderParam("CAF-Correlation-Id") String cAFCorrelationId, @Context SecurityContext securityContext)
+            throws Exception {
+        return delegate.getJobStatus(partitionId, jobId, cAFCorrelationId, securityContext);
     }
 
     @GET
@@ -177,5 +231,4 @@ public class JobsApi  {
         throws Exception {
         return statsDelegate.getJobStatsCount(partitionId, jobIdStartsWith, statusType, filter, cAFCorrelationId, securityContext);
     }
-
 }

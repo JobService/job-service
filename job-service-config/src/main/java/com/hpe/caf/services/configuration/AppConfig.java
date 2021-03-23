@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,15 +102,13 @@ public class AppConfig {
     }
 
     /**
-     * Retrieve a configuration property specific to a job type.
+     * Retrieve a configuration property.
      *
-     * @param jobTypeId
      * @param propertyName
      * @return Property value, possibly `null`
      */
-    public String getJobTypeProperty(final String jobTypeId, final String propertyName) {
-        return environment.getProperty("CAF_JOB_SERVICE_JOB_TYPE_" +
-            jobTypeId.toUpperCase(Locale.ENGLISH) + "_" + propertyName.toUpperCase(Locale.ENGLISH));
+    public String getJobProperty(final String propertyName) {
+        return environment.getProperty(propertyName.toUpperCase(Locale.ENGLISH));
     }
 
     public Pattern getSuspendedPartitionsPattern() {

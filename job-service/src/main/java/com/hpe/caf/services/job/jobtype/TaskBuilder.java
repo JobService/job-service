@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 
 /**
- * Configured with a specific job type to construct task data for a newly submitted job.
+ * Configured with a specific job type to construct the task for a newly submitted job.
  *
- * @see com.hpe.caf.services.job.api.generated.model.WorkerAction#getTaskData
+ * @see com.hpe.caf.services.job.api.generated.model.WorkerAction
  */
-public interface TaskDataBuilder {
+public interface TaskBuilder {
 
     /**
      * Construct task data.

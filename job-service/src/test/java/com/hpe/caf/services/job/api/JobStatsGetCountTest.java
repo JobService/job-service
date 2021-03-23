@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,5 +64,4 @@ public final class JobStatsGetCountTest {
     public void testGetJobCount_Success_EmptyPartitionId() throws Exception {
         JobsStatsGetCount.getJobsCount("", "", null, null);
     }
-
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 
-    Copyright 2016-2020 Micro Focus or one of its affiliates.
+    Copyright 2016-2021 Micro Focus or one of its affiliates.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -217,6 +217,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_pause_job_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/pauseJob.sql"
+                         procedureName="pause_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_process_dependent_jobs_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/processDependentJobs.sql"
                          procedureName="internal_process_dependent_jobs"
@@ -274,6 +280,12 @@
     <changeSet id="create_resolve_status_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/resolveStatus.sql"
                          procedureName="internal_resolve_status"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="create_resume_job_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/resumeJob.sql"
+                         procedureName="resume_job"
                          schemaName="public">
         </createProcedure>
     </changeSet>

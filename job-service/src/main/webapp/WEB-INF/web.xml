@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
 
-    Copyright 2016-2020 Micro Focus or one of its affiliates.
+    Copyright 2016-2021 Micro Focus or one of its affiliates.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -69,6 +69,17 @@
     <filter-name>ApiOriginFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
+  <filter>
+    <filter-name>CorrelationIdFilter</filter-name>
+    <filter-class>com.github.cafapi.correlation.jservlet.CorrelationIdFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>CorrelationIdFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <listener>
+    <listener-class>com.hpe.caf.services.job.jobtype.TaskScriptSchemaContextListener</listener-class>
+  </listener>
   <listener>
     <listener-class>com.hpe.caf.services.job.jobtype.JobTypesContextListener</listener-class>
   </listener>

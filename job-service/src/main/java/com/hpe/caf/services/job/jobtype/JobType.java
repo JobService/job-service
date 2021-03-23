@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
  */
 package com.hpe.caf.services.job.jobtype;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-
-import java.util.Map;
 
 /**
  * A job type: defines a way of transforming a job in a specific format to a job in the normal,
@@ -28,39 +27,23 @@ import java.util.Map;
  */
 public final class JobType {
     /**
-     * Used to convert the built output to the expected task data format.
+     * Used to convert the built output to the expected task format.
      */
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final String id;
-    private final String taskClassifier;
-    private final int taskApiVersion;
-    private final String taskPipe;
-    private final String targetPipe;
-    private final TaskDataBuilder taskDataBuilder;
+    private final TaskBuilder taskBuilder;
 
     /**
      * @param id Identifier for the job type which is unique within a {@link JobTypes} instance
-     * @param taskClassifier Value to use for `taskClassifier` in the transformed job
-     * @param taskApiVersion Value to use for `taskApiVersion` in the transformed job
-     * @param taskPipe Value to use for `taskPipe` in the transformed job
-     * @param targetPipe Value to use for `targetPipe` in the transformed job; may be null
-     * @param taskDataBuilder How to construct the final job task data
+     * @param taskBuilder How to construct the final job task
      */
     public JobType(
         final String id,
-        final String taskClassifier,
-        final int taskApiVersion,
-        final String taskPipe,
-        final String targetPipe,
-        final TaskDataBuilder taskDataBuilder
+        final TaskBuilder taskBuilder
     ) {
         this.id = id;
-        this.taskClassifier = taskClassifier;
-        this.taskApiVersion = taskApiVersion;
-        this.taskPipe = taskPipe;
-        this.targetPipe = targetPipe;
-        this.taskDataBuilder = taskDataBuilder;
+        this.taskBuilder = taskBuilder;
     }
 
     /**
@@ -71,8 +54,8 @@ public final class JobType {
     }
 
     /**
-     * @param partitionId The job's partition ID, provided to {@link TaskDataBuilder} as input
-     * @param jobId The job's ID, provided to {@link TaskDataBuilder} as input
+     * @param partitionId The job's partition ID, provided to {@link TaskBuilder} as input
+     * @param jobId The job's ID, provided to {@link TaskBuilder} as input
      * @param parameters Configuration submitted along with the job
      * @return Job task built according to the job type
      * @throws BadRequestException When the parameters are invalid
@@ -81,21 +64,15 @@ public final class JobType {
      */
     public WorkerAction buildTask(
         final String partitionId, final String jobId, final JsonNode parameters
-    ) throws BadRequestException, InvalidJobTypeDefinitionException {
-        final WorkerAction task = new WorkerAction();
-        task.setTaskClassifier(taskClassifier);
-        task.setTaskApiVersion(taskApiVersion);
-        task.setTaskPipe(taskPipe);
-        task.setTargetPipe(targetPipe);
-        final JsonNode taskData = taskDataBuilder.build(partitionId, jobId, parameters);
-        // job-put expects `Map` (or `String`), but only does a shallow type check
+    ) throws BadRequestException, InvalidJobTypeDefinitionException
+    {
+        final JsonNode task = taskBuilder.build(partitionId, jobId, parameters);
+        JsonSchemaTaskScriptValidator.getInstance().validate(task);
         try {
-            task.setTaskData(objectMapper.convertValue(taskData, Map.class));
-        } catch (final IllegalArgumentException e) {
-            throw new InvalidJobTypeDefinitionException(
-                id + ": incorrect output type for taskDataScript", e);
+            return objectMapper.treeToValue(task, WorkerAction.class);
+        } catch (JsonProcessingException e) {
+            // Should never happen, since we've already validated the task against the schema above.
+            throw new InvalidJobTypeDefinitionException(id + ": unable to convert taskScript to WorkerAction", e);
         }
-        return task;
     }
-
 }

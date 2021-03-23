@@ -1,5 +1,5 @@
 #
-# Copyright 2016-2020 Micro Focus or one of its affiliates.
+# Copyright 2016-2021 Micro Focus or one of its affiliates.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 #
 
 ARG DOCKER_HUB_PUBLIC=docker.io
-ARG DOCKER_HUB_PRIVATE=docker.io
 FROM ${DOCKER_HUB_PUBLIC}/cafapi/opensuse-python3:2
 
 # Install pip and requests
@@ -27,16 +26,3 @@ COPY script/* /maven/script/
 ENTRYPOINT ["python3", "createJob.py"]
 
 WORKDIR /maven/script
-
-# Tag the image
-ARG BUILD_NUMBER
-ARG BUILD_DATE
-ARG GIT_REPO
-ARG GIT_BRANCH
-ARG GIT_COMMIT
-
-LABEL Build.Number="$BUILD_NUMBER" \
-      Build.Date="$BUILD_DATE" \
-      Git.Repo="$GIT_REPO" \
-      Git.Branch="$GIT_BRANCH" \
-      Git.Commit="$GIT_COMMIT"

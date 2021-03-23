@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Micro Focus or one of its affiliates.
+ * Copyright 2016-2021 Micro Focus or one of its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.services.job.client.model.Job;
 import com.hpe.caf.services.job.client.model.NewJob;
 import com.hpe.caf.services.job.client.model.WorkerAction;
+import com.hpe.caf.services.job.client.model.JobStatus;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
@@ -576,7 +577,7 @@ public class JobServiceIT {
 
         Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        assertEquals(cancelledJob.getStatus(), "Cancelled");
+        assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
         assertTrue(new Date(cancelledJob.getLastUpdateTime()).after(new Date(initialJob.getLastUpdateTime())),
             "last-update-time should be updated on cancel");
     }
@@ -599,7 +600,7 @@ public class JobServiceIT {
         jobsApi.cancelJob(defaultPartitionId, jobId, jobCorrelationId); // shouldn't throw
         final Job cancelledAgainJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
-        assertEquals(cancelledJob.getStatus(), "Cancelled",
+        assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled,
             "status should remain cancelled");
         assertEquals(cancelledJob.getLastUpdateTime(), cancelledAgainJob.getLastUpdateTime(),
             "last-update-time should not be updated on second cancel");
@@ -667,7 +668,7 @@ public class JobServiceIT {
         assertThrowsApiException(Response.Status.NOT_FOUND,
             () -> jobsApi.deleteJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
         final Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-        assertEquals(job.getStatus(), "Waiting", "job should still be waiting");
+        assertEquals(job.getStatus(), JobStatus.Waiting, "job should still be waiting");
     }
 
     @Test
@@ -680,7 +681,7 @@ public class JobServiceIT {
         assertThrowsApiException(Response.Status.NOT_FOUND,
             () -> jobsApi.cancelJob(UUID.randomUUID().toString(), jobId, jobCorrelationId));
         final Job job = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-        assertEquals(job.getStatus(), "Waiting", "job should still be waiting");
+        assertEquals(job.getStatus(), JobStatus.Waiting, "job should still be waiting");
     }
 
     @Test
@@ -807,8 +808,8 @@ public class JobServiceIT {
 
         final JobTypeTestTaskData messageTaskData =
             objectMapper.readValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
-        assertEquals(messageTaskData.config.size(), 0,
-            "configuration passed to task data script should be empty");
+        assertEquals(messageTaskData.config.size(), 2,
+            "configuration passed to task data script should contain 2 items: TASK_PIPE and TARGET_PIPE");
         assertEquals(messageTaskData.taskQueue, "basic task-pipe",
             "task pipe passed to task data script should come from configuration");
         assertEquals(messageTaskData.targetQueue, "basic target-pipe",
@@ -878,22 +879,22 @@ public class JobServiceIT {
         final NewJob newJob = makeRestrictedJob(jobId, "config", null);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
-        final JobTypeTestTaskData messageTaskData =
-            objectMapper.readValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
-        assertEquals(messageTaskData.config.get("UPPER"), "upper value",
-            "property with upper-case name should be passed to task data script");
-        assertEquals(messageTaskData.config.get("lower"), "lower value",
-            "property with lower-case name should be passed to task data script");
-        assertEquals(messageTaskData.config.get("multiple"), "multiple value",
-            "property specified with multiple cases should be passed to task data script " +
-                "in lower-case variant");
-        assertEquals(messageTaskData.config.get("MULTIPLE"), "multiple value",
-            "property specified with multiple cases should be passed to task data script " +
-                "in upper-case variant");
-        assertEquals(messageTaskData.config.get("nodesc"), "nodesc value",
-            "property with no description should be passed to task data script");
-        assertEquals(messageTaskData.config.get("number"), "123",
-            "property with numeric value should be passed to task data script as string");
+        final JobTypeTestTaskData messageTaskData
+            = objectMapper.readValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
+        assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER"), "upper value",
+                     "property with upper-case name should be passed to task data script");
+        assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_lower"), "lower value",
+                     "property with lower-case name should be passed to task data script");
+        assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_multiple"), "multiple value",
+                     "property specified with multiple cases should be passed to task data script "
+                     + "in lower-case variant");
+        assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_MULTIPLE"), "multiple value",
+                     "property specified with multiple cases should be passed to task data script "
+                     + "in upper-case variant");
+        assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_nodesc"), "nodesc value",
+                     "property with no description should be passed to task data script");
+        assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_number"), "123",
+                     "property with numeric value should be passed to task data script as string");
     }
 
     @Test
@@ -935,12 +936,12 @@ public class JobServiceIT {
     }
 
     @Test
-    public void testCreateRestrictedJobWithEmptyTargetPipe() throws Exception {
-        testQueueManager = getQueueManager("empty-target-pipe task-pipe");
+    public void testCreateRestrictedJobWithNullTargetPipe() throws Exception {
+        testQueueManager = getQueueManager("null-target-pipe task-pipe");
         final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
-        final NewJob newJob = makeRestrictedJob(jobId, "empty-target-pipe", null);
+        final NewJob newJob = makeRestrictedJob(jobId, "null-target-pipe", null);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
         final TaskMessage messageTask = messageRetriever.get();
