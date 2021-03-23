@@ -382,7 +382,7 @@ public final class DatabaseHelper
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                PreparedStatement stmt = conn.prepareCall("call delete_job(?,?)")
+                CallableStatement stmt = conn.prepareCall("{call delete_job(?,?)}")
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
@@ -476,11 +476,10 @@ public final class DatabaseHelper
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                PreparedStatement  stmt = conn.prepareCall("call cancel_job(?,?)");
-
+                CallableStatement stmt = conn.prepareCall("{call cancel_job(?,?)}")
         ) {
             stmt.setString(1, partitionId);
-            stmt.setString(2, jobId);
+            stmt.setString(2,jobId);
             LOG.debug("Calling cancel_job() database function...");
             stmt.execute();
         } catch (final SQLException se) {
