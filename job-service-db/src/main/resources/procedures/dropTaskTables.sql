@@ -48,7 +48,7 @@ BEGIN
         END LOOP;
 
         -- Insert table name to be dropped later
-        INSERT INTO public.delete_log VALUES ( task_table_ident );
+        INSERT INTO public.delete_log VALUES ( REPLACE(task_table_ident, '"', '') );
     END IF;
 END
 $$;
