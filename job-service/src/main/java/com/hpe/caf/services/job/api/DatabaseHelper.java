@@ -292,16 +292,17 @@ public final class DatabaseHelper
 
 
             Array arrayL;
-            final Array arrayP;
             if (!labelArray.isEmpty()) {
                 arrayL = conn.createArrayOf("VARCHAR", labelArray.toArray());
             } else {
                 arrayL = conn.createArrayOf("VARCHAR", new String[0]);
             }
             stmt.setArray(7, arrayL);
+
+            final Array arrayP;
             if(expirationPolicy!=null) {
                 arrayP = conn.createArrayOf("job_policy", expirationPolicy.toDBString().toArray(new String[0]));
-                LOG.debug("expirationPolicyDB: "+expirationPolicy.toDBString());
+                LOG.debug("expirationPolicyDB: {}",expirationPolicy.toDBString());
             } else{
                 arrayP = conn.createArrayOf("job_policy", new Policy[0]);
             }
