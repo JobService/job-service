@@ -12,7 +12,7 @@ DECLARE
     policy         JOB_POLICY;
     policies       JOB_POLICY[];
     reference_date VARCHAR(58);
-    duration       BIGINT;
+    duration       INTERVAL;
     create_date    DATE;
 BEGIN
 
@@ -24,25 +24,28 @@ BEGIN
     FOREACH policy IN ARRAY in_policies
         LOOP
             dateToTest = policy.expiration_time;
-            IF (dateToTest IS NULL) OR (dateToTest = '') THEN CONTINUE; END IF;
-            BEGIN
-                PERFORM dateToTest::DATE;
-                policy.expiration_date = dateToTest;
-                policy.expiration_time = '';
-            EXCEPTION
-                WHEN OTHERS THEN
-                    reference_date = split_part(dateToTest, '+', 1);
-                    duration = split_part(dateToTest, '+', 2);
-                    IF LEFT(reference_date, 1) = 'l' THEN
-                        policy.expiration_after_last_update = EXTRACT(epoch FROM duration) / 3600;
-                        policy.expiration_time = '';
-                    ELSE
-                        policy.expiration_date = create_date + duration;
-                        policy.expiration_time = '';
-
-                    END IF;
-                    SELECT ARRAY_APPEND(policies, policy) INTO policies;
-            END;
+            IF (dateToTest IS NULL) OR (dateToTest = '') THEN
+                policy.expiration_date = NULL;
+                POLICY.expiration_after_last_update = 0;
+            ELSE
+                BEGIN
+                    PERFORM dateToTest::DATE;
+                    policy.expiration_date = dateToTest;
+                    policy.expiration_time = '';
+                EXCEPTION
+                    WHEN OTHERS THEN
+                        reference_date = split_part(dateToTest, '+', 1);
+                        duration = split_part(dateToTest, '+', 2);
+                        IF LEFT(reference_date, 1) = 'l' THEN
+                            policy.expiration_after_last_update = EXTRACT(epoch FROM duration) / 3600;
+                            policy.expiration_time = '';
+                        ELSE
+                            policy.expiration_date = create_date + duration;
+                            policy.expiration_time = '';
+                        END IF;
+                END;
+            END IF;
+            SELECT ARRAY_APPEND(policies, policy) INTO policies;
         END LOOP;
 
     INSERT INTO job_expiration_policy (partition_id, job_id, job_status, operation, expiration_after_last_update,
