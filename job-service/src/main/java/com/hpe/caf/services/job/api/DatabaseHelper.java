@@ -331,7 +331,7 @@ public final class DatabaseHelper
                                           final boolean partitionSuspended, ExpirationPolicy expirationPolicy) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
             final String[] prerequisiteJobIdStringArray = getPrerequisiteJobIds(prerequisiteJobIds);
             Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
@@ -361,10 +361,20 @@ public final class DatabaseHelper
             stmt.setArray(14, array);
             stmt.setBoolean(15, partitionSuspended);
 
+            final Array arrayP;
+            if(expirationPolicy!=null) {
+                arrayP = conn.createArrayOf("job_policy", expirationPolicy.toDBString().toArray(new String[0]));
+                LOG.debug("expirationPolicyDB: {}",expirationPolicy.toDBString());
+            } else{
+                arrayP = conn.createArrayOf("job_policy", new Policy[0]);
+            }
+            stmt.setArray(16, arrayP);
+
             try {
                 return callCreateJobFunction(stmt);
             } finally {
                 array.free();
+                arrayP.free();
                 prerequisiteJobIdSQLArray.free();
             }
         } catch (final SQLException se) {

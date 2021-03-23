@@ -54,7 +54,8 @@ CREATE OR REPLACE FUNCTION create_job(
     in_prerequisite_job_ids VARCHAR(128)[],
     in_delay INT,
     in_labels VARCHAR(255)[][] default null,
-    in_suspended_partition BOOLEAN default false
+    in_suspended_partition BOOLEAN default false,
+    in_policies job_policy[] default null
 )
 RETURNS TABLE(
     job_created BOOLEAN
@@ -183,6 +184,8 @@ BEGIN
             in_suspended_partition
         );
     END IF;
+
+    PERFORM internal_upsert_job_policy(in_partition_id, in_job_id, in_policies);
 
     RETURN QUERY SELECT TRUE;
 END
