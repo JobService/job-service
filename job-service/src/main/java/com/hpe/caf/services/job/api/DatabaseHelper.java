@@ -288,7 +288,7 @@ public final class DatabaseHelper
             stmt.setString(4,description);
             stmt.setString(5,data);
             stmt.setInt(6,jobHash);
-            LOG.debug("passing job: {}\n ExpiryPolicy {}",jobId, expirationPolicy);
+            LOG.info("passing job: {}\n ExpiryPolicy {}",jobId, expirationPolicy);
 
 
             Array arrayL;

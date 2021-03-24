@@ -6,7 +6,6 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-
          http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing, software
@@ -30,26 +29,9 @@
         <sql>ALTER TYPE JOB_STATUS ADD VALUE 'Expired';</sql>
     </changeSet>
     <changeSet id="create_policy_type" author="Gamma Team">
-        <sql>CREATE TYPE JOB_POLICY AS (status JOB_STATUS, operation EXPIRATION_OPERATION, expiration_time VARCHAR(58), expiration_after_last_update BIGINT, expiration_date TIMESTAMP)</sql>
+        <sql>CREATE TYPE JOB_POLICY AS (partition_id VARCHAR(40), job_id VARCHAR(48), job_status JOB_STATUS, operation EXPIRATION_OPERATION, expiration_time VARCHAR(58), expiration_after_last_update BIGINT, expiration_date TIMESTAMP)</sql>
     </changeSet>
     <changeSet id="create_job_expiration_policy" author="Gamma Team">
-        <createTable tableName="job_expiration_policy">
-            <column name="partition_id" type="VARCHAR(48)">
-                <constraints nullable="false" />
-            </column>
-            <column name="job_id" type="VARCHAR(48)">
-                <constraints nullable="false" />
-            </column>
-            <column name="job_status" type="job_status">
-                <constraints nullable="false" />
-            </column>
-            <column name="operation" type="expiration_operation">
-                <constraints nullable="false" />
-            </column>
-            <column name="expiration_after_last_update" type="BIGINT">
-            </column>
-            <column name="expiration_date" type="TIMESTAMP">
-            </column>
-        </createTable>
+        <sql>CREATE TABLE job_expiration_policy OF JOB_POLICY</sql>
     </changeSet>
 </databaseChangeLog>

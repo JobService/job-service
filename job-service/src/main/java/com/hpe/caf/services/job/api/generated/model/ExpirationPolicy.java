@@ -165,7 +165,7 @@ public class ExpirationPolicy {
         buildPolicy(policyList, sb, "Waiting,", this.waiting);
         buildPolicy(policyList, sb, "Paused,", this.paused);
         sb.setLength(0);
-        sb.append("(");
+        sb.append("(,,");
         sb.append("Expired,")
                 .append(this.toIndentedString(ExpirationOperationEnum.DELETE.toString())).append(",")
                 .append(this.toIndentedString(this.expired.getExpiryTime())).append(",")
@@ -178,7 +178,7 @@ public class ExpirationPolicy {
 
     private void buildPolicy(final List<String> policyList, final StringBuilder sb, final String s, final Policy policy) {
         sb.setLength(0);
-        sb.append("(");
+        sb.append("(,,");
         sb.append(s)
                 .append(this.toIndentedString(policy.getOperation().toString())).append(",")
                 .append(this.toIndentedString(policy.getExpiryTime())).append(",")
