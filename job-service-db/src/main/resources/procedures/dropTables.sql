@@ -37,7 +37,7 @@ BEGIN
     WHILE EXISTS (SELECT 1 FROM delete_log) LOOP
             FOR rec IN EXECUTE selected_table_names
                 LOOP
-                    EXECUTE 'DROP TABLE ' || rec.table_name;
+                    EXECUTE 'DROP TABLE IF EXISTS ' ||  quote_ident(rec.table_name);
                     DELETE FROM DELETE_LOG WHERE TABLE_NAME = rec.table_name;
                 END LOOP;
             COMMIT;
