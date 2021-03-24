@@ -67,43 +67,20 @@ public final class PolicyBuilder {
         defineExpiredPolicy(expirationPolicies, deletePolicy);
     }
 
-    private static void defineExpiredPolicy(final ExpirationPolicy expirationPolicies, final DeletePolicy deletePolicy) throws BadRequestException {
-        if (null== expirationPolicies.getExpired()){
-            expirationPolicies.setExpired(deletePolicy);
-        }
-        expirationPolicies.getExpired().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getExpired().getExpiryTime()));
-    }
-
-    private static void definePausedPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) {
-        if (null== expirationPolicies.getPaused()){
+    private static void defineActivePolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) throws BadRequestException {
+        if (null== expirationPolicies.getActive()){
             final Policy policy = duplicateDefaultPolicy(defaultPolicy);
-            expirationPolicies.setPaused(policy);
+            expirationPolicies.setActive(policy);
         }
-        expirationPolicies.getPaused().setExpiryTime(expirationPolicies.getPaused().getExpiryTime());
+        expirationPolicies.getActive().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getActive().getExpiryTime()));
     }
 
-    private static void defineWaitingPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) {
-        if (null== expirationPolicies.getWaiting()){
-            final Policy policy = duplicateDefaultPolicy(defaultPolicy);
-            expirationPolicies.setWaiting(policy);
-        }
-        expirationPolicies.getWaiting().setExpiryTime(expirationPolicies.getWaiting().getExpiryTime());
-    }
-
-    private static void defineFailedPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) {
-        if (null== expirationPolicies.getFailed()){
-            final Policy policy = duplicateDefaultPolicy(defaultPolicy);
-            expirationPolicies.setFailed(policy);
-        }
-        expirationPolicies.getFailed().setExpiryTime(expirationPolicies.getFailed().getExpiryTime());
-    }
-
-    private static void defineCancelledPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) {
+    private static void defineCancelledPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) throws BadRequestException {
         if (null== expirationPolicies.getCancelled()){
             final Policy policy = duplicateDefaultPolicy(defaultPolicy);
             expirationPolicies.setCancelled(policy);
         }
-        expirationPolicies.getCancelled().setExpiryTime(expirationPolicies.getCancelled().getExpiryTime());
+        expirationPolicies.getCancelled().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getCancelled().getExpiryTime()));
     }
 
     private static void defineCompletedPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) {
@@ -114,12 +91,35 @@ public final class PolicyBuilder {
         expirationPolicies.getCompleted().setExpiryTime(expirationPolicies.getCompleted().getExpiryTime());
     }
 
-    private static void defineActivePolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) throws BadRequestException {
-        if (null== expirationPolicies.getActive()){
-            final Policy policy = duplicateDefaultPolicy(defaultPolicy);
-            expirationPolicies.setActive(policy);
+    private static void defineExpiredPolicy(final ExpirationPolicy expirationPolicies, final DeletePolicy deletePolicy) throws BadRequestException {
+        if (null== expirationPolicies.getExpired()){
+            expirationPolicies.setExpired(deletePolicy);
         }
-        expirationPolicies.getActive().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getActive().getExpiryTime()));
+        expirationPolicies.getExpired().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getExpired().getExpiryTime()));
+    }
+
+    private static void defineFailedPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) throws BadRequestException {
+        if (null== expirationPolicies.getFailed()){
+            final Policy policy = duplicateDefaultPolicy(defaultPolicy);
+            expirationPolicies.setFailed(policy);
+        }
+        expirationPolicies.getFailed().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getFailed().getExpiryTime()));
+    }
+
+    private static void definePausedPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) throws BadRequestException {
+        if (null== expirationPolicies.getPaused()){
+            final Policy policy = duplicateDefaultPolicy(defaultPolicy);
+            expirationPolicies.setPaused(policy);
+        }
+        expirationPolicies.getPaused().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getPaused().getExpiryTime()));
+    }
+
+    private static void defineWaitingPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) throws BadRequestException {
+        if (null== expirationPolicies.getWaiting()){
+            final Policy policy = duplicateDefaultPolicy(defaultPolicy);
+            expirationPolicies.setWaiting(policy);
+        }
+        expirationPolicies.getWaiting().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getWaiting().getExpiryTime()));
     }
 
     private static Policy duplicateDefaultPolicy(final Policy defaultPolicy) {

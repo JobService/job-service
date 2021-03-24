@@ -36,7 +36,7 @@ public class ExpirationPolicy {
     private Policy waiting = null;
     private Policy paused = null;
     private DeletePolicy expired = null;
-    private Policy default_policy = null;
+    private Policy defaultPolicy = null;
 
     public ExpirationPolicy() {
     }
@@ -114,11 +114,11 @@ public class ExpirationPolicy {
     @ApiModelProperty("")
     @JsonProperty("Default")
     public Policy getDefault() {
-        return this.default_policy;
+        return this.defaultPolicy;
     }
 
     public void setDefault(Policy _default) {
-        this.default_policy = _default;
+        this.defaultPolicy = _default;
     }
 
     public boolean equals(Object o) {
@@ -126,14 +126,14 @@ public class ExpirationPolicy {
             return true;
         } else if (o != null && this.getClass() == o.getClass()) {
             ExpirationPolicy expirationPolicy = (ExpirationPolicy)o;
-            return Objects.equals(this.active, expirationPolicy.active) && Objects.equals(this.completed, expirationPolicy.completed) && Objects.equals(this.failed, expirationPolicy.failed) && Objects.equals(this.cancelled, expirationPolicy.cancelled) && Objects.equals(this.waiting, expirationPolicy.waiting) && Objects.equals(this.paused, expirationPolicy.paused) && Objects.equals(this.expired, expirationPolicy.expired) && Objects.equals(this.default_policy, expirationPolicy.default_policy);
+            return Objects.equals(this.active, expirationPolicy.active) && Objects.equals(this.completed, expirationPolicy.completed) && Objects.equals(this.failed, expirationPolicy.failed) && Objects.equals(this.cancelled, expirationPolicy.cancelled) && Objects.equals(this.waiting, expirationPolicy.waiting) && Objects.equals(this.paused, expirationPolicy.paused) && Objects.equals(this.expired, expirationPolicy.expired) && Objects.equals(this.defaultPolicy, expirationPolicy.defaultPolicy);
         } else {
             return false;
         }
     }
 
     public int hashCode() {
-        return Objects.hash(new Object[]{this.active, this.completed, this.failed, this.cancelled, this.waiting, this.paused, this.expired, this.default_policy});
+        return Objects.hash(new Object[]{this.active, this.completed, this.failed, this.cancelled, this.waiting, this.paused, this.expired, this.defaultPolicy});
     }
 
     public String toString() {
@@ -146,7 +146,7 @@ public class ExpirationPolicy {
         sb.append("    waiting: ").append(this.toIndentedString(this.waiting)).append("\n");
         sb.append("    paused: ").append(this.toIndentedString(this.paused)).append("\n");
         sb.append("    expired: ").append(this.toIndentedString(this.expired)).append("\n");
-        sb.append("    _default: ").append(this.toIndentedString(this.default_policy)).append("\n");
+        sb.append("    default: ").append(this.toIndentedString(this.defaultPolicy)).append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -156,8 +156,8 @@ public class ExpirationPolicy {
     }
 
     public List<String> toDBString() {
-        List<String> policyList = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
+        final List<String> policyList = new ArrayList<>();
+        final StringBuilder sb = new StringBuilder();
         buildPolicy(policyList, sb, "Active,", this.active);
         buildPolicy(policyList, sb, "Cancelled,", this.cancelled);
         buildPolicy(policyList, sb, "Completed,", this.completed);
