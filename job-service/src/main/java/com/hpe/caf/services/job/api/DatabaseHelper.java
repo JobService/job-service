@@ -122,7 +122,7 @@ public final class DatabaseHelper
             try (final ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     final Job job = new Job();
-                  //  final ExpirationPolicy expirationPolicy= new ExpirationPolicy();
+                    final ExpirationPolicy expirationPolicy= new ExpirationPolicy();
                     job.setId(rs.getString("job_id"));
                     job.setName(rs.getString("name"));
                     job.setDescription(rs.getString("description"));
@@ -142,7 +142,7 @@ public final class DatabaseHelper
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
                         job.getLabels().put(label, rs.getString("label_value"));
                     }
-                //    retrieveExpirationPolicy(expirationPolicy, rs);
+                    retrieveExpirationPolicy(expirationPolicy, rs);
                     //We joined onto the labels table and there may be multiple rows for the same job, so merge their labels
                     jobs.merge(job.getId(), job, (orig, insert) -> {
                         orig.getLabels().putAll(insert.getLabels());
