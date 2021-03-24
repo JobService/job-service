@@ -54,7 +54,7 @@ BEGIN
 
         -- Insert table name to be dropped later
         task_table_name := (REPLACE(task_table_ident, '"', ''))::varchar;
-        INSERT INTO public.delete_log VALUES ( task_table_name );
+        PERFORM insert_delete_log(task_table_name);
     END IF;
 END
 $$;
