@@ -16,11 +16,14 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
+import com.hpe.caf.services.job.api.generated.model.DeletePolicy;
+import com.hpe.caf.services.job.api.generated.model.DeletePolicy.ExpirationOperationEnum;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.api.generated.model.Policy;
+import com.hpe.caf.services.job.api.generated.model.Policy.OperationEnum;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.api.generated.model.SortField;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
@@ -204,14 +207,20 @@ public final class DatabaseHelper
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}");
+                CallableStatement stmt2 = conn.prepareCall("{call get_job_policy(?,?)}")
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
+            stmt2.setString(1, partitionId);
+            stmt2.setString(2,jobId);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_job() database function...");
-            try (final ResultSet rs = stmt.executeQuery()) {
+            try (
+                    final ResultSet rs = stmt.executeQuery();
+                    final ResultSet rs2 = stmt2.executeQuery();
+                ) {
                 job = new Job();
                 while (rs.next()) {
                     job.setId(rs.getString("job_id"));
@@ -233,6 +242,44 @@ public final class DatabaseHelper
                         job.getLabels().put(label, rs.getString("label_value"));
                     }
                 }
+                final ExpirationPolicy expirationPolicy= new ExpirationPolicy();
+                int count=1;
+                while (rs2.next()){
+                    if(count<7){
+                        Policy policy = new Policy();
+                        policy.setOperation(OperationEnum.valueOf(rs2.getString("operation").toUpperCase(Locale.ROOT)));
+                        policy.setExpiryTime(rs2.getString("expiration_time"));
+                        switch (count){
+                            case 1:
+                                expirationPolicy.setActive(policy);
+                                break;
+                            case 2:
+                                expirationPolicy.setCancelled(policy);
+                                break;
+                            case 3:
+                                expirationPolicy.setCompleted(policy);
+                                break;
+                            case 4:
+                                expirationPolicy.setFailed(policy);
+                                break;
+                            case 5:
+                                expirationPolicy.setWaiting(policy);
+                                break;
+                            default:
+                                expirationPolicy.setPaused(policy);
+                        }
+                    }else{
+                        final DeletePolicy expiredPolicy = new DeletePolicy();
+                        expiredPolicy.setExpirationOperation(ExpirationOperationEnum.DELETE.valueOf(rs2.getString("operation").toUpperCase(Locale.ROOT)));
+                        expiredPolicy.setExpiryTime(rs2.getString("expiration_time"));
+                        expirationPolicy.setExpired(expiredPolicy);
+                    }
+                    count++;
+                    LOG.info(rs2.getString("operation"));
+                    LOG.info(rs2.getString("expiration_time"));
+                }
+                job.setExpiry(expirationPolicy);
+                LOG.info(expirationPolicy.toString());
             }
         } catch (final SQLException se) {
            throw mapSqlNoDataException(se);
