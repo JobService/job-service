@@ -121,6 +121,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_get_job_policy_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/getJobPolicy.sql"
+                         procedureName="get_job_policy"
+                         schemaName="public">
+    </createProcedure>
+    </changeSet>
     <changeSet id="create_get_jobs_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/getJobs.sql"
                          procedureName="get_jobs"
