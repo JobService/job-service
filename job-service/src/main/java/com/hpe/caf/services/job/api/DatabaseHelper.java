@@ -263,10 +263,10 @@ public final class DatabaseHelper
                                 expirationPolicy.setFailed(policy);
                                 break;
                             case 5:
-                                expirationPolicy.setWaiting(policy);
+                                expirationPolicy.setPaused(policy);
                                 break;
                             default:
-                                expirationPolicy.setPaused(policy);
+                                expirationPolicy.setWaiting(policy);
                         }
                     }else{
                         final DeletePolicy expiredPolicy = new DeletePolicy();

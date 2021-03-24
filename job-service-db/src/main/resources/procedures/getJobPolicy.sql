@@ -29,7 +29,11 @@ LANGUAGE plpgsql STABLE
 AS
 $$
 BEGIN
-    RETURN QUERY SELECT * FROM job_expiration_policy WHERE partition_id = in_partition_id AND job_id = in_job_id;
+    RETURN QUERY SELECT *
+                 FROM job_expiration_policy
+                 WHERE partition_id = in_partition_id
+                   AND job_id = in_job_id
+                 ORDER BY job_status;
 END
 $$
 ;
