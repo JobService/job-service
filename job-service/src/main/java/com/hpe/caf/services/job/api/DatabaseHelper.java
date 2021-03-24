@@ -122,6 +122,7 @@ public final class DatabaseHelper
             try (final ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     final Job job = new Job();
+                  //  final ExpirationPolicy expirationPolicy= new ExpirationPolicy();
                     job.setId(rs.getString("job_id"));
                     job.setName(rs.getString("name"));
                     job.setDescription(rs.getString("description"));
@@ -141,6 +142,7 @@ public final class DatabaseHelper
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
                         job.getLabels().put(label, rs.getString("label_value"));
                     }
+                //    retrieveExpirationPolicy(expirationPolicy, rs);
                     //We joined onto the labels table and there may be multiple rows for the same job, so merge their labels
                     jobs.merge(job.getId(), job, (orig, insert) -> {
                         orig.getLabels().putAll(insert.getLabels());
@@ -204,22 +206,19 @@ public final class DatabaseHelper
     public Job getJob(final String partitionId, String jobId) throws Exception {
 
         Job job = null;
+        final ExpirationPolicy expirationPolicy= new ExpirationPolicy();
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}");
-                CallableStatement stmt2 = conn.prepareCall("{call get_job_policy(?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
-            stmt2.setString(1, partitionId);
-            stmt2.setString(2,jobId);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_job() database function...");
             try (
                     final ResultSet rs = stmt.executeQuery();
-                    final ResultSet rs2 = stmt2.executeQuery();
                 ) {
                 job = new Job();
                 while (rs.next()) {
@@ -241,51 +240,59 @@ public final class DatabaseHelper
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
                         job.getLabels().put(label, rs.getString("label_value"));
                     }
+                    retrieveExpirationPolicy(expirationPolicy, rs);
                 }
-                final ExpirationPolicy expirationPolicy= new ExpirationPolicy();
-                int count=1;
-                while (rs2.next()){
-                    if(count<7){
-                        Policy policy = new Policy();
-                        policy.setOperation(OperationEnum.valueOf(rs2.getString("operation").toUpperCase(Locale.ROOT)));
-                        policy.setExpiryTime(rs2.getString("expiration_time"));
-                        switch (count){
-                            case 1:
-                                expirationPolicy.setActive(policy);
-                                break;
-                            case 2:
-                                expirationPolicy.setCancelled(policy);
-                                break;
-                            case 3:
-                                expirationPolicy.setCompleted(policy);
-                                break;
-                            case 4:
-                                expirationPolicy.setFailed(policy);
-                                break;
-                            case 5:
-                                expirationPolicy.setPaused(policy);
-                                break;
-                            default:
-                                expirationPolicy.setWaiting(policy);
-                        }
-                    }else{
-                        final DeletePolicy expiredPolicy = new DeletePolicy();
-                        expiredPolicy.setExpirationOperation(ExpirationOperationEnum.DELETE.valueOf(rs2.getString("operation").toUpperCase(Locale.ROOT)));
-                        expiredPolicy.setExpiryTime(rs2.getString("expiration_time"));
-                        expirationPolicy.setExpired(expiredPolicy);
-                    }
-                    count++;
-                    LOG.info(rs2.getString("operation"));
-                    LOG.info(rs2.getString("expiration_time"));
-                }
-                job.setExpiry(expirationPolicy);
-                LOG.info(expirationPolicy.toString());
             }
         } catch (final SQLException se) {
            throw mapSqlNoDataException(se);
         }
 
         return job;
+    }
+
+    private void retrieveExpirationPolicy(final ExpirationPolicy expirationPolicy, final ResultSet rs) throws SQLException {
+        final String status = rs.getString("expiration_status");
+        if(ApiServiceUtil.isNotNullOrEmpty(status)){
+            final Policy policy = new Policy();
+            switch (status){
+                case "Active":
+                    transferPolicy(rs, policy);
+                    expirationPolicy.setActive(policy);
+                    break;
+                case "Cancelled":
+                    transferPolicy(rs, policy);
+                    expirationPolicy.setCancelled(policy);
+                    break;
+                case "Completed":
+                    transferPolicy(rs, policy);
+                    expirationPolicy.setCompleted(policy);
+                    break;
+                case "Failed":
+                    transferPolicy(rs, policy);
+                    expirationPolicy.setFailed(policy);
+                    break;
+                case "Paused":
+                    transferPolicy(rs, policy);
+                    expirationPolicy.setPaused(policy);
+                    break;
+                case "Waiting":
+                    transferPolicy(rs, policy);
+                    expirationPolicy.setWaiting(policy);
+                    break;
+                default:
+                    final DeletePolicy deletePolicy= new DeletePolicy();
+                    deletePolicy.setExpiryTime(rs.getString("expiration_time"));
+                    deletePolicy.setExpirationOperation(ExpirationOperationEnum.valueOf(rs.getString("operation").toUpperCase(Locale.ROOT)));
+                    expirationPolicy.setExpired(deletePolicy);
+                    break;
+            }
+
+        }
+    }
+
+    private void transferPolicy(final ResultSet rs, final Policy policy) throws SQLException {
+        policy.setExpiryTime(rs.getString("expiration_time"));
+        policy.setOperation(OperationEnum.valueOf(rs.getString("operation").toUpperCase(Locale.ROOT)));
     }
 
     /**
