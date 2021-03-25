@@ -26,7 +26,8 @@ CREATE OR REPLACE FUNCTION internal_upsert_job_policy(
     in_policies JOB_POLICY[]
 )
 RETURNS VOID
-LANGUAGE plpgsql VOLATILE
+LANGUAGE plpgsql
+VOLATILE
 AS
 $$
 DECLARE
@@ -34,6 +35,7 @@ DECLARE
     policy         JOB_POLICY;
     policies       JOB_POLICY[];
     reference_date VARCHAR(58);
+    origin         VARCHAR(58);
     duration       INTERVAL;
     create_date    DATE;
 BEGIN
@@ -43,7 +45,11 @@ BEGIN
     END IF;
 
     -- Get create_date and store it
-    SELECT j.create_date INTO create_date FROM job j WHERE j.partition_id = in_partition_id AND j.job_id = in_job_id;
+    SELECT j.create_date
+    INTO create_date
+    FROM job j
+    WHERE j.partition_id = in_partition_id
+      AND j.job_id = in_job_id;
     FOREACH policy IN ARRAY in_policies
         LOOP
             policy.partition_id = in_partition_id;
@@ -59,7 +65,9 @@ BEGIN
                 EXCEPTION
                     WHEN OTHERS THEN
                         reference_date = split_part(dateToTest, '+', 1);
+                        origin = split_part(dateToTest, '+', 2);
                         duration = split_part(dateToTest, '+', 2);
+                        policy.origin_expiration_time = concat(reference_date, origin);
                         IF LEFT(reference_date, 1) = 'l' THEN
                             policy.expiration_after_last_update = EXTRACT(epoch FROM duration);
                         ELSE
@@ -70,13 +78,21 @@ BEGIN
             SELECT ARRAY_APPEND(policies, policy) INTO policies;
         END LOOP;
 
-    INSERT INTO job_expiration_policy (partition_id, job_id, job_status, operation, expiration_time,
-                                       expiration_after_last_update,
-                                       expiration_date)
+    INSERT
+    INTO job_expiration_policy (
+                                partition_id,
+                                job_id,
+                                job_status,
+                                operation,
+                                origin_expiration_time,
+                                expiration_time,
+                                expiration_after_last_update,
+                                expiration_date)
     SELECT p.partition_id,
            p.job_id,
            p.job_status,
            p.operation,
+           p.origin_expiration_time,
            p.expiration_time,
            p.expiration_after_last_update,
            p.expiration_date

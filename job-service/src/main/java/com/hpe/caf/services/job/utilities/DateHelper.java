@@ -15,13 +15,15 @@
  */
 package com.hpe.caf.services.job.utilities;
 
-
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 
 public final class DateHelper {
+    private static final Logger LOG = LoggerFactory.getLogger(DateHelper.class);
 
     private DateHelper() {
     }
@@ -56,10 +58,9 @@ public final class DateHelper {
     private static String convertDate(final String dateToConvert) {
         if (dateToConvert.equalsIgnoreCase("none"))return "none";
         final String[] firstSplit = dateToConvert.split("P");
-        final String referenceDate = firstSplit[0];
         char symbol = Character.toUpperCase(firstSplit[1].charAt(firstSplit[1].length()-1));
         long duration = Long.parseLong(firstSplit[1].substring(0, firstSplit[1].length()-1));
-        long finalDuration=0;
+        long finalDuration;
         switch (symbol){
             case 'M':
                 // 1 minute
@@ -78,6 +79,6 @@ public final class DateHelper {
                 finalDuration = duration * 525600;
         }
 
-        return referenceDate+ finalDuration;
+        return dateToConvert+"+"+finalDuration;
     }
 }

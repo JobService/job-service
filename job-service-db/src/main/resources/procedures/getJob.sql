@@ -78,7 +78,7 @@ BEGIN
            lbl.value,
            jep.job_status,
            jep.operation,
-           jep.expiration_time
+           jep.origin_expiration_time
     FROM job
     LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id AND lbl.job_id = job.job_id
     LEFT JOIN public.job_expiration_policy jep ON jep.partition_id = job.partition_id AND jep.job_id = job.job_id
