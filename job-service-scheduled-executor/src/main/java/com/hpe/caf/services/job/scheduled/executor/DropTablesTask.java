@@ -19,6 +19,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -40,7 +42,11 @@ public class DropTablesTask implements Runnable
                 )
                 {
                     LOG.debug("Calling drop_tables() database procedure ...");
+                    Instant start = Instant.now();
                     stmt.execute();
+                    Instant end = Instant.now();
+                    LOG.debug("Total time taken to drop tables in ms. ", Duration.between(start, end).toMillis());
+                    
                 }
                 catch(final SQLException e)
                 {

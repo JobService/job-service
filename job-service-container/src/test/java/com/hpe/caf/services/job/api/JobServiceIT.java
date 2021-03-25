@@ -57,6 +57,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
@@ -1177,7 +1179,10 @@ public class JobServiceIT {
             //act
             try(final PreparedStatement dropTables = dbConnection.prepareStatement("call drop_tables()"))
             {
+                Instant start = Instant.now();
                 dropTables.execute();
+                Instant end = Instant.now();
+                LOG.info("Total time taken to drop tables ", Duration.between(start, end).toMillis());
             }
             
             
