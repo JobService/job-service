@@ -29,7 +29,7 @@ public class ScheduledExecutor {
     public static void main(final String[] args)
     {
         // Create a scheduler to process scheduled tasks.
-        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         LOG.info("Starting Job Service Scheduled Executor service ...");
         final Runnable task = () -> {
@@ -48,7 +48,8 @@ public class ScheduledExecutor {
 
         LOG.info("Starting task for dropping soft deleted tables ...");
         //  Execute the dropTablesTask periodically.
-        scheduler.scheduleWithFixedDelay(new DropTablesTask(), 20, 60, TimeUnit.SECONDS);
+        scheduler.scheduleWithFixedDelay(new DropTablesTask(), 20, ScheduledExecutorConfig.getDropTablesSchedulerPeriod(),
+                TimeUnit.SECONDS);
     }
 
 }
