@@ -1152,6 +1152,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobRowExists(job4Id);
         JobServiceDatabaseUtil.assertJobStatus(job4Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+        JobServiceDatabaseUtil.assertDeleteLogNotEmpty();
     }
 
     @Test

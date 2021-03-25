@@ -41,6 +41,7 @@
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
         <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
+        <postgres.db.port>54328</postgres.db.port>
     </properties>
 
     <dependencies>
@@ -161,7 +162,7 @@
                 <webservice.https.adminport>25083</webservice.https.adminport>
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
-                <postgres.db.port>5432</postgres.db.port>
+                <postgres.db.port>${postgres.db.port}</postgres.db.port>
                 <webservice.healthcheckport>8081</webservice.healthcheckport>
                 <webdav.apache.port>32775</webdav.apache.port>
                 <!--<CAF_JOBSERVICE_PORT>8080</CAF_JOBSERVICE_PORT>-->
@@ -232,6 +233,10 @@
                         <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
                         <CAF_INTEGRATIONTESTS_FS_PATH>\\${docker.host.address}@${webdav.apache.port}\webdav</CAF_INTEGRATIONTESTS_FS_PATH>
                         <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
+                        <JOB_SERVICE_DATABASE_APPNAME>Job Service</JOB_SERVICE_DATABASE_APPNAME>
+                        <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${db.name}</JOB_SERVICE_DATABASE_URL>
+                        <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
+                        <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
                         <healthcheckurl>http://${docker.host.address}:${webservice.healthcheckport}/healthcheck</healthcheckurl>
                         <webserviceurlhttps>https://${docker.host.address}:${webservice.https.adminport}/job-service/v1</webserviceurlhttps>

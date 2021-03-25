@@ -280,4 +280,15 @@ public class JobServiceDatabaseUtil
         final String propertyValue = System.getProperty(key);
         return (propertyValue != null) ? propertyValue : System.getenv(key);
     }
+    
+    public static void assertDeleteLogNotEmpty() throws SQLException
+    {
+        try(final Connection dbConnection = getDbConnection();
+            final PreparedStatement st = dbConnection.prepareStatement("SELECT count(*) as result FROM public.delete_log ");
+            final ResultSet rs = st.executeQuery())
+        {
+            rs.next();
+            Assert.assertNotEquals(rs.getInt("result"), 0, "Soft deleted table names present. ");
+        }
+    }
 }

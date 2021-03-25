@@ -38,6 +38,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
@@ -48,11 +50,18 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.CallableStatement;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.hpe.caf.services.job.api.JobServiceAssert.assertThrowsApiException;
 import static org.testng.Assert.*;
@@ -63,7 +72,9 @@ import static org.testng.FileAssert.fail;
  * (Not an end to end integration test.)
  */
 public class JobServiceIT {
-
+    
+    private static final Logger LOG = LoggerFactory.getLogger(JobServiceIT.class);
+    
     private String connectionString;
     private String defaultPartitionId;
     private ApiClient client = new ApiClient();
@@ -1129,6 +1140,54 @@ public class JobServiceIT {
         }
         assertTrue(exceptionThrown);
     }
+    
+    @Test
+    public void testDeleteLog() throws SQLException
+    {
+        //prepare
+        List<String> droppedTables = new ArrayList();
+        try (final java.sql.Connection dbConnection = getDbConnection();
+        ) {
+            int totalCount = 100;
+            IntStream
+                    .range(1, totalCount)
+                    .forEach((count) -> {
+                        try(final CallableStatement createTaskTableStmt = dbConnection.prepareCall("{call internal_create_task_table(?)}");
+                            final CallableStatement insertDeleteLogStmt = dbConnection.prepareCall("{call insert_delete_log(?)}") )
+                        {
+                            String tableName = "randomTestTable_"+ count;
+                            createTaskTableStmt.setString(1, tableName);
+                            createTaskTableStmt.executeQuery();
+                            insertDeleteLogStmt.setString(1, tableName);
+                            insertDeleteLogStmt.executeQuery();
+                            droppedTables.add(tableName);
+                        }
+                        catch(SQLException throwables)
+                        {
+                            throwables.printStackTrace();
+                        }
+                    });
+            
+            
+            // assert number of rows in delete_log to be totalCount - 1
+            assertEquals(getRowsInDeleteLog(dbConnection), totalCount - 1);
+            List<String> foundTables = getAllTablesByPattern(dbConnection);
+            assertTrue(foundTables.containsAll(droppedTables));
+            
+            //act
+            try(final PreparedStatement dropTables = dbConnection.prepareStatement("call drop_tables()"))
+            {
+                dropTables.execute();
+            }
+            
+            
+            //assert
+            foundTables = getAllTablesByPattern(dbConnection);
+            assertEquals(foundTables.size(), 0);
+            // assert number of rows in delete_log to be 0.
+            assertEquals(getRowsInDeleteLog(dbConnection), 0);
+        }
+    }
 
     public void testMessagesPutOnQueue(
         final String taskQueue,
@@ -1215,5 +1274,68 @@ public class JobServiceIT {
         public String jobIdent;
         public Map<String, Object> reqParams;
     }
-
+    
+    
+    private static java.sql.Connection getDbConnection() throws SQLException
+    {
+        final String databaseUrl = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL") != null
+                ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL")
+                : getPropertyOrEnvVar("CAF_DATABASE_URL");
+        final String dbUser = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME") != null
+                ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME")
+                : getPropertyOrEnvVar("CAF_DATABASE_USERNAME");
+        final String dbPass = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD") != null
+                ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD")
+                : getPropertyOrEnvVar("CAF_DATABASE_PASSWORD");
+        final String appName = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME") != null
+                ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME")
+                : getPropertyOrEnvVar("CAF_DATABASE_APPNAME");
+        try {
+            final java.sql.Connection conn;
+            final Properties myProp = new Properties();
+            myProp.put("user", dbUser);
+            myProp.put("password", dbPass);
+            myProp.put("ApplicationName", appName != null ? appName : "Job Service IT");
+            LOG.info("Connecting to database " + databaseUrl + " with username " + dbUser + " and password " + dbPass);
+            conn = DriverManager.getConnection(databaseUrl, myProp);
+            LOG.info("Connected to database");
+            return conn;
+        } catch (final Exception e) {
+            LOG.error("ERROR connecting to database " + databaseUrl + " with username " + dbUser + " and password "
+                    + dbPass);
+            throw e;
+        }
+    }
+    
+    private static String getPropertyOrEnvVar(final String key)
+    {
+        final String propertyValue = System.getProperty(key);
+        return (propertyValue != null) ? propertyValue : System.getenv(key);
+    }
+    
+    private List<String> getAllTablesByPattern(java.sql.Connection dbConnection) throws SQLException
+    {
+        List<String> foundTables = new ArrayList();
+        DatabaseMetaData dbm = dbConnection.getMetaData();
+        try( ResultSet rs = dbm.getTables(null, "public", "randomTestTable_%", null))
+        {
+            while (rs.next()) {
+                foundTables.add(rs.getString("TABLE_NAME"));
+            }
+        }
+        return foundTables;
+    }
+    
+    private int getRowsInDeleteLog(java.sql.Connection dbConnection) throws SQLException
+    {
+        try(final PreparedStatement deleteLogCount = dbConnection.prepareStatement("select count(*) from delete_log");
+            final ResultSet resultSet = deleteLogCount.executeQuery())
+        {
+            if(resultSet.next())
+            {
+                return resultSet.getInt(1);
+            }
+        }
+        return 0;
+    }
 }
