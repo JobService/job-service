@@ -288,7 +288,7 @@ public class JobServiceDatabaseUtil
             final ResultSet rs = st.executeQuery())
         {
             rs.next();
-            Assert.assertNotEquals(rs.getInt("result"), 0, "Soft deleted table names present. ");
+            Assert.assertNotEquals(rs.getInt("result"), 0, "Soft deleted table names not present. ");
         }
     }
 }

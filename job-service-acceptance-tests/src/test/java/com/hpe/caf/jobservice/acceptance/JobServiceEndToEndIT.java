@@ -1152,6 +1152,74 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobRowExists(job4Id);
         JobServiceDatabaseUtil.assertJobStatus(job4Id, "waiting");
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
+    }
+    
+    @Test
+    public void testJobCompletionInsertsRecordsInDeleteLog() throws Exception
+    {
+        numTestItemsToGenerate = 2;
+        testItemAssetIds = generateWorkerBatch();
+    
+        //  Generate job identifiers for test.
+        final String job1Id = generateJobId();
+        final String job2Id = generateJobId();
+    
+        //  Job hierarchy.
+        //
+        //  J1
+        //  -> J2
+    
+        // Add a Prerequisite job 2 that should be completed
+        JobServiceEndToEndITExpectation job2Expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        defaultPartitionId,
+                        job2Id,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+    
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            getTimer(context);
+            queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
+                    job2Expectation));
+        
+            createJobWithPrerequisites(job2Id, true, 0, job1Id);
+        }
+        
+        JobServiceEndToEndITExpectation job1Expectation =
+                new JobServiceEndToEndITExpectation(
+                        false,
+                        exampleWorkerMessageOutQueue,
+                        defaultPartitionId,
+                        job1Id,
+                        jobCorrelationId,
+                        ExampleWorkerConstants.WORKER_NAME,
+                        ExampleWorkerConstants.WORKER_API_VER,
+                        TaskStatus.RESULT_SUCCESS,
+                        ExampleWorkerStatus.COMPLETED,
+                        testItemAssetIds);
+    
+        try (QueueManager queueManager = getFinalQueueManager()) {
+            ExecutionContext context = new ExecutionContext(false);
+            context.initializeContext();
+            getTimer(context);
+            queueManager.start(new FinalOutputDeliveryHandler(workerServices.getCodec(), jobsApi, context,
+                    job1Expectation));
+        
+            createJob(job1Id, true);
+        }
+        
+        waitUntilJobCompletes(job1Id);
+        waitUntilJobCompletes(job2Id);
+    
+        //assert
         JobServiceDatabaseUtil.assertDeleteLogNotEmpty();
     }
 
