@@ -135,7 +135,7 @@ spec:
               configMapKeyRef:
                 name: jobservice-config
                 key: CAF_RABBITMQ_PASSWORD
-          - name: CAF_STATUS_CHECK_TIME
+          - name: CAF_STATUS_CHECK_INTERVAL_SECONDS
             value: "5"
           - name: CAF_TRACKING_PIPE
             value: "jobtracking-in"
@@ -194,7 +194,7 @@ spec:
               configMapKeyRef:
                 name: jobservice-config
                 key: CAF_RABBITMQ_PASSWORD
-          - name: CAF_STATUS_CHECK_TIME
+          - name: CAF_STATUS_CHECK_INTERVAL_SECONDS
             value: "5"
           - name: CAF_WEBSERVICE_URL
             valueFrom:
@@ -285,7 +285,7 @@ spec:
                 key: CAF_RABBITMQ_PASSWORD
           - name: CAF_SCHEDULED_EXECUTOR_PERIOD
             value: "10"
-          - name: CAF_STATUS_CHECK_TIME
+          - name: CAF_STATUS_CHECK_INTERVAL_SECONDS
             value: "5"
           - name: CAF_TRACKING_PIPE
             value: "jobtracking-in"

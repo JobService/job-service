@@ -169,7 +169,7 @@
                         <CAF_JOB_SERVICE_IMAGE>${dockerJobServiceOrg}job-service${dockerProjectVersion}</CAF_JOB_SERVICE_IMAGE>
                         <CAF_JOB_SERVICE_ADMIN_PORT>${jobservice.adminport}</CAF_JOB_SERVICE_ADMIN_PORT>
                         <CAF_WEBSERVICE_URL>http://${docker.host.address}:${jobservice.adminport}/job-service/v1</CAF_WEBSERVICE_URL>
-                        <CAF_STATUS_CHECK_TIME>5</CAF_STATUS_CHECK_TIME>
+                        <CAF_STATUS_CHECK_INTERVAL_SECONDS>5</CAF_STATUS_CHECK_INTERVAL_SECONDS>
                         <CAF_DOCKER_HOST>http://${docker.host.address}:2375</CAF_DOCKER_HOST>
                         <CAF_DOCKER_VERSION>1.22</CAF_DOCKER_VERSION>
                         <CAF_JOB_SERVICE_CALLER_IMAGE>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</CAF_JOB_SERVICE_CALLER_IMAGE>
@@ -452,7 +452,7 @@
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
                                     <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
-                                    <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
+                                    <CAF_STATUS_CHECK_INTERVAL_SECONDS>1</CAF_STATUS_CHECK_INTERVAL_SECONDS>
                                     <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
                                     <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
                                     <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
@@ -497,7 +497,7 @@
                                     <CAF_RABBITMQ_MAX_ATTEMPTS>20</CAF_RABBITMQ_MAX_ATTEMPTS>
                                     <CAF_RABBITMQ_MAX_BACKOFF_INTERVAL>30</CAF_RABBITMQ_MAX_BACKOFF_INTERVAL>
                                     <CAF_RABBITMQ_PREFETCH_BUFFER>0</CAF_RABBITMQ_PREFETCH_BUFFER>
-                                    <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
+                                    <CAF_STATUS_CHECK_INTERVAL_SECONDS>1</CAF_STATUS_CHECK_INTERVAL_SECONDS>
                                     <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
                                     <CAF_WORKER_INPUT_QUEUE>jobtrackingworker-test-input-1</CAF_WORKER_INPUT_QUEUE>
                                     <CAF_WORKER_MAX_BATCH_TIME>1000</CAF_WORKER_MAX_BATCH_TIME>
@@ -620,7 +620,7 @@
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
                                     <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
-                                    <CAF_STATUS_CHECK_TIME>1</CAF_STATUS_CHECK_TIME>
+                                    <CAF_STATUS_CHECK_INTERVAL_SECONDS>1</CAF_STATUS_CHECK_INTERVAL_SECONDS>
                                     <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
                                     <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
                                     <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>

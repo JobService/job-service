@@ -32,9 +32,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
@@ -111,13 +109,14 @@ public final class QueueServices
         final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
             .path("partitions").path(partitionId)
             .path("jobs").path(jobId)
-            .path("isActive").build().toString();
+            .path("status").build().toString();
 
         //  Construct the task message.
         LOG.debug("Constructing the task message ...");
         final TrackingInfo trackingInfo = new TrackingInfo(
                 new JobTaskId(partitionId, jobId).getMessageId(),
-                calculateStatusCheckDate(ScheduledExecutorConfig.getStatusCheckTime()),
+                null,
+                getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 
         final TaskMessage taskMessage = new TaskMessage(
@@ -147,24 +146,13 @@ public final class QueueServices
                 "", targetQueue, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
     }
 
-    /**
-     * Calculates the date of the next status check to be performed.
-     */
-    private Date calculateStatusCheckDate(final String statusCheckTime){
-        //make sure statusCheckTime is a valid long
-        final long seconds;
-        try{
-            seconds = Long.parseLong(statusCheckTime);
-        } catch (final NumberFormatException e) {
-            final String errorMessage = "Please provide a valid integer for statusCheckTime in seconds. " + e;
-            LOG.error(errorMessage);
-            throw new RuntimeException(errorMessage);
+    private static long getStatusCheckIntervalMillis(final String statusCheckIntervalSeconds)
+    {
+        try {
+            return Long.parseLong(statusCheckIntervalSeconds) * 1000;
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Please provide a valid integer for statusCheckIntervalSeconds. " + e);
         }
-
-        //set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
-        final Instant now = Instant.now();
-        final Instant later = now.plusSeconds(seconds);
-        return Date.from( later );
     }
 
     /**

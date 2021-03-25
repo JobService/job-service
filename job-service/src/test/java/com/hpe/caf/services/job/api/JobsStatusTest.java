@@ -59,7 +59,7 @@ public final class JobsStatusTest {
         newEnv.put("CAF_RABBITMQ_USERNAME","guest");
         newEnv.put("CAF_RABBITMQ_PASSWORD","guest");
         newEnv.put("CAF_TRACKING_PIPE","demo-jobtracking-in");
-        newEnv.put("CAF_STATUS_CHECK_TIME","1");
+        newEnv.put("CAF_STATUS_CHECK_INTERVAL_SECONDS","1");
         newEnv.put("CAF_WEBSERVICE_URL","http://localhost:9090/v1");
 
         TestUtil.setSystemEnvironmentFields(newEnv);
