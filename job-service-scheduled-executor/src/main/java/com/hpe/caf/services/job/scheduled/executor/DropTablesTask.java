@@ -38,10 +38,10 @@ public class DropTablesTask implements Runnable
             {
                 try(
                         Connection connection = DBConnection.get();
-                        PreparedStatement stmt = connection.prepareStatement("CALL  drop_tables()")
+                        PreparedStatement stmt = connection.prepareStatement("CALL  drop_deleted_task_tables()")
                 )
                 {
-                    LOG.debug("Calling drop_tables() database procedure ...");
+                    LOG.debug("Calling drop_deleted_task_tables() database procedure ...");
                     Instant start = Instant.now();
                     stmt.execute();
                     Instant end = Instant.now();
@@ -51,7 +51,7 @@ public class DropTablesTask implements Runnable
                 catch(final SQLException e)
                 {
                     final String errorMessage = MessageFormat
-                            .format("Failed in call to drop_tables() database procedure.{0}",
+                            .format("Failed in call to drop_deleted_task_tables() database procedure.{0}",
                                     e.getMessage());
                     LOG.error(errorMessage);
                     throw new ScheduledExecutorException(errorMessage);

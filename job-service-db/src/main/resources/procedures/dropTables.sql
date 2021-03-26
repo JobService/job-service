@@ -15,14 +15,14 @@
 --
 
 /*
- *  Name: drop_tables
+ *  Name: drop_deleted_task_tables
  *
  *  Description:
  *  Drops all tables present in delete_log table
  *  This procedure does batch commits. The batch is defined by commit_limit variable. Default batch size being 10.
  */
 
-CREATE OR REPLACE PROCEDURE drop_tables()
+CREATE OR REPLACE PROCEDURE drop_deleted_task_tables()
     LANGUAGE plpgsql
 AS $$
 DECLARE

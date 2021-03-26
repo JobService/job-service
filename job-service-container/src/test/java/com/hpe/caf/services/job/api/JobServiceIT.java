@@ -1179,7 +1179,7 @@ public class JobServiceIT {
             assertTrue(foundTables.containsAll(droppedTables));
             
             //act
-            try(final PreparedStatement dropTables = dbConnection.prepareStatement("call drop_tables()"))
+            try(final PreparedStatement dropTables = dbConnection.prepareStatement("call drop_deleted_task_tables()"))
             {
                 Instant start = Instant.now();
                 dropTables.execute();
