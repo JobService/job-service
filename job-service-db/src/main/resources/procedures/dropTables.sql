@@ -31,8 +31,7 @@ DECLARE
     rec record;
 
 BEGIN
-    selected_table_names := $q$SELECT TABLE_NAME FROM DELETE_LOG LIMIT $q$;
-    selected_table_names := selected_table_names || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
+    selected_table_names := $q$SELECT TABLE_NAME FROM DELETE_LOG LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
 
     WHILE EXISTS (SELECT 1 FROM delete_log) LOOP
             FOR rec IN EXECUTE selected_table_names
