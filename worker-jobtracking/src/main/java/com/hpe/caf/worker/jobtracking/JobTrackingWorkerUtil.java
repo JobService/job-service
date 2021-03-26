@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.util.Collections;
+import java.util.Date;
 import java.util.UUID;
 
 public final class JobTrackingWorkerUtil
@@ -60,7 +61,7 @@ public final class JobTrackingWorkerUtil
 
         final TrackingInfo trackingInfo = new TrackingInfo(
                 new JobTaskId(jobDependency.getPartitionId(), jobDependency.getJobId()).getMessageId(),
-                null, getStatusCheckIntervalMillis(statusCheckIntervalSeconds), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
+                new Date(), getStatusCheckIntervalMillis(statusCheckIntervalSeconds), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
 
         return new TaskMessage(
                 taskId,
