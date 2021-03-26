@@ -33,7 +33,7 @@ public final class DateHelper {
      * @param dateToCheck the date to validate
      * @throws BadRequestException if any invalid parameter
      */
-    public static String validateAndConvert(final String dateToCheck) throws BadRequestException {
+    public static void validate(final String dateToCheck) throws BadRequestException {
         final String dateRegex = "^(lastUpdateTime|createTime)(\\+P)[1-9]\\d*[DYHM]$|^none$";
         if(!dateToCheck.matches(dateRegex)){
             try{
@@ -41,44 +41,9 @@ public final class DateHelper {
                 final Instant instantPassed = Instant.parse(dateToCheck);
                 // verify that date is in the future
                 if (instantPassed.isBefore(Instant.now()))throw new BadRequestException("Date should be in the future ,"+dateToCheck);
-                return dateToCheck;
             }catch (final DateTimeParseException e){
                 throw new BadRequestException("Invalid date "+dateToCheck);
             }
-        }else {
-            return convertDate(dateToCheck);
         }
-    }
-
-    /**
-     * Converts the date reference provided into "referenceDate + duration" -> unit is minute
-     * @param dateToConvert date to be converted
-     * @return the converted date
-     */
-    private static String convertDate(final String dateToConvert) {
-        if (dateToConvert.equalsIgnoreCase("none"))return "none";
-        final String[] firstSplit = dateToConvert.split("P");
-        char symbol = Character.toUpperCase(firstSplit[1].charAt(firstSplit[1].length()-1));
-        long duration = Long.parseLong(firstSplit[1].substring(0, firstSplit[1].length()-1));
-        long finalDuration;
-        switch (symbol){
-            case 'M':
-                // 1 minute
-                finalDuration = duration;
-                break;
-            case 'H':
-                // 1 hour = 60 mn
-                finalDuration = duration * 60;
-                break;
-            case 'D':
-                // 1 day = 1 440 mn
-                finalDuration = duration * 1440;
-                break;
-            default:
-                // 1 year = 525 600 mn
-                finalDuration = duration * 525600;
-        }
-
-        return dateToConvert+"+"+finalDuration;
     }
 }

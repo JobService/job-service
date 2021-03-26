@@ -72,7 +72,6 @@ public final class PolicyBuilder {
             final Policy policy = duplicateDefaultPolicy(defaultPolicy);
             expirationPolicies.setActive(policy);
         }
-        expirationPolicies.getActive().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getActive().getExpiryTime()));
     }
 
     private static void defineCancelledPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) throws BadRequestException {
@@ -80,7 +79,6 @@ public final class PolicyBuilder {
             final Policy policy = duplicateDefaultPolicy(defaultPolicy);
             expirationPolicies.setCancelled(policy);
         }
-        expirationPolicies.getCancelled().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getCancelled().getExpiryTime()));
     }
 
     private static void defineCompletedPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) {
@@ -88,14 +86,12 @@ public final class PolicyBuilder {
             final Policy policy = duplicateDefaultPolicy(defaultPolicy);
             expirationPolicies.setCompleted(policy);
         }
-        expirationPolicies.getCompleted().setExpiryTime(expirationPolicies.getCompleted().getExpiryTime());
     }
 
     private static void defineExpiredPolicy(final ExpirationPolicy expirationPolicies, final DeletePolicy deletePolicy) throws BadRequestException {
         if (null== expirationPolicies.getExpired()){
             expirationPolicies.setExpired(deletePolicy);
         }
-        expirationPolicies.getExpired().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getExpired().getExpiryTime()));
     }
 
     private static void defineFailedPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) throws BadRequestException {
@@ -103,7 +99,6 @@ public final class PolicyBuilder {
             final Policy policy = duplicateDefaultPolicy(defaultPolicy);
             expirationPolicies.setFailed(policy);
         }
-        expirationPolicies.getFailed().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getFailed().getExpiryTime()));
     }
 
     private static void definePausedPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) throws BadRequestException {
@@ -111,7 +106,6 @@ public final class PolicyBuilder {
             final Policy policy = duplicateDefaultPolicy(defaultPolicy);
             expirationPolicies.setPaused(policy);
         }
-        expirationPolicies.getPaused().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getPaused().getExpiryTime()));
     }
 
     private static void defineWaitingPolicy(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy) throws BadRequestException {
@@ -119,7 +113,6 @@ public final class PolicyBuilder {
             final Policy policy = duplicateDefaultPolicy(defaultPolicy);
             expirationPolicies.setWaiting(policy);
         }
-        expirationPolicies.getWaiting().setExpiryTime(DateHelper.validateAndConvert(expirationPolicies.getWaiting().getExpiryTime()));
     }
 
     private static Policy duplicateDefaultPolicy(final Policy defaultPolicy) {

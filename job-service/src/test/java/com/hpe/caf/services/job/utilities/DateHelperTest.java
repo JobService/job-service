@@ -15,45 +15,34 @@
  */
 package com.hpe.caf.services.job.utilities;
 
-import com.hpe.caf.services.job.exceptions.BadRequestException;
-import junit.framework.TestCase;
 import org.junit.Test;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static com.hpe.caf.services.job.utilities.DateHelper.validateAndConvert;
+import static com.hpe.caf.services.job.utilities.DateHelper.validate;
 import static org.testng.Assert.assertThrows;
 
-public class DateHelperTest
-        extends TestCase {
+public class DateHelperTest {
 
     @Test
     public void testInvalidDate(){
         assertAll(
-                ()-> assertThrows(Exception.class, ()-> validateAndConvert("202dsds20:50.52Z")),
-                ()-> assertThrows(Exception.class, ()-> validateAndConvert("lastUpdateDate+P1D")),
-                ()-> assertThrows(Exception.class, ()-> validateAndConvert("ploc")),
-                ()-> assertThrows(Exception.class, ()-> validateAndConvert("lastUpdateTime+P15W"))
+                ()-> assertThrows(Exception.class, ()-> validate("202dsds20:50.52Z")),
+                ()-> assertThrows(Exception.class, ()-> validate("lastUpdateDate+P1D")),
+                ()-> assertThrows(Exception.class, ()-> validate("ploc")),
+                ()-> assertThrows(Exception.class, ()-> validate("lastUpdateTime+P15W"))
         );
 
     }
 
     @Test
-    public void testValidDate() throws Exception {
+    public void testValidDate() {
         assertAll(
-                ()-> assertDoesNotThrow(()-> validateAndConvert("2021-04-12T23:20:50.52Z")),
-                ()-> assertDoesNotThrow(()-> validateAndConvert("lastUpdateTime+P1D")),
-                ()-> assertDoesNotThrow(()-> validateAndConvert("createTime+P90M")),
-                ()-> assertDoesNotThrow(()-> validateAndConvert("none"))
+                ()-> assertDoesNotThrow(()-> validate("2021-04-12T23:20:50.52Z")),
+                ()-> assertDoesNotThrow(()-> validate("lastUpdateTime+P1D")),
+                ()-> assertDoesNotThrow(()-> validate("createTime+P90M")),
+                ()-> assertDoesNotThrow(()-> validate("none"))
         );
 
 
-    }
-    @Test
-    public void testDateConversion() throws BadRequestException {
-        assertEquals("none", validateAndConvert("none"));
-        assertEquals("lastUpdateTime+P1M+1", validateAndConvert("lastUpdateTime+P1M"));
-        assertEquals("lastUpdateTime+P1H+60", validateAndConvert("lastUpdateTime+P1H"));
-        assertEquals("lastUpdateTime+P1D+1440", validateAndConvert("lastUpdateTime+P1D"));
-        assertEquals("lastUpdateTime+P1Y+525600", validateAndConvert("lastUpdateTime+P1Y"));
     }
 }
