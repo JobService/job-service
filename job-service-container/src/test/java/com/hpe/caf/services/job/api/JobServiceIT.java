@@ -1171,7 +1171,7 @@ public class JobServiceIT {
                         }
                     });
             Instant endTableCreation = Instant.now();
-            LOG.info("Total time taken to create tables in ms. ", Duration.between(startTableCreation, endTableCreation).toMillis());
+            LOG.info("Total time taken to create tables in ms. "+ Duration.between(startTableCreation, endTableCreation).toMillis());
             
             // assert number of rows in delete_log to be totalCount - 1
             assertEquals(getRowsInDeleteLog(dbConnection), totalCount - 1);
@@ -1184,7 +1184,7 @@ public class JobServiceIT {
                 Instant start = Instant.now();
                 dropTables.execute();
                 Instant end = Instant.now();
-                LOG.info("Total time taken to drop tables in ms. ", Duration.between(start, end).toMillis());
+                LOG.info("Total time taken to drop tables in ms. "+ Duration.between(start, end).toMillis());
             }
             
             

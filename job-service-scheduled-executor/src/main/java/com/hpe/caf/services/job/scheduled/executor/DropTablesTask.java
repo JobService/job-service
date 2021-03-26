@@ -45,7 +45,7 @@ public class DropTablesTask implements Runnable
                     Instant start = Instant.now();
                     stmt.execute();
                     Instant end = Instant.now();
-                    LOG.debug("Total time taken to drop tables in ms. ", Duration.between(start, end).toMillis());
+                    LOG.debug("Total time taken to drop tables in ms. "+ Duration.between(start, end).toMillis());
                     
                 }
                 catch(final SQLException e)
