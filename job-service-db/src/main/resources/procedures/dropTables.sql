@@ -31,13 +31,13 @@ DECLARE
     rec record;
 
 BEGIN
-    selected_table_names := $q$SELECT TABLE_NAME FROM DELETE_LOG LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
+    selected_table_names := $q$SELECT table_name FROM delete_log LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
 
     WHILE EXISTS (SELECT 1 FROM delete_log) LOOP
             FOR rec IN EXECUTE selected_table_names
                 LOOP
                     EXECUTE 'DROP TABLE IF EXISTS ' ||  quote_ident(rec.table_name);
-                    DELETE FROM DELETE_LOG WHERE TABLE_NAME = rec.table_name;
+                    DELETE FROM delete_log WHERE table_name = rec.table_name;
                 END LOOP;
             COMMIT;
         END LOOP;
