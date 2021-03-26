@@ -1156,7 +1156,7 @@ public class JobServiceIT {
                     .range(1, totalCount)
                     .forEach((count) -> {
                         try(final CallableStatement createTaskTableStmt = dbConnection.prepareCall("{call internal_create_task_table(?)}");
-                            final CallableStatement insertDeleteLogStmt = dbConnection.prepareCall("{call insert_delete_log(?)}") )
+                            final CallableStatement insertDeleteLogStmt = dbConnection.prepareCall("{call internal_insert_delete_log(?)}") )
                         {
                             String tableName = "randomTestTable_"+ count;
                             createTaskTableStmt.setString(1, tableName);

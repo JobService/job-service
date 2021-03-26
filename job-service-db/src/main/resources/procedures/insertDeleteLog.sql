@@ -15,16 +15,16 @@
 --
 
 /*
- *  Name: internal_drop_task_tables
+ *  Name: internal_insert_delete_log
  *
  *  Description:
- *  Drops all task tables belonging to the specified task and all its subtasks
+ *  This is used to insert a record into delete log table.
  */
-DROP FUNCTION IF EXISTS insert_delete_log(
+DROP FUNCTION IF EXISTS internal_insert_delete_log(
     task_table_name VARCHAR
 );
 
-CREATE OR REPLACE FUNCTION insert_delete_log(
+CREATE OR REPLACE FUNCTION internal_insert_delete_log(
     task_table_name VARCHAR
 )
 RETURNS VOID

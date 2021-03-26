@@ -303,7 +303,7 @@
     </changeSet>
     <changeSet id="insert_delete_log_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/insertDeleteLog.sql"
-                         procedureName="insert_delete_log"
+                         procedureName="internal_insert_delete_log"
                          schemaName="public">
         </createProcedure>
     </changeSet>
