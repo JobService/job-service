@@ -37,6 +37,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
@@ -106,7 +107,7 @@ public final class QueueServices {
         //  Construct the task message.
         final TrackingInfo trackingInfo = new TrackingInfo(
                 new JobTaskId(partitionId, jobId).getMessageId(),
-                null,
+                new Date(),
                 getStatusCheckIntervalMillis(config.getStatusCheckIntervalSeconds()),
                 statusCheckUrl, config.getTrackingPipe(), workerAction.getTargetPipe());
 

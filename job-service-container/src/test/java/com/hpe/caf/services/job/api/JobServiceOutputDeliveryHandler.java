@@ -91,17 +91,7 @@ public class JobServiceOutputDeliveryHandler implements ResultHandler {
                                 trackTo));
             }
 
-            final Date lastStatusCheckTime = tracking.getLastStatusCheckTime();
-            final boolean lastStatusCheckTimeEqual = expectation.getLastStatusCheckTime() == null ? lastStatusCheckTime == null
-                : expectation.getLastStatusCheckTime().equals(lastStatusCheckTime);
-            if (!lastStatusCheckTimeEqual) {
-                context.failed(new TestItem(taskMessage.getTaskId(), null, null),
-                               MessageFormat.format(
-                                   "In the forwarded task message, expected lastStatusCheckTime field as {0} but found {1} in the"
-                                   + "tracking info.",
-                                   expectation.getLastStatusCheckTime(),
-                                   lastStatusCheckTime));
-            }
+            // Can't compare lastStatusCheckTime as we don't know what time it would have been set to.
 
             final long statusCheckIntervalMillis = tracking.getStatusCheckIntervalMillis();
             if (expectation.getStatusCheckIntervalMillis() != statusCheckIntervalMillis) {

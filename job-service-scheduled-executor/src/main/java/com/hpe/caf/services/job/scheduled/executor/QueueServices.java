@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
@@ -115,7 +116,7 @@ public final class QueueServices
         LOG.debug("Constructing the task message ...");
         final TrackingInfo trackingInfo = new TrackingInfo(
                 new JobTaskId(partitionId, jobId).getMessageId(),
-                null,
+                new Date(),
                 getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 
