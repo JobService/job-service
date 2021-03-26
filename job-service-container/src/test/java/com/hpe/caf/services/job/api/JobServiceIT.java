@@ -1150,7 +1150,7 @@ public class JobServiceIT {
         List<String> droppedTables = new ArrayList();
         try (final java.sql.Connection dbConnection = getDbConnection();
         ) {
-            int totalCount = 100;
+            int totalCount = 30000;
             IntStream
                     .range(1, totalCount)
                     .forEach((count) -> {
