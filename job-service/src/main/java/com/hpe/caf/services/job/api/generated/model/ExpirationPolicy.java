@@ -167,9 +167,8 @@ public class ExpirationPolicy {
         sb.setLength(0);
         sb.append("(,,");
         sb.append("Expired,")
-                .append(this.toIndentedString(ExpirationOperationEnum.DELETE.toString())).append(",,")
-                .append(this.toIndentedString(this.expired.getExpiryTime())).append(",")
-                .append(EXPIRATION_AFTER_LAST_UPDATE).append(",")
+                .append(this.toIndentedString(ExpirationOperationEnum.DELETE.toString())).append(",")
+                .append(this.toIndentedString(this.expired.getExpiryTime()))
                 .append(")");
         policyList.add(sb.toString());
 
@@ -180,9 +179,8 @@ public class ExpirationPolicy {
         sb.setLength(0);
         sb.append("(,,");
         sb.append(status)
-                .append(this.toIndentedString(policy.getOperation().toString())).append(",,")
-                .append(this.toIndentedString(policy.getExpiryTime())).append(",")
-                .append(EXPIRATION_AFTER_LAST_UPDATE).append(",")
+                .append(this.toIndentedString(policy.getOperation().toString())).append(",")
+                .append(this.toIndentedString(policy.getExpiryTime()))
                 .append(")");
         policyList.add(sb.toString());
     }
