@@ -1151,6 +1151,7 @@ public class JobServiceIT {
         try (final java.sql.Connection dbConnection = getDbConnection();
         ) {
             int totalCount = 30000;
+            Instant startTableCreation = Instant.now();
             IntStream
                     .range(1, totalCount)
                     .forEach((count) -> {
@@ -1169,7 +1170,8 @@ public class JobServiceIT {
                             throwables.printStackTrace();
                         }
                     });
-            
+            Instant endTableCreation = Instant.now();
+            LOG.info("Total time taken to create tables in ms. ", Duration.between(startTableCreation, endTableCreation).toMillis());
             
             // assert number of rows in delete_log to be totalCount - 1
             assertEquals(getRowsInDeleteLog(dbConnection), totalCount - 1);
@@ -1182,7 +1184,7 @@ public class JobServiceIT {
                 Instant start = Instant.now();
                 dropTables.execute();
                 Instant end = Instant.now();
-                LOG.info("Total time taken to drop tables ", Duration.between(start, end).toMillis());
+                LOG.info("Total time taken to drop tables in ms. ", Duration.between(start, end).toMillis());
             }
             
             
