@@ -23,9 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
-import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.UUID;
 
 public final class JobTrackingWorkerUtil
@@ -51,18 +49,18 @@ public final class JobTrackingWorkerUtil
         final String statusCheckUrl = UriBuilder.fromUri(System.getenv("CAF_WEBSERVICE_URL") )
             .path("partitions").path(jobDependency.getPartitionId())
             .path("jobs").path(jobDependency.getJobId())
-            .path("isActive").build().toString();
+            .path("status").build().toString();
 
         //  Construct the task message.
-        String statusCheckTime = System.getenv("CAF_STATUS_CHECK_TIME");
-        if (null == statusCheckTime) {
+        String statusCheckIntervalSeconds = System.getenv("CAF_STATUS_CHECK_INTERVAL_SECONDS");
+        if (null == statusCheckIntervalSeconds) {
             // Default to 5 if the environment variable is not present.  This is to avoid introducing a breaking change.
-            statusCheckTime = "5";
+            statusCheckIntervalSeconds = "5";
         }
 
         final TrackingInfo trackingInfo = new TrackingInfo(
                 new JobTaskId(jobDependency.getPartitionId(), jobDependency.getJobId()).getMessageId(),
-                calculateStatusCheckDate(statusCheckTime), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
+                null, getStatusCheckIntervalMillis(statusCheckIntervalSeconds), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
 
         return new TaskMessage(
                 taskId,
@@ -116,25 +114,13 @@ public final class JobTrackingWorkerUtil
         return Long.parseLong(maxBatchTime);
     }
 
-    /**
-     * Calculates the date of the next status check to be performed.
-     *
-     * @param statusCheckTime - This is the number of seconds after which it is appropriate to try to confirm that the
-     * task has not been cancelled or aborted.
-     */
-    public static Date calculateStatusCheckDate(final String statusCheckTime){
-        //  Make sure statusCheckTime is a valid long
-        long seconds = 0;
-        try{
-            seconds = Long.parseLong(statusCheckTime);
+    private static long getStatusCheckIntervalMillis(final String statusCheckIntervalSeconds)
+    {
+        try {
+            return Long.parseLong(statusCheckIntervalSeconds) * 1000;
         } catch (NumberFormatException e) {
-            throw new RuntimeException("Please provide a valid integer for statusCheckTime in seconds. " + e);
+            throw new RuntimeException("Please provide a valid integer for statusCheckIntervalSeconds. " + e);
         }
-
-        //  Set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
-        final Instant now = Instant.now();
-        final Instant later = now.plusSeconds(seconds);
-        return java.util.Date.from( later );
     }
 
 }

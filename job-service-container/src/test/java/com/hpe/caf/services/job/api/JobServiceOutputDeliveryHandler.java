@@ -23,6 +23,7 @@ import com.hpe.caf.worker.testing.ResultHandler;
 import com.hpe.caf.worker.testing.TestItem;
 
 import java.text.MessageFormat;
+import java.util.Date;
 
 /**
  * JobServiceOutputDeliveryHandler will obtain the result from the SimpleQueueConsumerImpl and this can be used for
@@ -90,15 +91,27 @@ public class JobServiceOutputDeliveryHandler implements ResultHandler {
                                 trackTo));
             }
 
-            if(tracking.getStatusCheckTime()==null) {
+            final Date lastStatusCheckTime = tracking.getLastStatusCheckTime();
+            final boolean lastStatusCheckTimeEqual = expectation.getLastStatusCheckTime() == null ? lastStatusCheckTime == null
+                : expectation.getLastStatusCheckTime().equals(lastStatusCheckTime);
+            if (!lastStatusCheckTimeEqual) {
                 context.failed(new TestItem(taskMessage.getTaskId(), null, null),
-                        "In the forwarded task message, expected a checkStatusTime but none was found.");
+                               MessageFormat.format(
+                                   "In the forwarded task message, expected lastStatusCheckTime field as {0} but found {1} in the"
+                                   + "tracking info.",
+                                   expectation.getLastStatusCheckTime(),
+                                   lastStatusCheckTime));
             }
 
-//            if(!(tracking.getStatusCheckTime() instanceof java.util.Date)){
-//                context.failed(new TestItem(taskMessage.getTaskId(), null, null),
-//                        "In the forwarded task message, expected a checkStatusTime but none was found.");
-//            }
+            final long statusCheckIntervalMillis = tracking.getStatusCheckIntervalMillis();
+            if (expectation.getStatusCheckIntervalMillis() != statusCheckIntervalMillis) {
+                context.failed(new TestItem(taskMessage.getTaskId(), null, null),
+                               MessageFormat.format(
+                                   "In the forwarded task message, expected statusCheckIntervalMillis field as {0} but found {1} in the"
+                                   + "tracking info.",
+                                   expectation.getStatusCheckIntervalMillis(),
+                                   statusCheckIntervalMillis));
+            }
         }
 
         context.finishedSuccessfully();
