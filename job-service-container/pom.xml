@@ -41,7 +41,6 @@
         <caf.codec.impl>codec-json</caf.codec.impl>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
         <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
-        <postgres.db.port>54328</postgres.db.port>
     </properties>
 
     <dependencies>
@@ -167,7 +166,7 @@
                 <webservice.https.adminport>25083</webservice.https.adminport>
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
-                <postgres.db.port>${postgres.db.port}</postgres.db.port>
+                <postgres.db.port>5432</postgres.db.port>
                 <webservice.healthcheckport>8081</webservice.healthcheckport>
                 <webdav.apache.port>32775</webdav.apache.port>
                 <!--<CAF_JOBSERVICE_PORT>8080</CAF_JOBSERVICE_PORT>-->
