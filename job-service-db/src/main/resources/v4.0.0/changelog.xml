@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 
-    Copyright 2015-2018 Micro Focus or one of its affiliates.
+    Copyright 2015-2021 Micro Focus or one of its affiliates.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -23,26 +23,14 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
                                        http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
-    <changeSet id="create_completed_subtask_report" author="Gamma Team">
-        <createTable tableName="completed_subtask_report">
-            <column name="partition_id" type="VARCHAR(40)">
-                <constraints nullable="false" />
-            </column>
-            <column name="job_id" type="VARCHAR(48)">
-                <constraints nullable="false" />
-            </column>
-            <column name="task_id" type="VARCHAR(58)">
-                <constraints nullable="false" />
-            </column>
-            <column name="report_date" type="TIMESTAMP">
+    <changeSet id="create_table_delete_log" author="Gamma Team">
+        <createTable tableName="delete_log">
+            <column name="table_name" type="VARCHAR(63)">
                 <constraints nullable="false" />
             </column>
         </createTable>
-    </changeSet>
-    <changeSet id="add_job_dependency_sorting_index" author="Gamma Team">
-        <createIndex schemaName="public" tableName="job_dependency" indexName="idx_job_partition_id_and_dependent_job_id">
-            <column name="partition_id" />
-            <column name="dependent_job_id" />
+        <createIndex schemaName="public" tableName="delete_log" indexName="idx_delete_log_table_name">
+            <column name="table_name" />
         </createIndex>
     </changeSet>
 </databaseChangeLog>
