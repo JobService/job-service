@@ -49,7 +49,7 @@ BEGIN
         END LOOP;
 
         -- Insert table name to be dropped later
-        task_table_name := (REPLACE(task_table_ident, '"', ''))::varchar;
+        task_table_name := internal_get_task_table_name(in_partition_id, in_task_id);
         PERFORM internal_insert_delete_log(task_table_name);
     END IF;
 END
