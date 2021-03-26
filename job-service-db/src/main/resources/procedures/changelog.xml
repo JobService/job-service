@@ -297,14 +297,14 @@
     </changeSet>
     <changeSet id="drop_tables_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/dropTables.sql"
-          procedureName="drop_tables"
-          schemaName="public">
+                         procedureName="drop_tables"
+                         schemaName="public">
         </createProcedure>
     </changeSet>
     <changeSet id="insert_delete_log_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/insertDeleteLog.sql"
-          procedureName="insert_delete_log"
-          schemaName="public">
+                         procedureName="insert_delete_log"
+                         schemaName="public">
         </createProcedure>
     </changeSet>
 </databaseChangeLog>
