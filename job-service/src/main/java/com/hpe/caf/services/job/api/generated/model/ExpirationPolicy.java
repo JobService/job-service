@@ -154,34 +154,4 @@ public class ExpirationPolicy {
     private String toIndentedString(Object o) {
         return o == null ? "null" : o.toString().replace("\n", "\n    ");
     }
-
-    public List<String> toDBString() {
-        final List<String> policyList = new ArrayList<>();
-        final StringBuilder sb = new StringBuilder();
-        buildPolicy(policyList, sb, "Active,", this.active);
-        buildPolicy(policyList, sb, "Cancelled,", this.cancelled);
-        buildPolicy(policyList, sb, "Completed,", this.completed);
-        buildPolicy(policyList, sb, "Failed,", this.failed);
-        buildPolicy(policyList, sb, "Waiting,", this.waiting);
-        buildPolicy(policyList, sb, "Paused,", this.paused);
-        sb.setLength(0);
-        sb.append("(,,");
-        sb.append("Expired,")
-                .append(this.toIndentedString(ExpirationOperationEnum.DELETE.toString())).append(",")
-                .append(this.toIndentedString(this.expired.getExpiryTime()))
-                .append(")");
-        policyList.add(sb.toString());
-
-        return policyList;
-    }
-
-    private void buildPolicy(final List<String> policyList, final StringBuilder sb, final String status, final Policy policy) {
-        sb.setLength(0);
-        sb.append("(,,");
-        sb.append(status)
-                .append(this.toIndentedString(policy.getOperation().toString())).append(",")
-                .append(this.toIndentedString(policy.getExpiryTime()))
-                .append(")");
-        policyList.add(sb.toString());
-    }
 }

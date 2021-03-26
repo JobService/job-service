@@ -30,6 +30,7 @@ import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
 import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
+import com.hpe.caf.services.job.utilities.ExpirationPolicyHelper;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -336,6 +337,7 @@ public final class DatabaseHelper
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?)}")
         ) {
             final List<String[]> labelArray = buildLabelSqlArray(labels);
+            final ExpirationPolicyHelper expirationPolicyHelper = new ExpirationPolicyHelper(expirationPolicy);
 
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
@@ -356,8 +358,9 @@ public final class DatabaseHelper
 
             final Array arrayP;
             if(expirationPolicy!=null) {
-                arrayP = conn.createArrayOf(JOB_POLICY, expirationPolicy.toDBString().toArray(new String[0]));
-                LOG.debug("expirationPolicyDB: {}",expirationPolicy.toDBString());
+                arrayP = conn.createArrayOf(JOB_POLICY,
+                        expirationPolicyHelper.toDBString().toArray(new String[0]));
+                LOG.debug("expirationPolicyDB: {}",expirationPolicyHelper);
             } else{
                 arrayP = conn.createArrayOf(JOB_POLICY, new Policy[0]);
             }
@@ -388,6 +391,7 @@ public final class DatabaseHelper
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
+            final ExpirationPolicyHelper expirationPolicyHelper = new ExpirationPolicyHelper(expirationPolicy);
             final String[] prerequisiteJobIdStringArray = getPrerequisiteJobIds(prerequisiteJobIds);
             Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
 
@@ -418,8 +422,8 @@ public final class DatabaseHelper
 
             final Array arrayP;
             if(expirationPolicy!=null) {
-                arrayP = conn.createArrayOf(JOB_POLICY, expirationPolicy.toDBString().toArray(new String[0]));
-                LOG.debug("expirationPolicyDB: {}",expirationPolicy.toDBString());
+                arrayP = conn.createArrayOf(JOB_POLICY, expirationPolicyHelper.toDBString().toArray(new String[0]));
+                LOG.debug("expirationPolicyDB: {}",expirationPolicyHelper.toDBString());
             } else{
                 arrayP = conn.createArrayOf(JOB_POLICY, new Policy[0]);
             }
