@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 public class DBConnection
 {
-    private static final Logger LOG = LoggerFactory.getLogger(DatabasePoller.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DBConnection.class);
     
     private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
     private static final String JDBC_DRIVER = "org.postgresql.Driver";
