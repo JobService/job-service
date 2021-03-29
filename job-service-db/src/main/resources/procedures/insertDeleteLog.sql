@@ -24,7 +24,7 @@ CREATE OR REPLACE FUNCTION internal_insert_delete_log(
     task_table_name VARCHAR
 )
 RETURNS VOID
-LANGUAGE plpgsql
+LANGUAGE plpgsql VOLATILE
 AS $$
 BEGIN
     INSERT INTO public.delete_log VALUES (task_table_name);
