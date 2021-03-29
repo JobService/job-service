@@ -41,11 +41,15 @@ public final class DropTablesTask implements Runnable
                         final PreparedStatement stmt = connection.prepareStatement("CALL  drop_deleted_task_tables()")
                 )
                 {
-                    LOG.debug("Calling drop_deleted_task_tables() database procedure ...");
-                    Instant start = Instant.now();
-                    stmt.execute();
-                    Instant end = Instant.now();
-                    LOG.debug("Total time taken to drop tables in ms. "+ Duration.between(start, end).toMillis());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Calling drop_deleted_task_tables() database procedure ...");
+                        final Instant start = Instant.now();
+                        stmt.execute();
+                        final Instant end = Instant.now();
+                        LOG.debug("Total time taken to drop tables in ms. " + Duration.between(start, end).toMillis());
+                    } else {
+                        stmt.execute();
+                    }
                     
                 }
                 catch(final SQLException e)
