@@ -44,17 +44,17 @@ public class JobServicePerformanceIT
     {
         //prepare
         List<String> droppedTables = new ArrayList();
-        try (final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection();
-        ) {
+        try(final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
+        {
             int totalCount = 30000;
             Instant startTableCreation = Instant.now();
             IntStream
                     .range(1, totalCount)
                     .forEach((count) -> {
                         try(final CallableStatement createTaskTableStmt = dbConnection.prepareCall("{call internal_create_task_table(?)}");
-                            final CallableStatement insertDeleteLogStmt = dbConnection.prepareCall("{call internal_insert_delete_log(?)}") )
+                            final CallableStatement insertDeleteLogStmt = dbConnection.prepareCall("{call internal_insert_delete_log(?)}"))
                         {
-                            String tableName = "randomTestTable_"+ count;
+                            String tableName = "randomTestTable_" + count;
                             createTaskTableStmt.setString(1, tableName);
                             createTaskTableStmt.executeQuery();
                             insertDeleteLogStmt.setString(1, tableName);
@@ -67,7 +67,7 @@ public class JobServicePerformanceIT
                         }
                     });
             Instant endTableCreation = Instant.now();
-            LOG.info("Total time taken to create "+totalCount+" tables in ms. "+ Duration.between(startTableCreation, endTableCreation).toMillis());
+            LOG.info("Total time taken to create " + totalCount + " tables in ms. " + Duration.between(startTableCreation, endTableCreation).toMillis());
             
             // assert number of rows in delete_log to be totalCount - 1
             assertEquals(getRowsInDeleteLog(dbConnection), totalCount - 1);
@@ -80,7 +80,7 @@ public class JobServicePerformanceIT
                 Instant start = Instant.now();
                 dropTables.execute();
                 Instant end = Instant.now();
-                LOG.info("Total time taken to drop "+totalCount+" tables in ms. "+ Duration.between(start, end).toMillis());
+                LOG.info("Total time taken to drop " + totalCount + " tables in ms. " + Duration.between(start, end).toMillis());
             }
             
             
@@ -91,14 +91,15 @@ public class JobServicePerformanceIT
             assertEquals(getRowsInDeleteLog(dbConnection), 0);
         }
     }
-
+    
     private List<String> getAllTablesByPattern(java.sql.Connection dbConnection) throws SQLException
     {
         List<String> foundTables = new ArrayList();
         DatabaseMetaData dbm = dbConnection.getMetaData();
-        try( ResultSet rs = dbm.getTables(null, "public", "randomTestTable_%", null))
+        try(ResultSet rs = dbm.getTables(null, "public", "randomTestTable_%", null))
         {
-            while (rs.next()) {
+            while(rs.next())
+            {
                 foundTables.add(rs.getString("TABLE_NAME"));
             }
         }
