@@ -37,7 +37,8 @@ DECLARE
 
 BEGIN
     -- Put together the task table identifier
-    task_table_ident = quote_ident(internal_get_task_table_name(in_partition_id, in_task_id));
+    task_table_name := internal_get_task_table_name(in_partition_id, in_task_id);
+    task_table_ident = quote_ident(task_table_name);
 
     -- Check if the table exists
     IF internal_to_regclass(task_table_ident) IS NOT NULL THEN
@@ -49,7 +50,6 @@ BEGIN
         END LOOP;
 
         -- Insert table name to be dropped later
-        task_table_name := internal_get_task_table_name(in_partition_id, in_task_id);
         PERFORM internal_insert_delete_log(task_table_name);
     END IF;
 END
