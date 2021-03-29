@@ -37,8 +37,8 @@ public final class DropTablesTask implements Runnable
             try
             {
                 try(
-                        Connection connection = DBConnection.get();
-                        PreparedStatement stmt = connection.prepareStatement("CALL  drop_deleted_task_tables()")
+                        final Connection connection = DBConnection.get();
+                        final PreparedStatement stmt = connection.prepareStatement("CALL  drop_deleted_task_tables()")
                 )
                 {
                     LOG.debug("Calling drop_deleted_task_tables() database procedure ...");
