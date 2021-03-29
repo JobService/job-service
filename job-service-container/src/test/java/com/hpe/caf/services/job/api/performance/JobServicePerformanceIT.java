@@ -91,10 +91,7 @@ public class JobServicePerformanceIT
             assertEquals(getRowsInDeleteLog(dbConnection), 0);
         }
     }
-    
-    
 
-    
     private List<String> getAllTablesByPattern(java.sql.Connection dbConnection) throws SQLException
     {
         List<String> foundTables = new ArrayList();
