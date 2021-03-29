@@ -17,11 +17,8 @@ package com.hpe.caf.services.job.scheduled.executor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,40 +30,25 @@ public final class DropTablesTask implements Runnable
     @Override
     public void run()
     {
+        try(final Connection connection = DBConnection.get();
+            final PreparedStatement stmt = connection.prepareStatement("CALL  drop_deleted_task_tables()"))
         {
-            try
+            if(LOG.isDebugEnabled())
             {
-                try(
-                        final Connection connection = DBConnection.get();
-                        final PreparedStatement stmt = connection.prepareStatement("CALL  drop_deleted_task_tables()")
-                )
-                {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Calling drop_deleted_task_tables() database procedure ...");
-                        final Instant start = Instant.now();
-                        stmt.execute();
-                        final Instant end = Instant.now();
-                        LOG.debug("Total time taken to drop tables in ms. " + Duration.between(start, end).toMillis());
-                    } else {
-                        stmt.execute();
-                    }
-                    
-                }
-                catch(final SQLException e)
-                {
-                    final String errorMessage = MessageFormat
-                            .format("Failed in call to drop_deleted_task_tables() database procedure.{0}",
-                                    e.getMessage());
-                    LOG.error(errorMessage);
-                    throw new ScheduledExecutorException(errorMessage);
-                }
+                LOG.debug("Calling drop_deleted_task_tables() database procedure ...");
+                final Instant start = Instant.now();
+                stmt.execute();
+                final Instant end = Instant.now();
+                LOG.debug("Total time taken to drop tables in ms. " + Duration.between(start, end).toMillis());
             }
-            catch(final Throwable t)
+            else
             {
-                LOG.error("Caught exception while dropping soft deleted tables. Message:\n" + t
-                        .getMessage()
-                        + "StackTrace:\n" + Arrays.toString(t.getStackTrace()));
+                stmt.execute();
             }
+        }
+        catch(final Throwable t)
+        {
+            LOG.error("Caught exception while dropping soft deleted tables.", t);
         }
     }
 }
