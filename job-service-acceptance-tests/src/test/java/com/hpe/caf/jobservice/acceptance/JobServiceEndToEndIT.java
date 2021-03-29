@@ -1154,7 +1154,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsExist(job4Id, job2Id, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
     }
     
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testJobCompletionInsertsRecordsInDeleteLog() throws Exception
     {
         numTestItemsToGenerate = 2;
