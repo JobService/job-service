@@ -17,8 +17,9 @@ The message will contain the following tracking information:
 
 - jobId
 - statusCheckURL
+- lastStatusCheckTime
+- statusCheckIntervalMillis
 - trackingPipe
 - trackTo
-- statusCheckTime
 
 **JIRA Link** - [CAF-929](https://jira.autonomy.com/browse/CAF-929)

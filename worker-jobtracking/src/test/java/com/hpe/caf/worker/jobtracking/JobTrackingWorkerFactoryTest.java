@@ -65,7 +65,7 @@ public class JobTrackingWorkerFactoryTest {
         JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
         TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_SUCCESS, Collections.EMPTY_MAP, toQueue);
-        TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), statusCheckUrl, trackingPipe, toQueue); //trackToPipe==toQueue
+        TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), 0, statusCheckUrl, trackingPipe, toQueue); //trackToPipe==toQueue
         tm.setTracking(tracking);
 
         Map<String, Object> headers = Collections.emptyMap();
@@ -131,7 +131,7 @@ public class JobTrackingWorkerFactoryTest {
         JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
         TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_SUCCESS, Collections.EMPTY_MAP, toQueue);
-        TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), statusCheckUrl, trackingPipe, trackToPipe);
+        TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), 0, statusCheckUrl, trackingPipe, trackToPipe);
         tm.setTracking(tracking);
 
         Map<String, Object> headers = Collections.emptyMap();
@@ -159,7 +159,7 @@ public class JobTrackingWorkerFactoryTest {
         JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
         TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_EXCEPTION, Collections.EMPTY_MAP, toQueue);
-        TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), statusCheckUrl, trackingPipe, trackToPipe);
+        TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), 0, statusCheckUrl, trackingPipe, trackToPipe);
         tm.setTracking(tracking);
 
         Map<String, Object> headers = new HashMap<String, Object>();
@@ -188,7 +188,7 @@ public class JobTrackingWorkerFactoryTest {
         JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
         TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_FAILURE, Collections.EMPTY_MAP, toQueue);
-        TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), statusCheckUrl, trackingPipe, trackToPipe);
+        TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), 0, statusCheckUrl, trackingPipe, trackToPipe);
         tm.setTracking(tracking);
 
         Map<String, Object> headers = new HashMap<String, Object>();

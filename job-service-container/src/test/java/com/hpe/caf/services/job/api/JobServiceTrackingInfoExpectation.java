@@ -15,6 +15,8 @@
  */
 package com.hpe.caf.services.job.api;
 
+import java.util.Date;
+
 /**
  * The expectation object
  */
@@ -31,12 +33,17 @@ public class JobServiceTrackingInfoExpectation {
     private String jobTaskId;
 
     /**
-     * The status check time
+     * The last time the status of the task was checked
      */
-    private String statusCheckTime;
+    private Date lastStatusCheckTime;
 
     /**
-     * The full URL address to access the isActive job service web method
+     * The interval in milliseconds to wait between task status checks
+     */
+    private long statusCheckIntervalMillis;
+
+    /**
+     * The full URL address to access the status job service web method
      */
     private String statusCheckUrl;
 
@@ -59,7 +66,8 @@ public class JobServiceTrackingInfoExpectation {
     public JobServiceTrackingInfoExpectation(
         final String partitionId,
         String jobTaskId,
-        String statusCheckTime,
+        Date lastStatusCheckTime,
+        long statusCheckIntervalMillis,
         String statusCheckUrl,
         String trackingPipe,
         String trackingTo,
@@ -67,7 +75,8 @@ public class JobServiceTrackingInfoExpectation {
     ) {
         this.partitionId = partitionId;
         this.jobTaskId = jobTaskId;
-        this.statusCheckTime = statusCheckTime;
+        this.lastStatusCheckTime = lastStatusCheckTime;
+        this.statusCheckIntervalMillis = statusCheckIntervalMillis;
         this.statusCheckUrl = statusCheckUrl;
         this.trackingPipe = trackingPipe;
         this.trackingTo = trackingTo;
@@ -86,12 +95,20 @@ public class JobServiceTrackingInfoExpectation {
         this.jobTaskId = jobTaskId;
     }
 
-    public String getStatusCheckTime() {
-        return statusCheckTime;
+    public Date getLastStatusCheckTime() {
+        return lastStatusCheckTime;
     }
 
-    public void setStatusCheckTime(String statusCheckTime) {
-        this.statusCheckTime = statusCheckTime;
+    public void setLastStatusCheckTime(Date lastStatusCheckTime) {
+        this.lastStatusCheckTime = lastStatusCheckTime;
+    }
+
+    public long getStatusCheckIntervalMillis(){
+        return statusCheckIntervalMillis;
+    }
+
+    public void setStatusCheckIntervalMillis(long statusCheckIntervalMillis){
+        this.statusCheckIntervalMillis = statusCheckIntervalMillis;
     }
 
     public String getStatusCheckUrl() {

@@ -170,7 +170,7 @@ public class JobServiceEndToEndIT {
         }
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testTargetPipeNull()throws Exception{
         //Set null output queue. Which is valid.
         testTargetPipeForJobWithNoAndWithCompletedPrerequisiteJobs(null);
@@ -264,7 +264,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testJobWithNoPrerequisiteJobs() throws Exception {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
@@ -298,7 +298,7 @@ public class JobServiceEndToEndIT {
         }
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testJobWithPrerequisiteJobsWhichHaveCompleted() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
@@ -377,7 +377,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job3Id, job2Id);
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testJobWithNullAndBlankAndEmptyPrereqJobsShouldComplete() throws Exception
     {
         numTestItemsToGenerate = 1;                 // CAF-3677: Remove this on fix
@@ -415,7 +415,7 @@ public class JobServiceEndToEndIT {
         }
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testJobWithPrerequisiteJobsWithOneNotCompleted() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
@@ -481,7 +481,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobStatus(parentJobId, "waiting");
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testJobWithPrerequisiteJobs() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
@@ -564,7 +564,7 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobDependencyRowsDoNotExist(job4Id, job2Id);
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testJobWithPrerequisiteJobsAndDelays() throws Exception
     {
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
@@ -784,7 +784,7 @@ public class JobServiceEndToEndIT {
                 retrievedJob.getId(), partitionId, canRun);
         assertEquals(canRun, false, "Job "+jobId+" is eligible to run despite being in a suspended partition and a configured delay");
     }
-
+    
     @Test
     public void testSuspendedJobWithPrerequisiteJobsAndDelays() throws Exception
     {
@@ -848,12 +848,12 @@ public class JobServiceEndToEndIT {
         assertEquals(canRunJob3, false, "Job "+job3Id+" is eligible to run despite prerequisite "+job2Id+" failed");
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testJobCancellation() throws Exception {
         testJobCancellation(false);
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testJobCancellationWithTaskDataObject() throws Exception {
         testJobCancellation(true);
     }
@@ -889,7 +889,7 @@ public class JobServiceEndToEndIT {
         }
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     @SuppressWarnings("unchecked")
     public void testJobServiceCaller_Success() throws ParseException, IOException, TimeoutException {
 
@@ -1070,12 +1070,12 @@ public class JobServiceEndToEndIT {
         LOG.debug("Finished testJobServiceCaller_Failure().");
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testJobDeletion() throws Exception {
         testJobDeletion(false);
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testJobDeletionWithTaskDataObject() throws Exception {
         testJobDeletion(true);
     }
@@ -1266,7 +1266,7 @@ public class JobServiceEndToEndIT {
         waitUntilJobStatusIs(JobStatus.Paused, jobId);
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testPauseCompletedJobIsNotAllowed() throws Exception {
         exampleWorkerMessageOutQueue = null; // Setting this to null means the job completes rather than being stuck in a 'Waiting' state
         final String jobId = generateJobId();
@@ -1310,7 +1310,7 @@ public class JobServiceEndToEndIT {
         waitUntilJobStatusIs(JobStatus.Active, jobId);
     }
 
-    @Test
+    @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testResumeCompletedJobIsNotAllowed() throws Exception {
         exampleWorkerMessageOutQueue = null; // Setting this to null means the job completes rather than being stuck in a 'Waiting' state
         final String jobId = generateJobId();

@@ -38,7 +38,7 @@ public final class JobsStatus {
 
     public static JobsStatusResult getJobStatus(final String partitionId, final String jobId) throws Exception {
         Job.StatusEnum jobStatus;
-        int statusCheckIntervalMillis;
+        int statusCheckIntervalSeconds;
 
         try {
             LOG.debug("getJobStatus: Starting...");
@@ -61,7 +61,7 @@ public final class JobsStatus {
             AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get the number of seconds after which it is appropriate to try to confirm that the task has not been cancelled or aborted.
-            statusCheckIntervalMillis = Integer.parseInt(config.getStatusCheckTime());
+            statusCheckIntervalSeconds = Integer.parseInt(config.getStatusCheckIntervalSeconds());
 
             //  Get database helper instance.
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
@@ -76,6 +76,6 @@ public final class JobsStatus {
         }
 
         LOG.debug("getJobStatus: Done.");
-        return new JobsStatusResult(jobStatus, statusCheckIntervalMillis);
+        return new JobsStatusResult(jobStatus, statusCheckIntervalSeconds);
     }
 }

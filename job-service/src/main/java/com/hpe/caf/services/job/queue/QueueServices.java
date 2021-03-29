@@ -36,7 +36,6 @@ import org.slf4j.MDC;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -103,12 +102,13 @@ public final class QueueServices {
         String statusCheckUrl = UriBuilder.fromUri(config.getWebserviceUrl())
             .path("partitions").path(partitionId)
             .path("jobs").path(jobId)
-            .path("isActive").build().toString();
+            .path("status").build().toString();
 
         //  Construct the task message.
         final TrackingInfo trackingInfo = new TrackingInfo(
                 new JobTaskId(partitionId, jobId).getMessageId(),
-                calculateStatusCheckDate(config.getStatusCheckTime()),
+                new Date(),
+                getStatusCheckIntervalMillis(config.getStatusCheckIntervalSeconds()),
                 statusCheckUrl, config.getTrackingPipe(), workerAction.getTargetPipe());
 
         final TaskMessage taskMessage = new TaskMessage(
@@ -149,22 +149,12 @@ public final class QueueServices {
         publisherChannel.waitForConfirmsOrDie(10000);
     }
 
-    /**
-     * Calculates the date of the next status check to be performed.
-     */
-    private Date calculateStatusCheckDate(String statusCheckTime){
-        //make sure statusCheckTime is a valid long
-        long seconds = 0;
+    private static long getStatusCheckIntervalMillis(final String statusCheckIntervalSeconds){
         try{
-            seconds = Long.parseLong(statusCheckTime);
+            return Long.parseLong(statusCheckIntervalSeconds) * 1000;
         } catch (NumberFormatException e) {
-            throw new RuntimeException("Please provide a valid integer for statusCheckTime in seconds. " +e);
+            throw new RuntimeException("Please provide a valid integer for statusCheckIntervalSeconds. " + e);
         }
-
-        //set up date for statusCheckTime. Get current date-time and add statusCheckTime seconds.
-        Instant now = Instant.now();
-        Instant later = now.plusSeconds(seconds);
-        return java.util.Date.from( later );
     }
 
     /**

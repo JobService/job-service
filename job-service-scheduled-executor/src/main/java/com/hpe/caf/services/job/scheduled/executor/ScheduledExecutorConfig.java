@@ -60,8 +60,8 @@ public class ScheduledExecutorConfig {
         return getPropertyOrEnvVar("CAF_TRACKING_PIPE");
     }
 
-    public static String getStatusCheckTime() {
-        return getPropertyOrEnvVar("CAF_STATUS_CHECK_TIME");
+    public static String getStatusCheckIntervalSeconds() {
+        return getPropertyOrEnvVar("CAF_STATUS_CHECK_INTERVAL_SECONDS");
     }
 
     public static String getWebserviceUrl() {

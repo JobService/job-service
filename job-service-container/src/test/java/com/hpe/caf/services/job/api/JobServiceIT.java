@@ -770,7 +770,7 @@ public class JobServiceIT {
         String statusCheckUrl = System.getenv("CAF_WEBSERVICE_URL");
         if(statusCheckUrl!=null) {
             statusCheckUrl = statusCheckUrl +
-                "/partitions/" + defaultPartitionId + "/jobs/" + jobId + "/isActive";
+                "/partitions/" + defaultPartitionId + "/jobs/" + jobId + "/status";
         } else {
             throw new Exception("CAF_WEBSERVICE_URL environment variable is null.");
         }
@@ -779,13 +779,13 @@ public class JobServiceIT {
         if(trackingPipe==null)
             throw new Exception("CAF_TRACKING_PIPE environment variable is null.");
 
-        String statusCheckTime = System.getenv("CAF_STATUS_CHECK_TIME");
-        if(statusCheckTime==null)
-            throw new Exception("CAF_TRACKING_PIPE environment variable is null.");
+        String statusCheckIntervalSeconds = System.getenv("CAF_STATUS_CHECK_INTERVAL_SECONDS");
+        if(statusCheckIntervalSeconds==null)
+            throw new Exception("CAF_STATUS_CHECK_INTERVAL_SECONDS environment variable is null.");
 
         //create expectation object for comparing message on RabbitMQ
         JobServiceTrackingInfoExpectation expectation = new JobServiceTrackingInfoExpectation(
-            defaultPartitionId, jobId, statusCheckTime, statusCheckUrl,
+            defaultPartitionId, jobId, null, Long.parseLong(statusCheckIntervalSeconds) * 1000, statusCheckUrl,
             trackingPipe, trackingToQueue, true);
 
         testMessagesPutOnQueue(
