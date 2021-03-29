@@ -26,7 +26,6 @@ CREATE OR REPLACE FUNCTION internal_insert_delete_log(
 RETURNS VOID
 LANGUAGE plpgsql
 AS $$
-DECLARE
 BEGIN
     INSERT INTO public.delete_log VALUES (task_table_name);
 END
