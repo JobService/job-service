@@ -32,6 +32,6 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
 BEGIN
-        INSERT INTO public.delete_log VALUES ( task_table_name );
+    INSERT INTO public.delete_log VALUES (task_table_name);
 END
 $$;

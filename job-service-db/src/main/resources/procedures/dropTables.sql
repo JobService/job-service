@@ -21,9 +21,8 @@
  *  Drops all tables present in delete_log table
  *  This procedure does batch commits. The batch is defined by commit_limit variable. Default batch size being 10.
  */
-
 CREATE OR REPLACE PROCEDURE drop_deleted_task_tables()
-    LANGUAGE plpgsql
+LANGUAGE plpgsql
 AS $$
 DECLARE
     selected_table_names VARCHAR;
@@ -33,13 +32,14 @@ DECLARE
 BEGIN
     selected_table_names := $q$SELECT table_name FROM delete_log LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
 
-    WHILE EXISTS (SELECT 1 FROM delete_log) LOOP
-            FOR rec IN EXECUTE selected_table_names
-            LOOP
-                EXECUTE 'DROP TABLE IF EXISTS ' ||  quote_ident(rec.table_name);
-                DELETE FROM delete_log WHERE table_name = rec.table_name;
-            END LOOP;
-            COMMIT;
+    WHILE EXISTS (SELECT 1 FROM delete_log)
+    LOOP
+        FOR rec IN EXECUTE selected_table_names
+        LOOP
+            EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(rec.table_name);
+            DELETE FROM delete_log WHERE table_name = rec.table_name;
         END LOOP;
+        COMMIT;
+    END LOOP;
 END
 $$;
