@@ -20,10 +20,6 @@
  *  Description:
  *  This is used to insert a record into delete log table.
  */
-DROP FUNCTION IF EXISTS internal_insert_delete_log(
-    task_table_name VARCHAR
-);
-
 CREATE OR REPLACE FUNCTION internal_insert_delete_log(
     task_table_name VARCHAR
 )
