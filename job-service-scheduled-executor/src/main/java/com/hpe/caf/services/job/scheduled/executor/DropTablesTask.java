@@ -70,3 +70,4 @@ public final class DropTablesTask implements Runnable
         }
     }
 }
+
