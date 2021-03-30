@@ -181,20 +181,14 @@
                     <value>release</value>
                 </property>
             </activation>
-        </profile>
-        <profile>
-            <id>continuous</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludes>
-                                <exclude>com.hpe.caf.services.job.api.performance.JobServicePerformanceIT</exclude>
+                            <excludes combine.self="override">
+                                <exclude></exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -273,6 +267,9 @@
                         <healthcheckurl>http://${docker.host.address}:${webservice.healthcheckport}/healthcheck</healthcheckurl>
                         <webserviceurlhttps>https://${docker.host.address}:${webservice.https.adminport}/job-service/v1</webserviceurlhttps>
                     </environmentVariables>
+                    <excludes>
+                        <exclude>com.hpe.caf.services.job.api.performance.JobServicePerformanceIT</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 
