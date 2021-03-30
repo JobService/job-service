@@ -296,7 +296,7 @@
         </createProcedure>
     </changeSet>
     <changeSet id="drop_deleted_task_tables_proc" runOnChange="true" author="Gamma Team">
-        <createProcedure path="procedures/dropTables.sql"
+        <createProcedure path="procedures/dropDeletedTaskTables.sql"
                          procedureName="drop_deleted_task_tables"
                          schemaName="public">
         </createProcedure>
