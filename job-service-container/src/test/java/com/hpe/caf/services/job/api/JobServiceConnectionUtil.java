@@ -22,8 +22,11 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JobServiceConnectionUtil
+public final class JobServiceConnectionUtil
 {
+    private JobServiceConnectionUtil()
+    {
+    }
     
     private static final Logger LOG = LoggerFactory.getLogger(JobServiceConnectionUtil.class);
     public static java.sql.Connection getDbConnection() throws SQLException

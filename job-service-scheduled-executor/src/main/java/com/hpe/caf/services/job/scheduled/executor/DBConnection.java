@@ -26,6 +26,10 @@ import org.slf4j.LoggerFactory;
 
 public final class DBConnection
 {
+    private DBConnection()
+    {
+    }
+    
     private static final Logger LOG = LoggerFactory.getLogger(DBConnection.class);
     
     private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
