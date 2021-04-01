@@ -39,14 +39,15 @@ public class JobServicePerformanceIT
 {
     private static final Logger LOG = LoggerFactory.getLogger(JobServicePerformanceIT.class);
     
-    @Test
+    @Test(enabled = false)
     public void testDeleteLog() throws SQLException
     {
         //prepare
         List<String> droppedTables = new ArrayList();
         try(final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
         {
-            int totalCount = 30000;
+            int totalCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
+            LOG.info("Creating " + totalCount + " tables ");
             Instant startTableCreation = Instant.now();
             IntStream
                     .range(1, totalCount)
@@ -82,7 +83,6 @@ public class JobServicePerformanceIT
                 Instant end = Instant.now();
                 LOG.info("Total time taken to drop " + totalCount + " tables in ms. " + Duration.between(start, end).toMillis());
             }
-            
             
             //assert
             foundTables = getAllTablesByPattern(dbConnection);

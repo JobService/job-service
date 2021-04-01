@@ -32,6 +32,7 @@
     </parent>
 
     <properties>
+        <task.table.deletion.count>100</task.table.deletion.count>
         <tomcatBaseImage>${dockerHubPublic}/cafapi/opensuse-tomcat-jre11:2</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
@@ -181,19 +182,9 @@
                     <value>release</value>
                 </property>
             </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <excludes combine.self="override">
-                                <exclude></exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <task.table.deletion.count>30000</task.table.deletion.count>
+            </properties>
         </profile>
     </profiles>
 
@@ -251,6 +242,7 @@
                         <docker.host.address>${docker.host.address}</docker.host.address>
                         <rabbitmq.node.port>${rabbitmq.node.port}</rabbitmq.node.port>
                         <rabbitmq.ctrl.port>${rabbitmq.ctrl.port}</rabbitmq.ctrl.port>
+                        <task.table.deletion.count>${task.table.deletion.count}</task.table.deletion.count>
                     </systemPropertyVariables>
                     <environmentVariables>
                         <CAF_APPNAME>test/jobservice</CAF_APPNAME>
@@ -267,9 +259,6 @@
                         <healthcheckurl>http://${docker.host.address}:${webservice.healthcheckport}/healthcheck</healthcheckurl>
                         <webserviceurlhttps>https://${docker.host.address}:${webservice.https.adminport}/job-service/v1</webserviceurlhttps>
                     </environmentVariables>
-                    <excludes>
-                        <exclude>com.hpe.caf.services.job.api.performance.JobServicePerformanceIT</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
 
