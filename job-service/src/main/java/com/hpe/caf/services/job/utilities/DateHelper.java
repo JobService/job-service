@@ -29,11 +29,11 @@ public final class DateHelper {
     }
 
     /**
-     * P1Y -> 1 year
-     * P1M -> 1 month
-     * P1D -> 1 day
-     * 1H  -> 1 hour
-     * 1M  -> 1 minute
+     * P1Y  1 year
+     * P1M  1 month
+     * P1D  1 day
+     * 1H   1 hour
+     * 1M   1 minute
      * https://www.postgresql.org/docs/9.3/datatype-datetime.html
      * @param dateToCheck the date to validate
      * @throws BadRequestException if any invalid parameter
