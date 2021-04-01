@@ -34,4 +34,13 @@
     <changeSet id="create_job_expiration_policy" author="Gamma Team">
         <sql>CREATE TABLE job_expiration_policy OF JOB_POLICY</sql>
     </changeSet>
+    <changeSet id="add_job_expiration_policy_foreign_key" author="Gamma Team">
+        <addForeignKeyConstraint baseTableSchemaName="public"
+                                 baseTableName="job_expiration_policy"
+                                 constraintName="fk_expiration_policy_job"
+                                 baseColumnNames="partition_id, job_id"
+                                 referencedTableName="job"
+                                 referencedColumnNames="partition_id, job_id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
 </databaseChangeLog>
