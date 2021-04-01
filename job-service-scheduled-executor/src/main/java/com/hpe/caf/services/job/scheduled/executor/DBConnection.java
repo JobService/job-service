@@ -24,7 +24,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DBConnection
+public final class DBConnection
 {
     private static final Logger LOG = LoggerFactory.getLogger(DBConnection.class);
     
@@ -91,4 +91,3 @@ public class DBConnection
         return conn;
     }
 }
-
