@@ -29,12 +29,19 @@ public final class DateHelper {
     }
 
     /**
-     *
+     * P1Y -> 1 year
+     * P1M -> 1 month
+     * P1D -> 1 day
+     * 1H  -> 1 hour
+     * 1M  -> 1 minute
+     * https://www.postgresql.org/docs/9.3/datatype-datetime.html
      * @param dateToCheck the date to validate
      * @throws BadRequestException if any invalid parameter
      */
     public static void validate(final String dateToCheck) throws BadRequestException {
-        final String dateRegex = "^(lastUpdateTime|createTime)(\\+P)[1-9]\\d*[DYHM]$|^none$";
+        final String dateRegex = "^(lastUpdateTime|createTime)\\+((P)[1-9]\\d*[DYM])$|" +
+                                 "^(lastUpdateTime|createTime)\\+([1-9]\\d*[HM])$|" +
+                                 "^none$";
         if(!dateToCheck.matches(dateRegex)){
             try{
                 // validate date format
@@ -42,7 +49,9 @@ public final class DateHelper {
                 // verify that date is in the future
                 if (instantPassed.isBefore(Instant.now()))throw new BadRequestException("Date should be in the future ,"+dateToCheck);
             }catch (final DateTimeParseException e){
-                throw new BadRequestException("Invalid date "+dateToCheck);
+                final String errorMessage = "Invalid date "+dateToCheck;
+                LOG.error(errorMessage);
+                throw new BadRequestException(errorMessage);
             }
         }
     }
