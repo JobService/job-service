@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+<<<<<<< HEAD
 public class DBConnection
 {
     private static final Logger LOG = LoggerFactory.getLogger(DBConnection.class);
@@ -31,6 +32,19 @@ public class DBConnection
     private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
     private static final String JDBC_DRIVER = "org.postgresql.Driver";
 
+=======
+public final class DBConnection
+{
+    private DBConnection()
+    {
+    }
+    
+    private static final Logger LOG = LoggerFactory.getLogger(DBConnection.class);
+    
+    private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
+    private static final String JDBC_DRIVER = "org.postgresql.Driver";
+    
+>>>>>>> develop
     public static Connection get() throws ScheduledExecutorException
     {
         final String databaseUrl = ScheduledExecutorConfig.getDatabaseURL();
@@ -40,14 +54,22 @@ public class DBConnection
                 ScheduledExecutorConfig.getApplicationName() != null ? ScheduledExecutorConfig
                         .getApplicationName()
                         : "Job Service Scheduled Executor";
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> develop
         // Only JDBC/PostgreSQL connections are supported.
         if(!databaseUrl.startsWith(JDBC_POSTGRESQL_PREFIX))
         {
             throw new ScheduledExecutorException(
                     "Invalid database url string format - must start with jdbc:postgresql:");
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> develop
         try
         {
             LOG.debug("Registering JDBC driver \"{}\" ...", JDBC_DRIVER);
@@ -61,7 +83,11 @@ public class DBConnection
             LOG.error(errorMessage);
             throw new ScheduledExecutorException(errorMessage, e);
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> develop
         final Connection conn;
         try
         {
@@ -87,7 +113,11 @@ public class DBConnection
             LOG.error(errorMessage);
             throw new ScheduledExecutorException(errorMessage);
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> develop
         return conn;
     }
 }
