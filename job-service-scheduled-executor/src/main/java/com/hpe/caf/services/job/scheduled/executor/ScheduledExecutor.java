@@ -29,7 +29,7 @@ public class ScheduledExecutor {
 
     public static void main(final String[] args)
     {
-        // Create a scheduler with one thread to process the pollDatabaseForJobsToRun() scheduled task.
+        // Create a scheduler to process scheduled tasks.
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         LOG.info("Starting Job Service Scheduled Executor service ...");
@@ -46,5 +46,11 @@ public class ScheduledExecutor {
         //  scheduled task is run.
         scheduler.scheduleWithFixedDelay(task, 20, ScheduledExecutorConfig.getScheduledExecutorPeriod(),
                 TimeUnit.SECONDS);
+
+        LOG.info("Starting task for dropping soft deleted tables ...");
+        //  Execute the dropTablesTask periodically.
+        scheduler.scheduleWithFixedDelay(new DropTablesTask(), 20, ScheduledExecutorConfig.getDropTablesSchedulerPeriod(),
+                TimeUnit.SECONDS);
     }
+
 }

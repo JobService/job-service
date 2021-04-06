@@ -76,6 +76,14 @@ public class ScheduledExecutorConfig {
         }
         return Integer.parseInt(scheduledExecutorPeriod);
     }
+    
+    public static int getDropTablesSchedulerPeriod() {
+        final String  period = getPropertyOrEnvVar("CAF_DROP_TABLES_SCHEDULER_PERIOD");
+        if (null == period || period.isEmpty()) {
+            return 60;
+        }
+        return Integer.parseInt(period);
+    }
 
     private static String getPropertyOrEnvVar(final String key)
     {
