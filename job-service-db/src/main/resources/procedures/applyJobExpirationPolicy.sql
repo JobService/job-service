@@ -27,79 +27,68 @@ LANGUAGE plpgsql
 VOLATILE
 AS
 $$
-DECLARE
-    v_rec            RECORD;
-    v_dateToTest     VARCHAR;
-    v_duration       INTERVAL;
-    v_expiration     date;
-    v_partition_id   VARCHAR;
 BEGIN
+    -- create inner function that deletes or expires the job according to its status policy
+    CREATE OR REPLACE FUNCTION delete_or_expire_job(p_id varchar, j_id varchar, j_operation EXPIRATION_OPERATION)
+    RETURNS void AS
+    $delete_or_expire_job$
+    BEGIN
+        IF j_operation = 'Expire' THEN
+            UPDATE job j
+            SET status ='Expired'
+            WHERE j.partition_id = p_id
+              AND j.job_id = j_id;
+        ELSE
+            PERFORM delete_job(p_id, j_id);
+        END IF;
+    END;
+    $delete_or_expire_job$
+    language plpgsql;
 
-    CREATE temp table temp_table
-        ON COMMIT DROP AS
-    SELECT j.partition_id,
-           j.job_id,
-           j.create_date,
-           j.last_update_date,
-           jep.operation,
-           jep.expiration_time
-    FROM job j
-             JOIN job_expiration_policy jep
-                  ON j.partition_id = jep.partition_id
-                         AND j.job_id = jep.job_id
-                         AND j.status = jep.job_status
-    WHERE expiration_time is not NULL
-      AND expiration_time != 'none'
-    ORDER BY j.partition_id, j.job_id;
 
-    FOR v_rec IN SELECT * FROM temp_table
-        LOOP
-            IF v_partition_id != v_rec.partition_id THEN
-                v_partition_id = v_rec.partition_id;
-            END IF;
-            v_dateToTest = v_rec.expiration_time;
+    PERFORM NULL
+    FROM (
 
-            BEGIN
-                    -- if related to lastUpdate
-                IF LEFT(v_dateToTest, 4) = 'last' THEN
-                    v_duration = split_part(v_dateToTest, '+', 2);
-                    v_expiration = v_rec.last_update_date + v_duration;
+        -- we select the job details where an expiration policy is set
+             SELECT j.partition_id AS p_id,
+                    j.job_id       AS j_id,
+                    jep.job_status AS j_status,
+                    jep.operation  AS j_operation,
+                    -- whenever there is a "related date" provided (to create_date or last_update_date)
+                    -- we calculate the expiration_date and check if it's expired, returning a boolean
+                    CASE
+                        WHEN jep.expiration_time IS NOT NULL AND LEFT(jep.expiration_time, 1) = 'l' THEN ((
+                                j.last_update_date + split_part(jep.expiration_time, '+', 2)::INTERVAL)::timestamp)
+                                <= now() AT TIME ZONE 'UTC'
+                        WHEN jep.expiration_time IS NOT NULL AND LEFT(jep.expiration_time, 1) = 'c'
+                            THEN ((j.create_date + split_part(jep.expiration_time, '+', 2)::INTERVAL)::timestamp)
+                                <= now() AT TIME ZONE 'UTC'
+                        ELSE (jep.expiration_time::timestamp) <= now() AT TIME ZONE 'UTC'
+                        END           expired
+             FROM job j
+                JOIN job_expiration_policy jep
+                ON j.partition_id = jep.partition_id
+                AND j.job_id = jep.job_id
+                WHERE jep.expiration_time != 'none'
+                AND jep.expiration_time IS NOT NULL
+         ) t1
 
-                    -- if related to createDate
-                ELSIF LEFT(v_dateToTest, 6) = 'create' THEN
-                    v_duration = split_part(v_dateToTest, '+', 2);
-                    v_expiration = v_rec.create_date + v_duration;
-                ELSE
-                    -- pass the date as is
-                    --PERFORM v_dateToTest::DATE;
-                    v_expiration = v_dateToTest;
-                END IF;
-                -- if any exception, raise
-            EXCEPTION
-                WHEN OTHERS THEN
-                    RAISE EXCEPTION 'Invalid date %', v_dateToTest;
-            END;
-
-            -- now that we checked the date validity, we check if there's any expiration
-            IF v_expiration <= now() AT TIME ZONE 'UTC' THEN
-                -- if action = 'expire', add to expire array
-                BEGIN
-                    IF v_rec.operation = 'Delete' THEN
-                        PERFORM delete_job(v_rec.partition_id, v_rec.job_id);
-                    ELSE
-                        UPDATE job j
-                        SET status ='Expired'
-                        WHERE j.partition_id = v_rec.partition_id
-                        AND j.job_id = v_rec.job_id;
-                    END IF;
-                    -- if any exception, raise
-                EXCEPTION
-                    WHEN OTHERS THEN
-                        RAISE EXCEPTION 'Issue while expiring policies for %/%', v_rec.partition_id, v_rec.job_id;
-                END;
-            END IF;
-
-        END LOOP;
+        -- then, we make sure that we get the latest status for the job
+             LEFT JOIN LATERAL
+        (
+        SELECT status AS s2
+        FROM get_job(p_id, j_id)
+        LIMIT 1
+        ) t2 ON TRUE
+             LEFT JOIN LATERAL (
+        SELECT *
+        FROM delete_or_expire_job(p_id, j_id, j_operation)
+        WHERE j_status != 'Expired'
+        ) t3 ON TRUE
+    -- we target only the policy matching the current status
+    -- and only when the job is actually expired according to the expiration_time
+    WHERE j_status = s2
+      AND t1.expired IS TRUE;
 
 END;
 $$;
