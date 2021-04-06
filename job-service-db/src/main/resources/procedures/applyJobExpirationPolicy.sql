@@ -32,7 +32,7 @@ DECLARE
     v_dateToTest     VARCHAR;
     v_duration       INTERVAL;
     v_expiration     date;
-    v_partition_id VARCHAR;
+    v_partition_id   VARCHAR;
 BEGIN
 
     CREATE temp table temp_table
@@ -50,7 +50,6 @@ BEGIN
                          AND j.status = jep.job_status
     WHERE expiration_time is not NULL
       AND expiration_time != 'none'
-      AND j.status != 'Expired'
     ORDER BY j.partition_id, j.job_id;
 
     FOR v_rec IN SELECT * FROM temp_table
@@ -61,7 +60,7 @@ BEGIN
             v_dateToTest = v_rec.expiration_time;
 
             BEGIN
-                -- if related to lastUpdate
+                    -- if related to lastUpdate
                 IF LEFT(v_dateToTest, 4) = 'last' THEN
                     v_duration = split_part(v_dateToTest, '+', 2);
                     v_expiration = v_rec.last_update_date + v_duration;
@@ -69,10 +68,10 @@ BEGIN
                     -- if related to createDate
                 ELSIF LEFT(v_dateToTest, 6) = 'create' THEN
                     v_duration = split_part(v_dateToTest, '+', 2);
-                    v_expiration = v_rec.last_update_date + v_duration;
+                    v_expiration = v_rec.create_date + v_duration;
                 ELSE
                     -- pass the date as is
-                    PERFORM v_dateToTest::DATE;
+                    --PERFORM v_dateToTest::DATE;
                     v_expiration = v_dateToTest;
                 END IF;
                 -- if any exception, raise

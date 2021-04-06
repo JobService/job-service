@@ -20,6 +20,14 @@ package com.hpe.caf.services.job.scheduled.executor;
  */
 public class ScheduledExecutorConfig {
 
+    public static int getApplyExpirationPolicySchedulerPeriod() {
+        final String  period = getPropertyOrEnvVar("CAF_APPLY_EXPIRATION_POLICY_SCHEDULER_PERIOD");
+        if (null == period || period.isEmpty()) {
+            return 180;
+        }
+        return Integer.parseInt(period);
+    }
+
     public static String getDatabaseURL(){
         return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL")
             : getPropertyOrEnvVar("CAF_DATABASE_URL");
