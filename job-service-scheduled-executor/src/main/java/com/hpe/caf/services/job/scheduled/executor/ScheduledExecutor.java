@@ -18,6 +18,7 @@ package com.hpe.caf.services.job.scheduled.executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.HEAD;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,15 +48,14 @@ public class ScheduledExecutor {
         scheduler.scheduleWithFixedDelay(task, 20, ScheduledExecutorConfig.getScheduledExecutorPeriod(),
                 TimeUnit.SECONDS);
 
-<<<<<<< HEAD
         LOG.info("Starting task for applying the job expiration policy ...");
         //  Execute the dropTablesTask periodically.
         scheduler.scheduleWithFixedDelay(new ApplyJobExpirationPolicyTask(), 20, ScheduledExecutorConfig.getApplyExpirationPolicySchedulerPeriod(),
-=======
+                TimeUnit.SECONDS);
+
         LOG.info("Starting task for dropping soft deleted tables ...");
         //  Execute the dropTablesTask periodically.
         scheduler.scheduleWithFixedDelay(new DropTablesTask(), 20, ScheduledExecutorConfig.getDropTablesSchedulerPeriod(),
->>>>>>> develop
                 TimeUnit.SECONDS);
     }
 

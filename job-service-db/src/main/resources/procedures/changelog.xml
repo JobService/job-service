@@ -307,21 +307,9 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
-<<<<<<< HEAD
     <changeSet id="create_upsert_joc_policy_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/upsertJobPolicy.sql"
                          procedureName="internal_upsert_job_policy"
-=======
-    <changeSet id="drop_deleted_task_tables_proc" runOnChange="true" author="Gamma Team">
-        <createProcedure path="procedures/dropDeletedTaskTables.sql"
-                         procedureName="drop_deleted_task_tables"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet>
-    <changeSet id="insert_delete_log_proc" runOnChange="true" author="Gamma Team">
-        <createProcedure path="procedures/insertDeleteLog.sql"
-                         procedureName="internal_insert_delete_log"
->>>>>>> develop
                          schemaName="public">
         </createProcedure>
     </changeSet>
