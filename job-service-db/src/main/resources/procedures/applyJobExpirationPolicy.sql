@@ -43,7 +43,7 @@ BEGIN
         END IF;
     END;
     $delete_or_expire_job$
-    language plpgsql;
+    LANGUAGE plpgsql VOLATILE;
 
 
     PERFORM NULL
