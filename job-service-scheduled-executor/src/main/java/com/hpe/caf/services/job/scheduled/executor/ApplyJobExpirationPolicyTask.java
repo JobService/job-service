@@ -15,8 +15,8 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -31,11 +31,11 @@ public class ApplyJobExpirationPolicyTask implements Runnable{
     public void run()
     {
         try(final Connection connection = DBConnection.get();
-            final PreparedStatement stmt = connection.prepareStatement("CALL  apply_job_expiration_policy()"))
+            final CallableStatement stmt = connection.prepareCall("CALL  apply_job_expiration_policy()"))
         {
             if(LOG.isDebugEnabled())
             {
-                LOG.debug("Calling apply_job_expiration_policy() database procedure ...");
+                LOG.debug("Calling apply_job_expiration_policy() database function ...");
                 final Instant start = Instant.now();
                 stmt.execute();
                 final Instant end = Instant.now();
@@ -48,7 +48,7 @@ public class ApplyJobExpirationPolicyTask implements Runnable{
         }
         catch(final Exception e)
         {
-            LOG.error("Caught exception while dropping soft deleted tables.", e);
+            LOG.error("Caught exception while applying job policies.", e);
         }
     }
 }
