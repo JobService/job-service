@@ -42,4 +42,10 @@
                                  referencedTableName="job"
                                  referencedColumnNames="partition_id, job_id" />
     </changeSet>
+    <changeSet id="add_job_expiration_policy_sorting_index" author="Gamma Team">
+        <createIndex schemaName="public" tableName="job_expiration_policy" indexName="idx_job_expiration_policy_partition_id_and_dependent_job_id">
+            <column name="partition_id" />
+            <column name="dependent_job_id" />
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>
