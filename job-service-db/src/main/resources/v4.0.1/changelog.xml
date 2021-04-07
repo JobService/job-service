@@ -40,7 +40,6 @@
                                  constraintName="fk_expiration_policy_job"
                                  baseColumnNames="partition_id, job_id"
                                  referencedTableName="job"
-                                 referencedColumnNames="partition_id, job_id"
-                                 onDelete="CASCADE"/>
+                                 referencedColumnNames="partition_id, job_id" />
     </changeSet>
 </databaseChangeLog>
