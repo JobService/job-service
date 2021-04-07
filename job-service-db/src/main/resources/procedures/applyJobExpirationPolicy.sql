@@ -28,7 +28,7 @@ VOLATILE
 AS
 $$
 BEGIN
-    -- Create inner function that deletes or expires the job according to its status policy
+    -- create inner function that deletes or expires the job according to its status policy
     CREATE OR REPLACE FUNCTION delete_or_expire_job(p_id varchar, j_id varchar, j_operation EXPIRATION_OPERATION)
     RETURNS void AS
     $delete_or_expire_job$
@@ -43,7 +43,7 @@ BEGIN
         END IF;
     END;
     $delete_or_expire_job$
-    LANGUAGE plpgsql VOLATILE;
+        LANGUAGE plpgsql VOLATILE;
 
 
     PERFORM NULL
@@ -66,22 +66,22 @@ BEGIN
                         ELSE (jep.expiration_time::timestamp) <= now() AT TIME ZONE 'UTC'
                         END           expired
              FROM job j
-                      JOIN job_expiration_policy jep
-                           ON j.partition_id = jep.partition_id
-                               AND j.job_id = jep.job_id
+                      FULL OUTER JOIN job_expiration_policy jep
+                                      ON j.partition_id = jep.partition_id
+                                          AND j.job_id = jep.job_id
              WHERE jep.expiration_time != 'none'
                AND jep.expiration_time IS NOT NULL
                AND j.status != 'Expired'
          ) t1
 
              -- Then, we make sure that we get the latest status for the job
-             CROSS JOIN LATERAL
+             cross JOIN LATERAL
         (
         SELECT status AS s2
         FROM get_job(p_id, j_id)
         LIMIT 1
         ) t2
-             CROSS JOIN LATERAL (
+             cross JOIN LATERAL (
         SELECT NULL
         FROM delete_or_expire_job(p_id, j_id, j_operation)
         ) t3
