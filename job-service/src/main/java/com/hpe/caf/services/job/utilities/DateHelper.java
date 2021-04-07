@@ -39,9 +39,10 @@ public final class DateHelper {
      * @throws BadRequestException if any invalid parameter
      */
     public static void validate(final String dateToCheck) throws BadRequestException {
-        final String dateRegex = "^(lastUpdateTime|createTime)\\+((P)[1-9]\\d*[DYM])$|" +
-                                 "^(lastUpdateTime|createTime)\\+([1-9]\\d*[HM])$|" +
-                                 "^none$";
+        // ISO 8601 / RFC 3339 https://en.wikipedia.org/wiki/ISO_8601#Durations
+        final String dateRegex = "^(lastUpdateTime|createTime)\\+((P)[1-9]d*[DYM])$|" +
+                "^(lastUpdateTime|createTime)\\+(PT)?([1-9]d*[HM])$|" +
+                "^none$";
         if(!dateToCheck.matches(dateRegex)){
             try{
                 // validate date format
