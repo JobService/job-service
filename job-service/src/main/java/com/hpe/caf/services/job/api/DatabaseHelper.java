@@ -143,7 +143,7 @@ public final class DatabaseHelper
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
                         job.getLabels().put(label, rs.getString("label_value"));
                     }
-                    retrieveExpirationPolicy(expirationPolicy, rs);
+                    job.setExpiry(retrieveExpirationPolicy(expirationPolicy, rs));
                     //We joined onto the labels table and there may be multiple rows for the same job, so merge their labels
                     jobs.merge(job.getId(), job, (orig, insert) -> {
                         orig.getLabels().putAll(insert.getLabels());
@@ -241,7 +241,7 @@ public final class DatabaseHelper
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
                         job.getLabels().put(label, rs.getString("label_value"));
                     }
-                    retrieveExpirationPolicy(expirationPolicy, rs);
+                    job.setExpiry(retrieveExpirationPolicy(expirationPolicy, rs));
                 }
             }
         } catch (final SQLException se) {
@@ -251,7 +251,7 @@ public final class DatabaseHelper
         return job;
     }
 
-    private void retrieveExpirationPolicy(final ExpirationPolicy expirationPolicy, final ResultSet rs) throws SQLException {
+    private ExpirationPolicy retrieveExpirationPolicy(final ExpirationPolicy expirationPolicy, final ResultSet rs) throws SQLException {
         final String status = rs.getString("expiration_status");
         if(ApiServiceUtil.isNotNullOrEmpty(status)){
             final Policy policy = new Policy();
@@ -289,6 +289,7 @@ public final class DatabaseHelper
             }
 
         }
+        return expirationPolicy;
     }
 
     private void transferPolicy(final ResultSet rs, final Policy policy) throws SQLException {
@@ -331,7 +332,7 @@ public final class DatabaseHelper
      * @return Whether the job was created
      */
     public boolean createJob(final String partitionId, String jobId, String name, String description, String data,
-                             int jobHash, final Map<String, String> labels, ExpirationPolicy expirationPolicy) throws Exception {
+                             int jobHash, final Map<String, String> labels, final ExpirationPolicy expirationPolicy) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?)}")
@@ -355,15 +356,7 @@ public final class DatabaseHelper
             }
             stmt.setArray(7, arrayL);
 
-            final Array arrayP;
-            if(expirationPolicy!=null) {
-                final List<String> expirationPolicyList = ExpirationPolicyHelper.toDBString(expirationPolicy);
-                arrayP = conn.createArrayOf(JOB_POLICY, expirationPolicyList.toArray(new String[0]));
-                LOG.debug("expirationPolicyDB: {}", expirationPolicyList);
-            } else{
-                arrayP = conn.createArrayOf(JOB_POLICY, new Policy[0]);
-            }
-            stmt.setArray(8, arrayP);
+            final Array arrayP = setExpirationPolicy(expirationPolicy, conn, stmt, 8);
 
             try {
                 return callCreateJobFunction(stmt);
@@ -374,6 +367,19 @@ public final class DatabaseHelper
         } catch (final SQLException se) {
             throw mapSqlConnectionException(se);
         }
+    }
+
+    private Array setExpirationPolicy(final ExpirationPolicy expirationPolicy, final Connection conn, final CallableStatement stmt, final int parameterIndex) throws SQLException {
+        final Array arrayP;
+        if (expirationPolicy != null) {
+            final List<String> expirationPolicyList = ExpirationPolicyHelper.toDBString(expirationPolicy);
+            arrayP = conn.createArrayOf(JOB_POLICY, expirationPolicyList.toArray(new String[0]));
+            LOG.debug("expirationPolicyDB: {}", expirationPolicyList);
+        } else {
+            arrayP = conn.createArrayOf(JOB_POLICY, new Policy[0]);
+        }
+        stmt.setArray(parameterIndex, arrayP);
+        return arrayP;
     }
 
     /**
@@ -418,15 +424,7 @@ public final class DatabaseHelper
             stmt.setArray(14, array);
             stmt.setBoolean(15, partitionSuspended);
 
-            final Array arrayP;
-            if(expirationPolicy!=null) {
-                final List<String> expirationPolicyList = ExpirationPolicyHelper.toDBString(expirationPolicy);
-                arrayP = conn.createArrayOf(JOB_POLICY, expirationPolicyList.toArray(new String[0]));
-                LOG.debug("expirationPolicyDB: {}", expirationPolicyList);
-            } else{
-                arrayP = conn.createArrayOf(JOB_POLICY, new Policy[0]);
-            }
-            stmt.setArray(16, arrayP);
+            final Array arrayP = setExpirationPolicy(expirationPolicy, conn, stmt, 16);
 
             try {
                 return callCreateJobFunction(stmt);
