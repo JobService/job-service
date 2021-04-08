@@ -337,7 +337,6 @@ public final class DatabaseHelper
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?)}")
         ) {
             final List<String[]> labelArray = buildLabelSqlArray(labels);
-            final ExpirationPolicyHelper expirationPolicyHelper = new ExpirationPolicyHelper(expirationPolicy);
 
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
@@ -358,9 +357,9 @@ public final class DatabaseHelper
 
             final Array arrayP;
             if(expirationPolicy!=null) {
-                arrayP = conn.createArrayOf(JOB_POLICY,
-                        expirationPolicyHelper.toDBString().toArray(new String[0]));
-                LOG.debug("expirationPolicyDB: {}",expirationPolicyHelper);
+                final List<String> expirationPolicyList = expirationPolicy.toDBString();
+                arrayP = conn.createArrayOf(JOB_POLICY, expirationPolicyList.toArray(new String[0]));
+                LOG.debug("expirationPolicyDB: {}", expirationPolicyList);
             } else{
                 arrayP = conn.createArrayOf(JOB_POLICY, new Policy[0]);
             }
@@ -391,7 +390,6 @@ public final class DatabaseHelper
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
-            final ExpirationPolicyHelper expirationPolicyHelper = new ExpirationPolicyHelper(expirationPolicy);
             final String[] prerequisiteJobIdStringArray = getPrerequisiteJobIds(prerequisiteJobIds);
             Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
 
@@ -422,8 +420,9 @@ public final class DatabaseHelper
 
             final Array arrayP;
             if(expirationPolicy!=null) {
-                arrayP = conn.createArrayOf(JOB_POLICY, expirationPolicyHelper.toDBString().toArray(new String[0]));
-                LOG.debug("expirationPolicyDB: {}",expirationPolicyHelper.toDBString());
+                final List<String> expirationPolicyList = ExpirationPolicyHelper.toDBString(expirationPolicy);
+                arrayP = conn.createArrayOf(JOB_POLICY, expirationPolicyList.toArray(new String[0]));
+                LOG.debug("expirationPolicyDB: {}", expirationPolicyList);
             } else{
                 arrayP = conn.createArrayOf(JOB_POLICY, new Policy[0]);
             }

@@ -15,7 +15,6 @@
  */
 package com.hpe.caf.services.job.utilities;
 
-import com.hpe.caf.services.job.api.JobsActive;
 import com.hpe.caf.services.job.api.generated.model.DeletePolicy.ExpirationOperationEnum;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.Policy;
@@ -26,51 +25,54 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExpirationPolicyHelper {
+public final class ExpirationPolicyHelper
+{
     private static final Logger LOG = LoggerFactory.getLogger(ExpirationPolicyHelper.class);
-    private final ExpirationPolicy expirationPolicy;
 
-    public ExpirationPolicyHelper(ExpirationPolicy expirationPolicy) {
-        this.expirationPolicy = expirationPolicy;
+    private ExpirationPolicyHelper()
+    {
     }
 
-
-    public List<String> toDBString() {
+    public static List<String> toDBString(final ExpirationPolicy expirationPolicy)
+    {
         final List<String> policyList = new ArrayList<>();
         final StringBuilder sb = new StringBuilder();
-        buildPolicy(policyList, sb, "Active,", this.expirationPolicy.getActive());
-        buildPolicy(policyList, sb, "Cancelled,", this.expirationPolicy.getCancelled());
-        buildPolicy(policyList, sb, "Completed,", this.expirationPolicy.getCompleted());
-        buildPolicy(policyList, sb, "Failed,", this.expirationPolicy.getFailed());
-        buildPolicy(policyList, sb, "Waiting,", this.expirationPolicy.getWaiting());
-        buildPolicy(policyList, sb, "Paused,", this.expirationPolicy.getPaused());
+        buildPolicy(policyList, sb, "Active,", expirationPolicy.getActive());
+        buildPolicy(policyList, sb, "Cancelled,", expirationPolicy.getCancelled());
+        buildPolicy(policyList, sb, "Completed,", expirationPolicy.getCompleted());
+        buildPolicy(policyList, sb, "Failed,", expirationPolicy.getFailed());
+        buildPolicy(policyList, sb, "Waiting,", expirationPolicy.getWaiting());
+        buildPolicy(policyList, sb, "Paused,", expirationPolicy.getPaused());
         sb.setLength(0);
         sb.append("(,,");
         sb.append("Expired,")
-                .append(ExpirationOperationEnum.DELETE.toString()).append(",")
-                .append(this.expirationPolicy.getExpired().getExpiryTime())
-                .append(")");
+            .append(ExpirationOperationEnum.DELETE.toString()).append(",")
+            .append(expirationPolicy.getExpired().getExpiryTime())
+            .append(")");
         policyList.add(sb.toString());
 
         return policyList;
     }
 
-    private void buildPolicy(final List<String> policyList, final StringBuilder sb, final String status, final Policy policy) {
+    private static void buildPolicy(final List<String> policyList, final StringBuilder sb, final String status, final Policy policy)
+    {
         validateExpiryTime(policy);
         sb.setLength(0);
         sb.append("(,,");
         sb.append(status)
-                .append(policy.getOperation().toString()).append(",")
-                .append(policy.getExpiryTime())
-                .append(")");
+            .append(policy.getOperation().toString()).append(",")
+            .append(policy.getExpiryTime())
+            .append(")");
         policyList.add(sb.toString());
     }
 
-    private void validateExpiryTime(final Policy policy) {
+    private static void validateExpiryTime(final Policy policy)
+    {
+        final String expiryTime = policy.getExpiryTime();
         try {
-            DateHelper.validate(policy.getExpiryTime());
+            DateHelper.validate(expiryTime);
         } catch (final BadRequestException e) {
-            LOG.error("invalid expiry_time {}", policy.getExpiryTime());
+            LOG.error("invalid expiry_time {}", expiryTime);
         }
     }
 }
