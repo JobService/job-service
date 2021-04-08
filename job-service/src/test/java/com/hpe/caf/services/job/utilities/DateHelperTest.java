@@ -39,7 +39,10 @@ public class DateHelperTest {
         assertAll(
                 ()-> assertDoesNotThrow(()-> validate("2021-04-12T23:20:50.52Z")),
                 ()-> assertDoesNotThrow(()-> validate("lastUpdateTime+P1D")),
+                ()-> assertDoesNotThrow(()-> validate("lastUpdateTime+PT21H")),
                 ()-> assertDoesNotThrow(()-> validate("createTime+P90M")),
+                ()-> assertDoesNotThrow(()-> validate("createTime+PT90M")),
+                ()-> assertDoesNotThrow(()-> validate("lastUpdateTime+PT120S")),
                 ()-> assertDoesNotThrow(()-> validate("none"))
         );
 
