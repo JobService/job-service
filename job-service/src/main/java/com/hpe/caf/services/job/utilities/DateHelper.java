@@ -54,7 +54,9 @@ public final class DateHelper {
                 // validate date format
                 final Instant instantPassed = Instant.parse(dateToCheck);
                 // verify that date is in the future
-                if (instantPassed.isBefore(Instant.now()))throw new BadRequestException("Date should be in the future ,"+dateToCheck);
+                if (instantPassed.isBefore(Instant.now())) {
+                    LOG.warn("Date is in the past: {}", dateToCheck);
+                }
             }catch (final DateTimeParseException e){
                 final String errorMessage = "Invalid date "+dateToCheck;
                 LOG.error(errorMessage);
