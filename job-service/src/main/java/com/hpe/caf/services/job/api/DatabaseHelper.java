@@ -357,7 +357,7 @@ public final class DatabaseHelper
 
             final Array arrayP;
             if(expirationPolicy!=null) {
-                final List<String> expirationPolicyList = expirationPolicy.toDBString();
+                final List<String> expirationPolicyList = ExpirationPolicyHelper.toDBString(expirationPolicy);
                 arrayP = conn.createArrayOf(JOB_POLICY, expirationPolicyList.toArray(new String[0]));
                 LOG.debug("expirationPolicyDB: {}", expirationPolicyList);
             } else{

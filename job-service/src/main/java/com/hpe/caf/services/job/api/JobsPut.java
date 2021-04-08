@@ -72,6 +72,9 @@ public final class JobsPut {
      * @throws  Exception       bad request exception or database exception
      */
     public static String createOrUpdateJob(final String partitionId, String jobId, NewJob job) throws Exception {
+        // checks and sets the expirationPolicy
+        job.setExpiry(PolicyBuilder.buildPolicyMap(job));
+
         try {
             LOG.debug("createOrUpdateJob: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
@@ -135,7 +138,7 @@ public final class JobsPut {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_INVALID_LABEL_NAME);
                 throw new BadRequestException(ERR_MSG_INVALID_LABEL_NAME);
             }
-            
+
             final Object taskData = jobTask.getTaskData();
 
             // Make sure that taskData is available
@@ -160,6 +163,7 @@ public final class JobsPut {
                 throw new BadRequestException(ERR_MSG_TASK_DATA_DATATYPE_ERROR);
             }
 
+
             //  Load serialization class.
             Codec codec = ModuleLoader.getService(Codec.class);
 
@@ -179,8 +183,6 @@ public final class JobsPut {
                         .filter(prereqJobId -> prereqJobId != null && !prereqJobId.trim().isEmpty())
                         .collect(Collectors.toList()));
             }
-            // sets the expirationPolicy
-            job.setExpiry(PolicyBuilder.buildPolicyMap(job));
 
             final boolean partitionSuspended = ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId);
             //  Create job in the database.

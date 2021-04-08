@@ -18,16 +18,12 @@ package com.hpe.caf.services.job.utilities;
 import com.hpe.caf.services.job.api.generated.model.DeletePolicy.ExpirationOperationEnum;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.Policy;
-import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class ExpirationPolicyHelper
 {
-    private static final Logger LOG = LoggerFactory.getLogger(ExpirationPolicyHelper.class);
 
     private ExpirationPolicyHelper()
     {
@@ -56,7 +52,6 @@ public final class ExpirationPolicyHelper
 
     private static void buildPolicy(final List<String> policyList, final StringBuilder sb, final String status, final Policy policy)
     {
-        validateExpiryTime(policy);
         sb.setLength(0);
         sb.append("(,,");
         sb.append(status)
@@ -66,13 +61,4 @@ public final class ExpirationPolicyHelper
         policyList.add(sb.toString());
     }
 
-    private static void validateExpiryTime(final Policy policy)
-    {
-        final String expiryTime = policy.getExpiryTime();
-        try {
-            DateHelper.validate(expiryTime);
-        } catch (final BadRequestException e) {
-            LOG.error("invalid expiry_time {}", expiryTime);
-        }
-    }
 }
