@@ -21,9 +21,18 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.util.regex.Pattern;
 
 public final class DateHelper {
     private static final Logger LOG = LoggerFactory.getLogger(DateHelper.class);
+
+    /**
+     * ISO 8601 / RFC 3339 https://en.wikipedia.org/wiki/ISO_8601#Durations
+     */
+    private static final Pattern DATE_REGEX = Pattern.compile(
+        "^(lastUpdateTime|createTime)\\+((P)\\d+[DYM])$|"
+        + "^(lastUpdateTime|createTime)\\+(PT)?(\\d+[HMS])$|"
+        + "^none$");
 
     private DateHelper() {
     }
@@ -40,11 +49,7 @@ public final class DateHelper {
      * @throws BadRequestException if any invalid parameter
      */
     public static void validate(final String dateToCheck) throws BadRequestException {
-        // ISO 8601 / RFC 3339 https://en.wikipedia.org/wiki/ISO_8601#Durations
-        final String dateRegex = "^(lastUpdateTime|createTime)\\+((P)\\d+[DYM])$|" +
-                "^(lastUpdateTime|createTime)\\+(PT)?(\\d+[HMS])$|" +
-                "^none$";
-        if(!dateToCheck.matches(dateRegex)){
+        if (!DATE_REGEX.matcher(dateToCheck).matches()) {
             try{
                 // validate date format
                 final Instant instantPassed = Instant.parse(dateToCheck);
