@@ -17,7 +17,7 @@ ${version-number}
  is expected to be available in an environment variable named `TASK_PIPE`.
 - SCMOD-12730: Workers built using framework versions prior to 5.0.0 are no longer supported.
   - The `statusCheckUrl` now points to the `status` endpoint instead of the `isActive` endpoint.
-  - Instead of returning `true` or `false`, the `statusCheckUrl` will now return one of `Active`, `Cancelled`, `Completed`, `Failed`,
+  - Instead of returning `true` or `false`, the `statusCheckUrl` will now return one of `Active`, `Cancelled`, `Completed`, `Expired`, `Failed`,
   `Paused`, or `Waiting`
   - If the `statusCheckUrl` refers to a job that does not exist, the response from the endpoint will return a HTTP 404 status. Previously,
   the `statusCheckUrl` would have returned a HTTP 200 status with a response body of `false` when a job did not exist.

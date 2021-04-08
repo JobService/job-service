@@ -164,7 +164,7 @@ BEGIN
             sql := sql || whereOrAnd || $q$ status IN ('Completed')$q$;
             whereOrAnd := andConst;
         ELSIF in_status_type = 'Inactive' THEN
-            sql := sql || whereOrAnd || $q$ status IN ('Completed', 'Cancelled', 'Failed')$q$;
+            sql := sql || whereOrAnd || $q$ status IN ('Completed', 'Cancelled', 'Failed', 'Expired')$q$;
             whereOrAnd := andConst;
         ELSIF in_status_type = 'NotFinished' THEN
             sql := sql || whereOrAnd || $q$ status IN ('Active', 'Paused', 'Waiting')$q$;

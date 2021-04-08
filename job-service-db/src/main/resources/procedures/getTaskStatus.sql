@@ -63,6 +63,7 @@ BEGIN
                     WHEN 'Active' THEN 4
                     WHEN 'Waiting' THEN 5
                     WHEN 'Completed' THEN 6
+                    WHEN 'Expired' THEN 7
                 END AS importance
                 FROM
                 (

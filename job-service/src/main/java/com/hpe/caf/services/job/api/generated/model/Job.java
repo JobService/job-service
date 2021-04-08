@@ -49,6 +49,7 @@ public class Job   {
         ACTIVE("Active"),
         CANCELLED("Cancelled"),
         COMPLETED("Completed"),
+        EXPIRED("Expired"),
         FAILED("Failed"),
         PAUSED("Paused"),
         WAITING("Waiting");

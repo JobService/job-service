@@ -34,7 +34,8 @@ AS $$
         SELECT 3, 'Paused'    UNION ALL
         SELECT 4, 'Failed'    UNION ALL
         SELECT 5, 'Cancelled' UNION ALL
-        SELECT 6, 'Completed'
+        SELECT 6, 'Completed' UNION ALL
+        SELECT 7, 'Expired'
     )
     SELECT CASE WHEN p1.priority > p2.priority THEN p1.status ELSE p2.status END
     FROM priority_tbl p1
