@@ -36,7 +36,7 @@ public final class PolicyBuilder {
      */
     public static ExpirationPolicy buildPolicyMap(final NewJob job) throws BadRequestException {
         final ExpirationPolicy expirationPolicies;
-        // create new policies if none provided
+        // creates new policies if none provided
         if (null != job.getExpiry()){
             expirationPolicies = job.getExpiry();
         }else {
