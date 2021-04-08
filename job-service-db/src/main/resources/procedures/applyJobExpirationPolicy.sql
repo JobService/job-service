@@ -30,7 +30,7 @@ $$
 BEGIN
     -- create inner function that deletes or expires the job according to its status policy
     CREATE OR REPLACE FUNCTION delete_or_expire_job(p_id varchar, j_id varchar, j_operation EXPIRATION_OPERATION)
-    RETURNS void AS
+    RETURNS VOID AS
     $delete_or_expire_job$
     BEGIN
         IF j_operation = 'Expire' THEN
@@ -58,10 +58,10 @@ BEGIN
                     -- we calculate the expiration_date and check if it's expired, returning a boolean
                     CASE
                         WHEN jep.expiration_time IS NOT NULL AND LEFT(jep.expiration_time, 1) = 'l' THEN ((
-                                j.last_update_date + split_part(jep.expiration_time, '+', 2)::INTERVAL)::timestamp)
+                                j.last_update_date + split_part(jep.expiration_time, '+', 2)::interval)::timestamp)
                             <= now() AT TIME ZONE 'UTC'
                         WHEN jep.expiration_time IS NOT NULL AND LEFT(jep.expiration_time, 1) = 'c'
-                            THEN ((j.create_date + split_part(jep.expiration_time, '+', 2)::INTERVAL)::timestamp)
+                            THEN ((j.create_date + split_part(jep.expiration_time, '+', 2)::interval)::timestamp)
                             <= now() AT TIME ZONE 'UTC'
                         ELSE (jep.expiration_time::timestamp) <= now() AT TIME ZONE 'UTC'
                         END           expired
@@ -75,13 +75,13 @@ BEGIN
          ) t1
 
              -- Then, we make sure that we get the latest status for the job
-             cross JOIN LATERAL
+             CROSS JOIN LATERAL
         (
         SELECT status AS s2
         FROM get_job(p_id, j_id)
         LIMIT 1
         ) t2
-             cross JOIN LATERAL (
+             CROSS JOIN LATERAL (
         SELECT NULL
         FROM delete_or_expire_job(p_id, j_id, j_operation)
         ) t3
