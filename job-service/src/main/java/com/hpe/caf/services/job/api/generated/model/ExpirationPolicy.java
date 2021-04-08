@@ -16,19 +16,15 @@
 package com.hpe.caf.services.job.api.generated.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hpe.caf.services.job.api.generated.model.DeletePolicy.ExpirationOperationEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @ApiModel(
         description = "The expiration policy to be applied on the job"
 )
 public class ExpirationPolicy {
-    private static final int EXPIRATION_AFTER_LAST_UPDATE = 0;
     private Policy active = null;
     private Policy completed = null;
     private Policy failed = null;
@@ -121,6 +117,7 @@ public class ExpirationPolicy {
         this.defaultPolicy = _default;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -132,10 +129,12 @@ public class ExpirationPolicy {
         }
     }
 
+    @Override
     public int hashCode() {
         return Objects.hash(new Object[]{this.active, this.completed, this.failed, this.cancelled, this.waiting, this.paused, this.expired, this.defaultPolicy});
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class ExpirationPolicy {\n");

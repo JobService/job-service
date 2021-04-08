@@ -307,7 +307,7 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
-    <changeSet id="create_upsert_joc_policy_proc" runOnChange="true" author="Gamma Team">
+    <changeSet id="create_upsert_job_policy_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/upsertJobPolicy.sql"
                          procedureName="internal_upsert_job_policy"
                          schemaName="public">
