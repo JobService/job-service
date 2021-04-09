@@ -372,7 +372,7 @@ public final class DatabaseHelper
     private Array setExpirationPolicy(final ExpirationPolicy expirationPolicy, final Connection conn, final CallableStatement stmt, final int parameterIndex) throws SQLException {
         final Array arrayP;
         if (expirationPolicy != null) {
-            final List<String> expirationPolicyList = ExpirationPolicyHelper.toDBString(expirationPolicy);
+            final List<String> expirationPolicyList = ExpirationPolicyHelper.toPgCompositeList(expirationPolicy);
             arrayP = conn.createArrayOf(JOB_POLICY, expirationPolicyList.toArray(new String[0]));
             LOG.debug("expirationPolicyDB: {}", expirationPolicyList);
         } else {

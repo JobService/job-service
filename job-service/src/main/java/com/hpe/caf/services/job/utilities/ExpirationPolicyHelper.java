@@ -24,41 +24,46 @@ import java.util.List;
 
 public final class ExpirationPolicyHelper
 {
-
     private ExpirationPolicyHelper()
     {
     }
 
-    public static List<String> toDBString(final ExpirationPolicy expirationPolicy)
+    public static List<String> toPgCompositeList(final ExpirationPolicy expirationPolicy)
     {
         final List<String> policyList = new ArrayList<>();
-        final StringBuilder sb = new StringBuilder();
-        buildPolicy(policyList, sb, "Active,", expirationPolicy.getActive());
-        buildPolicy(policyList, sb, "Cancelled,", expirationPolicy.getCancelled());
-        buildPolicy(policyList, sb, "Completed,", expirationPolicy.getCompleted());
-        buildPolicy(policyList, sb, "Failed,", expirationPolicy.getFailed());
-        buildPolicy(policyList, sb, "Waiting,", expirationPolicy.getWaiting());
-        buildPolicy(policyList, sb, "Paused,", expirationPolicy.getPaused());
-        sb.setLength(0);
-        sb.append("(,,");
-        sb.append("Expired,")
-            .append(ExpirationOperationEnum.DELETE.toString()).append(",")
-            .append(expirationPolicy.getExpired().getExpiryTime())
-            .append(")");
-        policyList.add(sb.toString());
+        buildPolicy(policyList, "Active", expirationPolicy.getActive());
+        buildPolicy(policyList, "Cancelled", expirationPolicy.getCancelled());
+        buildPolicy(policyList, "Completed", expirationPolicy.getCompleted());
+        buildPolicy(policyList, "Failed", expirationPolicy.getFailed());
+        buildPolicy(policyList, "Waiting", expirationPolicy.getWaiting());
+        buildPolicy(policyList, "Paused", expirationPolicy.getPaused());
+        policyList.add(toJobPolicyDbTypeString(
+            "Expired",
+            ExpirationOperationEnum.DELETE,
+            expirationPolicy.getExpired().getExpiryTime()));
 
         return policyList;
     }
 
-    private static void buildPolicy(final List<String> policyList, final StringBuilder sb, final String status, final Policy policy)
+    private static void buildPolicy(final List<String> policyList, final String status, final Policy policy)
     {
-        sb.setLength(0);
-        sb.append("(,,");
-        sb.append(status)
-            .append(policy.getOperation().toString()).append(",")
-            .append(policy.getExpiryTime())
-            .append(")");
-        policyList.add(sb.toString());
+        policyList.add(toJobPolicyDbTypeString(status, policy));
     }
 
+    private static String toJobPolicyDbTypeString(final String status, final Policy policy)
+    {
+        return toJobPolicyDbTypeString(status, policy.getOperation(), policy.getExpiryTime());
+    }
+
+    private static String toJobPolicyDbTypeString(final String status, final Object operation, final String expiryTime)
+    {
+        // Builds up the Composite Value for the JOB_POLICY database type
+        // See https://www.postgresql.org/docs/current/rowtypes.html
+
+        // The expiry time has already been validated.
+        // The allowed patterns do not contain any commas or parentheses so there is no need for escaping here.
+        //
+        // The definition of JOB_POLICY is (partition_id, job_id, job_status, operation, expiration_time)
+        return "(,," + status + "," + operation + "," + expiryTime + ")";
+    }
 }
