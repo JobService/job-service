@@ -73,7 +73,7 @@ public final class JobsPut {
      */
     public static String createOrUpdateJob(final String partitionId, String jobId, NewJob job) throws Exception {
         // checks and sets the expirationPolicy
-        job.setExpiry(PolicyBuilder.buildPolicyMap(job));
+        job.setExpiry(PolicyBuilder.buildPolicyMap(job, jobId));
 
         try {
             LOG.debug("createOrUpdateJob: Starting...");

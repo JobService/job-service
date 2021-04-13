@@ -22,9 +22,11 @@ import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.Policy;
 import com.hpe.caf.services.job.api.generated.model.Policy.OperationEnum;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import java.util.Locale;
 
 public final class PolicyBuilder {
-
+    private static final String TAG_EXPIRATION_TIME = "createTime+PT30M"; // after 30mn
+    private static final OperationEnum TAG_EXPIRATION_OPERATION = OperationEnum.DELETE;
     private PolicyBuilder() {
     }
 
@@ -34,7 +36,7 @@ public final class PolicyBuilder {
      * @return a map of the policies for the job
      * @throws BadRequestException if any invalid parameter
      */
-    public static ExpirationPolicy buildPolicyMap(final NewJob job) throws BadRequestException {
+    public static ExpirationPolicy buildPolicyMap(final NewJob job, final String jobId) throws BadRequestException {
         final ExpirationPolicy expirationPolicies;
         // creates new policies if none provided
         if (null != job.getExpiry()){
@@ -42,11 +44,20 @@ public final class PolicyBuilder {
         }else {
             expirationPolicies = new ExpirationPolicy();
         }
+        setCompletedPolicyForTagJobsIfNotSpecified(jobId, expirationPolicies);
         final Policy defaultPolicy = defineDefaultGlobalPolicy(expirationPolicies);
         final DeletePolicy deletePolicy = defineDefaultDeletePolicy();
         definePolicies(expirationPolicies, defaultPolicy, deletePolicy);
-
         return expirationPolicies;
+    }
+
+    private static void setCompletedPolicyForTagJobsIfNotSpecified(final String jobId, final ExpirationPolicy expirationPolicies) {
+        if(jobId.toUpperCase(Locale.ROOT).startsWith("_TAG") && null== expirationPolicies.getCompleted()){
+            final Policy completedPolicy = new Policy();
+            completedPolicy.setOperation(TAG_EXPIRATION_OPERATION);
+            completedPolicy.setExpiryTime(TAG_EXPIRATION_TIME);
+            expirationPolicies.setCompleted(completedPolicy);
+        }
     }
 
     private static void definePolicies(final ExpirationPolicy expirationPolicies, final Policy defaultPolicy,
