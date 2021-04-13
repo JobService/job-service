@@ -22,11 +22,15 @@ import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.Policy;
 import com.hpe.caf.services.job.api.generated.model.Policy.OperationEnum;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Locale;
 
 public final class PolicyBuilder {
     private static final String TAG_EXPIRATION_TIME = "createTime+PT30M"; // after 30mn
     private static final OperationEnum TAG_EXPIRATION_OPERATION = OperationEnum.DELETE;
+    private static final Logger LOG = LoggerFactory.getLogger(PolicyBuilder.class);
     private PolicyBuilder() {
     }
 
@@ -52,7 +56,8 @@ public final class PolicyBuilder {
     }
 
     private static void setCompletedPolicyForTagJobsIfNotSpecified(final String jobId, final ExpirationPolicy expirationPolicies) {
-        if(jobId.toUpperCase(Locale.ROOT).startsWith("_TAG") && null== expirationPolicies.getCompleted()){
+        if(jobId.toUpperCase(Locale.ROOT).startsWith("TAG_") && null== expirationPolicies.getCompleted()){
+            LOG.info("Applying completed expiration policy on {}", jobId);
             final Policy completedPolicy = new Policy();
             completedPolicy.setOperation(TAG_EXPIRATION_OPERATION);
             completedPolicy.setExpiryTime(TAG_EXPIRATION_TIME);
