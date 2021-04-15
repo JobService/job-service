@@ -16,6 +16,7 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
@@ -77,6 +78,10 @@ public final class JobsResumeTest {
 
     @Test
     public void testResumeJob_Success() throws Exception {
+        Mockito.when(mockDatabaseHelper.getJobStatus(
+            anyString(), anyString()
+        )).thenReturn(Job.StatusEnum.PAUSED);
+        
         //  Test successful run of job resume.
         JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
 
