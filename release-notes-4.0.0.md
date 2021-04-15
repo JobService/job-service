@@ -22,6 +22,8 @@ ${version-number}
   - If the `statusCheckUrl` refers to a job that does not exist, the response from the endpoint will return a HTTP 404 status. Previously,
   the `statusCheckUrl` would have returned a HTTP 200 status with a response body of `false` when a job did not exist.
   - The `CAF_STATUS_CHECK_TIME` environment variable has been renamed to `CAF_STATUS_CHECK_INTERVAL_SECONDS`.
+  - A new `CAF_JOB_SERVICE_RESUME_JOB_QUEUE` environment variable is required. This should point to the input queue of the worker that
+    is responsible for dispatching task messages for resumed jobs to the appropriate workers.
 
 #### Known Issues
 - None

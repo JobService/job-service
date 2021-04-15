@@ -20,6 +20,7 @@ import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigProvider;
+import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
@@ -71,27 +72,33 @@ public final class JobsResume
             //  Get database helper instance.
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
+            // Store the job status before resuming the job.
+            final Job.StatusEnum jobStatusBeforeResuming = databaseHelper.getJobStatus(partitionId, jobId);
+
             //  Resume the specified job.
             LOG.debug("resume: Updating the status of the job in the database...");
-            databaseHelper.resumeJob(partitionId, jobId); // TODO What if job already active?
+            databaseHelper.resumeJob(partitionId, jobId);
 
-            final String resumeJobQueue = config.getResumeJobQueue();
-            try {
-                LOG.debug("resume: Sending a message to the {} queue...", resumeJobQueue);
-                sendResumeJobMessage(partitionId, jobId, resumeJobQueue, config);
-            } catch (final Exception messagingException) {
+            // Send a resume job message only if the job was paused (we allow resuming an active job, which is why we need to check this).
+            if (jobStatusBeforeResuming == Job.StatusEnum.PAUSED) {
+                final String resumeJobQueue = config.getResumeJobQueue();
                 try {
-                    databaseHelper.pauseJob(partitionId, jobId);
-                } catch (final Exception databaseRollbackException) {
-                    final String errorMessage = String.format(
-                        "Failed to rollback the job status after failing to send a message to the %s queue. "
-                        + "This job is now active but cannot be processed. To resolve this, try pausing and resuming this job again.",
-                        resumeJobQueue);
-                    messagingException.addSuppressed(databaseRollbackException);
+                    LOG.debug("resume: Sending a message to the {} queue...", resumeJobQueue);
+                    sendResumeJobMessage(partitionId, jobId, resumeJobQueue, config);
+                } catch (final Exception messagingException) {
+                    try {
+                        databaseHelper.pauseJob(partitionId, jobId);
+                    } catch (final Exception databaseRollbackException) {
+                        final String errorMessage = String.format(
+                            "Failed to rollback the job status after failing to send a message to the %s queue. "
+                            + "This job is now active but cannot be processed. To resolve this, try pausing and resuming this job again.",
+                            resumeJobQueue);
+                        messagingException.addSuppressed(databaseRollbackException);
+                        throw new Exception(errorMessage, messagingException);
+                    }
+                    final String errorMessage = String.format("Failed to send a message to the %s queue.", resumeJobQueue);
                     throw new Exception(errorMessage, messagingException);
                 }
-                final String errorMessage = String.format("Failed to send a message to the %s queue.", resumeJobQueue);
-                throw new Exception(errorMessage, messagingException);
             }
 
             LOG.debug("resume: Done.");
