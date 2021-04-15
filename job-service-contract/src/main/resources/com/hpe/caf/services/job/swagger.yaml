@@ -544,6 +544,7 @@ definitions:
       - Failed
       - Paused
       - Waiting
+      - Expired
   failure:
     type: object
     properties:
