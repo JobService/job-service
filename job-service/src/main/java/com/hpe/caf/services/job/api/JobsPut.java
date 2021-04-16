@@ -72,9 +72,6 @@ public final class JobsPut {
      * @throws  Exception       bad request exception or database exception
      */
     public static String createOrUpdateJob(final String partitionId, String jobId, NewJob job) throws Exception {
-        // checks and sets the expirationPolicy
-        job.setExpiry(PolicyBuilder.buildPolicyMap(job));
-
         try {
             LOG.debug("createOrUpdateJob: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
@@ -90,6 +87,9 @@ public final class JobsPut {
                 LOG.error("createOrUpdateJob: Error - '{}'", ApiServiceUtil.ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS);
                 throw new BadRequestException(ApiServiceUtil.ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS);
             }
+
+            //  Validates the job expiry policies and populate the job with the complete list of them
+            PolicyBuilder.buildPolicyMap(job);
 
             // if `job` is provided, construct `task` from it
             final WorkerAction jobTask;
@@ -138,7 +138,7 @@ public final class JobsPut {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_INVALID_LABEL_NAME);
                 throw new BadRequestException(ERR_MSG_INVALID_LABEL_NAME);
             }
-
+            
             final Object taskData = jobTask.getTaskData();
 
             // Make sure that taskData is available
@@ -162,7 +162,6 @@ public final class JobsPut {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_DATA_DATATYPE_ERROR);
                 throw new BadRequestException(ERR_MSG_TASK_DATA_DATATYPE_ERROR);
             }
-
 
             //  Load serialization class.
             Codec codec = ModuleLoader.getService(Codec.class);
@@ -239,7 +238,6 @@ public final class JobsPut {
             throw e;
         }
     }
-
 
     private static void closeQueueConnection(final QueueServices queueServices)
     {
