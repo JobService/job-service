@@ -6,6 +6,9 @@ ${version-number}
 #### New Features
 - SCMOD-12707: Added support for pausing and resuming jobs.
   - Three new endpoints have been added to pause, resume, and get the status of a job.
+- SCMOD-8730: Expiration policy support  
+We now have an expiration policy for each job, related to its status.
+The policy action is applied based on the operation (`Expire`, `Delete`) and the expiration_time provided. The expiration_time can be a specific date, or an offset from `create_date` or `last_update_date`.
 
 #### Breaking Changes
 - SCMOD-12505: Various updates to the 'Job Types' functionality.  
@@ -22,8 +25,6 @@ ${version-number}
   - If the `statusCheckUrl` refers to a job that does not exist, the response from the endpoint will return a HTTP 404 status. Previously,
   the `statusCheckUrl` would have returned a HTTP 200 status with a response body of `false` when a job did not exist.
   - The `CAF_STATUS_CHECK_TIME` environment variable has been renamed to `CAF_STATUS_CHECK_INTERVAL_SECONDS`.
-- SCMOD-8730: We now have an expiration policy for each job, related to its status.
-The policy action is applied based on the operation ('Expire', 'Delete') and the expiration_time provided. The expiration_time can be a specific date, a date related to 'create_date' or 'last_update_date' or 'none'
 
 #### Known Issues
 - None
