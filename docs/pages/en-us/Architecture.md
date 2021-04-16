@@ -177,7 +177,7 @@ This table stores information about the expiration policy related to the jobs. T
 
 ### Enumeration Types
 
-| **Enumerated Type**  | **Enum labels**                                                              |
-|----------------------|------------------------------------------------------------------------------|
-| expiration_operation | `Expire`, `Delete`                                                           |
-| job_status           | `Active`, `Cancelled`, `Completed`, `Expired`, `Failed`, `Paused`, `Waiting` |
+| **Enumerated Type**  | **Enum labels**                                                |
+|----------------------|----------------------------------------------------------------|
+| expiration_operation | Expire, Delete                                                 |
+| job_status           | Active, Cancelled, Completed, Expired, Failed, Paused, Waiting |
