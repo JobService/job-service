@@ -33,4 +33,10 @@
             <column name="table_name" />
         </createIndex>
     </changeSet>
+    <changeSet id="increase_task_id_size" author="Gamma Team" >
+        <modifyDataType
+                columnName="task_id"
+                newDataType="VARCHAR(70)"
+                tableName="completed_subtask_report" />
+    </changeSet>
 </databaseChangeLog>
