@@ -175,8 +175,9 @@ This table stores information about the expiration policy related to the jobs. T
 | operation            | expiration_operation| No            |                  |
 | expiration_time      | varchar(58)         | No            |                  |
 
-expiration_operation:  
-'Expire', 'Delete'
+### Enumeration Types
 
-job_status:  
-'Active', 'Cancelled', 'Completed', 'Expired', 'Failed', 'Paused', 'Waiting'
+| **Enumerated Type**  | **Enum labels**                                                              |
+|----------------------|------------------------------------------------------------------------------|
+| expiration_operation | `Expire`, `Delete`                                                           |
+| job_status           | `Active`, `Cancelled`, `Completed`, `Expired`, `Failed`, `Paused`, `Waiting` |
