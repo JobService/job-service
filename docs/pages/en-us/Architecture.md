@@ -171,7 +171,7 @@ This table stores information about the expiration policy related to the jobs. T
 |----------------------|---------------------|---------------|------------------|
 | partition_id         | varchar(40)         | No            | Yes              |
 | job_id               | varchar(48)         | No            | Yes              |
-| job_status           | job_status          | No            |                  |
+| job_status           | job_status          | No            | Yes              |
 | operation            | expiration_operation| No            |                  |
 | expiration_time      | varchar(58)         | No            |                  |
 

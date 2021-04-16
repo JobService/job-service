@@ -46,6 +46,12 @@
     <changeSet id="create_job_expiration_policy" author="Gamma Team">
         <sql>CREATE TABLE job_expiration_policy OF JOB_POLICY</sql>
     </changeSet>
+    <changeSet id="add_job_expiration_policy_primary_key" author="Gamma Team">
+        <addPrimaryKey constraintName="pk_job_expiration_policy"
+                       schemaName="public"
+                       tableName="job_expiration_policy"
+                       columnNames="partition_id, job_id, job_status" />
+    </changeSet>
     <changeSet id="add_job_expiration_policy_foreign_key" author="Gamma Team">
         <addForeignKeyConstraint baseTableSchemaName="public"
                                  baseTableName="job_expiration_policy"
