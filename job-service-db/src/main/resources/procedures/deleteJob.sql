@@ -65,7 +65,7 @@ BEGIN
     DELETE FROM label lbl WHERE lbl.partition_id = in_partition_id AND lbl.job_id = in_job_id;
 
     -- Remove any associated policy
-   DELETE FROM job_expiration_policy jep WHERE jep.partition_id = in_partition_id AND jep.job_id = in_job_id;
+    DELETE FROM job_expiration_policy jep WHERE jep.partition_id = in_partition_id AND jep.job_id = in_job_id;
 
     -- Remove row from the job table
     DELETE FROM job

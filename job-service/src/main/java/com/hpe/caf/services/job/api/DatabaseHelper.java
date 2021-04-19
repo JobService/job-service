@@ -59,7 +59,7 @@ public final class DatabaseHelper
     private static final String POSTGRES_NO_DATA_ERROR_CODE = "02000";
     private static final String POSTGRES_NO_DATA_FOUND_ERROR_CODE = "P0002";
     private static final String POSTGRES_UNIQUE_VIOLATION_ERROR_CODE = "23505";
-    private static final String JOB_POLICY = "job_policy";
+    private static final String JOB_POLICY_TYPE_NAME = "job_policy";
 
     private static AppConfig appConfig;
 
@@ -123,7 +123,7 @@ public final class DatabaseHelper
             try (final ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     final Job job = new Job();
-                    final ExpirationPolicy expirationPolicy= new ExpirationPolicy();
+                    final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
                     job.setId(rs.getString("job_id"));
                     job.setName(rs.getString("name"));
                     job.setDescription(rs.getString("description"));
@@ -207,7 +207,7 @@ public final class DatabaseHelper
     public Job getJob(final String partitionId, String jobId) throws Exception {
 
         Job job = null;
-        final ExpirationPolicy expirationPolicy= new ExpirationPolicy();
+        final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
@@ -373,10 +373,10 @@ public final class DatabaseHelper
         final Array arrayP;
         if (expirationPolicy != null) {
             final List<String> expirationPolicyList = ExpirationPolicyHelper.toPgCompositeList(expirationPolicy);
-            arrayP = conn.createArrayOf(JOB_POLICY, expirationPolicyList.toArray(new String[0]));
+            arrayP = conn.createArrayOf(JOB_POLICY_TYPE_NAME, expirationPolicyList.toArray(new String[0]));
             LOG.debug("expirationPolicyDB: {}", expirationPolicyList);
         } else {
-            arrayP = conn.createArrayOf(JOB_POLICY, new Policy[0]);
+            arrayP = conn.createArrayOf(JOB_POLICY_TYPE_NAME, new Policy[0]);
         }
         stmt.setArray(parameterIndex, arrayP);
         return arrayP;

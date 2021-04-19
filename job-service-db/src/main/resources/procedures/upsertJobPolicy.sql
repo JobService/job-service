@@ -26,12 +26,10 @@ CREATE OR REPLACE FUNCTION internal_upsert_job_policy(
     in_policies JOB_POLICY[]
 )
 RETURNS VOID
-LANGUAGE plpgsql
-VOLATILE
+LANGUAGE plpgsql VOLATILE
 AS
 $$
 BEGIN
-
     IF in_policies IS NULL OR CARDINALITY(in_policies) = 0 THEN
         RETURN;
     END IF;

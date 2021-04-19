@@ -114,7 +114,8 @@ BEGIN
         in_delay = 0;
     END IF;
 
-    IF NOT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, in_delay, in_job_hash, in_labels) THEN
+    IF NOT internal_create_job(in_partition_id, in_job_id, in_name, in_description,
+                               in_data, in_delay, in_job_hash, in_labels, in_policies) THEN
         RETURN QUERY SELECT FALSE;
         RETURN;
     END IF;
@@ -200,8 +201,6 @@ BEGIN
             in_suspended_partition
         );
     END IF;
-
-    PERFORM internal_upsert_job_policy(in_partition_id, in_job_id, in_policies);
 
     RETURN QUERY SELECT TRUE;
 END

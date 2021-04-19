@@ -158,7 +158,7 @@ BEGIN
 
     IF in_status_type IS NOT NULL THEN
         IF in_status_type = 'NotCompleted' THEN
-            sql := sql || whereOrAnd || $q$ status IN ('Active', 'Paused', 'Waiting', 'Cancelled', 'Failed')$q$;
+            sql := sql || whereOrAnd || $q$ status IN ('Active', 'Paused', 'Waiting', 'Cancelled', 'Failed', 'Expired')$q$;
             whereOrAnd := andConst;
         ELSIF in_status_type = 'Completed' THEN
             sql := sql || whereOrAnd || $q$ status IN ('Completed')$q$;
