@@ -31,7 +31,7 @@ public class ApplyJobExpirationPolicyTask implements Runnable{
     public void run()
     {
         try(final Connection connection = DBConnection.get();
-            final CallableStatement stmt = connection.prepareCall("SELECT * FROM apply_job_expiration_policy()"))
+            final CallableStatement stmt = connection.prepareCall("CALL apply_job_expiration_policy()"))
         {
             if(LOG.isDebugEnabled())
             {

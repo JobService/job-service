@@ -15,22 +15,17 @@
 --
 
 /*
- *  Name: cancel_job
+ *  Name: expire_job
  *
  *  Description:
- *  Cancels the specified job.
+ *  Expires the specified job.
  */
-DROP FUNCTION IF EXISTS cancel_job(
-    in_partition_id VARCHAR(40),
-    in_job_id VARCHAR(48),
-    in_short_job_id VARCHAR(48)
-);
-CREATE OR REPLACE FUNCTION cancel_job(
+CREATE OR REPLACE FUNCTION expire_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
 )
-RETURNS VOID
-LANGUAGE plpgsql
+    RETURNS VOID
+    LANGUAGE plpgsql
 AS $$
 DECLARE
     v_is_finished BOOLEAN;
@@ -41,28 +36,28 @@ BEGIN
         RAISE EXCEPTION 'The job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data;
     END IF;
 
-    -- Only support Cancel operation on jobs with current status 'Waiting', 'Active' or 'Paused'
+    -- Only support Expire operation on jobs with current status 'Waiting', 'Active' or 'Paused'
     -- And take out an exclusive update lock on the job row
     SELECT status IN ('Expired', 'Completed', 'Failed') INTO v_is_finished
     FROM job
     WHERE partition_id = in_partition_id
-        AND job_id = in_job_id
-    FOR UPDATE;
+      AND job_id = in_job_id
+        FOR UPDATE;
 
     IF NOT FOUND THEN
         RAISE EXCEPTION 'job_id {%} not found', in_job_id USING ERRCODE = 'P0002'; -- sqlstate no_data_found
     END IF;
 
     IF v_is_finished THEN
-        RAISE EXCEPTION 'job_id {%} cannot be cancelled', in_job_id USING ERRCODE = '02000';
+        RAISE EXCEPTION 'job_id {%} cannot be expired', in_job_id USING ERRCODE = '02000';
     END IF;
 
     -- Mark the job cancelled in the job table
     UPDATE job
-    SET status = 'Cancelled', last_update_date = now() AT TIME ZONE 'UTC'
+    SET status = 'Expired', last_update_date = now() AT TIME ZONE 'UTC'
     WHERE partition_id = in_partition_id
-        AND job_id = in_job_id
-        AND status != 'Cancelled';
+      AND job_id = in_job_id
+      AND status != 'Expired';
 
     -- Drop any task tables relating to the job
     PERFORM internal_drop_task_tables(in_partition_id, in_job_id);

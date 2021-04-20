@@ -20,31 +20,13 @@
  *  Description:
  *  Expires or deletes a job based on its expiration policy.
  */
-CREATE OR REPLACE FUNCTION apply_job_expiration_policy(
-)
-RETURNS VOID
+DROP FUNCTION IF EXISTS apply_job_expiration_policy(
+);
+CREATE OR REPLACE PROCEDURE apply_job_expiration_policy()
 LANGUAGE plpgsql
-VOLATILE
 AS
 $$
 BEGIN
-    -- create inner function that deletes or expires the job according to its status policy
-    CREATE OR REPLACE FUNCTION delete_or_expire_job(p_id varchar, j_id varchar, j_operation EXPIRATION_OPERATION)
-    RETURNS VOID AS
-    $delete_or_expire_job$
-    BEGIN
-        IF j_operation = 'Expire' THEN
-            UPDATE job j
-            SET status ='Expired'
-            WHERE j.partition_id = p_id
-              AND j.job_id = j_id;
-        ELSE
-            PERFORM delete_job(p_id, j_id);
-        END IF;
-    END;
-    $delete_or_expire_job$
-        LANGUAGE plpgsql VOLATILE;
-
 
     PERFORM NULL
     FROM (

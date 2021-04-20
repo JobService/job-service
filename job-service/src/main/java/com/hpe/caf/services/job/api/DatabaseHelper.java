@@ -44,13 +44,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.codehaus.jettison.json.JSONException;
 
 /**
  * The DatabaseHelper class is responsible for database operations.
  */
-public final class DatabaseHelper
-{
+public final class DatabaseHelper {
     private static final String FAILURE_PROPERTY_MISSING = "Unknown";
 
     // PostgreSQL Error Codes: https://www.postgresql.org/docs/current/errcodes-appendix.html
@@ -59,11 +59,8 @@ public final class DatabaseHelper
     private static final String POSTGRES_NO_DATA_FOUND_ERROR_CODE = "P0002";
     private static final String POSTGRES_UNIQUE_VIOLATION_ERROR_CODE = "23505";
     private static final String JOB_POLICY_TYPE_NAME = "job_policy";
-
-    private static AppConfig appConfig;
-
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHelper.class);
-
+    private static AppConfig appConfig;
     public final boolean propagateDependentJobFailures;
 
     /**
@@ -71,11 +68,100 @@ public final class DatabaseHelper
      *
      * @param appConfig PostgreSQL database connection properties incl url (i.e. "jdbc:postgresql://PostgreSQLHost:portNumber/databaseName"), username and password
      */
-    public DatabaseHelper(AppConfig appConfig)
-    {
+    public DatabaseHelper(AppConfig appConfig) {
         DatabaseHelper.appConfig = appConfig;
         final String propDepJoFailures = System.getenv("CAF_JOB_SERVICE_PROPAGATE_FAILURES");
         propagateDependentJobFailures = propDepJoFailures != null ? Boolean.parseBoolean(propDepJoFailures) : false;
+    }
+
+    /**
+     * Parses the failure details string returned from the database and returns as a list.
+     */
+    private static List<Failure> getFailuresAsList(String failureDetails) throws Exception {
+
+        List<Failure> failures = new ArrayList<>();
+
+        //  Split on newline character.
+        for (String failure : failureDetails.split("\\r?\\n")) {
+            if (failure.startsWith("{")) {
+                JSONObject jFailure = new JSONObject(failure);
+                final Failure f;
+                if (jFailure.has("root_failure")) {
+                    f = getFailureFromJsonObject(new JSONObject(jFailure.getString("failure_details")));
+                    f.setFailureSource(jFailure.getString("root_failure") + ":" + f.getFailureSource());
+                } else {
+                    f = getFailureFromJsonObject(jFailure);
+                }
+                failures.add(f);
+            } else {
+                //  Valid failure JSON not detected.
+                Failure f = new Failure();
+                f.setFailureId(FAILURE_PROPERTY_MISSING);
+                f.setFailureTime(new Date());
+                f.failureSource(FAILURE_PROPERTY_MISSING);
+                f.failureMessage(failure);
+                failures.add(f);
+            }
+        }
+
+        return failures;
+
+    }
+
+    private static Failure getFailureFromJsonObject(final JSONObject json) throws JSONException, ParseException {
+        final Failure f = new Failure();
+        f.setFailureId(json.getString("failureId"));
+        f.setFailureTime(getDate(json.getString("failureTime")));
+        f.failureSource(json.getString("failureSource"));
+        f.failureMessage(json.getString("failureMessage"));
+        return f;
+    }
+
+    /**
+     * Returns java.util.date from a string.
+     */
+    private static Date getDate(String dateString) throws ParseException {
+
+        Instant instant = Instant.parse(dateString);
+        return java.util.Date.from(instant);
+
+    }
+
+    private static Exception mapSqlConnectionException(final SQLException se) throws Exception {
+        final String sqlState = se.getSQLState();
+        if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+            return new ServiceUnavailableException(se.getMessage(), se);
+        } else {
+            return se;
+        }
+    }
+
+    private static Exception mapSqlNoDataException(final SQLException se) throws Exception {
+        final String sqlState = se.getSQLState();
+        if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
+            //  Client error, such as not providing a job id, or trying to pause a cancelled job etc.
+            return new BadRequestException(se.getMessage(), se);
+        } else if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
+            //  No data found for the specified job id.
+            return new NotFoundException(se.getMessage(), se);
+        } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+            // Connection exception.
+            return new ServiceUnavailableException(se.getMessage(), se);
+        } else {
+            return se;
+        }
+    }
+
+    private static void throwIfUnexpectedException(final SQLException se) throws Exception {
+        final String sqlState = se.getSQLState();
+        if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
+            // job missing - don't throw anything, return void
+        } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
+            // Connection exception
+            throw new ServiceUnavailableException(se.getMessage(), se);
+        } else {
+            throw se;
+        }
     }
 
     public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
@@ -121,6 +207,8 @@ public final class DatabaseHelper
             try (final ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     final Job job = new Job();
+                    final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
+                    job.setExpiry(expirationPolicy);
                     job.setId(rs.getString("job_id"));
                     job.setName(rs.getString("name"));
                     job.setDescription(rs.getString("description"));
@@ -140,7 +228,8 @@ public final class DatabaseHelper
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
                         job.getLabels().put(label, rs.getString("label_value"));
                     }
-                    job.setExpiry(retrieveExpirationPolicy(rs));
+                    recoverJobExpiry(job, rs);
+                    LOG.info("expirationPolicy {}", job.getExpiry());
                     //We joined onto the labels table and there may be multiple rows for the same job, so merge their labels
                     jobs.merge(job.getId(), job, (orig, insert) -> {
                         orig.getLabels().putAll(insert.getLabels());
@@ -204,13 +293,12 @@ public final class DatabaseHelper
     public Job getJob(final String partitionId, String jobId) throws Exception {
 
         Job job = null;
-
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")
         ) {
             stmt.setString(1, partitionId);
-            stmt.setString(2,jobId);
+            stmt.setString(2, jobId);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_job() database function...");
@@ -218,6 +306,8 @@ public final class DatabaseHelper
                     final ResultSet rs = stmt.executeQuery();
             ) {
                 job = new Job();
+                final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
+                job.setExpiry(expirationPolicy);
                 while (rs.next()) {
                     job.setId(rs.getString("job_id"));
                     job.setName(rs.getString("name"));
@@ -237,7 +327,7 @@ public final class DatabaseHelper
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
                         job.getLabels().put(label, rs.getString("label_value"));
                     }
-                    job.setExpiry(retrieveExpirationPolicy(rs));
+                    recoverJobExpiry(job, rs);
                 }
             }
         } catch (final SQLException se) {
@@ -247,13 +337,14 @@ public final class DatabaseHelper
         return job;
     }
 
-    private ExpirationPolicy retrieveExpirationPolicy( final ResultSet resultSet) throws SQLException {
+    private void recoverJobExpiry(final Job job, final ResultSet resultSet)
+            throws SQLException {
+        final ExpirationPolicy expirationPolicy = job.getExpiry();
         final String status = resultSet.getString("expiration_status");
-        final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
-        if(ApiServiceUtil.isNotNullOrEmpty(status)){
-            Policy policy = new Policy();
-            DeletePolicy deletePolicy = new DeletePolicy();
-            switch (status){
+        if (ApiServiceUtil.isNotNullOrEmpty(status)) {
+            final Policy policy = new Policy();
+            final DeletePolicy deletePolicy = new DeletePolicy();
+            switch (status) {
                 case "Active":
                     transferExpirablePolicy(resultSet, policy);
                     expirationPolicy.setActive(policy);
@@ -279,14 +370,13 @@ public final class DatabaseHelper
                     expirationPolicy.setWaiting(policy);
                     break;
                 default:
-                    transferDeletePolicy(resultSet, deletePolicy);
+                    deletePolicy.setExpiryTime(resultSet.getString("expiration_time"));
+                    deletePolicy.setOperation(DeletePolicy.OperationEnum.valueOf(resultSet.getString("operation").toUpperCase(Locale.ROOT)));
                     expirationPolicy.setExpired(deletePolicy);
                     break;
             }
 
         }
-        LOG.info("expirationPolicy set from db: {}", expirationPolicy);
-        return expirationPolicy;
     }
 
     private void transferExpirablePolicy(final ResultSet resultSet, final Policy policy) throws SQLException {
@@ -331,6 +421,7 @@ public final class DatabaseHelper
 
     /**
      * Creates the specified job.
+     *
      * @return Whether the job was created
      */
     public boolean createJob(final String partitionId, String jobId, String name, String description, String data,
@@ -342,12 +433,12 @@ public final class DatabaseHelper
             final List<String[]> labelArray = buildLabelSqlArray(labels);
 
             stmt.setString(1, partitionId);
-            stmt.setString(2,jobId);
-            stmt.setString(3,name);
-            stmt.setString(4,description);
-            stmt.setString(5,data);
-            stmt.setInt(6,jobHash);
-            LOG.info("passing job: {}\n ExpiryPolicy {}",jobId, expirationPolicy);
+            stmt.setString(2, jobId);
+            stmt.setString(3, name);
+            stmt.setString(4, description);
+            stmt.setString(5, data);
+            stmt.setInt(6, jobHash);
+            LOG.info("passing job: {}\n ExpiryPolicy {}", jobId, expirationPolicy);
 
 
             Array arrayL;
@@ -386,6 +477,7 @@ public final class DatabaseHelper
 
     /**
      * Creates the specified job.
+     *
      * @return Whether the job was created
      */
     public boolean createJobWithDependencies(final String partitionId, final String jobId, final String name, final String description,
@@ -404,18 +496,18 @@ public final class DatabaseHelper
             final List<String[]> labelArray = buildLabelSqlArray(labels);
 
             stmt.setString(1, partitionId);
-            stmt.setString(2,jobId);
-            stmt.setString(3,name);
-            stmt.setString(4,description);
-            stmt.setString(5,data);
-            stmt.setInt(6,jobHash);
-            stmt.setString(7,taskClassifier);
-            stmt.setInt(8,taskApiVersion);
-            stmt.setBytes(9,taskData);
-            stmt.setString(10,taskPipe);
-            stmt.setString(11,targetPipe);
-            stmt.setArray(12,prerequisiteJobIdSQLArray);
-            stmt.setInt(13,delay);
+            stmt.setString(2, jobId);
+            stmt.setString(3, name);
+            stmt.setString(4, description);
+            stmt.setString(5, data);
+            stmt.setInt(6, jobHash);
+            stmt.setString(7, taskClassifier);
+            stmt.setInt(8, taskApiVersion);
+            stmt.setBytes(9, taskData);
+            stmt.setString(10, taskPipe);
+            stmt.setString(11, targetPipe);
+            stmt.setArray(12, prerequisiteJobIdSQLArray);
+            stmt.setInt(13, delay);
 
             Array array;
             if (!labelArray.isEmpty()) {
@@ -445,14 +537,10 @@ public final class DatabaseHelper
                 .collect(Collectors.toList());
     }
 
-    private String[] getPrerequisiteJobIds(final List<String> prerequisiteJobIds)
-    {
-        if (prerequisiteJobIds != null && !prerequisiteJobIds.isEmpty())
-        {
+    private String[] getPrerequisiteJobIds(final List<String> prerequisiteJobIds) {
+        if (prerequisiteJobIds != null && !prerequisiteJobIds.isEmpty()) {
             return prerequisiteJobIds.toArray(new String[prerequisiteJobIds.size()]);
-        }
-        else
-        {
+        } else {
             return new String[0];
         }
     }
@@ -467,7 +555,7 @@ public final class DatabaseHelper
                 CallableStatement stmt = conn.prepareCall("{call delete_job(?,?)}")
         ) {
             stmt.setString(1, partitionId);
-            stmt.setString(2,jobId);
+            stmt.setString(2, jobId);
             LOG.debug("Calling delete_job() database function...");
             stmt.execute();
         } catch (final SQLException se) {
@@ -478,8 +566,7 @@ public final class DatabaseHelper
     /**
      * Returns TRUE if the specified job id can be progressed, otherwise FALSE.
      */
-    public boolean canJobBeProgressed(final String partitionId, final String jobId) throws Exception
-    {
+    public boolean canJobBeProgressed(final String partitionId, final String jobId) throws Exception {
 
         boolean canBeProgressed = true;
 
@@ -492,7 +579,7 @@ public final class DatabaseHelper
 
             //  Execute a query to determine if the specified job can be progressed.
             ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
+            if (rs.next()) {
                 canBeProgressed = rs.getBoolean("can_be_progressed");
             }
 
@@ -503,8 +590,7 @@ public final class DatabaseHelper
         return canBeProgressed;
     }
 
-    public Job.StatusEnum getJobStatus(final String partitionId, final String jobId) throws Exception
-    {
+    public Job.StatusEnum getJobStatus(final String partitionId, final String jobId) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")) {
@@ -538,7 +624,7 @@ public final class DatabaseHelper
             //  Execute a query to determine if the specified job is active or not.
             LOG.debug("Calling get_job() database function...");
             ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
+            if (rs.next()) {
                 final Job.StatusEnum status =
                         Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH));
                 active = status == Job.StatusEnum.ACTIVE || status == Job.StatusEnum.WAITING;
@@ -561,7 +647,7 @@ public final class DatabaseHelper
                 CallableStatement stmt = conn.prepareCall("{call cancel_job(?,?)}")
         ) {
             stmt.setString(1, partitionId);
-            stmt.setString(2,jobId);
+            stmt.setString(2, jobId);
             LOG.debug("Calling cancel_job() database function...");
             stmt.execute();
         } catch (final SQLException se) {
@@ -609,116 +695,21 @@ public final class DatabaseHelper
      * Creates the specified job.
      */
     public void reportFailure(final String partitionId, String jobId, String failureDetails)
-            throws Exception
-    {
+            throws Exception {
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
-            stmt.setString(2,jobId);
-            stmt.setString(3,failureDetails);
+            stmt.setString(2, jobId);
+            stmt.setString(3, failureDetails);
             stmt.setBoolean(4, propagateDependentJobFailures);
 
             LOG.debug("Calling report_failure() database function...");
             stmt.execute();
         } catch (final SQLException se) {
             throw mapSqlConnectionException(se);
-        }
-    }
-
-    /**
-     * Parses the failure details string returned from the database and returns as a list.
-     */
-    private static List<Failure> getFailuresAsList (String failureDetails) throws Exception {
-
-        List<Failure> failures = new ArrayList<>();
-
-        //  Split on newline character.
-        for (String failure: failureDetails.split("\\r?\\n")){
-            if (failure.startsWith("{")) {
-                JSONObject jFailure = new JSONObject(failure);
-                final Failure f;
-                if (jFailure.has("root_failure")) {
-                    f = getFailureFromJsonObject(new JSONObject(jFailure.getString("failure_details")));
-                    f.setFailureSource(jFailure.getString("root_failure") + ":" + f.getFailureSource());
-                } else {
-                    f = getFailureFromJsonObject(jFailure);
-                }
-                failures.add(f);
-            } else {
-                //  Valid failure JSON not detected.
-                Failure f = new Failure();
-                f.setFailureId(FAILURE_PROPERTY_MISSING);
-                f.setFailureTime(new Date());
-                f.failureSource(FAILURE_PROPERTY_MISSING);
-                f.failureMessage(failure);
-                failures.add(f);
-            }
-        }
-
-        return failures;
-
-    }
-
-    private static Failure getFailureFromJsonObject(final JSONObject json) throws JSONException, ParseException
-    {
-        final Failure f = new Failure();
-        f.setFailureId(json.getString("failureId"));
-        f.setFailureTime(getDate(json.getString("failureTime")));
-        f.failureSource(json.getString("failureSource"));
-        f.failureMessage(json.getString("failureMessage"));
-        return f;
-    }
-
-    /**
-     * Returns java.util.date from a string.
-     */
-    private static Date getDate(String dateString) throws ParseException {
-
-        Instant instant = Instant.parse ( dateString );
-        return java.util.Date.from( instant );
-
-    }
-
-    private static Exception mapSqlConnectionException(final SQLException se) throws Exception
-    {
-        final String sqlState = se.getSQLState();
-        if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-            return new ServiceUnavailableException(se.getMessage(), se);
-        } else {
-            return se;
-        }
-    }
-
-    private static Exception mapSqlNoDataException(final SQLException se) throws Exception
-    {
-        final String sqlState = se.getSQLState();
-        if (sqlState.equals(POSTGRES_NO_DATA_ERROR_CODE)) {
-            //  Client error, such as not providing a job id, or trying to pause a cancelled job etc.
-            return new BadRequestException(se.getMessage(), se);
-        } else if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
-            //  No data found for the specified job id.
-            return new NotFoundException(se.getMessage(), se);
-        } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-            // Connection exception.
-            return new ServiceUnavailableException(se.getMessage(), se);
-        } else {
-            return se;
-        }
-    }
-
-    private static void throwIfUnexpectedException(final SQLException se) throws Exception
-    {
-        final String sqlState = se.getSQLState();
-        if (sqlState.equals(POSTGRES_NO_DATA_FOUND_ERROR_CODE)) {
-            // job missing - don't throw anything, return void
-        } else if (sqlState.startsWith(POSTGRES_CONNECTION_EXCEPTION_ERROR_CODE_PREFIX)) {
-            // Connection exception
-            throw new ServiceUnavailableException(se.getMessage(), se);
-        } else {
-            throw se;
         }
     }
 }
