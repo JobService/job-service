@@ -209,6 +209,7 @@ public final class DatabaseHelper
         Job job = null;
         final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
 
+
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")
@@ -241,7 +242,7 @@ public final class DatabaseHelper
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
                         job.getLabels().put(label, rs.getString("label_value"));
                     }
-                    job.setExpiry(retrieveExpirationPolicy(expirationPolicy, rs));
+                    job.setExpiry(retrieveExpirationPolicy(rs));
                 }
             }
         } catch (final SQLException se) {
@@ -251,8 +252,9 @@ public final class DatabaseHelper
         return job;
     }
 
-    private ExpirationPolicy retrieveExpirationPolicy(final ExpirationPolicy expirationPolicy, final ResultSet rs) throws SQLException {
+    private ExpirationPolicy retrieveExpirationPolicy(final ResultSet rs) throws SQLException {
         final String status = rs.getString("expiration_status");
+        final ExpirationPolicy expirationPolicy= new ExpirationPolicy();
         if(ApiServiceUtil.isNotNullOrEmpty(status)){
             final Policy policy = new Policy();
             switch (status){
@@ -283,7 +285,8 @@ public final class DatabaseHelper
                 default:
                     final DeletePolicy deletePolicy= new DeletePolicy();
                     deletePolicy.setExpiryTime(rs.getString("expiration_time"));
-                    deletePolicy.setExpirationOperation(ExpirationOperationEnum.valueOf(rs.getString("operation").toUpperCase(Locale.ROOT)));
+                    deletePolicy.setExpirationOperation(ExpirationOperationEnum.valueOf(rs.getString("operation")
+                            .toUpperCase(Locale.ROOT)));
                     expirationPolicy.setExpired(deletePolicy);
                     break;
             }
