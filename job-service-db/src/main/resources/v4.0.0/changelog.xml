@@ -60,4 +60,10 @@
                                  referencedTableName="job"
                                  referencedColumnNames="partition_id, job_id" />
     </changeSet>
+    <changeSet id="increase_task_id_size" author="Gamma Team" >
+    <modifyDataType
+            columnName="task_id"
+            newDataType="VARCHAR(70)"
+            tableName="completed_subtask_report" />
+    </changeSet>
 </databaseChangeLog>
