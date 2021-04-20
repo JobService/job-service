@@ -28,9 +28,16 @@ DROP FUNCTION IF EXISTS internal_report_task_status(
     in_percentage_complete DOUBLE PRECISION,
     in_failure_details TEXT
 );
-CREATE OR REPLACE FUNCTION internal_report_task_status(
+DROP FUNCTION IF EXISTS internal_report_task_status(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58),
+    in_status job_status,
+    in_percentage_complete DOUBLE PRECISION,
+    in_failure_details TEXT
+);
+CREATE OR REPLACE FUNCTION internal_report_task_status(
+    in_partition_id VARCHAR(40),
+    in_task_id VARCHAR(70),
     in_status job_status,
     in_percentage_complete DOUBLE PRECISION,
     in_failure_details TEXT
@@ -39,7 +46,7 @@ RETURNS VOID
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    v_parent_task_id VARCHAR(58);
+    v_parent_task_id VARCHAR(70);
     v_parent_task_table VARCHAR(63);
 
 BEGIN
