@@ -17,7 +17,6 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.api.generated.model.DeletePolicy;
-import com.hpe.caf.services.job.api.generated.model.DeletePolicy.ExpirationOperationEnum;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
@@ -80,11 +79,10 @@ public final class DatabaseHelper
     }
 
     public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
-                         Integer offset, final SortField sortField, final SortDirection sortDirection,
-                         final List<String> labels, final String filter) throws Exception {
+            Integer offset, final SortField sortField, final SortDirection sortDirection,
+            final List<String> labels, final String filter) throws Exception {
 
         final Map<String, Job> jobs = new LinkedHashMap<>(); //Linked rather than hash to preserve order of results.
-
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?,?)}")
@@ -123,7 +121,6 @@ public final class DatabaseHelper
             try (final ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     final Job job = new Job();
-                    final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
                     job.setId(rs.getString("job_id"));
                     job.setName(rs.getString("name"));
                     job.setDescription(rs.getString("description"));
@@ -143,7 +140,7 @@ public final class DatabaseHelper
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
                         job.getLabels().put(label, rs.getString("label_value"));
                     }
-                    job.setExpiry(retrieveExpirationPolicy(expirationPolicy, rs));
+                    job.setExpiry(retrieveExpirationPolicy(rs));
                     //We joined onto the labels table and there may be multiple rows for the same job, so merge their labels
                     jobs.merge(job.getId(), job, (orig, insert) -> {
                         orig.getLabels().putAll(insert.getLabels());
@@ -156,7 +153,7 @@ public final class DatabaseHelper
                 }
             }
         } catch (final SQLException se) {
-           throw mapSqlConnectionException(se);
+            throw mapSqlConnectionException(se);
         }
 
         //  Convert arraylist to array of jobs.
@@ -207,8 +204,6 @@ public final class DatabaseHelper
     public Job getJob(final String partitionId, String jobId) throws Exception {
 
         Job job = null;
-        final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
-
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
@@ -221,7 +216,7 @@ public final class DatabaseHelper
             LOG.debug("Calling get_job() database function...");
             try (
                     final ResultSet rs = stmt.executeQuery();
-                ) {
+            ) {
                 job = new Job();
                 while (rs.next()) {
                     job.setId(rs.getString("job_id"));
@@ -246,58 +241,62 @@ public final class DatabaseHelper
                 }
             }
         } catch (final SQLException se) {
-           throw mapSqlNoDataException(se);
+            throw mapSqlNoDataException(se);
         }
 
         return job;
     }
 
-    private ExpirationPolicy retrieveExpirationPolicy(final ResultSet rs) throws SQLException {
-        final String status = rs.getString("expiration_status");
-        final ExpirationPolicy expirationPolicy= new ExpirationPolicy();
+    private ExpirationPolicy retrieveExpirationPolicy( final ResultSet resultSet) throws SQLException {
+        final String status = resultSet.getString("expiration_status");
+        final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
         if(ApiServiceUtil.isNotNullOrEmpty(status)){
-            final Policy policy = new Policy();
+            Policy policy = new Policy();
+            DeletePolicy deletePolicy = new DeletePolicy();
             switch (status){
                 case "Active":
-                    transferPolicy(rs, policy);
+                    transferExpirablePolicy(resultSet, policy);
                     expirationPolicy.setActive(policy);
                     break;
                 case "Cancelled":
-                    transferPolicy(rs, policy);
-                    expirationPolicy.setCancelled(policy);
+                    transferDeletePolicy(resultSet, deletePolicy);
+                    expirationPolicy.setCancelled(deletePolicy);
                     break;
                 case "Completed":
-                    transferPolicy(rs, policy);
-                    expirationPolicy.setCompleted(policy);
+                    transferDeletePolicy(resultSet, deletePolicy);
+                    expirationPolicy.setCompleted(deletePolicy);
                     break;
                 case "Failed":
-                    transferPolicy(rs, policy);
-                    expirationPolicy.setFailed(policy);
+                    transferDeletePolicy(resultSet, deletePolicy);
+                    expirationPolicy.setFailed(deletePolicy);
                     break;
                 case "Paused":
-                    transferPolicy(rs, policy);
+                    transferExpirablePolicy(resultSet, policy);
                     expirationPolicy.setPaused(policy);
                     break;
                 case "Waiting":
-                    transferPolicy(rs, policy);
+                    transferExpirablePolicy(resultSet, policy);
                     expirationPolicy.setWaiting(policy);
                     break;
                 default:
-                    final DeletePolicy deletePolicy= new DeletePolicy();
-                    deletePolicy.setExpiryTime(rs.getString("expiration_time"));
-                    deletePolicy.setExpirationOperation(ExpirationOperationEnum.valueOf(rs.getString("operation")
-                            .toUpperCase(Locale.ROOT)));
+                    transferDeletePolicy(resultSet, deletePolicy);
                     expirationPolicy.setExpired(deletePolicy);
                     break;
             }
 
         }
+        LOG.info("expirationPolicy set from db: {}", expirationPolicy);
         return expirationPolicy;
     }
 
-    private void transferPolicy(final ResultSet rs, final Policy policy) throws SQLException {
-        policy.setExpiryTime(rs.getString("expiration_time"));
-        policy.setOperation(OperationEnum.valueOf(rs.getString("operation").toUpperCase(Locale.ROOT)));
+    private void transferExpirablePolicy(final ResultSet resultSet, final Policy policy) throws SQLException {
+        policy.setExpiryTime(resultSet.getString("expiration_time"));
+        policy.setOperation(OperationEnum.valueOf(resultSet.getString("operation").toUpperCase(Locale.ROOT)));
+    }
+
+    private void transferDeletePolicy(final ResultSet resultSet, final DeletePolicy policy) throws SQLException {
+        policy.setExpiryTime(resultSet.getString("expiration_time"));
+        policy.setOperation(DeletePolicy.OperationEnum.valueOf(resultSet.getString("operation").toUpperCase(Locale.ROOT)));
     }
 
     /**
@@ -335,7 +334,7 @@ public final class DatabaseHelper
      * @return Whether the job was created
      */
     public boolean createJob(final String partitionId, String jobId, String name, String description, String data,
-                             int jobHash, final Map<String, String> labels, final ExpirationPolicy expirationPolicy) throws Exception {
+            int jobHash, final Map<String, String> labels, final ExpirationPolicy expirationPolicy) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?)}")
@@ -390,11 +389,11 @@ public final class DatabaseHelper
      * @return Whether the job was created
      */
     public boolean createJobWithDependencies(final String partitionId, final String jobId, final String name, final String description,
-                                          final String data, final int jobHash, final String taskClassifier,
-                                          final int taskApiVersion, final byte[] taskData, final String taskPipe,
-                                          final String targetPipe, final List<String> prerequisiteJobIds,
-                                          final int delay, final Map<String, String> labels,
-                                          final boolean partitionSuspended, ExpirationPolicy expirationPolicy) throws Exception {
+            final String data, final int jobHash, final String taskClassifier,
+            final int taskApiVersion, final byte[] taskData, final String taskPipe,
+            final String targetPipe, final List<String> prerequisiteJobIds,
+            final int delay, final Map<String, String> labels,
+            final boolean partitionSuspended, ExpirationPolicy expirationPolicy) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
@@ -472,7 +471,7 @@ public final class DatabaseHelper
             LOG.debug("Calling delete_job() database function...");
             stmt.execute();
         } catch (final SQLException se) {
-           throw mapSqlNoDataException(se);
+            throw mapSqlNoDataException(se);
         }
     }
 
@@ -507,8 +506,8 @@ public final class DatabaseHelper
     public Job.StatusEnum getJobStatus(final String partitionId, final String jobId) throws Exception
     {
         try (
-            final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-            final CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")) {
+                final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                final CallableStatement stmt = conn.prepareCall("{call get_job(?,?)}")) {
             stmt.setString(1, partitionId);
             stmt.setString(2, jobId);
 
@@ -541,7 +540,7 @@ public final class DatabaseHelper
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
                 final Job.StatusEnum status =
-                    Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH));
+                        Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH));
                 active = status == Job.StatusEnum.ACTIVE || status == Job.StatusEnum.WAITING;
             }
 
@@ -610,7 +609,7 @@ public final class DatabaseHelper
      * Creates the specified job.
      */
     public void reportFailure(final String partitionId, String jobId, String failureDetails)
-        throws Exception
+            throws Exception
     {
 
         try (

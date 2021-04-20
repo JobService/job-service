@@ -15,7 +15,8 @@
  */
 package com.hpe.caf.services.job.utilities;
 
-import com.hpe.caf.services.job.api.generated.model.DeletePolicy.ExpirationOperationEnum;
+import com.hpe.caf.services.job.api.generated.model.DeletePolicy;
+import com.hpe.caf.services.job.api.generated.model.DeletePolicy.OperationEnum;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.Policy;
 
@@ -31,21 +32,28 @@ public final class ExpirationPolicyHelper
     public static List<String> toPgCompositeList(final ExpirationPolicy expirationPolicy)
     {
         final List<String> policyList = new ArrayList<>();
-        buildPolicy(policyList, "Active", expirationPolicy.getActive());
-        buildPolicy(policyList, "Cancelled", expirationPolicy.getCancelled());
-        buildPolicy(policyList, "Completed", expirationPolicy.getCompleted());
-        buildPolicy(policyList, "Failed", expirationPolicy.getFailed());
-        buildPolicy(policyList, "Waiting", expirationPolicy.getWaiting());
-        buildPolicy(policyList, "Paused", expirationPolicy.getPaused());
-        policyList.add(toJobPolicyDbTypeString(
-            "Expired",
-            ExpirationOperationEnum.DELETE,
-            expirationPolicy.getExpired().getExpiryTime()));
+        // build policy when status could be set to expire
+        buildExpirablePolicy(policyList, "Active", expirationPolicy.getActive());
+        buildExpirablePolicy(policyList, "Waiting", expirationPolicy.getWaiting());
+        buildExpirablePolicy(policyList, "Paused", expirationPolicy.getPaused());
+
+        // build policy when delete is the only option
+        buildDeletePolicy(policyList, "Cancelled", expirationPolicy.getCancelled());
+        buildDeletePolicy(policyList, "Completed", expirationPolicy.getCompleted());
+        buildDeletePolicy(policyList, "Failed", expirationPolicy.getFailed());
+        buildDeletePolicy(policyList, "Expired", expirationPolicy.getExpired());
 
         return policyList;
     }
 
-    private static void buildPolicy(final List<String> policyList, final String status, final Policy policy)
+    private static void buildDeletePolicy(final List<String> policyList, final String status, final DeletePolicy deletePolicy) {
+        policyList.add(toJobPolicyDbTypeString(
+                status,
+                OperationEnum.DELETE,
+                deletePolicy.getExpiryTime()));
+    }
+
+    private static void buildExpirablePolicy(final List<String> policyList, final String status, final Policy policy)
     {
         policyList.add(toJobPolicyDbTypeString(status, policy));
     }

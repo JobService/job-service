@@ -32,25 +32,25 @@ import io.swagger.annotations.ApiModelProperty;
 public class DeletePolicy   {
 
     private String expiryTime = null;
+    private DeletePolicy.OperationEnum operation = null;
 
 
-    public enum ExpirationOperationEnum {
+    public static enum OperationEnum {
         DELETE("Delete");
 
         private String value;
 
-        ExpirationOperationEnum(String value) {
+
+        OperationEnum(String value) {
             this.value = value;
         }
-
         @Override
         @JsonValue
         public String toString() {
             return value;
         }
-    }
 
-    private ExpirationOperationEnum expirationOperation = null;
+    }
 
 
     /**
@@ -71,11 +71,11 @@ public class DeletePolicy   {
 
     @ApiModelProperty(value = "")
     @JsonProperty("expirationOperation")
-    public ExpirationOperationEnum getExpirationOperation() {
-        return expirationOperation;
+    public OperationEnum getOperation() {
+        return operation;
     }
-    public void setExpirationOperation(ExpirationOperationEnum expirationOperation) {
-        this.expirationOperation = expirationOperation;
+    public void setOperation(OperationEnum operation) {
+        this.operation = operation;
     }
 
 
@@ -90,12 +90,12 @@ public class DeletePolicy   {
         }
         DeletePolicy deletePolicy = (DeletePolicy) o;
         return Objects.equals(expiryTime, deletePolicy.expiryTime) &&
-                Objects.equals(expirationOperation, deletePolicy.expirationOperation);
+                Objects.equals(operation, deletePolicy.operation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(expiryTime, expirationOperation);
+        return Objects.hash(expiryTime, operation);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class DeletePolicy   {
         sb.append("class DeletePolicy {\n");
 
         sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
-        sb.append("    expirationOperation: ").append(toIndentedString(expirationOperation)).append("\n");
+        sb.append("    operation: ").append(toIndentedString(operation)).append("\n");
         sb.append("}");
         return sb.toString();
     }

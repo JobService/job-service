@@ -423,11 +423,11 @@ definitions:
       "Active":
         $ref: "#/definitions/policy"
       "Completed":
-        $ref: "#/definitions/policy"
+        $ref: "#/definitions/deletePolicy"
       "Failed":
-        $ref: "#/definitions/policy"
+        $ref: "#/definitions/deletePolicy"
       "Cancelled":
-        $ref: "#/definitions/policy"
+        $ref: "#/definitions/deletePolicy"
       "Waiting":
         $ref: "#/definitions/policy"
       "Paused":

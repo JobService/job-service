@@ -16,11 +16,10 @@
 package com.hpe.caf.services.job.utilities;
 
 import com.hpe.caf.services.job.api.generated.model.DeletePolicy;
-import com.hpe.caf.services.job.api.generated.model.DeletePolicy.ExpirationOperationEnum;
+import com.hpe.caf.services.job.api.generated.model.DeletePolicy.OperationEnum;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.Policy;
-import com.hpe.caf.services.job.api.generated.model.Policy.OperationEnum;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -61,13 +60,13 @@ public final class PolicyBuilder
     {
         final Policy defaultPolicy = defineDefaultGlobalPolicy(expirationPolicies);
 
-        definePolicy(expirationPolicies::getActive, expirationPolicies::setActive, defaultPolicy);
-        definePolicy(expirationPolicies::getCompleted, expirationPolicies::setCompleted, defaultPolicy);
-        definePolicy(expirationPolicies::getCancelled, expirationPolicies::setCancelled, defaultPolicy);
-        definePolicy(expirationPolicies::getFailed, expirationPolicies::setFailed, defaultPolicy);
-        definePolicy(expirationPolicies::getWaiting, expirationPolicies::setWaiting, defaultPolicy);
-        definePolicy(expirationPolicies::getPaused, expirationPolicies::setPaused, defaultPolicy);
-        defineExpiredPolicy(expirationPolicies);
+        defineExpirablePolicy(expirationPolicies::getActive, expirationPolicies::setActive, defaultPolicy);
+        defineExpirablePolicy(expirationPolicies::getWaiting, expirationPolicies::setWaiting, defaultPolicy);
+        defineExpirablePolicy(expirationPolicies::getPaused, expirationPolicies::setPaused, defaultPolicy);
+        defineDeletePolicy(expirationPolicies::getCompleted, expirationPolicies::setCompleted);
+        defineDeletePolicy(expirationPolicies::getCancelled, expirationPolicies::setCancelled);
+        defineDeletePolicy(expirationPolicies::getFailed, expirationPolicies::setFailed);
+        defineDeletePolicy(expirationPolicies::getExpired, expirationPolicies::setExpired);
     }
 
     /**
@@ -85,13 +84,13 @@ public final class PolicyBuilder
             DateHelper.validate(defaultPolicy.getExpiryTime());
         } else {
             defaultPolicy = new Policy();
-            defaultPolicy.setOperation(OperationEnum.EXPIRE);
+            defaultPolicy.setOperation(Policy.OperationEnum.EXPIRE);
             defaultPolicy.setExpiryTime("none");
         }
         return defaultPolicy;
     }
 
-    private static void definePolicy(
+    private static void defineExpirablePolicy(
         final Supplier<Policy> policySupplier,
         final Consumer<Policy> policyConsumer,
         final Policy defaultPolicy
@@ -104,6 +103,20 @@ public final class PolicyBuilder
             DateHelper.validate(policySupplier.get().getExpiryTime());
         }
     }
+
+    private static void defineDeletePolicy(
+        final Supplier<DeletePolicy> policySupplier,
+        final Consumer<DeletePolicy> policyConsumer
+    ) throws BadRequestException
+    {
+        if (null == policySupplier.get()) {
+            final DeletePolicy policy = defineDefaultDeletePolicy();
+            policyConsumer.accept(policy);
+        } else {
+            DateHelper.validate(policySupplier.get().getExpiryTime());
+        }
+    }
+
 
     private static Policy clonePolicy(final Policy policy)
     {
@@ -125,7 +138,7 @@ public final class PolicyBuilder
     private static DeletePolicy defineDefaultDeletePolicy()
     {
         final DeletePolicy deletePolicy = new DeletePolicy();
-        deletePolicy.setExpirationOperation(ExpirationOperationEnum.DELETE);
+        deletePolicy.setOperation(OperationEnum.DELETE);
         deletePolicy.setExpiryTime("none");
         return deletePolicy;
     }

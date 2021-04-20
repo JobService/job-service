@@ -16,11 +16,10 @@
 package com.hpe.caf.services.job.utilities;
 
 import com.hpe.caf.services.job.api.generated.model.DeletePolicy;
-import com.hpe.caf.services.job.api.generated.model.DeletePolicy.ExpirationOperationEnum;
+import com.hpe.caf.services.job.api.generated.model.DeletePolicy.OperationEnum;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.Policy;
-import com.hpe.caf.services.job.api.generated.model.Policy.OperationEnum;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,9 +35,9 @@ public class PolicyBuilderTest{
 
     @Before
     public void init(){
-        defaultPolicy.setOperation(OperationEnum.EXPIRE);
+        defaultPolicy.setOperation(Policy.OperationEnum.EXPIRE);
         defaultPolicy.setExpiryTime("none");
-        defaultDeletePolicy.setExpirationOperation(ExpirationOperationEnum.DELETE);
+        defaultDeletePolicy.setOperation(OperationEnum.DELETE);
         defaultDeletePolicy.setExpiryTime("none");
     }
 
@@ -48,9 +47,9 @@ public class PolicyBuilderTest{
         final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
         final Policy activePolicy = new Policy();
         activePolicy.setExpiryTime("none");
-        activePolicy.setOperation(OperationEnum.DELETE);
+        activePolicy.setOperation(Policy.OperationEnum.DELETE);
         expirationPolicy.setActive(activePolicy);
-        final Policy completedPolicy = new Policy();
+        final DeletePolicy completedPolicy = new DeletePolicy();
         completedPolicy.setExpiryTime("createTime+PT1H");
         completedPolicy.setOperation(OperationEnum.DELETE);
         expirationPolicy.setCompleted(completedPolicy);
@@ -60,9 +59,7 @@ public class PolicyBuilderTest{
 
         assertAll(
                 ()-> assertEquals(activePolicy, job.getExpiry().getActive()),
-                ()-> assertEquals(defaultPolicy, job.getExpiry().getCancelled()),
                 ()-> assertEquals(completedPolicy, job.getExpiry().getCompleted()),
-                ()-> assertEquals(defaultPolicy, job.getExpiry().getFailed()),
                 ()-> assertEquals(defaultPolicy, job.getExpiry().getPaused()),
                 ()-> assertEquals(defaultPolicy, job.getExpiry().getWaiting()),
                 ()-> assertEquals(defaultDeletePolicy, job.getExpiry().getExpired())
@@ -76,9 +73,6 @@ public class PolicyBuilderTest{
 
         assertAll(
                 ()-> assertEquals(defaultPolicy, job.getExpiry().getActive()),
-                ()-> assertEquals(defaultPolicy, job.getExpiry().getCancelled()),
-                ()-> assertEquals(defaultPolicy, job.getExpiry().getCompleted()),
-                ()-> assertEquals(defaultPolicy, job.getExpiry().getFailed()),
                 ()-> assertEquals(defaultPolicy, job.getExpiry().getPaused()),
                 ()-> assertEquals(defaultPolicy, job.getExpiry().getWaiting()),
                 ()-> assertEquals(defaultDeletePolicy, job.getExpiry().getExpired())

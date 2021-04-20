@@ -26,9 +26,9 @@ import java.util.Objects;
 )
 public class ExpirationPolicy {
     private Policy active = null;
-    private Policy completed = null;
-    private Policy failed = null;
-    private Policy cancelled = null;
+    private DeletePolicy completed = null;
+    private DeletePolicy failed = null;
+    private DeletePolicy cancelled = null;
     private Policy waiting = null;
     private Policy paused = null;
     private DeletePolicy expired = null;
@@ -49,31 +49,31 @@ public class ExpirationPolicy {
 
     @ApiModelProperty("")
     @JsonProperty("Completed")
-    public Policy getCompleted() {
+    public DeletePolicy getCompleted() {
         return this.completed;
     }
 
-    public void setCompleted(Policy completed) {
+    public void setCompleted(DeletePolicy completed) {
         this.completed = completed;
     }
 
     @ApiModelProperty("")
     @JsonProperty("Failed")
-    public Policy getFailed() {
+    public DeletePolicy getFailed() {
         return this.failed;
     }
 
-    public void setFailed(Policy failed) {
+    public void setFailed(DeletePolicy failed) {
         this.failed = failed;
     }
 
     @ApiModelProperty("")
     @JsonProperty("Cancelled")
-    public Policy getCancelled() {
+    public DeletePolicy getCancelled() {
         return this.cancelled;
     }
 
-    public void setCancelled(Policy cancelled) {
+    public void setCancelled(DeletePolicy cancelled) {
         this.cancelled = cancelled;
     }
 
