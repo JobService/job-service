@@ -20,12 +20,11 @@
  *  Description:
  *  Expires the specified job.
  */
-CREATE OR REPLACE FUNCTION expire_job(
+CREATE OR REPLACE PROCEDURE expire_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
 )
-    RETURNS VOID
-    LANGUAGE plpgsql
+LANGUAGE plpgsql
 AS $$
 DECLARE
     v_is_finished BOOLEAN;
