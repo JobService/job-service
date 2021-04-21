@@ -68,7 +68,7 @@
             <column name="tracking_info_job_task_id" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="tracking_info_last_status_check_time" type="TIMESTAMP">
+            <column name="tracking_info_last_status_check_time" type="BIGINT">
                 <constraints nullable="true"/>
             </column>
             <column name="tracking_info_status_check_interval_millis" type="BIGINT">
