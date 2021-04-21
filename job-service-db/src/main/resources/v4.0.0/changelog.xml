@@ -35,9 +35,6 @@
     </changeSet>
     <changeSet id="create_stowed_task_table" author="Gamma Team">
         <createTable tableName="stowed_task">
-            <column name="id" type="SERIAL">
-                <constraints primaryKey="true" nullable="false" />
-            </column>
             <column name="partition_id" type="VARCHAR(40)">
                 <constraints nullable="false" />
             </column>
@@ -62,8 +59,23 @@
             <column name="to" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="tracking_info" type="BYTEA">
+            <column name="tracking_info_job_task_id" type="VARCHAR(255)">
                 <constraints nullable="false"/>
+            </column>
+            <column name="tracking_info_last_status_check_time" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="tracking_info_status_check_interval_millis" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="tracking_info_status_check_url" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="tracking_info_tracking_pipe" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="tracking_info_track_to" type="VARCHAR(255)">
+                <constraints nullable="true"/>
             </column>
             <column name="source_info" type="BYTEA">
                 <constraints nullable="true"/>
