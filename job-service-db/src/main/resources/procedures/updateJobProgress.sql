@@ -32,7 +32,7 @@ RETURNS TABLE(
 LANGUAGE plpgsql VOLATILE
 AS $$
 DECLARE
-    taskId VARCHAR(58);
+    taskId VARCHAR(70);
     subtask_array VARCHAR[];
     type_param regtype = pg_typeof(in_job_id);
     job_id_array VARCHAR[];

@@ -33,6 +33,12 @@
             <column name="table_name" />
         </createIndex>
     </changeSet>
+    <changeSet id="increase_task_id_size" author="Gamma Team" >
+        <modifyDataType
+                columnName="task_id"
+                newDataType="VARCHAR(70)"
+                tableName="completed_subtask_report" />
+    </changeSet>
     <changeSet id="create_stowed_task_table" author="Gamma Team">
         <createTable tableName="stowed_task">
             <column name="partition_id" type="VARCHAR(40)">

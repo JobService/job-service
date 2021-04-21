@@ -6,7 +6,6 @@ ${version-number}
 #### New Features
 - SCMOD-12730: Added support for pausing and resuming jobs.
   - Three new endpoints have been added to pause, resume, and get the status of a job.
-  - A new `stowed_task` table has been added to the database to stow tasks belonging to a paused job.
 
 #### Breaking Changes
 - SCMOD-12505: Various updates to the 'Job Types' functionality.  

@@ -21,10 +21,15 @@
  *  Marks the specified tasks complete.
  *  Takes in an array of tasks
  */
-CREATE OR REPLACE FUNCTION report_complete_bulk(
+DROP FUNCTION IF EXISTS report_complete_bulk(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),
     in_task_ids VARCHAR(58)[]
+);
+CREATE OR REPLACE FUNCTION report_complete_bulk(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_task_ids VARCHAR(70)[]
 )
 RETURNS TABLE(
     partition_id VARCHAR(40),
@@ -39,7 +44,7 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     v_job_status job_status;
-    v_task_id VARCHAR(58);
+    v_task_id VARCHAR(70);
 
 BEGIN
     -- Raise exception if task identifier has not been specified
