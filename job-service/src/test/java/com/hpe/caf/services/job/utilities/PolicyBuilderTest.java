@@ -30,19 +30,48 @@ import static org.testng.Assert.*;
 public class PolicyBuilderTest{
 
     final NewJob job = new NewJob();
-    final Policy defaultPolicy = new Policy();
+    final Policy userDefaultPolicy = new Policy();
+    final Policy systemDefaultPolicy = new Policy();
     final DeletePolicy defaultDeletePolicy = new DeletePolicy();
 
     @Before
     public void init(){
-        defaultPolicy.setOperation(Policy.OperationEnum.EXPIRE);
-        defaultPolicy.setExpiryTime("none");
+        systemDefaultPolicy.setOperation(Policy.OperationEnum.EXPIRE);
+        systemDefaultPolicy.setExpiryTime("createTime+P90M+System");
+        userDefaultPolicy.setOperation(Policy.OperationEnum.EXPIRE);
+        userDefaultPolicy.setExpiryTime("none");
         defaultDeletePolicy.setOperation(OperationEnum.DELETE);
         defaultDeletePolicy.setExpiryTime("none");
     }
 
     @Test
-    public void fillDefaultPolicyWhenMissing() throws BadRequestException {
+    public void fillUserDefaultPolicyWhenMissing() throws BadRequestException {
+        // Set partial policy
+        final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
+        expirationPolicy.setDefault(userDefaultPolicy);
+        final Policy activePolicy = new Policy();
+        activePolicy.setExpiryTime("none");
+        activePolicy.setOperation(Policy.OperationEnum.DELETE);
+        expirationPolicy.setActive(activePolicy);
+        final DeletePolicy completedPolicy = new DeletePolicy();
+        completedPolicy.setExpiryTime("createTime+PT1H");
+        completedPolicy.setOperation(OperationEnum.DELETE);
+        expirationPolicy.setCompleted(completedPolicy);
+        job.setExpiry(expirationPolicy);
+
+        PolicyBuilder.buildPolicyMap(job);
+
+        assertAll(
+                ()-> assertEquals(activePolicy, job.getExpiry().getActive()),
+                ()-> assertEquals(completedPolicy, job.getExpiry().getCompleted()),
+                ()-> assertEquals(userDefaultPolicy, job.getExpiry().getPaused()),
+                ()-> assertEquals(userDefaultPolicy, job.getExpiry().getWaiting()),
+                ()-> assertEquals(defaultDeletePolicy, job.getExpiry().getExpired())
+        );
+    }
+
+    @Test
+    public void fillSystemDefaultPolicyWhenMissing() throws BadRequestException {
         // Set partial policy
         final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
         final Policy activePolicy = new Policy();
@@ -60,8 +89,8 @@ public class PolicyBuilderTest{
         assertAll(
                 ()-> assertEquals(activePolicy, job.getExpiry().getActive()),
                 ()-> assertEquals(completedPolicy, job.getExpiry().getCompleted()),
-                ()-> assertEquals(defaultPolicy, job.getExpiry().getPaused()),
-                ()-> assertEquals(defaultPolicy, job.getExpiry().getWaiting()),
+                ()-> assertEquals(systemDefaultPolicy, job.getExpiry().getPaused()),
+                ()-> assertEquals(systemDefaultPolicy, job.getExpiry().getWaiting()),
                 ()-> assertEquals(defaultDeletePolicy, job.getExpiry().getExpired())
         );
     }
@@ -72,9 +101,9 @@ public class PolicyBuilderTest{
         PolicyBuilder.buildPolicyMap(job);
 
         assertAll(
-                ()-> assertEquals(defaultPolicy, job.getExpiry().getActive()),
-                ()-> assertEquals(defaultPolicy, job.getExpiry().getPaused()),
-                ()-> assertEquals(defaultPolicy, job.getExpiry().getWaiting()),
+                ()-> assertEquals(systemDefaultPolicy, job.getExpiry().getActive()),
+                ()-> assertEquals(systemDefaultPolicy, job.getExpiry().getPaused()),
+                ()-> assertEquals(systemDefaultPolicy, job.getExpiry().getWaiting()),
                 ()-> assertEquals(defaultDeletePolicy, job.getExpiry().getExpired())
         );
     }

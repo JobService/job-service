@@ -26,6 +26,9 @@ import java.util.function.Supplier;
 
 public final class PolicyBuilder
 {
+    private static final String SYSTEM_FLAG = "+System";
+    private static final Policy.OperationEnum SYSTEM_DEFAULT_OPERATION= Policy.OperationEnum.EXPIRE;
+    private static final String SYSTEM_DEFAULT_EXPIRY_TIME = "createTime+P90M"+SYSTEM_FLAG;
     private PolicyBuilder()
     {
     }
@@ -84,8 +87,8 @@ public final class PolicyBuilder
             DateHelper.validate(defaultPolicy.getExpiryTime());
         } else {
             defaultPolicy = new Policy();
-            defaultPolicy.setOperation(Policy.OperationEnum.EXPIRE);
-            defaultPolicy.setExpiryTime("none");
+            defaultPolicy.setOperation(SYSTEM_DEFAULT_OPERATION);
+            defaultPolicy.setExpiryTime(SYSTEM_DEFAULT_EXPIRY_TIME);
         }
         return defaultPolicy;
     }

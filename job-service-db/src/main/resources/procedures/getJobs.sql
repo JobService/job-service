@@ -251,7 +251,12 @@ BEGIN
                at.value,
                at.job_status,
                at.operation,
-               at.expiration_time
+               CASE
+                   WHEN RIGHT(at.expiration_time,6) = 'SYSTEM' THEN
+                       LEFT  ('createTime+PT10S+SYSTEM', length('createTime+PT10S+SYSTEM')-7)
+                   ELSE at.expiration_time
+                   END
+                   expiry
         FROM get_job_temp at
         ORDER BY at.id;
 END

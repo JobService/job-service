@@ -79,7 +79,12 @@ BEGIN
            lbl.value,
            jep.job_status,
            jep.operation,
-           jep.expiration_time
+           CASE
+               WHEN RIGHT(jep.expiration_time,6) = 'SYSTEM' THEN
+                   LEFT  ('createTime+PT10S+SYSTEM', length('createTime+PT10S+SYSTEM')-7)
+               ELSE jep.expiration_time
+               END
+               expiry
     FROM job
     LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id AND lbl.job_id = job.job_id
     LEFT JOIN public.job_expiration_policy jep ON jep.partition_id = job.partition_id AND jep.job_id = job.job_id

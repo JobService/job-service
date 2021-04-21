@@ -51,7 +51,7 @@ BEGIN
                       FULL OUTER JOIN job_expiration_policy jep
                                       ON j.partition_id = jep.partition_id
                                           AND j.job_id = jep.job_id
-             WHERE jep.expiration_time != 'none'
+             WHERE LEFT(jep.expiration_time,4) != 'none'
                AND jep.expiration_time IS NOT NULL
                AND j.status != 'Expired'
          ) t1
