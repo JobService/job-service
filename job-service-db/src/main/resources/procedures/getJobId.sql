@@ -20,7 +20,8 @@
  *  Description:
  *  Checks if the specified task id looks like a job id
  */
-CREATE OR REPLACE FUNCTION internal_get_job_id(in_task_id VARCHAR(58))
+DROP FUNCTION IF EXISTS internal_get_job_id(in_task_id VARCHAR(58));
+CREATE OR REPLACE FUNCTION internal_get_job_id(in_task_id VARCHAR(70))
 RETURNS VARCHAR(48)
 LANGUAGE SQL IMMUTABLE
 AS $$

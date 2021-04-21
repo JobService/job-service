@@ -25,9 +25,13 @@ DROP FUNCTION IF EXISTS internal_is_task_completed(
     in_task_id VARCHAR(58),
     in_short_task_id VARCHAR(58)
 );
-CREATE OR REPLACE FUNCTION internal_is_task_completed(
+DROP FUNCTION IF EXISTS internal_is_task_completed(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58)
+);
+CREATE OR REPLACE FUNCTION internal_is_task_completed(
+    in_partition_id VARCHAR(40),
+    in_task_id VARCHAR(70)
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql STABLE

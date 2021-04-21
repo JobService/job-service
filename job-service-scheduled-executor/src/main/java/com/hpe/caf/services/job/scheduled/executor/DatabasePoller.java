@@ -187,7 +187,7 @@ public class DatabasePoller
      * Reports failure for the specified job identifier.
      */
     private static void reportFailure(
-        final String partitionId, final String jobId, final String failureDetails
+        final String partitionId, final String jobTaskId, final String failureDetails
     ) throws ScheduledExecutorException {
         /*
         SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Unreleased Resource: Database.
@@ -197,7 +197,7 @@ public class DatabasePoller
                 CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
-            stmt.setString(2,jobId);
+            stmt.setString(2,jobTaskId);
             stmt.setString(3,failureDetails);
             stmt.setBoolean(4, PROP_DEPENDENT_JOB_FAILURES);
 

@@ -25,9 +25,13 @@ DROP FUNCTION IF EXISTS report_complete(
     in_task_id VARCHAR(58),
     in_short_task_id VARCHAR(58)
 );
-CREATE OR REPLACE FUNCTION report_complete(
+DROP FUNCTION IF EXISTS report_complete(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58)
+);
+CREATE OR REPLACE FUNCTION report_complete(
+    in_partition_id VARCHAR(40),
+    in_task_id VARCHAR(70)
 )
 RETURNS TABLE(
     partition_id VARCHAR(40),
