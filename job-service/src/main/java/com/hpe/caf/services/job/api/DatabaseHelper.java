@@ -201,34 +201,20 @@ public final class DatabaseHelper {
             }
             stmt.setArray(9, array);
             stmt.setString(10, filter);
+            String jobId = "";
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
+            ExpirationPolicy expirationPolicy = null;
             try (final ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     final Job job = new Job();
-                    final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
-                    job.setExpiry(expirationPolicy);
                     job.setId(rs.getString("job_id"));
-                    job.setName(rs.getString("name"));
-                    job.setDescription(rs.getString("description"));
-                    job.setExternalData(rs.getString("data"));
-                    job.setCreateTime(getDate(rs.getString("create_date")));
-                    job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
-                    job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
-                    job.setPercentageComplete(rs.getFloat("percentage_complete"));
-
-                    //  Parse JSON failure sub-strings.
-                    final String failureDetails = rs.getString("failure_details");
-                    if (ApiServiceUtil.isNotNullOrEmpty(failureDetails)) {
-                        job.setFailures(getFailuresAsList(failureDetails));
+                    if (!job.getId().equals(jobId)) {
+                        expirationPolicy = new ExpirationPolicy();
+                        jobId = job.getId();
                     }
-
-                    final String label = rs.getString("label");
-                    if (ApiServiceUtil.isNotNullOrEmpty(label)) {
-                        job.getLabels().put(label, rs.getString("label_value"));
-                    }
-                    recoverJobExpiry(job, rs);
+                    retrieveJob(job, rs, expirationPolicy);
                     LOG.info("expirationPolicy {}", job.getExpiry());
                     //We joined onto the labels table and there may be multiple rows for the same job, so merge their labels
                     jobs.merge(job.getId(), job, (orig, insert) -> {
@@ -310,24 +296,7 @@ public final class DatabaseHelper {
                 job.setExpiry(expirationPolicy);
                 while (rs.next()) {
                     job.setId(rs.getString("job_id"));
-                    job.setName(rs.getString("name"));
-                    job.setDescription(rs.getString("description"));
-                    job.setExternalData(rs.getString("data"));
-                    job.setCreateTime(getDate(rs.getString("create_date")));
-                    job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
-                    job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
-                    job.setPercentageComplete(rs.getFloat("percentage_complete"));
-
-                    //  Parse JSON failure sub-strings.
-                    final String failureDetails = rs.getString("failure_details");
-                    if (ApiServiceUtil.isNotNullOrEmpty(failureDetails)) {
-                        job.setFailures(getFailuresAsList(failureDetails));
-                    }
-                    final String label = rs.getString("label");
-                    if (ApiServiceUtil.isNotNullOrEmpty(label)) {
-                        job.getLabels().put(label, rs.getString("label_value"));
-                    }
-                    recoverJobExpiry(job, rs);
+                    retrieveJob(job, rs, expirationPolicy);
                 }
             }
         } catch (final SQLException se) {
@@ -337,46 +306,66 @@ public final class DatabaseHelper {
         return job;
     }
 
-    private void recoverJobExpiry(final Job job, final ResultSet resultSet)
+    private void retrieveJob(final Job job, final ResultSet rs, final ExpirationPolicy expirationPolicy) throws Exception {
+        job.setExpiry(retrieveExpirationPolicy(expirationPolicy, rs));
+        job.setName(rs.getString("name"));
+        job.setDescription(rs.getString("description"));
+        job.setExternalData(rs.getString("data"));
+        job.setCreateTime(getDate(rs.getString("create_date")));
+        job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
+        job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
+        job.setPercentageComplete(rs.getFloat("percentage_complete"));
+
+        //  Parse JSON failure sub-strings.
+        final String failureDetails = rs.getString("failure_details");
+        if (ApiServiceUtil.isNotNullOrEmpty(failureDetails)) {
+            job.setFailures(getFailuresAsList(failureDetails));
+        }
+        final String label = rs.getString("label");
+        if (ApiServiceUtil.isNotNullOrEmpty(label)) {
+            job.getLabels().put(label, rs.getString("label_value"));
+        }
+    }
+
+    private ExpirationPolicy retrieveExpirationPolicy(final ExpirationPolicy expirationPolicy, final ResultSet rs)
             throws SQLException {
-        final ExpirationPolicy expirationPolicy = job.getExpiry();
-        final String status = resultSet.getString("expiration_status");
+        final String status = rs.getString("expiration_status");
         if (ApiServiceUtil.isNotNullOrEmpty(status)) {
             final Policy policy = new Policy();
             final DeletePolicy deletePolicy = new DeletePolicy();
             switch (status) {
                 case "Active":
-                    transferExpirablePolicy(resultSet, policy);
+                    transferExpirablePolicy(rs, policy);
                     expirationPolicy.setActive(policy);
                     break;
                 case "Cancelled":
-                    transferDeletePolicy(resultSet, deletePolicy);
+                    transferDeletePolicy(rs, deletePolicy);
                     expirationPolicy.setCancelled(deletePolicy);
                     break;
                 case "Completed":
-                    transferDeletePolicy(resultSet, deletePolicy);
+                    transferDeletePolicy(rs, deletePolicy);
                     expirationPolicy.setCompleted(deletePolicy);
                     break;
                 case "Failed":
-                    transferDeletePolicy(resultSet, deletePolicy);
+                    transferDeletePolicy(rs, deletePolicy);
                     expirationPolicy.setFailed(deletePolicy);
                     break;
                 case "Paused":
-                    transferExpirablePolicy(resultSet, policy);
+                    transferExpirablePolicy(rs, policy);
                     expirationPolicy.setPaused(policy);
                     break;
                 case "Waiting":
-                    transferExpirablePolicy(resultSet, policy);
+                    transferExpirablePolicy(rs, policy);
                     expirationPolicy.setWaiting(policy);
                     break;
                 default:
-                    deletePolicy.setExpiryTime(resultSet.getString("expiration_time"));
-                    deletePolicy.setOperation(DeletePolicy.OperationEnum.valueOf(resultSet.getString("operation").toUpperCase(Locale.ROOT)));
+                    transferDeletePolicy(rs, deletePolicy);
                     expirationPolicy.setExpired(deletePolicy);
                     break;
             }
 
         }
+        return expirationPolicy;
     }
 
     private void transferExpirablePolicy(final ResultSet resultSet, final Policy policy) throws SQLException {
