@@ -4,7 +4,7 @@
 ${version-number}
 
 #### New Features
-- SCMOD-12707: Added support for pausing and resuming jobs.
+- SCMOD-12730: Added support for pausing and resuming jobs.
   - Three new endpoints have been added to pause, resume, and get the status of a job.
 
 #### Breaking Changes
