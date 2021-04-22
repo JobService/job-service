@@ -101,4 +101,19 @@
                                  referencedTableName="job"
                                  referencedColumnNames="partition_id, job_id" />
     </changeSet>
+    <changeSet id="add_task_stowing_index" author="Gamma Team">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <indexExists schemaName="public"
+                             tableName="stowed_task"
+                             indexName="idx_partition_id_and_job_id_and_tracking_info_job_task_id"
+                             columnNames="partition_id, job_id, tracking_info_job_task_id"/>
+            </not>
+        </preConditions>
+        <createIndex schemaName="public" tableName="stowed_task" indexName="idx_partition_id_and_job_id_and_tracking_info_job_task_id">
+            <column name="partition_id" type="varchar(48)"/>
+            <column name="job_id" type="varchar(48)"/>
+            <column name="tracking_info_job_task_id" type="varchar(255)"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>
