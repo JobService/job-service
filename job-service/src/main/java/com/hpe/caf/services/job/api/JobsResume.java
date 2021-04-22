@@ -27,6 +27,7 @@ import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.util.ModuleLoader;
 import com.hpe.caf.util.ModuleLoaderException;
+import com.hpe.caf.worker.document.DocumentWorkerConstants;
 import com.hpe.caf.worker.document.DocumentWorkerDocumentTask;
 import java.io.IOException;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 public final class JobsResume
 {
     private static final Logger LOG = LoggerFactory.getLogger(JobsResume.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * Resume the job specified by the jobId.
@@ -46,62 +48,59 @@ public final class JobsResume
      * @param jobId the id of the job to resume
      * @throws Exception bad request, database or queue exceptions thrown
      */
-    public static void resumeJob(final String partitionId, String jobId) throws Exception
+    public static void resumeJob(final String partitionId, final String jobId) throws Exception
     {
 
         try {
-            LOG.debug("resume: Starting...");
+            LOG.debug("Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
 
             //  Make sure the job id has been provided.
             if (!ApiServiceUtil.isNotNullOrEmpty(jobId)) {
-                LOG.error("resume: Error - '{}'", ApiServiceUtil.ERR_MSG_JOB_ID_NOT_SPECIFIED);
+                LOG.error("Error - '{}'", ApiServiceUtil.ERR_MSG_JOB_ID_NOT_SPECIFIED);
                 throw new BadRequestException(ApiServiceUtil.ERR_MSG_JOB_ID_NOT_SPECIFIED);
             }
 
             //  Make sure the job id does not contain any invalid characters.
             if (ApiServiceUtil.containsInvalidCharacters(jobId)) {
-                LOG.error("resume: Error - '{}'", ApiServiceUtil.ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS);
+                LOG.error("Error - '{}'", ApiServiceUtil.ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS);
                 throw new BadRequestException(ApiServiceUtil.ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS);
             }
 
             //  Get app config settings.
-            LOG.debug("resume: Reading database connection properties...");
-            AppConfig config = AppConfigProvider.getAppConfigProperties();
+            LOG.debug("Reading database connection properties...");
+            final AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
-            DatabaseHelper databaseHelper = new DatabaseHelper(config);
+            final DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
-            // Store the job status before resuming the job.
-            final Job.StatusEnum jobStatusBeforeResuming = databaseHelper.getJobStatus(partitionId, jobId);
+            // Get the status of the job.
+            final Job.StatusEnum jobStatus = databaseHelper.getJobStatus(partitionId, jobId);
 
-            //  Resume the specified job.
-            LOG.debug("resume: Updating the status of the job in the database...");
-            databaseHelper.resumeJob(partitionId, jobId);
+            // Validate the job can be resumed.
+            if (jobStatus != Job.StatusEnum.PAUSED && jobStatus != Job.StatusEnum.ACTIVE) {
+                final String errorMessage = String.format("job_id %s cannot be resumed as it has a status of %s. Only jobs with a "
+                    + "status of Paused can be resumed.", jobId, jobStatus);
+                throw new BadRequestException(errorMessage);
+            }
 
-            // Send a resume job message only if the job was paused (we allow resuming an active job, which is why we need to check this).
-            if (jobStatusBeforeResuming == Job.StatusEnum.PAUSED) {
+            // Resume the job if its paused, do nothing if already active.
+            if (jobStatus == Job.StatusEnum.PAUSED) {
                 final String resumeJobQueue = config.getResumeJobQueue();
                 try {
-                    LOG.debug("resume: Sending a message to the {} queue...", resumeJobQueue);
+                    // Send a message to the resume job queue.
+                    LOG.debug("Sending a message to the {} queue...", resumeJobQueue);
                     sendResumeJobMessage(partitionId, jobId, resumeJobQueue, config);
                 } catch (final Exception messagingException) {
-                    try {
-                        databaseHelper.pauseJob(partitionId, jobId);
-                    } catch (final Exception databaseRollbackException) {
-                        final String errorMessage = String.format(
-                            "Failed to rollback the job status after failing to send a message to the %s queue. "
-                            + "This job is now active but cannot be processed. To resolve this, try pausing and resuming this job again.",
-                            resumeJobQueue);
-                        messagingException.addSuppressed(databaseRollbackException);
-                        throw new Exception(errorMessage, messagingException);
-                    }
                     final String errorMessage = String.format("Failed to send a message to the %s queue.", resumeJobQueue);
                     throw new Exception(errorMessage, messagingException);
                 }
+                //  Update the status of the job in the database.
+                LOG.debug("Updating the status of the job in the database...");
+                databaseHelper.resumeJob(partitionId, jobId);
             }
 
-            LOG.debug("resume: Done.");
+            LOG.debug("Done.");
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString(), e);
             throw e;
@@ -128,7 +127,7 @@ public final class JobsResume
         final String resumeJobQueue) throws CodecException
     {
         final WorkerAction workerAction = new WorkerAction();
-        workerAction.setTaskClassifier("DocumentWorkerTask");
+        workerAction.setTaskClassifier(DocumentWorkerConstants.DOCUMENT_TASK_NAME);
         workerAction.setTaskApiVersion(1);
         workerAction.setTaskData(createResumeJobTaskData(partitionId, jobId));
         workerAction.setTaskPipe(resumeJobQueue);
@@ -144,6 +143,6 @@ public final class JobsResume
         customData.put("partitionId", partitionId);
         customData.put("jobId", jobId);
         documentWorkerDocumentTask.customData = customData;
-        return new ObjectMapper().convertValue(documentWorkerDocumentTask, Map.class);
+        return OBJECT_MAPPER.convertValue(documentWorkerDocumentTask, Map.class);
     }
 }
