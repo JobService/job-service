@@ -79,7 +79,7 @@ public final class JobsResume
 
             // Validate the job can be resumed.
             if (jobStatus != Job.StatusEnum.PAUSED && jobStatus != Job.StatusEnum.ACTIVE) {
-                final String errorMessage = String.format("job_id %s cannot be resumed as it has a status of %s. Only jobs with a "
+                final String errorMessage = String.format("job_id {%s} cannot be resumed as it has a status of {%s}. Only jobs with a "
                     + "status of Paused can be resumed.", jobId, jobStatus);
                 throw new BadRequestException(errorMessage);
             }
