@@ -61,7 +61,11 @@ public class ScheduledExecutorConfig {
     }
 
     public static String getStatusCheckIntervalSeconds() {
-        return getPropertyOrEnvVar("CAF_STATUS_CHECK_INTERVAL_SECONDS");
+        final String checkInterval = getPropertyOrEnvVar("CAF_STATUS_CHECK_INTERVAL_SECONDS");
+        if (null == checkInterval || checkInterval.isEmpty()){
+            return "5";
+        }
+        return checkInterval;
     }
 
     public static String getWebserviceUrl() {
