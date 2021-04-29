@@ -215,7 +215,7 @@ public final class DatabaseHelper {
                         jobId = job.getId();
                     }
                     retrieveJob(job, rs, expirationPolicy);
-                    LOG.info("expirationPolicy {}", job.getExpiry());
+                    LOG.debug("Job {}", job);
                     //We joined onto the labels table and there may be multiple rows for the same job, so merge their labels
                     jobs.merge(job.getId(), job, (orig, insert) -> {
                         orig.getLabels().putAll(insert.getLabels());

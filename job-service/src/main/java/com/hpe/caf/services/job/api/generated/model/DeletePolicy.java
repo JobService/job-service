@@ -70,7 +70,7 @@ public class DeletePolicy   {
      **/
 
     @ApiModelProperty(value = "")
-    @JsonProperty("expirationOperation")
+    @JsonProperty("operation")
     public OperationEnum getOperation() {
         return operation;
     }

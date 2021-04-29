@@ -116,6 +116,7 @@ public final class PolicyBuilder
             final DeletePolicy policy = defineDefaultDeletePolicy();
             policyConsumer.accept(policy);
         } else {
+            policySupplier.get().setOperation(OperationEnum.DELETE);
             DateHelper.validate(policySupplier.get().getExpiryTime());
         }
     }
@@ -127,15 +128,6 @@ public final class PolicyBuilder
         newPolicy.setOperation(policy.getOperation());
         newPolicy.setExpiryTime(policy.getExpiryTime());
         return newPolicy;
-    }
-
-    private static void defineExpiredPolicy(final ExpirationPolicy expirationPolicies) throws BadRequestException
-    {
-        if (null == expirationPolicies.getExpired()) {
-            expirationPolicies.setExpired(defineDefaultDeletePolicy());
-        } else {
-            DateHelper.validate(expirationPolicies.getExpired().getExpiryTime());
-        }
     }
 
     private static DeletePolicy defineDefaultDeletePolicy()

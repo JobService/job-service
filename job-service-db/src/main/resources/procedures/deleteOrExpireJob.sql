@@ -31,7 +31,7 @@ AS
 $$
 BEGIN
     IF in_operation = 'Expire' THEN
-        PERFORM expire_job(in_partition_id, in_job_id);
+        CALL expire_job(in_partition_id, in_job_id);
     ELSE
         PERFORM delete_job(in_partition_id, in_job_id);
     END IF;
