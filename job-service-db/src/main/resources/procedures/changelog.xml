@@ -105,7 +105,7 @@
     </changeSet>
     <changeSet id="create_expire_job_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/expireJob.sql"
-                         procedureName="expire_job"
+                         procedureName="internal_expire_job"
                          schemaName="public">
         </createProcedure>
     </changeSet>

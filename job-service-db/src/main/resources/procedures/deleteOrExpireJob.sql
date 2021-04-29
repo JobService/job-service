@@ -25,13 +25,12 @@ CREATE OR REPLACE FUNCTION delete_or_expire_job(
     in_job_id VARCHAR,
     in_operation EXPIRATION_OPERATION)
 RETURNS VOID
-LANGUAGE plpgsql
-VOLATILE
+LANGUAGE plpgsql VOLATILE
 AS
 $$
 BEGIN
     IF in_operation = 'Expire' THEN
-        CALL expire_job(in_partition_id, in_job_id);
+        CALL internal_expire_job(in_partition_id, in_job_id);
     ELSE
         PERFORM delete_job(in_partition_id, in_job_id);
     END IF;

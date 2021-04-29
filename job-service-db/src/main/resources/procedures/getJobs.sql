@@ -252,8 +252,8 @@ BEGIN
                at.job_status,
                at.operation,
                CASE
-                   WHEN RIGHT(at.expiration_time,6) = 'SYSTEM' THEN
-                       LEFT  ('createTime+PT10S+SYSTEM', length('createTime+PT10S+SYSTEM')-7)
+                   WHEN RIGHT(at.expiration_time, 7) = '+SYSTEM' THEN
+                         LEFT(at.expiration_time, length(at.expiration_time)-7)
                    ELSE at.expiration_time
                    END
                    expiry

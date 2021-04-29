@@ -80,8 +80,8 @@ BEGIN
            jep.job_status,
            jep.operation,
            CASE
-               WHEN RIGHT(jep.expiration_time,6) = 'SYSTEM' THEN
-                   LEFT  ('createTime+PT10S+SYSTEM', length('createTime+PT10S+SYSTEM')-7)
+               WHEN RIGHT(jep.expiration_time, 7) = '+SYSTEM' THEN
+                     LEFT(jep.expiration_time, length(jep.expiration_time)-7)
                ELSE jep.expiration_time
                END
                expiry
