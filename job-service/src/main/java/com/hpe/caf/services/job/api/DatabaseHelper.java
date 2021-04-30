@@ -17,12 +17,12 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.api.generated.model.DeletePolicy;
+import com.hpe.caf.services.job.api.generated.model.ExpirablePolicy;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.job.api.generated.model.Policy;
-import com.hpe.caf.services.job.api.generated.model.Policy.OperationEnum;
+import com.hpe.caf.services.job.api.generated.model.ExpirablePolicy.OperationEnum;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.api.generated.model.SortField;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
@@ -331,12 +331,12 @@ public final class DatabaseHelper {
             throws SQLException {
         final String status = rs.getString("expiration_status");
         if (ApiServiceUtil.isNotNullOrEmpty(status)) {
-            final Policy policy = new Policy();
+            final ExpirablePolicy expirablePolicy = new ExpirablePolicy();
             final DeletePolicy deletePolicy = new DeletePolicy();
             switch (status) {
                 case "Active":
-                    transferExpirablePolicy(rs, policy);
-                    expirationPolicy.setActive(policy);
+                    transferExpirablePolicy(rs, expirablePolicy);
+                    expirationPolicy.setActive(expirablePolicy);
                     break;
                 case "Cancelled":
                     transferDeletePolicy(rs, deletePolicy);
@@ -351,12 +351,12 @@ public final class DatabaseHelper {
                     expirationPolicy.setFailed(deletePolicy);
                     break;
                 case "Paused":
-                    transferExpirablePolicy(rs, policy);
-                    expirationPolicy.setPaused(policy);
+                    transferExpirablePolicy(rs, expirablePolicy);
+                    expirationPolicy.setPaused(expirablePolicy);
                     break;
                 case "Waiting":
-                    transferExpirablePolicy(rs, policy);
-                    expirationPolicy.setWaiting(policy);
+                    transferExpirablePolicy(rs, expirablePolicy);
+                    expirationPolicy.setWaiting(expirablePolicy);
                     break;
                 default:
                     transferDeletePolicy(rs, deletePolicy);
@@ -368,9 +368,9 @@ public final class DatabaseHelper {
         return expirationPolicy;
     }
 
-    private void transferExpirablePolicy(final ResultSet resultSet, final Policy policy) throws SQLException {
-        policy.setExpiryTime(resultSet.getString("expiration_time"));
-        policy.setOperation(OperationEnum.valueOf(resultSet.getString("operation").toUpperCase(Locale.ROOT)));
+    private void transferExpirablePolicy(final ResultSet resultSet, final ExpirablePolicy expirablePolicy) throws SQLException {
+        expirablePolicy.setExpiryTime(resultSet.getString("expiration_time"));
+        expirablePolicy.setOperation(OperationEnum.valueOf(resultSet.getString("operation").toUpperCase(Locale.ROOT)));
     }
 
     private void transferDeletePolicy(final ResultSet resultSet, final DeletePolicy policy) throws SQLException {
@@ -458,7 +458,7 @@ public final class DatabaseHelper {
             arrayP = conn.createArrayOf(JOB_POLICY_TYPE_NAME, expirationPolicyList.toArray(new String[0]));
             LOG.debug("expirationPolicyDB: {}", expirationPolicyList);
         } else {
-            arrayP = conn.createArrayOf(JOB_POLICY_TYPE_NAME, new Policy[0]);
+            arrayP = conn.createArrayOf(JOB_POLICY_TYPE_NAME, new ExpirablePolicy[0]);
         }
         stmt.setArray(parameterIndex, arrayP);
         return arrayP;

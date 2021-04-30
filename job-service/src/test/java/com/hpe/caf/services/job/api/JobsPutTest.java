@@ -32,8 +32,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
-import com.hpe.caf.services.job.api.generated.model.Policy;
-import com.hpe.caf.services.job.api.generated.model.Policy.OperationEnum;
+import com.hpe.caf.services.job.api.generated.model.ExpirablePolicy;
+import com.hpe.caf.services.job.api.generated.model.ExpirablePolicy.OperationEnum;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
@@ -82,10 +82,10 @@ public final class JobsPutTest {
         job.setDescription("TestDescription");
         job.setExternalData("TestExternalData");
         final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
-        final Policy policy = new Policy();
-        policy.setOperation(OperationEnum.EXPIRE);
-        policy.setExpiryTime("createTime+P10D");
-        expirationPolicy.setDefault(policy);
+        final ExpirablePolicy expirablePolicy = new ExpirablePolicy();
+        expirablePolicy.setOperation(OperationEnum.EXPIRE);
+        expirablePolicy.setExpiryTime("createTime+P10D");
+        expirationPolicy.setActive(expirablePolicy);
         job.setExpiry(expirationPolicy);
         return job;
     }

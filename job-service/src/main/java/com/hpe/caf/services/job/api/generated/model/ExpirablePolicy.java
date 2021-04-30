@@ -29,7 +29,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "The expiration details to be applied on the job")
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2021-03-16T14:04:09.471Z")
-public class Policy   {
+public class ExpirablePolicy {
 
     private String expiryTime = null;
 
@@ -90,9 +90,9 @@ public class Policy   {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Policy policy = (Policy) o;
-        return Objects.equals(expiryTime, policy.expiryTime) &&
-                Objects.equals(operation, policy.operation);
+        ExpirablePolicy expirablePolicy = (ExpirablePolicy) o;
+        return Objects.equals(expiryTime, expirablePolicy.expiryTime) &&
+                Objects.equals(operation, expirablePolicy.operation);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class Policy   {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("class Policy {\n");
+        sb.append("class ExpirablePolicy {\n");
         sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
         sb.append("    operation: ").append(toIndentedString(operation)).append("\n");
         sb.append("}");

@@ -17,8 +17,8 @@ package com.hpe.caf.services.job.utilities;
 
 import com.hpe.caf.services.job.api.generated.model.DeletePolicy;
 import com.hpe.caf.services.job.api.generated.model.DeletePolicy.OperationEnum;
+import com.hpe.caf.services.job.api.generated.model.ExpirablePolicy;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
-import com.hpe.caf.services.job.api.generated.model.Policy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,14 +53,14 @@ public final class ExpirationPolicyHelper
                 deletePolicy.getExpiryTime()));
     }
 
-    private static void buildExpirablePolicy(final List<String> policyList, final String status, final Policy policy)
+    private static void buildExpirablePolicy(final List<String> policyList, final String status, final ExpirablePolicy expirablePolicy)
     {
-        policyList.add(toJobPolicyDbTypeString(status, policy));
+        policyList.add(toJobPolicyDbTypeString(status, expirablePolicy));
     }
 
-    private static String toJobPolicyDbTypeString(final String status, final Policy policy)
+    private static String toJobPolicyDbTypeString(final String status, final ExpirablePolicy expirablePolicy)
     {
-        return toJobPolicyDbTypeString(status, policy.getOperation(), policy.getExpiryTime());
+        return toJobPolicyDbTypeString(status, expirablePolicy.getOperation(), expirablePolicy.getExpiryTime());
     }
 
     private static String toJobPolicyDbTypeString(final String status, final Object operation, final String expiryTime)

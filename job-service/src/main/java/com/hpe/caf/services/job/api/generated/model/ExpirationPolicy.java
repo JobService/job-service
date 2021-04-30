@@ -25,25 +25,24 @@ import java.util.Objects;
         description = "The expiration policy to be applied on the job"
 )
 public class ExpirationPolicy {
-    private Policy active = null;
+    private ExpirablePolicy active = null;
     private DeletePolicy completed = null;
     private DeletePolicy failed = null;
     private DeletePolicy cancelled = null;
-    private Policy waiting = null;
-    private Policy paused = null;
+    private ExpirablePolicy waiting = null;
+    private ExpirablePolicy paused = null;
     private DeletePolicy expired = null;
-    private Policy defaultPolicy = null;
 
     public ExpirationPolicy() {
     }
 
     @ApiModelProperty("")
     @JsonProperty("Active")
-    public Policy getActive() {
+    public ExpirablePolicy getActive() {
         return this.active;
     }
 
-    public void setActive(Policy active) {
+    public void setActive(ExpirablePolicy active) {
         this.active = active;
     }
 
@@ -79,21 +78,21 @@ public class ExpirationPolicy {
 
     @ApiModelProperty("")
     @JsonProperty("Waiting")
-    public Policy getWaiting() {
+    public ExpirablePolicy getWaiting() {
         return this.waiting;
     }
 
-    public void setWaiting(Policy waiting) {
+    public void setWaiting(ExpirablePolicy waiting) {
         this.waiting = waiting;
     }
 
     @ApiModelProperty("")
     @JsonProperty("Paused")
-    public Policy getPaused() {
+    public ExpirablePolicy getPaused() {
         return this.paused;
     }
 
-    public void setPaused(Policy paused) {
+    public void setPaused(ExpirablePolicy paused) {
         this.paused = paused;
     }
 
@@ -107,23 +106,19 @@ public class ExpirationPolicy {
         this.expired = expired;
     }
 
-    @ApiModelProperty("")
-    @JsonProperty("Default")
-    public Policy getDefault() {
-        return this.defaultPolicy;
-    }
-
-    public void setDefault(Policy _default) {
-        this.defaultPolicy = _default;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         } else if (o != null && this.getClass() == o.getClass()) {
             ExpirationPolicy expirationPolicy = (ExpirationPolicy)o;
-            return Objects.equals(this.active, expirationPolicy.active) && Objects.equals(this.completed, expirationPolicy.completed) && Objects.equals(this.failed, expirationPolicy.failed) && Objects.equals(this.cancelled, expirationPolicy.cancelled) && Objects.equals(this.waiting, expirationPolicy.waiting) && Objects.equals(this.paused, expirationPolicy.paused) && Objects.equals(this.expired, expirationPolicy.expired) && Objects.equals(this.defaultPolicy, expirationPolicy.defaultPolicy);
+            return Objects.equals(this.active, expirationPolicy.active) &&
+                    Objects.equals(this.completed, expirationPolicy.completed) &&
+                    Objects.equals(this.failed, expirationPolicy.failed) &&
+                    Objects.equals(this.cancelled, expirationPolicy.cancelled) &&
+                    Objects.equals(this.waiting, expirationPolicy.waiting) &&
+                    Objects.equals(this.paused, expirationPolicy.paused) &&
+                    Objects.equals(this.expired, expirationPolicy.expired);
         } else {
             return false;
         }
@@ -131,7 +126,8 @@ public class ExpirationPolicy {
 
     @Override
     public int hashCode() {
-        return Objects.hash(new Object[]{this.active, this.completed, this.failed, this.cancelled, this.waiting, this.paused, this.expired, this.defaultPolicy});
+        return Objects.hash(new Object[]{this.active, this.completed, this.failed,
+                this.cancelled, this.waiting, this.paused, this.expired});
     }
 
     @Override
@@ -145,7 +141,6 @@ public class ExpirationPolicy {
         sb.append("    waiting: ").append(this.toIndentedString(this.waiting)).append("\n");
         sb.append("    paused: ").append(this.toIndentedString(this.paused)).append("\n");
         sb.append("    expired: ").append(this.toIndentedString(this.expired)).append("\n");
-        sb.append("    default: ").append(this.toIndentedString(this.defaultPolicy)).append("\n");
         sb.append("}");
         return sb.toString();
     }

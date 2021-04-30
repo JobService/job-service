@@ -421,7 +421,7 @@ definitions:
     type: object
     properties:
       "Active":
-        $ref: "#/definitions/policy"
+        $ref: "#/definitions/expirablePolicy"
       "Completed":
         $ref: "#/definitions/deletePolicy"
       "Failed":
@@ -429,13 +429,11 @@ definitions:
       "Cancelled":
         $ref: "#/definitions/deletePolicy"
       "Waiting":
-        $ref: "#/definitions/policy"
+        $ref: "#/definitions/expirablePolicy"
       "Paused":
-        $ref: "#/definitions/policy"
+        $ref: "#/definitions/expirablePolicy"
       "Expired":
         $ref: "#/definitions/deletePolicy"
-      "Default":
-        $ref: "#/definitions/policy"
     description: The expiration policy to be applied on the job
   deletePolicy:
     type: object
@@ -449,7 +447,7 @@ definitions:
         enum:
           - Delete
     description: The expiration details to be applied on the job
-  policy:
+  expirablePolicy:
     type: object
     properties:
       expiryTime:
