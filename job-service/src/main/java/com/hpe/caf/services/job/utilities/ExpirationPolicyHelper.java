@@ -50,7 +50,8 @@ public final class ExpirationPolicyHelper
         policyList.add(toJobPolicyDbTypeString(
                 status,
                 OperationEnum.DELETE,
-                deletePolicy.getExpiryTime()));
+                deletePolicy.getExpiryTime(),
+                deletePolicy.getPolicer().toString()));
     }
 
     private static void buildExpirablePolicy(final List<String> policyList, final String status, final ExpirablePolicy expirablePolicy)
@@ -60,10 +61,12 @@ public final class ExpirationPolicyHelper
 
     private static String toJobPolicyDbTypeString(final String status, final ExpirablePolicy expirablePolicy)
     {
-        return toJobPolicyDbTypeString(status, expirablePolicy.getOperation(), expirablePolicy.getExpiryTime());
+        return toJobPolicyDbTypeString(status, expirablePolicy.getOperation(), expirablePolicy.getExpiryTime(),
+                expirablePolicy.getPolicer().toString());
     }
 
-    private static String toJobPolicyDbTypeString(final String status, final Object operation, final String expiryTime)
+    private static String toJobPolicyDbTypeString(final String status, final Object operation, final String expiryTime,
+            final String policer)
     {
         // Builds up the Composite Value for the JOB_POLICY database type
         // See https://www.postgresql.org/docs/current/rowtypes.html
@@ -71,7 +74,7 @@ public final class ExpirationPolicyHelper
         // The expiry time has already been validated.
         // The allowed patterns do not contain any commas or parentheses so there is no need for escaping here.
         //
-        // The definition of JOB_POLICY is (partition_id, job_id, job_status, operation, expiration_time)
-        return "(,," + status + "," + operation + "," + expiryTime + ")";
+        // The definition of JOB_POLICY is (partition_id, job_id, job_status, operation, expiration_time, policer)
+        return "(,," + status + "," + operation + "," + expiryTime + "," + policer + ")";
     }
 }

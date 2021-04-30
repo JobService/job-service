@@ -20,6 +20,7 @@ import com.hpe.caf.services.job.api.generated.model.DeletePolicy.OperationEnum;
 import com.hpe.caf.services.job.api.generated.model.ExpirablePolicy;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
+import com.hpe.caf.services.job.api.generated.model.Policer;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 
 import java.util.function.Consumer;
@@ -27,9 +28,9 @@ import java.util.function.Supplier;
 
 public final class PolicyBuilder
 {
-    private static final String SYSTEM_FLAG = "+SYSTEM";
     private static final ExpirablePolicy.OperationEnum SYSTEM_DEFAULT_OPERATION= ExpirablePolicy.OperationEnum.EXPIRE;
-    private static final String SYSTEM_DEFAULT_EXPIRY_TIME = "createTime+P90M"+SYSTEM_FLAG;
+    private static final String SYSTEM_DEFAULT_EXPIRY_TIME = "createTime+P90M";
+    private static final String SYSTEM_DEFAULT_DELETE_TIME = "none";
     private PolicyBuilder()
     {
     }
@@ -85,6 +86,7 @@ public final class PolicyBuilder
         defaultExpirablePolicy = new ExpirablePolicy();
         defaultExpirablePolicy.setOperation(SYSTEM_DEFAULT_OPERATION);
         defaultExpirablePolicy.setExpiryTime(SYSTEM_DEFAULT_EXPIRY_TIME);
+        defaultExpirablePolicy.setPolicer(Policer.System);
         return defaultExpirablePolicy;
     }
 
@@ -98,6 +100,7 @@ public final class PolicyBuilder
             final ExpirablePolicy expirablePolicy = cloneExpirablePolicy(defaultExpirablePolicy);
             policyConsumer.accept(expirablePolicy);
         } else {
+            policySupplier.get().setPolicer(Policer.User);
             DateHelper.validate(policySupplier.get().getExpiryTime());
         }
     }
@@ -112,6 +115,7 @@ public final class PolicyBuilder
             final DeletePolicy deletePolicy = cloneDeletePolicy(defaultDeletePolicy);
             policyConsumer.accept(deletePolicy);
         } else {
+            policySupplier.get().setPolicer(Policer.User);
             DateHelper.validate(policySupplier.get().getExpiryTime());
         }
     }
@@ -120,6 +124,7 @@ public final class PolicyBuilder
         final DeletePolicy newDeletePolicy = new DeletePolicy();
         newDeletePolicy.setOperation(deletePolicy.getOperation());
         newDeletePolicy.setExpiryTime(deletePolicy.getExpiryTime());
+        newDeletePolicy.setPolicer(deletePolicy.getPolicer());
         return newDeletePolicy;
     }
 
@@ -129,6 +134,7 @@ public final class PolicyBuilder
         final ExpirablePolicy newExpirablePolicy = new ExpirablePolicy();
         newExpirablePolicy.setOperation(expirablePolicy.getOperation());
         newExpirablePolicy.setExpiryTime(expirablePolicy.getExpiryTime());
+        newExpirablePolicy.setPolicer(expirablePolicy.getPolicer());
         return newExpirablePolicy;
     }
 
@@ -136,7 +142,8 @@ public final class PolicyBuilder
     {
         final DeletePolicy deletePolicy = new DeletePolicy();
         deletePolicy.setOperation(OperationEnum.DELETE);
-        deletePolicy.setExpiryTime("none");
+        deletePolicy.setExpiryTime(SYSTEM_DEFAULT_DELETE_TIME);
+        deletePolicy.setPolicer(Policer.System);
         return deletePolicy;
     }
 }

@@ -32,29 +32,13 @@ import io.swagger.annotations.ApiModelProperty;
 public class ExpirablePolicy {
 
     private String expiryTime = null;
-
-
-    public enum OperationEnum {
-        EXPIRE("Expire"),
-        DELETE("Delete");
-
-        private String value;
-
-        OperationEnum(String value) {
-            this.value = value;
-        }
-
-        @Override
-        @JsonValue
-        public String toString() {
-            return value;
-        }
-    }
-
     private OperationEnum operation = OperationEnum.EXPIRE;
+    private Policer policer = null;
+
 
 
     /**
+     * The delay before expiration
      **/
 
     @ApiModelProperty(value = "")
@@ -62,10 +46,10 @@ public class ExpirablePolicy {
     public String getExpiryTime() {
         return expiryTime;
     }
+
     public void setExpiryTime(String expiryTime) {
         this.expiryTime = expiryTime;
     }
-
 
     /**
      * The action to apply on expired jobs
@@ -76,10 +60,23 @@ public class ExpirablePolicy {
     public OperationEnum getOperation() {
         return operation;
     }
+
     public void setOperation(OperationEnum operation) {
         this.operation = operation;
     }
+    /**
+     * The instance defining the policy
+     **/
 
+    @ApiModelProperty(value = "The instance defining the policy")
+    @JsonProperty("policer")
+    public Policer getPolicer() {
+        return policer;
+    }
+
+    public void setPolicer(Policer policer) {
+        this.policer = policer;
+    }
 
 
     @Override
@@ -92,20 +89,23 @@ public class ExpirablePolicy {
         }
         ExpirablePolicy expirablePolicy = (ExpirablePolicy) o;
         return Objects.equals(expiryTime, expirablePolicy.expiryTime) &&
-                Objects.equals(operation, expirablePolicy.operation);
+                Objects.equals(operation, expirablePolicy.operation) &&
+                Objects.equals(policer, expirablePolicy.policer);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(expiryTime, operation);
+        return Objects.hash(expiryTime, operation, policer);
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class ExpirablePolicy {\n");
+
         sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
         sb.append("    operation: ").append(toIndentedString(operation)).append("\n");
+        sb.append("    policer: ").append(toIndentedString(policer)).append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -119,5 +119,23 @@ public class ExpirablePolicy {
             return "null";
         }
         return o.toString().replace("\n", "\n    ");
+    }
+
+    public enum OperationEnum {
+        EXPIRE("Expire"),
+        DELETE("Delete");
+
+        private String value;
+
+
+        OperationEnum(String value) {
+            this.value = value;
+        }
+        @Override
+        @JsonValue
+        public String toString() {
+            return value;
+        }
+
     }
 }

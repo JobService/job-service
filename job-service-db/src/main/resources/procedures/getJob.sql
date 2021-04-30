@@ -42,7 +42,8 @@ RETURNS TABLE(
     label_value VARCHAR(255),
     expiration_status job_status,
     operation expiration_operation,
-    expiration_time VARCHAR(58)
+    expiration_time VARCHAR(58),
+    policer expiration_policer
 )
 LANGUAGE plpgsql VOLATILE
 AS $$
@@ -79,12 +80,8 @@ BEGIN
            lbl.value,
            jep.job_status,
            jep.operation,
-           CASE
-               WHEN RIGHT(jep.expiration_time, 7) = '+SYSTEM' THEN
-                     LEFT(jep.expiration_time, length(jep.expiration_time)-7)
-               ELSE jep.expiration_time
-               END
-               expiry
+           jep.expiration_time,
+           jep.policer
     FROM job
     LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id AND lbl.job_id = job.job_id
     LEFT JOIN public.job_expiration_policy jep ON jep.partition_id = job.partition_id AND jep.job_id = job.job_id

@@ -164,6 +164,7 @@
                         <datastore.enabled>true</datastore.enabled>
                     </systemPropertyVariables>
                     <environmentVariables>
+                        <CAF_LOG_LEVEL>DEBUG</CAF_LOG_LEVEL>
                         <CAF_APPNAME>test/jobservice-acceptance</CAF_APPNAME>
                         <CAF_CONFIG_PATH>${project.basedir}/test-configs</CAF_CONFIG_PATH>
                         <CAF_JOB_SERVICE_IMAGE>${dockerJobServiceOrg}job-service${dockerProjectVersion}</CAF_JOB_SERVICE_IMAGE>

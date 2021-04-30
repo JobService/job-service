@@ -29,94 +29,87 @@ import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "The expiration details to be applied on the job")
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2021-03-12T12:28:51.784Z")
-public class DeletePolicy   {
-
+public class DeletePolicy {
     private String expiryTime = null;
-    private DeletePolicy.OperationEnum operation = null;
+    private DeletePolicy.OperationEnum operation;
+    private Policer policer;
 
+    public DeletePolicy() {
+        this.operation = DeletePolicy.OperationEnum.DELETE;
+        this.policer = null;
+    }
+
+    @ApiModelProperty("The delay before expiration")
+    @JsonProperty("expiryTime")
+    public String getExpiryTime() {
+        return this.expiryTime;
+    }
+
+    public void setExpiryTime(String expiryTime) {
+        this.expiryTime = expiryTime;
+    }
+
+    @ApiModelProperty("The action to apply on expired jobs")
+    @JsonProperty("operation")
+    public DeletePolicy.OperationEnum getOperation() {
+        return this.operation;
+    }
+
+    public void setOperation(DeletePolicy.OperationEnum operation) {
+        this.operation = operation;
+    }
+
+    @ApiModelProperty("The instance defining the policy")
+    @JsonProperty("policer")
+    public Policer getPolicer() {
+        return this.policer;
+    }
+
+    public void setPolicer(Policer policer) {
+        this.policer = policer;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (o != null && this.getClass() == o.getClass()) {
+            DeletePolicy deletePolicy = (DeletePolicy)o;
+            return Objects.equals(this.expiryTime, deletePolicy.expiryTime) && Objects.equals(this.operation, deletePolicy.operation) && Objects.equals(this.policer, deletePolicy.policer);
+        } else {
+            return false;
+        }
+    }
+
+    public int hashCode() {
+        return Objects.hash(new Object[]{this.expiryTime, this.operation, this.policer});
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class DeletePolicy {\n");
+        sb.append("    expiryTime: ").append(this.toIndentedString(this.expiryTime)).append("\n");
+        sb.append("    operation: ").append(this.toIndentedString(this.operation)).append("\n");
+        sb.append("    policer: ").append(this.toIndentedString(this.policer)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    private String toIndentedString(Object o) {
+        return o == null ? "null" : o.toString().replace("\n", "\n    ");
+    }
 
     public static enum OperationEnum {
         DELETE("Delete");
 
         private String value;
 
-
-        OperationEnum(String value) {
+        private OperationEnum(String value) {
             this.value = value;
         }
-        @Override
+
         @JsonValue
         public String toString() {
-            return value;
+            return this.value;
         }
-
-    }
-
-
-    /**
-     **/
-
-    @ApiModelProperty(value = "")
-    @JsonProperty("expiryTime")
-    public String getExpiryTime() {
-        return expiryTime;
-    }
-    public void setExpiryTime(String expiryTime) {
-        this.expiryTime = expiryTime;
-    }
-
-
-    /**
-     **/
-
-    @ApiModelProperty(value = "")
-    @JsonProperty("operation")
-    public OperationEnum getOperation() {
-        return operation;
-    }
-    public void setOperation(OperationEnum operation) {
-        this.operation = operation;
-    }
-
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        DeletePolicy deletePolicy = (DeletePolicy) o;
-        return Objects.equals(expiryTime, deletePolicy.expiryTime) &&
-                Objects.equals(operation, deletePolicy.operation);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(expiryTime, operation);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class DeletePolicy {\n");
-
-        sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
-        sb.append("    operation: ").append(toIndentedString(operation)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
     }
 }

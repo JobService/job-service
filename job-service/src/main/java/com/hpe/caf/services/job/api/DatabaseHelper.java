@@ -23,6 +23,7 @@ import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.api.generated.model.ExpirablePolicy.OperationEnum;
+import com.hpe.caf.services.job.api.generated.model.Policer;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.api.generated.model.SortField;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
@@ -371,11 +372,13 @@ public final class DatabaseHelper {
     private void transferExpirablePolicy(final ResultSet resultSet, final ExpirablePolicy expirablePolicy) throws SQLException {
         expirablePolicy.setExpiryTime(resultSet.getString("expiration_time"));
         expirablePolicy.setOperation(OperationEnum.valueOf(resultSet.getString("operation").toUpperCase(Locale.ROOT)));
+      //  expirablePolicy.setPolicer(Policer.valueOf(resultSet.getString("policer")));
     }
 
-    private void transferDeletePolicy(final ResultSet resultSet, final DeletePolicy policy) throws SQLException {
-        policy.setExpiryTime(resultSet.getString("expiration_time"));
-        policy.setOperation(DeletePolicy.OperationEnum.valueOf(resultSet.getString("operation").toUpperCase(Locale.ROOT)));
+    private void transferDeletePolicy(final ResultSet resultSet, final DeletePolicy deletePolicy) throws SQLException {
+        deletePolicy.setExpiryTime(resultSet.getString("expiration_time"));
+        deletePolicy.setOperation(DeletePolicy.OperationEnum.valueOf(resultSet.getString("operation").toUpperCase(Locale.ROOT)));
+     //   deletePolicy.setPolicer(Policer.valueOf(resultSet.getString("policer")));
     }
 
     /**
