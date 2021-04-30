@@ -23,16 +23,22 @@
 CREATE OR REPLACE FUNCTION delete_or_expire_job(
     in_partition_id VARCHAR,
     in_job_id VARCHAR,
-    in_operation EXPIRATION_OPERATION)
+    in_operation EXPIRATION_OPERATION,
+    in_propagate_failures BOOLEAN
+    )
 RETURNS VOID
 LANGUAGE plpgsql VOLATILE
 AS
 $$
 BEGIN
     IF in_operation = 'Expire' THEN
-        CALL internal_expire_job(in_partition_id, in_job_id);
+        PERFORM internal_expire_job(in_partition_id, in_job_id);
     ELSE
         PERFORM delete_job(in_partition_id, in_job_id);
+    END IF;
+
+    IF in_propagate_failures THEN
+        PERFORM internal_process_failed_dependent_jobs(in_partition_id, in_job_id, 'Failure due to an expired job dependency');
     END IF;
 END;
 $$

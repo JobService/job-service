@@ -20,7 +20,9 @@
  *  Description:
  *  Expires or deletes jobs in accordance with their expiry policies.
  */
-CREATE OR REPLACE PROCEDURE apply_job_expiration_policy()
+CREATE OR REPLACE PROCEDURE apply_job_expiration_policy(
+    in_propagate_failures BOOLEAN
+)
 LANGUAGE plpgsql
 AS $$
 BEGIN
@@ -84,7 +86,7 @@ BEGIN
         SELECT NULL
         FROM
             delete_or_expire_job(
-                    p_id, j_id, j_operation
+                    p_id, j_id, j_operation, in_propagate_failures
                 )
     ) t6;
 END;
