@@ -27,7 +27,7 @@ import java.util.function.Supplier;
 
 public final class PolicyBuilder
 {
-    private static final String SYSTEM_FLAG = "+System";
+    private static final String SYSTEM_FLAG = "+SYSTEM";
     private static final ExpirablePolicy.OperationEnum SYSTEM_DEFAULT_OPERATION= ExpirablePolicy.OperationEnum.EXPIRE;
     private static final String SYSTEM_DEFAULT_EXPIRY_TIME = "createTime+P90M"+SYSTEM_FLAG;
     private PolicyBuilder()
