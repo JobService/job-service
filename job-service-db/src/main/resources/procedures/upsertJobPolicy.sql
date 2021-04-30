@@ -40,13 +40,15 @@ BEGIN
                                 job_id,
                                 job_status,
                                 operation,
-                                expiration_time
+                                expiration_time,
+                                policer
                                 )
     SELECT in_partition_id,
            in_job_id,
            p.job_status,
            p.operation,
-           p.expiration_time
+           p.expiration_time,
+           p.policer
     FROM UNNEST(in_policies) AS p;
     RETURN;
 END
