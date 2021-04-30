@@ -62,15 +62,16 @@ public final class PolicyBuilder
         final ExpirationPolicy expirationPolicies
     ) throws BadRequestException
     {
-        final ExpirablePolicy defaultExpirablePolicy = defineDefaultGlobalPolicy();
+        final ExpirablePolicy defaultExpirablePolicy = defineDefaultExpirablePolicy();
+        final DeletePolicy defaultDeletePolicy = defineDefaultDeletePolicy();
 
         defineExpirablePolicy(expirationPolicies::getActive, expirationPolicies::setActive, defaultExpirablePolicy);
         defineExpirablePolicy(expirationPolicies::getWaiting, expirationPolicies::setWaiting, defaultExpirablePolicy);
         defineExpirablePolicy(expirationPolicies::getPaused, expirationPolicies::setPaused, defaultExpirablePolicy);
-        defineDeletePolicy(expirationPolicies::getCompleted, expirationPolicies::setCompleted);
-        defineDeletePolicy(expirationPolicies::getCancelled, expirationPolicies::setCancelled);
-        defineDeletePolicy(expirationPolicies::getFailed, expirationPolicies::setFailed);
-        defineDeletePolicy(expirationPolicies::getExpired, expirationPolicies::setExpired);
+        defineDeletePolicy(expirationPolicies::getCompleted, expirationPolicies::setCompleted, defaultDeletePolicy);
+        defineDeletePolicy(expirationPolicies::getCancelled, expirationPolicies::setCancelled, defaultDeletePolicy);
+        defineDeletePolicy(expirationPolicies::getFailed, expirationPolicies::setFailed, defaultDeletePolicy);
+        defineDeletePolicy(expirationPolicies::getExpired, expirationPolicies::setExpired, defaultDeletePolicy);
     }
 
     /**
@@ -78,7 +79,7 @@ public final class PolicyBuilder
      * @return the default policy
      * @throws BadRequestException if any invalid parameter
      */
-    private static ExpirablePolicy defineDefaultGlobalPolicy() {
+    private static ExpirablePolicy defineDefaultExpirablePolicy() {
         // defines default expirablePolicy
         final ExpirablePolicy defaultExpirablePolicy;
         defaultExpirablePolicy = new ExpirablePolicy();
@@ -94,7 +95,7 @@ public final class PolicyBuilder
     ) throws BadRequestException
     {
         if (null == policySupplier.get()) {
-            final ExpirablePolicy expirablePolicy = clonePolicy(defaultExpirablePolicy);
+            final ExpirablePolicy expirablePolicy = cloneExpirablePolicy(defaultExpirablePolicy);
             policyConsumer.accept(expirablePolicy);
         } else {
             DateHelper.validate(policySupplier.get().getExpiryTime());
@@ -103,20 +104,27 @@ public final class PolicyBuilder
 
     private static void defineDeletePolicy(
         final Supplier<DeletePolicy> policySupplier,
-        final Consumer<DeletePolicy> policyConsumer
+        final Consumer<DeletePolicy> policyConsumer,
+            final DeletePolicy defaultDeletePolicy
     ) throws BadRequestException
     {
         if (null == policySupplier.get()) {
-            final DeletePolicy policy = defineDefaultDeletePolicy();
-            policyConsumer.accept(policy);
+            final DeletePolicy deletePolicy = cloneDeletePolicy(defaultDeletePolicy);
+            policyConsumer.accept(deletePolicy);
         } else {
-            policySupplier.get().setOperation(OperationEnum.DELETE);
             DateHelper.validate(policySupplier.get().getExpiryTime());
         }
     }
 
+    private static DeletePolicy cloneDeletePolicy(DeletePolicy deletePolicy) {
+        final DeletePolicy newDeletePolicy = new DeletePolicy();
+        newDeletePolicy.setOperation(deletePolicy.getOperation());
+        newDeletePolicy.setExpiryTime(deletePolicy.getExpiryTime());
+        return newDeletePolicy;
+    }
 
-    private static ExpirablePolicy clonePolicy(final ExpirablePolicy expirablePolicy)
+
+    private static ExpirablePolicy cloneExpirablePolicy(final ExpirablePolicy expirablePolicy)
     {
         final ExpirablePolicy newExpirablePolicy = new ExpirablePolicy();
         newExpirablePolicy.setOperation(expirablePolicy.getOperation());

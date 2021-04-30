@@ -446,6 +446,7 @@ definitions:
         type: string
         enum:
           - Delete
+        default: Delete
     description: The expiration details to be applied on the job
   expirablePolicy:
     type: object
