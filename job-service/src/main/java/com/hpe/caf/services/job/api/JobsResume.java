@@ -15,6 +15,8 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.services.configuration.AppConfig;
@@ -29,6 +31,7 @@ import com.hpe.caf.util.ModuleLoaderException;
 import com.hpe.caf.worker.document.DocumentWorkerConstants;
 import com.hpe.caf.worker.document.DocumentWorkerDocumentTask;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -38,6 +41,7 @@ import org.slf4j.LoggerFactory;
 public final class JobsResume
 {
     private static final Logger LOG = LoggerFactory.getLogger(JobsResume.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * Resume the job specified by the jobId.
@@ -122,25 +126,25 @@ public final class JobsResume
     private static WorkerAction createResumeJobWorkerAction(
         final String partitionId,
         final String jobId,
-        final String resumeJobQueue) throws CodecException
+        final String resumeJobQueue) throws CodecException, JsonProcessingException
     {
         final WorkerAction workerAction = new WorkerAction();
         workerAction.setTaskClassifier(DocumentWorkerConstants.DOCUMENT_TASK_NAME);
         workerAction.setTaskApiVersion(1);
-        workerAction.setTaskData(createResumeJobTaskData(partitionId, jobId));
+        workerAction.setTaskData(new String(createResumeJobTaskData(partitionId, jobId), StandardCharsets.UTF_8));
         workerAction.setTaskPipe(resumeJobQueue);
         return workerAction;
     }
 
-    private static DocumentWorkerDocumentTask createResumeJobTaskData(
+    private static byte[] createResumeJobTaskData(
         final String partitionId,
-        final String jobId) throws CodecException
+        final String jobId) throws CodecException, JsonProcessingException
     {
         final DocumentWorkerDocumentTask documentWorkerDocumentTask = new DocumentWorkerDocumentTask();
         final Map<String, String> customData = new HashMap<>();
         customData.put("partitionId", partitionId);
         customData.put("jobId", jobId);
         documentWorkerDocumentTask.customData = customData;
-        return documentWorkerDocumentTask;
+        return OBJECT_MAPPER.writeValueAsBytes(documentWorkerDocumentTask);
     }
 }
