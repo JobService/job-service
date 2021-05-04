@@ -20,10 +20,13 @@ import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
 import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
+import com.rabbitmq.client.AlreadyClosedException;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * The ApiExceptionMapper class maps exceptions thrown by the audit management api
@@ -47,7 +50,12 @@ public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
             httpStatus = Response.Status.NOT_FOUND;
         } else if (exception instanceof ForbiddenException) {
             httpStatus = Response.Status.FORBIDDEN;
-        } else if (exception instanceof ServiceUnavailableException) {
+        } else if (
+                exception instanceof ServiceUnavailableException ||
+                exception instanceof AlreadyClosedException ||
+                exception instanceof TimeoutException ||
+                exception instanceof IOException
+        ) {
             httpStatus = Response.Status.SERVICE_UNAVAILABLE;
         } else {
             httpStatus = Response.Status.INTERNAL_SERVER_ERROR;

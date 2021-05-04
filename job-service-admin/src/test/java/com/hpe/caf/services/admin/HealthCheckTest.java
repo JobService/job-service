@@ -71,7 +71,7 @@ public class HealthCheckTest {
         Assert.assertTrue("queue.message should contain the failed host: unknown-rabbitmq-host",
                           healthCheckResponse.queue.message.contains("unknown-rabbitmq-host"));
 
-        Assert.assertEquals("Status code set should be 500", 500, httpServletResponse.getStatus());
+        Assert.assertEquals("Status code set should be 503", 503, httpServletResponse.getStatus());
     }
 
     private final class HealthCheckResponse
