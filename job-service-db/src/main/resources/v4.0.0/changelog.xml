@@ -101,7 +101,16 @@
                                  referencedTableName="job"
                                  referencedColumnNames="partition_id, job_id" />
     </changeSet>
-    <changeSet id="add_task_stowing_index" author="Gamma Team">
+    <changeSet id="drop_task_stowing_idx_partition_id_and_job_id" author="Gamma Team">
+        <preConditions onFail="CONTINUE">
+            <indexExists schemaName="public"
+                         tableName="stowed_task"
+                         indexName="idx_partition_id_and_job_id"
+                         columnNames="partition_id, job_id"/>
+        </preConditions>
+        <dropIndex indexName="idx_partition_id_and_job_id" tableName="stowed_task"/>
+    </changeSet>
+    <changeSet id="create_task_stowing_idx_partition_id_and_job_id_and_tracking_info_job_task_id" author="Gamma Team">
         <preConditions onFail="CONTINUE">
             <not>
                 <indexExists schemaName="public"
@@ -115,5 +124,15 @@
             <column name="job_id" type="varchar(48)"/>
             <column name="tracking_info_job_task_id" type="varchar(255)"/>
         </createIndex>
+    </changeSet>
+    <changeSet id="drop_task_stowing_context_column" author="Gamma Team">
+        <preConditions onFail="CONTINUE">
+            <columnExists schemaName="public"
+                          tableName="stowed_task"
+                          columnName="context"/>
+        </preConditions>
+        <dropColumn schemaName="public"
+                    tableName="stowed_task"
+                    columnName="context"/>
     </changeSet>
 </databaseChangeLog>
