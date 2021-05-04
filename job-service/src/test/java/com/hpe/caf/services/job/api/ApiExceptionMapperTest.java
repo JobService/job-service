@@ -15,9 +15,12 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
 import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
+import com.rabbitmq.client.AlreadyClosedException;
+import com.rabbitmq.client.ShutdownSignalException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +29,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({BadRequestException.class, NotFoundException.class})
@@ -70,6 +75,61 @@ public final class ApiExceptionMapperTest {
         Assert.assertEquals(r.getStatus(),503);
 
     }
+
+    @Test
+    public void testToResponseEOFException () {
+
+        ApiExceptionMapper aem = new ApiExceptionMapper();
+
+        UnrecognizedPropertyException sue = new UnrecognizedPropertyException(null,"Test ServiceUnavailableException", null, null, "dd"
+                , null);
+        Response r = aem.toResponse(sue);
+
+        //  Expected response status should map onto SERVICE UNAVAILABLE (i.e. 400)
+        Assert.assertEquals(400, r.getStatus());
+
+    }
+
+    @Test
+    public void testToResponseIOException () {
+
+        final ApiExceptionMapper aem = new ApiExceptionMapper();
+
+        final Exception bre = new IOException("Test Exception");
+        final Response r = aem.toResponse(bre);
+
+        //  Expected response status should map onto INTERNAL SERVER ERROR (i.e. 500)
+        Assert.assertEquals(503, r.getStatus());
+
+    }
+
+
+    @Test
+    public void testToResponseTimeoutException () {
+
+        final ApiExceptionMapper aem = new ApiExceptionMapper();
+
+        final Exception bre = new TimeoutException("Test Exception");
+        final Response r = aem.toResponse(bre);
+
+        //  Expected response status should map onto INTERNAL SERVER ERROR (i.e. 500)
+        Assert.assertEquals(503, r.getStatus());
+
+    }
+
+    @Test
+    public void testToResponseAlreadyClosedException () {
+
+        final ApiExceptionMapper aem = new ApiExceptionMapper();
+
+        final Exception bre = new AlreadyClosedException(new ShutdownSignalException(true, true, null, null), null);
+        final Response r = aem.toResponse(bre);
+
+        //  Expected response status should map onto INTERNAL SERVER ERROR (i.e. 500)
+        Assert.assertEquals(503, r.getStatus());
+
+    }
+
 
     @Test
     public void testToResponseException () {
