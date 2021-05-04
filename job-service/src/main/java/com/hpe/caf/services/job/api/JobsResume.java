@@ -15,7 +15,6 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.services.configuration.AppConfig;
@@ -39,7 +38,6 @@ import org.slf4j.LoggerFactory;
 public final class JobsResume
 {
     private static final Logger LOG = LoggerFactory.getLogger(JobsResume.class);
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * Resume the job specified by the jobId.
@@ -134,7 +132,7 @@ public final class JobsResume
         return workerAction;
     }
 
-    private static Map<String, byte[]> createResumeJobTaskData(
+    private static DocumentWorkerDocumentTask createResumeJobTaskData(
         final String partitionId,
         final String jobId) throws CodecException
     {
@@ -143,6 +141,6 @@ public final class JobsResume
         customData.put("partitionId", partitionId);
         customData.put("jobId", jobId);
         documentWorkerDocumentTask.customData = customData;
-        return OBJECT_MAPPER.convertValue(documentWorkerDocumentTask, Map.class);
+        return documentWorkerDocumentTask;
     }
 }
