@@ -61,7 +61,7 @@ public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
             exception instanceof ServiceUnavailableException ||
             exception instanceof AlreadyClosedException ||
             exception instanceof TimeoutException ||
-            (exception instanceof IOException )
+            exception instanceof IOException
         ) {
             httpStatus = Response.Status.SERVICE_UNAVAILABLE;
         } else {
