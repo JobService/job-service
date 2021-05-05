@@ -144,6 +144,11 @@ spec:
               configMapKeyRef:
                 name: jobservice-config
                 key: CAF_WEBSERVICE_URL
+          - name: CAF_JOB_SERVICE_RESUME_JOB_QUEUE
+            valueFrom:
+              configMapKeyRef:
+                name: jobservice-config
+                key: CAF_JOB_SERVICE_RESUME_JOB_QUEUE
         ports:
         - containerPort: 8080
           hostPort: 9411

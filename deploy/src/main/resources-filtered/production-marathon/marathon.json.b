@@ -31,7 +31,8 @@
                 "CAF_RABBITMQ_HOST": "${CAF_RABBITMQ_HOST}",
                 "CAF_RABBITMQ_PORT": "${CAF_RABBITMQ_PORT}",
                 "CAF_RABBITMQ_USERNAME": "${CAF_RABBITMQ_USERNAME}",
-                "CAF_RABBITMQ_PASSWORD": "${CAF_RABBITMQ_PASSWORD}"
+                "CAF_RABBITMQ_PASSWORD": "${CAF_RABBITMQ_PASSWORD}",
+                "CAF_JOB_SERVICE_RESUME_JOB_QUEUE": "${CAF_JOB_SERVICE_RESUME_JOB_QUEUE}"
             },
             "healthChecks": [{
                 "protocol": "HTTP",

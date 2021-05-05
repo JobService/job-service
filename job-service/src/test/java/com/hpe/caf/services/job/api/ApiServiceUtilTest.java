@@ -42,6 +42,7 @@ public final class ApiServiceUtilTest {
         newEnv.put("JOB_SERVICE_DATABASE_USERNAME","testUserName");
         newEnv.put("JOB_SERVICE_DATABASE_PASSWORD","testPassword");
         newEnv.put("JOB_SERVICE_DATABASE_APPNAME","testAppName");
+        newEnv.put("CAF_JOB_SERVICE_RESUME_JOB_QUEUE", "testResumeJobQueue");
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         //  Test successful call to class method.
