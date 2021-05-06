@@ -94,8 +94,10 @@ paths:
         in: query
         type: string
         required: false
-        description: 'Used to specify the sort order, in the format `<field>:<direction>`.
-          Results can also be ordered by label by using `labels.<label-key>` as the field name.  The direction can be `asc` or `desc`.'
+        description: |
+          Used to specify the sort order, in the format `<field>:<direction>`.
+          Results can also be ordered by label by using `labels.<label-key>` as the field name.
+          The direction can be `asc` or `desc`.
         default: createTime:desc
       - name: labelExist
         in: query
