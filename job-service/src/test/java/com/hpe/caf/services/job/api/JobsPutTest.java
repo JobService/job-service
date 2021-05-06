@@ -184,7 +184,7 @@ public final class JobsPutTest {
 
         verify(mockDatabaseHelper, times(1))
             .createJob(eq("partition"), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap(), any(ExpirationPolicy.class));
-        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any(), any());
+        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any(), anyBoolean());
         assertEquals("create", result);
     }
 
@@ -200,7 +200,7 @@ public final class JobsPutTest {
 
         verify(mockDatabaseHelper, times(1))
             .createJob(anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap(), any(ExpirationPolicy.class));
-        verify(mockQueueServices, times(0)).sendMessage(any(), any(), any(), any(), any());
+        verify(mockQueueServices, times(0)).sendMessage(any(), any(), any(), any(), anyBoolean());
         assertEquals("update", result);
     }
 
@@ -318,7 +318,7 @@ public final class JobsPutTest {
         
         verify(mockDatabaseHelper, times(1)).createJob(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyMap(), any(ExpirationPolicy.class));
-        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any(), any());
+        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any(), anyBoolean());
     }
 
     @Test
