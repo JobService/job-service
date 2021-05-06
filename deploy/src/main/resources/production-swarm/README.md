@@ -27,6 +27,9 @@ export JOB_SERVICE_DATABASE_PASSWORD=root
 export JOB_SERVICE_PORT=9411
 export JOB_SERVICE_DOCKER_HOST=192.168.56.10
 
+## Job Service Resume Job Queue Details
+export CAF_JOB_SERVICE_RESUME_JOB_QUEUE=worker-taskunstowing-in
+
 ###
 # RabbitMQ
 ###
