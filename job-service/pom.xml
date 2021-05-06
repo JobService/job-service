@@ -205,6 +205,10 @@
             <groupId>com.github.workerframework</groupId>
             <artifactId>util-rabbitmq</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.cafdataprocessing</groupId>
+            <artifactId>worker-document-shared</artifactId>
+        </dependency>
 
         <!-- PostgreSQL database -->
         <dependency>

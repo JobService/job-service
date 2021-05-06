@@ -45,7 +45,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * This class is responsible sending task data to the target queue.
  */
-public final class QueueServices {
+public final class QueueServices implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
     private final Connection connection;
@@ -65,7 +65,7 @@ public final class QueueServices {
      * Send task data message to the target queue.
      */
     public void sendMessage(
-        final String partitionId, String jobId, WorkerAction workerAction, AppConfig config
+        final String partitionId, String jobId, WorkerAction workerAction, AppConfig config, final boolean includeTrackingInfo
     ) throws IOException, InterruptedException, TimeoutException
     {
         //  Generate a random task id.
@@ -105,11 +105,11 @@ public final class QueueServices {
             .path("status").build().toString();
 
         //  Construct the task message.
-        final TrackingInfo trackingInfo = new TrackingInfo(
-                new JobTaskId(partitionId, jobId).getMessageId(),
-                new Date(),
-                getStatusCheckIntervalMillis(config.getStatusCheckIntervalSeconds()),
-                statusCheckUrl, config.getTrackingPipe(), workerAction.getTargetPipe());
+        final TrackingInfo trackingInfo = includeTrackingInfo ? new TrackingInfo(
+            new JobTaskId(partitionId, jobId).getMessageId(),
+            new Date(),
+            getStatusCheckIntervalMillis(config.getStatusCheckIntervalSeconds()),
+            statusCheckUrl, config.getTrackingPipe(), workerAction.getTargetPipe()) : null;
 
         final TaskMessage taskMessage = new TaskMessage(
                 taskId,
@@ -160,6 +160,7 @@ public final class QueueServices {
     /**
      * Closes the queue connection.
      */
+    @Override
     public void close() throws Exception {
         try {
             //  Close channel.

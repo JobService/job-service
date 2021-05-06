@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
 import com.hpe.caf.api.worker.DataStoreException;
+import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.config.system.SystemBootstrapConfiguration;
 import com.hpe.caf.naming.ServicePath;
@@ -32,6 +33,7 @@ import com.hpe.caf.services.job.client.model.WorkerAction;
 import com.hpe.caf.services.job.client.model.JobStatus;
 import com.hpe.caf.worker.batch.BatchWorkerConstants;
 import com.hpe.caf.worker.batch.BatchWorkerTask;
+import com.hpe.caf.worker.document.DocumentWorkerDocumentTask;
 import com.hpe.caf.worker.example.ExampleWorkerConstants;
 import com.hpe.caf.worker.example.ExampleWorkerStatus;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
@@ -66,6 +68,7 @@ import java.util.concurrent.TimeoutException;
 public class JobServiceEndToEndIT {
     private static final String batchWorkerMessageInQueue = "batchworker-test-input-1";
     private static final String exampleWorkerMessageInQueue = "exampleworker-test-input-1";
+    private static final String resumeJobQueue = "worker-taskunstowing-in";
     private static String exampleWorkerMessageOutQueue;
     private static final String datastoreContainerId = "datastore.container.id";
     private static final String jobCorrelationId = "1";
@@ -1300,14 +1303,88 @@ public class JobServiceEndToEndIT {
     }
 
     @Test
-    public void testResumePausedJobThatWasPreviouslyWaitingMovesJobToActiveStatus() throws Exception {
-        final String jobId = generateJobId();
-        createJob(jobId, true);
-        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
-        pauseJob(jobId);
-        waitUntilJobStatusIs(JobStatus.Paused, jobId);
-        resumeJob(jobId);
-        waitUntilJobStatusIs(JobStatus.Active, jobId);
+    public void testResumePausedJobThatWasPreviouslyWaitingMovesJobToActiveStatus() throws Exception
+    {
+        try (final IntegrationTestQueueServices integrationTestQueueServices = new IntegrationTestQueueServices()) {
+            // given a job with a status of waiting
+            integrationTestQueueServices.startListening();
+            final String jobId = generateJobId();
+            createJob(jobId, true);
+            waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+
+            // when the job is paused then resumed
+            pauseJob(jobId);
+            waitUntilJobStatusIs(JobStatus.Paused, jobId);
+            resumeJob(jobId);
+
+            // then the status of the job should now be active
+            waitUntilJobStatusIs(JobStatus.Active, jobId);
+
+            // and a message should be sent to the resume job queue
+            integrationTestQueueServices.waitForMessages(1, 30000, IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME);
+            final List<String> resumeJobQueueMessages
+                = integrationTestQueueServices.getMessages(IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME);
+            Assert.assertEquals(resumeJobQueueMessages.size(), 1,
+                "Expected 1 message to have been sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME + " queue");
+
+            final TaskMessage resumeJobQueueTaskMessage
+                = workerServices.getCodec().deserialise(resumeJobQueueMessages.get(0).getBytes(), TaskMessage.class);
+            Assert.assertEquals(
+                resumeJobQueueTaskMessage.getTaskApiVersion(),
+                1,
+                "Message sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME
+                + " has unexpected value for it's 'taskApiVersion' property");
+            Assert.assertEquals(
+                resumeJobQueueTaskMessage.getTaskClassifier(),
+                "DocumentWorkerTask",
+                "Message sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME
+                + " has unexpected value for it's 'taskClassifier' property");
+            Assert.assertEquals(
+                resumeJobQueueTaskMessage.getContext(),
+                Collections.EMPTY_MAP,
+                "Message sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME
+                + " has unexpected value for it's 'context' property");
+            Assert.assertEquals(
+                resumeJobQueueTaskMessage.getTo(),
+                IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME,
+                "Message sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME
+                + " has unexpected value for its 'to' property");
+
+            final DocumentWorkerDocumentTask documentWorkerDocumentTask
+                = workerServices.getCodec().deserialise(resumeJobQueueTaskMessage.getTaskData(), DocumentWorkerDocumentTask.class);
+            Assert.assertNull(
+                documentWorkerDocumentTask.document,
+                "Message sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME
+                + " should have a 'null' 'document' property");
+            Assert.assertEquals(
+                documentWorkerDocumentTask.customData.size(),
+                2,
+                "Message sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME
+                + " should have 2 customData properties");
+            Assert.assertEquals(
+                documentWorkerDocumentTask.customData.get("partitionId"),
+                defaultPartitionId,
+                "Message sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME
+                + " has unexpected value for it's 'customData.partitionId' property");
+            Assert.assertEquals(
+                documentWorkerDocumentTask.customData.get("jobId"),
+                jobId,
+                "Message sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME
+                + " has unexpected value for it's 'customData.jobId' property");
+            Assert.assertNull(
+                resumeJobQueueTaskMessage.getSourceInfo(),
+                "Message sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME
+                + " should have a null 'sourceInfo' property");
+            Assert.assertNull(
+                resumeJobQueueTaskMessage.getPriority(),
+                "Message sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME
+                + " should have a null 'priority' property");
+            Assert.assertEquals(
+                resumeJobQueueTaskMessage.getCorrelationId(),
+                "1",
+                "Message sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME
+                + " has unexpected value for it's 'correlationId' property");
+        }
     }
 
     @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
@@ -1541,7 +1618,6 @@ public class JobServiceEndToEndIT {
         boolean debugEnabled = SettingsProvider.defaultProvider.getBooleanSetting(SettingNames.createDebugMessage,false);
         return new QueueManager(queueServices, workerServices, debugEnabled);
     }
-
 
     private Timer getTimer(ExecutionContext context) {
         String timeoutSetting = SettingsProvider.defaultProvider.getSetting(SettingNames.timeOutMs);

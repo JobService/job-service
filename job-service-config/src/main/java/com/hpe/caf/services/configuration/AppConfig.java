@@ -116,4 +116,8 @@ public class AppConfig {
         return suspendedPartitionsRegex == null ? null : Pattern.compile(suspendedPartitionsRegex);
     }
 
+    public String getResumeJobQueue()
+    {
+        return environment.getProperty("CAF_JOB_SERVICE_RESUME_JOB_QUEUE");
+    }
 }
