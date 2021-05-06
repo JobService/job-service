@@ -35,6 +35,7 @@ import java.util.concurrent.TimeoutException;
  */
 @Provider
 public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
+
     /**
      * Convert an exception to the appropriate response object.
      *
