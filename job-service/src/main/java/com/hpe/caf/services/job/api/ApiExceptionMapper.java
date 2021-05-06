@@ -22,13 +22,10 @@ import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
 import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import com.rabbitmq.client.AlreadyClosedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
@@ -38,7 +35,6 @@ import java.util.concurrent.TimeoutException;
  */
 @Provider
 public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
-    private static final Logger LOG = LoggerFactory.getLogger(ApiExceptionMapper.class);
     /**
      * Convert an exception to the appropriate response object.
      *
@@ -47,7 +43,6 @@ public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
      */
     @Override
     public Response toResponse(Exception exception) {
-        LOG.debug("exception found {}", exception.getClass());
         final Response.Status httpStatus;
         if (exception instanceof BadRequestException ||
             exception instanceof UnrecognizedPropertyException
