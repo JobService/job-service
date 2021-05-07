@@ -16,17 +16,6 @@ team_members:
           icon: hpe-social-email
           url: mailto:andrew.reid@microfocus.com
 
-    - name: Anthony McGreevy
-      email: anthony.mcgreevy@microfocus.com
-      avatar: /assets/img/team/anthony.jpg
-      social:
-        - title: GitHub
-          icon: hpe-social-github
-          url: https://github.com/Anthony-McGreevy
-        - title: Email
-          icon: hpe-social-email
-          url: mailto:anthony.mcgreevy@microfocus.com
-
     - name: Connor Mulholland
       email: connor.mulholland@microfocus.com
       avatar: /assets/img/team/connor.jpg
@@ -60,27 +49,16 @@ team_members:
           icon: hpe-social-email
           url: mailto:dermot.hardy@microfocus.com
 
-    - name: Dominic Gibson
-      email: dominic.gibson@microfocus.com
-      avatar: /assets/img/team/dominic.jpg
+    - name: Guido Rugo
+      email: guido.rugo@microfocus.com
+      avatar: /assets/img/guido.jpg
       social:
         - title: GitHub
           icon: hpe-social-github
-          url: https://github.com/dgibson-microfocus
+          url: https://github.com/guidorugo
         - title: Email
           icon: hpe-social-email
-          url: mailto:dominic.gibson@microfocus.com
-
-    - name: Gaana Vishwnath
-      email: gaana.vishwnath@microfocus.com
-      avatar: /assets/img/team/gaana.jpg
-      social:
-        - title: GitHub
-          icon: hpe-social-github
-          url: https://github.com/gaana-vishwnath
-        - title: Email
-          icon: hpe-social-email
-          url: mailto:gaana.vishwnath@microfocus.com
+          url: mailto:guido.rugo@microfocus.com
 
     - name: Himanshi Agrawal
       email: himanshi.agrawal@microfocus.com
@@ -92,6 +70,28 @@ team_members:
         - title: Email
           icon: hpe-social-email
           url: mailto:himanshi.agrawal@microfocus.com
+
+    - name: Joseph Astin
+      email: joseph.astin@microfocus.com
+      avatar: /assets/img/joseph.jpg
+      social:
+        - title: GitHub
+          icon: hpe-social-github
+          url: https://github.com/JoeAstin
+        - title: Email
+          icon: hpe-social-email
+          url: mailto:joseph.astin@microfocus.com
+
+    - name: Kleyton O'Hare 
+      email: kleyton.ohare@microfocus.com
+      avatar: /assets/img/kleyton.jpg
+      social:
+        - title: GitHub
+          icon: hpe-social-github
+          url: https://github.com/kleyton-ohare
+        - title: Email
+          icon: hpe-social-email
+          url: mailto:kleyton.ohare@microfocus.com
 
     - name: Kusuma Ghosh Dastidar
       email: vgkusuma@microfocus.com
@@ -137,15 +137,26 @@ team_members:
           icon: hpe-social-email
           url: mailto:rory.torney@microfocus.com
 
-    - name: Thilagavathi Santhoshkumar
-      email: thilagavathi.santhoshkumar@microfocus.com
-      avatar: /assets/img/team/thilaga.jpg
+    - name: Simranjeet Singh Chawla
+      email: simranjeet.singhchawla@microfocus.com
+      avatar: /assets/img/simran.jpg
       social:
         - title: GitHub
           icon: hpe-social-github
-          url: https://github.com/thilagasanthosh
+          url: https://github.com/simranjeetc
         - title: Email
           icon: hpe-social-email
-          url: mailto:thilagavathi.santhoshkumar@microfocus.com
+          url: mailto:simranjeet.singhchawla@microfocus.com      
+
+    - name: Xavier Lamourec
+      email: xavier.lamourec@microfocus.com
+      avatar: /assets/img/xavier.jpg
+      social:
+        - title: GitHub
+          icon: hpe-social-github
+          url: https://github.com/xbreizh
+        - title: Email
+          icon: hpe-social-email
+          url: mailto:xavier.lamourec@microfocus.com
 
 ---
