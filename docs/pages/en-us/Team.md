@@ -51,7 +51,7 @@ team_members:
 
     - name: Guido Rugo
       email: guido.rugo@microfocus.com
-      avatar: /assets/img/guido.jpg
+      avatar: /assets/img/team/guido.jpg
       social:
         - title: GitHub
           icon: hpe-social-github
@@ -73,7 +73,7 @@ team_members:
 
     - name: Joseph Astin
       email: joseph.astin@microfocus.com
-      avatar: /assets/img/joseph.jpg
+      avatar: /assets/img/team/joseph.jpg
       social:
         - title: GitHub
           icon: hpe-social-github
@@ -84,7 +84,7 @@ team_members:
 
     - name: Kleyton O'Hare 
       email: kleyton.ohare@microfocus.com
-      avatar: /assets/img/kleyton.jpg
+      avatar: /assets/img/team/kleyton.jpg
       social:
         - title: GitHub
           icon: hpe-social-github
@@ -139,7 +139,7 @@ team_members:
 
     - name: Simranjeet Singh Chawla
       email: simranjeet.singhchawla@microfocus.com
-      avatar: /assets/img/simran.jpg
+      avatar: /assets/img/team/simran.jpg
       social:
         - title: GitHub
           icon: hpe-social-github
@@ -150,7 +150,7 @@ team_members:
 
     - name: Xavier Lamourec
       email: xavier.lamourec@microfocus.com
-      avatar: /assets/img/xavier.jpg
+      avatar: /assets/img/team/xavier.jpg
       social:
         - title: GitHub
           icon: hpe-social-github
