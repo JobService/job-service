@@ -65,6 +65,7 @@ public final class JobsGetById {
             job = databaseHelper.getJob(partitionId, jobId);
 
             LOG.debug("getJobById: Done.");
+            LOG.info("Job progression {}/{} status {}  progression {}", partitionId, jobId, job.getStatus(), job.getPercentageComplete());
             return job;
 
         } catch (Exception e) {

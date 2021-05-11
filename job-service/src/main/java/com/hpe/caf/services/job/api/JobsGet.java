@@ -119,22 +119,6 @@ public final class JobsGet {
 
 
         LOG.debug("getJobs: Done.");
-        logJobDetails(jobs);
         return jobs;
-    }
-
-    private static void logJobDetails(final Job[] jobs) {
-        for (Job job: jobs
-             ) {
-            final StringBuilder sb = new StringBuilder();
-            sb.append("jobId ")
-                    .append(job.getId())
-                    .append(" status ")
-                    .append(job.getStatus())
-                    .append(" completion ")
-                    .append(job.getPercentageComplete())
-                    .append("\n");
-            LOG.info("job progression: {}",sb.toString());
-        }
     }
 }
