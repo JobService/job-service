@@ -76,6 +76,7 @@ public final class JobsStatus {
         }
 
         LOG.debug("getJobStatus: Done.");
+        LOG.info("Job status: {}/{} {}", partitionId, jobId, jobStatus);
         return new JobsStatusResult(jobStatus, statusCheckIntervalSeconds);
     }
 }
