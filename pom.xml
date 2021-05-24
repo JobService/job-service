@@ -27,7 +27,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-aggregator</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.0.0-1076</version>
     <packaging>pom</packaging>
 
     <parent>
@@ -106,56 +106,56 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service</artifactId>
-                <version>4.0.0-SNAPSHOT</version>
+                <version>4.0.0-1076</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-admin</artifactId>
-                <version>4.0.0-SNAPSHOT</version>
+                <version>4.0.0-1076</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-internal-client</artifactId>
-                <version>4.0.0-SNAPSHOT</version>
+                <version>4.0.0-1076</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-config</artifactId>
-                <version>4.0.0-SNAPSHOT</version>
+                <version>4.0.0-1076</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-contract</artifactId>
-                <version>4.0.0-SNAPSHOT</version>
+                <version>4.0.0-1076</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db</artifactId>
-                <version>4.0.0-SNAPSHOT</version>
+                <version>4.0.0-1076</version>
                 <classifier>jar-with-dependencies</classifier>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db-client</artifactId>
-                <version>4.0.0-SNAPSHOT</version>
+                <version>4.0.0-1076</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-scheduled-executor</artifactId>
-                <version>4.0.0-SNAPSHOT</version>
+                <version>4.0.0-1076</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-ui</artifactId>
-                <version>4.0.0-SNAPSHOT</version>
+                <version>4.0.0-1076</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-util</artifactId>
-                <version>4.0.0-SNAPSHOT</version>
+                <version>4.0.0-1076</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
@@ -165,12 +165,12 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>worker-jobtracking</artifactId>
-                <version>4.0.0-SNAPSHOT</version>
+                <version>4.0.0-1076</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>worker-jobtracking-shared</artifactId>
-                <version>4.0.0-SNAPSHOT</version>
+                <version>4.0.0-1076</version>
             </dependency>
             <dependency>
                 <groupId>com.github.stefanbirkner</groupId>
