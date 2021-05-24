@@ -8,10 +8,11 @@ services:
       JOB_SERVICE_DATABASE_URL: "jdbc:postgresql://${JOB_SERVICE_DATABASE_HOST}:${JOB_SERVICE_DATABASE_PORT}/jobservice"
       JOB_SERVICE_DATABASE_USERNAME: "${JOB_SERVICE_DATABASE_USERNAME}"
       JOB_SERVICE_DATABASE_PASSWORD: "${JOB_SERVICE_DATABASE_PASSWORD}"
-      CAF_STATUS_CHECK_TIME: 5
+      CAF_STATUS_CHECK_INTERVAL_SECONDS: 5
       CAF_TRACKING_PIPE: jobtracking-in
       CAF_WEBSERVICE_URL: "http://${JOB_SERVICE_DOCKER_HOST}:${JOB_SERVICE_PORT}/job-service/v1"
-    image: jobservice/job-service:3.5.0
+      CAF_JOB_SERVICE_RESUME_JOB_QUEUE: "${CAF_JOB_SERVICE_RESUME_JOB_QUEUE}"
+    image: jobservice/prereleases:job-service-4.0.0-1076
     deploy:
       mode: replicated
       replicas: 2
@@ -36,7 +37,7 @@ services:
       JOB_SERVICE_DATABASE_USERNAME: "${JOB_SERVICE_DATABASE_USERNAME}"
       JOB_SERVICE_DATABASE_PASSWORD: "${JOB_SERVICE_DATABASE_PASSWORD}"
       CAF_WEBSERVICE_URL: "http://${JOB_SERVICE_DOCKER_HOST}:${JOB_SERVICE_PORT}/job-service/v1"
-    image: jobservice/worker-jobtracking:3.5.0
+    image: jobservice/prereleases:worker-jobtracking-4.0.0-1076
     deploy:
       mode: replicated
       replicas: 2
@@ -57,11 +58,11 @@ services:
       JOB_SERVICE_DATABASE_USERNAME: "${JOB_SERVICE_DATABASE_USERNAME}"
       JOB_SERVICE_DATABASE_PASSWORD: "${JOB_SERVICE_DATABASE_PASSWORD}"
       CAF_WORKER_INPUT_QUEUE: jobservicescheduler-in
-      CAF_STATUS_CHECK_TIME: 5
+      CAF_STATUS_CHECK_INTERVAL_SECONDS: 5
       CAF_TRACKING_PIPE: jobtracking-in
       CAF_WEBSERVICE_URL: "http://${JOB_SERVICE_DOCKER_HOST}:${JOB_SERVICE_PORT}/job-service/v1"
       CAF_SCHEDULED_EXECUTOR_PERIOD: 10	  
-    image: jobservice/job-service-scheduled-executor:3.5.0
+    image: jobservice/prereleases:job-service-scheduled-executor-4.0.0-1076
     deploy:
       mode: replicated
       replicas: 2

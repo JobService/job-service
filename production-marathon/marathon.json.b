@@ -7,7 +7,7 @@
             "instances": 1,
             "container": {
                 "docker": {
-                    "image": "jobservice/job-service:3.5.0",
+                    "image": "jobservice/prereleases:job-service-4.0.0-1076",
                     "network": "BRIDGE",
                     "portMappings": [{
                         "containerPort": 8080,
@@ -26,12 +26,13 @@
                 "JOB_SERVICE_DATABASE_USERNAME": "${JOB_SERVICE_DATABASE_USERNAME}",
                 "JOB_SERVICE_DATABASE_PASSWORD": "${JOB_SERVICE_DATABASE_PASSWORD}",
                 "CAF_TRACKING_PIPE": "jobtracking-in",
-                "CAF_STATUS_CHECK_TIME": "5",
+                "CAF_STATUS_CHECK_INTERVAL_SECONDS": "5",
                 "CAF_WEBSERVICE_URL": "http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1",
                 "CAF_RABBITMQ_HOST": "${CAF_RABBITMQ_HOST}",
                 "CAF_RABBITMQ_PORT": "${CAF_RABBITMQ_PORT}",
                 "CAF_RABBITMQ_USERNAME": "${CAF_RABBITMQ_USERNAME}",
-                "CAF_RABBITMQ_PASSWORD": "${CAF_RABBITMQ_PASSWORD}"
+                "CAF_RABBITMQ_PASSWORD": "${CAF_RABBITMQ_PASSWORD}",
+                "CAF_JOB_SERVICE_RESUME_JOB_QUEUE": "${CAF_JOB_SERVICE_RESUME_JOB_QUEUE}"
             },
             "healthChecks": [{
                 "protocol": "HTTP",
@@ -50,7 +51,7 @@
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "jobservice/worker-jobtracking:3.5.0",
+                    "image": "jobservice/prereleases:worker-jobtracking-4.0.0-1076",
                     "network": "BRIDGE",
                     "forcePullImage": true,
                     "portMappings": [{
@@ -109,7 +110,7 @@
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "jobservice/job-service-scheduled-executor:3.5.0",
+                    "image": "jobservice/prereleases:job-service-scheduled-executor-4.0.0-1076",
                     "network": "BRIDGE",
                     "forcePullImage": true,
                     "portMappings": [{
@@ -128,7 +129,7 @@
                 "JOB_SERVICE_DATABASE_USERNAME": "${JOB_SERVICE_DATABASE_USERNAME}",
                 "JOB_SERVICE_DATABASE_PASSWORD": "${JOB_SERVICE_DATABASE_PASSWORD}",
                 "CAF_TRACKING_PIPE": "jobtracking-in",
-                "CAF_STATUS_CHECK_TIME": "5",
+                "CAF_STATUS_CHECK_INTERVAL_SECONDS": "5",
                 "CAF_WEBSERVICE_URL": "http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1",
                 "CAF_RABBITMQ_HOST": "${CAF_RABBITMQ_HOST}",
                 "CAF_RABBITMQ_PORT": "${CAF_RABBITMQ_PORT}",
