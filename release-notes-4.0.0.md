@@ -25,6 +25,9 @@ ${version-number}
 - SCMOD-12730: A new `CAF_JOB_SERVICE_RESUME_JOB_QUEUE` environment variable is required.
   - This should point to the input queue of the worker that is responsible for dispatching task messages for resumed jobs to the
   appropriate workers.
+  
+#### Bug Fixes
+- SCMOD-10825: Fixed bug that was causing the cancellation of complex jobs to fail.
 
 #### Known Issues
 - None
