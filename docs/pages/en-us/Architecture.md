@@ -163,3 +163,21 @@ This table stores information on jobs which have dependent jobs and must wait fo
 | target_pipe          | varchar(255)  | No            |                  |
 | eligible_to_run_date | timestamp     | Yes           |                  |
 
+### Job Expiration Policy
+
+This table stores information about the expiration policy related to the jobs. The Job Service Scheduled Executor runs at regular interval in order to apply those policies.
+
+| **Column**           | **Data Type**       | **Nullable?** | **Primary Key?** |
+|----------------------|---------------------|---------------|------------------|
+| partition_id         | varchar(40)         | No            | Yes              |
+| job_id               | varchar(48)         | No            | Yes              |
+| job_status           | job_status          | No            | Yes              |
+| operation            | expiration_operation| No            |                  |
+| expiration_time      | varchar(58)         | No            |                  |
+
+### Enumeration Types
+
+| **Enumerated Type**  | **Enum labels**                                                |
+|----------------------|----------------------------------------------------------------|
+| expiration_operation | Expire, Delete                                                 |
+| job_status           | Active, Cancelled, Completed, Expired, Failed, Paused, Waiting |

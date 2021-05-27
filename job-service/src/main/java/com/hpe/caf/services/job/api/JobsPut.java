@@ -15,7 +15,6 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.hpe.caf.api.Codec;
@@ -30,6 +29,7 @@ import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.services.job.jobtype.JobTypes;
+import com.hpe.caf.services.job.utilities.PolicyBuilder;
 import com.hpe.caf.util.ModuleLoader;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -42,7 +42,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -89,6 +88,9 @@ public final class JobsPut {
                 LOG.error("createOrUpdateJob: Error - '{}'", ApiServiceUtil.ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS);
                 throw new BadRequestException(ApiServiceUtil.ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS);
             }
+
+            //  Validates the job expiry policies and populate the job with the complete list of them
+            PolicyBuilder.buildPolicyMap(job);
 
             // if `job` is provided, construct `task` from it
             final WorkerAction jobTask;
@@ -191,10 +193,11 @@ public final class JobsPut {
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
-                        job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended);
+                        job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended, job.getExpiry());
 
             } else {
-                jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash, job.getLabels());
+                jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(),
+                        job.getExternalData(), jobHash, job.getLabels(), job.getExpiry());
             }
 
             if (!jobCreated) {

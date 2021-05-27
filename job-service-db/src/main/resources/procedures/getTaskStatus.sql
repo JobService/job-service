@@ -59,10 +59,11 @@ BEGIN
                 CASE status
                     WHEN 'Failed' THEN 1
                     WHEN 'Cancelled' THEN 2
-                    WHEN 'Paused' THEN 3
-                    WHEN 'Active' THEN 4
-                    WHEN 'Waiting' THEN 5
-                    WHEN 'Completed' THEN 6
+                    WHEN 'Expired' THEN 3
+                    WHEN 'Paused' THEN 4
+                    WHEN 'Active' THEN 5
+                    WHEN 'Waiting' THEN 6
+                    WHEN 'Completed' THEN 7
                 END AS importance
                 FROM
                 (

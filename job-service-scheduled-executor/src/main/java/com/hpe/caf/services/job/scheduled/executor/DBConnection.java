@@ -29,12 +29,12 @@ public final class DBConnection
     private DBConnection()
     {
     }
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(DBConnection.class);
-    
+
     private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
     private static final String JDBC_DRIVER = "org.postgresql.Driver";
-    
+
     public static Connection get() throws ScheduledExecutorException
     {
         final String databaseUrl = ScheduledExecutorConfig.getDatabaseURL();
@@ -44,14 +44,14 @@ public final class DBConnection
                 ScheduledExecutorConfig.getApplicationName() != null ? ScheduledExecutorConfig
                         .getApplicationName()
                         : "Job Service Scheduled Executor";
-        
+
         // Only JDBC/PostgreSQL connections are supported.
         if(!databaseUrl.startsWith(JDBC_POSTGRESQL_PREFIX))
         {
             throw new ScheduledExecutorException(
                     "Invalid database url string format - must start with jdbc:postgresql:");
         }
-        
+
         try
         {
             LOG.debug("Registering JDBC driver \"{}\" ...", JDBC_DRIVER);
@@ -65,7 +65,7 @@ public final class DBConnection
             LOG.error(errorMessage);
             throw new ScheduledExecutorException(errorMessage, e);
         }
-        
+
         final Connection conn;
         try
         {
@@ -91,7 +91,7 @@ public final class DBConnection
             LOG.error(errorMessage);
             throw new ScheduledExecutorException(errorMessage);
         }
-        
+
         return conn;
     }
 }

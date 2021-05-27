@@ -35,6 +35,7 @@ public class NewJob   {
 
     private String name = null;
     private String description = null;
+    private ExpirationPolicy expiry = null;
     /**
      * @deprecated 21/01/2020 - Replaced by labels functionality.
      */
@@ -83,6 +84,19 @@ public class NewJob   {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    /**
+     **/
+
+    @ApiModelProperty(value = "")
+    @JsonProperty("expiry")
+    public ExpirationPolicy getExpiry() {
+        return expiry;
+    }
+    public void setExpiry(ExpirationPolicy expiry) {
+        this.expiry = expiry;
+    }
+
 
 
     /**
@@ -221,6 +235,7 @@ public class NewJob   {
         NewJob newJob = (NewJob) o;
         return Objects.equals(name, newJob.name) &&
                 Objects.equals(description, newJob.description) &&
+                Objects.equals(expiry, newJob.expiry) &&
                 Objects.equals(externalData, newJob.externalData) &&
                 Objects.equals(task, newJob.task) &&
                 Objects.equals(prerequisiteJobIds, newJob.prerequisiteJobIds) &&
@@ -229,7 +244,7 @@ public class NewJob   {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, externalData, task, prerequisiteJobIds, delay);
+        return Objects.hash(name, description, expiry, externalData, task, prerequisiteJobIds, delay);
     }
 
     @Override
@@ -239,6 +254,7 @@ public class NewJob   {
 
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    description: ").append(toIndentedString(description)).append("\n");
+        sb.append("    expiry: ").append(toIndentedString(expiry)).append("\n");
         sb.append("    externalData: ").append(toIndentedString(externalData)).append("\n");
         sb.append("    task: ").append(toIndentedString(task)).append("\n");
         sb.append("    prerequisiteJobIds: ").append(toIndentedString(prerequisiteJobIds)).append("\n");
