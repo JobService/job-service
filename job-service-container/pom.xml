@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>4.0.0-SNAPSHOT</version>
+        <version>4.1.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -516,6 +516,7 @@
                                     <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
                                     <SSL_TOMCAT_CA_CERT_LOCATION>/test-keystore/tomcat.keystore</SSL_TOMCAT_CA_CERT_LOCATION>
                                     <CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR>/test-job-type-definitions</CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR>
+                                    <CAF_JOB_SERVICE_RESUME_JOB_QUEUE>worker-taskunstowing-in</CAF_JOB_SERVICE_RESUME_JOB_QUEUE>
 
                                     <CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE>basic task-pipe</CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE>
                                     <CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE>basic target-pipe</CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE>

@@ -22,6 +22,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.anyInt;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -136,6 +137,7 @@ public final class JobsPutTest {
         newEnv.put("JOB_SERVICE_DATABASE_USERNAME","testUserName");
         newEnv.put("JOB_SERVICE_DATABASE_PASSWORD","testPassword");
         newEnv.put("JOB_SERVICE_DATABASE_APPNAME","testAppName");
+        newEnv.put("CAF_JOB_SERVICE_RESUME_JOB_QUEUE", "testResumeJobQueue");
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         // by default, set up a single job type with id 'basic'
@@ -149,7 +151,7 @@ public final class JobsPutTest {
         JobTypes.initialise(() -> Collections.singletonList(basicJobType));
 
         //  Mock QueueServices calls.
-        doNothing().when(mockQueueServices).sendMessage(any(), any(), any(), any());
+        doNothing().when(mockQueueServices).sendMessage(any(), any(), any(), any(), anyBoolean());
         PowerMockito.whenNew(QueueServices.class).withArguments(any(),any(),anyString(),any()).thenReturn(mockQueueServices);
 
         //  Mock QueueServicesFactory calls.
@@ -261,7 +263,7 @@ public final class JobsPutTest {
         final ArgumentCaptor<WorkerAction> workerActionCaptor =
             ArgumentCaptor.forClass(WorkerAction.class);
         verify(mockQueueServices, times(1))
-            .sendMessage(eq("partition"), eq("id"), workerActionCaptor.capture(), any());
+            .sendMessage(eq("partition"), eq("id"), workerActionCaptor.capture(), any(), anyBoolean());
 
         final WorkerAction workerAction = workerActionCaptor.getValue();
         assertEquals(Collections.singletonMap("key", "val"), workerAction.getTaskData());

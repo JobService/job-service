@@ -25,6 +25,7 @@ import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.services.job.jobtype.JobTypes;
@@ -211,7 +212,7 @@ public final class JobsPut {
             try {
                 QueueServices queueServices = QueueServicesFactory.create(config, jobTask.getTaskPipe(),codec);
                 LOG.debug("createOrUpdateJob: Sending task data to the target queue...");
-                queueServices.sendMessage(partitionId, jobId, jobTask, config);
+                queueServices.sendMessage(partitionId, jobId, jobTask, config, true);
                 closeQueueConnection(queueServices);
             } catch (final IOException | TimeoutException ex) {
                 //  Failure adding job data to queue. Update the job with the failure details.
@@ -227,7 +228,7 @@ public final class JobsPut {
                 databaseHelper.reportFailure(partitionId, jobId, mapper.writeValueAsString(f));
 
                 //  Throw error message to user.
-                throw new Exception("Failed to add task data to the queue", ex);
+                throw new ServiceUnavailableException("Failed to add task data to the queue", ex);
             }
 
             LOG.debug("createOrUpdateJob: Done.");
