@@ -26,12 +26,7 @@ import org.slf4j.LoggerFactory;
 public class ApplyJobExpirationPolicyTask implements Runnable{
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplyJobExpirationPolicyTask.class);
-    private static final boolean PROP_DEPENDENT_JOB_FAILURES;
-
-    static {
-        final String propagateDependentJobFailures = System.getenv("CAF_JOB_SCHEDULER_PROPAGATE_FAILURES");
-        PROP_DEPENDENT_JOB_FAILURES = propagateDependentJobFailures != null ? Boolean.parseBoolean(propagateDependentJobFailures) : false;
-    }
+    private static final boolean PROP_DEPENDENT_JOB_FAILURES = true;
 
     @Override
     public void run()
