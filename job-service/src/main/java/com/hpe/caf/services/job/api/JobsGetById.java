@@ -15,9 +15,9 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.api.generated.model.Job;
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,10 @@ public final class JobsGetById {
             job = databaseHelper.getJob(partitionId, jobId);
 
             LOG.debug("getJobById: Done.");
-            LOG.info("Job progress {}/{} status {}  progression {}", partitionId, jobId, job.getStatus(), job.getPercentageComplete());
+            if (null != job) {
+                LOG.info("Job progress {}/{} status {}  progression {}", partitionId, jobId, job.getStatus(),
+                        job.getPercentageComplete());
+            }
             return job;
 
         } catch (Exception e) {
