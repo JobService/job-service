@@ -20,74 +20,73 @@
  *  Description:
  *  Expires or deletes jobs in accordance with their expiry policies.
  */
-CREATE OR REPLACE PROCEDURE apply_job_expiration_policy(
+CREATE OR REPLACE
+    PROCEDURE apply_job_expiration_policy(
     in_propagate_failures BOOLEAN
 )
-LANGUAGE plpgsql
-AS $$
+LANGUAGE plpgsql AS
+$$
 BEGIN
+    -- First, we get the latest job status by calling get_job() --> 'latest_status'
+    -- Second, we get the expiration policy matching that status --> 'current_job_status_and_policy'
+    -- Third, we calculate the expiration time for the current policy (filtering when not specified ie:'none', NULL),
+    --      returning a boolean --> 'expired_jobs'
+    -- Fourth, we call delete_or_expire_job() for each 'expired job' --> 'expiring_action'
     PERFORM NULL
     FROM (
-           SELECT *
-           FROM (
-               SELECT p_id,
-                      j_id,
-                      j_operation,
-                      jep.expiration_time AS j_expiration_time,
-                      -- Whenever there is a "related date" provided (to create_date or last_update_date)
-                      -- we calculate the expiration_date and check if it's expired, returning a boolean
-                      CASE
-                             WHEN jep.expiration_time IS NOT NULL
-                             AND LEFT(jep.expiration_time, 1) = 'l' THEN (
-                                     ( j_last_update_date + split_part(jep.expiration_time, '+', 2)::INTERVAL
-                                    )::timestamp
-                                ) <= now() AT TIME ZONE 'UTC'
-                             WHEN jep.expiration_time IS NOT NULL
-                             AND LEFT(jep.expiration_time, 1) = 'c' THEN (
-                                     ( j_create_date + split_part(jep.expiration_time, '+', 2)::INTERVAL
-                                     )::timestamp
-                                ) <= now() AT TIME ZONE 'UTC'
-                             ELSE (
-                                    jep.expiration_time::timestamp
-                                  ) <= now() AT TIME ZONE 'UTC'
-                             END                expired
-               FROM (
-                     SELECT *
-                     FROM (
-                             SELECT j.partition_id     AS p_id,
-                                    j.job_id           AS j_id,
-                                    jep.job_status     AS j_status,
-                                    jep.operation      AS j_operation,
-                                    j.last_update_date AS j_last_update_date,
-                                    j.create_date      AS j_create_date
-                             FROM job j
-                             INNER JOIN job_expiration_policy jep ON
-                             j.partition_id = jep.partition_id
-                             AND j.job_id = jep.job_id
-                          ) t1
-                     -- We make sure that we get the latest status for the job
-                     CROSS JOIN LATERAL (
-                             SELECT status AS current_status
-                             FROM get_job( p_id, j_id )
-                             LIMIT 1
-                     ) t2
-                     WHERE j_status = current_status
-               ) t3
-               INNER JOIN job_expiration_policy jep ON
-                   p_id = jep.partition_id
-                   AND j_id = jep.job_id
-                   AND j_status = jep.job_status
-                   ) T4
-               WHERE expired IS TRUE
-                   AND LEFT(j_expiration_time, 4) != 'none'
-                   AND j_expiration_time IS NOT NULL
-         ) t5
-    CROSS JOIN LATERAL (
+             SELECT *
+             FROM (
+                      SELECT job.partition_id      AS p_id,
+                             job.job_id            AS j_id,
+                             jep.operation       AS j_operation,
+
+                             -- Whenever there is a "related date" provided (to create_date or last_update_date)
+                             -- we calculate the expiration_date and check if it's expired, returning a boolean
+
+                             CASE
+                                 WHEN expiration_time IS NOT NULL
+                                     AND LEFT(expiration_time, 1) = 'l' THEN (
+                                        (
+                                             last_update_date + split_part(expiration_time, '+', 2)::INTERVAL
+                                        )::timestamp
+                                     ) <= now() AT TIME ZONE 'UTC'
+                                 WHEN expiration_time IS NOT NULL
+                                     AND LEFT(expiration_time, 1) = 'c' THEN (
+                                        (
+                                             create_date + split_part(expiration_time, '+', 2)::INTERVAL
+                                        )::timestamp
+                                     ) <= now() AT TIME ZONE 'UTC'
+                                 ELSE (
+                                          expiration_time::timestamp
+                                          ) <= now() AT TIME ZONE 'UTC'
+                                 END                expired
+                      FROM job
+                               CROSS JOIN LATERAL (
+                          -- Getting the latest status
+                          SELECT status AS current_status
+                          FROM
+                              get_job(
+                                      partition_id, job_id
+                                  )
+                          LIMIT 1
+                          ) latest_status
+                          -- Joining where the policy status matched the current status
+                               INNER JOIN job_expiration_policy jep ON
+                                  job.partition_id = jep.partition_id
+                              AND job.job_id = jep.job_id
+                              AND current_status = jep.job_status
+                      WHERE LEFT(expiration_time, 4) != 'none'
+                        AND expiration_time IS NOT NULL
+                  ) current_job_status_and_policy
+             -- Selecting only the expired jobs
+             WHERE expired IS TRUE
+         ) expired_jobs
+             CROSS JOIN LATERAL (
         SELECT NULL
-        FROM
-            delete_or_expire_job(
-                    p_id, j_id, j_operation, in_propagate_failures
-                )
-    ) t6;
+        FROM delete_or_expire_job(
+                     p_id, j_id, j_operation, in_propagate_failures
+                 ) expiring_action
+        ) global_selection;
 END;
+
 $$;
