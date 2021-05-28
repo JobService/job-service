@@ -69,7 +69,7 @@ public class HealthCheck extends HttpServlet
         if (isHealthy) {
             res.setStatus(200);
         } else {
-            res.setStatus(500);
+            res.setStatus(503);
         }
 
         //  Output response body.
