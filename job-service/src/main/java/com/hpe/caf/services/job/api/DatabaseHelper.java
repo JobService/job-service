@@ -273,8 +273,11 @@ public final class DatabaseHelper
      * Creates the specified job.
      * @return Whether the job was created
      */
-    public boolean createJob(final String partitionId, String jobId, String name, String description, String data,
-                             int jobHash, final Map<String, String> labels) throws Exception {
+    public boolean createJob(final String partitionId, final String jobId, final String name, final String description,
+            final String data, final int jobHash, final String taskClassifier,
+            final int taskApiVersion, final byte[] taskData, final String taskPipe,
+            final String targetPipe, final int delay, final Map<String, String> labels,
+            final boolean partitionSuspended) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?)}")
