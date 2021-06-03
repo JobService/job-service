@@ -278,9 +278,14 @@ public final class DatabaseHelper
             final int taskApiVersion, final byte[] taskData, final String taskPipe,
             final String targetPipe, final int delay, final Map<String, String> labels,
             final boolean partitionSuspended) throws Exception {
+        LOG.info("partition {} jobID {} name {} description {}" +
+                "data {} jobhash {} taskClassifier {} taskApiVersion {} taskData {} taskPipe {}" +
+                " targetPipe {}  delay {} labels {} partitionSuspended {}",
+                partitionId, jobId, name, description, data, jobHash, taskClassifier, taskApiVersion, taskData, taskPipe, targetPipe,
+                delay, labels, partitionSuspended);
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
             final List<String[]> labelArray = buildLabelSqlArray(labels);
 
@@ -290,6 +295,12 @@ public final class DatabaseHelper
             stmt.setString(4,description);
             stmt.setString(5,data);
             stmt.setInt(6,jobHash);
+            stmt.setString(7,taskClassifier);
+            stmt.setInt(8,taskApiVersion);
+            stmt.setBytes(9,taskData);
+            stmt.setString(10,taskPipe);
+            stmt.setString(11,targetPipe);
+            stmt.setInt(12,delay);
 
             Array array;
             if (!labelArray.isEmpty()) {
@@ -297,7 +308,8 @@ public final class DatabaseHelper
             } else {
                 array = conn.createArrayOf("VARCHAR", new String[0]);
             }
-            stmt.setArray(7, array);
+            stmt.setArray(13, array);
+            stmt.setBoolean(14, partitionSuspended);
             try {
                 return callCreateJobFunction(stmt);
             } finally {

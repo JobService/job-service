@@ -15,6 +15,8 @@
  */
 package com.hpe.caf.worker.jobtracking;
 
+import java.nio.charset.StandardCharsets;
+import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import org.json.JSONObject;
@@ -59,13 +62,25 @@ public class JobDatabase {
         int jobHash = random.nextInt();
 
         try(Connection connection = getConnection();
-            CallableStatement stmt = connection.prepareCall("{call create_job(?,?,?,?,?,?)}")) {
+            CallableStatement stmt = connection.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")) {
+
             stmt.setString(1, partitionId);
-            stmt.setString(2, jobId);
-            stmt.setString(3, name);
-            stmt.setString(4, description);
-            stmt.setString(5, data);
-            stmt.setInt(6, jobHash);
+            stmt.setString(2,jobId);
+            stmt.setString(3,name);
+            stmt.setString(4,description);
+            stmt.setString(5,data);
+            stmt.setInt(6,jobHash);
+            stmt.setString(7,"taskClassifier");
+            stmt.setInt(8,1);
+            stmt.setBytes(9,"taskData".getBytes(StandardCharsets.UTF_8));
+            stmt.setString(10,"task_Pipe");
+            stmt.setString(11,"target_Pipe");
+            stmt.setInt(12,0);
+
+            Array labelArray = connection.createArrayOf("VARCHAR", new String[0]);
+
+            stmt.setArray(13, labelArray);
+            stmt.setBoolean(14, false);
             LOG.info("Creating job {}", jobId);
             stmt.execute();
         }

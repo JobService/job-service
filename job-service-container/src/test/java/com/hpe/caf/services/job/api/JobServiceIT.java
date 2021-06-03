@@ -126,6 +126,7 @@ public class JobServiceIT {
         newJob.setDescription(jobName + " Descriptive Text.");
         newJob.setExternalData(jobName + " External data.");
         newJob.setTask(workerActionTask);
+        newJob.setDelay(0);
 
         return newJob;
     }
