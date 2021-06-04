@@ -97,9 +97,11 @@ BEGIN
         in_delay = 0;
     END IF;
 
-    IF NOT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, 0, in_job_hash, in_labels) THEN
+    IF NOT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, in_delay, in_job_hash, in_labels) THEN
         RETURN QUERY SELECT FALSE;
-    ELSE
+        RETURN;
+    END IF;
+
         INSERT INTO public.job_task_data(
             partition_id,
             job_id,
@@ -109,7 +111,8 @@ BEGIN
             task_pipe,
             target_pipe,
             eligible_to_run_date,
-            suspended
+            suspended,
+            type
         ) VALUES (
                      in_partition_id,
                      in_job_id,
@@ -118,13 +121,10 @@ BEGIN
                      in_task_data,
                      in_task_pipe,
                      in_target_pipe,
-                     now() AT TIME ZONE 'UTC',
-                     in_suspended_partition
+                     CASE WHEN NOT FOUND THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') END,
+                     in_suspended_partition,
+                     'Not Depending'
                  );
-    END IF;
-
-
-
 
     RETURN QUERY SELECT TRUE;
 
