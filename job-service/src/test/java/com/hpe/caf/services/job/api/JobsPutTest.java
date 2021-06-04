@@ -65,10 +65,7 @@ public final class JobsPutTest {
     private DatabaseHelper mockDatabaseHelper;
     @Mock
     private QueueServices mockQueueServices;
-    @Mock
-    private QueueServicesFactory mockQueueServicesFactory;
 
-    private NewJob baseJob;
     private HashMap <String,Object> testDataObjectMap;
     private HashMap <String,String> taskMessageParams;
     private JobType basicJobType;
@@ -145,7 +142,6 @@ public final class JobsPutTest {
         JobTypes.initialise(() -> Collections.singletonList(basicJobType));
 
         //  Mock QueueServices calls.
-        doNothing().when(mockQueueServices).sendMessage(any(), any(), any(), any(), anyBoolean());
         PowerMockito.whenNew(QueueServices.class).withArguments(any(),any(),anyString(),any()).thenReturn(mockQueueServices);
 
         //  Mock QueueServicesFactory calls.
@@ -179,7 +175,6 @@ public final class JobsPutTest {
         verify(mockDatabaseHelper, times(1))
             .createJob(eq("partition"), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
                     anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), Matchers.eq(false));
-        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any(), anyBoolean());
         assertEquals("create", result);
     }
 
@@ -197,7 +192,6 @@ public final class JobsPutTest {
             .createJob(
                     anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
                     anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), Matchers.eq(false));
-        verify(mockQueueServices, times(0)).sendMessage(any(), any(), any(), any(), anyBoolean());
         assertEquals("update", result);
     }
 
@@ -260,8 +254,6 @@ public final class JobsPutTest {
                     anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), Matchers.eq(false));
         final ArgumentCaptor<WorkerAction> workerActionCaptor =
             ArgumentCaptor.forClass(WorkerAction.class);
-        verify(mockQueueServices, times(1))
-            .sendMessage(eq("partition"), eq("id"), workerActionCaptor.capture(), any(), anyBoolean());
 
         final WorkerAction workerAction = workerActionCaptor.getValue();
         assertEquals(Collections.singletonMap("key", "val"), workerAction.getTaskData());
@@ -317,7 +309,6 @@ public final class JobsPutTest {
         verify(mockDatabaseHelper, times(1)).createJob(
                 anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
                 anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), Matchers.eq(false));
-        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any(), anyBoolean());
     }
 
     @Test

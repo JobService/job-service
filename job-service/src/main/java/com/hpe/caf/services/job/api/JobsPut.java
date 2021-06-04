@@ -208,48 +208,12 @@ public final class JobsPut {
                 return "create";
             }
 
-            sendingToMessageQueue(partitionId, jobId, jobTask, codec, config, databaseHelper);
-
             LOG.debug("createOrUpdateJob: Done.");
 
             return "create";
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;
-        }
-    }
-
-    private static void sendingToMessageQueue(String partitionId, String jobId, WorkerAction jobTask, Codec codec, AppConfig config, DatabaseHelper databaseHelper) throws Exception {
-        //  Get database helper instance.
-        try {
-            QueueServices queueServices = QueueServicesFactory.create(config, jobTask.getTaskPipe(), codec);
-            LOG.debug("createOrUpdateJob: Sending task data to the target queue...");
-            queueServices.sendMessage(partitionId, jobId, jobTask, config, true);
-            closeQueueConnection(queueServices);
-        } catch (final IOException | TimeoutException ex) {
-            //  Failure adding job data to queue. Update the job with the failure details.
-            Failure f = new Failure();
-            f.setFailureId("ADD_TO_QUEUE_FAILURE");
-            f.setFailureTime(new Date());
-            f.failureSource("Job Service - PUT /partitions/{"+ partitionId +"}/jobs/{"+ jobId +"}");
-            f.failureMessage(ex.getMessage());
-
-            ObjectMapper mapper = new ObjectMapper();
-            final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-            mapper.setDateFormat(df);
-            databaseHelper.reportFailure(partitionId, jobId, mapper.writeValueAsString(f));
-
-            //  Throw error message to user.
-            throw new ServiceUnavailableException("Failed to add task data to the queue", ex);
-        }
-    }
-
-    private static void closeQueueConnection(final QueueServices queueServices)
-    {
-        try {
-            queueServices.close();
-        } catch (final Exception e) {
-            LOG.warn("Error on connection close to RabbitMQ", e);
         }
     }
 
