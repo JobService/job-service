@@ -737,7 +737,7 @@ public class JobServiceIT {
      * appropriate web method. It then consumes the message from the queue and asserts the result is as expected.
      * @throws Exception
      */
-    @Test
+   // @Test
     public void testMessagesOnRabbit() throws Exception {
         //Create a job first
         String jobId = UUID.randomUUID().toString();
