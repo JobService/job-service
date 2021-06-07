@@ -802,50 +802,35 @@ public class JobServiceIT {
 
         final Job databaseJob = jobsApi.getJob(defaultPartitionId, jobId, correlationId);
         assertEquals(databaseJob.getId(), jobId, "job ID in database should be correct");
-        LOG.info("1");
         assertEquals(databaseJob.getName(), newJob.getName(), "name in database should be correct");
-        LOG.info("2");
         assertEquals(databaseJob.getDescription(), newJob.getDescription(),
             "description in database should be correct");
-        LOG.info("3");
         assertEquals(databaseJob.getExternalData(), newJob.getExternalData(),
             "external data in database should be correct");
-        LOG.info("4");
         final TaskMessage messageTask = messageRetriever.get();
         assertEquals(messageTask.getTaskClassifier(), "basic classifier",
             "classifier in message should come from job type definition");
-        LOG.info("5");
         assertEquals(messageTask.getTaskApiVersion(), 74,
             "API version in message should come from job type definition");
-        LOG.info("6");
         assertEquals(messageTask.getTo(), "basic task-pipe",
             "task pipe in message should come from configuration");
-        LOG.info("7");
         assertEquals(messageTask.getTracking().getTrackTo(), "basic target-pipe",
             "target pipe in message should come from configuration");
-        LOG.info("8");
 
         final JobTypeTestTaskData messageTaskData =
             objectMapper.readValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
-        LOG.info("9");
         assertEquals(messageTaskData.config.size(), 2,
             "configuration passed to task data script should contain 2 items: TASK_PIPE and TARGET_PIPE");
-        LOG.info("10");
         assertEquals(messageTaskData.taskQueue, "basic task-pipe",
             "task pipe passed to task data script should come from configuration");
-        LOG.info("11");
         assertEquals(messageTaskData.targetQueue, "basic target-pipe",
             "target pipe passed to task data script should come from configuration");
-        LOG.info("12");
         assertEquals(messageTaskData.partitionIdent, defaultPartitionId,
             "partition ID passed to task data script should come from request");
-        LOG.info("13");
         assertEquals(messageTaskData.jobIdent, jobId,
             "job ID passed to task data script should come from request");
-        LOG.info("14");
         assertNull(messageTaskData.reqParams,
             "parameters passed to task data script should be null when not provided with request");
-        LOG.info("15");
     }
 
     @Test
