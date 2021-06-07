@@ -62,7 +62,7 @@ public class JobDatabase {
         int jobHash = random.nextInt();
 
         try(Connection connection = getConnection();
-            CallableStatement stmt = connection.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")) {
+            CallableStatement stmt = connection.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?)}")) {
 
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
@@ -80,7 +80,6 @@ public class JobDatabase {
             Array labelArray = connection.createArrayOf("VARCHAR", new String[0]);
 
             stmt.setArray(13, labelArray);
-            stmt.setBoolean(14, false);
             LOG.info("Creating job {}", jobId);
             stmt.execute();
         }

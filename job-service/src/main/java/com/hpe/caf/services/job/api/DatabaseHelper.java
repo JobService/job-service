@@ -276,16 +276,15 @@ public final class DatabaseHelper
     public boolean createJob(final String partitionId, final String jobId, final String name, final String description,
             final String data, final int jobHash, final String taskClassifier,
             final int taskApiVersion, final byte[] taskData, final String taskPipe,
-            final String targetPipe, final int delay, final Map<String, String> labels,
-            final boolean partitionSuspended) throws Exception {
+            final String targetPipe, final int delay, final Map<String, String> labels) throws Exception {
         LOG.info("partition {} jobID {} name {} description {}" +
                 "data {} jobhash {} taskClassifier {} taskApiVersion {} taskData {} taskPipe {}" +
                 " targetPipe {}  delay {} labels {} partitionSuspended {}",
                 partitionId, jobId, name, description, data, jobHash, taskClassifier, taskApiVersion, taskData, taskPipe, targetPipe,
-                delay, labels, partitionSuspended);
+                delay, labels, false);
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
             final List<String[]> labelArray = buildLabelSqlArray(labels);
 
@@ -309,7 +308,6 @@ public final class DatabaseHelper
                 array = conn.createArrayOf("VARCHAR", new String[0]);
             }
             stmt.setArray(13, array);
-            stmt.setBoolean(14, partitionSuspended);
             try {
                 return callCreateJobFunction(stmt);
             } finally {

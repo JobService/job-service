@@ -197,7 +197,7 @@ public final class JobsPut {
                 jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
-                        job.getDelay(), job.getLabels(), partitionSuspended);
+                        job.getDelay(), job.getLabels());
             }
 
             if (!jobCreated) {

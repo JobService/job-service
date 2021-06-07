@@ -53,8 +53,7 @@ CREATE OR REPLACE FUNCTION create_job(
     in_task_pipe VARCHAR(255),
     in_target_pipe VARCHAR(255),
     in_delay INT,
-    in_labels VARCHAR(255)[][] default null,
-    in_suspended_partition BOOLEAN default false
+    in_labels VARCHAR(255)[][] default null
 )
 RETURNS TABLE(
     job_created BOOLEAN
@@ -111,7 +110,6 @@ BEGIN
             task_pipe,
             target_pipe,
             eligible_to_run_date,
-            suspended,
             type
         ) VALUES (
                      in_partition_id,
@@ -122,7 +120,6 @@ BEGIN
                      in_task_pipe,
                      in_target_pipe,
                      CASE WHEN NOT FOUND THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') END,
-                     in_suspended_partition,
                      'Not Depending'
                  );
 
