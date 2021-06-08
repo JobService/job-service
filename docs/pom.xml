@@ -193,7 +193,7 @@
                             <goal>wget</goal>
                         </goals>
                         <configuration>
-                            <retries>3</retries>
+                            <retries>7</retries>
                             <outputFileName>${project.build.finalName}.tar.gz</outputFileName>
                             <overwrite>true</overwrite>
                             <skipCache>true</skipCache>
