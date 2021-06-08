@@ -438,7 +438,6 @@
                             </build>
                         </image>
 
-
                         <image>
                             <alias>job-service</alias>
                             <name>${dockerJobServiceOrg}job-service${dockerProjectVersion}</name>

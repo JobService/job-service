@@ -807,6 +807,7 @@ public class JobServiceIT {
             "description in database should be correct");
         assertEquals(databaseJob.getExternalData(), newJob.getExternalData(),
             "external data in database should be correct");
+
         final TaskMessage messageTask = messageRetriever.get();
         assertEquals(messageTask.getTaskClassifier(), "basic classifier",
             "classifier in message should come from job type definition");

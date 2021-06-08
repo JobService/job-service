@@ -181,7 +181,6 @@ public class JobServiceDatabaseUtil
             // Verify job task data row does not exist.
             st.setString(1, jobId);
             final ResultSet jobTaskDataRS = st.executeQuery();
-            LOG.info("jobTaskDataRS {}", jobTaskDataRS.next());
             Assert.assertTrue(!jobTaskDataRS.next(), "Job "+jobId+" should not exist in job_task_data table");
             jobTaskDataRS.close();
         }
