@@ -200,6 +200,7 @@
                         </configuration>
                     </execution>
                 </executions>
+                <retryFailedDeploymentCount>3</retryFailedDeploymentCount>
             </plugin>
 
             <!-- In this project, only include the project file itself when checking license headers -->
