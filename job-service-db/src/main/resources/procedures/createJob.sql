@@ -109,19 +109,17 @@ BEGIN
             task_data,
             task_pipe,
             target_pipe,
-            eligible_to_run_date,
-            type
+            eligible_to_run_date
         ) VALUES (
-                     in_partition_id,
-                     in_job_id,
-                     in_task_classifier,
-                     in_task_api_version,
-                     in_task_data,
-                     in_task_pipe,
-                     in_target_pipe,
-                     CASE WHEN NOT FOUND THEN now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second') END,
-                     'Not Depending'
-                 );
+            in_partition_id,
+            in_job_id,
+            in_task_classifier,
+            in_task_api_version,
+            in_task_data,
+            in_task_pipe,
+            in_target_pipe,
+            now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second')
+        );
 
     RETURN QUERY SELECT TRUE;
 

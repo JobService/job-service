@@ -81,7 +81,6 @@ BEGIN
     IF in_task_data IS NULL THEN
         RAISE EXCEPTION 'Job taskData has not been specified' USING ERRCODE = '02000'; -- sqlstate no data
     END IF;
-
     -- Raise exception if job taskPipe has not been specified
     IF in_task_pipe IS NULL OR in_task_pipe = '' THEN
         RAISE EXCEPTION 'Job taskPipe has not been specified' USING ERRCODE = '02000'; -- sqlstate no data

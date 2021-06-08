@@ -35,7 +35,6 @@ BEGIN
         SELECT 1 FROM job_task_data as jtd
         WHERE jtd.partition_id = in_partition_id
             AND jtd.job_id = in_job_id
-            AND jtd.type = 'Depending'
     );
 END
 $$;

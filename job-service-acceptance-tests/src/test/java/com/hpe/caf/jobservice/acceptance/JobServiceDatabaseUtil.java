@@ -176,12 +176,12 @@ public class JobServiceDatabaseUtil
             throws SQLException
     {
         try (final Connection dbConnection = getDbConnection();
-             final PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ? AND type " +
-                     "='Depending'")) {
+             final PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?")) {
 
             // Verify job task data row does not exist.
             st.setString(1, jobId);
             final ResultSet jobTaskDataRS = st.executeQuery();
+            LOG.info("jobTaskDataRS {}", jobTaskDataRS.next());
             Assert.assertTrue(!jobTaskDataRS.next(), "Job "+jobId+" should not exist in job_task_data table");
             jobTaskDataRS.close();
         }
@@ -193,7 +193,7 @@ public class JobServiceDatabaseUtil
         try (final Connection dbConnection = getDbConnection()) {
 
             //  Verify job task data row has been removed.
-            PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ? AND type ='Depending'");
+            PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?");
             st.setString(1, jobId);
             final ResultSet jobTaskDataRS = st.executeQuery();
             Assert.assertTrue(!jobTaskDataRS.next(), "Job "+jobId+" was not removed from job_task_data table.");

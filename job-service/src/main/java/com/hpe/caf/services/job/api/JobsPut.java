@@ -15,34 +15,22 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
+import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigProvider;
-import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
-import com.hpe.caf.services.job.queue.QueueServices;
-import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.services.job.jobtype.JobTypes;
 import com.hpe.caf.util.ModuleLoader;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -75,6 +63,7 @@ public final class JobsPut {
      */
     public static String createOrUpdateJob(final String partitionId, String jobId, NewJob job) throws Exception {
         try {
+            final boolean hasDependencies;
             LOG.debug("createOrUpdateJob: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
 
@@ -188,12 +177,14 @@ public final class JobsPut {
                     partitionSuspended ? "suspended partition" : "partition", partitionId);
             final boolean jobCreated;
             if ((job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) || partitionSuspended) {
+                hasDependencies = true;
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
                         job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended);
 
             } else {
+                hasDependencies = false;
                 jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
@@ -204,7 +195,7 @@ public final class JobsPut {
                 return "update";
             }
 
-            if (!databaseHelper.canJobBeProgressed(partitionId, jobId)) {
+            if (hasDependencies && !databaseHelper.canJobBeProgressed(partitionId, jobId)) {
                 return "create";
             }
 

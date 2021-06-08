@@ -101,14 +101,4 @@
                                  referencedTableName="job"
                                  referencedColumnNames="partition_id, job_id" />
     </changeSet>
-    <changeSet id="create_job_type_enum_type" author="Gamma Team">
-        <sql>CREATE TYPE job_type AS ENUM ('Not Depending', 'Depending')</sql>
-    </changeSet>
-    <changeSet id="update_job_task_data_add_job_type" author="Gamma Team">
-        <addColumn schemaName="public" tableName="job_task_data">
-            <column name="type" type="job_type" defaultValue="Depending">
-                <constraints nullable="false"/>
-            </column>
-        </addColumn>
-    </changeSet>
 </databaseChangeLog>
