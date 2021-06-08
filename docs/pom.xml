@@ -193,6 +193,7 @@
                             <goal>wget</goal>
                         </goals>
                         <configuration>
+                            <retries>3</retries>
                             <outputFileName>${project.build.finalName}.tar.gz</outputFileName>
                             <overwrite>true</overwrite>
                             <skipCache>true</skipCache>
@@ -200,7 +201,6 @@
                         </configuration>
                     </execution>
                 </executions>
-                <retryFailedDeploymentCount>3</retryFailedDeploymentCount>
             </plugin>
 
             <!-- In this project, only include the project file itself when checking license headers -->
