@@ -184,7 +184,7 @@
             <plugin>
                 <groupId>com.googlecode.maven-download-plugin</groupId>
                 <artifactId>download-maven-plugin</artifactId>
-                <version>1.6.3</version>
+                <version>1.3.0</version>
                 <executions>
                     <execution>
                         <id>download-target-file</id>
@@ -193,6 +193,7 @@
                             <goal>wget</goal>
                         </goals>
                         <configuration>
+                            <retries>10</retries>
                             <outputFileName>${project.build.finalName}.tar.gz</outputFileName>
                             <overwrite>true</overwrite>
                             <skipCache>true</skipCache>
