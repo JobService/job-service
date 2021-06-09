@@ -82,8 +82,7 @@ BEGIN
     -- Update the task statuses in the tables
     PERFORM internal_report_task_status(in_partition_id, in_task_id, 'Failed', 0.00, in_failure_details);
 
-    IF in_propagate_failures THEN
-        PERFORM internal_process_failed_dependent_jobs(in_partition_id, v_job_id, in_failure_details);
-    END IF;
+    PERFORM internal_process_failed_dependent_jobs(in_partition_id, v_job_id, in_failure_details);
+
 END
 $$;
