@@ -42,13 +42,6 @@ public class DatabasePoller
 {
     private static final Logger LOG = LoggerFactory.getLogger(DatabasePoller.class);
 
-    private static final boolean PROP_DEPENDENT_JOB_FAILURES;
-
-    static {
-        final String propDepJoFailures = System.getenv("CAF_JOB_SCHEDULER_PROPAGATE_FAILURES");
-        PROP_DEPENDENT_JOB_FAILURES = propDepJoFailures != null ? Boolean.parseBoolean(propDepJoFailures) : false;
-    }
-
     public static void pollDatabaseForJobsToRun() {
         try {
             //  Poll database for prerequisite jobs that are now available to be run.
@@ -194,12 +187,11 @@ public class DatabasePoller
         */
         try (
                 Connection conn = DBConnection.get();
-                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2,jobTaskId);
             stmt.setString(3,failureDetails);
-            stmt.setBoolean(4, PROP_DEPENDENT_JOB_FAILURES);
 
             LOG.debug("Calling report_failure() database function...");
             stmt.execute();

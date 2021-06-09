@@ -39,11 +39,16 @@ DROP FUNCTION IF EXISTS report_failure(
     in_failure_details TEXT,
     in_propagate_failures BOOLEAN
 );
-CREATE OR REPLACE FUNCTION report_failure(
+DROP FUNCTION IF EXISTS report_failure(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(70),
     in_failure_details TEXT,
     in_propagate_failures BOOLEAN
+);
+CREATE OR REPLACE FUNCTION report_failure(
+    in_partition_id VARCHAR(40),
+    in_task_id VARCHAR(70),
+    in_failure_details TEXT
 )
 RETURNS VOID
 LANGUAGE plpgsql
