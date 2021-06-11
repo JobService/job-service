@@ -49,7 +49,7 @@ public final class QueueServicesFactory {
         try {
             //  Create connection and channel for publishing messages.
             connection = createConnection(configuration);
-        } catch (IOException | TimeoutException e) {
+        } catch (final IOException | TimeoutException e) {
             LOG.warn("Failed to create connection. Will retry", e);
             connection = createConnection(configuration);
         }
