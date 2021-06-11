@@ -20,18 +20,12 @@
  *  Description:
  *  Expires or deletes jobs in accordance with their expiry policies.
  */
-CREATE OR REPLACE
-    PROCEDURE apply_job_expiration_policy(
+CREATE OR REPLACE PROCEDURE apply_job_expiration_policy(
     in_propagate_failures BOOLEAN
 )
 LANGUAGE plpgsql AS
 $$
 BEGIN
-    -- First, we get the latest job status by calling get_job() --> 'latest_status'
-    -- Second, we get the expiration policy matching that status --> 'current_job_status_and_policy'
-    -- Third, we calculate the expiration time for the current policy (filtering when not specified ie:'none', NULL),
-    --      returning a boolean --> 'expired_jobs'
-    -- Fourth, we call delete_or_expire_job() for each 'expired job' --> 'expiring_action'
     PERFORM NULL
     FROM (
              SELECT *
