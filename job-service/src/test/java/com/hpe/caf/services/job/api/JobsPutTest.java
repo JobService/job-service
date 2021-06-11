@@ -165,8 +165,6 @@ public final class JobsPutTest {
     @Test
     public void testCreateJob_Success_NoMatchingJobRow() throws Exception {
 
-        when(mockDatabaseHelper.canJobBeProgressed(anyString(), anyString())).thenReturn(true);
-
         //  Test successful run of job creation when no matching job row exists.
         final String result = JobsPut.createOrUpdateJob(
             "partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", makeJob());
@@ -244,7 +242,6 @@ public final class JobsPutTest {
     }
 
     public void testCreateRestrictedJob_Success() throws Exception {
-        when(mockDatabaseHelper.canJobBeProgressed(anyString(), anyString())).thenReturn(true);
         JobsPut.createOrUpdateJob("partition", "id",
             makeRestrictedJob("basic", TextNode.valueOf("params")));
 
@@ -288,8 +285,6 @@ public final class JobsPutTest {
     @Test
     public void testJobCreationWithTaskData_Object() throws Exception
     {
-        when(mockDatabaseHelper.canJobBeProgressed(anyString(), anyString())).thenReturn(true);
-        
         NewJob job = new NewJob();
         WorkerAction action = new WorkerAction();
         job.setName("TestName");
@@ -313,8 +308,6 @@ public final class JobsPutTest {
     @Test
     public void testJobCreationWithPrerequisites() throws Exception
     {
-        when(mockDatabaseHelper.canJobBeProgressed(anyString(), anyString())).thenReturn(false);
-
         NewJob job = new NewJob();
         WorkerAction action = new WorkerAction();
         job.setName("TestName");
@@ -338,7 +331,6 @@ public final class JobsPutTest {
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
             anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false));
-        verify(mockDatabaseHelper, times(1)).canJobBeProgressed(anyString(), anyString());
     }
 
     @Test
@@ -359,7 +351,6 @@ public final class JobsPutTest {
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
             anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false));
-        verify(mockDatabaseHelper, times(0)).canJobBeProgressed(anyString(), anyString());
     }
 
     

@@ -401,34 +401,6 @@ public final class DatabaseHelper
         }
     }
 
-    /**
-     * Returns TRUE if the specified job id can be progressed, otherwise FALSE.
-     */
-    public boolean canJobBeProgressed(final String partitionId, final String jobId) throws Exception
-    {
-
-        boolean canBeProgressed = true;
-
-        try (
-                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_job_can_be_progressed(?,?)}")
-        ) {
-            stmt.setString(1, partitionId);
-            stmt.setString(2, jobId);
-
-            //  Execute a query to determine if the specified job can be progressed.
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
-                canBeProgressed = rs.getBoolean("can_be_progressed");
-            }
-
-        } catch (final SQLException se) {
-            throwIfUnexpectedException(se);
-        }
-
-        return canBeProgressed;
-    }
-
     public Job.StatusEnum getJobStatus(final String partitionId, final String jobId) throws Exception
     {
         try (

@@ -63,7 +63,6 @@ public final class JobsPut {
      */
     public static String createOrUpdateJob(final String partitionId, String jobId, NewJob job) throws Exception {
         try {
-            final boolean hasDependencies;
             LOG.debug("createOrUpdateJob: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
 
@@ -177,14 +176,12 @@ public final class JobsPut {
                     partitionSuspended ? "suspended partition" : "partition", partitionId);
             final boolean jobCreated;
             if ((job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) || partitionSuspended) {
-                hasDependencies = true;
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
                         job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended);
 
             } else {
-                hasDependencies = false;
                 jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
@@ -193,10 +190,6 @@ public final class JobsPut {
 
             if (!jobCreated) {
                 return "update";
-            }
-
-            if (hasDependencies && !databaseHelper.canJobBeProgressed(partitionId, jobId)) {
-                return "create";
             }
 
             LOG.debug("createOrUpdateJob: Done.");
