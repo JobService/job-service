@@ -68,7 +68,8 @@ public final class JobsGetById {
             if (null != job) {
                 LOG.info("Job progress {}/{} status {}  progression {}", partitionId, jobId, job.getStatus(),
                         job.getPercentageComplete());
-            }            return job;
+            }
+            return job;
 
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());
