@@ -64,11 +64,11 @@ public class JobDatabase {
             CallableStatement stmt = connection.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?)}")) {
 
             stmt.setString(1, partitionId);
-            stmt.setString(2,jobId);
-            stmt.setString(3,name);
-            stmt.setString(4,description);
-            stmt.setString(5,data);
-            stmt.setInt(6,jobHash);
+            stmt.setString(2, jobId);
+            stmt.setString(3, name);
+            stmt.setString(4, description);
+            stmt.setString(5, data);
+            stmt.setInt(6, jobHash);
             stmt.setString(7,"taskClassifier");
             stmt.setInt(8,1);
             stmt.setBytes(9,"taskData".getBytes(StandardCharsets.UTF_8));
