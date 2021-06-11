@@ -69,12 +69,12 @@ public class JobDatabase {
             stmt.setString(4, description);
             stmt.setString(5, data);
             stmt.setInt(6, jobHash);
-            stmt.setString(7,"taskClassifier");
-            stmt.setInt(8,1);
-            stmt.setBytes(9,"taskData".getBytes(StandardCharsets.UTF_8));
-            stmt.setString(10,"task_Pipe");
-            stmt.setString(11,"target_Pipe");
-            stmt.setInt(12,0);
+            stmt.setString(7, "taskClassifier");
+            stmt.setInt(8, 1);
+            stmt.setBytes(9,  "taskData".getBytes(StandardCharsets.UTF_8));
+            stmt.setString(10, "task_Pipe");
+            stmt.setString(11, "target_Pipe");
+            stmt.setInt(12, 0);
 
             Array labelArray = connection.createArrayOf("VARCHAR", new String[0]);
 
