@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import org.json.JSONObject;
