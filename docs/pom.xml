@@ -197,7 +197,6 @@
                             <overwrite>true</overwrite>
                             <skipCache>true</skipCache>
                             <url>http://${docker.host.address}:${webServerPort}/docs-site.tar.gz</url>
-                            <retries>10</retries>
                         </configuration>
                     </execution>
                 </executions>
