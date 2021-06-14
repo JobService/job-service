@@ -69,7 +69,7 @@ BEGIN
                                   job.partition_id = jep.partition_id
                               AND job.job_id = jep.job_id
                               AND current_status = jep.job_status
-                      WHERE LEFT(expiration_time, 4) != 'none'
+                      WHERE expiration_time != 'none'
                         AND expiration_time IS NOT NULL
                   ) current_job_status_and_policy
              -- Selecting only the expired jobs
