@@ -691,8 +691,8 @@ public final class DatabaseHelper {
                 CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
-            stmt.setString(2, jobId);
-            stmt.setString(3, failureDetails);
+            stmt.setString(2,jobId);
+            stmt.setString(3,failureDetails);
 
             LOG.debug("Calling report_failure() database function...");
             stmt.execute();
