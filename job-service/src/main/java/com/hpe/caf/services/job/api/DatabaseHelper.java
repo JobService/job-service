@@ -688,7 +688,7 @@ public final class DatabaseHelper {
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
