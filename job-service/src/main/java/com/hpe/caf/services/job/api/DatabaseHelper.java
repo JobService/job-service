@@ -62,7 +62,6 @@ public final class DatabaseHelper {
     private static final String JOB_POLICY_TYPE_NAME = "job_policy";
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHelper.class);
     private static AppConfig appConfig;
-    public final boolean propagateDependentJobFailures;
 
     /**
      * Instantiates a new DBUtil
@@ -71,8 +70,6 @@ public final class DatabaseHelper {
      */
     public DatabaseHelper(AppConfig appConfig) {
         DatabaseHelper.appConfig = appConfig;
-        final String propDepJoFailures = System.getenv("CAF_JOB_SERVICE_PROPAGATE_FAILURES");
-        propagateDependentJobFailures = propDepJoFailures != null ? Boolean.parseBoolean(propDepJoFailures) : false;
     }
 
     /**
@@ -696,7 +693,6 @@ public final class DatabaseHelper {
             stmt.setString(1, partitionId);
             stmt.setString(2, jobId);
             stmt.setString(3, failureDetails);
-            stmt.setBoolean(4, propagateDependentJobFailures);
 
             LOG.debug("Calling report_failure() database function...");
             stmt.execute();
