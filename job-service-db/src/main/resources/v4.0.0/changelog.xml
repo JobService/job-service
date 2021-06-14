@@ -49,6 +49,19 @@
     <changeSet id="create_job_expiration_policy" author="Gamma Team">
         <sql>CREATE TABLE job_expiration_policy OF JOB_POLICY</sql>
     </changeSet>
+    <!--<changeSet id="update_job_expiration_policy_table_add_columns_exact_expiry_time_and_last_modified_offset"
+               author="Gamma Team">
+        <addColumn tableName="job_expiration_policy">
+            <column name="exact_expiry_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="job_expiration_policy">
+            <column name="last_modified_offset" type="INTERVAL">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>-->
     <changeSet id="add_job_expiration_policy_primary_key" author="Gamma Team">
         <addPrimaryKey constraintName="pk_job_expiration_policy"
                        schemaName="public"
@@ -62,6 +75,19 @@
                                  baseColumnNames="partition_id, job_id"
                                  referencedTableName="job"
                                  referencedColumnNames="partition_id, job_id" />
+    </changeSet>
+    <changeSet id="create_default_job_expiration_policy" author="Gamma Team">
+        <createTable tableName="default_job_expiration_policy">
+            <column name="job_status" type="JOB_STATUS">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="operation" type="EXPIRATION_OPERATION">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expiration_time" type="VARCHAR(58)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
     <changeSet id="increase_task_id_size" author="Gamma Team" >
     <modifyDataType
