@@ -1,3 +1,0 @@
-{
-    "dataDir": "${CAF_INTEGRATIONTESTS_FS_PATH:-/srv/common/webdav}"
-}
