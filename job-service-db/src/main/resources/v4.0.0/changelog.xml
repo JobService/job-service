@@ -17,11 +17,8 @@
 
 -->
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
-                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
-                                       http://www.liquibase.org/xml/ns/dbchangelog
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
     <changeSet id="create_table_delete_log" author="Gamma Team">
         <createTable tableName="delete_log">
@@ -46,22 +43,34 @@
         <sql>CREATE TYPE JOB_POLICY AS (partition_id VARCHAR(40), job_id VARCHAR(48), job_status JOB_STATUS,
             operation EXPIRATION_OPERATION, expiration_time VARCHAR(58), policer EXPIRATION_POLICER)</sql>
     </changeSet>
-    <changeSet id="create_job_expiration_policy" author="Gamma Team">
-        <sql>CREATE TABLE job_expiration_policy OF JOB_POLICY</sql>
-    </changeSet>
-    <!--<changeSet id="update_job_expiration_policy_table_add_columns_exact_expiry_time_and_last_modified_offset"
-               author="Gamma Team">
-        <addColumn tableName="job_expiration_policy">
+    <changeSet id="create_table_job_expiration_policy" author="Gamma Team">
+        <createTable tableName="job_expiration_policy">
+            <column name="partition_id" type="VARCHAR(40)">
+                <constraints nullable="false" />
+            </column>
+            <column name="job_id" type="VARCHAR(48)">
+                <constraints nullable="false" />
+            </column>
+            <column name="job_status" type="JOB_STATUS">
+                <constraints nullable="false" />
+            </column>
+            <column name="operation" type="EXPIRATION_OPERATION">
+                <constraints nullable="false" />
+            </column>
+            <column name="expiration_time" type="VARCHAR(58)">
+                <constraints nullable="false" />
+            </column>
             <column name="exact_expiry_time" type="TIMESTAMP">
-                <constraints nullable="false"/>
+                <constraints nullable="true" />
             </column>
-        </addColumn>
-        <addColumn tableName="job_expiration_policy">
             <column name="last_modified_offset" type="INTERVAL">
-                <constraints nullable="false"/>
+                <constraints nullable="true" />
             </column>
-        </addColumn>
-    </changeSet>-->
+            <column name="policer" type="EXPIRATION_POLICER">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
     <changeSet id="add_job_expiration_policy_primary_key" author="Gamma Team">
         <addPrimaryKey constraintName="pk_job_expiration_policy"
                        schemaName="public"
