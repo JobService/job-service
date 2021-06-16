@@ -154,6 +154,7 @@
                         <expected.folder>${test.data}</expected.folder>
                         <datastore.container.id>${datastore.container.id}</datastore.container.id>
                         <datastore.enabled>true</datastore.enabled>
+                        <worker.testing.usehttpdatastore>true</worker.testing.usehttpdatastore>
                     </systemPropertyVariables>
                     <!-- DEBUGGING -->
                     <!--   <debugForkedProcess>true</debugForkedProcess>-->
@@ -163,7 +164,7 @@
                         <CAF_CONFIG_DECODER>JavascriptDecoder</CAF_CONFIG_DECODER>
                         <CAF_CONFIG_ENABLE_SUBSTITUTOR>false</CAF_CONFIG_ENABLE_SUBSTITUTOR>
                         <CAF_CONFIG_PATH>${project.build.directory}/config-files</CAF_CONFIG_PATH>
-                        <CAF_WORKER_DATASTORE_PATH>\\${docker.host.address}@${webdav.apache.port}\webdav</CAF_WORKER_DATASTORE_PATH>
+                        <CAF_WORKER_HTTP_DATASTORE_URL>http://${docker.host.address}:${webdav.apache.port}/webdav</CAF_WORKER_HTTP_DATASTORE_URL>
                         <JOB_SERVICE_DATABASE_APPNAME>Job Tracking Worker</JOB_SERVICE_DATABASE_APPNAME>
                         <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${job.database.name}</JOB_SERVICE_DATABASE_URL>
                         <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
@@ -415,6 +416,10 @@
                                             <fileSet>
                                                 <directory>${project.build.directory}/config-files</directory>
                                                 <outputDirectory>maven/config</outputDirectory>
+                                                <excludes>
+                                                    <!-- Only required for integration tests -->
+                                                    <exclude>cfg~caf~worker~HttpDataStoreConfiguration.js</exclude>
+                                                </excludes>
                                             </fileSet>
                                             <fileSet>
                                                 <fileMode>0755</fileMode>
