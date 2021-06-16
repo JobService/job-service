@@ -325,15 +325,19 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
-    <changeSet id="insert_default_expiry_proc" runOnChange="true" author="Gamma Team">
-        <createProcedure path="procedures/insertDefaultExpiry.sql"
-                         procedureName="insert_default_expiry"
-                         schemaName="public">
-        </createProcedure>
-    </changeSet><changeSet id="insert_delete_log_proc" runOnChange="true" author="Gamma Team">
+    <changeSet id="insert_delete_log_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/insertDeleteLog.sql"
                          procedureName="internal_insert_delete_log"
                          schemaName="public">
         </createProcedure>
+    </changeSet>
+    <changeSet id="refresh_default_expiry_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/refreshDefaultExpiry.sql"
+                         procedureName="refresh_default_expiry"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="run_refresh_default_expiry_proc" runOnChange="true" author="Gamma Team">
+        <sql>CALL refresh_default_expiry();</sql>
     </changeSet>
 </databaseChangeLog>

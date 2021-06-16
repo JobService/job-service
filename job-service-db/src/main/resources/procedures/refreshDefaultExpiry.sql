@@ -15,22 +15,27 @@
 --
 
 /*
- *  Name: insert_default_expiry
+ *  Name: refresh_default_expiry
  *
  *  Description:
- *  Insert the default expiration policy
+ *  Refreshes the default expiration policy
  */
-CREATE OR REPLACE PROCEDURE insert_default_expiry(
+CREATE OR REPLACE PROCEDURE refresh_default_expiry(
 )
     LANGUAGE plpgsql AS
 $$
 BEGIN
     -- Removes all existing policy from the table
-    DELETE FROM default_job_expiration_policy WHERE job_status IS NOT NULL;
+    DELETE
+    FROM default_job_expiration_policy
+    WHERE job_status IS NOT NULL;
 
     -- Insert the default expiration policy
-    INSERT INTO default_job_expiration_policy(job_status, operation, expiration_time)
-
+    INSERT INTO default_job_expiration_policy (
+            job_status,
+            operation,
+            expiration_time
+            )
     VALUES ('Active', 'Expire', 'none'),
            ('Cancelled', 'Expire', 'none'),
            ('Completed', 'Expire', 'none'),
@@ -38,7 +43,6 @@ BEGIN
            ('Paused', 'Expire', 'none'),
            ('Waiting', 'Expire', 'none'),
            ('Expired', 'Expire', 'none');
-
 END;
 
 $$;
