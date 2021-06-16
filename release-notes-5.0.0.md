@@ -6,8 +6,8 @@ ${version-number}
 #### New Features
 
 #### Breaking Changes
-- **SCMOD-13865:** propagate_failures toggle option has been removed
-We propagate all failures, no more possibility to disable it (previously set to false by default)
+- **SCMOD-13865:** `propagate_failures` option has been removed.  
+The job service now propagates all failures and it is no longer possible to disable the propagate failures option. Note that previously it was set to false by default.
 
 #### Known Issues
 - None
