@@ -36,9 +36,12 @@
     <changeSet id="update_job_status_enum_type_add_expired" author="Gamma Team" runInTransaction="false">
         <sql>ALTER TYPE JOB_STATUS ADD VALUE 'Expired';</sql>
     </changeSet>
-    <changeSet id="create_policy_type" author="Gamma Team">
-        <sql>CREATE TYPE JOB_POLICY AS (partition_id VARCHAR(40), job_id VARCHAR(48), job_status JOB_STATUS,
+    <changeSet id="create_basic_policy_type" author="Gamma Team">
+        <sql>CREATE TYPE BASIC_POLICY AS (job_status JOB_STATUS,
             operation EXPIRATION_OPERATION, expiration_time VARCHAR(58))</sql>
+    </changeSet>
+    <changeSet id="create_policy_type" author="Gamma Team">
+        <sql>CREATE TYPE JOB_POLICY AS (partition_id VARCHAR(40), job_id VARCHAR(48), policy BASIC_POLICY)</sql>
     </changeSet>
     <changeSet id="create_table_job_expiration_policy" author="Gamma Team">
         <createTable tableName="job_expiration_policy">
@@ -80,17 +83,7 @@
                                  referencedColumnNames="partition_id, job_id" />
     </changeSet>
     <changeSet id="create_default_job_expiration_policy" author="Gamma Team">
-        <createTable tableName="default_job_expiration_policy">
-            <column name="job_status" type="JOB_STATUS">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="operation" type="EXPIRATION_OPERATION">
-                <constraints nullable="false"/>
-            </column>
-            <column name="expiration_time" type="VARCHAR(58)">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
+        <sql>CREATE TABLE default_job_expiration_policy OF BASIC_POLICY</sql>
     </changeSet>
     <changeSet id="increase_task_id_size" author="Gamma Team" >
     <modifyDataType
