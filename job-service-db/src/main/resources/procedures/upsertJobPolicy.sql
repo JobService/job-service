@@ -27,27 +27,64 @@ CREATE OR REPLACE FUNCTION internal_upsert_job_policy(
 )
 RETURNS VOID
 LANGUAGE plpgsql VOLATILE
-AS
-$$
+AS $$
+DECLARE
+    v_created_time TIMESTAMP;
+
 BEGIN
-    IF in_policies IS NULL OR CARDINALITY(in_policies) = 0 THEN
-        RETURN;
+
+    IF in_policies IS NULL
+        OR CARDINALITY(in_policies) = 0 THEN RETURN;
     END IF;
 
+    -- Storing job's create_date
+    SELECT
+        create_date
+    FROM
+        job
+    WHERE
+         partition_id = in_partition_id
+            AND job_id = in_job_id
+    INTO
+        v_created_time;
+
     INSERT
-    INTO job_expiration_policy (
-                                partition_id,
-                                job_id,
-                                job_status,
-                                operation,
-                                expiration_time
-                                )
-    SELECT in_partition_id,
-           in_job_id,
-           p.job_status,
-           p.operation,
-           p.expiration_time
-    FROM UNNEST(in_policies) AS p;
+    INTO
+        job_expiration_policy (
+        partition_id,
+        job_id,
+        job_status,
+        operation,
+        expiration_time,
+        exact_expiry_time,
+        last_modified_offset
+    )
+    SELECT
+        in_partition_id,
+        in_job_id,
+        p.job_status,
+        p.operation,
+        p.expiration_time,
+        CASE
+            -- if expiration_time starts with createTime, we calculate and store the exact expiration time
+            WHEN LEFT(expiration_time, 1) = 'c' THEN (
+                    v_created_time + split_part(expiration_time, '+', 2)::INTERVAL
+                )::timestamp
+            -- if expiration_time equals 'none', we set expiration_time to infinity
+            WHEN LEFT(expiration_time, 1) = 'n' THEN
+                'infinity'::timestamp
+            -- if expiration_time starts with lastUpdateTime, we set null
+            WHEN LEFT(expiration_time, 1) = 'l' THEN
+                NULL
+            ELSE
+            -- otherwise, we cast the date provided and store it
+                expiration_time::timestamp
+            END AS exact_expiry_time,
+        CASE
+            WHEN LEFT(expiration_time, 1) = 'l' THEN split_part(expiration_time, '+', 2)::INTERVAL
+            END AS last_modified_offset
+    FROM
+        UNNEST(in_policies) AS p;
+
     RETURN;
-END
-$$;
+END $$;
