@@ -33,15 +33,15 @@ public final class ExpirationPolicyHelper
     {
         final List<String> policyList = new ArrayList<>();
         // build policy when status could be set to expire
-        buildExpirablePolicy(policyList, "Active", expirationPolicy.getActive());
-        buildExpirablePolicy(policyList, "Waiting", expirationPolicy.getWaiting());
-        buildExpirablePolicy(policyList, "Paused", expirationPolicy.getPaused());
+        if(null!= expirationPolicy.getActive())buildExpirablePolicy(policyList, "Active", expirationPolicy.getActive());
+        if(null!= expirationPolicy.getWaiting())buildExpirablePolicy(policyList, "Waiting", expirationPolicy.getWaiting());
+        if(null!= expirationPolicy.getPaused())buildExpirablePolicy(policyList, "Paused", expirationPolicy.getPaused());
 
         // build policy when delete is the only option
-        buildDeletePolicy(policyList, "Cancelled", expirationPolicy.getCancelled());
-        buildDeletePolicy(policyList, "Completed", expirationPolicy.getCompleted());
-        buildDeletePolicy(policyList, "Failed", expirationPolicy.getFailed());
-        buildDeletePolicy(policyList, "Expired", expirationPolicy.getExpired());
+        if(null!= expirationPolicy.getCancelled())buildDeletePolicy(policyList, "Cancelled", expirationPolicy.getCancelled());
+        if(null!= expirationPolicy.getCompleted())buildDeletePolicy(policyList, "Completed", expirationPolicy.getCompleted());
+        if(null!= expirationPolicy.getFailed())buildDeletePolicy(policyList, "Failed", expirationPolicy.getFailed());
+        if(null!= expirationPolicy.getExpired())buildDeletePolicy(policyList, "Expired", expirationPolicy.getExpired());
 
         return policyList;
     }
