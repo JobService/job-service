@@ -19,18 +19,22 @@ import com.hpe.caf.services.job.api.generated.model.DeletePolicy;
 import com.hpe.caf.services.job.api.generated.model.DeletePolicy.OperationEnum;
 import com.hpe.caf.services.job.api.generated.model.ExpirablePolicy;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class ExpirationPolicyHelper
 {
+    private static final Logger LOG = LoggerFactory.getLogger(ExpirationPolicyHelper.class);
     private ExpirationPolicyHelper()
     {
     }
 
     public static List<String> toPgCompositeList(final ExpirationPolicy expirationPolicy)
     {
+        LOG.debug("converting into composite");
         final List<String> policyList = new ArrayList<>();
         // build policy when status could be set to expire
         if(null!= expirationPolicy.getActive())buildExpirablePolicy(policyList, "Active", expirationPolicy.getActive());
@@ -42,7 +46,7 @@ public final class ExpirationPolicyHelper
         if(null!= expirationPolicy.getCompleted())buildDeletePolicy(policyList, "Completed", expirationPolicy.getCompleted());
         if(null!= expirationPolicy.getFailed())buildDeletePolicy(policyList, "Failed", expirationPolicy.getFailed());
         if(null!= expirationPolicy.getExpired())buildDeletePolicy(policyList, "Expired", expirationPolicy.getExpired());
-
+        LOG.debug("policyList {}", policyList);
         return policyList;
     }
 
@@ -50,8 +54,7 @@ public final class ExpirationPolicyHelper
         policyList.add(toJobPolicyDbTypeString(
                 status,
                 OperationEnum.DELETE,
-                deletePolicy.getExpiryTime(),
-                deletePolicy.getPolicer().toString()));
+                deletePolicy.getExpiryTime()));
     }
 
     private static void buildExpirablePolicy(final List<String> policyList, final String status, final ExpirablePolicy expirablePolicy)
@@ -61,12 +64,10 @@ public final class ExpirationPolicyHelper
 
     private static String toJobPolicyDbTypeString(final String status, final ExpirablePolicy expirablePolicy)
     {
-        return toJobPolicyDbTypeString(status, expirablePolicy.getOperation(), expirablePolicy.getExpiryTime(),
-                expirablePolicy.getPolicer().toString());
+        return toJobPolicyDbTypeString(status, expirablePolicy.getOperation(), expirablePolicy.getExpiryTime());
     }
 
-    private static String toJobPolicyDbTypeString(final String status, final Object operation, final String expiryTime,
-            final String policer)
+    private static String toJobPolicyDbTypeString(final String status, final Object operation, final String expiryTime)
     {
         // Builds up the Composite Value for the JOB_POLICY database type
         // See https://www.postgresql.org/docs/current/rowtypes.html
@@ -74,7 +75,7 @@ public final class ExpirationPolicyHelper
         // The expiry time has already been validated.
         // The allowed patterns do not contain any commas or parentheses so there is no need for escaping here.
         //
-        // The definition of JOB_POLICY is (partition_id, job_id, job_status, operation, expiration_time, policer)
-        return "(,," + status + "," + operation + "," + expiryTime + "," + policer + ")";
+        // The definition of JOB_POLICY is (partition_id, job_id, job_status, operation, expiration_time)
+        return "(,," + status + "," + operation + "," + expiryTime + ")";
     }
 }

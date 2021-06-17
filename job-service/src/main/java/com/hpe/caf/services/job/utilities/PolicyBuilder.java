@@ -20,9 +20,12 @@ import com.hpe.caf.services.job.api.generated.model.ExpirablePolicy;
 import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class PolicyBuilder
 {
+    private static final Logger LOG = LoggerFactory.getLogger(PolicyBuilder.class);
     private PolicyBuilder()
     {
     }
@@ -41,6 +44,7 @@ public final class PolicyBuilder
 
     private static ExpirationPolicy getExpiryPolicyFromJob(final NewJob job) throws BadRequestException {
         if (null != job.getExpiry()) {
+            LOG.debug("expiry is not null");
             checkPolicyDates(job.getExpiry());
             return job.getExpiry();
         } else {
@@ -63,12 +67,14 @@ public final class PolicyBuilder
 
     private static void checkDateForDeletePolicy(final DeletePolicy deletePolicy) throws BadRequestException {
         if (null != deletePolicy) {
+            LOG.debug("validating {}", deletePolicy);
             DateHelper.validate(deletePolicy.getExpiryTime());
         }
     }
 
     private static void checkDateForExpirablePolicy(final ExpirablePolicy expirablePolicy) throws BadRequestException {
         if (null != expirablePolicy) {
+            LOG.debug("validating {}", expirablePolicy);
             DateHelper.validate(expirablePolicy.getExpiryTime());
         }
     }

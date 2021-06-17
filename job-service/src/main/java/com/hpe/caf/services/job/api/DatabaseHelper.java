@@ -369,13 +369,13 @@ public final class DatabaseHelper {
     private void transferExpirablePolicy(final ResultSet resultSet, final ExpirablePolicy expirablePolicy) throws SQLException {
         expirablePolicy.setExpiryTime(resultSet.getString("expiration_time"));
         expirablePolicy.setOperation(OperationEnum.valueOf(resultSet.getString("operation").toUpperCase(Locale.ROOT)));
-        expirablePolicy.setPolicer(Policer.valueOf(resultSet.getString("policer")));
+        expirablePolicy.setPolicer(null);
     }
 
     private void transferDeletePolicy(final ResultSet resultSet, final DeletePolicy deletePolicy) throws SQLException {
         deletePolicy.setExpiryTime(resultSet.getString("expiration_time"));
         deletePolicy.setOperation(DeletePolicy.OperationEnum.valueOf(resultSet.getString("operation").toUpperCase(Locale.ROOT)));
-        deletePolicy.setPolicer(Policer.valueOf(resultSet.getString("policer")));
+        deletePolicy.setPolicer(null);
     }
 
     /**

@@ -33,15 +33,12 @@
     <changeSet id="create_expiration_operation_enum_type" author="Gamma Team">
         <sql>CREATE TYPE EXPIRATION_OPERATION AS ENUM('Expire', 'Delete')</sql>
     </changeSet>
-    <changeSet id="create_policer_enum_type" author="Gamma Team">
-        <sql>CREATE TYPE EXPIRATION_POLICER AS ENUM('User', 'System')</sql>
-    </changeSet>
     <changeSet id="update_job_status_enum_type_add_expired" author="Gamma Team" runInTransaction="false">
         <sql>ALTER TYPE JOB_STATUS ADD VALUE 'Expired';</sql>
     </changeSet>
     <changeSet id="create_policy_type" author="Gamma Team">
         <sql>CREATE TYPE JOB_POLICY AS (partition_id VARCHAR(40), job_id VARCHAR(48), job_status JOB_STATUS,
-            operation EXPIRATION_OPERATION, expiration_time VARCHAR(58), policer EXPIRATION_POLICER)</sql>
+            operation EXPIRATION_OPERATION, expiration_time VARCHAR(58))</sql>
     </changeSet>
     <changeSet id="create_table_job_expiration_policy" author="Gamma Team">
         <createTable tableName="job_expiration_policy">
@@ -65,9 +62,6 @@
             </column>
             <column name="last_modified_offset" type="INTERVAL">
                 <constraints nullable="true" />
-            </column>
-            <column name="policer" type="EXPIRATION_POLICER">
-                <constraints nullable="false" />
             </column>
         </createTable>
     </changeSet>

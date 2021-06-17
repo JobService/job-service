@@ -83,8 +83,7 @@ RETURNS TABLE(
     label_value VARCHAR(255),
     expiration_status job_status,
     operation expiration_operation,
-    expiration_time VARCHAR(58),
-    policer expiration_policer
+    expiration_time VARCHAR(58)
 )
 LANGUAGE plpgsql VOLATILE
 AS $$
@@ -122,8 +121,7 @@ BEGIN
                lbl.value,
                jep.job_status,
                jep.operation,
-               jep.expiration_time,
-               jep.policer
+               jep.expiration_time
         FROM
         (SELECT
                job.partition_id,
@@ -253,8 +251,7 @@ BEGIN
                at.value,
                at.job_status,
                at.operation,
-               at.expiration_time,
-               at.policer
+               at.expiration_time
         FROM get_job_temp at
         ORDER BY at.id;
 END
