@@ -15,7 +15,7 @@
 #
 
 ARG DOCKER_HUB_PUBLIC=docker.io
-FROM ${DOCKER_HUB_PUBLIC}/cafapi/opensuse-python3:2
+FROM ${DOCKER_HUB_PUBLIC}/cafapi/prereleases:opensuse-python3-2.4.0-SNAPSHOT
 
 # Install pip and requests
 RUN zypper -n install python3-pip && \
