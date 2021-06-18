@@ -41,7 +41,7 @@
             operation EXPIRATION_OPERATION, expiration_time VARCHAR(58))</sql>
     </changeSet>
     <changeSet id="create_policy_type" author="Gamma Team">
-        <sql>CREATE TYPE JOB_POLICY AS (partition_id VARCHAR(40), job_id VARCHAR(48), policy BASIC_POLICY)</sql>
+        <sql>CREATE TYPE JOB_POLICY AS (partition_id VARCHAR(40), job_id VARCHAR(48), b_policy BASIC_POLICY)</sql>
     </changeSet>
     <changeSet id="create_table_job_expiration_policy" author="Gamma Team">
         <createTable tableName="job_expiration_policy">

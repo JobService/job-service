@@ -62,26 +62,26 @@ BEGIN
     SELECT
         in_partition_id,
         in_job_id,
-        p.job_status,
-        p.operation,
-        p.expiration_time,
+        (p.b_policy).job_status,
+        (p.b_policy).operation,
+        (p.b_policy).expiration_time AS exp_time,
         CASE
             -- if expiration_time starts with createTime, we calculate and store the exact expiration time
-            WHEN LEFT(expiration_time, 1) = 'c' THEN (
-                    v_created_time + split_part(expiration_time, '+', 2)::INTERVAL
+            WHEN LEFT((p.b_policy).expiration_time, 1) = 'c' THEN (
+                    v_created_time + split_part((p.b_policy).expiration_time, '+', 2)::INTERVAL
                 )::timestamp
             -- if expiration_time equals 'none', we set expiration_time to infinity
-            WHEN LEFT(expiration_time, 1) = 'n' THEN
+            WHEN LEFT((p.b_policy).expiration_time, 1) = 'n' THEN
                 'infinity'::timestamp
             -- if expiration_time starts with lastUpdateTime, we set null
-            WHEN LEFT(expiration_time, 1) = 'l' THEN
+            WHEN LEFT((p.b_policy).expiration_time, 1) = 'l' THEN
                 NULL
             ELSE
-            -- otherwise, we cast the date provided and store it
-                expiration_time::timestamp
+                -- otherwise, we cast the date provided and store it
+                (p.b_policy).expiration_time::timestamp
             END AS exact_expiry_time,
         CASE
-            WHEN LEFT(expiration_time, 1) = 'l' THEN split_part(expiration_time, '+', 2)::INTERVAL
+            WHEN LEFT((p.b_policy).expiration_time, 1) = 'l' THEN split_part((p.b_policy).expiration_time, '+', 2)::INTERVAL
             END AS last_modified_offset
     FROM
         UNNEST(in_policies) AS p;

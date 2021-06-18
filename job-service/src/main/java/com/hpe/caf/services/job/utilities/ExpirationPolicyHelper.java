@@ -76,6 +76,6 @@ public final class ExpirationPolicyHelper
         // The allowed patterns do not contain any commas or parentheses so there is no need for escaping here.
         //
         // The definition of JOB_POLICY is (partition_id, job_id, job_status, operation, expiration_time)
-        return "(,," + status + "," + operation + "," + expiryTime + ")";
+        return "(,,(\"" + status + "," + operation + "," + expiryTime + ")\")";
     }
 }
