@@ -22,27 +22,21 @@
  */
 SELECT j.partition_id,
        j.job_id,
-       j.status,
        djep.job_status,
        djep.operation,
-       djep.expiration_time,
        CASE
-           -- if expiration_time starts with createTime, we calculate and store the exact expiration time
-           WHEN LEFT(djep.expiration_time, 1) = 'c' THEN (
-               j.create_date + split_part(djep.expiration_time, '+', 2)::INTERVAL
-               )::timestamp
-           -- if expiration_time equals 'none', we set expiration_time to infinity
-           WHEN LEFT(djep.expiration_time, 1) = 'n' THEN
+           WHEN create_date_offset = 'infinity' THEN
                'infinity'::timestamp
-           -- if expiration_time starts with lastUpdateTime, we set null
-           WHEN LEFT(djep.expiration_time, 1) = 'l' THEN
+           WHEN create_date_offset IS NULL THEN
                NULL
            ELSE
-               -- otherwise, we cast the date provided and store it
-               djep.expiration_time::timestamp
+               (
+                   j.create_date + create_date_offset::INTERVAL
+                   )::timestamp
            END AS exact_expiry_time,
        CASE
-           WHEN LEFT(djep.expiration_time, 1) = 'l' THEN split_part(djep.expiration_time, '+', 2)::INTERVAL
+           WHEN last_modified_offset IS NOT null THEN
+               last_modified_offset::INTERVAL
            END AS last_modified_offset
 FROM job j
          CROSS JOIN default_job_expiration_policy djep;

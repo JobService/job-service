@@ -83,13 +83,29 @@
                                  referencedColumnNames="partition_id, job_id" />
     </changeSet>
     <changeSet id="create_default_job_expiration_policy" author="Gamma Team">
-        <sql>CREATE TABLE default_job_expiration_policy OF BASIC_POLICY</sql>
+        <createTable tableName="default_job_expiration_policy">
+            <column name="job_status" type="JOB_STATUS">
+                <constraints nullable="false" />
+            </column>
+            <column name="operation" type="EXPIRATION_OPERATION">
+                <constraints nullable="false" />
+            </column>
+            <column name="expiration_time" type="VARCHAR(58)">
+                <constraints nullable="false" />
+            </column>
+            <column name="create_date_offset" type="VARCHAR(12)">
+                <constraints nullable="true" />
+            </column>
+            <column name="last_modified_offset" type="INTERVAL">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
     </changeSet>
     <changeSet id="increase_task_id_size" author="Gamma Team" >
-    <modifyDataType
-            columnName="task_id"
-            newDataType="VARCHAR(70)"
-            tableName="completed_subtask_report" />
+        <modifyDataType
+                columnName="task_id"
+                newDataType="VARCHAR(70)"
+                tableName="completed_subtask_report" />
     </changeSet>
     <changeSet id="create_stowed_task_table" author="Gamma Team">
         <createTable tableName="stowed_task">

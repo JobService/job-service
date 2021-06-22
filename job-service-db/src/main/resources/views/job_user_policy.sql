@@ -23,15 +23,13 @@
 
 SELECT j.partition_id,
        j.job_id,
-       j.status,
        j.create_date,
        j.last_update_date,
        jep.job_status,
        jep.operation,
-       jep.expiration_time,
        jep.exact_expiry_time,
        jep.last_modified_offset
 FROM job j
          JOIN job_expiration_policy jep
-             ON j.partition_id = jep.partition_id
-                    AND j.job_id = jep.job_id;
+              ON j.partition_id = jep.partition_id
+                  AND j.job_id = jep.job_id;

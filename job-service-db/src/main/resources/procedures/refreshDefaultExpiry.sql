@@ -19,6 +19,11 @@
  *
  *  Description:
  *  Refreshes the default expiration policy
+ *  This function is to be updated manually
+ *  There must be a value in create_date_offset "or" last_modified_offset
+ *  based on 'expiration_time' value
+ *  If any value in last_modified_offset, then create_date_offset must be null
+ *  If any value in create_date_offset, then last_modified_offset must be null
  */
 CREATE OR REPLACE PROCEDURE refresh_default_expiry(
 )
@@ -32,17 +37,24 @@ BEGIN
 
     -- Insert the default expiration policy
     INSERT INTO default_job_expiration_policy (
-            job_status,
-            operation,
-            expiration_time
-            )
-    VALUES ('Active', 'Expire', 'none'),
-           ('Cancelled', 'Expire', 'none'),
-           ('Completed', 'Expire', 'none'),
-           ('Failed', 'Expire', 'none'),
-           ('Paused', 'Expire', 'none'),
-           ('Waiting', 'Expire', 'none'),
-           ('Expired', 'Expire', 'none');
+        job_status,
+        operation,
+        expiration_time,
+        -- create_date_offset can contain 'infinity or an interval'
+        -- this is based upon the value from expiration_time.
+        -- if expiration_time is related to created_time, then the offset is to be inserted.
+        -- if expiration_time equals 'none', then 'infinity' is to be inserted
+        create_date_offset,
+        -- last_modified_offset can contain a value only if create_date_offset is null
+        last_modified_offset
+    )
+    VALUES ('Active', 'Expire', 'none', 'infinity', NULL),
+           ('Cancelled', 'Expire', 'none', 'infinity', NULL),
+           ('Completed', 'Expire', 'none', 'infinity', NULL),
+           ('Failed', 'Expire', 'none', 'infinity', NULL),
+           ('Paused', 'Expire', 'none', 'infinity', NULL),
+           ('Waiting', 'Expire', 'none', 'infinity', NULL),
+           ('Expired', 'Expire', 'none', 'infinity', NULL);
 END;
 
 $$;
