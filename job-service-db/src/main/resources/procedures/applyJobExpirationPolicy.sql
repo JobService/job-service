@@ -75,8 +75,7 @@ BEGIN
                 delete_or_expire_job(
                         partition_id,
                         job_id,
-                        operation,
-                        true
+                        operation
                     ) expiring_action
             ) global_selection;
 END;
