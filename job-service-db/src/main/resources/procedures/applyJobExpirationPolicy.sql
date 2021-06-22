@@ -45,10 +45,15 @@ BEGIN
                                            AND c.job_id = up.job_id
                                            AND c.job_status = up.job_status
                                WHERE COALESCE (
-                                             (CASE WHEN up.exact_expiry_time IS NULL AND up.last_modified_offset IS NULL THEN
+                                             CASE
+                                                 WHEN
+                                                     up.exact_expiry_time IS NULL
+                                                            AND up.last_modified_offset IS NULL
+                                                     THEN
                                                        COALESCE(up.exact_expiry_time, c.exact_expiry_time)
-                                                   ELSE up.exact_expiry_time
-                                                 END ),
+                                                 ELSE
+                                                     up.exact_expiry_time
+                                             END,
                                              up.last_update_date+COALESCE(up.last_modified_offset, c.last_modified_offset)
                                          ) <= now()
                            ) t1
