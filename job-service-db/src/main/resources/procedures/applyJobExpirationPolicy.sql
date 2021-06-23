@@ -87,7 +87,7 @@ BEGIN
                                ELSE
                                    (create_date + default_p.create_date_offset::INTERVAL)::TIMESTAMP
                                END
-                       ) <= now()
+               ) <= now() -- compare to now to get only the expired jobs
          ) expired_jobs
          CROSS JOIN LATERAL
             delete_or_expire_job(
