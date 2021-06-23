@@ -39,53 +39,48 @@ BEGIN
 
     PERFORM NULL
     FROM (
-
-             SELECT
+             SELECT partition_id,
+                    job_id,
+                    COALESCE(user_p.operation, default_p.operation) AS operation
+             FROM job j
+             CROSS JOIN LATERAL (
+                 -- Getting the latest status
+                 SELECT status AS current_status
+                 FROM
+                     get_job(
+                             partition_id,
+                             job_id
+                         )
+                 LIMIT 1
+                 ) latest_status
+             CROSS JOIN default_job_expiration_policy default_p      -- default expiration policy table
+             LEFT JOIN job_expiration_policy user_p             -- user defined expiration policy table
+                 USING (
                  partition_id,
                  job_id,
-                 COALESCE( user_p.operation, default_p.operation ) AS operation
-             FROM
-                 job j
-                     CROSS JOIN LATERAL (
-                     -- Getting the latest status
-                     SELECT
-                         status AS current_status
-                     FROM
-                         get_job(
-                                 partition_id,
-                                 job_id
-                             )
-                     LIMIT 1
-                     ) latest_status
-                     CROSS JOIN default_job_expiration_policy default_p
-                     LEFT JOIN job_expiration_policy user_p
-                               USING (
-                                      partition_id,
-                                      job_id,
-                                      job_status
-                                   )
-             WHERE
-                   job_status = status
-                   -- Order:
-                   --   user_p.exact_expiry_time
-                   --   user_p.last_modified_offset
-                   --   default_p.last_modified_offset
-                   --   default_p.create_date_offset
+                 job_status
+                 )
+             WHERE job_status = status
+               -- Order:
+               --   user_p.exact_expiry_time (1)
+               --   user_p.last_modified_offset (2)
+               --   default_p.last_modified_offset (3)
+               --   default_p.create_date_offset (4)
                AND COALESCE(
                            COALESCE(
-                                   user_p.exact_expiry_time,
+                                   user_p.exact_expiry_time, ---------------------------------------(1)
                                    last_update_date + COALESCE(
-                                           user_p.last_modified_offset,
+                                           user_p.last_modified_offset, ----------------------------(2)
                                            CASE
                                                WHEN
                                                    default_p.last_modified_offset IS NOT NULL
                                                    THEN
-                                                   default_p.last_modified_offset::INTERVAL
+                                                   default_p.last_modified_offset::INTERVAL --------(3)
                                                END
                                        )
                                )
                        ,
-                           CASE
+                           CASE --------------------------------------------------------------------(4)
                                WHEN default_p.create_date_offset = 'infinity'
                                    THEN 'infinity'::timestamp
                                WHEN default_p.create_date_offset IS NULL
@@ -94,12 +89,12 @@ BEGIN
                                    (create_date + default_p.create_date_offset::INTERVAL)::timestamp
                                END
                        ) <= now()
-        ) expired_jobs
-             CROSS JOIN LATERAL
-        delete_or_expire_job(
-                partition_id,
-                job_id,
-                operation
+         ) expired_jobs
+         CROSS JOIN LATERAL
+            delete_or_expire_job(
+                    partition_id,
+                    job_id,
+                    operation
             );
 END;
 $$;
