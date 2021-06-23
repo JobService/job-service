@@ -83,7 +83,8 @@ RETURNS TABLE(
     label_value VARCHAR(255),
     expiration_status job_status,
     operation expiration_operation,
-    expiration_time VARCHAR(58)
+    expiration_time VARCHAR(58),
+    policer expiration_policer
 )
 LANGUAGE plpgsql VOLATILE
 AS $$
@@ -119,9 +120,15 @@ BEGIN
                CAST('WORKER' AS CHAR(6)) AS actionType,
                lbl.label,
                lbl.value,
-               jep.job_status,
-               jep.operation,
-               jep.expiration_time
+               djep.job_status,
+               COALESCE (jep.operation, djep.operation) AS operation,
+           	   COALESCE (jep.expiration_time, djep.expiration_time ) AS expiration_time,
+	           CASE
+	               WHEN jep.operation IS NULL THEN
+	                    'System'::EXPIRATION_POLICER
+	               ELSE
+	                    'User'::EXPIRATION_POLICER
+	           END AS policer
         FROM
         (SELECT
                job.partition_id,
@@ -194,10 +201,15 @@ BEGIN
         sql := sql || ' OFFSET ' || in_offset;
     END IF;
     -- Join onto the labels after paging to avoid them bloating the row count
-    sql := sql || ' ) as job LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id '
+    sql := sql || ' ) as job ' ||
+           'CROSS JOIN default_job_expiration_policy djep
+            LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id '
                || 'AND lbl.job_id = job.job_id';
     -- Join onto the job_expiration_policy table
-    sql := sql || ' LEFT JOIN public.job_expiration_policy jep ON jep.partition_id = job.partition_id AND jep.job_id = job.job_id';
+    sql := sql || ' LEFT JOIN job_expiration_policy jep
+        ON jep.partition_id = job.partition_id
+               AND jep.job_id = job.job_id
+               AND djep.job_status = jep.job_status';
     sql := sql || ' ORDER BY ' ||
        CASE WHEN in_sort_label IS NOT NULL AND in_sort_label != ''
          THEN '(SELECT value FROM label l WHERE job.partition_id = l.partition_id AND job.job_id = l.job_id AND l.label = ' ||
@@ -251,7 +263,8 @@ BEGIN
                at.value,
                at.job_status,
                at.operation,
-               at.expiration_time
+               at.expiration_time,
+               at.policer
         FROM get_job_temp at
         ORDER BY at.id;
 END
