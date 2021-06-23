@@ -33,6 +33,9 @@
     <changeSet id="create_expiration_operation_enum_type" author="Gamma Team">
         <sql>CREATE TYPE EXPIRATION_OPERATION AS ENUM('Expire', 'Delete')</sql>
     </changeSet>
+    <changeSet id="create_policer_enum_type" author="Gamma Team">
+        <sql>CREATE TYPE EXPIRATION_POLICER AS ENUM('User', 'System')</sql>
+    </changeSet>
     <changeSet id="update_job_status_enum_type_add_expired" author="Gamma Team" runInTransaction="false">
         <sql>ALTER TYPE JOB_STATUS ADD VALUE 'Expired';</sql>
     </changeSet>

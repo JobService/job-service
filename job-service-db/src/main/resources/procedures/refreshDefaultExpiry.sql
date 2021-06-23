@@ -49,12 +49,12 @@ BEGIN
         last_modified_offset
     )
     VALUES ('Active', 'Expire', 'none', 'infinity', NULL),
-           ('Cancelled', 'Expire', 'none', 'infinity', NULL),
-           ('Completed', 'Expire', 'none', 'infinity', NULL),
-           ('Failed', 'Expire', 'none', 'infinity', NULL),
+           ('Cancelled', 'Delete', 'none', 'infinity', NULL),
+           ('Completed', 'Delete', 'none', 'infinity', NULL),
+           ('Failed', 'Delete', 'none', 'infinity', NULL),
            ('Paused', 'Expire', 'none', 'infinity', NULL),
            ('Waiting', 'Expire', 'none', 'infinity', NULL),
-           ('Expired', 'Expire', 'none', 'infinity', NULL);
+           ('Expired', 'Delete', 'none', 'infinity', NULL);
 END;
 
 $$;
