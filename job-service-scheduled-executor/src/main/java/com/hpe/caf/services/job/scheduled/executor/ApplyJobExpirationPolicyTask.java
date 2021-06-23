@@ -26,17 +26,15 @@ import org.slf4j.LoggerFactory;
 public class ApplyJobExpirationPolicyTask implements Runnable{
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplyJobExpirationPolicyTask.class);
-    private static final boolean PROP_DEPENDENT_JOB_FAILURES = true;
 
     @Override
     public void run()
     {
         try(final Connection connection = DBConnection.get();
-            final CallableStatement stmt = connection.prepareCall("CALL apply_job_expiration_policy(?)"))
+            final CallableStatement stmt = connection.prepareCall("CALL apply_job_expiration_policy()"))
         {
             if(LOG.isDebugEnabled())
             {
-                stmt.setBoolean(1, PROP_DEPENDENT_JOB_FAILURES);
                 LOG.debug("Calling apply_job_expiration_policy() database function ...");
                 final Instant start = Instant.now();
                 stmt.execute();
