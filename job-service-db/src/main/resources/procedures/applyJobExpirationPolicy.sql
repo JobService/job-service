@@ -20,8 +20,8 @@
  *  Description:
  *  Expires or deletes jobs in accordance with their expiry policies.
  *  Policies can be found in 2 tables:
- *      - job_expiration_policy if the user provided it on job's creation
- *      - default_job_expiration_policy
+ *      - job_expiration_policy if the user provided it on job's creation ( alias user_p)
+ *      - default_job_expiration_policy ( alias default_p)
  *  Each of those tables have two columns related respectively to create_date and last_update_date as:
  *      - default_job_expiration_policy -> create_date_offset, last_modified_offset
  *      - job_expiration_policy         -> exact_expiry_time, last_modified_offset
@@ -93,16 +93,13 @@ BEGIN
                                ELSE
                                    (create_date + default_p.create_date_offset::INTERVAL)::timestamp
                                END
-                       ) <= now() ) expired_jobs
-             CROSS JOIN LATERAL (
-        SELECT
-            NULL
-        FROM
-            delete_or_expire_job(
-                    partition_id,
-                    job_id,
-                    operation
-                ) expiring_action
-        ) global_selection;
+                       ) <= now()
+        ) expired_jobs
+             CROSS JOIN LATERAL
+        delete_or_expire_job(
+                partition_id,
+                job_id,
+                operation
+            );
 END;
 $$;
