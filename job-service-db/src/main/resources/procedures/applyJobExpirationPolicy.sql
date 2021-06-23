@@ -32,9 +32,8 @@
  */
 CREATE OR REPLACE PROCEDURE apply_job_expiration_policy(
 )
-    LANGUAGE plpgsql
-AS
-$$
+LANGUAGE plpgsql
+AS $$
 BEGIN
 
     PERFORM NULL
@@ -82,11 +81,11 @@ BEGIN
                        ,
                            CASE --------------------------------------------------------------------(4)
                                WHEN default_p.create_date_offset = 'infinity'
-                                   THEN 'infinity'::timestamp
+                                   THEN 'infinity'::TIMESTAMP
                                WHEN default_p.create_date_offset IS NULL
                                    THEN NULL
                                ELSE
-                                   (create_date + default_p.create_date_offset::INTERVAL)::timestamp
+                                   (create_date + default_p.create_date_offset::INTERVAL)::TIMESTAMP
                                END
                        ) <= now()
          ) expired_jobs
