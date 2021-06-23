@@ -19,94 +19,90 @@
  *
  *  Description:
  *  Expires or deletes jobs in accordance with their expiry policies.
+ *  Policies can be found in 2 tables:
+ *      - job_expiration_policy if the user provided it on job's creation
+ *      - default_job_expiration_policy
+ *  Each of those tables have two columns related respectively to create_date and last_update_date as:
+ *      - default_job_expiration_policy -> create_date_offset, last_modified_offset
+ *      - job_expiration_policy         -> exact_expiry_time, last_modified_offset
+ *  Only 1 of those fields by table can be field (the other one should be null)
+ *
+ *  User's policy is used in priority if provided, default is applied otherwise
+ *
  */
 CREATE OR REPLACE PROCEDURE apply_job_expiration_policy(
 )
-LANGUAGE plpgsql
+    LANGUAGE plpgsql
 AS
 $$
 BEGIN
 
-PERFORM NULL
-FROM (
-          SELECT
-             partition_id,
-             job_id,
-             operation
-          FROM
-             (
-                 SELECT
-                     partition_id,
-                     job_id,
-                     job_status,
-                     last_update_date ,
-                     COALESCE (
-                             jep.operation,
-                             djep.operation
-                         ) AS operation,
-                     CASE
-                         WHEN create_date_offset = 'infinity' THEN 'infinity'::timestamp
-                         WHEN create_date_offset IS NULL THEN NULL
-                         ELSE (
-                                 create_date + create_date_offset::INTERVAL
-                             )::timestamp
-                         END AS djep_exact_expiry_time,
-                     jep.exact_expiry_time AS jep_exact_expiry_time,
-                     CASE
-                         WHEN djep.last_modified_offset IS NOT NULL THEN djep.last_modified_offset::INTERVAL
-                         END AS djep_last_modified_offset,
-                     jep.last_modified_offset AS jep_last_modified_offset
-                 FROM (
-                          SELECT
-                              partition_id ,
-                              job_id,
-                              status,
-                              create_date,
-                              last_update_date
-                          FROM
-                              job j
-                                  CROSS JOIN LATERAL (
-                                      -- Getting the latest status
-                                      SELECT
-                                          status AS current_status
-                                      FROM
-                                          get_job(
-                                                  partition_id,
-                                                  job_id
-                                          )
-                                      LIMIT 1
-                                  ) latest_status
-                          WHERE
-                              status = current_status
-                      ) AS jobs
-                          CROSS JOIN default_job_expiration_policy djep
-                          LEFT JOIN job_expiration_policy jep
-                                    USING (
-                                           partition_id,
-                                           job_id,
-                                           job_status
-                                        )
-                 WHERE
-                         job_status = status
-             ) t1
-         WHERE
-                 COALESCE (
-                         CASE
-                             WHEN jep_exact_expiry_time IS NULL
-                                 AND jep_last_modified_offset IS NULL THEN COALESCE(jep_exact_expiry_time, djep_exact_expiry_time)
-                             ELSE jep_exact_expiry_time
-                             END,
-                         last_update_date + COALESCE(jep_last_modified_offset, djep_last_modified_offset)
-                     ) <= now() ) expired_jobs
-         CROSS JOIN LATERAL (
-    SELECT
-        NULL
-    FROM
-        delete_or_expire_job(
-                partition_id,
-                job_id,
-                operation
-            ) expiring_action
-    ) global_selection;
+    PERFORM NULL
+    FROM (
+
+             SELECT
+                 partition_id,
+                 job_id,
+                 COALESCE( user_p.operation, default_p.operation ) AS operation
+             FROM
+                 job j
+                     CROSS JOIN LATERAL (
+                     -- Getting the latest status
+                     SELECT
+                         status AS current_status
+                     FROM
+                         get_job(
+                                 partition_id,
+                                 job_id
+                             )
+                     LIMIT 1
+                     ) latest_status
+                     CROSS JOIN default_job_expiration_policy default_p
+                     LEFT JOIN job_expiration_policy user_p
+                               USING (
+                                      partition_id,
+                                      job_id,
+                                      job_status
+                                   )
+             WHERE
+                   job_status = status
+                   -- Order:
+                   --   user_p.exact_expiry_time
+                   --   user_p.last_modified_offset
+                   --   default_p.last_modified_offset
+                   --   default_p.create_date_offset
+               AND COALESCE(
+                           COALESCE(
+                                   user_p.exact_expiry_time,
+                                   last_update_date + COALESCE(
+                                           user_p.last_modified_offset,
+                                           CASE
+                                               WHEN
+                                                   default_p.last_modified_offset IS NOT NULL
+                                                   THEN
+                                                   default_p.last_modified_offset::INTERVAL
+                                               END
+                                       )
+                               )
+                       ,
+                           CASE
+                               WHEN default_p.create_date_offset = 'infinity'
+                                   THEN 'infinity'::timestamp
+                               WHEN default_p.create_date_offset IS NULL
+                                   THEN NULL
+                               ELSE
+                                   (create_date + default_p.create_date_offset::INTERVAL)::timestamp
+                               END
+                       ) <= now() ) expired_jobs
+             CROSS JOIN LATERAL (
+        SELECT
+            NULL
+        FROM
+            delete_or_expire_job(
+                    partition_id,
+                    job_id,
+                    operation
+                ) expiring_action
+        ) global_selection;
 END;
 $$;
