@@ -22,9 +22,9 @@
  *  Policies can be found in 2 tables:
  *      - job_expiration_policy if the user provided it on job's creation ( alias user_p)
  *      - default_job_expiration_policy ( alias default_p)
- *  Each of those tables have two columns related respectively to create_date and last_update_date as:
- *      - default_job_expiration_policy -> create_date_offset, last_modified_offset
- *      - job_expiration_policy         -> exact_expiry_time, last_modified_offset
+ *  Each of those tables have two columns, respectively related, to create_date and last_update_date such as:
+ *      - default_job_expiration_policy -> create_date_offset(varchar), last_modified_offset(interval)
+ *      - job_expiration_policy         -> exact_expiry_time(timestamp), last_modified_offset(interval)
  *  Only 1 of those fields maximum, by table, can be filled (the other one should be null)
  *
  *  User's policy is used in priority if provided, default is applied otherwise
