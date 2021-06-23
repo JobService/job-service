@@ -25,7 +25,7 @@
  *  Each of those tables have two columns related respectively to create_date and last_update_date as:
  *      - default_job_expiration_policy -> create_date_offset, last_modified_offset
  *      - job_expiration_policy         -> exact_expiry_time, last_modified_offset
- *  Only 1 of those fields by table can be field (the other one should be null)
+ *  Only 1 of those fields maximum, by table, can be filled (the other one should be null)
  *
  *  User's policy is used in priority if provided, default is applied otherwise
  *
