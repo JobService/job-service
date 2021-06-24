@@ -27,7 +27,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>4.1.0-SNAPSHOT</version>
+        <version>5.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -134,7 +134,7 @@
                             <alias>job-service-scheduled-executor</alias>
                             <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
                             <build>
-                                <from>${dockerHubPublic}/cafapi/opensuse-jre11:3</from>
+                                <from>${dockerHubPublic}/cafapi/prereleases:opensuse-jre11-3.4.0-SNAPSHOT</from>
                                 <cmd>
                                     <exec>
                                         <args>/maven/worker.sh</args>

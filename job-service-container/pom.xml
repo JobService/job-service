@@ -28,12 +28,12 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>4.1.0-SNAPSHOT</version>
+        <version>5.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
         <task.table.deletion.count>100</task.table.deletion.count>
-        <tomcatBaseImage>${dockerHubPublic}/cafapi/opensuse-tomcat-jre11:2</tomcatBaseImage>
+        <tomcatBaseImage>${dockerHubPublic}/cafapi/prereleases:opensuse-tomcat-jre11-2.4.0-SNAPSHOT</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
@@ -135,11 +135,6 @@
         <dependency>
             <groupId>com.github.workerframework</groupId>
             <artifactId>${caf.worker-queue.impl}</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-store-fs</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -249,7 +244,7 @@
                         <CAF_CONFIG_PATH>${project.basedir}/test-config</CAF_CONFIG_PATH>
                         <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
                         <CAF_STATUS_CHECK_INTERVAL_SECONDS>5</CAF_STATUS_CHECK_INTERVAL_SECONDS>
-                        <CAF_INTEGRATIONTESTS_FS_PATH>\\${docker.host.address}@${webdav.apache.port}\webdav</CAF_INTEGRATIONTESTS_FS_PATH>
+                        <CAF_WORKER_HTTP_DATASTORE_URL>http://${docker.host.address}:${webdav.apache.port}/webdav</CAF_WORKER_HTTP_DATASTORE_URL>
                         <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
                         <JOB_SERVICE_DATABASE_APPNAME>Job Service</JOB_SERVICE_DATABASE_APPNAME>
                         <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${db.name}</JOB_SERVICE_DATABASE_URL>

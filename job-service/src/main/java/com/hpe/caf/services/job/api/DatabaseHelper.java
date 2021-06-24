@@ -25,7 +25,6 @@ import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
 import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
-import com.hpe.caf.services.job.util.JobTaskId;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,8 +58,6 @@ public final class DatabaseHelper
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHelper.class);
 
-    public final boolean propagateDependentJobFailures;
-
     /**
      * Instantiates a new DBUtil
      *
@@ -69,8 +66,6 @@ public final class DatabaseHelper
     public DatabaseHelper(AppConfig appConfig)
     {
         DatabaseHelper.appConfig = appConfig;
-        final String propDepJoFailures = System.getenv("CAF_JOB_SERVICE_PROPAGATE_FAILURES");
-        propagateDependentJobFailures = propDepJoFailures != null ? Boolean.parseBoolean(propDepJoFailures) : false;
     }
 
     public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
@@ -512,12 +507,11 @@ public final class DatabaseHelper
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2,jobId);
             stmt.setString(3,failureDetails);
-            stmt.setBoolean(4, propagateDependentJobFailures);
 
             LOG.debug("Calling report_failure() database function...");
             stmt.execute();
