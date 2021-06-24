@@ -71,6 +71,19 @@
             </column>
         </createTable>
     </changeSet>
+    <!-- 'create_date_offset' OR 'last_modified_offset' must always be provided,
+                but never both at the same time
+         There's an ongoing PR for using checkConstraint but not yet implemented
+         https://github.com/liquibase/liquibase/pull/374/files-->
+    <changeSet id="add_check_constraint_on_job_expiration_policy" author="Gamma Team">
+        <sql>ALTER TABLE job_expiration_policy ADD CONSTRAINT exact_expiry_time
+            CHECK(
+                (exact_expiry_time IS NOT NULL AND last_modified_offset IS NULL)
+                    OR
+                (last_modified_offset IS NOT NULL AND exact_expiry_time IS NULL)
+            )
+        </sql>
+    </changeSet>
     <changeSet id="add_job_expiration_policy_primary_key" author="Gamma Team">
         <addPrimaryKey constraintName="pk_job_expiration_policy"
                        schemaName="public"
@@ -103,6 +116,20 @@
                 <constraints nullable="true" />
             </column>
         </createTable>
+    </changeSet>
+    <!-- 'create_date_offset' OR 'last_modified_offset' must always be provided,
+                but never both at the same time
+         There's an ongoing PR for using checkConstraint but not yet implemented
+         https://github.com/liquibase/liquibase/pull/374/files-->
+    <changeSet id="add_check_constraint_on_default_job_expiration_policy" author="Gamma Team">
+        <sql>
+            ALTER TABLE default_job_expiration_policy ADD CONSTRAINT create_date_offset
+            CHECK(
+                (create_date_offset IS NOT NULL AND last_modified_offset IS NULL)
+                   OR
+                (last_modified_offset IS NOT NULL AND create_date_offset IS NULL)
+            )
+        </sql>
     </changeSet>
     <changeSet id="increase_task_id_size" author="Gamma Team" >
         <modifyDataType
