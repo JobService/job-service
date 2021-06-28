@@ -700,4 +700,27 @@ public final class DatabaseHelper {
             throw mapSqlConnectionException(se);
         }
     }
+
+    public ExpirationPolicy getDefaultExpirationPolicy() throws Exception {
+
+        ExpirationPolicy expirationPolicy = new ExpirationPolicy();
+        try (
+                final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                CallableStatement stmt = conn.prepareCall("{call get_default_expiry()}")
+        ) {
+            //  Execute a query to return a list of all job definitions in the system.
+            LOG.debug("Calling get_job() database function...");
+            try (
+                    final ResultSet rs = stmt.executeQuery();
+            ) {
+                while (rs.next()) {
+                    expirationPolicy =retrieveExpirationPolicy(expirationPolicy, rs);
+                }
+            }
+        } catch (final SQLException se) {
+            throw mapSqlNoDataException(se);
+        }
+
+        return expirationPolicy;
+    }
 }

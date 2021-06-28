@@ -115,6 +115,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_get_default_expiry_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/getDefaultSystemExpiry.sql"
+                         procedureName="get_default_expiry"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_get_job_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/getJob.sql"
                          procedureName="get_job"

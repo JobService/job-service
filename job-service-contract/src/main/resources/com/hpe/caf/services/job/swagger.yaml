@@ -121,6 +121,21 @@ paths:
               $ref: "#/definitions/job"
         503:
           description: The request failed due to a database connection error.
+  /partitions/default-expiry:
+    get:
+      tags:
+        - Jobs
+      summary: Gets the default expiry
+      description: Returns the default expiry  settings.
+      operationId: getDefaultExpiry
+      responses:
+        200:
+          description: Returns the default expiry settings.
+          schema:
+            schema:
+              $ref: "#/definitions/expirationPolicy"
+        503:
+          description: The request failed due to a database connection error.
   /partitions/{partitionId}/jobs/{jobId}:
     parameters:
       - $ref: '#/parameters/partitionId'

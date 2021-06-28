@@ -15,6 +15,7 @@
  */
 package com.hpe.caf.services.job.api.generated;
 
+import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import io.swagger.annotations.ApiParam;
 
 import com.hpe.caf.services.job.api.generated.model.Job;
@@ -25,7 +26,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.*;
 import javax.ws.rs.core.UriInfo;
-import java.util.List;
 
 @Path("/partitions")
 @Consumes({ "application/json" })
@@ -81,6 +81,21 @@ public class JobsApi  {
             @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,@Context SecurityContext securityContext)
             throws Exception {
         return delegate.getJob(partitionId, jobId,cAFCorrelationId,securityContext);
+    }
+
+    @GET
+    @Path("/partitions/default-expiry")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @io.swagger.annotations.ApiOperation(value = "Gets the default expiry settings", notes = "Retrieves the default expiry settings",
+            response = ExpirationPolicy.class, tags={ "Jobs",  })
+    @io.swagger.annotations.ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 200, message = "Returns the default expiry settings", response = ExpirationPolicy.class),
+
+            @io.swagger.annotations.ApiResponse(code = 503, message = "The request failed due to a database connection error.")
+    })
+    public Response getDefaultExpiry(@Context SecurityContext securityContext) throws Exception {
+        return delegate.getDefaultExpiry(securityContext);
     }
 
     @PUT
