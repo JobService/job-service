@@ -87,6 +87,21 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>com.github.workerframework</groupId>
+                <artifactId>worker-core</artifactId>
+                <version>5.1.0-SCMOD-5524-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.workerframework</groupId>
+                <artifactId>worker-caf</artifactId>
+                <version>5.1.0-SCMOD-5524-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.workerframework</groupId>
+                <artifactId>worker-api</artifactId>
+                <version>5.1.0-SCMOD-5524-SNAPSHOT</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>

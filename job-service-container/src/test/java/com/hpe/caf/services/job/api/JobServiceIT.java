@@ -819,7 +819,7 @@ public class JobServiceIT {
             "target pipe in message should come from configuration");
 
         final JobTypeTestTaskData messageTaskData =
-            objectMapper.readValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
+            objectMapper.convertValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.config.size(), 2,
             "configuration passed to task data script should contain 2 items: TASK_PIPE and TARGET_PIPE");
         assertEquals(messageTaskData.taskQueue, "basic task-pipe",
@@ -892,7 +892,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
         final JobTypeTestTaskData messageTaskData
-            = objectMapper.readValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
+            = objectMapper.convertValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER"), "upper value",
                      "property with upper-case name should be passed to task data script");
         assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_lower"), "lower value",
@@ -924,7 +924,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
         final JobTypeTestTaskData messageTaskData =
-            objectMapper.readValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
+            objectMapper.convertValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.reqParams.get("s"), "some value",
             "param s should be passed to task data script");
         assertEquals(messageTaskData.reqParams.get("a"), 289,
@@ -961,7 +961,7 @@ public class JobServiceIT {
             "target pipe should be missing from message");
 
         final JobTypeTestTaskData messageTaskData =
-            objectMapper.readValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
+            objectMapper.convertValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
         assertNull(messageTaskData.targetQueue,
             "target pipe should not be passed to task data script");
     }
@@ -984,7 +984,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
         final JobTypeTestTaskData messageTaskData =
-            objectMapper.readValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
+            objectMapper.convertValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.reqParams.get("joined"), "first>second>third",
             "join function should work");
         assertEquals(messageTaskData.reqParams.get("concatenatedJson"),
