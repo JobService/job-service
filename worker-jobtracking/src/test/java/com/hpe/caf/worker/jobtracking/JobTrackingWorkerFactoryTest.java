@@ -108,7 +108,7 @@ public class JobTrackingWorkerFactoryTest {
             trackingReport.trackingReports.add(tr);
         }
         Mockito.when(wtd.getClassifier()).thenReturn(TrackingReportConstants.TRACKING_REPORT_TASK_NAME);
-        Mockito.when(wtd.getData()).thenReturn(codec.serialise(trackingReport));
+        Mockito.when(wtd.getData()).thenReturn(trackingReport);
         Mockito.when(wtd.getVersion()).thenReturn(TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
 
         //Create the worker factory subject to testing
@@ -226,7 +226,7 @@ public class JobTrackingWorkerFactoryTest {
         //verify results
         Mockito.verify(reporter, Mockito.times(1)).reportJobTaskProgress(Mockito.eq(jobTaskId), Mockito.anyInt());
         Assert.assertEquals(TaskStatus.RESULT_SUCCESS, response.getTaskStatus());
-        Assert.assertArrayEquals(response.getData(), new byte[]{});
+        Assert.assertEquals(response.getData(), "");
     }
 
 
