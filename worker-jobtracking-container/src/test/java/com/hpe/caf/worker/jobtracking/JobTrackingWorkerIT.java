@@ -435,7 +435,7 @@ public class JobTrackingWorkerIT {
             taskId,
             "TrackingReportTask",
             ExampleWorkerConstants.WORKER_API_VER,
-            workerServices.getCodec().serialise(exampleTask),
+            exampleTask,
             TaskStatus.NEW_TASK,
             new HashMap<>(),
             jobTrackingWorkerInputQueue);
