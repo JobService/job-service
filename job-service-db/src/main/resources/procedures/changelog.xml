@@ -27,6 +27,12 @@
           When adding a new procedure add a corresponding changeSet here with `runOnChange="true"` set.
           If modifying an existing procedure, DO NOT add a new changeSet. The changes will be applied automatically.
      -->
+    <changeSet id="create_apply_job_expiration_policy_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/applyJobExpirationPolicy.sql"
+                         procedureName="apply_job_expiration_policy"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_cancel_job_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/cancelJob.sql"
                          procedureName="cancel_job"
@@ -69,6 +75,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_delete_or_expire_job_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/deleteOrExpireJob.sql"
+                         procedureName="delete_or_expire_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_delete_task_table_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/deleteTaskTable.sql"
                          procedureName="internal_delete_task_table"
@@ -91,9 +103,21 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_expire_job_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/expireJob.sql"
+                         procedureName="internal_expire_job"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="create_get_dependent_jobs_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/getDependentJobs.sql"
                          procedureName="get_dependent_jobs"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="create_get_default_expiry_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/getDefaultSystemExpiry.sql"
+                         procedureName="get_default_expiry"
                          schemaName="public">
         </createProcedure>
     </changeSet>
@@ -295,6 +319,12 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="create_upsert_job_policy_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/upsertJobPolicy.sql"
+                         procedureName="internal_upsert_job_policy"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
     <changeSet id="drop_deleted_task_tables_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/dropDeletedTaskTables.sql"
                          procedureName="drop_deleted_task_tables"
@@ -306,5 +336,14 @@
                          procedureName="internal_insert_delete_log"
                          schemaName="public">
         </createProcedure>
+    </changeSet>
+    <changeSet id="refresh_default_expiry_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/refreshDefaultExpiry.sql"
+                         procedureName="refresh_default_expiry"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="run_refresh_default_expiry_proc" runOnChange="true" author="Gamma Team">
+        <sql>CALL refresh_default_expiry();</sql>
     </changeSet>
 </databaseChangeLog>

@@ -22,6 +22,7 @@
  */
 DROP FUNCTION IF EXISTS get_job(in_job_id VARCHAR(58));
 DROP FUNCTION IF EXISTS get_job(in_partition_id VARCHAR(40), in_job_id VARCHAR(58));
+DROP FUNCTION IF EXISTS get_job(in_partition_id VARCHAR(40), in_job_id VARCHAR(48));
 CREATE OR REPLACE FUNCTION get_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
@@ -38,7 +39,11 @@ RETURNS TABLE(
     failure_details TEXT,
     actionType CHAR(6),
     label VARCHAR(255),
-    label_value VARCHAR(255)
+    label_value VARCHAR(255),
+    expiration_status job_status,
+    operation expiration_operation,
+    expiration_time VARCHAR(58),
+    policer expiration_policer
 )
 LANGUAGE plpgsql VOLATILE
 AS $$
@@ -72,9 +77,26 @@ BEGIN
            job.failure_details,
            CAST('WORKER' AS CHAR(6)) AS actionType,
            lbl.label,
-           lbl.value
+           lbl.value,
+           djep.job_status,
+           COALESCE (jep.operation, djep.operation) AS operation,
+           COALESCE (jep.expiration_time, djep.expiration_time ) AS expiration_time,
+           CASE
+               WHEN jep.operation IS NULL THEN
+                    'System'::EXPIRATION_POLICER
+               ELSE
+                    'User'::EXPIRATION_POLICER
+           END
     FROM job
-    LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id AND lbl.job_id = job.job_id
+    CROSS JOIN default_job_expiration_policy djep
+    LEFT JOIN public.label lbl
+        ON lbl.partition_id = job.partition_id
+               AND lbl.job_id = job.job_id
+
+    LEFT JOIN job_expiration_policy jep
+        ON jep.partition_id = job.partition_id
+               AND jep.job_id = job.job_id
+               AND djep.job_status = jep.job_status
     WHERE job.partition_id = in_partition_id
         AND job.job_id = in_job_id;
 

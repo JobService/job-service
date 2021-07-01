@@ -47,6 +47,11 @@ public class ScheduledExecutor {
         scheduler.scheduleWithFixedDelay(task, 20, ScheduledExecutorConfig.getScheduledExecutorPeriod(),
                 TimeUnit.SECONDS);
 
+        LOG.info("Starting task for applying the job expiration policy ...");
+        //  Execute the dropTablesTask periodically.
+        scheduler.scheduleWithFixedDelay(new ApplyJobExpirationPolicyTask(), 20, ScheduledExecutorConfig.getApplyExpirationPolicySchedulerPeriod(),
+                TimeUnit.SECONDS);
+
         LOG.info("Starting task for dropping soft deleted tables ...");
         //  Execute the dropTablesTask periodically.
         scheduler.scheduleWithFixedDelay(new DropTablesTask(), 20, ScheduledExecutorConfig.getDropTablesSchedulerPeriod(),

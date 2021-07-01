@@ -38,7 +38,23 @@ DROP FUNCTION IF EXISTS create_job(
     in_prerequisite_job_ids VARCHAR(128)[],
     in_delay INT
 );
-
+DROP FUNCTION IF EXISTS create_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_name VARCHAR(255),
+    in_description TEXT,
+    in_data TEXT,
+    in_job_hash INT,
+    in_task_classifier VARCHAR(255),
+    in_task_api_version INT,
+    in_task_data BYTEA,
+    in_task_pipe VARCHAR(255),
+    in_target_pipe VARCHAR(255),
+    in_prerequisite_job_ids VARCHAR(128)[],
+    in_delay INT,
+    in_labels VARCHAR(255)[][],
+    in_suspended_partition BOOLEAN
+);
 CREATE OR REPLACE FUNCTION create_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),
@@ -54,7 +70,8 @@ CREATE OR REPLACE FUNCTION create_job(
     in_prerequisite_job_ids VARCHAR(128)[],
     in_delay INT,
     in_labels VARCHAR(255)[][] default null,
-    in_suspended_partition BOOLEAN default false
+    in_suspended_partition BOOLEAN default false,
+    in_policies job_policy[] default null
 )
 RETURNS TABLE(
     job_created BOOLEAN
@@ -97,7 +114,8 @@ BEGIN
         in_delay = 0;
     END IF;
 
-    IF NOT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, in_delay, in_job_hash, in_labels) THEN
+    IF NOT internal_create_job(in_partition_id, in_job_id, in_name, in_description,
+                               in_data, in_delay, in_job_hash, in_labels, in_policies) THEN
         RETURN QUERY SELECT FALSE;
         RETURN;
     END IF;

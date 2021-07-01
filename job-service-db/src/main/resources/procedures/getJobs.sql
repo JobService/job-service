@@ -44,6 +44,18 @@ DROP FUNCTION IF EXISTS get_jobs(
     in_sort_ascending BOOLEAN,
     in_labels VARCHAR(255)[],
     in_filter VARCHAR(255));
+DROP FUNCTION IF EXISTS get_jobs(
+    in_partition_id VARCHAR(40),
+    in_job_id_starts_with VARCHAR(48),
+    in_status_type VARCHAR(20),
+    in_limit INT,
+    in_offset INT,
+    in_sort_field VARCHAR(20),
+    in_sort_label VARCHAR(255),
+    in_sort_ascending BOOLEAN,
+    in_labels VARCHAR(255)[],
+    in_filter VARCHAR(255)
+);
 CREATE OR REPLACE FUNCTION get_jobs(
     in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),
@@ -68,7 +80,11 @@ RETURNS TABLE(
     failure_details TEXT,
     actionType CHAR(6),
     label VARCHAR(255),
-    label_value VARCHAR(255)
+    label_value VARCHAR(255),
+    expiration_status job_status,
+    operation expiration_operation,
+    expiration_time VARCHAR(58),
+    policer expiration_policer
 )
 LANGUAGE plpgsql VOLATILE
 AS $$
@@ -103,7 +119,16 @@ BEGIN
                job.failure_details,
                CAST('WORKER' AS CHAR(6)) AS actionType,
                lbl.label,
-               lbl.value
+               lbl.value,
+               djep.job_status,
+               COALESCE (jep.operation, djep.operation) AS operation,
+           	   COALESCE (jep.expiration_time, djep.expiration_time ) AS expiration_time,
+	           CASE
+	               WHEN jep.operation IS NULL THEN
+	                    'System'::EXPIRATION_POLICER
+	               ELSE
+	                    'User'::EXPIRATION_POLICER
+	           END AS policer
         FROM
         (SELECT
                job.partition_id,
@@ -140,13 +165,13 @@ BEGIN
 
     IF in_status_type IS NOT NULL THEN
         IF in_status_type = 'NotCompleted' THEN
-            sql := sql || whereOrAnd || $q$ status IN ('Active', 'Paused', 'Waiting', 'Cancelled', 'Failed')$q$;
+            sql := sql || whereOrAnd || $q$ status IN ('Active', 'Paused', 'Waiting', 'Cancelled', 'Failed', 'Expired')$q$;
             whereOrAnd := andConst;
         ELSIF in_status_type = 'Completed' THEN
             sql := sql || whereOrAnd || $q$ status IN ('Completed')$q$;
             whereOrAnd := andConst;
         ELSIF in_status_type = 'Inactive' THEN
-            sql := sql || whereOrAnd || $q$ status IN ('Completed', 'Cancelled', 'Failed')$q$;
+            sql := sql || whereOrAnd || $q$ status IN ('Completed', 'Cancelled', 'Failed', 'Expired')$q$;
             whereOrAnd := andConst;
         ELSIF in_status_type = 'NotFinished' THEN
             sql := sql || whereOrAnd || $q$ status IN ('Active', 'Paused', 'Waiting')$q$;
@@ -176,8 +201,15 @@ BEGIN
         sql := sql || ' OFFSET ' || in_offset;
     END IF;
     -- Join onto the labels after paging to avoid them bloating the row count
-    sql := sql || ' ) as job LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id '
+    sql := sql || ' ) as job ' ||
+           'CROSS JOIN default_job_expiration_policy djep
+            LEFT JOIN public.label lbl ON lbl.partition_id = job.partition_id '
                || 'AND lbl.job_id = job.job_id';
+    -- Join onto the job_expiration_policy table
+    sql := sql || ' LEFT JOIN job_expiration_policy jep
+        ON jep.partition_id = job.partition_id
+               AND jep.job_id = job.job_id
+               AND djep.job_status = jep.job_status';
     sql := sql || ' ORDER BY ' ||
        CASE WHEN in_sort_label IS NOT NULL AND in_sort_label != ''
          THEN '(SELECT value FROM label l WHERE job.partition_id = l.partition_id AND job.job_id = l.job_id AND l.label = ' ||
@@ -228,7 +260,11 @@ BEGIN
                at.failure_details,
                CAST('WORKER' AS CHAR(6)) AS actionType,
                at.label,
-               at.value
+               at.value,
+               at.job_status,
+               at.operation,
+               at.expiration_time,
+               at.policer
         FROM get_job_temp at
         ORDER BY at.id;
 END

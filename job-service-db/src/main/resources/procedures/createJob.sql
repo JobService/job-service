@@ -30,6 +30,16 @@ DROP FUNCTION IF EXISTS create_job(
     in_job_hash INT
 );
 
+DROP FUNCTION IF EXISTS create_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_name VARCHAR(255),
+    in_description TEXT,
+    in_data TEXT,
+    in_job_hash INT,
+    in_labels VARCHAR(255)[][]
+);
+
 CREATE OR REPLACE FUNCTION create_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),
@@ -37,7 +47,8 @@ CREATE OR REPLACE FUNCTION create_job(
     in_description TEXT,
     in_data TEXT,
     in_job_hash INT,
-    in_labels VARCHAR(255)[][] default null
+    in_labels VARCHAR(255)[][] default null,
+    in_policies job_policy[] default null
 )
 RETURNS TABLE(
     job_created BOOLEAN
@@ -51,7 +62,6 @@ BEGIN
     END IF;
 
     RETURN QUERY
-    SELECT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, 0, in_job_hash, in_labels);
-
+    SELECT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, 0, in_job_hash, in_labels, in_policies);
 END
 $$;

@@ -16,10 +16,13 @@
 package com.hpe.caf.services.job.api.generated;
 
 import com.hpe.caf.services.job.api.*;
+import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
@@ -29,6 +32,8 @@ import java.util.List;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-02-29T10:25:31.219Z")
 public class JobsApiServiceImpl extends JobsApiService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JobsApiServiceImpl.class);
 
     @Override
     public Response getJobs(final String partitionId, final String jobIdStartsWith, final String statusType,
@@ -109,6 +114,13 @@ public class JobsApiServiceImpl extends JobsApiService {
         cacheControl.setMaxAge(jobStatusResult.statusCheckIntervalSecs);
 
         return Response.ok().header("CacheableJobStatus", true).entity(jobStatusResult.jobStatus).cacheControl(cacheControl).build();
+    }
+
+    @Override
+    public Response getDefaultExpiry(final SecurityContext securityContext) throws Exception {
+        LOG.debug("getDefaultExpiry impl");
+        final ExpirationPolicy defaultExpiry = JobsGetExpiry.getDefault();
+        return Response.ok().entity(defaultExpiry).build();
     }
 
 }

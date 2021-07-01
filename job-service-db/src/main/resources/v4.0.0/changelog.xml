@@ -17,11 +17,8 @@
 
 -->
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
-                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
-                                       http://www.liquibase.org/xml/ns/dbchangelog
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
     <changeSet id="create_table_delete_log" author="Gamma Team">
         <createTable tableName="delete_log">
@@ -32,6 +29,107 @@
         <createIndex schemaName="public" tableName="delete_log" indexName="idx_delete_log_table_name">
             <column name="table_name" />
         </createIndex>
+    </changeSet>
+    <changeSet id="create_expiration_operation_enum_type" author="Gamma Team">
+        <sql>CREATE TYPE EXPIRATION_OPERATION AS ENUM('Expire', 'Delete')</sql>
+    </changeSet>
+    <changeSet id="create_policer_enum_type" author="Gamma Team">
+        <sql>CREATE TYPE EXPIRATION_POLICER AS ENUM('User', 'System')</sql>
+    </changeSet>
+    <changeSet id="update_job_status_enum_type_add_expired" author="Gamma Team" runInTransaction="false">
+        <sql>ALTER TYPE JOB_STATUS ADD VALUE 'Expired';</sql>
+    </changeSet>
+    <changeSet id="create_basic_policy_type" author="Gamma Team">
+        <sql>CREATE TYPE BASIC_POLICY AS (job_status JOB_STATUS,
+            operation EXPIRATION_OPERATION, expiration_time VARCHAR(58))</sql>
+    </changeSet>
+    <changeSet id="create_policy_type" author="Gamma Team">
+        <sql>CREATE TYPE JOB_POLICY AS (partition_id VARCHAR(40), job_id VARCHAR(48), b_policy BASIC_POLICY)</sql>
+    </changeSet>
+    <changeSet id="create_table_job_expiration_policy" author="Gamma Team">
+        <createTable tableName="job_expiration_policy">
+            <column name="partition_id" type="VARCHAR(40)">
+                <constraints nullable="false" />
+            </column>
+            <column name="job_id" type="VARCHAR(48)">
+                <constraints nullable="false" />
+            </column>
+            <column name="job_status" type="JOB_STATUS">
+                <constraints nullable="false" />
+            </column>
+            <column name="operation" type="EXPIRATION_OPERATION">
+                <constraints nullable="false" />
+            </column>
+            <column name="expiration_time" type="VARCHAR(58)">
+                <constraints nullable="false" />
+            </column>
+            <column name="exact_expiry_time" type="TIMESTAMP">
+                <constraints nullable="true" />
+            </column>
+            <column name="last_modified_offset" type="INTERVAL">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+    </changeSet>
+    <!-- 'create_date_offset' OR 'last_modified_offset' must always be provided,
+                but never both at the same time
+         There's an ongoing PR for using checkConstraint but not yet implemented
+         https://github.com/liquibase/liquibase/pull/374/files-->
+    <changeSet id="add_check_constraint_on_job_expiration_policy" author="Gamma Team">
+        <sql>ALTER TABLE job_expiration_policy ADD CONSTRAINT exact_expiry_time
+            CHECK(
+                (exact_expiry_time IS NOT NULL AND last_modified_offset IS NULL)
+                    OR
+                (last_modified_offset IS NOT NULL AND exact_expiry_time IS NULL)
+            )
+        </sql>
+    </changeSet>
+    <changeSet id="add_job_expiration_policy_primary_key" author="Gamma Team">
+        <addPrimaryKey constraintName="pk_job_expiration_policy"
+                       schemaName="public"
+                       tableName="job_expiration_policy"
+                       columnNames="partition_id, job_id, job_status" />
+    </changeSet>
+    <changeSet id="add_job_expiration_policy_foreign_key" author="Gamma Team">
+        <addForeignKeyConstraint baseTableSchemaName="public"
+                                 baseTableName="job_expiration_policy"
+                                 constraintName="fk_expiration_policy_job"
+                                 baseColumnNames="partition_id, job_id"
+                                 referencedTableName="job"
+                                 referencedColumnNames="partition_id, job_id" />
+    </changeSet>
+    <changeSet id="create_default_job_expiration_policy" author="Gamma Team">
+        <createTable tableName="default_job_expiration_policy">
+            <column name="job_status" type="JOB_STATUS">
+                <constraints nullable="false" />
+            </column>
+            <column name="operation" type="EXPIRATION_OPERATION">
+                <constraints nullable="false" />
+            </column>
+            <column name="expiration_time" type="VARCHAR(58)">
+                <constraints nullable="false" />
+            </column>
+            <column name="create_date_offset" type="VARCHAR(12)">
+                <constraints nullable="true" />
+            </column>
+            <column name="last_modified_offset" type="INTERVAL">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+    </changeSet>
+    <!-- 'create_date_offset' OR 'last_modified_offset' must always be provided,
+                but never both at the same time
+         There's an ongoing PR for using checkConstraint but not yet implemented
+         https://github.com/liquibase/liquibase/pull/374/files-->
+    <changeSet id="add_check_constraint_on_default_job_expiration_policy" author="Gamma Team">
+        <sql>
+            ALTER TABLE default_job_expiration_policy ADD CONSTRAINT create_date_offset
+            CHECK(
+                (create_date_offset IS NOT NULL AND last_modified_offset IS NULL)
+                   OR
+                (last_modified_offset IS NOT NULL AND create_date_offset IS NULL)
+            )
+        </sql>
     </changeSet>
     <changeSet id="increase_task_id_size" author="Gamma Team" >
         <modifyDataType

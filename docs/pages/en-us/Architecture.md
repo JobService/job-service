@@ -150,7 +150,7 @@ This table stores Ids of dependent jobs i.e. jobs which must be completed before
 
 ### Job Task Data
 
-This table stores information on jobs which have dependent jobs and must wait for execution.  The table contains enough information for the Job Tracking Worker and Job Service Scheduled Executor to forward on the job, once it's dependent jobs have all completed.
+This table stores information on jobs which have dependent jobs and must wait for execution.  The table contains enough information for the Job Tracking Worker and Job Service Scheduled Executor to forward on the job, once its dependent jobs have all completed.
 
 | **Column**           | **Data Type** | **Nullable?** | **Primary Key?** |
 |----------------------|---------------|---------------|------------------|
@@ -163,3 +163,38 @@ This table stores information on jobs which have dependent jobs and must wait fo
 | target_pipe          | varchar(255)  | No            |                  |
 | eligible_to_run_date | timestamp     | Yes           |                  |
 
+### Job Expiration Policy
+
+This table stores information about the expiration policy related to the jobs. The Job Service Scheduled Executor runs 
+at regular interval in order to apply those policies.
+
+| **Column**           | **Data Type**       | **Nullable?** | **Primary Key?** |
+|----------------------|---------------------|---------------|------------------|
+| partition_id         | varchar(40)         | No            | Yes              |
+| job_id               | varchar(48)         | No            | Yes              |
+| job_status           | job_status          | No            | Yes              |
+| operation            | expiration_operation| No            |                  |
+| expiration_time      | varchar(58)         | No            |                  |
+| exact_expiry_time    | timestamp           | Yes           |                  |
+| last_modified_offset | interval            | Yes           |                  |
+
+### Default Job Expiration Policy
+
+This table stores the default expiration_policy related to the jobs. Its role is to provide a policy whenever missing 
+from the job_expiration_policy table
+
+| **Column**           | **Data Type**       | **Nullable?** | **Primary Key?** |
+|----------------------|---------------------|---------------|------------------|
+| job_status           | job_status          | No            | Yes              |
+| operation            | expiration_operation| No            |                  |
+| expiration_time      | varchar(58)         | No            |                  |
+| create_date_offset   | varchar(12)         | Yes           |                  |
+| last_modified_offset | interval            | Yes           |                  |
+
+### Enumeration Types
+
+| **Enumerated Type**  | **Enum labels**                                                |
+|----------------------|----------------------------------------------------------------|
+| expiration_operation | Expire, Delete                                                 |
+| job_status           | Active, Cancelled, Completed, Expired, Failed, Paused, Waiting |
+| expiration_policer   | User, System                                                   |
