@@ -1351,7 +1351,8 @@ public class JobServiceEndToEndIT {
                 + " has unexpected value for its 'to' property");
 
             final DocumentWorkerDocumentTask documentWorkerDocumentTask
-                = workerServices.getCodec().deserialise(resumeJobQueueTaskMessage.getTaskData(), DocumentWorkerDocumentTask.class);
+                = workerServices.getCodec().deserialise(((String)resumeJobQueueTaskMessage.getTaskData()).getBytes(StandardCharsets.UTF_8),
+                    DocumentWorkerDocumentTask.class);
             Assert.assertNull(
                 documentWorkerDocumentTask.document,
                 "Message sent to the " + IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME

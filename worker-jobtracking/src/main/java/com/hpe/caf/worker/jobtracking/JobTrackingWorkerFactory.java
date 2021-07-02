@@ -15,6 +15,7 @@
  */
 package com.hpe.caf.worker.jobtracking;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.*;
 import com.hpe.caf.api.worker.*;
 import com.hpe.caf.services.job.util.JobTaskId;
@@ -124,19 +125,19 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     private TrackingReportTask getTrackingReportTask(final WorkerTaskData workerTask)
         throws TaskRejectedException, InvalidTaskException
     {
-        final byte[] bytes = validateVersionAndData(workerTask, TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
+        final Object bytes = validateVersionAndData(workerTask, TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
         return TaskValidator.deserialiseAndValidateTask(codec, TrackingReportTask.class, bytes);
     }
 
     private JobTrackingWorkerTask getJobTrackingWorkerTask(final WorkerTaskData workerTask)
         throws TaskRejectedException, InvalidTaskException
     {
-        final byte[] data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
+        final Object data = validateVersionAndData(workerTask, JobTrackingWorkerConstants.WORKER_API_VER);
         return TaskValidator.deserialiseAndValidateTask(codec, JobTrackingWorkerTask.class, data);
     }
 
-    private static byte[] validateVersionAndData(final WorkerTaskData workerTask, final int workerApiVersion)
-            throws InvalidTaskException, TaskRejectedException
+    private static Object validateVersionAndData(final WorkerTaskData workerTask, final int workerApiVersion)
+            throws TaskRejectedException
     {
         final int version = workerTask.getVersion();
         if (workerApiVersion < version) {
@@ -144,12 +145,12 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                     workerApiVersion);
         }
 
-        final byte[] data = workerTask.getData();
-        if (data == null) {
-            throw new InvalidTaskException("Invalid input message: task not specified");
-        }
-
-        return data;
+        return workerTask.getData();
+//        if (data == null) {
+//            throw new InvalidTaskException("Invalid input message: task not specified");
+//        }
+//
+//        return data;
     }
 
     /**
@@ -167,16 +168,16 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
          * Deserialise the given data into the specified class, and validate that any constraints specified have
          * been met.
          */
-        public static <T> T deserialiseAndValidateTask(final Codec codec, final Class<T> taskType, final byte[] data)
+        public static <T> T deserialiseAndValidateTask(final Codec codec, final Class<T> taskType, final Object data)
                 throws InvalidTaskException
         {
-            final T jobTrackingWorkerTask;
-            try {
-                jobTrackingWorkerTask = codec.deserialise(data, taskType, DecodeMethod.STRICT);
-            } catch (final CodecException e) {
-                throw new InvalidTaskException("Invalid input message", e);
-            }
-
+            final T jobTrackingWorkerTask = new ObjectMapper().convertValue(data, taskType);
+//            try {
+//                jobTrackingWorkerTask = codec.deserialise(data, taskType, DecodeMethod.STRICT);
+//            } catch (final CodecException e) {
+//                throw new InvalidTaskException("Invalid input message", e);
+//            }
+            
             if (jobTrackingWorkerTask == null) {
                 throw new InvalidTaskException("Invalid input message: no result from deserialisation");
             }
@@ -318,9 +319,9 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 f.setFailureTime(new Date());
                 f.setFailureSource(getWorkerName(proxiedTaskMessage));
 
-                final byte[] taskData = proxiedTaskMessage.getTaskData();
+                final Object taskData = proxiedTaskMessage.getTaskData();
                 if (taskData != null) {
-                    f.setFailureMessage(new String(taskData, StandardCharsets.UTF_8));
+                    f.setFailureMessage(new ObjectMapper().convertValue(taskData, String.class));
                 }
 
                 reporter.reportJobTaskRejected(jobTaskId, f);

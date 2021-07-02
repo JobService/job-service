@@ -89,11 +89,11 @@ public final class QueueServices implements AutoCloseable {
                 throw new RuntimeException("Unknown taskDataEncoding");
             }
         } else if (taskDataObj instanceof Map<?, ?>) {
-            try {
-                taskData = codec.serialise(taskDataObj);
-            } catch (CodecException e) {
-                throw new RuntimeException("Failed to serialise TaskData", e);
-            }
+//            try {
+//                taskData = codec.serialise(taskDataObj);
+//            } catch (CodecException e) {
+//                throw new RuntimeException("Failed to serialise TaskData", e);
+//            }
         } else {
             throw new RuntimeException("The taskData is an unexpected type");
         }
@@ -115,7 +115,7 @@ public final class QueueServices implements AutoCloseable {
                 taskId,
                 workerAction.getTaskClassifier(),
                 workerAction.getTaskApiVersion(),
-                taskData,
+                taskDataObj,
                 TaskStatus.NEW_TASK,
                 Collections.<String, byte[]>emptyMap(),
                 targetQueue,
