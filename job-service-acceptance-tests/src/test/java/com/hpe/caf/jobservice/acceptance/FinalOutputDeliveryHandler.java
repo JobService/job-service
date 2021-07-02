@@ -15,6 +15,7 @@
  */
 package com.hpe.caf.jobservice.acceptance;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.api.worker.TaskMessage;
@@ -96,7 +97,7 @@ public class FinalOutputDeliveryHandler implements ResultHandler {
         assertEqual("worker task classifier", expectation.getTaskClassifier(), resultMessage.getTaskClassifier(), resultMessage);
         assertEqual("worker task API version", String.valueOf(expectation.getTaskApiVersion()), String.valueOf(resultMessage.getTaskApiVersion()), resultMessage);
 
-        ExampleWorkerResult workerResult = codec.deserialise(resultMessage.getTaskData(), ExampleWorkerResult.class);
+        ExampleWorkerResult workerResult = new ObjectMapper().convertValue(resultMessage.getTaskData(), ExampleWorkerResult.class);
         assertEqual("worker result status", expectation.getWorkerResultStatus().toString(), workerResult.workerStatus.toString(), resultMessage);
     }
 
