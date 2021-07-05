@@ -29,6 +29,11 @@ public class ScheduledExecutor {
 
     public static void main(final String[] args)
     {
+        pingScheduler("Auto");
+    }
+
+    static void pingScheduler(final String origin) {
+        LOG.info("Origin: {}", origin);
         // Create a scheduler to process scheduled tasks.
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 

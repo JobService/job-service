@@ -19,9 +19,12 @@ import com.hpe.caf.worker.document.exceptions.DocumentWorkerTransientException;
 import com.hpe.caf.worker.document.extensibility.DocumentWorker;
 import com.hpe.caf.worker.document.model.Document;
 import com.hpe.caf.worker.document.model.HealthMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JobServiceScheduler implements DocumentWorker
 {
+    private static final Logger LOG = LoggerFactory.getLogger(JobServiceScheduler.class);
     public JobServiceScheduler()
     {
         ScheduledExecutor.main(null);
@@ -36,10 +39,14 @@ public class JobServiceScheduler implements DocumentWorker
     @Override
     public void checkHealth(HealthMonitor healthMonitor)
     {
+        LOG.info("get health check");
     }
 
     @Override
     public void processDocument(Document document) throws InterruptedException, DocumentWorkerTransientException
     {
+        LOG.info("start processing document");
+        ScheduledExecutor.pingScheduler("Manual");
+        LOG.info("finish processing document");
     }
 }
