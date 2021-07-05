@@ -68,6 +68,7 @@ public final class QueueServices implements AutoCloseable {
         final String partitionId, String jobId, WorkerAction workerAction, AppConfig config, final boolean includeTrackingInfo
     ) throws IOException, InterruptedException, TimeoutException
     {
+        LOG.info("sending message");
         //  Generate a random task id.
         String taskId = UUID.randomUUID().toString();
 
@@ -144,6 +145,7 @@ public final class QueueServices implements AutoCloseable {
     private void publishMessage(final byte[] taskMessageBytes)
             throws IOException, InterruptedException, TimeoutException
     {
+        LOG.info("target queue: {}", targetQueue);
         publisherChannel.basicPublish(
                 "", targetQueue, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
         publisherChannel.waitForConfirmsOrDie(10000);

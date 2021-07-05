@@ -15,6 +15,8 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
@@ -24,12 +26,18 @@ import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.jobtype.JobTypes;
+import com.hpe.caf.services.job.queue.QueueServices;
+import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.util.ModuleLoader;
+import com.hpe.caf.worker.document.DocumentWorkerConstants;
+import com.hpe.caf.worker.document.DocumentWorkerDocumentTask;
+
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -49,7 +57,7 @@ public final class JobsPut {
             "alphanumeric, '-' and '_' are supported";
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsPut.class);
-
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Pattern LABEL_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-:]+$");
 
     /**
@@ -192,12 +200,49 @@ public final class JobsPut {
                 return "update";
             }
 
+            //  Get database helper instance.
+            try (final QueueServices queueServices = QueueServicesFactory.create(config, "worker-in",codec)){
+                
+                final WorkerAction action  = new WorkerAction();
+                action.setTaskApiVersion(1);
+                action.setTaskPipe("worker-in");
+                action.setTaskData(new String(createSchedulerJobTaskData(partitionId, jobId), StandardCharsets.UTF_8));
+                action.setTaskClassifier(DocumentWorkerConstants.DOCUMENT_TASK_NAME);
+                
+                LOG.debug("createOrUpdateJob: Sending task data to the target queue...");
+                queueServices.sendMessage(partitionId, jobId, action, config, true);
+                closeQueueConnection(queueServices);
+            } catch (final Exception ex) {
+               
+
+               LOG.error("fail to ping the scheduler");
+            }
+
             LOG.debug("createOrUpdateJob: Done.");
 
             return "create";
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;
+        }
+    }
+    
+    private static byte[] createSchedulerJobTaskData(final String partitionId, final String jobId) throws JsonProcessingException
+    {
+        final DocumentWorkerDocumentTask documentWorkerDocumentTask = new DocumentWorkerDocumentTask();
+        final Map<String, String> customData = new HashMap<>();
+        customData.put("partitionId", partitionId);
+        customData.put("jobId", jobId);
+        documentWorkerDocumentTask.customData = customData;
+        return OBJECT_MAPPER.writeValueAsBytes(documentWorkerDocumentTask);
+    }
+    
+    private static void closeQueueConnection(final QueueServices queueServices)
+    {
+        try {
+            queueServices.close();
+        } catch (final Exception e) {
+            LOG.warn("Error on connection close to RabbitMQ", e);
         }
     }
 
