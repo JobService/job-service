@@ -123,8 +123,13 @@ public class AppConfig {
     
     public String getSchedulerQueue()
     {
+        final String defaultName = "worker-in";
         final String workerInputQueue = environment.getProperty("CAF_WORKER_INPUT_QUEUE");
+        final String workerBaseQueueName = environment.getProperty("CAF_WORKER_BASE_QUEUE_NAME");
+        final String workerName = environment.getProperty("CAF_WORKER_NAME");
         if (null != workerInputQueue) return workerInputQueue;
-        return "worker-in";
+        if (null != workerBaseQueueName) return workerBaseQueueName;
+        if (null != workerName) return workerName;
+        return defaultName;
     }
 }
