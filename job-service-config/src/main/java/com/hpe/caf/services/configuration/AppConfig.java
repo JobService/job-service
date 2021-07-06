@@ -120,4 +120,9 @@ public class AppConfig {
     {
         return environment.getProperty("CAF_JOB_SERVICE_RESUME_JOB_QUEUE");
     }
+    
+    public String getSchedulerQueue()
+    {
+        return "worker-in";
+    }
 }

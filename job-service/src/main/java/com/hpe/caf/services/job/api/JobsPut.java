@@ -199,31 +199,34 @@ public final class JobsPut {
             if (!jobCreated) {
                 return "update";
             }
-
-            //  Get database helper instance.
-            try (final QueueServices queueServices = QueueServicesFactory.create(config, "worker-in",codec)){
-                
-                final WorkerAction action  = new WorkerAction();
-                action.setTaskApiVersion(1);
-                action.setTaskPipe("worker-in");
-                action.setTaskData(new String(createSchedulerJobTaskData(partitionId, jobId), StandardCharsets.UTF_8));
-                action.setTaskClassifier(DocumentWorkerConstants.DOCUMENT_TASK_NAME);
-                
-                LOG.debug("createOrUpdateJob: Sending task data to the target queue...");
-                queueServices.sendMessage(partitionId, jobId, action, config, true);
-                closeQueueConnection(queueServices);
-            } catch (final Exception ex) {
-               
-
-               LOG.error("fail to ping the scheduler");
-            }
-
+    
+            triggerScheduler(partitionId, jobId, codec, config);
+    
             LOG.debug("createOrUpdateJob: Done.");
 
             return "create";
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;
+        }
+    }
+    
+    private static void triggerScheduler(final String partitionId, final String jobId, final Codec codec, final AppConfig config)
+    {
+        //  Get database helper instance.
+        try (final QueueServices queueServices = QueueServicesFactory.create(config, config.getSchedulerQueue(), codec)){
+            
+            final WorkerAction action  = new WorkerAction();
+            action.setTaskApiVersion(1);
+            action.setTaskPipe(config.getSchedulerQueue());
+            action.setTaskData(new String(createSchedulerJobTaskData(partitionId, jobId), StandardCharsets.UTF_8));
+            action.setTaskClassifier(DocumentWorkerConstants.DOCUMENT_TASK_NAME);
+            
+            LOG.debug("createOrUpdateJob: Sending task data to the target queue...");
+            queueServices.sendMessage(partitionId, jobId, action, config, true);
+            closeQueueConnection(queueServices);
+        } catch (final Exception ex) {
+           LOG.error("fail to ping the scheduler");
         }
     }
     
