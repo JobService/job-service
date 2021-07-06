@@ -15,15 +15,15 @@
  */
 package com.hpe.caf.services.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.regex.Pattern;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 
 /**
  * Configuration class for the job service api. Includes connection properties to both database and RabbitMQ.
@@ -123,6 +123,8 @@ public class AppConfig {
     
     public String getSchedulerQueue()
     {
+        final String workerInputQueue = environment.getProperty("CAF_WORKER_INPUT_QUEUE");
+        if (null != workerInputQueue) return workerInputQueue;
         return "worker-in";
     }
 }

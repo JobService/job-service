@@ -123,7 +123,15 @@ public final class QueueServices implements AutoCloseable {
                 trackingInfo,
                 null,
                 MDC.get(MDC_KEY));
-
+        LOG.debug("taskMessage  {}",
+                taskId+" "+
+                        workerAction.getTaskClassifier()+" "+
+                        workerAction.getTaskApiVersion()+" "+
+                        taskData+" "+
+                        TaskStatus.NEW_TASK+" "+
+                        targetQueue+" "+
+                        trackingInfo+" "+
+                        MDC.get(MDC_KEY));
         //  Serialise the task message.
         //  Wrap any CodecException as a RuntimeException as it shouldn't happen
         final byte[] taskMessageBytes;
