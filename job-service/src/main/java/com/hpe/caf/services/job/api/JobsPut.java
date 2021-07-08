@@ -15,12 +15,14 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
+import com.hpe.caf.api.worker.TaskMessage;
+import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.configuration.AppConfigException;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
@@ -29,6 +31,7 @@ import com.hpe.caf.services.job.jobtype.JobTypes;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.util.ModuleLoader;
+import com.hpe.caf.util.ModuleLoaderException;
 import com.hpe.caf.worker.document.DocumentWorkerConstants;
 import com.hpe.caf.worker.document.DocumentWorkerDocumentTask;
 
@@ -37,8 +40,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -59,7 +63,9 @@ public final class JobsPut {
     private static final Logger LOG = LoggerFactory.getLogger(JobsPut.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Pattern LABEL_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-:]+$");
-
+    private static final AppConfig config = getConfig();
+    private static final Codec codec = getCodec();
+    
     /**
      * Creates a new job with the job object provided if the specified job id does not exist. If the job id already exists it updates
      * the existing job.
@@ -158,13 +164,6 @@ public final class JobsPut {
                 throw new BadRequestException(ERR_MSG_TASK_DATA_DATATYPE_ERROR);
             }
 
-            //  Load serialization class.
-            Codec codec = ModuleLoader.getService(Codec.class);
-
-            //  Get app config settings.
-            LOG.debug("createOrUpdateJob: Reading database and RabbitMQ connection properties...");
-            AppConfig config = AppConfigProvider.getAppConfigProperties();
-
             //  Get database helper instance.
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
@@ -186,13 +185,13 @@ public final class JobsPut {
             if ((job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) || partitionSuspended) {
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
-                        getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
+                        getTaskDataBytes(jobTask), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
                         job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended);
 
             } else {
                 jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
-                        getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
+                        getTaskDataBytes(jobTask), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
                         job.getDelay(), job.getLabels());
             }
 
@@ -200,7 +199,7 @@ public final class JobsPut {
                 return "update";
             }
     
-            triggerScheduler(codec, config);
+            triggerScheduler();
     
             LOG.debug("createOrUpdateJob: Done.");
 
@@ -213,33 +212,30 @@ public final class JobsPut {
     
     /**
      * We trigger the scheduler so it will pick up the created job from the database
-     * @param codec the codec to use for serializing / deserializing
-     * @param config the configuration
+     * then send a message to the appropriate queue
      */
-    private static void triggerScheduler(final Codec codec, final AppConfig config)
+    private static void triggerScheduler()
     {
         try (final QueueServices queueServices = QueueServicesFactory.create(config, config.getSchedulerQueue(), codec)){
-            final WorkerAction action  = new WorkerAction();
-            action.setTaskApiVersion(1);
-            action.setTaskPipe(config.getSchedulerQueue());
-            action.setTaskData(new String(createSchedulerJobTaskData(), StandardCharsets.UTF_8));
-            action.setTaskClassifier(DocumentWorkerConstants.DOCUMENT_TASK_NAME);
             
-            LOG.debug("createOrUpdateJob: Sending task data to the target queue...");
-            queueServices.sendMessage("", "", action, config, true);
+            LOG.debug("createOrUpdateJob: Triggering scheduler to send data to the target queue");
+            
+            final TaskMessage taskMessage = new TaskMessage(
+                    UUID.randomUUID().toString(),
+                    DocumentWorkerConstants.DOCUMENT_TASK_NAME,
+                    1,
+                    OBJECT_MAPPER.writeValueAsBytes(new DocumentWorkerDocumentTask()),
+                    TaskStatus.NEW_TASK,
+                    Collections.emptyMap(),
+                    config.getSchedulerQueue());
+            final byte[] taskMessageBytes = serializingData(taskMessage);
+            queueServices.publishMessage(taskMessageBytes);
         } catch (final Exception ex) {
            LOG.error("fail to ping the scheduler {}", ex.getMessage());
         }
     }
     
-    private static byte[] createSchedulerJobTaskData() throws JsonProcessingException
-    {
-        final DocumentWorkerDocumentTask documentWorkerDocumentTask = new DocumentWorkerDocumentTask();
-        documentWorkerDocumentTask.customData = new HashMap<>();
-        return OBJECT_MAPPER.writeValueAsBytes(documentWorkerDocumentTask);
-    }
-
-    private static byte[] getTaskDataBytes(final WorkerAction workerAction, final Codec codec)
+    private static byte[] getTaskDataBytes(final WorkerAction workerAction)
     {
         final Object taskDataObj = workerAction.getTaskData();
         final byte[] taskDataBytes;
@@ -255,16 +251,41 @@ public final class JobsPut {
                 throw new RuntimeException("Unknown taskDataEncoding");
             }
         } else if (taskDataObj instanceof Map<?, ?>) {
-            try {
-                taskDataBytes = codec.serialise(taskDataObj);
-            } catch (CodecException e) {
-                throw new RuntimeException("Failed to serialise TaskData", e);
-            }
+            taskDataBytes = serializingData(taskDataObj);
         } else {
             throw new RuntimeException("The taskData is an unexpected type");
         }
 
         return taskDataBytes;
     }
-
+    
+    private static byte[] serializingData(final Object taskDataObj)
+    {
+        final byte[] taskDataBytes;
+        try {
+            taskDataBytes = codec.serialise(taskDataObj);
+        } catch (final CodecException e) {
+            throw new RuntimeException("Failed to serialise TaskData", e);
+        }
+        return taskDataBytes;
+    }
+    
+    
+    private static Codec getCodec()
+    {
+        try {
+            return ModuleLoader.getService(Codec.class);
+        } catch (final ModuleLoaderException e) {
+            throw new RuntimeException("Issue while trying to get the codec");
+        }
+    }
+    
+    private static AppConfig getConfig()
+    {
+        try {
+            return AppConfigProvider.getAppConfigProperties();
+        } catch (final AppConfigException e) {
+            throw new RuntimeException("Issue while trying to get the configuration");
+        }
+    }
 }

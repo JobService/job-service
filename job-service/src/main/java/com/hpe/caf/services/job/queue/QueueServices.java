@@ -141,7 +141,7 @@ public final class QueueServices implements AutoCloseable {
         }
     }
 
-    private void publishMessage(final byte[] taskMessageBytes)
+    public void publishMessage(final byte[] taskMessageBytes)
             throws IOException, InterruptedException, TimeoutException
     {
         LOG.info("target queue: {}", targetQueue);

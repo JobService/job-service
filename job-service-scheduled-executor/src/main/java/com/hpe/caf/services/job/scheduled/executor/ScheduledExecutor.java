@@ -53,6 +53,10 @@ public class ScheduledExecutor {
                 TimeUnit.SECONDS);
     }
     
+    /**
+     *
+     * @param origin the trigger's origin. It can be "Auto" or "Manual"
+     */
     public static void runAvailableJobs(final String origin)
     {
         try {
