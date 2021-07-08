@@ -222,7 +222,7 @@ public final class JobsPut {
             final WorkerAction action  = new WorkerAction();
             action.setTaskApiVersion(1);
             action.setTaskPipe(config.getSchedulerQueue());
-            action.setTaskData(new String(createSchedulerJobTaskData("", ""), StandardCharsets.UTF_8));
+            action.setTaskData(new String(createSchedulerJobTaskData(), StandardCharsets.UTF_8));
             action.setTaskClassifier(DocumentWorkerConstants.DOCUMENT_TASK_NAME);
             
             LOG.debug("createOrUpdateJob: Sending task data to the target queue...");
@@ -232,13 +232,10 @@ public final class JobsPut {
         }
     }
     
-    private static byte[] createSchedulerJobTaskData(final String partitionId, final String jobId) throws JsonProcessingException
+    private static byte[] createSchedulerJobTaskData() throws JsonProcessingException
     {
         final DocumentWorkerDocumentTask documentWorkerDocumentTask = new DocumentWorkerDocumentTask();
-        final Map<String, String> customData = new HashMap<>();
-        customData.put("partitionId", partitionId);
-        customData.put("jobId", jobId);
-        documentWorkerDocumentTask.customData = customData;
+        documentWorkerDocumentTask.customData = new HashMap<>();
         return OBJECT_MAPPER.writeValueAsBytes(documentWorkerDocumentTask);
     }
 
