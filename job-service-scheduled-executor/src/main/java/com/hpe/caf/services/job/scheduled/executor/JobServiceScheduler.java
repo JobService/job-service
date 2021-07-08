@@ -46,7 +46,7 @@ public class JobServiceScheduler implements DocumentWorker
     public void processDocument(Document document) throws InterruptedException, DocumentWorkerTransientException
     {
         LOG.info("start processing document");
-        ScheduledExecutor.pingScheduler("Manual");
+        ScheduledExecutor.runAvailableJobs("Manual");
         LOG.info("finish processing document");
     }
 }

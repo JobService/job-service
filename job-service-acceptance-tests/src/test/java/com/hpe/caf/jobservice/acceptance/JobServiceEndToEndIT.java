@@ -680,9 +680,6 @@ public class JobServiceEndToEndIT {
         //retrieve job using web method
         final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
         LOG.info("--testCreateJobNoDelayNoPreReq job {} in partition: {}", retrievedJob.getId(), partitionId);
-        // Gives time for the job to be picked up by the scheduler
-        // to be removed once we implement the scheduler ping
-        Thread.sleep(7000);
         JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(retrievedJob.getId());
     }
 
@@ -708,9 +705,7 @@ public class JobServiceEndToEndIT {
         final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(job1Id);
         LOG.info("--testCreateJobNoDelayAndSomePreReq job {} in partition: {}, canRun? {}", job1Id, partitionId, canRun);
         assertEquals(canRun, false, "Job "+job1Id+" is eligible to run despite incomplete prerequisite jobs");
-        // Gives time for the job to be picked up by the scheduler
-        // to be removed once we implement the scheduler ping
-        Thread.sleep(7000);
+        Thread.sleep(100); // Allows the scheduler to perform
         JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(preReqJobId);
     }
 

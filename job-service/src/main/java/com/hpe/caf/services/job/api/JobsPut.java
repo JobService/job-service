@@ -200,7 +200,7 @@ public final class JobsPut {
                 return "update";
             }
     
-            triggerScheduler(partitionId, jobId, codec, config);
+            triggerScheduler(codec, config);
     
             LOG.debug("createOrUpdateJob: Done.");
 
@@ -211,22 +211,24 @@ public final class JobsPut {
         }
     }
     
-    private static void triggerScheduler(final String partitionId, final String jobId, final Codec codec, final AppConfig config)
+    /**
+     * We trigger the scheduler so it will pick up the created job from the database
+     * @param codec the codec to use for serializing / deserializing
+     * @param config the configuration
+     */
+    private static void triggerScheduler(final Codec codec, final AppConfig config)
     {
-        //  Get database helper instance.
         try (final QueueServices queueServices = QueueServicesFactory.create(config, config.getSchedulerQueue(), codec)){
-            
             final WorkerAction action  = new WorkerAction();
             action.setTaskApiVersion(1);
             action.setTaskPipe(config.getSchedulerQueue());
-            action.setTaskData(new String(createSchedulerJobTaskData(partitionId, jobId), StandardCharsets.UTF_8));
+            action.setTaskData(new String(createSchedulerJobTaskData("", ""), StandardCharsets.UTF_8));
             action.setTaskClassifier(DocumentWorkerConstants.DOCUMENT_TASK_NAME);
             
             LOG.debug("createOrUpdateJob: Sending task data to the target queue...");
-            queueServices.sendMessage(partitionId, jobId, action, config, true);
-            closeQueueConnection(queueServices);
+            queueServices.sendMessage("", "", action, config, true);
         } catch (final Exception ex) {
-           LOG.error("fail to ping the scheduler");
+           LOG.error("fail to ping the scheduler {}", ex.getMessage());
         }
     }
     
@@ -238,15 +240,6 @@ public final class JobsPut {
         customData.put("jobId", jobId);
         documentWorkerDocumentTask.customData = customData;
         return OBJECT_MAPPER.writeValueAsBytes(documentWorkerDocumentTask);
-    }
-    
-    private static void closeQueueConnection(final QueueServices queueServices)
-    {
-        try {
-            queueServices.close();
-        } catch (final Exception e) {
-            LOG.warn("Error on connection close to RabbitMQ", e);
-        }
     }
 
     private static byte[] getTaskDataBytes(final WorkerAction workerAction, final Codec codec)
