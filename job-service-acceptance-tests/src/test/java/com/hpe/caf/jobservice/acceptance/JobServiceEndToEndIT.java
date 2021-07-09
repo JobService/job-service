@@ -705,7 +705,9 @@ public class JobServiceEndToEndIT {
         final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(job1Id);
         LOG.info("--testCreateJobNoDelayAndSomePreReq job {} in partition: {}, canRun? {}", job1Id, partitionId, canRun);
         assertEquals(canRun, false, "Job "+job1Id+" is eligible to run despite incomplete prerequisite jobs");
+
         Thread.sleep(100); // Allows the scheduler to perform
+
         JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(preReqJobId);
     }
 

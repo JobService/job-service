@@ -31,7 +31,6 @@ import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import com.hpe.caf.util.ModuleLoader;
 import com.hpe.caf.worker.document.DocumentWorkerConstants;
 import com.hpe.caf.worker.document.DocumentWorkerDocumentTask;
-
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +57,9 @@ public final class JobsPut {
             "alphanumeric, '-' and '_' are supported";
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsPut.class);
+
     private static final Pattern LABEL_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-:]+$");
-    
+
     /**
      * Creates a new job with the job object provided if the specified job id does not exist. If the job id already exists it updates
      * the existing job.
@@ -157,10 +157,10 @@ public final class JobsPut {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_DATA_DATATYPE_ERROR);
                 throw new BadRequestException(ERR_MSG_TASK_DATA_DATATYPE_ERROR);
             }
-    
+
             //  Load serialization class.
             Codec codec = ModuleLoader.getService(Codec.class);
-    
+
             //  Get app config settings.
             LOG.debug("createOrUpdateJob: Reading database and RabbitMQ connection properties...");
             AppConfig config = AppConfigProvider.getAppConfigProperties();
@@ -199,9 +199,9 @@ public final class JobsPut {
             if (!jobCreated) {
                 return "update";
             }
-    
+
             triggerScheduler(codec, config);
-    
+
             LOG.debug("createOrUpdateJob: Done.");
 
             return "create";
@@ -210,32 +210,30 @@ public final class JobsPut {
             throw e;
         }
     }
-    
+
     /**
-     * We trigger the scheduler so it will pick up the created job from the database
-     * then send a message to the appropriate queue
+     * We trigger the scheduler so it will pick up the created job from the database then send a message to the appropriate queue
      */
     private static void triggerScheduler(final Codec codec, final AppConfig config)
     {
-        try (final QueueServices queueServices = QueueServicesFactory.create(config, config.getSchedulerQueue(), codec)){
-            
+        try (final QueueServices queueServices = QueueServicesFactory.create(config, config.getSchedulerQueue(), codec)) {
             LOG.debug("createOrUpdateJob: Triggering scheduler to send data to the target queue");
-            
+
             final TaskMessage taskMessage = new TaskMessage(
-                    UUID.randomUUID().toString(),
-                    DocumentWorkerConstants.DOCUMENT_TASK_NAME,
-                    1,
-                    codec.serialise(new DocumentWorkerDocumentTask()),
-                    TaskStatus.NEW_TASK,
-                    Collections.emptyMap(),
-                    config.getSchedulerQueue());
+                UUID.randomUUID().toString(),
+                DocumentWorkerConstants.DOCUMENT_TASK_NAME,
+                1,
+                codec.serialise(new DocumentWorkerDocumentTask()),
+                TaskStatus.NEW_TASK,
+                Collections.emptyMap(),
+                config.getSchedulerQueue());
             final byte[] taskMessageBytes = serializeData(taskMessage, codec);
             queueServices.publishMessage(taskMessageBytes);
         } catch (final Exception ex) {
-           LOG.warn("Failed to ping the scheduler {}", ex.getMessage());
+            LOG.warn("Failed to ping the scheduler {}", ex.getMessage());
         }
     }
-    
+
     private static byte[] getTaskDataBytes(final WorkerAction workerAction, final Codec codec)
     {
         final Object taskDataObj = workerAction.getTaskData();
@@ -259,7 +257,7 @@ public final class JobsPut {
 
         return taskDataBytes;
     }
-    
+
     private static byte[] serializeData(final Object taskDataObj, final Codec codec)
     {
         final byte[] taskDataBytes;
@@ -270,23 +268,4 @@ public final class JobsPut {
         }
         return taskDataBytes;
     }
-    
-    
-    /*private static Codec getCodec()
-    {
-        try {
-            return ModuleLoader.getService(Codec.class);
-        } catch (final ModuleLoaderException e) {
-            throw new RuntimeException("Issue while trying to get the codec");
-        }
-    }*/
-    
-/*    private static AppConfig getConfig()
-    {
-        try {
-            return AppConfigProvider.getAppConfigProperties();
-        } catch (final AppConfigException e) {
-            throw new RuntimeException("Issue while trying to get the configuration");
-        }
-    }*/
 }

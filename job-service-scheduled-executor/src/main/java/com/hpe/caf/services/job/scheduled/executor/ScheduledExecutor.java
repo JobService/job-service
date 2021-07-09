@@ -39,9 +39,9 @@ public class ScheduledExecutor {
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         LOG.info("Starting Job Service Scheduled Executor service ...");
-        
+
         final Runnable task = () -> runAvailableJobs("Auto");
-    
+
         //  Poll the Job Service database using the specified polling period configuration to specify how often the
         //  scheduled task is run.
         scheduler.scheduleWithFixedDelay(task, 20, ScheduledExecutorConfig.getScheduledExecutorPeriod(),
@@ -52,7 +52,7 @@ public class ScheduledExecutor {
         scheduler.scheduleWithFixedDelay(new DropTablesTask(), 20, ScheduledExecutorConfig.getDropTablesSchedulerPeriod(),
                 TimeUnit.SECONDS);
     }
-    
+
     /**
      *
      * @param origin the trigger's origin. It can be "Auto" or "Manual"
@@ -68,10 +68,9 @@ public class ScheduledExecutor {
             } else {
                 DatabasePoller.pollDatabaseForJobsToRun();
             }
-        } catch (final Exception t ) {   // Catch Exceptions and Errors to prevent scheduler stoppage.
+        } catch (final Exception t) {   // Catch Exceptions and Errors to prevent scheduler stoppage.
             LOG.error("Caught exception while polling the Job Service database. Message:\n{} StackTrace:\n{}",
-                    t.getMessage(), Arrays.toString(t.getStackTrace()));
+                      t.getMessage(), Arrays.toString(t.getStackTrace()));
         }
     }
-    
 }
