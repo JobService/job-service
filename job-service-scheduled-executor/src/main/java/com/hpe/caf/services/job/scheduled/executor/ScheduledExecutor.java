@@ -37,7 +37,7 @@ public class ScheduledExecutor {
     private static void runJobs() {
         // Create a scheduler to process scheduled tasks.
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    
+
         LOG.info("Starting Job Service Scheduled Executor service ...");
         
         final Runnable task = () -> runAvailableJobs("Auto");
@@ -46,7 +46,7 @@ public class ScheduledExecutor {
         //  scheduled task is run.
         scheduler.scheduleWithFixedDelay(task, 20, ScheduledExecutorConfig.getScheduledExecutorPeriod(),
                 TimeUnit.SECONDS);
-    
+
         LOG.info("Starting task for dropping soft deleted tables ...");
         //  Execute the dropTablesTask periodically.
         scheduler.scheduleWithFixedDelay(new DropTablesTask(), 20, ScheduledExecutorConfig.getDropTablesSchedulerPeriod(),

@@ -61,10 +61,7 @@ public final class JobsPut {
             "alphanumeric, '-' and '_' are supported";
 
     private static final Logger LOG = LoggerFactory.getLogger(JobsPut.class);
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Pattern LABEL_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-:]+$");
-    private static final AppConfig config = getConfig();
-    private static final Codec codec = getCodec();
     
     /**
      * Creates a new job with the job object provided if the specified job id does not exist. If the job id already exists it updates
@@ -163,6 +160,13 @@ public final class JobsPut {
                 LOG.error("createOrUpdateJob: Error - '{}'", ERR_MSG_TASK_DATA_DATATYPE_ERROR);
                 throw new BadRequestException(ERR_MSG_TASK_DATA_DATATYPE_ERROR);
             }
+    
+            //  Load serialization class.
+            Codec codec = ModuleLoader.getService(Codec.class);
+    
+            //  Get app config settings.
+            LOG.debug("createOrUpdateJob: Reading database and RabbitMQ connection properties...");
+            AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
@@ -185,13 +189,13 @@ public final class JobsPut {
             if ((job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) || partitionSuspended) {
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
-                        getTaskDataBytes(jobTask), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
+                        getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
                         job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended);
 
             } else {
                 jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
-                        getTaskDataBytes(jobTask), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
+                        getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
                         job.getDelay(), job.getLabels());
             }
 
@@ -199,7 +203,7 @@ public final class JobsPut {
                 return "update";
             }
     
-            triggerScheduler();
+            triggerScheduler(codec, config);
     
             LOG.debug("createOrUpdateJob: Done.");
 
@@ -214,7 +218,7 @@ public final class JobsPut {
      * We trigger the scheduler so it will pick up the created job from the database
      * then send a message to the appropriate queue
      */
-    private static void triggerScheduler()
+    private static void triggerScheduler(final Codec codec, final AppConfig config)
     {
         try (final QueueServices queueServices = QueueServicesFactory.create(config, config.getSchedulerQueue(), codec)){
             
@@ -224,18 +228,18 @@ public final class JobsPut {
                     UUID.randomUUID().toString(),
                     DocumentWorkerConstants.DOCUMENT_TASK_NAME,
                     1,
-                    OBJECT_MAPPER.writeValueAsBytes(new DocumentWorkerDocumentTask()),
+                    codec.serialise(new DocumentWorkerDocumentTask()),
                     TaskStatus.NEW_TASK,
                     Collections.emptyMap(),
                     config.getSchedulerQueue());
-            final byte[] taskMessageBytes = serializingData(taskMessage);
+            final byte[] taskMessageBytes = serializeData(taskMessage, codec);
             queueServices.publishMessage(taskMessageBytes);
         } catch (final Exception ex) {
-           LOG.error("fail to ping the scheduler {}", ex.getMessage());
+           LOG.warn("Failed to ping the scheduler {}", ex.getMessage());
         }
     }
     
-    private static byte[] getTaskDataBytes(final WorkerAction workerAction)
+    private static byte[] getTaskDataBytes(final WorkerAction workerAction, final Codec codec)
     {
         final Object taskDataObj = workerAction.getTaskData();
         final byte[] taskDataBytes;
@@ -251,7 +255,7 @@ public final class JobsPut {
                 throw new RuntimeException("Unknown taskDataEncoding");
             }
         } else if (taskDataObj instanceof Map<?, ?>) {
-            taskDataBytes = serializingData(taskDataObj);
+            taskDataBytes = serializeData(taskDataObj, codec);
         } else {
             throw new RuntimeException("The taskData is an unexpected type");
         }
@@ -259,7 +263,7 @@ public final class JobsPut {
         return taskDataBytes;
     }
     
-    private static byte[] serializingData(final Object taskDataObj)
+    private static byte[] serializeData(final Object taskDataObj, final Codec codec)
     {
         final byte[] taskDataBytes;
         try {
@@ -271,21 +275,21 @@ public final class JobsPut {
     }
     
     
-    private static Codec getCodec()
+    /*private static Codec getCodec()
     {
         try {
             return ModuleLoader.getService(Codec.class);
         } catch (final ModuleLoaderException e) {
             throw new RuntimeException("Issue while trying to get the codec");
         }
-    }
+    }*/
     
-    private static AppConfig getConfig()
+/*    private static AppConfig getConfig()
     {
         try {
             return AppConfigProvider.getAppConfigProperties();
         } catch (final AppConfigException e) {
             throw new RuntimeException("Issue while trying to get the configuration");
         }
-    }
+    }*/
 }

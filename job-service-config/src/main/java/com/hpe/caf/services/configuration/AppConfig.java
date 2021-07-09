@@ -15,15 +15,15 @@
  */
 package com.hpe.caf.services.configuration;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Locale;
-import java.util.regex.Pattern;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * Configuration class for the job service api. Includes connection properties to both database and RabbitMQ.

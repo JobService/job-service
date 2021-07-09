@@ -630,7 +630,6 @@
                             <alias>job-service-caller</alias>
                             <name>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</name>
                         </image>
-    
                         <!-- Run the Job Service Scheduled Executor -->
                         <image>
                             <alias>job-service-scheduled-executor</alias>
