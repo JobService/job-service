@@ -680,6 +680,7 @@ public class JobServiceEndToEndIT {
         //retrieve job using web method
         final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
         LOG.info("--testCreateJobNoDelayNoPreReq job {} in partition: {}", retrievedJob.getId(), partitionId);
+        Thread.sleep(100); // Allows the scheduler to perform
         JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(retrievedJob.getId());
     }
 
