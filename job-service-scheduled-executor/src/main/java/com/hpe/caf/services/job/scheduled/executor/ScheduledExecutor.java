@@ -60,10 +60,14 @@ public class ScheduledExecutor {
     public static void runAvailableJobs(final String origin)
     {
         try {
-            final Instant start = Instant.now();
-            DatabasePoller.pollDatabaseForJobsToRun();
-            final Instant end = Instant.now();
-            LOG.debug("Total time taken to execute scheduler for {} task in ms {}", origin, Duration.between(start, end).toMillis());
+            if (LOG.isDebugEnabled()) {
+                final Instant start = Instant.now();
+                DatabasePoller.pollDatabaseForJobsToRun();
+                final Instant end = Instant.now();
+                LOG.debug("Total time taken to execute scheduler for {} task in ms {}", origin, Duration.between(start, end).toMillis());
+            } else {
+                DatabasePoller.pollDatabaseForJobsToRun();
+            }
         } catch (final Exception t ) {   // Catch Exceptions and Errors to prevent scheduler stoppage.
             LOG.error("Caught exception while polling the Job Service database. Message:\n{} StackTrace:\n{}",
                     t.getMessage(), Arrays.toString(t.getStackTrace()));
