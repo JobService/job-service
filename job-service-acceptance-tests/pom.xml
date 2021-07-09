@@ -455,46 +455,6 @@
                                 </log>
                             </run>
                         </image>
-    
-                        <!-- Run the Job Service Scheduled Executor -->
-                        <image>
-                            <alias>job-service-scheduled-executor</alias>
-                            <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
-                            <run>
-                                <ports>
-                                    <port>${scheduler-worker.adminport}:8081</port>
-                                </ports>
-                                <env>
-                                    <JOB_SERVICE_DATABASE_APPNAME>Job Service Scheduled Executor</JOB_SERVICE_DATABASE_APPNAME>
-                                    <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
-                                    <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
-                                    <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
-                                    <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
-                                    <CAF_STATUS_CHECK_INTERVAL_SECONDS>1</CAF_STATUS_CHECK_INTERVAL_SECONDS>
-                                    <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
-                                    <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
-                                    <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
-                                    <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
-                                    <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
-                                    <CAF_SCHEDULED_EXECUTOR_PERIOD>2</CAF_SCHEDULED_EXECUTOR_PERIOD>
-                                    <CAF_WORKER_INPUT_QUEUE>jobservicescheduler-in</CAF_WORKER_INPUT_QUEUE>
-                                </env>
-                                <links>
-                                    <link>rabbitmq</link>
-                                    <link>${job.database.host}</link>
-                                </links>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                                <wait>
-                                    <http>
-                                        <url>http://${docker.host.address}:${scheduler-worker.adminport}/healthcheck</url>
-                                    </http>
-                                    <time>200000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                            </run>
-                        </image>
 
                         <!-- Run the Job Service -->
                         <image>
@@ -670,7 +630,46 @@
                             <alias>job-service-caller</alias>
                             <name>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</name>
                         </image>
-
+    
+                        <!-- Run the Job Service Scheduled Executor -->
+                        <image>
+                            <alias>job-service-scheduled-executor</alias>
+                            <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
+                            <run>
+                                <ports>
+                                    <port>${scheduler-worker.adminport}:8081</port>
+                                </ports>
+                                <env>
+                                    <JOB_SERVICE_DATABASE_APPNAME>Job Service Scheduled Executor</JOB_SERVICE_DATABASE_APPNAME>
+                                    <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
+                                    <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
+                                    <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
+                                    <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
+                                    <CAF_STATUS_CHECK_INTERVAL_SECONDS>1</CAF_STATUS_CHECK_INTERVAL_SECONDS>
+                                    <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
+                                    <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
+                                    <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
+                                    <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
+                                    <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
+                                    <CAF_SCHEDULED_EXECUTOR_PERIOD>2</CAF_SCHEDULED_EXECUTOR_PERIOD>
+                                    <CAF_WORKER_INPUT_QUEUE>jobservicescheduler-in</CAF_WORKER_INPUT_QUEUE>
+                                </env>
+                                <links>
+                                    <link>rabbitmq</link>
+                                    <link>${job.database.host}</link>
+                                </links>
+                                <log>
+                                    <enabled>true</enabled>
+                                </log>
+                                <wait>
+                                    <http>
+                                        <url>http://${docker.host.address}:${scheduler-worker.adminport}/healthcheck</url>
+                                    </http>
+                                    <time>200000</time>
+                                    <shutdown>500</shutdown>
+                                </wait>
+                            </run>
+                        </image>
                     </images>
                 </configuration>
             </plugin>
