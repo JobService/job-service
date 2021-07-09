@@ -198,9 +198,9 @@ public final class JobsPut {
             if (!jobCreated) {
                 return "update";
             }
-    
+
             triggerScheduler();
-    
+
             LOG.debug("createOrUpdateJob: Done.");
 
             return "create";
