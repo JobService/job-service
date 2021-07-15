@@ -165,6 +165,7 @@
                 <postgres.db.port>5432</postgres.db.port>
                 <webservice.healthcheckport>8081</webservice.healthcheckport>
                 <webdav.apache.port>32775</webdav.apache.port>
+                <scheduler-worker.adminport>8087</scheduler-worker.adminport>
                 <!--<CAF_JOBSERVICE_PORT>8080</CAF_JOBSERVICE_PORT>-->
                 <!--<db.connection>jdbc:postgresql://${docker.host.address}:${postgres.db.port}</db.connection>-->
             </properties>
@@ -552,6 +553,45 @@
                                         </url>
                                     </http>
                                     <time>120000</time>
+                                    <shutdown>500</shutdown>
+                                </wait>
+                            </run>
+                        </image>
+
+                        <!-- Run the Job Service Scheduled Executor -->
+                        <image>
+                            <alias>job-service-scheduled-executor</alias>
+                            <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
+                            <run>
+                                <ports>
+                                    <port>${scheduler-worker.adminport}:8081</port>
+                                </ports>
+                                <env>
+                                    <JOB_SERVICE_DATABASE_APPNAME>Job Service Scheduled Executor</JOB_SERVICE_DATABASE_APPNAME>
+                                    <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://jobservice-integrationtests-postgres:5432/${db.name}</JOB_SERVICE_DATABASE_URL>
+                                    <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
+                                    <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
+                                    <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
+                                    <CAF_STATUS_CHECK_INTERVAL_SECONDS>1</CAF_STATUS_CHECK_INTERVAL_SECONDS>
+                                    <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
+                                    <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
+                                    <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
+                                    <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
+                                    <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
+                                    <CAF_SCHEDULED_EXECUTOR_PERIOD>2</CAF_SCHEDULED_EXECUTOR_PERIOD>
+                                </env>
+                                <links>
+                                    <link>rabbitmq</link>
+                                    <link>jobservice-integrationtests-postgres</link>
+                                </links>
+                                <log>
+                                    <enabled>true</enabled>
+                                </log>
+                                <wait>
+                                    <http>
+                                        <url>http://${docker.host.address}:${scheduler-worker.adminport}/healthcheck</url>
+                                    </http>
+                                    <time>200000</time>
                                     <shutdown>500</shutdown>
                                 </wait>
                             </run>

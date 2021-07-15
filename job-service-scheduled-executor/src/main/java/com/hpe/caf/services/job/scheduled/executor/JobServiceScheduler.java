@@ -41,5 +41,6 @@ public class JobServiceScheduler implements DocumentWorker
     @Override
     public void processDocument(Document document) throws InterruptedException, DocumentWorkerTransientException
     {
+        ScheduledExecutor.runAvailableJobs("Manual");
     }
 }

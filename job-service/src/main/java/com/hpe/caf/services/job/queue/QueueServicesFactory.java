@@ -21,6 +21,8 @@ import com.hpe.caf.util.rabbitmq.RabbitUtil;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -29,6 +31,7 @@ import java.util.concurrent.TimeoutException;
  * This class is responsible for creating the RabbitMQ connection and channel.
  */
 public final class QueueServicesFactory {
+    private static final Logger LOG = LoggerFactory.getLogger(QueueServicesFactory.class);
 
     /**
      * Create a new QueueServices object.
@@ -42,7 +45,14 @@ public final class QueueServicesFactory {
      */
     public static QueueServices create(final AppConfig configuration, final String targetQueue, final Codec codec) throws IOException, TimeoutException {
         //  Create connection and channel for publishing messages.
-        Connection connection = createConnection(configuration);
+        Connection connection;
+        try {
+            //  Create connection and channel for publishing messages.
+            connection = createConnection(configuration);
+        } catch (final IOException | TimeoutException e) {
+            LOG.warn("Failed to create connection. Will retry", e);
+            connection = createConnection(configuration);
+        }
 
         Channel publishChannel = connection.createChannel();
         // Enable publishing acknowledgements

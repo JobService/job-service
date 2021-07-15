@@ -170,6 +170,9 @@
                                         </dependencySets>
                                     </inline>
                                 </assembly>
+                                <env>
+                                    <CAF_WORKER_INPUT_QUEUE>jobservicescheduler-in</CAF_WORKER_INPUT_QUEUE>
+                                </env>
                             </build>
                         </image>
                     </images>

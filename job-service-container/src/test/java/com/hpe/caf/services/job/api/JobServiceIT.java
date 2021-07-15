@@ -732,65 +732,6 @@ public class JobServiceIT {
         assertEquals(count, 0, "job count should be zero");
     }
 
-    /**
-     * This test will create a job with tracking info, and using the jobservice client it will create a new job using the
-     * appropriate web method. It then consumes the message from the queue and asserts the result is as expected.
-     * @throws Exception
-     */
-    @Test
-    public void testMessagesOnRabbit() throws Exception {
-        //Create a job first
-        String jobId = UUID.randomUUID().toString();
-        System.out.println("JobID: " +jobId);
-        String jobName = "Job_" +jobId;
-        String jobDesc = jobName + " Descriptive Text.";
-        String jobCorrelationId = "1";
-        String jobExternalData = jobName +" External data.";
-        String testQueue = "jobservice-test-input-1";
-        String trackingToQueue = "tracking-to-queue";
-
-        //create the worker action including target pipe
-        WorkerAction workerActionTask = new WorkerAction();
-        workerActionTask.setTaskClassifier(jobName + "_TaskClassifier");
-        workerActionTask.setTaskApiVersion(1);
-        workerActionTask.setTaskData(jobName + "_TaskClassifier Sample Test Task Data.");
-        workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
-        workerActionTask.setTaskPipe(testQueue);
-        workerActionTask.setTargetPipe(trackingToQueue);
-
-        //create a job
-        NewJob newJob = new NewJob();
-        newJob.setName(jobName);
-        newJob.setDescription(jobDesc);
-        newJob.setExternalData(jobExternalData);
-        newJob.setTask(workerActionTask);
-
-        //get values of environment variables stored in the task message, making sure
-        String statusCheckUrl = System.getenv("CAF_WEBSERVICE_URL");
-        if(statusCheckUrl!=null) {
-            statusCheckUrl = statusCheckUrl +
-                "/partitions/" + defaultPartitionId + "/jobs/" + jobId + "/status";
-        } else {
-            throw new Exception("CAF_WEBSERVICE_URL environment variable is null.");
-        }
-
-        String trackingPipe = System.getenv("CAF_TRACKING_PIPE");
-        if(trackingPipe==null)
-            throw new Exception("CAF_TRACKING_PIPE environment variable is null.");
-
-        String statusCheckIntervalSeconds = System.getenv("CAF_STATUS_CHECK_INTERVAL_SECONDS");
-        if(statusCheckIntervalSeconds==null)
-            throw new Exception("CAF_STATUS_CHECK_INTERVAL_SECONDS environment variable is null.");
-
-        //create expectation object for comparing message on RabbitMQ
-        JobServiceTrackingInfoExpectation expectation = new JobServiceTrackingInfoExpectation(
-            defaultPartitionId, jobId, null, Long.parseLong(statusCheckIntervalSeconds) * 1000, statusCheckUrl,
-            trackingPipe, trackingToQueue, true);
-
-        testMessagesPutOnQueue(
-            testQueue, expectation, defaultPartitionId, jobId, newJob, jobCorrelationId);
-    }
-
     @Test
     public void testCreateRestrictedJob() throws Exception {
         testQueueManager = getQueueManager("basic task-pipe");
@@ -1221,28 +1162,6 @@ public class JobServiceIT {
             }
         }
         return 0;
-    }
-    
-    public void testMessagesPutOnQueue(
-        final String taskQueue,
-        final JobServiceTrackingInfoExpectation expectation,
-        final String partitionId,
-        String jobId,
-        NewJob newJob,
-        String jobCorrelationId
-    ) throws Exception {
-        try (QueueManager queueManager = getQueueManager(taskQueue)) {
-            ExecutionContext context = new ExecutionContext(false);
-            context.initializeContext();
-            Timer timer = getTimer(context);
-            Thread thread = queueManager.start(new JobServiceOutputDeliveryHandler(context, expectation));
-
-            //call web method to create the new job and put message on queue
-            jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
-
-            TestResult result = context.getTestResult();
-            assertTrue(result.isSuccess());
-        }
     }
 
     /**

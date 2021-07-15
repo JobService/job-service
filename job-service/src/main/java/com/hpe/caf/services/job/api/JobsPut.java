@@ -15,34 +15,30 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
+import com.hpe.caf.api.worker.TaskMessage;
+import com.hpe.caf.api.worker.TaskStatus;
+import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigProvider;
-import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
+import com.hpe.caf.services.job.jobtype.JobTypes;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
-import com.hpe.caf.services.job.jobtype.JobTypes;
 import com.hpe.caf.util.ModuleLoader;
+import com.hpe.caf.worker.document.DocumentWorkerConstants;
+import com.hpe.caf.worker.document.DocumentWorkerDocumentTask;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -194,39 +190,17 @@ public final class JobsPut {
                         job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended);
 
             } else {
-                jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(), job.getExternalData(), jobHash, job.getLabels());
+                jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(),
+                        job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
+                        getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
+                        job.getDelay(), job.getLabels());
             }
 
             if (!jobCreated) {
                 return "update";
             }
 
-            if (!databaseHelper.canJobBeProgressed(partitionId, jobId)) {
-                return "create";
-            }
-
-            //  Get database helper instance.
-            try {
-                QueueServices queueServices = QueueServicesFactory.create(config, jobTask.getTaskPipe(),codec);
-                LOG.debug("createOrUpdateJob: Sending task data to the target queue...");
-                queueServices.sendMessage(partitionId, jobId, jobTask, config, true);
-                closeQueueConnection(queueServices);
-            } catch (final IOException | TimeoutException ex) {
-                //  Failure adding job data to queue. Update the job with the failure details.
-                Failure f = new Failure();
-                f.setFailureId("ADD_TO_QUEUE_FAILURE");
-                f.setFailureTime(new Date());
-                f.failureSource("Job Service - PUT /partitions/{"+partitionId+"}/jobs/{"+jobId+"}");
-                f.failureMessage(ex.getMessage());
-
-                ObjectMapper mapper = new ObjectMapper();
-                final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                mapper.setDateFormat(df);
-                databaseHelper.reportFailure(partitionId, jobId, mapper.writeValueAsString(f));
-
-                //  Throw error message to user.
-                throw new ServiceUnavailableException("Failed to add task data to the queue", ex);
-            }
+            triggerScheduler(codec, config);
 
             LOG.debug("createOrUpdateJob: Done.");
 
@@ -237,12 +211,26 @@ public final class JobsPut {
         }
     }
 
-    private static void closeQueueConnection(final QueueServices queueServices)
+    /**
+     * We trigger the scheduler so it will pick up the created job from the database then send a message to the appropriate queue
+     */
+    private static void triggerScheduler(final Codec codec, final AppConfig config)
     {
-        try {
-            queueServices.close();
-        } catch (final Exception e) {
-            LOG.warn("Error on connection close to RabbitMQ", e);
+        try (final QueueServices queueServices = QueueServicesFactory.create(config, config.getSchedulerQueue(), codec)) {
+            LOG.debug("createOrUpdateJob: Triggering scheduler to send data to the target queue");
+
+            final TaskMessage taskMessage = new TaskMessage(
+                UUID.randomUUID().toString(),
+                DocumentWorkerConstants.DOCUMENT_TASK_NAME,
+                1,
+                codec.serialise(new DocumentWorkerDocumentTask()),
+                TaskStatus.NEW_TASK,
+                Collections.emptyMap(),
+                config.getSchedulerQueue());
+            final byte[] taskMessageBytes = serializeData(taskMessage, codec);
+            queueServices.publishMessage(taskMessageBytes);
+        } catch (final Exception ex) {
+            LOG.warn("Failed to ping the scheduler {}", ex.getMessage());
         }
     }
 
@@ -262,11 +250,7 @@ public final class JobsPut {
                 throw new RuntimeException("Unknown taskDataEncoding");
             }
         } else if (taskDataObj instanceof Map<?, ?>) {
-            try {
-                taskDataBytes = codec.serialise(taskDataObj);
-            } catch (CodecException e) {
-                throw new RuntimeException("Failed to serialise TaskData", e);
-            }
+            taskDataBytes = serializeData(taskDataObj, codec);
         } else {
             throw new RuntimeException("The taskData is an unexpected type");
         }
@@ -274,4 +258,14 @@ public final class JobsPut {
         return taskDataBytes;
     }
 
+    private static byte[] serializeData(final Object taskDataObj, final Codec codec)
+    {
+        final byte[] taskDataBytes;
+        try {
+            taskDataBytes = codec.serialise(taskDataObj);
+        } catch (final CodecException e) {
+            throw new RuntimeException("Failed to serialise TaskData", e);
+        }
+        return taskDataBytes;
+    }
 }

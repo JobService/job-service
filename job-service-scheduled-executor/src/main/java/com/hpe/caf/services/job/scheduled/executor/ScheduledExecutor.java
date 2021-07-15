@@ -18,6 +18,8 @@ package com.hpe.caf.services.job.scheduled.executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,18 +31,16 @@ public class ScheduledExecutor {
 
     public static void main(final String[] args)
     {
+        runJobs();
+    }
+
+    private static void runJobs() {
         // Create a scheduler to process scheduled tasks.
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         LOG.info("Starting Job Service Scheduled Executor service ...");
-        final Runnable task = () -> {
-            try {
-                DatabasePoller.pollDatabaseForJobsToRun();
-            } catch (final Throwable t ) {   // Catch Exceptions and Errors to prevent scheduler stoppage.
-                LOG.error("Caught exception while polling the Job Service database. Message:\n" + t.getMessage()
-                        + "StackTrace:\n" + Arrays.toString(t.getStackTrace()));
-            }
-        };
+
+        final Runnable task = () -> runAvailableJobs("Auto");
 
         //  Poll the Job Service database using the specified polling period configuration to specify how often the
         //  scheduled task is run.
@@ -53,4 +53,24 @@ public class ScheduledExecutor {
                 TimeUnit.SECONDS);
     }
 
+    /**
+     *
+     * @param origin the trigger's origin. It can be "Auto" or "Manual"
+     */
+    public static void runAvailableJobs(final String origin)
+    {
+        try {
+            if (LOG.isDebugEnabled()) {
+                final Instant start = Instant.now();
+                DatabasePoller.pollDatabaseForJobsToRun();
+                final Instant end = Instant.now();
+                LOG.debug("Total time taken to execute scheduler for {} task in ms {}", origin, Duration.between(start, end).toMillis());
+            } else {
+                DatabasePoller.pollDatabaseForJobsToRun();
+            }
+        } catch (final Exception t) {   // Catch Exceptions and Errors to prevent scheduler stoppage.
+            LOG.error("Caught exception while polling the Job Service database. Message:\n{} StackTrace:\n{}",
+                      t.getMessage(), Arrays.toString(t.getStackTrace()));
+        }
+    }
 }

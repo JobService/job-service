@@ -268,11 +268,13 @@ public final class DatabaseHelper
      * Creates the specified job.
      * @return Whether the job was created
      */
-    public boolean createJob(final String partitionId, String jobId, String name, String description, String data,
-                             int jobHash, final Map<String, String> labels) throws Exception {
+    public boolean createJob(final String partitionId, final String jobId, final String name, final String description,
+            final String data, final int jobHash, final String taskClassifier,
+            final int taskApiVersion, final byte[] taskData, final String taskPipe,
+            final String targetPipe, final int delay, final Map<String, String> labels) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
             final List<String[]> labelArray = buildLabelSqlArray(labels);
 
@@ -282,6 +284,12 @@ public final class DatabaseHelper
             stmt.setString(4,description);
             stmt.setString(5,data);
             stmt.setInt(6,jobHash);
+            stmt.setString(7,taskClassifier);
+            stmt.setInt(8,taskApiVersion);
+            stmt.setBytes(9,taskData);
+            stmt.setString(10,taskPipe);
+            stmt.setString(11,targetPipe);
+            stmt.setInt(12,delay);
 
             Array array;
             if (!labelArray.isEmpty()) {
@@ -289,7 +297,7 @@ public final class DatabaseHelper
             } else {
                 array = conn.createArrayOf("VARCHAR", new String[0]);
             }
-            stmt.setArray(7, array);
+            stmt.setArray(13, array);
             try {
                 return callCreateJobFunction(stmt);
             } finally {
@@ -386,34 +394,6 @@ public final class DatabaseHelper
         } catch (final SQLException se) {
            throw mapSqlNoDataException(se);
         }
-    }
-
-    /**
-     * Returns TRUE if the specified job id can be progressed, otherwise FALSE.
-     */
-    public boolean canJobBeProgressed(final String partitionId, final String jobId) throws Exception
-    {
-
-        boolean canBeProgressed = true;
-
-        try (
-                Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_job_can_be_progressed(?,?)}")
-        ) {
-            stmt.setString(1, partitionId);
-            stmt.setString(2, jobId);
-
-            //  Execute a query to determine if the specified job can be progressed.
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
-                canBeProgressed = rs.getBoolean("can_be_progressed");
-            }
-
-        } catch (final SQLException se) {
-            throwIfUnexpectedException(se);
-        }
-
-        return canBeProgressed;
     }
 
     public Job.StatusEnum getJobStatus(final String partitionId, final String jobId) throws Exception
