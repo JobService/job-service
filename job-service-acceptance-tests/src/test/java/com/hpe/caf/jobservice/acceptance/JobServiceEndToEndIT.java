@@ -669,50 +669,6 @@ public class JobServiceEndToEndIT {
     }
 
     @Test
-    public void testCreateJobNoDelayNoPreReq() throws Exception {
-        //create a job eligible for running
-        final String jobId = generateJobId();
-        final String jobCorrelationId = "1";
-        final NewJob newJob = constructNewJob(jobId, true);
-        final String partitionId = "tenant-allclear-com";
-        jobsApi.createOrUpdateJob(partitionId, jobId, newJob, jobCorrelationId);
-
-        //retrieve job using web method
-        final Job retrievedJob = jobsApi.getJob(partitionId, jobId, jobCorrelationId);
-        LOG.info("--testCreateJobNoDelayNoPreReq job {} in partition: {}", retrievedJob.getId(), partitionId);
-        Thread.sleep(100); // Allows the scheduler to perform
-        JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(retrievedJob.getId());
-    }
-
-    @Test
-    public void testCreateJobNoDelayAndSomePreReq() throws Exception {
-        //create a job with some pre req
-        final String preReqJobId = generateJobId();
-        final String job1Id = generateJobId();
-        final String jobCorrelationId = "1";
-        final String partitionId = "tenant-hasprereq-com";
-        createJobWithPrerequisites(partitionId, job1Id, true, preReqJobId);
-        //  Verify J1 is in 'waiting' state and job dependency rows exist as expected.
-        JobServiceDatabaseUtil.assertJobStatus(job1Id, "waiting");
-        JobServiceDatabaseUtil.assertJobDependencyRowsExist(job1Id, preReqJobId, batchWorkerMessageInQueue, exampleWorkerMessageOutQueue);
-        Assert.assertTrue(JobServiceDatabaseUtil.getJobDelay(job1Id) == 0, "Job "+job1Id+" has an unexpected delay configured");
-        final String job1EligibleRunDate = JobServiceDatabaseUtil.getJobTaskDataEligibleRunDate(job1Id);
-        LOG.info("--testCreateJobNoDelayAndSomePreReq : job1EligibleRunDate: ", job1EligibleRunDate);
-        Assert.assertTrue(job1EligibleRunDate == null, "Job "+job1Id+" eligible_to_run_date value is not null");
-
-        final NewJob preReqJobJob = constructNewJob(preReqJobId, true);
-        jobsApi.createOrUpdateJob(partitionId, preReqJobId, preReqJobJob, jobCorrelationId);
-
-        final boolean canRun = JobServiceDatabaseUtil.isJobEligibleToRun(job1Id);
-        LOG.info("--testCreateJobNoDelayAndSomePreReq job {} in partition: {}, canRun? {}", job1Id, partitionId, canRun);
-        assertEquals(canRun, false, "Job "+job1Id+" is eligible to run despite incomplete prerequisite jobs");
-
-        Thread.sleep(100); // Allows the scheduler to perform
-
-        JobServiceDatabaseUtil.assertJobTaskDataRowDoesNotExist(preReqJobId);
-    }
-
-    @Test
     public void testCreateJobNoDelayAndSomePreReqWithDelay() throws Exception {
         //create a job with some pre req which has a delay
         final String preReqJobId = generateJobId();
