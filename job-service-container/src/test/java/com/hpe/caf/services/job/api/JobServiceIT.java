@@ -1114,8 +1114,6 @@ public class JobServiceIT {
             Instant endTableCreation = Instant.now();
             LOG.info("Total time taken to create " + totalCount + " tables in ms. " + Duration.between(startTableCreation, endTableCreation).toMillis());
             
-            // assert number of rows in delete_log to be totalCount - 1
-            assertEquals(getRowsInDeleteLog(dbConnection), totalCount - 1);
             List<String> foundTables = getAllTablesByPattern(dbConnection);
             assertTrue(foundTables.containsAll(droppedTables));
             
