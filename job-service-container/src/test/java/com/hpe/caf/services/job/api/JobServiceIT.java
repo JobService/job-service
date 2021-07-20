@@ -1087,7 +1087,6 @@ public class JobServiceIT {
     public void testDeleteLog() throws SQLException
     {
         //prepare
-        List<String> droppedTables = new ArrayList();
         try(final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
         {
             int totalCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
@@ -1104,7 +1103,6 @@ public class JobServiceIT {
                             createTaskTableStmt.executeQuery();
                             insertDeleteLogStmt.setString(1, tableName);
                             insertDeleteLogStmt.executeQuery();
-                            droppedTables.add(tableName);
                         }
                         catch(SQLException throwables)
                         {
@@ -1113,9 +1111,6 @@ public class JobServiceIT {
                     });
             Instant endTableCreation = Instant.now();
             LOG.info("Total time taken to create " + totalCount + " tables in ms. " + Duration.between(startTableCreation, endTableCreation).toMillis());
-            
-            List<String> foundTables = getAllTablesByPattern(dbConnection);
-            assertTrue(foundTables.containsAll(droppedTables));
             
             //act
             try(final PreparedStatement dropTables = dbConnection.prepareStatement("call drop_deleted_task_tables()"))
@@ -1128,7 +1123,7 @@ public class JobServiceIT {
             
             
             //assert
-            foundTables = getAllTablesByPattern(dbConnection);
+            final List<String> foundTables = getAllTablesByPattern(dbConnection);
             assertEquals(foundTables.size(), 0);
             // assert number of rows in delete_log to be 0.
             assertEquals(getRowsInDeleteLog(dbConnection), 0);
