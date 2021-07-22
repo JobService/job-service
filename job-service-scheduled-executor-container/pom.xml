@@ -172,6 +172,7 @@
                                 </assembly>
                                 <env>
                                     <CAF_WORKER_INPUT_QUEUE>jobservicescheduler-in</CAF_WORKER_INPUT_QUEUE>
+                                    <CAF_WORKER_FAILURE_QUEUE>jobservicescheduler-err</CAF_WORKER_FAILURE_QUEUE>
                                 </env>
                             </build>
                         </image>
