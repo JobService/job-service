@@ -24,7 +24,8 @@ public class JobServiceScheduler implements DocumentWorker
 {
     public JobServiceScheduler()
     {
-        ScheduledExecutor.main(null);
+        final String[] origin = {"Auto"};
+        ScheduledExecutor.main(origin);
     }
 
     /**
@@ -41,6 +42,6 @@ public class JobServiceScheduler implements DocumentWorker
     @Override
     public void processDocument(Document document) throws InterruptedException, DocumentWorkerTransientException
     {
-        ScheduledExecutor.runAvailableJobs("Manual");
+        ScheduledExecutor.runJobs("Manual");
     }
 }

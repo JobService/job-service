@@ -31,16 +31,17 @@ public class ScheduledExecutor {
 
     public static void main(final String[] args)
     {
-        runJobs();
+        final String origin=args[0];
+        runJobs(origin);
     }
 
-    private static void runJobs() {
+    public static void runJobs(final String origin) {
         // Create a scheduler to process scheduled tasks.
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         LOG.info("Starting Job Service Scheduled Executor service ...");
 
-        final Runnable task = () -> runAvailableJobs("Auto");
+        final Runnable task = () -> runAvailableJobs(origin);
 
         //  Poll the Job Service database using the specified polling period configuration to specify how often the
         //  scheduled task is run.
@@ -57,7 +58,7 @@ public class ScheduledExecutor {
      *
      * @param origin the trigger's origin. It can be "Auto" or "Manual"
      */
-    public static void runAvailableJobs(final String origin)
+    private static void runAvailableJobs(final String origin)
     {
         try {
             if (LOG.isDebugEnabled()) {
