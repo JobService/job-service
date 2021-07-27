@@ -29,14 +29,11 @@ public class ScheduledExecutor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ScheduledExecutor.class);
 
-    public static void main(final String[] args)
-    {
-        runJobs();
-    }
+    private final ScheduledExecutorService scheduler;
 
-    private static void runJobs() {
+    public ScheduledExecutor() {
         // Create a scheduler to process scheduled tasks.
-        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        this.scheduler = Executors.newScheduledThreadPool(1);
 
         LOG.info("Starting Job Service Scheduled Executor service ...");
 
@@ -53,11 +50,16 @@ public class ScheduledExecutor {
                 TimeUnit.SECONDS);
     }
 
+    public void poke()
+    {
+        scheduler.submit(() -> runAvailableJobs("Manual"));
+    }
+
     /**
      *
      * @param origin the trigger's origin. It can be "Auto" or "Manual"
      */
-    public static void runAvailableJobs(final String origin)
+    private static void runAvailableJobs(final String origin)
     {
         try {
             if (LOG.isDebugEnabled()) {
@@ -68,7 +70,7 @@ public class ScheduledExecutor {
             } else {
                 DatabasePoller.pollDatabaseForJobsToRun();
             }
-        } catch (final Exception t) {   // Catch Exceptions and Errors to prevent scheduler stoppage.
+        } catch (final Throwable t) {   // Catch Exceptions and Errors to prevent scheduler stoppage.
             LOG.error("Caught exception while polling the Job Service database. Message:\n{} StackTrace:\n{}",
                       t.getMessage(), Arrays.toString(t.getStackTrace()));
         }

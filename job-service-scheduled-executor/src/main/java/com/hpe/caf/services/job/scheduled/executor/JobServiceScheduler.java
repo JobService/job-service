@@ -22,9 +22,11 @@ import com.hpe.caf.worker.document.model.HealthMonitor;
 
 public class JobServiceScheduler implements DocumentWorker
 {
+    private final ScheduledExecutor scheduler;
+
     public JobServiceScheduler()
     {
-        ScheduledExecutor.main(null);
+        this.scheduler = new ScheduledExecutor();
     }
 
     /**
@@ -41,6 +43,6 @@ public class JobServiceScheduler implements DocumentWorker
     @Override
     public void processDocument(Document document) throws InterruptedException, DocumentWorkerTransientException
     {
-        ScheduledExecutor.runAvailableJobs("Manual");
+        scheduler.poke();
     }
 }
