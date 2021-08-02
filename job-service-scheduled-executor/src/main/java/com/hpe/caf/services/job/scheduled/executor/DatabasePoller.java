@@ -70,7 +70,7 @@ public class DatabasePoller
             LOG.error(MessageFormat.format("Exception caught when loading the serialization class. {0}", e.getMessage()));
         }
     }
-    
+
     private static void sendMessageToQueueMessaging(final Codec codec, final JobTaskData jtd, final WorkerAction workerAction)
     {
         try (final QueueServices queueServices= QueueServicesFactory.create(jtd.getTaskPipe(), codec)){
