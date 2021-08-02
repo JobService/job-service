@@ -41,7 +41,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * This class is responsible for sending task data to the target queue.
  */
-public final class QueueServices
+public final class QueueServices implements AutoCloseable
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
 

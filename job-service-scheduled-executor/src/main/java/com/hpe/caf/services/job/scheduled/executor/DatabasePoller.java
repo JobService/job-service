@@ -15,8 +15,6 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.util.ModuleLoader;
 import com.hpe.caf.util.ModuleLoaderException;
@@ -28,11 +26,8 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -66,49 +61,7 @@ public class DatabasePoller
                     }
                     workerAction.setTaskPipe(jtd.getTaskPipe());
                     workerAction.setTargetPipe(jtd.getTargetPipe());
-
-                    //  Get database helper instance.
-                    QueueServices queueServices = null;
-                    try {
-                        queueServices = QueueServicesFactory.create(jtd.getTaskPipe(),codec);
-                        LOG.debug(MessageFormat.format("Sending task data to the target queue {0} ...", workerAction.toString()));
-                        queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
-                        deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
-                    } catch(final Exception ex) {
-                        //  TODO - in future we need to consider consequence of reaching here as this means we have
-                        //  deleted job_task_data rows from the database. For now we will log details as part of
-                        //  failure details in the Job database row.
-
-                        final String errorMessage = MessageFormat.format("Failed to add task data {0} to the queue.", workerAction.toString());
-
-                        //  Failure adding job data to queue. Update the job with the failure details.
-                        final QueueFailure f = new QueueFailure();
-                        f.setFailureId("ADD_TO_QUEUE_FAILURE");
-                        f.setFailureTime(new Date());
-                        f.failureSource(MessageFormat.format("Job Service Scheduled Executor for job id {0}", jtd.getJobId()));
-                        f.failureMessage(ex.getMessage());
-
-                        final ObjectMapper mapper = new ObjectMapper();
-                        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                        mapper.setDateFormat(df);
-                        try {
-                            reportFailure(
-                                jtd.getPartitionId(), jtd.getJobId(), mapper.writeValueAsString(f));
-                        } catch (final JsonProcessingException e) {
-                            LOG.error("Failed to serialize the failure details.");
-                        }
-
-                        LOG.error(errorMessage);
-                        throw new ScheduledExecutorException(errorMessage);
-                    } finally {
-                        if (queueServices != null) {
-                            try {
-                                queueServices.close();
-                            } catch (final Exception e) {
-                                throw new ScheduledExecutorException(e.getMessage());
-                            }
-                        }
-                    }
+                    sendMessageToQueueMessaging(codec, jtd, workerAction);
                 }
             }
         } catch (final ScheduledExecutorException e) {
@@ -117,7 +70,18 @@ public class DatabasePoller
             LOG.error(MessageFormat.format("Exception caught when loading the serialization class. {0}", e.getMessage()));
         }
     }
-
+    
+    private static void sendMessageToQueueMessaging(final Codec codec, final JobTaskData jtd, final WorkerAction workerAction)
+    {
+        try (final QueueServices queueServices= QueueServicesFactory.create(jtd.getTaskPipe(), codec)){
+            LOG.debug("Sending task data to the target queue {} ...", workerAction);
+            queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
+            deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
+        } catch(final Exception ex) {
+            LOG.warn("Failed to send message about dependent jobs {}", ex.getMessage());
+        }
+    }
+    
     /**
      * Deletes the supplied job from the job_task_data database table.
      */
@@ -175,33 +139,5 @@ public class DatabasePoller
             throw new ScheduledExecutorException(errorMessage);
         }
     }
-
-    /**
-     * Reports failure for the specified job identifier.
-     */
-    private static void reportFailure(
-        final String partitionId, final String jobTaskId, final String failureDetails
-    ) throws ScheduledExecutorException {
-        /*
-        SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Unreleased Resource: Database.
-        */
-        try (
-                Connection conn = DBConnection.get();
-                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")
-        ) {
-            stmt.setString(1, partitionId);
-            stmt.setString(2,jobTaskId);
-            stmt.setString(3,failureDetails);
-
-            LOG.debug("Calling report_failure() database function...");
-            stmt.execute();
-        } catch (final SQLException e) {
-            final String errorMessage = MessageFormat.format("Failed in call to report_failure() database function.{0}", e.getMessage());
-            LOG.error(errorMessage);
-            throw new ScheduledExecutorException(errorMessage);
-        }
-
-    }
-
 
 }
