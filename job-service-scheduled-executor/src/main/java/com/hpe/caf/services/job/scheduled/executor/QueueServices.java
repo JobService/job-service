@@ -41,7 +41,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * This class is responsible for sending task data to the target queue.
  */
-public final class QueueServices
+public final class QueueServices implements AutoCloseable
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
 
@@ -158,9 +158,10 @@ public final class QueueServices
 
     /**
      * Closes the queue connection.
-     * @throws Exception thrown if the queue connection cannot be closed.
+     * @throws RuntimeException thrown if the queue connection cannot be closed.
      */
-    public void close() throws Exception {
+    @Override
+    public void close() throws RuntimeException{
         try {
             //  Close channel.
             if (publisherChannel != null) {

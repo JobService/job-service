@@ -265,30 +265,6 @@ public class JobTrackingWorkerIT {
     }
 
     /**
-     * When a worker responds with INVALID_TASK, the tracking worker should fail the job in the
-     * database.
-     */
-    @Test
-    public void testProxiedInvalidMessage() throws Exception {
-        final String jobId = jobDatabase.createJobId();
-        jobDatabase.createJobTask(defaultPartitionId, jobId, "testProxiedInvalidMessage");
-
-        final String queue = "jobtrackingworker-test-example-output";
-        final TaskMessage basicMessage =
-            getExampleTaskMessage(defaultPartitionId, jobId, queue, queue);
-        final TaskMessage invalidMessage = failTask(queue, basicMessage, TaskStatus.INVALID_TASK);
-        final JobTrackingWorkerITExpectation expectation =
-            new JobTrackingWorkerITExpectation(defaultPartitionId, jobId, queue, false,
-                new JobReportingExpectation(
-                    jobId, JobStatus.Failed, 0, true, true, true, true, true));
-        testProxiedMessageReporting(invalidMessage, expectation);
-
-        final DBJob jobFromDb = jobDatabase.getJob(defaultPartitionId, jobId);
-        Assert.assertTrue(jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate()),
-            "last-update-time should be updated on fail");
-    }
-
-    /**
      * Create a job with 2 subtasks and send a complete message for 1 of the subtasks.  This should
      * update the last-update-time and completion percentage.
      */
