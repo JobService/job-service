@@ -78,7 +78,7 @@ public class DatabasePoller
             queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
             deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
         } catch(final Exception ex) {
-            LOG.warn("Failed to send message about dependent jobs {}", ex.getMessage());
+            LOG.warn("Failed to send message about dependent jobs", ex);
         }
     }
     
