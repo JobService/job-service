@@ -158,9 +158,10 @@ public final class QueueServices implements AutoCloseable
 
     /**
      * Closes the queue connection.
-     * @throws Exception thrown if the queue connection cannot be closed.
+     * @throws RuntimeException thrown if the queue connection cannot be closed.
      */
-    public void close(){
+    @Override
+    public void close() {
         try {
             //  Close channel.
             if (publisherChannel != null) {
