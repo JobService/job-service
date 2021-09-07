@@ -57,7 +57,7 @@
                                     <artifactId>swagger-ui-dist</artifactId>
                                     <version>1.1.0-SNAPSHOT</version>
                                     <outputDirectory>${project.build.directory}/swagger-ui</outputDirectory>
-                                    <excludes>META-INF/resources/webjars/microfocus-swagger-ui-dist/1.0.0/microfocus-config.js</excludes>
+                                    <excludes>META-INF/resources/webjars/microfocus-swagger-ui-dist/1.1.0/microfocus-config.js</excludes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.github.jobservice</groupId>
@@ -79,7 +79,7 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <webResources>
                         <resource>
-                            <directory>${project.build.directory}/swagger-ui/META-INF/resources/webjars/microfocus-swagger-ui-dist/1.0.0</directory>
+                            <directory>${project.build.directory}/swagger-ui/META-INF/resources/webjars/microfocus-swagger-ui-dist/1.1.0</directory>
                             <targetPath>.</targetPath>
                         </resource>
                         <resource>
