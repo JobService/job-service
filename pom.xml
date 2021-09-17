@@ -51,6 +51,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.10.5.1</version>
+            </dependency>
             <!--Need to overwrite these com.sun.jersey versions, till we migrate from Jersey 1.x to 2.x.
             The Jersey bom from org.glassfish.jersey brings in unwanted dependencies -->
             <dependency>
@@ -225,7 +230,7 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.2.5</version>
+                <version>42.2.13</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
