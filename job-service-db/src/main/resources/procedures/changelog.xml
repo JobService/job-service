@@ -307,4 +307,22 @@
                          schemaName="public">
         </createProcedure>
     </changeSet>
+    <changeSet id="populate_delete_log_table_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/populateDeleteLogTable.sql"
+                         procedureName="populate_delete_log_table"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="insert_parent_table_to_delete_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/insertParentTableToDelete.sql"
+                         procedureName="internal_insert_parent_table_to_delete"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
+    <changeSet id="insert_delete_log_proc" runOnChange="true" author="Gamma Team">
+        <createProcedure path="procedures/insertDeleteLog.sql"
+                         procedureName="internal_insert_delete_log"
+                         schemaName="public">
+        </createProcedure>
+    </changeSet>
 </databaseChangeLog>

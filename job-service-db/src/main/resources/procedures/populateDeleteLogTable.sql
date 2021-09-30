@@ -20,34 +20,46 @@
  *  Description:
  *  Drops all task tables belonging to the specified task and all its subtasks
  */
-DROP FUNCTION IF EXISTS internal_drop_task_tables(
-    in_short_task_id VARCHAR(58)
-);
-DROP FUNCTION IF EXISTS internal_drop_task_tables(
+
+CREATE OR REPLACE PROCEDURE populate_delete_log_table (
     in_partition_id VARCHAR(40),
-    in_task_id VARCHAR(58)
-);
-CREATE OR REPLACE FUNCTION internal_drop_task_tables(
-    in_partition_id VARCHAR(40),
-    in_task_id VARCHAR(70)
+    in_task_id VARCHAR(70),
+    query_count INTEGER default 0
 )
-RETURNS VOID
-LANGUAGE plpgsql
+    LANGUAGE plpgsql
 AS $$
 DECLARE
     task_table_ident TEXT;
+    subtask_suffix TEXT;
     task_table_name VARCHAR;
+    commit_limit integer:=10;
 
 BEGIN
     -- Put together the task table identifier
     task_table_name := internal_get_task_table_name(in_partition_id, in_task_id);
+--     raise notice 'task_table_name: %', task_table_name;
     task_table_ident = quote_ident(task_table_name);
 
     -- Check if the table exists
     IF internal_to_regclass(task_table_ident) IS NOT NULL THEN
+        FOR subtask_suffix IN
+            EXECUTE $ESC$SELECT '.' || subtask_id || CASE WHEN is_final THEN '*' ELSE '' END AS subtask_suffix FROM $ESC$ || task_table_ident
+            loop
+                query_count:= query_count + 1;
+--                 raise notice 'query_count : %', query_count;
+                if query_count >= commit_limit then
+--                     raise notice 'Committing now : %', task_table_name;
+                    commit;
+                    query_count = 0;
+                end if;
+                call populate_delete_log_table(in_partition_id, in_task_id || subtask_suffix, query_count);
+            END LOOP;
 
-        -- Insert table name to be dropped later
-        PERFORM internal_insert_parent_table_to_delete(in_partition_id, task_table_name);
+        -- Insert table name to be dropped 
+        PERFORM internal_insert_delete_log(task_table_name);
+
     END IF;
+    --   raise notice 'Committing now : %', task_table_name;
+--   COMMIT;
 END
 $$;

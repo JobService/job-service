@@ -26,10 +26,27 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     selected_table_names VARCHAR;
+    selected_parent_table_names VARCHAR;
     commit_limit integer:=10;
+    parent_table_log_rec record;
     rec record;
 
 BEGIN
+    -- insert table names into delete_log
+    selected_parent_table_names := $q$SELECT partition_id, table_name FROM deleted_parent_table_log LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
+    WHILE EXISTS (SELECT 1 FROM deleted_parent_table_log)
+        LOOP
+        FOR parent_table_log_rec IN EXECUTE selected_parent_table_names
+        LOOP
+--             raise notice 'parent_table_log_rec: %', parent_table_log_rec;
+            call populate_delete_log_table(parent_table_log_rec.partition_id, parent_table_log_rec.table_name, 0);
+            -- delete the parent table name from parent table.
+            DELETE FROM deleted_parent_table_log WHERE table_name = parent_table_log_rec.table_name;
+--             raise notice 'another commit: %', parent_table_log_rec.table_name;
+            COMMIT;
+        END LOOP;
+    END LOOP;
+
     selected_table_names := $q$SELECT table_name FROM delete_log LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
 
     WHILE EXISTS (SELECT 1 FROM delete_log)
