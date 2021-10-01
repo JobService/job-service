@@ -23,7 +23,7 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
                                        http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
-    <changeSet id="create_table_delete_log" author="Gamma Team">
+    <changeSet id="create_deleted_parent_table_log" author="Gamma Team">
         <createTable tableName="deleted_parent_table_log">
             <column name="table_name" type="VARCHAR(63)">
                 <constraints nullable="false" />
@@ -33,7 +33,7 @@
             </column>
         </createTable>
         <createIndex schemaName="public" tableName="deleted_parent_table_log" indexName="idx_deleted_parent_table_log">
-            <column name="parent_table_name" />
+            <column name="table_name" />
         </createIndex>
     </changeSet>
 </databaseChangeLog>
