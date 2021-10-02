@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 public final class JobsDelete {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobsGet.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JobsDelete.class);
 
     /**
      * Delete the job with the specified job id.
