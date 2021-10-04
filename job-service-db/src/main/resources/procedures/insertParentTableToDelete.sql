@@ -21,13 +21,12 @@
  *  This is used to insert a record into deleted_parent_table_log table.
  */
 CREATE OR REPLACE FUNCTION internal_insert_parent_table_to_delete (
-    task_table_name VARCHAR,
-    in_partition_id VARCHAR
+    task_table_name VARCHAR
 )
 RETURNS VOID
 LANGUAGE plpgsql VOLATILE
 AS $$
 BEGIN
-    INSERT INTO public.deleted_parent_table_log VALUES (in_partition_id, task_table_name);
+    INSERT INTO public.deleted_parent_table_log VALUES (task_table_name);
 END
 $$;

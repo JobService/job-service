@@ -47,7 +47,7 @@ BEGIN
     IF internal_to_regclass(task_table_ident) IS NOT NULL THEN
 
         -- Insert table name to be dropped later
-        PERFORM internal_insert_parent_table_to_delete(in_partition_id, task_table_name);
+        PERFORM internal_insert_parent_table_to_delete(task_table_name);
     END IF;
 END
 $$;

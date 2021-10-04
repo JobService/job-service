@@ -1093,16 +1093,14 @@ public class JobServiceIT {
         {
 //            final int totalCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
             final int totalParentTableCount = 1000;
-            LOG.info("Creating tables ");
+            LOG.info("Creating tables");
             final Instant startTableCreation = Instant.now();
             IntStream
                     .range(1, totalParentTableCount)
                     .forEach((count) -> {
-                        final String jobId = createJobAndGet();
-                        deletedOrCancelledJobs.add(jobId);
-                        final String jobIdentity = getJobIdentity(dbConnection, jobId);
+                        final String jobIdentity = String.valueOf(count);
                         final String parentTableName = "task_" + jobIdentity;
-//                        deletedOrCancelledJobs.add(parentTableName);
+                        deletedOrCancelledJobs.add(parentTableName);
                         createTaskTable(dbConnection, jobIdentity, parentTableName);
                         insertRecordsInTaskTable(dbConnection, parentTableName, 20);
                         createAndPopulateChildTables(dbConnection, jobIdentity, parentTableName);
@@ -1117,7 +1115,7 @@ public class JobServiceIT {
                     .forEach(id -> insertTableNameIntoParentTableLog(dbConnection, id));
 
             // drop_deleted_task_tables procedure is being called through the scheduled executor periodically.
-            waitTillTablesAreDroppedWithRetries(dbConnection, 3);
+            waitWithRetriesTillTablesAreDropped(dbConnection, 3);
 
             //assert
             final List<String> foundTables = getAllTablesByPattern(dbConnection);
@@ -1129,7 +1127,7 @@ public class JobServiceIT {
         }
     }
 
-    private void waitTillTablesAreDroppedWithRetries(final java.sql.Connection dbConnection,
+    private void waitWithRetriesTillTablesAreDropped(final java.sql.Connection dbConnection,
                                                      final int maxRetries) throws InterruptedException, SQLException
     {
         int count = 0;
@@ -1195,10 +1193,9 @@ public class JobServiceIT {
     private void insertTableNameIntoParentTableLog(java.sql.Connection dbConnection, String parentTableName)
     {
         try(final CallableStatement insertParentTableToDelete = dbConnection
-                    .prepareCall("{call internal_insert_parent_table_to_delete(?,?)}"))
+                    .prepareCall("{call internal_insert_parent_table_to_delete(?)}"))
         {
-            insertParentTableToDelete.setString(1, defaultPartitionId);
-            insertParentTableToDelete.setString(2, parentTableName);
+            insertParentTableToDelete.setString(1, parentTableName);
             insertParentTableToDelete.executeQuery();
         }
         catch(final SQLException throwables)

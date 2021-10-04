@@ -33,13 +33,13 @@ DECLARE
 
 BEGIN
     -- insert table names into delete_log
-    selected_parent_table_names := $q$SELECT partition_id, table_name FROM deleted_parent_table_log LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
+    selected_parent_table_names := $q$SELECT table_name FROM deleted_parent_table_log LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
     WHILE EXISTS (SELECT 1 FROM deleted_parent_table_log)
         LOOP
         FOR parent_table_log_rec IN EXECUTE selected_parent_table_names
         LOOP
 --             raise notice 'parent_table_log_rec: %', parent_table_log_rec;
-            call populate_delete_log_table(parent_table_log_rec.partition_id, parent_table_log_rec.table_name, 0);
+            call populate_delete_log_table(parent_table_log_rec.table_name, 0);
             -- delete the parent table name from parent table.
             DELETE FROM deleted_parent_table_log WHERE table_name = parent_table_log_rec.table_name;
 --             raise notice 'another commit: %', parent_table_log_rec.table_name;
