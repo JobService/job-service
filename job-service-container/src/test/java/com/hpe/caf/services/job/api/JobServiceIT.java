@@ -164,7 +164,7 @@ public class JobServiceIT {
 
     @BeforeTest
     public void setup() throws Exception {
-        connectionString = System.getenv("webserviceurl");
+        connectionString = "http://127.0.0.1:25080/job-service/v1";
 
         //Populate maps for testing    
         taskMessageParams.put("datastorePartialReference", "sample-files");
@@ -190,8 +190,8 @@ public class JobServiceIT {
         workerServices = WorkerServices.getDefault();
         configurationSource = workerServices.getConfigurationSource();
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
-        rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
-        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitHost("127.0.0.1");
+        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt("5672"));
         rabbitConn = RabbitUtil.createRabbitConnection(rabbitConfiguration.getRabbitConfiguration());
     }
 
@@ -1087,54 +1087,145 @@ public class JobServiceIT {
     public void testDeleteLog() throws SQLException
     {
         //prepare
+        final List<String> deletedOrCancelledJobs = new ArrayList();
+        
         try(final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
         {
-            int totalCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
-            LOG.info("Creating " + totalCount + " tables ");
-            Instant startTableCreation = Instant.now();
+//            final int totalCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
+            final int totalParentTableCount = 1000;
+            LOG.info("Creating tables ");
+            final Instant startTableCreation = Instant.now();
             IntStream
-                    .range(1, totalCount)
+                    .range(1, totalParentTableCount)
                     .forEach((count) -> {
-                        try(final CallableStatement createTaskTableStmt = dbConnection.prepareCall("{call internal_create_task_table(?)}");
-                            final CallableStatement insertDeleteLogStmt = dbConnection.prepareCall("{call internal_insert_delete_log(?)}"))
-                        {
-                            String tableName = "randomTestTable_" + count;
-                            createTaskTableStmt.setString(1, tableName);
-                            createTaskTableStmt.executeQuery();
-                            insertDeleteLogStmt.setString(1, tableName);
-                            insertDeleteLogStmt.executeQuery();
-                        }
-                        catch(SQLException throwables)
-                        {
-                            throwables.printStackTrace();
-                        }
+                        final String jobId = createJobAndGet();
+                        deletedOrCancelledJobs.add(jobId);
+                        final String jobIdentity = getJobIdentity(dbConnection, jobId);
+                        final String parentTableName = "task_" + jobIdentity;
+//                        deletedOrCancelledJobs.add(parentTableName);
+                        createTaskTable(dbConnection, jobIdentity, parentTableName);
+                        insertRecordsInTaskTable(dbConnection, parentTableName, 20);
+                        createAndPopulateChildTables(dbConnection, jobIdentity, parentTableName);
                     });
-            Instant endTableCreation = Instant.now();
-            LOG.info("Total time taken to create " + totalCount + " tables in ms. " + Duration.between(startTableCreation, endTableCreation).toMillis());
+            final Instant endTableCreation = Instant.now();
+            LOG.info("Total time taken to create " + getAllTablesByPattern(dbConnection).size() + " tables in ms. " + 
+                                                            Duration.between(startTableCreation, endTableCreation).toMillis());
             
             //act
-            try(final PreparedStatement dropTables = dbConnection.prepareStatement("call drop_deleted_task_tables()"))
-            {
-                Instant start = Instant.now();
-                dropTables.execute();
-                Instant end = Instant.now();
-                LOG.info("Total time taken to drop " + totalCount + " tables in ms. " + Duration.between(start, end).toMillis());
-            }
-            
-            
+            // Simulate job deletion/cancellation
+            deletedOrCancelledJobs.stream()
+                    .forEach(id -> insertTableNameIntoParentTableLog(dbConnection, id));
+
+            // drop_deleted_task_tables procedure is being called through the scheduled executor periodically.
+            waitTillTablesAreDroppedWithRetries(dbConnection, 3);
+
             //assert
             final List<String> foundTables = getAllTablesByPattern(dbConnection);
             assertEquals(foundTables.size(), 0);
             // assert number of rows in delete_log to be 0.
             assertEquals(getRowsInDeleteLog(dbConnection), 0);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
-    
+
+    private void waitTillTablesAreDroppedWithRetries(final java.sql.Connection dbConnection,
+                                                     final int maxRetries) throws InterruptedException, SQLException
+    {
+        int count = 0;
+        do {
+            Thread.sleep(70000);
+            count ++;
+        } while (getAllTablesByPattern(dbConnection).size() != 0 && count < maxRetries);
+    }
+
+    private void createAndPopulateChildTables(java.sql.Connection dbConnection, String jobIdentity, String parentTableName)
+    {
+        IntStream.range(1, 20)
+                .forEach( (childCount) -> {
+                    //create child task tables
+                    final String childTableName = parentTableName + "." + childCount;
+                    createTaskTable(dbConnection, jobIdentity, childTableName);
+
+                    //insert records into task table
+                    insertRecordsInTaskTable(dbConnection, childTableName , 1);
+
+                });
+    }
+
+    private String createJobAndGet() throws RuntimeException
+    {
+        try {
+            return createJob(UUID.randomUUID().toString());
+        } catch (final ApiException e) {
+            LOG.error("Error while creating job ", e);
+            throw new RuntimeException();
+        }
+    }
+
+    private void insertRecordsInTaskTable(final java.sql.Connection dbConnection, final String parentTableName, final int rowCount)
+    {
+        try(final PreparedStatement jobIdentity = dbConnection.prepareStatement(insertMultipleRowsSQL(parentTableName, rowCount)))
+        {
+            jobIdentity.executeUpdate();
+        } catch (final SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    private String insertMultipleRowsSQL(final String parentTableName, final int rowCount)
+    {
+        final StringBuilder sqlBuilder = new StringBuilder().append("insert into ")
+                .append("\"")
+                .append(parentTableName)
+                .append("\"")
+                .append(" (subtask_id, create_date, is_final) values ");
+        IntStream.range(1, rowCount)
+                .forEach((count) -> {
+                    sqlBuilder.append("(")
+                            .append(count)
+                            .append(", now(), false ), ");
+                });
+        sqlBuilder.append("(")
+                .append(rowCount)
+                .append(", now(), true );");
+        return sqlBuilder.toString();
+    }
+
+    private void insertTableNameIntoParentTableLog(java.sql.Connection dbConnection, String parentTableName)
+    {
+        try(final CallableStatement insertParentTableToDelete = dbConnection
+                    .prepareCall("{call internal_insert_parent_table_to_delete(?,?)}"))
+        {
+            insertParentTableToDelete.setString(1, defaultPartitionId);
+            insertParentTableToDelete.setString(2, parentTableName);
+            insertParentTableToDelete.executeQuery();
+        }
+        catch(final SQLException throwables)
+        {
+            throwables.printStackTrace();
+        }
+    }
+
+    private void createTaskTable(final java.sql.Connection dbConnection, final String jobIdentity, final String parentTableName)
+    {
+        try(final CallableStatement createTaskTableStmt = dbConnection
+                .prepareCall("{call internal_create_task_table(?)}"))
+        {
+            createTaskTableStmt.setString(1, parentTableName);
+            createTaskTableStmt.executeQuery();
+        }
+        catch(final SQLException throwables)
+        {
+            throwables.printStackTrace();
+        }
+    }
+
     private List<String> getAllTablesByPattern(java.sql.Connection dbConnection) throws SQLException
     {
         List<String> foundTables = new ArrayList();
         DatabaseMetaData dbm = dbConnection.getMetaData();
-        try(ResultSet rs = dbm.getTables(null, "public", "randomTestTable_%", null))
+        try(ResultSet rs = dbm.getTables(null, "public", "task_%", null))
         {
             while(rs.next())
             {
@@ -1155,6 +1246,23 @@ public class JobServiceIT {
             }
         }
         return 0;
+    }
+    
+    private String getJobIdentity(final java.sql.Connection dbConnection, final String job_id)
+    {
+        try(final PreparedStatement jobIdentity = dbConnection.prepareStatement("select identity from job where job_id=?"))
+        {
+            jobIdentity.setString(1, job_id);
+            try (final ResultSet resultSet = jobIdentity.executeQuery()) {
+                if(resultSet.next())
+                {
+                    return resultSet.getString(1);
+                }
+            } 
+        } catch (final SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return null;
     }
 
     /**
