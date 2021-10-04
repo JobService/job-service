@@ -18,8 +18,10 @@
  *  Name: drop_deleted_task_tables
  *
  *  Description:
- *  Drops all tables present in delete_log table
- *  This procedure does batch commits. The batch is defined by commit_limit variable. Default batch size being 10.
+ *  This procedure reads parent task table names from deleted_parent_table_log table and populates delete_log table with names of
+ *  parent as well as child task tables to be dropped. After populating the tables, it then reads the table names from delete_log table
+ *  and drops them. 
+ *  All the above is done through batch commits. The batch is defined by commit_limit variable. Default batch size being 10.
  */
 CREATE OR REPLACE PROCEDURE drop_deleted_task_tables()
 LANGUAGE plpgsql
@@ -27,25 +29,24 @@ AS $$
 DECLARE
     selected_table_names VARCHAR;
     selected_parent_table_names VARCHAR;
-    commit_limit integer:=10;
-    parent_table_log_rec record;
-    rec record;
+    commit_limit INTEGER:=10;
+    parent_table_log_rec RECORD;
+    rec RECORD;
 
 BEGIN
     -- insert table names into delete_log
-    selected_parent_table_names := $q$SELECT table_name FROM deleted_parent_table_log LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
-    WHILE EXISTS (SELECT 1 FROM deleted_parent_table_log)
+    selected_parent_table_names :=
+                    $q$SELECT table_name FROM deleted_parent_table_log LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
+    WHILE EXISTS(SELECT 1 FROM deleted_parent_table_log)
         LOOP
-        FOR parent_table_log_rec IN EXECUTE selected_parent_table_names
-        LOOP
---             raise notice 'parent_table_log_rec: %', parent_table_log_rec;
-            call populate_delete_log_table(parent_table_log_rec.table_name, 0);
-            -- delete the parent table name from parent table.
-            DELETE FROM deleted_parent_table_log WHERE table_name = parent_table_log_rec.table_name;
---             raise notice 'another commit: %', parent_table_log_rec.table_name;
-            COMMIT;
+            FOR parent_table_log_rec IN EXECUTE selected_parent_table_names
+                LOOP
+                    CALL populate_delete_log_table(parent_table_log_rec.table_name, 0);
+                    -- delete the parent table name from parent table.
+                    DELETE FROM deleted_parent_table_log WHERE table_name = parent_table_log_rec.table_name;
+                    COMMIT;
+                END LOOP;
         END LOOP;
-    END LOOP;
 
     selected_table_names := $q$SELECT table_name FROM delete_log LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
 

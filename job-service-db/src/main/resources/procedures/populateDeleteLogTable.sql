@@ -15,22 +15,23 @@
 --
 
 /*
- *  Name: internal_drop_task_tables
+ *  Name: populate_delete_log_table
  *
  *  Description:
- *  Drops all task tables belonging to the specified task and all its subtasks
+ *  This procedure populates deleted_log table with the names of all task tables that are to be dropped.
  */
 
-CREATE OR REPLACE PROCEDURE populate_delete_log_table (
+CREATE OR REPLACE PROCEDURE populate_delete_log_table(
     in_task_id VARCHAR(70),
-    query_count INTEGER default 0
+    query_count INTEGER DEFAULT 0
 )
     LANGUAGE plpgsql
-AS $$
+AS
+$$
 DECLARE
     task_table_ident TEXT;
-    subtask_suffix TEXT;
-    commit_limit integer:=10;
+    subtask_suffix   TEXT;
+    commit_limit     INTEGER := 10;
 
 BEGIN
     task_table_ident = quote_ident(in_task_id);
@@ -38,19 +39,18 @@ BEGIN
     -- Check if the table exists
     IF internal_to_regclass(task_table_ident) IS NOT NULL THEN
         FOR subtask_suffix IN
-            EXECUTE $ESC$SELECT '.' || subtask_id || CASE WHEN is_final THEN '*' ELSE '' END AS subtask_suffix FROM $ESC$ || task_table_ident
-            loop
-                query_count:= query_count + 1;
-                if query_count >= commit_limit then
-                    commit;
+            EXECUTE $ESC$SELECT '.' || subtask_id || CASE WHEN is_final THEN '*' ELSE '' END AS subtask_suffix FROM $ESC$ ||
+                    task_table_ident
+            LOOP
+                query_count := query_count + 1;
+                IF query_count >= commit_limit THEN
+                    COMMIT;
                     query_count = 0;
-                end if;
-                call populate_delete_log_table(in_task_id || subtask_suffix, query_count);
+                END IF;
+                CALL populate_delete_log_table(in_task_id || subtask_suffix, query_count);
             END LOOP;
-
         -- Insert table name to be dropped 
         PERFORM internal_insert_delete_log(in_task_id);
-
     END IF;
 END
 $$;
