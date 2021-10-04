@@ -164,7 +164,7 @@ public class JobServiceIT {
 
     @BeforeTest
     public void setup() throws Exception {
-        connectionString = "http://127.0.0.1:25080/job-service/v1";
+        connectionString = System.getenv("webserviceurl");
 
         //Populate maps for testing    
         taskMessageParams.put("datastorePartialReference", "sample-files");
@@ -190,8 +190,8 @@ public class JobServiceIT {
         workerServices = WorkerServices.getDefault();
         configurationSource = workerServices.getConfigurationSource();
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
-        rabbitConfiguration.getRabbitConfiguration().setRabbitHost("127.0.0.1");
-        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt("5672"));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
         rabbitConn = RabbitUtil.createRabbitConnection(rabbitConfiguration.getRabbitConfiguration());
     }
 
@@ -1100,9 +1100,9 @@ public class JobServiceIT {
                         final String jobIdentity = String.valueOf(count);
                         final String parentTableName = "task_" + jobIdentity;
                         deletedOrCancelledJobs.add(parentTableName);
-                        createTaskTable(dbConnection, jobIdentity, parentTableName);
+                        createTaskTable(dbConnection, parentTableName);
                         insertRecordsInTaskTable(dbConnection, parentTableName, 20);
-                        createAndPopulateChildTables(dbConnection, jobIdentity, parentTableName);
+                        createAndPopulateChildTables(dbConnection, parentTableName);
                     });
             final Instant endTableCreation = Instant.now();
             LOG.info("Total time taken to create " + getAllTablesByPattern(dbConnection).size() + " tables in ms. " + 
@@ -1121,7 +1121,7 @@ public class JobServiceIT {
             assertEquals(foundTables.size(), 0);
             // assert number of rows in delete_log to be 0.
             assertEquals(getRowsInDeleteLog(dbConnection), 0);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -1136,28 +1136,18 @@ public class JobServiceIT {
         } while (getAllTablesByPattern(dbConnection).size() != 0 && count < maxRetries);
     }
 
-    private void createAndPopulateChildTables(java.sql.Connection dbConnection, String jobIdentity, String parentTableName)
+    private void createAndPopulateChildTables(final java.sql.Connection dbConnection, final String parentTableName)
     {
         IntStream.range(1, 20)
                 .forEach( (childCount) -> {
                     //create child task tables
                     final String childTableName = parentTableName + "." + childCount;
-                    createTaskTable(dbConnection, jobIdentity, childTableName);
+                    createTaskTable(dbConnection, childTableName);
 
                     //insert records into task table
                     insertRecordsInTaskTable(dbConnection, childTableName , 1);
 
                 });
-    }
-
-    private String createJobAndGet() throws RuntimeException
-    {
-        try {
-            return createJob(UUID.randomUUID().toString());
-        } catch (final ApiException e) {
-            LOG.error("Error while creating job ", e);
-            throw new RuntimeException();
-        }
     }
 
     private void insertRecordsInTaskTable(final java.sql.Connection dbConnection, final String parentTableName, final int rowCount)
@@ -1189,7 +1179,7 @@ public class JobServiceIT {
         return sqlBuilder.toString();
     }
 
-    private void insertTableNameIntoParentTableLog(java.sql.Connection dbConnection, String parentTableName)
+    private void insertTableNameIntoParentTableLog(final java.sql.Connection dbConnection, final String parentTableName)
     {
         try(final CallableStatement insertParentTableToDelete = dbConnection
                     .prepareCall("{call internal_insert_parent_table_to_delete(?)}"))
@@ -1203,7 +1193,7 @@ public class JobServiceIT {
         }
     }
 
-    private void createTaskTable(final java.sql.Connection dbConnection, final String jobIdentity, final String parentTableName)
+    private void createTaskTable(final java.sql.Connection dbConnection, final String parentTableName)
     {
         try(final CallableStatement createTaskTableStmt = dbConnection
                 .prepareCall("{call internal_create_task_table(?)}"))
@@ -1244,23 +1234,6 @@ public class JobServiceIT {
         return 0;
     }
     
-    private String getJobIdentity(final java.sql.Connection dbConnection, final String job_id)
-    {
-        try(final PreparedStatement jobIdentity = dbConnection.prepareStatement("select identity from job where job_id=?"))
-        {
-            jobIdentity.setString(1, job_id);
-            try (final ResultSet resultSet = jobIdentity.executeQuery()) {
-                if(resultSet.next())
-                {
-                    return resultSet.getString(1);
-                }
-            } 
-        } catch (final SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return null;
-    }
-
     /**
      * Retrieve a single message from a queue.  Call this before triggering the message publish.
      *
