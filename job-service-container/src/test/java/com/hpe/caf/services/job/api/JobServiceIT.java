@@ -1091,8 +1091,7 @@ public class JobServiceIT {
         
         try(final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
         {
-//            final int totalCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
-            final int totalParentTableCount = 1000;
+            final int totalParentTableCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
             LOG.info("Creating tables");
             final Instant startTableCreation = Instant.now();
             IntStream
