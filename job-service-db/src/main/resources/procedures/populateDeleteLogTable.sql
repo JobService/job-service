@@ -30,8 +30,8 @@ AS
 $$
 DECLARE
     task_table_ident TEXT;
-    subtask_suffix   TEXT;
-    commit_limit     INTEGER := 10;
+    subtask_suffix TEXT;
+    commit_limit INTEGER := 10;
 
 BEGIN
     task_table_ident = quote_ident(in_task_id);
