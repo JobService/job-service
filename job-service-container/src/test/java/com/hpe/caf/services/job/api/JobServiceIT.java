@@ -40,6 +40,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
@@ -164,19 +165,19 @@ public class JobServiceIT {
 
     @BeforeTest
     public void setup() throws Exception {
-        connectionString = System.getenv("webserviceurl");
+        connectionString = "http://127.0.0.1:25080/job-service/v1";
 
         //Populate maps for testing    
         taskMessageParams.put("datastorePartialReference", "sample-files");
         taskMessageParams.put("documentDataInputFolder", "/mnt/caf-datastore-root/sample-files");
         taskMessageParams.put("documentDataOutputFolder", "/mnt/bla");
-        
+
         testDataObjectMap.put("taskClassifier", "*.txt");
         testDataObjectMap.put("batchType", "WorkerDocumentBatchPlugin");
         testDataObjectMap.put("taskMessageType", "DocumentWorkerTaskBuilder");
         testDataObjectMap.put("taskMessageParams", taskMessageParams);
         testDataObjectMap.put("targetPipe", "languageidentification-in");
-        
+
 
         //set up client to connect to the web service running on docker, and call web methods from correct address.
         client.setBasePath(connectionString);
@@ -190,8 +191,8 @@ public class JobServiceIT {
         workerServices = WorkerServices.getDefault();
         configurationSource = workerServices.getConfigurationSource();
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
-        rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
-        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitHost("127.0.0.1");
+        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt("5672"));
         rabbitConn = RabbitUtil.createRabbitConnection(rabbitConfiguration.getRabbitConfiguration());
     }
 
@@ -1121,8 +1122,9 @@ public class JobServiceIT {
             assertEquals(foundTables.size(), 0);
             // assert number of rows in delete_log to be 0.
             assertEquals(getRowsInDeleteLog(dbConnection), 0);
-        } catch (final InterruptedException e) {
-            e.printStackTrace();
+        } catch (final Exception e) {
+            LOG.error(e.getMessage(), e);
+            Assert.fail();
         }
     }
 
@@ -1132,31 +1134,30 @@ public class JobServiceIT {
         int count = 0;
         do {
             Thread.sleep(70000);
-            count ++;
+            count++;
         } while (getAllTablesByPattern(dbConnection).size() != 0 && count < maxRetries);
     }
 
     private void createAndPopulateChildTables(final java.sql.Connection dbConnection, final String parentTableName)
     {
         IntStream.range(1, 20)
-                .forEach( (childCount) -> {
+                .forEach((childCount) -> {
                     //create child task tables
                     final String childTableName = parentTableName + "." + childCount;
                     createTaskTable(dbConnection, childTableName);
 
                     //insert records into task table
-                    insertRecordsInTaskTable(dbConnection, childTableName , 1);
-
+                    insertRecordsInTaskTable(dbConnection, childTableName, 1);
                 });
     }
 
     private void insertRecordsInTaskTable(final java.sql.Connection dbConnection, final String parentTableName, final int rowCount)
     {
-        try(final PreparedStatement jobIdentity = dbConnection.prepareStatement(insertMultipleRowsSQL(parentTableName, rowCount)))
-        {
+        try (final PreparedStatement jobIdentity = dbConnection.prepareStatement(insertMultipleRowsSQL(parentTableName, rowCount))) {
             jobIdentity.executeUpdate();
-        } catch (final SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (final SQLException sqlException) {
+            LOG.error("Exception while inserting records in task table ", sqlException);
+            throw new RuntimeException(sqlException);
         }
     }
 
@@ -1181,29 +1182,25 @@ public class JobServiceIT {
 
     private void insertTableNameIntoParentTableLog(final java.sql.Connection dbConnection, final String parentTableName)
     {
-        try(final CallableStatement insertParentTableToDelete = dbConnection
-                    .prepareCall("{call internal_insert_parent_table_to_delete(?)}"))
-        {
+        try (final CallableStatement insertParentTableToDelete = dbConnection
+                .prepareCall("{call internal_insert_parent_table_to_delete(?)}")) {
             insertParentTableToDelete.setString(1, parentTableName);
             insertParentTableToDelete.executeQuery();
-        }
-        catch(final SQLException throwables)
-        {
-            throwables.printStackTrace();
+        } catch (final SQLException sqlException) {
+            LOG.error("Exception while calling procedure internal_insert_parent_table_to_delete ", sqlException);
+            throw new RuntimeException(sqlException);
         }
     }
 
     private void createTaskTable(final java.sql.Connection dbConnection, final String parentTableName)
     {
-        try(final CallableStatement createTaskTableStmt = dbConnection
-                .prepareCall("{call internal_create_task_table(?)}"))
-        {
+        try (final CallableStatement createTaskTableStmt = dbConnection
+                .prepareCall("{call internal_create_task_table(?)}")) {
             createTaskTableStmt.setString(1, parentTableName);
             createTaskTableStmt.executeQuery();
-        }
-        catch(final SQLException throwables)
-        {
-            throwables.printStackTrace();
+        } catch (final SQLException sqlException) {
+            LOG.error("Exception while calling procedure internal_create_task_table ", sqlException);
+            throw new RuntimeException(sqlException);
         }
     }
 
