@@ -165,19 +165,19 @@ public class JobServiceIT {
 
     @BeforeTest
     public void setup() throws Exception {
-        connectionString = "http://127.0.0.1:25080/job-service/v1";
+        connectionString = System.getenv("webserviceurl");
 
         //Populate maps for testing    
         taskMessageParams.put("datastorePartialReference", "sample-files");
         taskMessageParams.put("documentDataInputFolder", "/mnt/caf-datastore-root/sample-files");
         taskMessageParams.put("documentDataOutputFolder", "/mnt/bla");
-
+        
         testDataObjectMap.put("taskClassifier", "*.txt");
         testDataObjectMap.put("batchType", "WorkerDocumentBatchPlugin");
         testDataObjectMap.put("taskMessageType", "DocumentWorkerTaskBuilder");
         testDataObjectMap.put("taskMessageParams", taskMessageParams);
         testDataObjectMap.put("targetPipe", "languageidentification-in");
-
+        
 
         //set up client to connect to the web service running on docker, and call web methods from correct address.
         client.setBasePath(connectionString);
@@ -191,8 +191,8 @@ public class JobServiceIT {
         workerServices = WorkerServices.getDefault();
         configurationSource = workerServices.getConfigurationSource();
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
-        rabbitConfiguration.getRabbitConfiguration().setRabbitHost("127.0.0.1");
-        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt("5672"));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
         rabbitConn = RabbitUtil.createRabbitConnection(rabbitConfiguration.getRabbitConfiguration());
     }
 
@@ -1089,7 +1089,7 @@ public class JobServiceIT {
     {
         //prepare
         final List<String> deletedOrCancelledJobs = new ArrayList();
-        
+
         try(final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
         {
             final int totalParentTableCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
@@ -1203,7 +1203,7 @@ public class JobServiceIT {
             throw new RuntimeException(sqlException);
         }
     }
-
+    
     private List<String> getAllTablesByPattern(java.sql.Connection dbConnection) throws SQLException
     {
         List<String> foundTables = new ArrayList();
@@ -1230,7 +1230,7 @@ public class JobServiceIT {
         }
         return 0;
     }
-    
+
     /**
      * Retrieve a single message from a queue.  Call this before triggering the message publish.
      *
