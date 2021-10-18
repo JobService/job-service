@@ -25,7 +25,7 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
     <changeSet id="create_deleted_parent_table_log" author="Gamma Team">
         <createTable tableName="deleted_parent_table_log">
-            <column name="table_name" type="VARCHAR(80)">
+            <column name="table_name" type="VARCHAR(63)">
                 <constraints nullable="false" />
             </column>
         </createTable>
