@@ -15,14 +15,14 @@
 --
 
 /*
- *  Name: populate_delete_log_table
+ *  Name: internal_populate_delete_log_table
  *
  *  Description:
  *  This procedure populates deleted_log table with the names of all task tables that are to be dropped.
  */
 
-CREATE OR REPLACE PROCEDURE populate_delete_log_table(
-    in_task_id VARCHAR(70),
+CREATE OR REPLACE PROCEDURE internal_populate_delete_log_table(
+    in_task_table_name VARCHAR(63),
     query_count INTEGER DEFAULT 0
 )
     LANGUAGE plpgsql
@@ -34,7 +34,7 @@ DECLARE
     commit_limit INTEGER := 10;
 
 BEGIN
-    task_table_ident = quote_ident(in_task_id);
+    task_table_ident = quote_ident(in_task_table_name);
 
     -- Check if the table exists
     IF internal_to_regclass(task_table_ident) IS NOT NULL THEN
@@ -47,10 +47,10 @@ BEGIN
                     COMMIT;
                     query_count = 0;
                 END IF;
-                CALL populate_delete_log_table(in_task_id || subtask_suffix, query_count);
+                CALL internal_populate_delete_log_table(in_task_table_name || subtask_suffix, query_count);
             END LOOP;
         -- Insert table name to be dropped 
-        PERFORM internal_insert_delete_log(in_task_id);
+        PERFORM internal_insert_delete_log(in_task_table_name);
     END IF;
 END
 $$;

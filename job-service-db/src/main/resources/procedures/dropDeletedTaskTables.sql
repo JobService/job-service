@@ -41,7 +41,7 @@ BEGIN
         LOOP
             FOR parent_table_log_rec IN EXECUTE selected_parent_table_names
                 LOOP
-                    CALL populate_delete_log_table(parent_table_log_rec.table_name, 0);
+                    CALL internal_populate_delete_log_table(parent_table_log_rec.table_name, 0);
                     -- delete the parent table name from parent table.
                     DELETE FROM deleted_parent_table_log WHERE table_name = parent_table_log_rec.table_name;
                     COMMIT;

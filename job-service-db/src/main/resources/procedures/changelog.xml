@@ -309,7 +309,7 @@
     </changeSet>
     <changeSet id="populate_delete_log_table_proc" runOnChange="true" author="Gamma Team">
         <createProcedure path="procedures/populateDeleteLogTable.sql"
-                         procedureName="populate_delete_log_table"
+                         procedureName="internal_populate_delete_log_table"
                          schemaName="public">
         </createProcedure>
     </changeSet>
