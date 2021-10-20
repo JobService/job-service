@@ -23,7 +23,7 @@
 
 CREATE OR REPLACE PROCEDURE internal_populate_delete_log_table(
     in_task_table_name VARCHAR(63),
-    query_count INTEGER DEFAULT 0
+    in_query_count INTEGER DEFAULT 0
 )
     LANGUAGE plpgsql
 AS
@@ -42,12 +42,12 @@ BEGIN
             EXECUTE $ESC$SELECT '.' || subtask_id || CASE WHEN is_final THEN '*' ELSE '' END AS subtask_suffix FROM $ESC$ ||
                     task_table_ident
             LOOP
-                query_count := query_count + 1;
-                IF query_count >= commit_limit THEN
+                in_query_count := in_query_count + 1;
+                IF in_query_count >= commit_limit THEN
                     COMMIT;
-                    query_count = 0;
+                    in_query_count = 0;
                 END IF;
-                CALL internal_populate_delete_log_table(in_task_table_name || subtask_suffix, query_count);
+                CALL internal_populate_delete_log_table(in_task_table_name || subtask_suffix, in_query_count);
             END LOOP;
         -- Insert table name to be dropped 
         PERFORM internal_insert_delete_log(in_task_table_name);
