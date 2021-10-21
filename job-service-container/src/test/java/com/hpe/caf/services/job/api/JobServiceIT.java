@@ -40,6 +40,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
@@ -1087,46 +1088,129 @@ public class JobServiceIT {
     public void testDeleteLog() throws SQLException
     {
         //prepare
+        final List<String> deletedOrCancelledJobs = new ArrayList();
+
         try(final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
         {
-            int totalCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
-            LOG.info("Creating " + totalCount + " tables ");
-            Instant startTableCreation = Instant.now();
+            final int totalTableCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
+            final int totalParentTableCount = totalTableCount/96; // Each parent table results in creation of 96 child/sub-child tables.
+            LOG.info("Creating tables");
+            final Instant startTableCreation = Instant.now();
             IntStream
-                    .range(1, totalCount)
+                    .rangeClosed(1, totalParentTableCount)
                     .forEach((count) -> {
-                        try(final CallableStatement createTaskTableStmt = dbConnection.prepareCall("{call internal_create_task_table(?)}");
-                            final CallableStatement insertDeleteLogStmt = dbConnection.prepareCall("{call internal_insert_delete_log(?)}"))
-                        {
-                            String tableName = "randomTestTable_" + count;
-                            createTaskTableStmt.setString(1, tableName);
-                            createTaskTableStmt.executeQuery();
-                            insertDeleteLogStmt.setString(1, tableName);
-                            insertDeleteLogStmt.executeQuery();
-                        }
-                        catch(SQLException throwables)
-                        {
-                            throwables.printStackTrace();
-                        }
+                        final String jobIdentity = String.valueOf(count);
+                        final String parentTableName = "task_" + jobIdentity;
+                        deletedOrCancelledJobs.add(parentTableName);
+                        createTaskTable(dbConnection, parentTableName);
+                        insertRecordsInTaskTable(dbConnection, parentTableName, 20);
+                        createAndPopulateChildTables(dbConnection, parentTableName); //parentTableName - task_1, task_2 ...
                     });
-            Instant endTableCreation = Instant.now();
-            LOG.info("Total time taken to create " + totalCount + " tables in ms. " + Duration.between(startTableCreation, endTableCreation).toMillis());
+            final Instant endTableCreation = Instant.now();
+            LOG.info("Total time taken to create " + getAllTablesByPattern(dbConnection).size() + " tables in ms. " + 
+                                                            Duration.between(startTableCreation, endTableCreation).toMillis());
             
             //act
-            try(final PreparedStatement dropTables = dbConnection.prepareStatement("call drop_deleted_task_tables()"))
-            {
-                Instant start = Instant.now();
-                dropTables.execute();
-                Instant end = Instant.now();
-                LOG.info("Total time taken to drop " + totalCount + " tables in ms. " + Duration.between(start, end).toMillis());
-            }
-            
-            
+            // Simulate job deletion/cancellation
+            deletedOrCancelledJobs.stream()
+                    .forEach(id -> insertTableNameIntoParentTableLog(dbConnection, id));
+
+            // drop_deleted_task_tables procedure is being called through the scheduled executor periodically.
+            waitWithRetriesTillTablesAreDropped(dbConnection, 3);
+
             //assert
             final List<String> foundTables = getAllTablesByPattern(dbConnection);
             assertEquals(foundTables.size(), 0);
             // assert number of rows in delete_log to be 0.
             assertEquals(getRowsInDeleteLog(dbConnection), 0);
+        } catch (final Exception e) {
+            LOG.error(e.getMessage(), e);
+            Assert.fail();
+        }
+    }
+
+    private void waitWithRetriesTillTablesAreDropped(final java.sql.Connection dbConnection,
+                                                     final int maxRetries) throws InterruptedException, SQLException
+    {
+        int count = 0;
+        do {
+            Thread.sleep(70000);
+            count++;
+        } while (getAllTablesByPattern(dbConnection).size() != 0 && count < maxRetries);
+    }
+
+    private void createAndPopulateChildTables(final java.sql.Connection dbConnection, final String parentTableName)
+    {
+        IntStream.range(1, 20)
+                .forEach((childCount) -> {
+                    //create child task tables - childTableName - task_1.1, task_1.2...
+                    final String childTableName = parentTableName + "." + childCount;
+                    createTaskTable(dbConnection, childTableName);
+
+                    final int rowCountInChildTable = 5;
+                    insertRecordsInTaskTable(dbConnection, childTableName, rowCountInChildTable); //childTableName - task_1.1, task_1.2...
+
+                    final int subChildTableCount = rowCountInChildTable;
+                    IntStream.range(1,subChildTableCount)
+                            .forEach(subChildCount -> {
+                                final String subChildTableName = childTableName + "." + subChildCount;
+                                createTaskTable(dbConnection, subChildTableName); // subChildTableName - task_1.1.1, task_1.1.2...
+
+                                insertRecordsInTaskTable(dbConnection, subChildTableName, 1);
+                            });
+                });
+    }
+
+    private void insertRecordsInTaskTable(final java.sql.Connection dbConnection, final String parentTableName, final int rowCount)
+    {
+        try (final PreparedStatement jobIdentity = dbConnection.prepareStatement(insertMultipleRowsSQL(parentTableName, rowCount))) {
+            jobIdentity.executeUpdate();
+        } catch (final SQLException sqlException) {
+            LOG.error("Exception while inserting records in task table ", sqlException);
+            throw new RuntimeException(sqlException);
+        }
+    }
+
+    private String insertMultipleRowsSQL(final String parentTableName, final int rowCount)
+    {
+        final StringBuilder sqlBuilder = new StringBuilder().append("insert into ")
+                .append("\"")
+                .append(parentTableName)
+                .append("\"")
+                .append(" (subtask_id, create_date, is_final) values ");
+        IntStream.range(1, rowCount)
+                .forEach((count) -> {
+                    sqlBuilder.append("(")
+                            .append(count)
+                            .append(", now(), false ), ");
+                });
+        sqlBuilder.append("(")
+                .append(rowCount)
+                .append(", now(), true );");
+        return sqlBuilder.toString();
+    }
+
+    private void insertTableNameIntoParentTableLog(final java.sql.Connection dbConnection, final String parentTableName)
+    {
+        try (final CallableStatement insertParentTableToDelete = dbConnection
+                .prepareCall("{call internal_insert_parent_table_to_delete(?)}")) {
+            insertParentTableToDelete.setString(1, parentTableName);
+            insertParentTableToDelete.executeQuery();
+        } catch (final SQLException sqlException) {
+            LOG.error("Exception while calling procedure internal_insert_parent_table_to_delete ", sqlException);
+            throw new RuntimeException(sqlException);
+        }
+    }
+
+    private void createTaskTable(final java.sql.Connection dbConnection, final String parentTableName)
+    {
+        try (final CallableStatement createTaskTableStmt = dbConnection
+                .prepareCall("{call internal_create_task_table(?)}")) {
+            createTaskTableStmt.setString(1, parentTableName);
+            createTaskTableStmt.executeQuery();
+        } catch (final SQLException sqlException) {
+            LOG.error("Exception while calling procedure internal_create_task_table ", sqlException);
+            throw new RuntimeException(sqlException);
         }
     }
     
@@ -1134,7 +1218,7 @@ public class JobServiceIT {
     {
         List<String> foundTables = new ArrayList();
         DatabaseMetaData dbm = dbConnection.getMetaData();
-        try(ResultSet rs = dbm.getTables(null, "public", "randomTestTable_%", null))
+        try(ResultSet rs = dbm.getTables(null, "public", "task_%", null))
         {
             while(rs.next())
             {

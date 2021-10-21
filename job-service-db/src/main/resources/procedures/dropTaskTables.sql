@@ -36,7 +36,6 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     task_table_ident TEXT;
-    subtask_suffix TEXT;
     task_table_name VARCHAR;
 
 BEGIN
@@ -46,15 +45,9 @@ BEGIN
 
     -- Check if the table exists
     IF internal_to_regclass(task_table_ident) IS NOT NULL THEN
-        -- Drop the referenced subtask tables
-        FOR subtask_suffix IN
-        EXECUTE $ESC$SELECT '.' || subtask_id || CASE WHEN is_final THEN '*' ELSE '' END AS subtask_suffix FROM $ESC$ || task_table_ident
-        LOOP
-            PERFORM internal_drop_task_tables(in_partition_id, in_task_id || subtask_suffix);
-        END LOOP;
 
         -- Insert table name to be dropped later
-        PERFORM internal_insert_delete_log(task_table_name);
+        PERFORM internal_insert_parent_table_to_delete(task_table_name);
     END IF;
 END
 $$;
