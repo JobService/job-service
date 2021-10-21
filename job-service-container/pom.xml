@@ -179,7 +179,7 @@
                 </property>
             </activation>
             <properties>
-                <task.table.deletion.count>10000</task.table.deletion.count>
+                <task.table.deletion.count>30000</task.table.deletion.count>
             </properties>
         </profile>
     </profiles>
