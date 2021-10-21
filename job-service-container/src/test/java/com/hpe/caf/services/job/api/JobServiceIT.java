@@ -1092,18 +1092,19 @@ public class JobServiceIT {
 
         try(final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
         {
-            final int totalParentTableCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
+            final int totalTableCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
+            final int totalParentTableCount = totalTableCount/96; // Each parent table results in creation of 96 child/sub-child tables.
             LOG.info("Creating tables");
             final Instant startTableCreation = Instant.now();
             IntStream
-                    .range(1, totalParentTableCount)
+                    .rangeClosed(1, totalParentTableCount)
                     .forEach((count) -> {
                         final String jobIdentity = String.valueOf(count);
                         final String parentTableName = "task_" + jobIdentity;
                         deletedOrCancelledJobs.add(parentTableName);
                         createTaskTable(dbConnection, parentTableName);
                         insertRecordsInTaskTable(dbConnection, parentTableName, 20);
-                        createAndPopulateChildTables(dbConnection, parentTableName);
+                        createAndPopulateChildTables(dbConnection, parentTableName); //parentTableName - task_1, task_2 ...
                     });
             final Instant endTableCreation = Instant.now();
             LOG.info("Total time taken to create " + getAllTablesByPattern(dbConnection).size() + " tables in ms. " + 
@@ -1142,12 +1143,21 @@ public class JobServiceIT {
     {
         IntStream.range(1, 20)
                 .forEach((childCount) -> {
-                    //create child task tables
+                    //create child task tables - childTableName - task_1.1, task_1.2...
                     final String childTableName = parentTableName + "." + childCount;
                     createTaskTable(dbConnection, childTableName);
 
-                    //insert records into task table
-                    insertRecordsInTaskTable(dbConnection, childTableName, 1);
+                    final int rowCountInChildTable = 5;
+                    insertRecordsInTaskTable(dbConnection, childTableName, rowCountInChildTable); //childTableName - task_1.1, task_1.2...
+
+                    final int subChildTableCount = rowCountInChildTable;
+                    IntStream.range(1,subChildTableCount)
+                            .forEach(subChildCount -> {
+                                final String subChildTableName = childTableName + "." + subChildCount;
+                                createTaskTable(dbConnection, subChildTableName); // subChildTableName - task_1.1.1, task_1.1.2...
+
+                                insertRecordsInTaskTable(dbConnection, subChildTableName, 1);
+                            });
                 });
     }
 
