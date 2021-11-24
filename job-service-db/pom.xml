@@ -33,7 +33,7 @@
     <dependencies>
         <dependency>
             <groupId>com.github.cafapi.util</groupId>
-            <artifactId>util-liquibase-installer</artifactId>
+            <artifactId>util-flyway-installer</artifactId>
             <scope>runtime</scope>
         </dependency>
     </dependencies>
@@ -56,7 +56,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.hpe.caf.utilliquibaseinstaller.Application</mainClass>
+                            <mainClass>com.hpe.caf.falywayinstaller.Application</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

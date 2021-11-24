@@ -95,8 +95,8 @@
 
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>
-                <artifactId>util-liquibase-installer</artifactId>
-                <version>1.20.0-288</version>
+                <artifactId>util-flyway-installer</artifactId>
+                <version>1.21.0-SCMOD-15887-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.correlation</groupId>
