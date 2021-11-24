@@ -193,7 +193,7 @@
                                     <link>${js.database.host}</link>
                                 </links>
                                 <cmd>
-                                    ./install_job_service_db.sh -db.connection jdbc:postgresql://${js.database.host}:5432 -db.name ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password} -log debug
+                                    ./install_job_service_db.sh -db.connection jdbc:postgresql://${js.database.host}:5432 -db.name ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password}
                                 </cmd>
                                 <wait>
                                     <log>DB update finished.</log>
