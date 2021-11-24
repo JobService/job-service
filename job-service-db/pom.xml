@@ -56,7 +56,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.hpe.caf.falywayinstaller.Application</mainClass>
+                            <mainClass>com.hpe.caf.flywayinstaller.Application</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
