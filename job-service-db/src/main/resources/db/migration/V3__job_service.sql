@@ -12,7 +12,8 @@ DO $$
                 'Paused',
                 'Waiting');
         END IF;
-    END$$;
+    END
+$$;
 
 -- public.completed_subtask_report definition
 
@@ -43,9 +44,9 @@ CREATE INDEX IF NOT EXISTS idx_delete_log_table_name ON public.delete_log USING 
 
 -- Drop table
 
--- DROP TABLE public.job;
+DROP TABLE IF EXISTS public.job CASCADE;
 
-CREATE TABLE IF NOT EXISTS public.job (
+CREATE TABLE public.job (
                                           job_id varchar(48) NOT NULL,
                                           "name" varchar(255) NULL,
                                           description text NULL,
@@ -58,7 +59,7 @@ CREATE TABLE IF NOT EXISTS public.job (
                                           delay int4 NULL DEFAULT 0,
                                           last_update_date timestamp NOT NULL DEFAULT now(),
                                           partition_id varchar(40) NOT NULL DEFAULT 'default'::character varying,
-                                          "identity" serial4 NOT NULL,
+                                          identity serial4 NOT NULL,
                                           CONSTRAINT pk_job PRIMARY KEY (partition_id, job_id)
 );
 CREATE INDEX IF NOT EXISTS idx_job_create_date ON public.job USING btree (create_date);
