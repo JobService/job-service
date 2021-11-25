@@ -20,11 +20,6 @@
  *  Description:
  *  Deletes the job row and corresponding task tables.
  */
-DROP FUNCTION IF EXISTS delete_job(
-    in_partition_id VARCHAR(40),
-    in_job_id VARCHAR(48),
-    in_short_job_id VARCHAR(48)
-);
 CREATE OR REPLACE FUNCTION delete_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)

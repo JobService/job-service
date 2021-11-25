@@ -20,7 +20,6 @@
  *  Description:
  *  Return a list of jobs that can run immediately. Update the eligibility run date for others.
  */
-DROP FUNCTION IF EXISTS internal_process_dependent_jobs(in_job_id VARCHAR(58));
 CREATE OR REPLACE FUNCTION internal_process_dependent_jobs(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)

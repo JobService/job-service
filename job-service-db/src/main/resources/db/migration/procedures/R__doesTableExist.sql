@@ -20,6 +20,7 @@
  *  Description:
  *  Checks if there is a table with the specified name
  */
+
 CREATE OR REPLACE FUNCTION internal_to_regclass(rel_name VARCHAR(63))
     RETURNS regclass
     LANGUAGE plpgsql STABLE
@@ -33,6 +34,7 @@ BEGIN
     END IF;
 END
 $$;
+
 CREATE OR REPLACE FUNCTION internal_does_table_exist(in_table_name VARCHAR(63))
 RETURNS BOOLEAN
 LANGUAGE SQL STABLE

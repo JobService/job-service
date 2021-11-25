@@ -20,7 +20,6 @@
  *  Description:
  *  Returns the parent of the current task, or NULL if this is the id of the top-level task (i.e. the job)
  */
-DROP FUNCTION IF EXISTS internal_get_parent_task_id(in_task_id VARCHAR(58));
 CREATE OR REPLACE FUNCTION internal_get_parent_task_id(in_task_id VARCHAR(70))
 RETURNS VARCHAR(70)
 LANGUAGE SQL IMMUTABLE

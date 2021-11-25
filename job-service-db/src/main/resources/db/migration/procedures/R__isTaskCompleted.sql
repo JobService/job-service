@@ -20,15 +20,6 @@
  *  Description:
  *  Checks if the specified task has already been marked complete.
  */
-DROP FUNCTION IF EXISTS internal_is_task_completed(
-    in_partition_id VARCHAR(40),
-    in_task_id VARCHAR(58),
-    in_short_task_id VARCHAR(58)
-);
-DROP FUNCTION IF EXISTS internal_is_task_completed(
-    in_partition_id VARCHAR(40),
-    in_task_id VARCHAR(58)
-);
 CREATE OR REPLACE FUNCTION internal_is_task_completed(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(70)

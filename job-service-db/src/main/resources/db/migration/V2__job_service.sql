@@ -15,11 +15,13 @@
 --
 
 /*
+ *
  *  This script allows the migration from a Liquibase configuration onto Flyway
  *
  *  It will check if any databasechangelog (Liquibase specific table) exists.
  *  If so, it will check if the latest md5sum is present. In case it isn't, the migration aborts.
  *  Otherwise, the Liquibase specific tables get dropped (databasechangelog, databasechangeloglock)
+ *
  */
 DO
 $$
@@ -34,10 +36,11 @@ $$
             )
         THEN
             IF NOT EXISTS(
-                -- Checks that the db checksum is valid
+                    -- Checks that the db checksum is valid
+                    -- The checksum value is from Liquibase V3.0
                     SELECT *
                     FROM databasechangelog
-                    WHERE md5sum = '7:6127825a6ab9fb3ed7f2c25e2354f2ce'
+                    WHERE md5sum = '7:93a3e4b8c3ebd32b6f37f829ba4389cc'
                 )
             THEN
                 RAISE EXCEPTION 'The databasechangelog table is present but does not contain the expected md5sum. Cannot perform migration from Liquibase to Flyway.';

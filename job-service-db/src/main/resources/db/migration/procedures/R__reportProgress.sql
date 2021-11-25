@@ -20,15 +20,6 @@
  *  Description:
  *  Reports a task progress to the database
  */
-DROP FUNCTION IF EXISTS report_progress(
-    in_task_id VARCHAR(58),
-    in_status job_status
-);
-DROP FUNCTION IF EXISTS report_progress(
-    in_partition_id VARCHAR(40),
-    in_task_id VARCHAR(58),
-    in_percentage_complete DOUBLE PRECISION
-);
 CREATE OR REPLACE FUNCTION report_progress(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(70),

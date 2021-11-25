@@ -20,15 +20,6 @@
  *  Description:
  *  Marks the specified task complete.
  */
-DROP FUNCTION IF EXISTS report_complete(
-    in_partition_id VARCHAR(40),
-    in_task_id VARCHAR(58),
-    in_short_task_id VARCHAR(58)
-);
-DROP FUNCTION IF EXISTS report_complete(
-    in_partition_id VARCHAR(40),
-    in_task_id VARCHAR(58)
-);
 CREATE OR REPLACE FUNCTION report_complete(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(70)

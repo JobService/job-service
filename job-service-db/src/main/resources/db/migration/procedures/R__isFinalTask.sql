@@ -20,7 +20,6 @@
  *  Description:
  *  Checks if the specified task id is the final one out of a group of subtasks
  */
-DROP FUNCTION IF EXISTS internal_is_final_task(in_task_id VARCHAR(58));
 CREATE OR REPLACE FUNCTION internal_is_final_task(in_task_id VARCHAR(70))
 RETURNS BOOLEAN
 LANGUAGE SQL IMMUTABLE

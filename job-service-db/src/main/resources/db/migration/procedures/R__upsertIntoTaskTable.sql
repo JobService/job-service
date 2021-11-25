@@ -20,13 +20,6 @@
  *  Description:
  *  Inserts or updates the specified task table row.
  */
-DROP FUNCTION IF EXISTS internal_upsert_into_task_table(
-    in_task_table_name VARCHAR(63),
-    in_task_id VARCHAR(58),
-    in_status job_status,
-    in_percentage_complete DOUBLE PRECISION,
-    in_failure_details TEXT
-);
 CREATE OR REPLACE FUNCTION internal_upsert_into_task_table(
     in_task_table_name VARCHAR(63),
     in_task_id VARCHAR(70),

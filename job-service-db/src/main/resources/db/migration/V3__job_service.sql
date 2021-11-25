@@ -34,7 +34,6 @@ $$
     END
 $$;
 
-
 CREATE TABLE IF NOT EXISTS public.completed_subtask_report
 (
     partition_id varchar(40) NOT NULL,
@@ -43,21 +42,21 @@ CREATE TABLE IF NOT EXISTS public.completed_subtask_report
     report_date  timestamp   NOT NULL
 );
 
-CREATE TABLE public.deleted_parent_table_log
+CREATE TABLE IF NOT EXISTS public.deleted_parent_table_log
 (
     table_name varchar(63) NOT NULL
 );
-CREATE INDEX idx_deleted_parent_table_log ON public.deleted_parent_table_log USING btree (table_name);
+
+CREATE INDEX IF NOT EXISTS idx_deleted_parent_table_log ON public.deleted_parent_table_log USING btree (table_name);
 
 CREATE TABLE IF NOT EXISTS public.delete_log
 (
     table_name varchar(63) NOT NULL
 );
+
 CREATE INDEX IF NOT EXISTS idx_delete_log_table_name ON public.delete_log USING btree (table_name);
 
-DROP TABLE IF EXISTS public.job CASCADE;
-
-CREATE TABLE public.job
+CREATE TABLE IF NOT EXISTS public.job
 (
     job_id              varchar(48)  NOT NULL,
     "name"              varchar(255) NULL,
@@ -74,6 +73,7 @@ CREATE TABLE public.job
     identity            serial4      NOT NULL,
     CONSTRAINT pk_job PRIMARY KEY (partition_id, job_id)
 );
+
 CREATE INDEX IF NOT EXISTS idx_job_create_date ON public.job USING btree (create_date);
 
 CREATE TABLE IF NOT EXISTS public.job_dependency
@@ -132,4 +132,9 @@ CREATE TABLE IF NOT EXISTS public.stowed_task
     correlation_id                             varchar(255) NULL,
     CONSTRAINT fk_stowed_task FOREIGN KEY (partition_id, job_id) REFERENCES public.job (partition_id, job_id)
 );
+
 CREATE INDEX IF NOT EXISTS idx_partition_id_and_job_id ON public.stowed_task USING btree (partition_id, job_id);
+
+ALTER TABLE job ADD COLUMN IF NOT EXISTS identity SERIAL NOT NULL;
+ALTER TABLE job_task_data ADD COLUMN IF NOT EXISTS suspended BOOLEAN NOT NULL default false;
+ALTER TABLE completed_subtask_report ALTER COLUMN task_id type VARCHAR(70);
