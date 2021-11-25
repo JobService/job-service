@@ -4,7 +4,8 @@ This is the database schema and provisioning tool for the [Job Service](../job-s
 
 ## Setup
 
-The database is installed using the Liquibase database change management tool and you can choose to install from the database artifact directly or you can use the Docker image that is  also available.
+The database is installed using the Flyway database change management tool and you can choose to install from the database artifact 
+directly or you can use the Docker image that is  also available.
 
 ### PostgreSQL
 The Job Service database requires PostgreSQL 9.4 or later to be installed and configured. 
