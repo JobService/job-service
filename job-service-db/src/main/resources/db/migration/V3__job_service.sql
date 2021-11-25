@@ -27,6 +27,16 @@ CREATE TABLE IF NOT EXISTS public.completed_subtask_report (
                                                                task_id varchar(70) NOT NULL,
                                                                report_date timestamp NOT NULL
 );
+-- public.deleted_parent_table_log definition
+
+-- Drop table
+
+-- DROP TABLE public.deleted_parent_table_log;
+
+CREATE TABLE public.deleted_parent_table_log (
+    table_name varchar(63) NOT NULL
+);
+CREATE INDEX idx_deleted_parent_table_log ON public.deleted_parent_table_log USING btree (table_name);
 
 -- public.delete_log definition
 
