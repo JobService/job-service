@@ -19,6 +19,8 @@
  *  This is the Baseline for the Flyway configuration
  *
  */
+
+-- Create types
 DO
 $$
     BEGIN
@@ -34,6 +36,8 @@ $$
     END
 $$;
 
+--------
+
 CREATE TABLE IF NOT EXISTS public.completed_subtask_report
 (
     partition_id varchar(40) NOT NULL,
@@ -42,19 +46,22 @@ CREATE TABLE IF NOT EXISTS public.completed_subtask_report
     report_date  timestamp   NOT NULL
 );
 
+ALTER TABLE completed_subtask_report
+    ALTER COLUMN task_id type VARCHAR(70);
+
 CREATE TABLE IF NOT EXISTS public.deleted_parent_table_log
 (
     table_name varchar(63) NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_deleted_parent_table_log ON public.deleted_parent_table_log USING btree (table_name);
+--------
 
 CREATE TABLE IF NOT EXISTS public.delete_log
 (
     table_name varchar(63) NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_delete_log_table_name ON public.delete_log USING btree (table_name);
+--------
 
 CREATE TABLE IF NOT EXISTS public.job
 (
@@ -73,8 +80,25 @@ CREATE TABLE IF NOT EXISTS public.job
     identity            serial4      NOT NULL,
     CONSTRAINT pk_job PRIMARY KEY (partition_id, job_id)
 );
+ALTER TABLE job
+    ADD COLUMN IF NOT EXISTS partition_id VARCHAR(40) NOT NULL default 'default';
 
-CREATE INDEX IF NOT EXISTS idx_job_create_date ON public.job USING btree (create_date);
+ALTER TABLE job
+    ADD COLUMN IF NOT EXISTS identity SERIAL NOT NULL;
+
+ALTER TABLE job
+    ADD COLUMN IF NOT EXISTS last_update_date TIMESTAMP NOT NULL default now();
+
+ALTER TABLE job
+    ADD COLUMN IF NOT EXISTS delay INT default 0;
+
+ALTER TABLE job
+    DROP CONSTRAINT IF EXISTS pk_job CASCADE;
+
+ALTER TABLE job
+    ADD CONSTRAINT pk_job PRIMARY KEY (partition_id, job_id);
+
+--------
 
 CREATE TABLE IF NOT EXISTS public.job_dependency
 (
@@ -84,8 +108,23 @@ CREATE TABLE IF NOT EXISTS public.job_dependency
     CONSTRAINT pk_job_dependency PRIMARY KEY (partition_id, job_id, dependent_job_id),
     CONSTRAINT fk_job_dependency FOREIGN KEY (partition_id, job_id) REFERENCES public.job (partition_id, job_id)
 );
-CREATE INDEX IF NOT EXISTS idx_job_partition_id_and_dependent_job_id ON public.job_dependency USING btree (partition_id,
-                                                                                                           dependent_job_id);
+
+ALTER TABLE job_dependency
+    ADD COLUMN IF NOT EXISTS partition_id VARCHAR(40) NOT NULL default 'default';
+
+ALTER TABLE job_dependency
+    DROP CONSTRAINT IF EXISTS fk_job_dependency CASCADE;
+
+ALTER TABLE job_dependency
+    ADD CONSTRAINT fk_job_dependency FOREIGN KEY (partition_id, job_id) REFERENCES job (partition_id, job_id);
+
+ALTER TABLE job_dependency
+    DROP CONSTRAINT IF EXISTS pk_job_dependency CASCADE;
+
+ALTER TABLE job_dependency
+    ADD CONSTRAINT pk_job_dependency PRIMARY KEY (partition_id, job_id, dependent_job_id);
+
+--------
 
 CREATE TABLE IF NOT EXISTS public.job_task_data
 (
@@ -102,6 +141,29 @@ CREATE TABLE IF NOT EXISTS public.job_task_data
     CONSTRAINT fk_job_task_data FOREIGN KEY (partition_id, job_id) REFERENCES public.job (partition_id, job_id)
 );
 
+ALTER TABLE job_task_data
+    ADD COLUMN IF NOT EXISTS suspended BOOLEAN NOT NULL default false;
+
+ALTER TABLE job_task_data
+    ADD COLUMN IF NOT EXISTS partition_id VARCHAR(40) NOT NULL default 'default';
+
+ALTER TABLE job_task_data
+    ALTER COLUMN target_pipe drop not null;
+
+ALTER TABLE job_task_data
+    DROP CONSTRAINT IF EXISTS fk_job_task_data CASCADE;
+
+ALTER TABLE job_task_data
+    DROP CONSTRAINT IF EXISTS pk_job_task_data CASCADE;
+
+ALTER TABLE job_task_data
+    ADD CONSTRAINT fk_job_task_data FOREIGN KEY (partition_id, job_id) REFERENCES job (partition_id, job_id);
+
+ALTER TABLE job_task_data
+    ADD CONSTRAINT pk_job_task_data PRIMARY KEY (partition_id, job_id);
+
+--------
+
 CREATE TABLE IF NOT EXISTS public."label"
 (
     partition_id varchar(40)  NOT NULL DEFAULT 'default'::character varying,
@@ -111,6 +173,8 @@ CREATE TABLE IF NOT EXISTS public."label"
     CONSTRAINT label_pkey PRIMARY KEY (partition_id, job_id, label),
     CONSTRAINT fk_label_job FOREIGN KEY (partition_id, job_id) REFERENCES public.job (partition_id, job_id)
 );
+
+--------
 
 CREATE TABLE IF NOT EXISTS public.stowed_task
 (
@@ -133,8 +197,13 @@ CREATE TABLE IF NOT EXISTS public.stowed_task
     CONSTRAINT fk_stowed_task FOREIGN KEY (partition_id, job_id) REFERENCES public.job (partition_id, job_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_partition_id_and_job_id ON public.stowed_task USING btree (partition_id, job_id);
+-- Drop Indexes
+DROP INDEX IF EXISTS idx_job_jobid_status;
 
-ALTER TABLE job ADD COLUMN IF NOT EXISTS identity SERIAL NOT NULL;
-ALTER TABLE job_task_data ADD COLUMN IF NOT EXISTS suspended BOOLEAN NOT NULL default false;
-ALTER TABLE completed_subtask_report ALTER COLUMN task_id type VARCHAR(70);
+-- Add Indexes
+CREATE INDEX IF NOT EXISTS idx_deleted_parent_table_log ON public.deleted_parent_table_log USING btree (table_name);
+CREATE INDEX IF NOT EXISTS idx_delete_log_table_name ON public.delete_log USING btree (table_name);
+CREATE INDEX IF NOT EXISTS idx_job_create_date ON public.job USING btree (create_date);
+CREATE INDEX IF NOT EXISTS idx_job_partition_id_and_dependent_job_id ON public.job_dependency USING btree (partition_id,
+                                                                                                           dependent_job_id);
+CREATE INDEX IF NOT EXISTS idx_partition_id_and_job_id ON public.stowed_task USING btree (partition_id, job_id);

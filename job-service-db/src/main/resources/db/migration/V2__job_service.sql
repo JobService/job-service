@@ -40,7 +40,7 @@ $$
                     -- The checksum value is from Liquibase V3.0
                     SELECT *
                     FROM databasechangelog
-                    WHERE md5sum = '7:93a3e4b8c3ebd32b6f37f829ba4389cc'
+                    WHERE md5sum = '7:6127825a6ab9fb3ed7f2c25e2354f2ce'
                 )
             THEN
                 RAISE EXCEPTION 'The databasechangelog table is present but does not contain the expected md5sum. Cannot perform migration from Liquibase to Flyway.';
