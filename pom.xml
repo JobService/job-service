@@ -92,11 +92,10 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
-                <groupId>com.github.cafapi.util</groupId>
-                <artifactId>util-flyway-installer</artifactId>
-                <version>1.21.0-SCMOD-15887-SNAPSHOT</version>
+                <groupId>com.github.cafapi</groupId>
+                <artifactId>util-flyway-installer-util</artifactId>
+                <version>1.0.0-SCMOD-15887-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.correlation</groupId>

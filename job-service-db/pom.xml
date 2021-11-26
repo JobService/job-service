@@ -32,7 +32,7 @@
     <!-- version can be removed when we upgrade th workerfrmework -->
     <dependencies>
         <dependency>
-            <groupId>com.github.cafapi.util</groupId>
+            <groupId>com.github.cafapi-util</groupId>
             <artifactId>util-flyway-installer</artifactId>
             <scope>runtime</scope>
         </dependency>
@@ -56,7 +56,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.hpe.caf.flywayinstaller.Application</mainClass>
+                            <mainClass>com.github.cafapi.util.flywayinstaller.Application</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
