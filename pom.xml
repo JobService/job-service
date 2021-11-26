@@ -94,7 +94,7 @@
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi</groupId>
-                <artifactId>util-flyway-installer-util</artifactId>
+                <artifactId>util-flyway-installer</artifactId>
                 <version>1.0.0-SCMOD-15887-SNAPSHOT</version>
             </dependency>
             <dependency>
