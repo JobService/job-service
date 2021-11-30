@@ -67,7 +67,6 @@ public final class JobType {
     ) throws BadRequestException, InvalidJobTypeDefinitionException
     {
         final JsonNode task = taskBuilder.build(partitionId, jobId, parameters);
-        System.out.println("task "+task);
         JsonSchemaTaskScriptValidator.getInstance().validate(task);
         try {
             return objectMapper.treeToValue(task, WorkerAction.class);

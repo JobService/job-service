@@ -27,11 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
-import org.yaml.snakeyaml.Yaml;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -102,32 +99,18 @@ public class DefaultDefinitionParserTest {
         expectedException.expect(BadRequestException.class);
         jobType.buildTask("partition id", "job id", TextNode.valueOf("not null params"));
     }
-    
+
     @Test
     public void testConstantDefinition() throws Exception
     {
         setupValidConfig();
-        final JobType jobType =
-                new DefaultDefinitionParser(appConfig).parse("basic-id", getDefinition("constant"));
+        final JobType jobType = new DefaultDefinitionParser(appConfig).parse("basic-id", getDefinition("constant"));
         final WorkerAction task = jobType.buildTask("partition id", "job id", NullNode.getInstance());
         final String expectedTaskData = "{cfg={TARGET_PIPE=basic target pipe,TASK_PIPE=basic task pipe}, taskMessageParams={" +
                 "graaljs:setResponse.js=function onProcessTask(e){console.log('hello world!');}}}";
         Assert.assertEquals("Constant values should be used for replacement",
                 expectedTaskData.replaceAll("\\s+", ""),
                 task.getTaskData().toString().replaceAll("\\s+", ""));
-    }
-    
-    @Test
-    public void testpppSnake(){
-        try (final InputStream schemaAsInputStream = getDefinition("constant")){
-            final Object schemaAsObject = new Yaml().load(schemaAsInputStream);
-            final JsonNode schemaAsJsonNode = new ObjectMapper().convertValue(schemaAsObject, JsonNode.class);
-            System.out.println("ss "+schemaAsJsonNode);
-            JsonSchemaTaskScriptValidator.initialise(schemaAsJsonNode);
-        } catch (final IllegalArgumentException | IOException e) {
-            // note: this doesn't cause the application to shut down
-            throw new RuntimeException("Error loading taskScript schema", e);
-        }
     }
 
     @Test

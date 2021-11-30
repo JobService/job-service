@@ -110,16 +110,6 @@ public class AppConfig {
     public String getJobProperty(final String propertyName) {
         return environment.getProperty(propertyName.toUpperCase(Locale.ENGLISH));
     }
-    
-    /**
-     * Retrieve a constant property.
-     *
-     * @param constantName
-     * @return Property value, possibly `null`
-     */
-    public String getConstantProperty(final String constantName) {
-        return environment.getProperty(constantName.toUpperCase(Locale.ENGLISH));
-    }
 
     public Pattern getSuspendedPartitionsPattern() {
         final String suspendedPartitionsRegex = environment.getProperty("CAF_JOB_SERVICE_SUSPENDED_PARTITIONS_REGEX");
