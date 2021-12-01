@@ -93,7 +93,7 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi</groupId>
+                <groupId>com.github.cafapi.util.flywayinstaller</groupId>
                 <artifactId>util-flyway-installer</artifactId>
                 <version>1.0.0-SCMOD-15887-SNAPSHOT</version>
             </dependency>
