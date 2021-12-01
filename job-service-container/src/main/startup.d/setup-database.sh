@@ -20,4 +20,6 @@ cd /database
 java -jar job-service-db-installer.jar \
      -db.user "${JOB_SERVICE_DATABASE_USERNAME:-${CAF_DATABASE_USERNAME}}" \
      -db.pass "${JOB_SERVICE_DATABASE_PASSWORD:-${CAF_DATABASE_PASSWORD}}" \
-     -db.connection.url "${JOB_SERVICE_DATABASE_URL:-${CAF_DATABASE_URL}}"
+     -db.connection "${JOB_SERVICE_DATABASE_URL:-${CAF_DATABASE_URL}}" \
+     -db.name "${POSTGRES_DB:-jobservice}" \
+     -log DEBUG
