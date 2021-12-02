@@ -40,6 +40,7 @@ final class JsltTaskBuilder implements TaskBuilder {
 
     private final String jobTypeId;
     private final Map<String, String> configuration;
+    private final Map<String, String> constants;
     private final ParametersValidator parametersValidator;
     /**
      * Compiled script.
@@ -50,6 +51,7 @@ final class JsltTaskBuilder implements TaskBuilder {
      * @param jobTypeId Job type's ID, used in error messages
      * @param configuration object containing string values which are fixed for the job type;
      *                      generally obtained from global configuration
+     * @param constants object containing string values which are fixed for the job type
      * @param parametersValidator used to validate the `parameters` argument to {@link #build}
      *                            before passing them to the script
      * @param taskScript the uncompiled JSLT script
@@ -58,11 +60,13 @@ final class JsltTaskBuilder implements TaskBuilder {
     public JsltTaskBuilder(
         final String jobTypeId,
         final Map<String, String> configuration,
+        final Map<String, String> constants,
         final ParametersValidator parametersValidator,
         final String taskScript
     ) throws InvalidJobTypeDefinitionException {
         this.jobTypeId = jobTypeId;
         this.configuration = configuration;
+        this.constants = constants;
         this.parametersValidator = parametersValidator;
 
         try {
@@ -84,6 +88,7 @@ final class JsltTaskBuilder implements TaskBuilder {
 
         final Map<String, Object> input = new HashMap<>();
         input.put("configuration", configuration);
+        input.put("constants", constants);
         input.put("partitionId", partitionId);
         input.put("jobId", jobId);
         input.put("parameters", parameters);

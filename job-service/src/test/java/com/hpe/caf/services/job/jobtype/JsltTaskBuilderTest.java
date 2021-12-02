@@ -31,16 +31,18 @@ public class JsltTaskBuilderTest {
     @Test
     public void testBuild() throws Exception {
         final Map<String, String> config = new HashMap<>();
+        final Map<String, String> constants = Collections.emptyMap();
         config.put("cfg key", "cfg val");
         config.put("TASK_PIPE", "task pipe");
         config.put("TARGET_PIPE", "target pipe");
         final TaskBuilder builder = new JsltTaskBuilder(
-            "type", config, paramValidatorSuccess, ".");
+            "type", config, Collections.emptyMap(), paramValidatorSuccess, ".");
         final JsonNode actualTask =
             builder.build("partition id", "job id", TextNode.valueOf("params"));
 
         final Map<String, Object> expectedTask = new HashMap<>();
         expectedTask.put("configuration", config);
+        expectedTask.put("constants", constants);
         expectedTask.put("partitionId", "partition id");
         expectedTask.put("jobId", "job id");
         expectedTask.put("parameters", "params");
@@ -51,14 +53,14 @@ public class JsltTaskBuilderTest {
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testBuildWithIncorrectScriptSyntax() throws Exception {
         new JsltTaskBuilder(
-            "type", Collections.emptyMap(), paramValidatorSuccess,
+            "type", Collections.emptyMap(), Collections.emptyMap(), paramValidatorSuccess,
             "not a valid script");
     }
 
     @Test(expected = BadRequestException.class)
     public void testBuildWithParamValidationError() throws Exception {
         final TaskBuilder builder = new JsltTaskBuilder(
-            "type", Collections.emptyMap(),
+            "type", Collections.emptyMap(), Collections.emptyMap(),
             params -> { throw new BadRequestException("invalid params"); },
             ".");
         builder.build("partition id", "job id", TextNode.valueOf("params"));
@@ -68,7 +70,7 @@ public class JsltTaskBuilderTest {
     @Test(expected = BadRequestException.class)
     public void testBuildWithFailingScript() throws Exception {
         final TaskBuilder builder = new JsltTaskBuilder(
-            "type", Collections.emptyMap(), paramValidatorSuccess,
+            "type", Collections.emptyMap(), Collections.emptyMap(), paramValidatorSuccess,
             "error(\"input not quite right\")");
         builder.build("partition id", "job id", TextNode.valueOf("params"));
     }
@@ -77,7 +79,7 @@ public class JsltTaskBuilderTest {
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testBuildWithInvalidScript() throws Exception {
         final TaskBuilder builder = new JsltTaskBuilder(
-            "type", Collections.emptyMap(), paramValidatorSuccess,
+            "type", Collections.emptyMap(), Collections.emptyMap(), paramValidatorSuccess,
             "{ \"result\": .jobId[\"key\"] }"); // can't index string with string
         builder.build("partition id", "job id", TextNode.valueOf("params"));
     }
@@ -86,7 +88,7 @@ public class JsltTaskBuilderTest {
     public void testBuildWithEmptyObjectInScriptResult() throws Exception {
         final Map<String, String> config = Collections.singletonMap("cfg key", "cfg val");
         final TaskBuilder builder = new JsltTaskBuilder(
-            "type", config, paramValidatorSuccess,
+            "type", config, Collections.emptyMap(), paramValidatorSuccess,
             "{ \"empty\": {} }");
         final JsonNode actualTaskData =
             builder.build("partition id", "job id", TextNode.valueOf("params"));

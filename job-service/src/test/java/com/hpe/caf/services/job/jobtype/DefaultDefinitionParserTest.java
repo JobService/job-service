@@ -49,6 +49,8 @@ public class DefaultDefinitionParserTest {
             .thenReturn("basic task pipe");
         Mockito.when(appConfig.getJobProperty("TARGET_PIPE"))
             .thenReturn("basic target pipe");
+        Mockito.when(appConfig.getJobProperty("test1"))
+                .thenReturn("classifier");
     }
 
     /**
@@ -95,6 +97,19 @@ public class DefaultDefinitionParserTest {
         // should fill in params schema that expects null
         expectedException.expect(BadRequestException.class);
         jobType.buildTask("partition id", "job id", TextNode.valueOf("not null params"));
+    }
+
+    @Test
+    public void testConstantDefinition() throws Exception
+    {
+        setupValidConfig();
+        final JobType jobType = new DefaultDefinitionParser(appConfig).parse("basic-id", getDefinition("constant"));
+        final WorkerAction task = jobType.buildTask("partition id", "job id", NullNode.getInstance());
+        final String expectedTaskData = "{cfg={TARGET_PIPE=basic target pipe,TASK_PIPE=basic task pipe}, taskMessageParams={" +
+                "graaljs:setResponse.js=function onProcessTask(e){console.log('hello world!');}}}";
+        Assert.assertEquals("Constant values should be used for replacement",
+                expectedTaskData.replaceAll("\\s+", ""),
+                task.getTaskData().toString().replaceAll("\\s+", ""));
     }
 
     @Test
