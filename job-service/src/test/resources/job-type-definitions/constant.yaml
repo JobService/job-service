@@ -25,7 +25,7 @@ constants:
     }
 taskScript: |
   {
-  "taskClassifier": "classifier",
+    "taskClassifier": "classifier",
     "taskApiVersion": 1,
     "taskData": {
       "cfg": .configuration,
