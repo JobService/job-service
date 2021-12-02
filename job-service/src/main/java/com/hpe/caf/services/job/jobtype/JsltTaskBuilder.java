@@ -51,7 +51,7 @@ final class JsltTaskBuilder implements TaskBuilder {
      * @param jobTypeId Job type's ID, used in error messages
      * @param configuration object containing string values which are fixed for the job type;
      *                      generally obtained from global configuration
-     * @param constants object containing string values which are fixed for the job type;
+     * @param constants object containing string values which are fixed for the job type
      * @param parametersValidator used to validate the `parameters` argument to {@link #build}
      *                            before passing them to the script
      * @param taskScript the uncompiled JSLT script
