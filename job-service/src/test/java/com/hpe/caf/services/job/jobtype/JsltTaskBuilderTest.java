@@ -53,7 +53,7 @@ public class JsltTaskBuilderTest {
     @Test(expected = InvalidJobTypeDefinitionException.class)
     public void testBuildWithIncorrectScriptSyntax() throws Exception {
         new JsltTaskBuilder(
-            "type", Collections.emptyMap(), Collections.emptyMap(),paramValidatorSuccess,
+            "type", Collections.emptyMap(), Collections.emptyMap(), paramValidatorSuccess,
             "not a valid script");
     }
 
