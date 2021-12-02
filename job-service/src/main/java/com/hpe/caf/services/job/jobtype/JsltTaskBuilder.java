@@ -66,8 +66,8 @@ final class JsltTaskBuilder implements TaskBuilder {
     ) throws InvalidJobTypeDefinitionException {
         this.jobTypeId = jobTypeId;
         this.configuration = configuration;
-        this.parametersValidator = parametersValidator;
         this.constants = constants;
+        this.parametersValidator = parametersValidator;
 
         try {
             script = new Parser(new StringReader(taskScript))
