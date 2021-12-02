@@ -129,7 +129,7 @@
                                 </env>
                                 <cmd>
                                     ./install_job_service_db.sh -fd -db.connection jdbc:postgresql://${js.database.host}:5432/ -db.name
-                                    ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password} -log DEBUG
+                                    ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password} -log INFO
                                 </cmd>
                                 <wait>
                                     <log>DB update finished.</log>
@@ -195,7 +195,7 @@
                                 </links>
                                 <cmd>
                                     ./install_job_service_db.sh -db.connection jdbc:postgresql://${js.database.host}:5432/ -db.name
-                                    ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password}
+                                    ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password} -log DEBUG
                                 </cmd>
                                 <wait>
                                     <log>DB update finished.</log>
