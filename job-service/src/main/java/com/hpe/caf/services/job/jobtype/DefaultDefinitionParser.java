@@ -65,7 +65,7 @@ public final class DefaultDefinitionParser implements DefinitionParser {
         final ParametersValidator parametersValidator =
             new JsonSchemaParametersValidator(id, definition.getParametersSchema());
         final TaskBuilder taskBuilder = new JsltTaskBuilder(
-            id, definition.getConfiguration(id, appConfig),
+            id, definition.getConfiguration(id, appConfig), definition.getConstants(),
             parametersValidator, definition.getTaskScript(id));
 
         return new JobType(id, taskBuilder);
@@ -99,6 +99,17 @@ public final class DefaultDefinitionParser implements DefinitionParser {
         private List<ConfigurationProperty> configurationProperties;
         private Object jobParametersSchema;
         private String taskScript;
+        private Map<String, String> constants;
+
+        public Map<String,String> getConstants()
+        {
+            return constants == null? Collections.emptyMap() : constants;
+        }
+
+        public void setConstants(final Map<String,String> constants)
+        {
+            this.constants = constants;
+        }
 
         public void setConfigurationProperties(
             final List<ConfigurationProperty> configurationProperties
