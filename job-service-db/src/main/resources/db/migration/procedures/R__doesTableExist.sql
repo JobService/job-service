@@ -20,21 +20,6 @@
  *  Description:
  *  Checks if there is a table with the specified name
  */
-
-CREATE OR REPLACE FUNCTION internal_to_regclass(rel_name VARCHAR(63))
-    RETURNS regclass
-    LANGUAGE plpgsql STABLE
-AS $$
-BEGIN
-    -- Add backwards compatibility support for to_regclass argument type change introduced in Postgres 9.6.
-    IF current_setting('server_version_num')::INT < 90600 THEN
-        RETURN to_regclass(rel_name::cstring);
-    ELSE
-        RETURN to_regclass(rel_name::text);
-    END IF;
-END
-$$;
-
 CREATE OR REPLACE FUNCTION internal_does_table_exist(in_table_name VARCHAR(63))
 RETURNS BOOLEAN
 LANGUAGE SQL STABLE

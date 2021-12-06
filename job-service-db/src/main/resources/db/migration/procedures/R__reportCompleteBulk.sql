@@ -21,6 +21,11 @@
  *  Marks the specified tasks complete.
  *  Takes in an array of tasks
  */
+DROP FUNCTION IF EXISTS report_complete_bulk(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_task_ids VARCHAR(58)[]
+);
 CREATE OR REPLACE FUNCTION report_complete_bulk(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),

@@ -20,6 +20,8 @@
  *  Description:
  *  Returns the job definition for the specified job.
  */
+DROP FUNCTION IF EXISTS get_job(in_job_id VARCHAR(58));
+DROP FUNCTION IF EXISTS get_job(in_partition_id VARCHAR(40), in_job_id VARCHAR(58));
 CREATE OR REPLACE FUNCTION get_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)

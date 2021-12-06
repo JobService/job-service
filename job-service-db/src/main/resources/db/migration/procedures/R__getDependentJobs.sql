@@ -20,7 +20,8 @@
  *  Description:
  *  Returns a list of dependent jobs that are now eligible to run.
  */
-CREATE OR REPLACE FUNCTION get_dependent_jobs()
+DROP FUNCTION IF EXISTS get_dependent_jobs();
+CREATE FUNCTION get_dependent_jobs()
 RETURNS TABLE(
     partition_id VARCHAR(40),
     job_id VARCHAR(48),

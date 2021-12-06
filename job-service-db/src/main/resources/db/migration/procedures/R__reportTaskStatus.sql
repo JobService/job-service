@@ -20,6 +20,21 @@
  *  Description:
  *  Updates the status of the specified task, and rolls the status update up to all the parent tasks.
  */
+DROP FUNCTION IF EXISTS internal_report_task_status(
+    in_partition_id VARCHAR(40),
+    in_task_id VARCHAR(58),
+    in_short_task_id VARCHAR(58),
+    in_status job_status,
+    in_percentage_complete DOUBLE PRECISION,
+    in_failure_details TEXT
+);
+DROP FUNCTION IF EXISTS internal_report_task_status(
+    in_partition_id VARCHAR(40),
+    in_task_id VARCHAR(58),
+    in_status job_status,
+    in_percentage_complete DOUBLE PRECISION,
+    in_failure_details TEXT
+);
 CREATE OR REPLACE FUNCTION internal_report_task_status(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(70),

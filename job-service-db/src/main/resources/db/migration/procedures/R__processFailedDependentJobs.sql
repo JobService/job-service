@@ -17,6 +17,8 @@
 /*
  *  Name: internal_process_failed_dependent_jobs
  */
+DROP FUNCTION IF EXISTS internal_process_failed_dependent_jobs(in_partition_id VARCHAR(40), in_job_id VARCHAR(58),
+                                                               in_failure_details TEXT);
 CREATE OR REPLACE FUNCTION internal_process_failed_dependent_jobs(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),

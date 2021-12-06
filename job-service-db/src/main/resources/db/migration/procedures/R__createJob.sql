@@ -21,6 +21,25 @@
  *  Create a new row in the job table.  Returns a single row, with true if the job doesn't already
  *  exist, and false if the job already exists with the same hash.
  */
+DROP FUNCTION IF EXISTS create_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_name VARCHAR(255),
+    in_description TEXT,
+    in_data TEXT,
+    in_job_hash INT
+);
+
+DROP FUNCTION IF EXISTS create_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_name VARCHAR(255),
+    in_description TEXT,
+    in_data TEXT,
+    in_job_hash INT,
+    in_labels VARCHAR(255)[][]
+);
+
 CREATE OR REPLACE FUNCTION create_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),

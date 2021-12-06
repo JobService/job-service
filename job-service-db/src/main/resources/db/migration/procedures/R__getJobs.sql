@@ -23,6 +23,27 @@
  * in_sort_field: name of the column to sort by
  * in_sort_ascending: true to sort ascending, false to sort descending
  */
+DROP FUNCTION IF EXISTS get_jobs(
+    in_job_id_starts_with VARCHAR(58),
+    in_status_type VARCHAR(20),
+    in_limit INT,
+    in_offset INT);
+DROP FUNCTION IF EXISTS get_jobs(
+    in_job_id_starts_with VARCHAR(58),
+    in_status_type VARCHAR(20),
+    in_limit INT,
+    in_offset INT,
+    in_labels VARCHAR(255)[]);
+DROP FUNCTION IF EXISTS get_jobs(
+    in_partition_id VARCHAR(40),
+    in_job_id_starts_with VARCHAR(48),
+    in_status_type VARCHAR(20),
+    in_limit INT,
+    in_offset INT,
+    in_sort_field VARCHAR(20),
+    in_sort_ascending BOOLEAN,
+    in_labels VARCHAR(255)[],
+    in_filter VARCHAR(255));
 CREATE OR REPLACE FUNCTION get_jobs(
     in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),

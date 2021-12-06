@@ -217,3 +217,17 @@ CREATE INDEX IF NOT EXISTS idx_partition_id_and_job_id
 CREATE INDEX IF NOT EXISTS idx_job_partition_id_and_dependent_job_id
     ON public.job_dependency
         USING btree (partition_id, dependent_job_id);
+
+CREATE OR REPLACE FUNCTION internal_to_regclass(rel_name VARCHAR(63))
+    RETURNS regclass
+    LANGUAGE plpgsql STABLE
+AS $$
+BEGIN
+    -- Add backwards compatibility support for to_regclass argument type change introduced in Postgres 9.6.
+    IF current_setting('server_version_num')::INT < 90600 THEN
+        RETURN to_regclass(rel_name::cstring);
+    ELSE
+        RETURN to_regclass(rel_name::text);
+    END IF;
+END
+$$;
