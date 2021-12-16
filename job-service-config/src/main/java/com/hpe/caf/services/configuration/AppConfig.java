@@ -40,11 +40,6 @@ public class AppConfig {
             : environment.getProperty("JOB_SERVICE_DATABASE_URL");
     }
 
-    public boolean isTaskMessageEncoded(){
-        final String isEncoded = environment.getProperty("CAF_TASK_MESSAGE_ENCODED");
-        return null == isEncoded || !isEncoded.equals("false");
-    }
-
     public String getDatabaseUsername(){
         return environment.getProperty("CAF_DATABASE_USERNAME") != null ? environment.getProperty("CAF_DATABASE_USERNAME") 
             : environment.getProperty("JOB_SERVICE_DATABASE_USERNAME");
