@@ -76,7 +76,6 @@ public final class QueueServices implements AutoCloseable {
 
         //Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
         final Object taskDataObj = workerAction.getTaskData();
-        
         if (taskDataObj instanceof String) {
             final String taskDataStr = (String) taskDataObj;
             final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
@@ -89,11 +88,6 @@ public final class QueueServices implements AutoCloseable {
                 throw new RuntimeException("Unknown taskDataEncoding");
             }
         } else if (taskDataObj instanceof Map<?, ?>) {
-            try {
-                taskData = codec.serialise(taskDataObj);
-            } catch (CodecException e) {
-                throw new RuntimeException("Failed to serialise TaskData", e);
-            }
         } else {
             throw new RuntimeException("The taskData is an unexpected type");
         }
@@ -117,7 +111,7 @@ public final class QueueServices implements AutoCloseable {
                 workerAction.getTaskApiVersion(),
                 taskData,
                 TaskStatus.NEW_TASK,
-                Collections.<String, byte[]>emptyMap(),
+                Collections.emptyMap(),
                 targetQueue,
                 trackingInfo,
                 null,

@@ -15,6 +15,7 @@
  */
 package com.hpe.caf.worker.jobtracking;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.*;
 import com.hpe.caf.api.worker.*;
 import com.hpe.caf.services.job.util.JobTaskId;
@@ -136,20 +137,20 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     }
 
     private static byte[] validateVersionAndData(final WorkerTaskData workerTask, final int workerApiVersion)
-            throws InvalidTaskException, TaskRejectedException
+            throws TaskRejectedException
     {
         final int version = workerTask.getVersion();
         if (workerApiVersion < version) {
             throw new TaskRejectedException("Found task version " + version + ", which is newer than " +
                     workerApiVersion);
         }
-
-        final byte[] data = workerTask.getData();
+        return workerTask.getData();
+        /*final byte[] data = workerTask.getData();
         if (data == null) {
             throw new InvalidTaskException("Invalid input message: task not specified");
         }
 
-        return data;
+        return data;*/
     }
 
     /**
@@ -176,13 +177,13 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             } catch (final CodecException e) {
                 throw new InvalidTaskException("Invalid input message", e);
             }
-
+           // jobTrackingWorkerTask = new ObjectMapper().convertValue(data, taskType);
             if (jobTrackingWorkerTask == null) {
                 throw new InvalidTaskException("Invalid input message: no result from deserialisation");
             }
 
             final Set<ConstraintViolation<T>> violations = validator.validate(jobTrackingWorkerTask);
-            if (violations.size() > 0) {
+            if (!violations.isEmpty()) {
                 LOG.error("Task of type {} failed validation due to: {}", taskType.getSimpleName(), violations);
                 throw new InvalidTaskException("Task failed validation");
             }
@@ -318,9 +319,10 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 f.setFailureTime(new Date());
                 f.setFailureSource(getWorkerName(proxiedTaskMessage));
 
-                final byte[] taskData = proxiedTaskMessage.getTaskData();
+                final Object taskData = proxiedTaskMessage.getTaskData();
                 if (taskData != null) {
-                    f.setFailureMessage(new String(taskData, StandardCharsets.UTF_8));
+                   /* f.setFailureMessage(new String(taskData, StandardCharsets.UTF_8));*/
+                    f.setFailureMessage(new ObjectMapper().convertValue(taskData, String.class));
                 }
 
                 reporter.reportJobTaskRejected(jobTaskId, f);

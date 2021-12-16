@@ -115,13 +115,14 @@ public class JobTrackingWorkerFactoryTest {
         final JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
 
         //Test
+        workerFactory.getWorker(wtd).doWork();
         final WorkerResponse response = workerFactory.getWorker(wtd).doWork();
 
         assertEquals(TaskStatus.RESULT_SUCCESS, response.getTaskStatus());
         assertEquals(1, response.getApiVersion());
         assertEquals("JobTrackingWorker", response.getMessageType());
-        verify(reporter, Mockito.times(3)).reportJobTaskProgress(eq(taskId), anyInt());
-        verify(reporter, Mockito.times(1)).reportJobTaskComplete(eq(taskId));
+        verify(reporter, Mockito.times(6)).reportJobTaskProgress(eq(taskId), anyInt());
+        verify(reporter, Mockito.times(2)).reportJobTaskComplete(eq(taskId));
     }
 
     @Test
