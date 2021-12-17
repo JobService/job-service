@@ -18,11 +18,9 @@ package com.hpe.caf.services.job.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
 import com.hpe.caf.api.worker.QueueTaskMessage;
-import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.config.system.SystemBootstrapConfiguration;
 import com.hpe.caf.naming.ServicePath;
 import com.hpe.caf.services.job.client.ApiClient;
@@ -777,17 +775,6 @@ public class JobServiceIT {
             "job ID passed to task data script should come from request");
         assertNull(messageTaskData.reqParams,
             "parameters passed to task data script should be null when not provided with request");
-    }
-
-    public static void main(String[] args) throws JsonProcessingException
-    {
-        final String data = "{\"config\":{\"CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE\":\"basic task-pipe\"," +
-                "\"CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE\":\"basic target-pipe\"},\"taskQueue\":\"basic task-pipe\"," +
-                "\"targetQueue\":\"basic target-pipe\",\"partitionIdent\":\"6f3fca7e-84da-4d26-9797-1e386e65177a\"," +
-                "\"jobIdent\":\"c3119261-6512-427a-a9a9-ad5c6877bebd\",\"reqParams\":null}";
-        System.out.println("ssded: "+objectMapper.readValue(data, JobTypeTestTaskData.class).jobIdent);
-        JobTypeTestTaskData messageTaskData = objectMapper.readValue(data, JobTypeTestTaskData.class);
-        System.out.println(messageTaskData.jobIdent);
     }
 
     @Test

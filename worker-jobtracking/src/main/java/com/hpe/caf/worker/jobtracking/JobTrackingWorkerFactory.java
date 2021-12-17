@@ -137,20 +137,20 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     }
 
     private static byte[] validateVersionAndData(final WorkerTaskData workerTask, final int workerApiVersion)
-            throws TaskRejectedException
+            throws TaskRejectedException, InvalidTaskException
     {
         final int version = workerTask.getVersion();
         if (workerApiVersion < version) {
             throw new TaskRejectedException("Found task version " + version + ", which is newer than " +
                     workerApiVersion);
         }
-        return workerTask.getData();
-        /*final byte[] data = workerTask.getData();
+        /*return workerTask.getData();*/
+        final byte[] data = workerTask.getData();
         if (data == null) {
             throw new InvalidTaskException("Invalid input message: task not specified");
         }
 
-        return data;*/
+        return data;
     }
 
     /**

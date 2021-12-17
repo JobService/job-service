@@ -76,6 +76,7 @@ public final class QueueServices implements AutoCloseable {
 
         //Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
         final Object taskDataObj = workerAction.getTaskData();
+
         if (taskDataObj instanceof String) {
             final String taskDataStr = (String) taskDataObj;
             final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();

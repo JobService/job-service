@@ -18,24 +18,19 @@ package com.hpe.caf.services.job.scheduled.executor;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.api.worker.QueueTaskMessage;
-import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.api.worker.TrackingInfo;
 import com.hpe.caf.services.job.util.JobTaskId;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.MessageProperties;
-import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
@@ -73,39 +68,9 @@ public final class QueueServices implements AutoCloseable
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
 
-        //  Serialise the data payload. Encoding type is provided in the WorkerAction.
-        //final byte[] taskData;
-
         //  Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
         LOG.debug("Validating the task data ...");
         final Object taskDataObj = workerAction.getTaskData();
-        
-        /*if (taskDataObj instanceof String) {
-            final String taskDataStr = (String) taskDataObj;
-            final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
-
-            if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
-                taskData = taskDataStr.getBytes(StandardCharsets.UTF_8);
-            } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
-                taskData = Base64.decodeBase64(taskDataStr);
-            } else {
-                final String errorMessage = "Unknown taskDataEncoding";
-                LOG.error(errorMessage);
-                throw new RuntimeException(errorMessage);
-            }
-        } else if (taskDataObj instanceof Map<?, ?>) {
-            try {
-                taskData = codec.serialise(taskDataObj);
-            } catch (final CodecException e) {
-                final String errorMessage = "Failed to serialise TaskData";
-                LOG.error(errorMessage);
-                throw new RuntimeException(errorMessage, e);
-            }
-        } else {
-            final String errorMessage = "The taskData is an unexpected type";
-            LOG.error(errorMessage);
-            throw new RuntimeException(errorMessage);
-        }*/
 
         //  Set up string for statusCheckUrl
         final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
@@ -121,15 +86,6 @@ public final class QueueServices implements AutoCloseable
                 getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 
-        /*final TaskMessage taskMessage = new TaskMessage(
-                taskId,
-                workerAction.getTaskClassifier(),
-                workerAction.getTaskApiVersion(),
-                taskData,
-                TaskStatus.NEW_TASK,
-                Collections.<String, byte[]>emptyMap(),
-                targetQueue,
-                trackingInfo);*/
         LOG.debug("taskdata boko {}", taskDataObj);
         final QueueTaskMessage queueTaskMessage = new QueueTaskMessage(
                 taskId,
