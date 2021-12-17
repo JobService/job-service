@@ -93,7 +93,7 @@ public final class QueueServices implements AutoCloseable
                 workerAction.getTaskApiVersion(),
                 taskDataObj,
                 TaskStatus.NEW_TASK,
-                Collections.<String, byte[]>emptyMap(),
+                Collections.emptyMap(),
                 targetQueue,
                 trackingInfo
         );

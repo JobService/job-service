@@ -40,11 +40,6 @@ public class ScheduledExecutorConfig {
             : getPropertyOrEnvVar("CAF_DATABASE_APPNAME");
     }
 
-    public boolean isTaskMessageEncoded(){
-        final String isEncoded = getPropertyOrEnvVar("CAF_TASK_MESSAGE_ENCODED");
-        return null == isEncoded || !isEncoded.equals("false");
-    }
-
     public static String getRabbitMQHost(){
         return getPropertyOrEnvVar("CAF_RABBITMQ_HOST");
     }

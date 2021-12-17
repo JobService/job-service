@@ -46,7 +46,7 @@
         <DOCKER_HUB_PUBLIC>${dockerHubPublic}</DOCKER_HUB_PUBLIC>
         <enforceCorrectDependencies>true</enforceCorrectDependencies>
         <enforceBannedDependencies>true</enforceBannedDependencies>
-        <fabric8.docker.maven.version>0.38.0</fabric8.docker.maven.version>
+        <fabric8.docker.maven.version>0.26.1</fabric8.docker.maven.version>
     </properties>
 
     <dependencyManagement>

@@ -17,23 +17,6 @@ package com.hpe.caf.services.job.queue;
 
 import static com.github.cafapi.correlation.constants.CorrelationIdConfigurationConstants.MDC_KEY;
 
-import com.hpe.caf.api.Codec;
-import com.hpe.caf.api.CodecException;
-import com.hpe.caf.api.worker.TaskMessage;
-import com.hpe.caf.api.worker.TaskStatus;
-import com.hpe.caf.api.worker.TrackingInfo;
-import com.hpe.caf.services.job.api.generated.model.WorkerAction;
-import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.job.util.JobTaskId;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.MessageProperties;
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
-import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -41,6 +24,25 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
+
+import javax.ws.rs.core.UriBuilder;
+
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
+import com.hpe.caf.api.Codec;
+import com.hpe.caf.api.CodecException;
+import com.hpe.caf.api.worker.TaskMessage;
+import com.hpe.caf.api.worker.TaskStatus;
+import com.hpe.caf.api.worker.TrackingInfo;
+import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.api.generated.model.WorkerAction;
+import com.hpe.caf.services.job.util.JobTaskId;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.MessageProperties;
 
 /**
  * This class is responsible sending task data to the target queue.
@@ -76,7 +78,9 @@ public final class QueueServices implements AutoCloseable {
 
         //Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
         final Object taskDataObj = workerAction.getTaskData();
-
+        if (!(taskDataObj instanceof Map<?,?> || taskDataObj instanceof String)) {
+            throw new RuntimeException("The taskData is an unexpected type");
+        }
         if (taskDataObj instanceof String) {
             final String taskDataStr = (String) taskDataObj;
             final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
@@ -88,9 +92,6 @@ public final class QueueServices implements AutoCloseable {
             } else {
                 throw new RuntimeException("Unknown taskDataEncoding");
             }
-        } else if (taskDataObj instanceof Map<?, ?>) {
-        } else {
-            throw new RuntimeException("The taskData is an unexpected type");
         }
 
         //set up string for statusCheckUrl

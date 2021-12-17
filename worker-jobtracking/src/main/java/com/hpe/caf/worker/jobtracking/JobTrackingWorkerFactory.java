@@ -144,7 +144,6 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             throw new TaskRejectedException("Found task version " + version + ", which is newer than " +
                     workerApiVersion);
         }
-        /*return workerTask.getData();*/
         final byte[] data = workerTask.getData();
         if (data == null) {
             throw new InvalidTaskException("Invalid input message: task not specified");
@@ -177,13 +176,12 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             } catch (final CodecException e) {
                 throw new InvalidTaskException("Invalid input message", e);
             }
-           // jobTrackingWorkerTask = new ObjectMapper().convertValue(data, taskType);
             if (jobTrackingWorkerTask == null) {
                 throw new InvalidTaskException("Invalid input message: no result from deserialisation");
             }
 
             final Set<ConstraintViolation<T>> violations = validator.validate(jobTrackingWorkerTask);
-            if (!violations.isEmpty()) {
+            if (violations.size() > 0) {
                 LOG.error("Task of type {} failed validation due to: {}", taskType.getSimpleName(), violations);
                 throw new InvalidTaskException("Task failed validation");
             }
@@ -321,7 +319,6 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
                 final Object taskData = proxiedTaskMessage.getTaskData();
                 if (taskData != null) {
-                   /* f.setFailureMessage(new String(taskData, StandardCharsets.UTF_8));*/
                     f.setFailureMessage(new ObjectMapper().convertValue(taskData, String.class));
                 }
 
