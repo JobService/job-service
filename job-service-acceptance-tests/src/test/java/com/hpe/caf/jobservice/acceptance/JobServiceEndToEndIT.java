@@ -180,6 +180,7 @@ public class JobServiceEndToEndIT {
     }
     @Test
     public void testTargetPipeEmpty()throws Exception{
+        System.out.println("dedfzsdfscxzcd");
         //Set empty output queue. Which is invalid.
         try {
             testTargetPipeForJobWithNoAndWithCompletedPrerequisiteJobs("");
@@ -473,6 +474,7 @@ public class JobServiceEndToEndIT {
     @Test
     public void testJobWithPrerequisiteJobsNotCompleted() throws Exception
     {
+        System.out.println("deñjdzscvd");
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
 
@@ -653,6 +655,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testCreateJobLongDelay() throws Exception {
+        System.out.println("d4325fadvched");
         //create a job for a suspended partition
         final String jobId = generateJobId();
         final String jobCorrelationId = "1";
@@ -670,6 +673,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testCreateJobNoDelayAndSomePreReqWithDelay() throws Exception {
+        System.out.println("dfeluitgfued");
         //create a job with some pre req which has a delay
         final String preReqJobId = generateJobId();
         final String job1Id = generateJobId();
@@ -697,6 +701,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testCreateJobSuspendedPartition() throws Exception {
+        System.out.println("de4fewfsdfd");
         //create a job for a suspended partition
         final String jobId = generateJobId();
         final String jobCorrelationId = "1";
@@ -713,6 +718,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testCreateJobWithPreReqSuspendedPartition() throws Exception {
+        System.out.println("ded345rrgfedf");
         //create a job with pre reqs for a suspended partition
         final String jobId = generateJobId();
         final String jobCorrelationId = "1";
@@ -731,6 +737,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testCreateJobWithDelaySuspendedPartition() throws Exception {
+        System.out.println("d45edfgsed");
         //create a job with delay for a suspended partition
         final String jobId = generateJobId();
         final String jobCorrelationId = "1";
@@ -750,6 +757,7 @@ public class JobServiceEndToEndIT {
     @Test
     public void testSuspendedJobWithPrerequisiteJobsAndDelays() throws Exception
     {
+        System.out.println("de456456d");
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
 
@@ -960,6 +968,7 @@ public class JobServiceEndToEndIT {
     @Test
     @SuppressWarnings("unchecked")
     public void testJobServiceCaller_Failure() throws ParseException, IOException, TimeoutException {
+        System.out.println("dedkkhht");
         LOG.debug("Starting testJobServiceCaller_Failure() ...");
 
         try {
@@ -1081,6 +1090,7 @@ public class JobServiceEndToEndIT {
     @Test
     public void testJobDeletionWithPrerequisiteJobs() throws Exception
     {
+        System.out.println("de5465d");
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
 
@@ -1187,6 +1197,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testJobDeletionWithLabels() throws Exception {
+        System.out.println("dejuuyrrd");
         numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
         testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
 
@@ -1210,6 +1221,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testPauseWaitingJobIsSuccessful() throws Exception {
+        System.out.println("dedorer");
         final String jobId = generateJobId();
         createJob(jobId, true);
         waitUntilJobStatusIs(JobStatus.Waiting, jobId);
@@ -1219,6 +1231,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testPausePausedJobIsSuccessful() throws Exception {
+        System.out.println("dkikied");
         final String jobId = generateJobId();
         createJob(jobId, true);
         waitUntilJobStatusIs(JobStatus.Waiting, jobId);
@@ -1246,6 +1259,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testPauseCancelledJobIsNotAllowed() throws Exception {
+        System.out.println("dedkiii");
         final String jobId = generateJobId();
         createJob(jobId, true);
         waitUntilJobStatusIs(JobStatus.Waiting, jobId);
@@ -1264,6 +1278,7 @@ public class JobServiceEndToEndIT {
     @Test
     public void testResumePausedJobThatWasPreviouslyWaitingMovesJobToActiveStatus() throws Exception
     {
+        System.out.println("dedjukjuk");
         try (final IntegrationTestQueueServices integrationTestQueueServices = new IntegrationTestQueueServices()) {
             // given a job with a status of waiting
             integrationTestQueueServices.startListening();
@@ -1365,6 +1380,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testResumeCancelledJobIsNotAllowed() throws Exception {
+        System.out.println("dedyuju");
         final String jobId = generateJobId();
         createJob(jobId, true);
         waitUntilJobStatusIs(JobStatus.Waiting, jobId);
@@ -1382,6 +1398,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testResumeWaitingJobIsNotAllowed() throws Exception {
+        System.out.println("dedgg");
         final String jobId = generateJobId();
         createJob(jobId, true);
         waitUntilJobStatusIs(JobStatus.Waiting, jobId);
@@ -1397,6 +1414,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testGetJobStatus() throws Exception {
+        System.out.println("dedd");
         final String jobId = generateJobId();
         createJob(jobId, true);
         waitUntilJobStatusIs(JobStatus.Waiting, jobId);
@@ -1404,6 +1422,7 @@ public class JobServiceEndToEndIT {
 
     @Test
     public void testGetJobStatusForUnknownJob() throws Exception {
+        System.out.println("ded");
         try {
             jobsApi.getJobStatus(defaultPartitionId, "unknown-job-id", jobCorrelationId);
         } catch (final ApiException e) {

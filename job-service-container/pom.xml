@@ -290,6 +290,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <removeVolumes>true</removeVolumes>
                     <verbose>true</verbose>
                     <logDate>default</logDate>
                     <watchInterval>500</watchInterval>
