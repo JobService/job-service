@@ -241,22 +241,20 @@ public final class JobsPut {
         if (taskDataObj instanceof String) {
             final String taskDataStr = (String) taskDataObj;
             final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
-            System.out.println("pokolo utf8");
+
             if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
                 taskDataBytes = taskDataStr.getBytes(StandardCharsets.UTF_8);
             } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
-                System.out.println("pokolo base64");
                 taskDataBytes = Base64.decodeBase64(taskDataStr);
             } else {
                 throw new RuntimeException("Unknown taskDataEncoding");
             }
         } else if (taskDataObj instanceof Map<?, ?>) {
-            System.out.println("pokolo map");
             taskDataBytes = serializeData(taskDataObj, codec);
         } else {
             throw new RuntimeException("The taskData is an unexpected type");
         }
-        System.out.println("pokolo "+new String(taskDataBytes));
+
         return taskDataBytes;
     }
 

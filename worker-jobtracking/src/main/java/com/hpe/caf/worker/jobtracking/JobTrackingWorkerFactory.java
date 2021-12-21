@@ -15,7 +15,6 @@
  */
 package com.hpe.caf.worker.jobtracking;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.*;
 import com.hpe.caf.api.worker.*;
 import com.hpe.caf.services.job.util.JobTaskId;
@@ -137,13 +136,14 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
     }
 
     private static byte[] validateVersionAndData(final WorkerTaskData workerTask, final int workerApiVersion)
-            throws TaskRejectedException, InvalidTaskException
+            throws InvalidTaskException, TaskRejectedException
     {
         final int version = workerTask.getVersion();
         if (workerApiVersion < version) {
             throw new TaskRejectedException("Found task version " + version + ", which is newer than " +
                     workerApiVersion);
         }
+
         final byte[] data = workerTask.getData();
         if (data == null) {
             throw new InvalidTaskException("Invalid input message: task not specified");
@@ -176,6 +176,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
             } catch (final CodecException e) {
                 throw new InvalidTaskException("Invalid input message", e);
             }
+
             if (jobTrackingWorkerTask == null) {
                 throw new InvalidTaskException("Invalid input message: no result from deserialisation");
             }
@@ -317,9 +318,9 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
                 f.setFailureTime(new Date());
                 f.setFailureSource(getWorkerName(proxiedTaskMessage));
 
-                final Object taskData = proxiedTaskMessage.getTaskData();
+                final byte[] taskData = proxiedTaskMessage.getTaskData();
                 if (taskData != null) {
-                    f.setFailureMessage(new ObjectMapper().convertValue(taskData, String.class));
+                    f.setFailureMessage(new String(taskData, StandardCharsets.UTF_8));
                 }
 
                 reporter.reportJobTaskRejected(jobTaskId, f);

@@ -56,11 +56,8 @@ public class DatabasePoller
                     final WorkerAction workerAction = new WorkerAction();
                     workerAction.setTaskClassifier(jtd.getTaskClassifier());
                     workerAction.setTaskApiVersion(jtd.getTaskApiVersion());
-                    System.out.println("pokolo jtd "+jtd.getTaskData());
                     if (jtd.getTaskData() != null) {
-                        String pako = new String(jtd.getTaskData(), StandardCharsets.UTF_8);
-                        System.out.println("pokolo pako");
-                        workerAction.setTaskData(pako);
+                        workerAction.setTaskData(new String(jtd.getTaskData(), StandardCharsets.UTF_8));
                     }
                     workerAction.setTaskPipe(jtd.getTaskPipe());
                     workerAction.setTargetPipe(jtd.getTargetPipe());
@@ -78,7 +75,6 @@ public class DatabasePoller
     {
         try (final QueueServices queueServices= QueueServicesFactory.create(jtd.getTaskPipe(), codec)){
             LOG.debug("Sending task data to the target queue {} ...", workerAction);
-            System.out.println("pokolo sendMessage "+workerAction);
             queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
             deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
         } catch(final Exception ex) {
@@ -129,9 +125,7 @@ public class DatabasePoller
                 dependency.setJobId(stmt.getResultSet().getString(2));
                 dependency.setTaskClassifier(stmt.getResultSet().getString(3));
                 dependency.setTaskApiVersion(stmt.getResultSet().getInt(4));
-                byte[] arr = stmt.getResultSet().getBytes(5);
-                System.out.println("pokolo arr "+new String(arr));
-                dependency.setTaskData(arr);
+                dependency.setTaskData(stmt.getResultSet().getBytes(5));
                 dependency.setTaskPipe(stmt.getResultSet().getString(6));
                 dependency.setTargetPipe(stmt.getResultSet().getString(7));
 

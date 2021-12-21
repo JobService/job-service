@@ -70,27 +70,7 @@ public final class QueueServices implements AutoCloseable {
     {
         //  Generate a random task id.
         String taskId = UUID.randomUUID().toString();
-
-        //  Serialise the data payload. Encoding type is provided in the WorkerAction.
-        byte[] taskData = null;
-
-        //Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
-        final Object taskDataObj = workerAction.getTaskData();
-        if (!(taskDataObj instanceof Map<?,?> || taskDataObj instanceof String)) {
-            throw new RuntimeException("The taskData is an unexpected type");
-        }
-        if (taskDataObj instanceof String) {
-            final String taskDataStr = (String) taskDataObj;
-            final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
-
-            if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
-                taskData = taskDataStr.getBytes(StandardCharsets.UTF_8);
-            } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
-                taskData = Base64.decodeBase64(taskDataStr);
-            } else {
-                throw new RuntimeException("Unknown taskDataEncoding");
-            }
-        }
+        final byte[] taskData = checkAndGetTaskData(workerAction);
 
         //set up string for statusCheckUrl
         String statusCheckUrl = UriBuilder.fromUri(config.getWebserviceUrl())
@@ -111,7 +91,7 @@ public final class QueueServices implements AutoCloseable {
                 workerAction.getTaskApiVersion(),
                 taskData,
                 TaskStatus.NEW_TASK,
-                Collections.emptyMap(),
+                Collections.<String, byte[]>emptyMap(),
                 targetQueue,
                 trackingInfo,
                 null,
@@ -132,6 +112,33 @@ public final class QueueServices implements AutoCloseable {
         } catch (IOException | TimeoutException e) {
             LOG.warn("Failed to publish message. Will retry", e);
             publishMessage(taskMessageBytes);
+        }
+    }
+
+    //Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
+    private byte[] checkAndGetTaskData(final WorkerAction workerAction)
+    {
+        final Object taskDataObj = workerAction.getTaskData();
+
+        if (taskDataObj instanceof String) {
+            final String taskDataStr = (String)taskDataObj;
+            final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
+
+            if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
+                return taskDataStr.getBytes(StandardCharsets.UTF_8);
+            } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
+                return Base64.decodeBase64(taskDataStr);
+            } else {
+                throw new RuntimeException("Unknown taskDataEncoding");
+            }
+        } else if (taskDataObj instanceof Map<?,?>) {
+            try {
+                return codec.serialise(taskDataObj);
+            } catch (CodecException e) {
+                throw new RuntimeException("Failed to serialise TaskData", e);
+            }
+        } else {
+            throw new RuntimeException("The taskData is an unexpected type");
         }
     }
 

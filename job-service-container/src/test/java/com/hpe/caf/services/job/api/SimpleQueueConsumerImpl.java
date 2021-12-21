@@ -23,11 +23,9 @@ import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.api.DecodeMethod;
 import com.hpe.caf.api.worker.QueueTaskMessage;
-import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.util.rabbitmq.Delivery;
 import com.hpe.caf.util.rabbitmq.Event;
 import com.hpe.caf.util.rabbitmq.QueueConsumer;
-import com.hpe.caf.services.job.api.ResultHandler;
 import com.rabbitmq.client.Channel;
 
 public class SimpleQueueConsumerImpl implements QueueConsumer
@@ -47,12 +45,10 @@ public class SimpleQueueConsumerImpl implements QueueConsumer
     }
 
     public void processDelivery(Delivery delivery) {
-        System.out.print("New delivery");
 
         try {
             final QueueTaskMessage taskMessage = this.codec.deserialise(delivery.getMessageData(), QueueTaskMessage.class,
                     DecodeMethod.LENIENT);
-            System.out.println(taskMessage.getTaskId() + ", status: " + taskMessage.getTaskStatus());
             synchronized(syncLock) {
                 this.resultHandler.handleResult(taskMessage);
             }

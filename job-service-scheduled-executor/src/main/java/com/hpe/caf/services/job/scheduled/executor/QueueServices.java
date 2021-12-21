@@ -24,13 +24,14 @@ import com.hpe.caf.services.job.util.JobTaskId;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.MessageProperties;
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
@@ -63,14 +64,15 @@ public final class QueueServices implements AutoCloseable
      */
     public void sendMessage(
         final String partitionId, final String jobId, final WorkerAction workerAction
-    ) throws IOException {
+    ) throws IOException
+    {
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
 
-        //  Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
+        //  Check whether taskData is in the form of a string or object, and decode if required.
         LOG.debug("Validating the task data ...");
-        final Object taskDataObj = workerAction.getTaskData();
+        final Object taskData = checkAndGetTaskData(workerAction);
 
         //  Set up string for statusCheckUrl
         final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
@@ -86,17 +88,15 @@ public final class QueueServices implements AutoCloseable
                 getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 
-        LOG.debug("taskdata boko {}", taskDataObj);
         final QueueTaskMessage queueTaskMessage = new QueueTaskMessage(
                 taskId,
                 workerAction.getTaskClassifier(),
                 workerAction.getTaskApiVersion(),
-                taskDataObj,
+                taskData,
                 TaskStatus.NEW_TASK,
-                Collections.emptyMap(),
+                Collections.<String, byte[]>emptyMap(),
                 targetQueue,
-                trackingInfo
-        );
+                trackingInfo);
 
         //  Serialise the task message.
         //  Wrap any CodecException as a RuntimeException as it shouldn't happen
@@ -113,6 +113,31 @@ public final class QueueServices implements AutoCloseable
         LOG.debug("Publishing the message ...");
         publisherChannel.basicPublish(
                 "", targetQueue, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
+    }
+
+    private Object checkAndGetTaskData(final WorkerAction workerAction)
+    {
+        final Object taskDataObj = workerAction.getTaskData();
+
+        if (taskDataObj instanceof String) {
+            final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
+
+            if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
+                return taskDataObj;
+            } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
+                return Base64.decodeBase64((String)taskDataObj);
+            } else {
+                final String errorMessage = "Unknown taskDataEncoding";
+                LOG.error(errorMessage);
+                throw new RuntimeException(errorMessage);
+            }
+        } else if (taskDataObj instanceof Map<?,?>) {
+            return taskDataObj;
+        } else {
+            final String errorMessage = "The taskData is an unexpected type";
+            LOG.error(errorMessage);
+            throw new RuntimeException(errorMessage);
+        }
     }
 
     private static long getStatusCheckIntervalMillis(final String statusCheckIntervalSeconds)

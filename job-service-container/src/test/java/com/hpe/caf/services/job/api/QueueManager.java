@@ -48,9 +48,9 @@ public class QueueManager implements Closeable
     private DefaultRabbitConsumer rabbitConsumer;
     private Connection connection;
 
-    private String debugInputQueueName;
-    private String debugOutputQueueName;
-    private boolean debugEnabled;
+    private final String debugInputQueueName;
+    private final String debugOutputQueueName;
+    private final boolean debugEnabled;
 
     public QueueManager(QueueServices queueServices, WorkerServices workerServices, boolean debugEnabled)
     {
@@ -141,7 +141,6 @@ public class QueueManager implements Closeable
         }
         if (conChan != null) {
             try {
-                System.out.println("Closing queue connection");
                 conChan.close();
             } catch (IOException | TimeoutException e) {
                 e.printStackTrace();
