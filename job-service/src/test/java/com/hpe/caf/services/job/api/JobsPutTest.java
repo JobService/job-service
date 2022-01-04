@@ -87,8 +87,7 @@ public final class JobsPutTest {
         WorkerAction action = new WorkerAction();
         action.setTaskClassifier("TestTaskClassifier");
         action.setTaskApiVersion(1);
-        action.setTaskData("TestTaskData");
-        action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        action.setTaskData(Collections.singletonMap("data", "TestTaskData"));
         action.setTaskPipe("TaskQueue");
         action.setTargetPipe("JobServiceQueue");
 
@@ -411,8 +410,7 @@ public final class JobsPutTest {
         job.setExternalData("TestExternalData");
         action.setTaskClassifier("");
         action.setTaskApiVersion(1);
-        action.setTaskData("TestTaskData");
-        action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        action.setTaskData(Collections.singletonMap("data", "TestTaskData"));
         action.setTaskPipe("TaskQueue");
         action.setTargetPipe("JobServiceQueue");
         job.setTask(action);
@@ -431,8 +429,7 @@ public final class JobsPutTest {
         job.setExternalData("TestExternalData");
         action.setTaskClassifier("TestTaskClassifier");
         action.setTaskApiVersion(0);
-        action.setTaskData("TestTaskData");
-        action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        action.setTaskData(Collections.singletonMap("data", "TestTaskData"));
         action.setTaskPipe("TaskQueue");
         action.setTargetPipe("JobServiceQueue");
         job.setTask(action);
@@ -451,8 +448,7 @@ public final class JobsPutTest {
         job.setExternalData("TestExternalData");
         action.setTaskClassifier("TestTaskClassifier");
         action.setTaskApiVersion(0);
-        action.setTaskData("TestTaskData");
-        action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        action.setTaskData(Collections.singletonMap("data", "TestTaskData"));
         action.setTaskPipe("TaskQueue");
         action.setTargetPipe("");
         job.setTask(action);
@@ -471,8 +467,7 @@ public final class JobsPutTest {
         job.setExternalData("TestExternalData");
         action.setTaskClassifier("TestTaskClassifier");
         action.setTaskApiVersion(0);
-        action.setTaskData("TestTaskData");
-        action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        action.setTaskData(Collections.singletonMap("data", "TestTaskData"));
         action.setTaskPipe("");
         action.setTargetPipe("JobServiceQueue");
         job.setTask(action);

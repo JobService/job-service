@@ -108,8 +108,9 @@ public class JobServiceIT {
         WorkerAction workerActionTask = new WorkerAction();
         workerActionTask.setTaskClassifier(jobName + "_" + testId);
         workerActionTask.setTaskApiVersion(1);
-        workerActionTask.setTaskData(jobName + "_TaskClassifier Sample Test Task Data.");
-        workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+        //workerActionTask.setTaskData(jobName + "_TaskClassifier Sample Test Task Data.");
+        workerActionTask.setTaskData(Collections.singletonMap("data", jobName + "_TaskClassifier Sample Test Task Data."));
+        //workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         workerActionTask.setTaskPipe("TaskQueue_" + jobId);
         workerActionTask.setTargetPipe("Queue_" + jobId);
 
@@ -432,8 +433,7 @@ public class JobServiceIT {
             WorkerAction workerActionTask = new WorkerAction();
             workerActionTask.setTaskClassifier(jobName +"_TaskClassifier");
             workerActionTask.setTaskApiVersion(1);
-            workerActionTask.setTaskData("Sample Test Task Data.");
-            workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
+            workerActionTask.setTaskData(Collections.singletonMap("data", "Sample Test Task Data."));
             workerActionTask.setTaskPipe("TaskQueue_" + randomUUID);
             workerActionTask.setTargetPipe("Queue_" +randomUUID);
 
@@ -760,7 +760,7 @@ public class JobServiceIT {
         assertEquals(messageTask.getTracking().getTrackTo(), "basic target-pipe",
             "target pipe in message should come from configuration");
 
-        final JobTypeTestTaskData messageTaskData = objectMapper.readValue((String)messageTask.getTaskData(), JobTypeTestTaskData.class);
+        final JobTypeTestTaskData messageTaskData = objectMapper.convertValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.config.size(), 2,
             "configuration passed to task data script should contain 2 items: TASK_PIPE and TARGET_PIPE");
         assertEquals(messageTaskData.taskQueue, "basic task-pipe",
@@ -832,7 +832,7 @@ public class JobServiceIT {
         final NewJob newJob = makeRestrictedJob(jobId, "config", null);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
         final JobTypeTestTaskData messageTaskData
-            = objectMapper.readValue((String)messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
+            = objectMapper.convertValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER"), "upper value",
                      "property with upper-case name should be passed to task data script");
         assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_lower"), "lower value",
@@ -864,7 +864,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
         final JobTypeTestTaskData messageTaskData =
-                objectMapper.readValue((String)messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
+                objectMapper.convertValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.reqParams.get("s"), "some value",
             "param s should be passed to task data script");
         assertEquals(messageTaskData.reqParams.get("a"), 289,
@@ -899,7 +899,7 @@ public class JobServiceIT {
         final QueueTaskMessage messageTask = messageRetriever.get();
         assertNull(messageTask.getTracking().getTrackTo(),
             "target pipe should be missing from message");
-        final JobTypeTestTaskData messageTaskData = objectMapper.readValue((String)messageTask.getTaskData(), JobTypeTestTaskData.class);
+        final JobTypeTestTaskData messageTaskData = objectMapper.convertValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
 
         assertNull(messageTaskData.targetQueue,
             "target pipe should not be passed to task data script");
@@ -922,7 +922,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
         final QueueTaskMessage messageTask = messageRetriever.get();
-        final JobTypeTestTaskData messageTaskData = objectMapper.readValue((String)messageTask.getTaskData(), JobTypeTestTaskData.class);
+        final JobTypeTestTaskData messageTaskData = objectMapper.convertValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.reqParams.get("joined"), "first>second>third",
             "join function should work");
         assertEquals(messageTaskData.reqParams.get("concatenatedJson"),

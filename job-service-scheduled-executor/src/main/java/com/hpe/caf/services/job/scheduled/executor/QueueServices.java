@@ -153,6 +153,7 @@ public final class QueueServices implements AutoCloseable
         try {
             return codec.deserialise(taskData, Map.class);
         } catch (final CodecException ex) {
+            LOG.info("Issue encountered while deserialising {}", taskData, ex);
             return taskData;
         }
     }
