@@ -54,7 +54,6 @@ public class QueueManager implements Closeable
 
     public QueueManager(QueueServices queueServices, WorkerServices workerServices, boolean debugEnabled)
     {
-
         this.queueServices = queueServices;
         this.workerServices = workerServices;
         this.debugInputQueueName = this.queueServices.getWorkerInputQueue() + "-debug";
@@ -68,7 +67,7 @@ public class QueueManager implements Closeable
         pubChan = connection.createChannel();
         conChan = connection.createChannel();
         RabbitUtil.declareWorkerQueue(pubChan, queueServices.getWorkerInputQueue(), queueServices.getMaxPriority());
-        if(StringUtils.isNotEmpty(queueServices.getWorkerResultsQueue())) {
+        if (StringUtils.isNotEmpty(queueServices.getWorkerResultsQueue())) {
             RabbitUtil.declareWorkerQueue(conChan, queueServices.getWorkerResultsQueue(), queueServices.getMaxPriority());
         }
         purgeQueues();
@@ -85,7 +84,7 @@ public class QueueManager implements Closeable
         BlockingQueue<Event<QueueConsumer>> conEvents = new LinkedBlockingQueue<>();
         SimpleQueueConsumerImpl queueConsumer = new SimpleQueueConsumerImpl(conEvents, conChan, resultHandler, workerServices.getCodec());
         rabbitConsumer = new DefaultRabbitConsumer(conEvents, queueConsumer);
-        if(StringUtils.isNotEmpty(queueServices.getWorkerResultsQueue())) {
+        if (StringUtils.isNotEmpty(queueServices.getWorkerResultsQueue())) {
             consumerTag = conChan.basicConsume(queueServices.getWorkerResultsQueue(), true, rabbitConsumer);
         }
         Thread consumerThread = new Thread(rabbitConsumer);
@@ -96,7 +95,7 @@ public class QueueManager implements Closeable
     public void purgeQueues() throws IOException
     {
         pubChan.queuePurge(queueServices.getWorkerInputQueue());
-        if(StringUtils.isNotEmpty(queueServices.getWorkerResultsQueue())) {
+        if (StringUtils.isNotEmpty(queueServices.getWorkerResultsQueue())) {
             conChan.queuePurge(queueServices.getWorkerResultsQueue());
         }
     }

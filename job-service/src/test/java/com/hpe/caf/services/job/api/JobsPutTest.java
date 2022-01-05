@@ -61,6 +61,7 @@ import java.util.HashMap;
 public final class JobsPutTest {
 
     public static final String TEST_TASK_DATA = "{\"data\" : \"TestTaskData\"}";
+
     @Mock
     private DatabaseHelper mockDatabaseHelper;
     @Mock

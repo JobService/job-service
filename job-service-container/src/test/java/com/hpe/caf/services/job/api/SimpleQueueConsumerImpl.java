@@ -37,19 +37,20 @@ public class SimpleQueueConsumerImpl implements QueueConsumer
     private final ArrayList<Delivery> deliveries = new ArrayList();
     private static final Object syncLock = new Object();
 
-    public SimpleQueueConsumerImpl(BlockingQueue<Event<QueueConsumer>> queue, Channel channel, ResultHandler resultHandler, Codec codec) {
+    public SimpleQueueConsumerImpl(BlockingQueue<Event<QueueConsumer>> queue, Channel channel, ResultHandler resultHandler, Codec codec)
+    {
         this.eventQueue = queue;
         this.channel = channel;
         this.resultHandler = resultHandler;
         this.codec = codec;
     }
 
-    public void processDelivery(Delivery delivery) {
-
+    public void processDelivery(Delivery delivery)
+    {
         try {
             final QueueTaskMessage taskMessage = this.codec.deserialise(delivery.getMessageData(), QueueTaskMessage.class,
-                    DecodeMethod.LENIENT);
-            synchronized(syncLock) {
+                                                                        DecodeMethod.LENIENT);
+            synchronized (syncLock) {
                 this.resultHandler.handleResult(taskMessage);
             }
         } catch (CodecException var6) {
@@ -61,18 +62,20 @@ public class SimpleQueueConsumerImpl implements QueueConsumer
         }
     }
 
-    public void processAck(long tag) {
+    public void processAck(long tag)
+    {
         try {
             this.channel.basicAck(tag, false);
         } catch (IOException var4) {
             var4.printStackTrace();
         }
-
     }
 
-    public void processReject(long tag) {
+    public void processReject(long tag)
+    {
     }
 
-    public void processDrop(long tag) {
+    public void processDrop(long tag)
+    {
     }
 }
