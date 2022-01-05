@@ -15,6 +15,19 @@
  */
 package com.hpe.caf.services.job.api;
 
+import static org.testng.Assert.assertTrue;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
 import com.hpe.caf.api.ConfigurationSource;
 import com.hpe.caf.services.job.client.ApiClient;
 import com.hpe.caf.services.job.client.ApiException;
@@ -29,15 +42,6 @@ import com.hpe.caf.worker.testing.SettingsProvider;
 import com.hpe.caf.worker.testing.WorkerServices;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import static org.testng.Assert.*;
 
 /**
  * Integration tests for the functionality of the Job Service. (Not an end to end integration test.)
@@ -324,7 +328,8 @@ public class JobServiceFilterIT
         final WorkerAction workerActionTask = new WorkerAction();
         workerActionTask.setTaskClassifier(jobName + "_" + testId);
         workerActionTask.setTaskApiVersion(1);
-        workerActionTask.setTaskData(Collections.singletonMap("data",jobName + "_TaskClassifier Sample Test Task Data."));
+        workerActionTask.setTaskData("{\"data\" : \"" + jobName + "_TaskClassifier Sample Test Task Data.\"}");
+        workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         workerActionTask.setTaskPipe("TaskQueue_" + jobId);
         workerActionTask.setTargetPipe("Queue_" + jobId);
 
