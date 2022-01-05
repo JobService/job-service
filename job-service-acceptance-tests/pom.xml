@@ -194,7 +194,7 @@
                         <CAF_DOCKER_VERSION>1.22</CAF_DOCKER_VERSION>
                         <CAF_JOB_SERVICE_CALLER_IMAGE>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</CAF_JOB_SERVICE_CALLER_IMAGE>
                         <CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>http://job-service:8080</CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>
-                        <CAF_INTEGRATIONTESTS_FS_PATH>\\${docker.host.address}@${webdav.apache.port}\webdav</CAF_INTEGRATIONTESTS_FS_PATH>
+                        <CAF_WORKER_HTTP_DATASTORE_URL>http://${docker.host.address}:${webdav.apache.port}/webdav</CAF_WORKER_HTTP_DATASTORE_URL>
                         <JOB_SERVICE_DATABASE_APPNAME>Job Service Acceptance</JOB_SERVICE_DATABASE_APPNAME>
                         <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${job.database.name}</JOB_SERVICE_DATABASE_URL>
                         <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
