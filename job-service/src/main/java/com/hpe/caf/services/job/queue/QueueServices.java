@@ -141,33 +141,6 @@ public final class QueueServices implements AutoCloseable {
         }
     }
 
-    //Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
-    private byte[] checkAndGetTaskData(final WorkerAction workerAction)
-    {
-        final Object taskDataObj = workerAction.getTaskData();
-
-        if (taskDataObj instanceof String) {
-            final String taskDataStr = (String)taskDataObj;
-            final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
-
-            if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
-                return taskDataStr.getBytes(StandardCharsets.UTF_8);
-            } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
-                return Base64.decodeBase64(taskDataStr);
-            } else {
-                throw new RuntimeException("Unknown taskDataEncoding");
-            }
-        } else if (taskDataObj instanceof Map<?,?>) {
-            try {
-                return codec.serialise(taskDataObj);
-            } catch (CodecException e) {
-                throw new RuntimeException("Failed to serialise TaskData", e);
-            }
-        } else {
-            throw new RuntimeException("The taskData is an unexpected type");
-        }
-    }
-
     public void publishMessage(final byte[] taskMessageBytes)
             throws IOException, InterruptedException, TimeoutException
     {

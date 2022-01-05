@@ -831,6 +831,7 @@ public class JobServiceIT {
         final String correlationId = "1";
         final NewJob newJob = makeRestrictedJob(jobId, "config", null);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
+
         final JobTypeTestTaskData messageTaskData
             = objectMapper.convertValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER"), "upper value",
@@ -904,6 +905,7 @@ public class JobServiceIT {
         assertNull(messageTaskData.targetQueue,
             "target pipe should not be passed to task data script");
     }
+
     @Test
     public void testCreateRestrictedJobWithComplexTransform() throws Exception {
         final Map<String, Object> params = new HashMap<>();
