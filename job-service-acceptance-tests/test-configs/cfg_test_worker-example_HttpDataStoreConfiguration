@@ -1,0 +1,3 @@
+{
+    "url": "${CAF_WORKER_HTTP_DATASTORE_URL}"
+}
