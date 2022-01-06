@@ -1415,11 +1415,10 @@ public class JobServiceEndToEndIT {
 
     private List<String> generateWorkerBatch() throws DataStoreException {
         List<String> assetIds = new ArrayList<>();
-        String containerId = getContainerId();
         for (int testItemNumber = 0; testItemNumber < numTestItemsToGenerate; testItemNumber++) {
             String itemContent = "TestItem_" + String.valueOf(testItemNumber);
             InputStream is = new ByteArrayInputStream(itemContent.getBytes(StandardCharsets.UTF_8));
-            String reference = workerServices.getDataStore().store(is, containerId);
+            String reference = workerServices.getDataStore().store(is, null);
             assetIds.add(reference);
         }
         return assetIds;
@@ -1429,16 +1428,6 @@ public class JobServiceEndToEndIT {
     private String toBatchDefinition(final List<String> assetIds) throws JsonProcessingException {
         return new ObjectMapper().writeValueAsString(assetIds);
     }
-
-
-    private String getContainerId() {
-        String containerId = System.getProperty(datastoreContainerId);
-        if (containerId == null) {
-            containerId = System.getenv(datastoreContainerId);
-        }
-        return containerId;
-    }
-
 
     /**
      * Creates a new job in the Job Database.
@@ -1548,7 +1537,6 @@ public class JobServiceEndToEndIT {
 
     private BatchWorkerTask constructBatchWorkerTask() throws Exception {
         Map<String, String> exampleWorkerTaskMessageParams = new HashMap<>();
-        exampleWorkerTaskMessageParams.put("datastorePartialReference", getContainerId());
         exampleWorkerTaskMessageParams.put("action", "CAPITALISE");
 
         BatchWorkerTask task = new BatchWorkerTask();
