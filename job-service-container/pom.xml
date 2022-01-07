@@ -115,18 +115,11 @@
         <dependency>
             <groupId>com.github.workerframework.testing</groupId>
             <artifactId>workerframework-testing-util</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.workerframework.testing</groupId>
             <artifactId>workerframework-testing-integration</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-testing-integration</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
