@@ -1259,7 +1259,7 @@ public class JobServiceIT {
 
         final List<QueueTaskMessage> result = new ArrayList<>();
         queueManager.start(message -> {
-            result.add(message);
+            result.add((QueueTaskMessage)message);
             context.finishedSuccessfully();
         });
 
