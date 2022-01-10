@@ -294,6 +294,7 @@
                     <logDate>default</logDate>
                     <watchInterval>500</watchInterval>
                     <autoPull>on</autoPull>
+                    <removeVolumes>true</removeVolumes>
                     <images>
                         <image>
                             <alias>webdav</alias>

@@ -76,6 +76,7 @@
                 </executions>
                 <configuration>
                     <autoPull>on</autoPull>
+                    <removeVolumes>true</removeVolumes>
                     <images>
                         <!-- Used to provide the source code to the compiler -->
                         <image>
