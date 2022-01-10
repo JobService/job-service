@@ -1250,7 +1250,7 @@ public class JobServiceIT {
      *         {@link AssertionError} on timeout.
      * @throws Exception
      */
-    private static Supplier<QueueTaskMessage> getMessageFromQueue(final QueueManager queueManager)
+    private static Supplier<QueueTaskMessage> getMessageFromQueue(final QueueManager<QueueTaskMessage> queueManager)
         throws Exception
     {
         final ExecutionContext context = new ExecutionContext(false);
@@ -1259,7 +1259,7 @@ public class JobServiceIT {
 
         final List<QueueTaskMessage> result = new ArrayList<>();
         queueManager.start(message -> {
-            result.add((QueueTaskMessage)message);
+            result.add(message);
             context.finishedSuccessfully();
         });
 
