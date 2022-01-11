@@ -324,7 +324,7 @@ public class JobServiceFilterIT
         final WorkerAction workerActionTask = new WorkerAction();
         workerActionTask.setTaskClassifier(jobName + "_" + testId);
         workerActionTask.setTaskApiVersion(1);
-        workerActionTask.setTaskData(jobName + "_TaskClassifier Sample Test Task Data.");
+        workerActionTask.setTaskData("{\"data\" : \"" + jobName + "_TaskClassifier Sample Test Task Data.\"}");
         workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         workerActionTask.setTaskPipe("TaskQueue_" + jobId);
         workerActionTask.setTargetPipe("Queue_" + jobId);
