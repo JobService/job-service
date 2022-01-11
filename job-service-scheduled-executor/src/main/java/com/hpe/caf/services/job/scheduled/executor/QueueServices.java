@@ -17,7 +17,7 @@ package com.hpe.caf.services.job.scheduled.executor;
 
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
-import com.hpe.caf.api.worker.QueueTaskMessage;
+import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.api.worker.TrackingInfo;
 import com.hpe.caf.services.job.util.JobTaskId;
@@ -73,7 +73,7 @@ public final class QueueServices implements AutoCloseable
         final String taskId = UUID.randomUUID().toString();
 
         //  Serialise the data payload. Encoding type is provided in the WorkerAction.
-        final Object taskData;
+        final byte[] taskData;
 
         //  Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
         LOG.debug("Validating the task data ...");
@@ -83,9 +83,23 @@ public final class QueueServices implements AutoCloseable
             final String taskDataStr = (String) taskDataObj;
             final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
 
-            taskData = tryToDeserialiseToMap(toTaskDataByteArray(taskDataStr, encoding));
+            if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
+                taskData = taskDataStr.getBytes(StandardCharsets.UTF_8);
+            } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
+                taskData = Base64.decodeBase64(taskDataStr);
+            } else {
+                final String errorMessage = "Unknown taskDataEncoding";
+                LOG.error(errorMessage);
+                throw new RuntimeException(errorMessage);
+            }
         } else if (taskDataObj instanceof Map<?, ?>) {
-            taskData = taskDataObj;
+            try {
+                taskData = codec.serialise(taskDataObj);
+            } catch (final CodecException e) {
+                final String errorMessage = "Failed to serialise TaskData";
+                LOG.error(errorMessage);
+                throw new RuntimeException(errorMessage, e);
+            }
         } else {
             final String errorMessage = "The taskData is an unexpected type";
             LOG.error(errorMessage);
@@ -106,7 +120,7 @@ public final class QueueServices implements AutoCloseable
                 getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 
-        final QueueTaskMessage taskMessage = new QueueTaskMessage(
+        final TaskMessage taskMessage = new TaskMessage(
                 taskId,
                 workerAction.getTaskClassifier(),
                 workerAction.getTaskApiVersion(),
@@ -131,31 +145,6 @@ public final class QueueServices implements AutoCloseable
         LOG.debug("Publishing the message ...");
         publisherChannel.basicPublish(
                 "", targetQueue, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
-    }
-
-    private static byte[] toTaskDataByteArray(
-        final String taskDataStr,
-        final WorkerAction.TaskDataEncodingEnum encoding)
-    {
-        if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
-            return taskDataStr.getBytes(StandardCharsets.UTF_8);
-        } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
-            return Base64.decodeBase64(taskDataStr);
-        } else {
-            final String errorMessage = "Unknown taskDataEncoding";
-            LOG.error(errorMessage);
-            throw new RuntimeException(errorMessage);
-        }
-    }
-
-    private Object tryToDeserialiseToMap(final byte[] taskData)
-    {
-        try {
-            return codec.deserialise(taskData, Map.class);
-        } catch (final CodecException ex) {
-            LOG.info("Issue encountered while deserialising {}", taskData, ex);
-            return taskData;
-        }
     }
 
     private static long getStatusCheckIntervalMillis(final String statusCheckIntervalSeconds)
