@@ -18,7 +18,7 @@ package com.hpe.caf.services.job.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
-import com.hpe.caf.api.worker.QueueTaskMessage;
+import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.config.system.SystemBootstrapConfiguration;
 import com.hpe.caf.naming.ServicePath;
 import com.hpe.caf.services.job.client.ApiClient;
@@ -108,7 +108,7 @@ public class JobServiceIT {
         WorkerAction workerActionTask = new WorkerAction();
         workerActionTask.setTaskClassifier(jobName + "_" + testId);
         workerActionTask.setTaskApiVersion(1);
-        workerActionTask.setTaskData("{\"data\" : \"" + jobName + "_TaskClassifier Sample Test Task Data.\"}");
+        workerActionTask.setTaskData(jobName + "_TaskClassifier Sample Test Task Data.");
         workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         workerActionTask.setTaskPipe("TaskQueue_" + jobId);
         workerActionTask.setTargetPipe("Queue_" + jobId);
@@ -432,7 +432,7 @@ public class JobServiceIT {
             WorkerAction workerActionTask = new WorkerAction();
             workerActionTask.setTaskClassifier(jobName +"_TaskClassifier");
             workerActionTask.setTaskApiVersion(1);
-            workerActionTask.setTaskData("{\"data\" : \"Sample Test Task Data.\"}");
+            workerActionTask.setTaskData("Sample Test Task Data.");
             workerActionTask.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
             workerActionTask.setTaskPipe("TaskQueue_" + randomUUID);
             workerActionTask.setTargetPipe("Queue_" +randomUUID);
@@ -736,7 +736,7 @@ public class JobServiceIT {
     @Test
     public void testCreateRestrictedJob() throws Exception {
         testQueueManager = getQueueManager("basic task-pipe");
-        final Supplier<QueueTaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
+        final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
         final NewJob newJob = makeRestrictedJob(jobId, "basic", null);
@@ -750,7 +750,7 @@ public class JobServiceIT {
         assertEquals(databaseJob.getExternalData(), newJob.getExternalData(),
             "external data in database should be correct");
 
-        final QueueTaskMessage messageTask = messageRetriever.get();
+        final TaskMessage messageTask = messageRetriever.get();
         assertEquals(messageTask.getTaskClassifier(), "basic classifier",
             "classifier in message should come from job type definition");
         assertEquals(messageTask.getTaskApiVersion(), 74,
@@ -761,7 +761,7 @@ public class JobServiceIT {
             "target pipe in message should come from configuration");
 
         final JobTypeTestTaskData messageTaskData =
-            objectMapper.convertValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
+            objectMapper.readValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.config.size(), 2,
             "configuration passed to task data script should contain 2 items: TASK_PIPE and TARGET_PIPE");
         assertEquals(messageTaskData.taskQueue, "basic task-pipe",
@@ -827,14 +827,14 @@ public class JobServiceIT {
     @Test
     public void testCreateRestrictedJobWithConfig() throws Exception {
         testQueueManager = getQueueManager("config task-pipe");
-        final Supplier<QueueTaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
+        final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
         final NewJob newJob = makeRestrictedJob(jobId, "config", null);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
         final JobTypeTestTaskData messageTaskData
-            = objectMapper.convertValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
+            = objectMapper.readValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER"), "upper value",
                      "property with upper-case name should be passed to task data script");
         assertEquals(messageTaskData.config.get("CAF_JOB_SERVICE_JOB_TYPE_CONFIG_lower"), "lower value",
@@ -859,14 +859,14 @@ public class JobServiceIT {
         params.put("b", 4913);
 
         testQueueManager = getQueueManager("params task-pipe");
-        final Supplier<QueueTaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
+        final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
         final NewJob newJob = makeRestrictedJob(jobId, "params", params);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
         final JobTypeTestTaskData messageTaskData =
-            objectMapper.convertValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
+            objectMapper.readValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.reqParams.get("s"), "some value",
             "param s should be passed to task data script");
         assertEquals(messageTaskData.reqParams.get("a"), 289,
@@ -892,18 +892,18 @@ public class JobServiceIT {
     @Test
     public void testCreateRestrictedJobWithNullTargetPipe() throws Exception {
         testQueueManager = getQueueManager("null-target-pipe task-pipe");
-        final Supplier<QueueTaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
+        final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
         final NewJob newJob = makeRestrictedJob(jobId, "null-target-pipe", null);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
-        final QueueTaskMessage messageTask = messageRetriever.get();
+        final TaskMessage messageTask = messageRetriever.get();
         assertNull(messageTask.getTracking().getTrackTo(),
             "target pipe should be missing from message");
 
         final JobTypeTestTaskData messageTaskData =
-            objectMapper.convertValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
+            objectMapper.readValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
         assertNull(messageTaskData.targetQueue,
             "target pipe should not be passed to task data script");
     }
@@ -919,15 +919,14 @@ public class JobServiceIT {
         params.put("forObjectMap", paramsNumbers);
 
         testQueueManager = getQueueManager("complex task-pipe");
-        final Supplier<QueueTaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
+        final Supplier<TaskMessage> messageRetriever = getMessageFromQueue(testQueueManager);
         final String jobId = UUID.randomUUID().toString();
         final String correlationId = "1";
         final NewJob newJob = makeRestrictedJob(jobId, "complex-transform", params);
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, correlationId);
 
-        final QueueTaskMessage messageTask = messageRetriever.get();
         final JobTypeTestTaskData messageTaskData =
-            objectMapper.convertValue(messageTask.getTaskData(), JobTypeTestTaskData.class);
+            objectMapper.readValue(messageRetriever.get().getTaskData(), JobTypeTestTaskData.class);
         assertEquals(messageTaskData.reqParams.get("joined"), "first>second>third",
             "join function should work");
         assertEquals(messageTaskData.reqParams.get("concatenatedJson"),
@@ -1250,14 +1249,14 @@ public class JobServiceIT {
      *         {@link AssertionError} on timeout.
      * @throws Exception
      */
-    private static Supplier<QueueTaskMessage> getMessageFromQueue(final QueueManager<QueueTaskMessage> queueManager)
+    private static Supplier<TaskMessage> getMessageFromQueue(final QueueManager queueManager)
         throws Exception
     {
         final ExecutionContext context = new ExecutionContext(false);
         context.initializeContext();
         final Timer timer = getTimer(context);
 
-        final List<QueueTaskMessage> result = new ArrayList<>();
+        final List<TaskMessage> result = new ArrayList<>();
         queueManager.start(message -> {
             result.add(message);
             context.finishedSuccessfully();
