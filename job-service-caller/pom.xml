@@ -62,6 +62,7 @@
                 <configuration>
                     <verbose>true</verbose>
                     <autoPull>on</autoPull>
+                    <removeVolumes>true</removeVolumes>
                     <images>
                         <image>
                             <alias>job-service-caller-image</alias>

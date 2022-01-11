@@ -91,6 +91,7 @@
                 </executions>
                 <configuration>
                     <autoPull>on</autoPull>
+                    <removeVolumes>true</removeVolumes>
                     <images>
                         <!-- Postgres DB -->
                         <image>
