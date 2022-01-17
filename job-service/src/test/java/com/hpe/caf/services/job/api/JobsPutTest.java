@@ -60,6 +60,8 @@ import java.util.HashMap;
 @PowerMockIgnore("javax.management.*")
 public final class JobsPutTest {
 
+    public static final String TEST_TASK_DATA = "{\"data\" : \"TestTaskData\"}";
+
     @Mock
     private DatabaseHelper mockDatabaseHelper;
     @Mock
@@ -87,7 +89,7 @@ public final class JobsPutTest {
         WorkerAction action = new WorkerAction();
         action.setTaskClassifier("TestTaskClassifier");
         action.setTaskApiVersion(1);
-        action.setTaskData("TestTaskData");
+        action.setTaskData(TEST_TASK_DATA);
         action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         action.setTaskPipe("TaskQueue");
         action.setTargetPipe("JobServiceQueue");
@@ -411,7 +413,7 @@ public final class JobsPutTest {
         job.setExternalData("TestExternalData");
         action.setTaskClassifier("");
         action.setTaskApiVersion(1);
-        action.setTaskData("TestTaskData");
+        action.setTaskData(TEST_TASK_DATA);
         action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         action.setTaskPipe("TaskQueue");
         action.setTargetPipe("JobServiceQueue");
@@ -431,7 +433,7 @@ public final class JobsPutTest {
         job.setExternalData("TestExternalData");
         action.setTaskClassifier("TestTaskClassifier");
         action.setTaskApiVersion(0);
-        action.setTaskData("TestTaskData");
+        action.setTaskData(TEST_TASK_DATA);
         action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         action.setTaskPipe("TaskQueue");
         action.setTargetPipe("JobServiceQueue");
@@ -451,7 +453,7 @@ public final class JobsPutTest {
         job.setExternalData("TestExternalData");
         action.setTaskClassifier("TestTaskClassifier");
         action.setTaskApiVersion(0);
-        action.setTaskData("TestTaskData");
+        action.setTaskData(TEST_TASK_DATA);
         action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         action.setTaskPipe("TaskQueue");
         action.setTargetPipe("");
@@ -471,7 +473,7 @@ public final class JobsPutTest {
         job.setExternalData("TestExternalData");
         action.setTaskClassifier("TestTaskClassifier");
         action.setTaskApiVersion(0);
-        action.setTaskData("TestTaskData");
+        action.setTaskData(TEST_TASK_DATA);
         action.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
         action.setTaskPipe("");
         action.setTargetPipe("JobServiceQueue");
