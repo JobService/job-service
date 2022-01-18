@@ -8,7 +8,7 @@ ${version-number}
     taskData is no longer Base64 encoded in order to reduce message size. 
 
 #### Breaking Changes
-- **378627**: Workers built using framework version prior to 6.0.0 are no longer supported.
+- **378627**: Workers built using framework version prior to 5.1.0 are no longer supported.
   - The format of the messages sent to the workers has been changed ( Base64 format no longer used )
 
 #### Known Issues
