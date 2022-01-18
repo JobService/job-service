@@ -98,13 +98,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-testing-util</artifactId>
+            <groupId>com.github.workerframework.testing</groupId>
+            <artifactId>workerframework-testing-util</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-testing-integration</artifactId>
+            <groupId>com.github.workerframework.testing</groupId>
+            <artifactId>workerframework-testing-integration</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
