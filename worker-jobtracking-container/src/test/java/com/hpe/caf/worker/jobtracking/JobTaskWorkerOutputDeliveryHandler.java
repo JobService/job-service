@@ -25,7 +25,7 @@ import com.hpe.caf.worker.testing.TestItem;
 import java.text.MessageFormat;
 
 
-public class JobTaskWorkerOutputDeliveryHandler<T> implements ResultHandler<T> {
+public class JobTaskWorkerOutputDeliveryHandler<T extends TaskMessage> implements ResultHandler<T> {
 
     private JobDatabase database;
     private ExecutionContext context;
@@ -39,7 +39,7 @@ public class JobTaskWorkerOutputDeliveryHandler<T> implements ResultHandler<T> {
 
     @Override
     public void handleResult(T taskMessageInput) {
-        final TaskMessage taskMessage = (TaskMessage) taskMessageInput;
+        final TaskMessage taskMessage = taskMessageInput;
         TrackingInfo tracking = taskMessage.getTracking();
         if (expectation.isTrackingInfoPresent() != (tracking != null)) {
             context.failed(new TestItem(taskMessage.getTaskId(), null, null),

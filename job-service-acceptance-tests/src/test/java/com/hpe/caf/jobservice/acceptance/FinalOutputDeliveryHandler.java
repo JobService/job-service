@@ -38,7 +38,7 @@ import java.util.TimerTask;
 /**
  * Verifies result messages issued at the end of the end-to-end test.
  */
-public class FinalOutputDeliveryHandler<T> implements ResultHandler<T> {
+public class FinalOutputDeliveryHandler<T extends TaskMessage> implements ResultHandler<T> {
 
     private final Codec codec;
     private final JobsApi jobsApi;
@@ -67,7 +67,7 @@ public class FinalOutputDeliveryHandler<T> implements ResultHandler<T> {
 
     @Override
     public void handleResult(T resultMessageInput) {
-        final TaskMessage resultMessage = (TaskMessage) resultMessageInput;
+        final TaskMessage resultMessage = resultMessageInput;
         try {
             currentWorkerItemNumber++;
             LOG.info("Handling result message {}", resultMessage.getTaskId());
