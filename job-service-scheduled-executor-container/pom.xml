@@ -27,7 +27,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>5.1.0-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -128,6 +128,7 @@
                     <watchInterval>500</watchInterval>
                     <logDate>default</logDate>
                     <autoPull>on</autoPull>
+                    <removeVolumes>true</removeVolumes>
                     <images>
                         <!-- Job Service Scheduled Executor image.-->
                         <image>

@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>5.1.0-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -76,6 +76,7 @@
                 </executions>
                 <configuration>
                     <autoPull>on</autoPull>
+                    <removeVolumes>true</removeVolumes>
                     <images>
                         <!-- Used to provide the source code to the compiler -->
                         <image>

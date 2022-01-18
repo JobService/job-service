@@ -27,7 +27,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-aggregator</artifactId>
-    <version>5.1.0-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <parent>
@@ -46,7 +46,7 @@
         <DOCKER_HUB_PUBLIC>${dockerHubPublic}</DOCKER_HUB_PUBLIC>
         <enforceCorrectDependencies>true</enforceCorrectDependencies>
         <enforceBannedDependencies>true</enforceBannedDependencies>
-        <fabric8.docker.maven.version>0.26.1</fabric8.docker.maven.version>
+        <fabric8.docker.maven.version>0.38.1</fabric8.docker.maven.version>
     </properties>
 
     <dependencyManagement>
@@ -110,56 +110,56 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service</artifactId>
-                <version>5.1.0-SNAPSHOT</version>
+                <version>6.0.0-SNAPSHOT</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-admin</artifactId>
-                <version>5.1.0-SNAPSHOT</version>
+                <version>6.0.0-SNAPSHOT</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-internal-client</artifactId>
-                <version>5.1.0-SNAPSHOT</version>
+                <version>6.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-config</artifactId>
-                <version>5.1.0-SNAPSHOT</version>
+                <version>6.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-contract</artifactId>
-                <version>5.1.0-SNAPSHOT</version>
+                <version>6.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db</artifactId>
-                <version>5.1.0-SNAPSHOT</version>
+                <version>6.0.0-SNAPSHOT</version>
                 <classifier>jar-with-dependencies</classifier>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db-client</artifactId>
-                <version>5.1.0-SNAPSHOT</version>
+                <version>6.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-scheduled-executor</artifactId>
-                <version>5.1.0-SNAPSHOT</version>
+                <version>6.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-ui</artifactId>
-                <version>5.1.0-SNAPSHOT</version>
+                <version>6.0.0-SNAPSHOT</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-util</artifactId>
-                <version>5.1.0-SNAPSHOT</version>
+                <version>6.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
@@ -169,12 +169,12 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>worker-jobtracking</artifactId>
-                <version>5.1.0-SNAPSHOT</version>
+                <version>6.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>worker-jobtracking-shared</artifactId>
-                <version>5.1.0-SNAPSHOT</version>
+                <version>6.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.stefanbirkner</groupId>
@@ -185,6 +185,16 @@
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-example-shared</artifactId>
                 <version>1.8.0-249</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.workerframework.testing</groupId>
+                <artifactId>workerframework-testing-util</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.workerframework.testing</groupId>
+                <artifactId>workerframework-testing-integration</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>

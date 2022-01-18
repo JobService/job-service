@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>5.1.0-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -113,13 +113,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-testing-util</artifactId>
+            <groupId>com.github.workerframework.testing</groupId>
+            <artifactId>workerframework-testing-util</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-testing-integration</artifactId>
+            <groupId>com.github.workerframework.testing</groupId>
+            <artifactId>workerframework-testing-integration</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -294,6 +294,7 @@
                     <logDate>default</logDate>
                     <watchInterval>500</watchInterval>
                     <autoPull>on</autoPull>
+                    <removeVolumes>true</removeVolumes>
                     <images>
                         <image>
                             <alias>webdav</alias>
