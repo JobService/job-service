@@ -21,13 +21,6 @@
  *  Subtask structure is stored in dynamically-created tables.  This function builds the table name
  *  used for a given parent task.
  */
-DROP FUNCTION IF EXISTS internal_get_task_table_name(
-    in_short_task_id VARCHAR(58)
-);
-DROP FUNCTION IF EXISTS internal_get_task_table_name(
-    in_partition_id VARCHAR(40),
-    in_task_id VARCHAR(58)
-);
 CREATE OR REPLACE FUNCTION internal_get_task_table_name(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(70)
