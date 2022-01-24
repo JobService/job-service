@@ -27,23 +27,23 @@ DO
 $$
     BEGIN
 
-        IF EXISTS
-            (
+        IF EXISTS (
             -- Checks if liquibase table exists
-                SELECT table_name
+                SELECT NULL
                 FROM information_schema.tables
                 WHERE table_name = 'databasechangelog'
             )
         THEN
-            IF NOT EXISTS(
+            IF NOT EXISTS (
                     -- Checks that the db checksum is valid
                     -- The checksum value is from Liquibase V3.0
-                    SELECT *
+                    SELECT NULL
                     FROM databasechangelog
                     WHERE md5sum = '7:6127825a6ab9fb3ed7f2c25e2354f2ce'
                 )
             THEN
-                RAISE EXCEPTION 'The databasechangelog table is present but does not contain the expected md5sum. Cannot perform migration from Liquibase to Flyway.';
+                RAISE EXCEPTION 'The databasechangelog table is present but does not contain the expected md5sum. '
+                    'Cannot perform migration from Liquibase to Flyway.';
             END IF;
         END IF;
 
