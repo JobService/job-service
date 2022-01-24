@@ -20,11 +20,6 @@
  *  Description:
  *  Returns the number of job definitions in the system matching whatever criteria is specified.
  */
-DROP FUNCTION IF EXISTS get_jobs_count(
-    in_partition_id VARCHAR(40),
-    in_job_id_starts_with VARCHAR(48),
-    in_status_type VARCHAR(20)
-);
 CREATE OR REPLACE FUNCTION get_jobs_count(
     in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),

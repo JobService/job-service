@@ -20,13 +20,6 @@
  *  Description:
  *  Drops all task tables belonging to the specified task and all its subtasks
  */
-DROP FUNCTION IF EXISTS internal_drop_task_tables(
-    in_short_task_id VARCHAR(58)
-);
-DROP FUNCTION IF EXISTS internal_drop_task_tables(
-    in_partition_id VARCHAR(40),
-    in_task_id VARCHAR(58)
-);
 CREATE OR REPLACE FUNCTION internal_drop_task_tables(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(70)
