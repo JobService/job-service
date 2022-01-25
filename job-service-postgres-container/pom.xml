@@ -32,6 +32,7 @@
     </parent>
     
     <properties>
+        <js.database.server>127.0.0.1</js.database.server>
         <js.database.host>postgres</js.database.host>
         <js.database.username>postgres</js.database.username>
         <js.database.password>root</js.database.password>
@@ -102,6 +103,8 @@
                                     <port>${postgres.db.port}:5432</port>
                                 </ports>
                                 <env>
+                                    <POSTGRES_SERVER>${js.database.server}</POSTGRES_SERVER>
+                                    <POSTGRES_PORT>${postgres.db.port}</POSTGRES_PORT>
                                     <POSTGRES_PASSWORD>${js.database.password}</POSTGRES_PASSWORD>
                                     <POSTGRES_USER>${js.database.username}</POSTGRES_USER>
                                     <POSTGRES_DB>${js.database.name}</POSTGRES_DB>
@@ -129,7 +132,7 @@
                                     <POSTGRES_DB>${js.database.name}</POSTGRES_DB>
                                 </env>
                                 <cmd>
-                                    ./install_job_service_db.sh -fd -db.connection jdbc:postgresql://${js.database.host}:5432/ -db.name
+                                    ./install_job_service_db.sh -db.connection jdbc:postgresql://${js.database.host}:5432/ -db.name
                                     ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password} -log INFO
                                 </cmd>
                                 <wait>
@@ -195,11 +198,11 @@
                                     <link>${js.database.host}</link>
                                 </links>
                                 <cmd>
-                                    ./install_job_service_db.sh -db.connection jdbc:postgresql://${js.database.host}:5432/ -db.name
+                                    ./install_job_service_db.sh -db.host ${js.database.host} -db.port 5432 -db.name
                                     ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password} -log DEBUG
                                 </cmd>
                                 <wait>
-                                    <log>DB update finished.</log>
+                                    <log>Migration completed</log>
                                     <time>120000</time>
                                     <shutdown>500</shutdown>
                                 </wait>

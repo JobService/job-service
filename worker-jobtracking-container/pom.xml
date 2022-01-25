@@ -464,8 +464,11 @@
                                     <CAF_WORKER_MAX_BATCH_TIME>1000</CAF_WORKER_MAX_BATCH_TIME>
                                     <CAF_WORKER_THREADS>1</CAF_WORKER_THREADS>
                                     <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
+                                    <JOB_SERVICE_DATABASE_SERVER>${job.database.host}</JOB_SERVICE_DATABASE_SERVER>
+                                    <JOB_SERVICE_DATABASE_PORT>5432</JOB_SERVICE_DATABASE_PORT>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
+                                    <JOB_SERVICE_DATABASE_NAME>${job.database.name}</JOB_SERVICE_DATABASE_NAME>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Tracking Worker</JOB_SERVICE_DATABASE_APPNAME>
                                     <!-- DEBUGGING -->
                                     <!-- <_JAVA_OPTIONS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005</_JAVA_OPTIONS>-->
