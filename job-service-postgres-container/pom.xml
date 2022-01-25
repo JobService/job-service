@@ -202,7 +202,7 @@
                                     ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password} -log DEBUG
                                 </cmd>
                                 <wait>
-                                    <log>Migration completed</log>
+                                    <log>DB update finished.</log>
                                     <time>120000</time>
                                     <shutdown>500</shutdown>
                                 </wait>
