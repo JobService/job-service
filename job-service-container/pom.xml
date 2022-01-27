@@ -573,7 +573,9 @@
                                 </ports>
                                 <env>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Service Scheduled Executor</JOB_SERVICE_DATABASE_APPNAME>
-                                    <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://jobservice-integrationtests-postgres:5432/${db.name}</JOB_SERVICE_DATABASE_URL>
+                                    <JOB_SERVICE_DATABASE_HOST>jobservice-integrationtests-postgres</JOB_SERVICE_DATABASE_HOST>
+                                    <JOB_SERVICE_DATABASE_PORT>5432</JOB_SERVICE_DATABASE_PORT>
+                                    <JOB_SERVICE_DATABASE_NAME>${db.name}</JOB_SERVICE_DATABASE_NAME>
                                     <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
                                     <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>

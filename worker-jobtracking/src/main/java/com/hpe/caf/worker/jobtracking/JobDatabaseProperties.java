@@ -29,16 +29,6 @@ public class JobDatabaseProperties {
     }
 
     /**
-     * Gets the database Host from the environment variable.
-     *
-     * @return database host
-     */
-    public static String getDatabaseHost() {
-        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST")
-                : getPropertyOrEnvVar("JOB_DATABASE_URL");
-    }
-
-    /**
      * Gets the database username from the environment variable.
      *
      * @return database username

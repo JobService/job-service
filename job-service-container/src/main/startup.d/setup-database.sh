@@ -20,10 +20,10 @@ cd /database
 echo "Installing Job Service database."
 
 java -jar job-service-db-installer.jar \
-     -db.host "${JOB_SERVICE_DATABASE_HOST:-localhost}" \
-     -db.port "${JOB_SERVICE_DATABASE_PORT:-5432}" \
-     -db.user "${JOB_SERVICE_DATABASE_USERNAME:-postgres}" \
-     -db.pass "${JOB_SERVICE_DATABASE_PASSWORD:-root}" \
-     -db.name "${JOB_SERVICE_DATABASE_NAME:-jobservice}"
+     -db.host "${JOB_SERVICE_DATABASE_HOST}" \
+     -db.port "${JOB_SERVICE_DATABASE_PORT}" \
+     -db.user "${JOB_SERVICE_DATABASE_USERNAME}" \
+     -db.pass "${JOB_SERVICE_DATABASE_PASSWORD}" \
+     -db.name "${JOB_SERVICE_DATABASE_NAME}"
 
 echo "Completed installation of Job Service database."

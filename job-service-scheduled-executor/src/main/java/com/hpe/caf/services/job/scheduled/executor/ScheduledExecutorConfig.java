@@ -20,9 +20,25 @@ package com.hpe.caf.services.job.scheduled.executor;
  */
 public class ScheduledExecutorConfig {
 
-    public static String getDatabaseURL(){
+/*    public static String getDatabaseURL(){
         return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL")
             : getPropertyOrEnvVar("CAF_DATABASE_URL");
+    }*/
+
+    public static String getDatabaseHost(){
+        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST")
+                : null;
+    }
+
+    public static int getDatabasePort(){
+        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT") != null ? Integer.parseInt(getPropertyOrEnvVar(
+                "JOB_SERVICE_DATABASE_PORT"))
+                : 8888;
+    }
+
+    public static String getDatabaseName(){
+        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME")
+                : null;
     }
 
     public static String getDatabaseUsername(){
