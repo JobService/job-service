@@ -465,7 +465,7 @@ BEGIN
     CREATE FUNCTION internal_does_table_exist(in_table_name VARCHAR(63))
     RETURNS BOOLEAN
     LANGUAGE SQL STABLE
-    AS 'SELECT NULL::BOOLEAN;';
+    AS '/* Forward Declaration */SELECT NULL::BOOLEAN;';
 EXCEPTION WHEN duplicate_function THEN
 END $$;
 DO $$
@@ -484,7 +484,7 @@ BEGIN
     CREATE FUNCTION internal_get_job_id(in_task_id VARCHAR(70))
     RETURNS VARCHAR(48)
     LANGUAGE SQL IMMUTABLE
-    AS 'SELECT NULL';
+    AS '/* Forward Declaration */SELECT NULL';
 EXCEPTION WHEN duplicate_function THEN
 END $$;
 DO $$
@@ -494,7 +494,7 @@ BEGIN
         option VARCHAR
     )
     LANGUAGE SQL IMMUTABLE
-    AS 'SELECT NULL';
+    AS '/* Forward Declaration */SELECT NULL';
 EXCEPTION WHEN duplicate_function THEN
 END $$;
 DO $$
@@ -502,7 +502,7 @@ BEGIN
     CREATE FUNCTION internal_get_parent_task_id(in_task_id VARCHAR(70))
     RETURNS VARCHAR(70)
     LANGUAGE SQL IMMUTABLE
-    AS 'SELECT NULL';
+    AS '/* Forward Declaration */SELECT NULL';
 EXCEPTION WHEN duplicate_function THEN
 END $$;
 DO $$
@@ -515,7 +515,7 @@ CREATE FUNCTION internal_get_prereq_job_id_options(job_id_with_opts VARCHAR(128)
         unknown_options BOOLEAN
     )
     LANGUAGE SQL IMMUTABLE
-    AS 'SELECT NULL, NULL, NULL::BOOLEAN, NULL::BOOLEAN;';
+    AS '/* Forward Declaration */SELECT NULL, NULL, NULL::BOOLEAN, NULL::BOOLEAN;';
 EXCEPTION WHEN duplicate_function THEN
 END $$;
 DO $$
@@ -533,7 +533,7 @@ BEGIN
 CREATE FUNCTION internal_get_subtask_id(in_task_id VARCHAR(70))
     RETURNS INT
     LANGUAGE SQL IMMUTABLE
-    AS 'SELECT NULL::INT';
+    AS '/* Forward Declaration */SELECT NULL::INT';
 EXCEPTION WHEN duplicate_function THEN
 END $$;
 DO $$
@@ -558,7 +558,7 @@ BEGIN
     )
     RETURNS VARCHAR(63)
     LANGUAGE SQL STABLE
-    AS 'SELECT NULL';
+    AS '/* Forward Declaration */SELECT NULL';
 EXCEPTION WHEN duplicate_function THEN
 END $$;
 DO $$
@@ -569,7 +569,7 @@ BEGIN
     )
     RETURNS BOOLEAN
     LANGUAGE SQL STABLE
-    AS 'SELECT NULL::BOOLEAN';
+    AS '/* Forward Declaration */SELECT NULL::BOOLEAN';
 EXCEPTION WHEN duplicate_function THEN
 END $$;
 DO $$
@@ -614,7 +614,7 @@ BEGIN
     CREATE FUNCTION internal_is_final_task(in_task_id VARCHAR(70))
     RETURNS BOOLEAN
     LANGUAGE SQL IMMUTABLE
-    AS 'SELECT NULL::BOOLEAN';
+    AS '/* Forward Declaration */SELECT NULL::BOOLEAN';
 EXCEPTION WHEN duplicate_function THEN
 END $$;
 DO $$
@@ -681,7 +681,7 @@ BEGIN
     )
     RETURNS job_status
     LANGUAGE SQL IMMUTABLE
-    AS 'SELECT NULL::job_status';
+    AS '/* Forward Declaration */SELECT NULL::job_status';
 EXCEPTION WHEN duplicate_function THEN
 END $$;
 DO $$
