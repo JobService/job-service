@@ -38,7 +38,9 @@ public final class ApiServiceUtilTest {
 
         //  Set-up test database connection properties.
         HashMap<String, String> newEnv  = new HashMap<>();
-        newEnv.put("JOB_SERVICE_DATABASE_URL","testUrl");
+        newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
+        newEnv.put("JOB_SERVICE_DATABASE_PORT", "8888");
+        newEnv.put("JOB_SERVICE_DATABASE_NAME","testName");
         newEnv.put("JOB_SERVICE_DATABASE_USERNAME","testUserName");
         newEnv.put("JOB_SERVICE_DATABASE_PASSWORD","testPassword");
         newEnv.put("JOB_SERVICE_DATABASE_APPNAME","testAppName");
@@ -47,10 +49,12 @@ public final class ApiServiceUtilTest {
 
         //  Test successful call to class method.
         AppConfig configProps = AppConfigProvider.getAppConfigProperties();
-        Assert.assertEquals(configProps.getDatabaseURL(),"testUrl");
-        Assert.assertEquals(configProps.getDatabaseUsername(),"testUserName");
-        Assert.assertEquals(configProps.getDatabasePassword(),"testPassword");
-        Assert.assertEquals(configProps.getApplicationName(),"testAppName");
+        Assert.assertEquals("testHost", configProps.getDatabaseHost());
+        Assert.assertEquals(8888, configProps.getDatabasePort());
+        Assert.assertEquals("testName", configProps.getDatabaseName());
+        Assert.assertEquals("testUserName", configProps.getDatabaseUsername());
+        Assert.assertEquals("testPassword", configProps.getDatabasePassword());
+        Assert.assertEquals("testAppName", configProps.getApplicationName());
     }
 
     @Test(expected = AppConfigException.class)
@@ -61,7 +65,7 @@ public final class ApiServiceUtilTest {
         newEnv.put("JOB_SERVICE_DATABASE_USERNAME","testUserName");
         newEnv.put("JOB_SERVICE_DATABASE_PASSWORD","testPassword");
         newEnv.put("JOB_SERVICE_DATABASE_APPNAME","testAppName");
-        //need to set the invalid path else it will pick JOB_SERVICE_DATABASE_URL from config.properties and the test will fail
+        //need to set the invalid path else it will pick JOB_SERVICE_DATABASE details from config.properties and the test will fail
         newEnv.put("JOB_SERVICE_API_CONFIG_PATH","Override-Default-MissingConfig");
         TestUtil.setSystemEnvironmentFields(newEnv);
 

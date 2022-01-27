@@ -20,11 +20,6 @@ package com.hpe.caf.services.job.scheduled.executor;
  */
 public class ScheduledExecutorConfig {
 
-/*    public static String getDatabaseURL(){
-        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL")
-            : getPropertyOrEnvVar("CAF_DATABASE_URL");
-    }*/
-
     public static String getDatabaseHost(){
         return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST")
                 : null;

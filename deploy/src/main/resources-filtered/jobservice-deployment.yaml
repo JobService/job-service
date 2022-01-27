@@ -100,11 +100,21 @@ spec:
               configMapKeyRef:
                 name: jobservice-config
                 key: JOB_SERVICE_DATABASE_APPNAME
-          - name: JOB_SERVICE_DATABASE_URL
+          - name: JOB_SERVICE_DATABASE_HOST
             valueFrom:
               configMapKeyRef:
                 name: jobservice-config
-                key: JOB_SERVICE_DATABASE_URL
+                key: JOB_SERVICE_DATABASE_HOST
+          - name: JOB_SERVICE_DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: jobservice-config
+                  key: JOB_SERVICE_DATABASE_PORT
+          - name: JOB_SERVICE_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: jobservice-config
+                  key: JOB_SERVICE_DATABASE_NAME
           - name: JOB_SERVICE_DATABASE_USERNAME
             valueFrom:
               configMapKeyRef:
@@ -210,11 +220,21 @@ spec:
             value: "jobtracking-err"
           - name: CAF_WORKER_INPUT_QUEUE
             value: "jobtracking-in"
-          - name: JOB_SERVICE_DATABASE_URL
-            valueFrom:
-              configMapKeyRef:
-                name: jobservice-config
-                key: JOB_SERVICE_DATABASE_URL
+          - name: JOB_SERVICE_DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: jobservice-config
+                  key: JOB_SERVICE_DATABASE_HOST
+          - name: JOB_SERVICE_DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: jobservice-config
+                  key: JOB_SERVICE_DATABASE_PORT
+          - name: JOB_SERVICE_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: jobservice-config
+                  key: JOB_SERVICE_DATABASE_NAME
           - name: JOB_SERVICE_DATABASE_USERNAME
             valueFrom:
               configMapKeyRef:
@@ -253,11 +273,21 @@ spec:
               configMapKeyRef:
                 name: jobservice-config
                 key: JOB_SERVICE_DATABASE_APPNAME_SCHEDULED_EXECUTOR
-          - name: JOB_SERVICE_DATABASE_URL
-            valueFrom:
-              configMapKeyRef:
-                name: jobservice-config
-                key: JOB_SERVICE_DATABASE_URL
+          - name: JOB_SERVICE_DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: jobservice-config
+                  key: JOB_SERVICE_DATABASE_HOST
+          - name: JOB_SERVICE_DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: jobservice-config
+                  key: JOB_SERVICE_DATABASE_PORT
+          - name: JOB_SERVICE_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: jobservice-config
+                  key: JOB_SERVICE_DATABASE_NAME
           - name: JOB_SERVICE_DATABASE_USERNAME
             valueFrom:
               configMapKeyRef:

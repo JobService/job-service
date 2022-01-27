@@ -19,6 +19,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +32,15 @@ public final class JobServiceConnectionUtil
     private static final Logger LOG = LoggerFactory.getLogger(JobServiceConnectionUtil.class);
     public static java.sql.Connection getDbConnection() throws SQLException
     {
-        final String databaseUrl = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL") != null
-                ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL")
-                : getPropertyOrEnvVar("CAF_DATABASE_URL");
+        final String dbHost = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST") != null
+                ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST")
+                : null;
+        final int dbPort = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT") != null
+                ? Integer.parseInt(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT"))
+                : -1;
+        final String dbName = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME") != null
+                ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME")
+                : null;
         final String dbUser = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME") != null
                 ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME")
                 : getPropertyOrEnvVar("CAF_DATABASE_USERNAME");
@@ -45,16 +52,19 @@ public final class JobServiceConnectionUtil
                 : getPropertyOrEnvVar("CAF_DATABASE_APPNAME");
         try {
             final java.sql.Connection conn;
-            final Properties myProp = new Properties();
-            myProp.put("user", dbUser);
-            myProp.put("password", dbPass);
-            myProp.put("ApplicationName", appName != null ? appName : "Job Service IT");
-            LOG.info("Connecting to database " + databaseUrl + " with username " + dbUser + " and password " + dbPass);
-            conn = DriverManager.getConnection(databaseUrl, myProp);
+            final PGSimpleDataSource dbSource = new PGSimpleDataSource();
+            dbSource.setServerNames(new String[]{dbHost});
+            dbSource.setPortNumbers(new int[]{dbPort});
+            dbSource.setDatabaseName(dbName);
+            dbSource.setUser(dbUser);
+            dbSource.setPassword(dbPass);
+            dbSource.setApplicationName(appName != null ? appName : "Job Service IT");
+            LOG.info("Connecting to database " + dbName + " with username " + dbUser + " and password " + dbPass);
+            conn = dbSource.getConnection();
             LOG.info("Connected to database");
             return conn;
         } catch (final Exception e) {
-            LOG.error("ERROR connecting to database " + databaseUrl + " with username " + dbUser + " and password "
+            LOG.error("ERROR connecting to database " + dbName + " with username " + dbUser + " and password "
                     + dbPass);
             throw e;
         }

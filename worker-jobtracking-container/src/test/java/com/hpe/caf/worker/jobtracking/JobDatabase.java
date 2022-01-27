@@ -22,6 +22,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,16 +160,21 @@ public class JobDatabase {
         try {
             final String appName = JobDatabaseProperties.getApplicationName() != null ? JobDatabaseProperties.getApplicationName() : "Job Tracking Worker";
             Connection conn;
-            Properties myProp = new Properties();
-            myProp.put("user", JobDatabaseProperties.getDatabaseUsername());
-            myProp.put("password", JobDatabaseProperties.getDatabasePassword());
-            myProp.put("ApplicationName", appName);
-            LOG.info("Connecting to database {} with username {} and password {}", JobDatabaseProperties.getDatabaseUrl(), JobDatabaseProperties.getDatabaseUsername(), JobDatabaseProperties.getDatabasePassword());
-            conn = DriverManager.getConnection(JobDatabaseProperties.getDatabaseUrl(), myProp);
+            final PGSimpleDataSource dbSource = new PGSimpleDataSource();
+            dbSource.setServerNames(new String[]{JobDatabaseProperties.getDatabaseHost()});
+            dbSource.setPortNumbers(new int[]{JobDatabaseProperties.getDatabasePort()});
+            dbSource.setDatabaseName(JobDatabaseProperties.getDatabaseName());
+            dbSource.setApplicationName(appName);
+            dbSource.setUser(JobDatabaseProperties.getDatabaseUsername());
+            dbSource.setPassword(JobDatabaseProperties.getDatabasePassword());
+            LOG.info("Connecting to database {} with username {} and password {}", JobDatabaseProperties.getDatabaseName(),
+                    JobDatabaseProperties.getDatabaseUsername(), JobDatabaseProperties.getDatabasePassword());
+            conn = dbSource.getConnection();
             LOG.info("Connected to database");
             return conn;
         } catch (Exception e) {
-            LOG.error("ERROR connecting to database {} with username {} and password {}. ", JobDatabaseProperties.getDatabaseUrl(), JobDatabaseProperties.getDatabaseUsername(), JobDatabaseProperties.getDatabasePassword(), e);
+            LOG.error("ERROR connecting to database {} with username {} and password {}. ", JobDatabaseProperties.getDatabaseName(),
+                    JobDatabaseProperties.getDatabaseUsername(), JobDatabaseProperties.getDatabasePassword(), e);
             throw e;
         }
     }

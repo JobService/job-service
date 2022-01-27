@@ -44,19 +44,6 @@ public final class DBConnection
                         .getApplicationName()
                         : "Job Service Scheduled Executor";
         
-/*        try
-        {
-            LOG.debug("Registering JDBC driver \"{}\" ...", JDBC_DRIVER);
-            Class.forName(JDBC_DRIVER);
-        }
-        catch(final Exception e)
-        {
-            final String errorMessage = format("Failed to register JDBC driver \"{0}\". {1}.", JDBC_DRIVER,
-                            e.getMessage());
-            LOG.error(errorMessage);
-            throw new ScheduledExecutorException(errorMessage, e);
-        }*/
-        
         final Connection conn;
         try
         {

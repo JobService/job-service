@@ -35,9 +35,22 @@ public class AppConfig {
     @Autowired
     private Environment environment;
 
-    public String getDatabaseURL(){
-        return environment.getProperty("CAF_DATABASE_URL") != null ? environment.getProperty("CAF_DATABASE_URL") 
-            : environment.getProperty("JOB_SERVICE_DATABASE_URL");
+    public String getDatabaseHost(){
+        return environment.getProperty("JOB_SERVICE_DATABASE_HOST") != null ? environment.getProperty("JOB_SERVICE_DATABASE_HOST")
+                : null;
+    }
+
+    public int getDatabasePort(){
+        final String portString = environment.getProperty("JOB_SERVICE_DATABASE_PORT");
+        if (null != portString){
+            return Integer.parseInt(portString);
+        }
+        return -1;
+    }
+
+    public String getDatabaseName(){
+        return environment.getProperty("JOB_SERVICE_DATABASE_NAME") != null ? environment.getProperty("JOB_SERVICE_DATABASE_NAME")
+                : null;
     }
 
     public String getDatabaseUsername(){

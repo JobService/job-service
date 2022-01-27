@@ -50,9 +50,13 @@ public final class AppConfigProvider
 
         try {
             //  Make sure DB connection properties have been specified.
-            if (properties.getDatabaseURL() == null ||
-                    properties.getDatabaseUsername() == null ||
-                    properties.getDatabasePassword() == null) {
+            if (
+                null == properties.getDatabaseHost()||
+                -1 == properties.getDatabasePort()||
+                null == properties.getApplicationName()||
+                null == properties.getDatabaseUsername() ||
+                null == properties.getDatabasePassword()
+            ) {
                 throw new AppConfigException(ERR_MSG_DB_CONNECTION_PROPS_MISSING);
             }
         } catch (NullPointerException npe) {

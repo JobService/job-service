@@ -19,13 +19,34 @@ package com.hpe.caf.worker.jobtracking;
 public class JobDatabaseProperties {
 
     /**
-     * Gets the database URL from the environment variable.
+     * Gets the database Host from the environment variable.
      *
-     * @return database url
+     * @return database host
      */
-    public static String getDatabaseUrl() {
-        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL")
-            : getPropertyOrEnvVar("JOB_DATABASE_URL");
+    public static String getDatabaseHost() {
+        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST")
+            : null;
+    }
+
+    /**
+     * Gets the database port from the environment variable.
+     *
+     * @return database port
+     */
+    public static int getDatabasePort() {
+        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT") != null ? Integer.parseInt(getPropertyOrEnvVar(
+                "JOB_SERVICE_DATABASE_PORT"))
+                : -1;
+    }
+
+    /**
+     * Gets the database name from the environment variable.
+     *
+     * @return database name
+     */
+    public static String getDatabaseName() {
+        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME")
+                : null;
     }
 
     /**
