@@ -6,7 +6,7 @@ ${version-number}
 #### New Features
 - **359648** taskData no longer sent as Base64.  
     taskData is no longer Base64 encoded in order to reduce message size. 
-- **353257**: Flyway replaces Liquibase for database migrations
+- **353257**: Flyway replaces Liquibase for database migrations.  
     The job-service-db is now using Flyway for its versioning and migrations.
 
 #### Breaking Changes

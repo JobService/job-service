@@ -469,7 +469,7 @@
                                     <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Service</JOB_SERVICE_DATABASE_APPNAME>
                                     <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
-                                    <JOB_SERVICE_DATABASE_SERVER>${job.database.host}</JOB_SERVICE_DATABASE_SERVER>
+                                    <JOB_SERVICE_DATABASE_HOST>${job.database.host}</JOB_SERVICE_DATABASE_HOST>
                                     <JOB_SERVICE_DATABASE_PORT>5432</JOB_SERVICE_DATABASE_PORT>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
@@ -531,7 +531,7 @@
                                     <CAF_WORKER_THREADS>1</CAF_WORKER_THREADS>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Tracking Worker</JOB_SERVICE_DATABASE_APPNAME>
                                     <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
-                                    <JOB_SERVICE_DATABASE_SERVER>${job.database.host}</JOB_SERVICE_DATABASE_SERVER>
+                                    <JOB_SERVICE_DATABASE_HOST>${job.database.host}</JOB_SERVICE_DATABASE_HOST>
                                     <JOB_SERVICE_DATABASE_PORT>5432</JOB_SERVICE_DATABASE_PORT>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
@@ -648,7 +648,7 @@
                                 <env>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Service Scheduled Executor</JOB_SERVICE_DATABASE_APPNAME>
                                     <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
-                                    <JOB_SERVICE_DATABASE_SERVER>${job.database.host}</JOB_SERVICE_DATABASE_SERVER>
+                                    <JOB_SERVICE_DATABASE_HOST>${job.database.host}</JOB_SERVICE_DATABASE_HOST>
                                     <JOB_SERVICE_DATABASE_PORT>5432</JOB_SERVICE_DATABASE_PORT>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>

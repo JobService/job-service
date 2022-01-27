@@ -23,7 +23,6 @@ echo "Installing Job Service database."
   -db.port ${POSTGRES_PORT:-5432} \
   -db.user ${POSTGRES_USER:-postgres} \
   -db.pass ${POSTGRES_PASSWORD:-root} \
-  -db.name ${POSTGRES_DB:-jobservice} \
-  -LOG DEBUG
+  -db.name ${POSTGRES_DB:-jobservice}
 
 echo "Completed installation of Job Service database."

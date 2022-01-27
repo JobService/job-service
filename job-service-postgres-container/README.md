@@ -28,7 +28,7 @@ The following environment variables can be passed to the container to control it
 The container is packaged with an installer for the job service database. This can be used to install to an external database server instance by passing the relevant install command to the docker container on startup. On completion of the install command the container will exit.
 
 ### PostgreSQL
-The job service database requires PostgreSQL 9.4 or later to be installed and configured. 
+The job service database requires PostgreSQL 11 or later to be installed and configured. 
 
 ### External Job Service Database Install
 
@@ -48,7 +48,7 @@ where:
 *   db.user  :  Specifies the username to access the database.
 *   db.pass  :  Specifies the password to access the database.
 
-The jdbc database connection, user and password string arguments will need changed to match your external PostgreSQL 9.4 or later setup.
+The jdbc database connection, user and password string arguments will need changed to match your external PostgreSQL 11 or later setup.
 
 #### Additional Install Arguments
 The following install arguments can also be specified:

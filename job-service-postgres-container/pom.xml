@@ -198,7 +198,7 @@
                                 </links>
                                 <cmd>
                                     ./install_job_service_db.sh -db.host ${js.database.host} -db.port 5432 -db.name
-                                    ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password} -log DEBUG
+                                    ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password}
                                 </cmd>
                                 <wait>
                                     <log>DB update finished.</log>

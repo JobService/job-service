@@ -18,9 +18,8 @@
 
 cd /database
 java -jar job-service-db-installer.jar \
-     -db.host "${JOB_SERVICE_DATABASE_SERVER:-localhost}" \
+     -db.host "${JOB_SERVICE_DATABASE_HOST:-localhost}" \
      -db.port "${JOB_SERVICE_DATABASE_PORT:-5432}" \
      -db.user "${JOB_SERVICE_DATABASE_USERNAME:-postgres}" \
      -db.pass "${JOB_SERVICE_DATABASE_PASSWORD:-root}" \
-     -db.name "${JOB_SERVICE_DATABASE_NAME:-jobservice}" \
-     -log DEBUG
+     -db.name "${JOB_SERVICE_DATABASE_NAME:-jobservice}"

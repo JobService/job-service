@@ -3,7 +3,7 @@
 There are 2 types of functions that we currently use: internal and external. We use _function_ as a general term for both function and 
 procedures here.
 
-The internal function's name should start with 'internal_'. Ex: internal_has_dependent_jobs()
+The internal function's name should start with 'internal_'. Ex: `internal_has_dependent_jobs()`
 
 ## Adding a function
 
@@ -27,8 +27,3 @@ the function itself.
 
 If we need to change the function signature, then we need to drop the old one. To proceed, we add the drop function element into the 
 main migration script, then update the function in the corresponding script.
-
-## Updating an internal function that requires a previously declared function that is yet to be created
-
-In the case where we need to use an inner function that hasn't yet be created, we would add it to the main migration script and make 
-sure that it's placed before the function using it.

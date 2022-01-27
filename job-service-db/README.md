@@ -8,27 +8,28 @@ The database is installed using the Flyway database change management tool and y
 directly or you can use the Docker image that is  also available.
 
 ### PostgreSQL
-The Job Service database requires PostgreSQL 9.4 or later to be installed and configured. 
+The Job Service database requires PostgreSQL 11 or later to be installed and configured. 
 
 ### Database Artifact
-With PostgreSQL 11 or later installed and configured, download the [job-service-db-2.X.X-XXX-jar-with-dependencies](https://repo1.maven.org/maven2/com/github/jobservice/job-service-db/) jar from Artifactory and then run:
+With PostgreSQL 11 or later installed and configured, download the [job-service-db-X.X.X-XXX-jar-with-dependencies](https://repo1.
+maven.org/maven2/com/github/jobservice/job-service-db/) jar from Artifactory and then run:
 
 	java -jar /job-service-db-2.3.0-159-jar-with-dependencies.jar -db.host localhost -db.port 5432 -db.name jobservice -db.pass root -db.user postgres
 
-The database connection, user and password string arguments will need changed to match your PostgreSQL 9.4 or later setup.
+The database connection, user and password string arguments will need changed to match your PostgreSQL 11 or later setup.
 
 ### Docker Image
 This is available as a Docker container - see [job-service-postgres-container](../job-service-postgres-container).
 
 With PostgreSQL 11 or later installed and configured, pull the installer image from artifactory. For example:
 
-	docker pull jobservice/job-service-postgres:2.0.0
+	docker pull jobservice/job-service-postgres
 
 then run the image using:
 
-	docker run --rm jobservice/job-service-postgres:2.0.0 \
+	docker run --rm jobservice/job-service-postgres \
 	./install_job_service_db.sh \
-	-db.host localhost \
+	-db.host <postgres host> \
 	-db.port 5432 \
 	-db.name jobservice \
 	-db.user postgres \
@@ -43,4 +44,4 @@ where:
 *   db.pass  :  Specifies the password to access the database.
 *   log      :  Specifies the log level.
 
-The jdbc database connection, user and password string arguments will need changed to match your external PostgreSQL 9.4 or later setup.
+The jdbc database connection, user and password string arguments will need changed to match your external PostgreSQL 11 or later setup.
