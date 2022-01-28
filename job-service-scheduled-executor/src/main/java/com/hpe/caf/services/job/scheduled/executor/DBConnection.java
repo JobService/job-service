@@ -19,6 +19,7 @@ import static java.text.MessageFormat.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Objects;
 
 import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
@@ -34,11 +35,11 @@ public final class DBConnection
     
     public static Connection get() throws ScheduledExecutorException
     {
-        final String dbHost = ScheduledExecutorConfig.getDatabaseHost();
-        final int dbPort = ScheduledExecutorConfig.getDatabasePort();
-        final String dbName = ScheduledExecutorConfig.getDatabaseName();
-        final String dbUser = ScheduledExecutorConfig.getDatabaseUsername();
-        final String dbPass = ScheduledExecutorConfig.getDatabasePassword();
+        final String dbHost = Objects.requireNonNull(ScheduledExecutorConfig.getDatabaseHost());
+        final String dbPortString = Objects.requireNonNull(ScheduledExecutorConfig.getDatabasePort());
+        final String dbName = Objects.requireNonNull(ScheduledExecutorConfig.getDatabaseName());
+        final String dbUser = Objects.requireNonNull(ScheduledExecutorConfig.getDatabaseUsername());
+        final String dbPass = Objects.requireNonNull(ScheduledExecutorConfig.getDatabasePassword());
         final String appName =
                 ScheduledExecutorConfig.getApplicationName() != null ? ScheduledExecutorConfig
                         .getApplicationName()
@@ -49,20 +50,25 @@ public final class DBConnection
         {
             final PGSimpleDataSource dbSource = new PGSimpleDataSource();
             dbSource.setServerNames(new String[]{dbHost});
-            dbSource.setPortNumbers(new int[]{dbPort});
+            dbSource.setPortNumbers(new int[]{Integer.parseInt(dbPortString)});
             dbSource.setDatabaseName(dbName);
             dbSource.setUser(dbUser);
             dbSource.setPassword(dbPass);
             dbSource.setApplicationName(appName);
-            LOG.debug("Connecting to database {} with host {}, port {}, username {} and password {} ...",
-                            dbName, dbHost, dbPort, dbUser, dbPass);
+            LOG.debug("Connecting to database {} with host {}, port {}, username {} and password {}.",
+                            dbName, dbHost, dbPortString, dbUser, dbPass);
             conn = dbSource.getConnection();
             LOG.debug("Connected to database.");
         }
+        catch (final NumberFormatException e){
+            final String errorMessage = format("Invalid database port provided {}", dbPortString);
+            LOG.error(errorMessage);
+            throw new ScheduledExecutorException(errorMessage);
+        }
         catch(final SQLException se)
         {
-            final String errorMessage = format("Failed to connect to database {} with host {}, port {}, username {} and password {} ...",
-                    dbName, dbHost, dbPort, dbUser, dbPass);
+            final String errorMessage = format("Failed to connect to database {} with host {}, port {}, username {} and password {}.",
+                    dbName, dbHost, dbPortString, dbUser, dbPass);
             /*
             SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Log forging. The values of databaseUrl, dbUser, dbPass are all set using
             properties or env variables.

@@ -39,6 +39,7 @@ import java.util.Objects;
 public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
     private static final String FAILED_TO_CONNECT = "Failed to connect to database {}. ";
+    private static final String FAILED_TO_CONNECT_INVALID_PORT = "Failed to connect to database {}. Invalid port {}";
     private static final String FAILED_TO_REPORT_COMPLETION = "Failed to report the completion of job task {0}. {1}";
     private static final String FAILED_TO_REPORT_COMPLETIONS = "Failed to report the completion of job tasks {0}. {1}";
     private static final String FAILED_TO_REPORT_PROGRESS = "Failed to report the progress of job task {0}. {1} {2}";
@@ -59,7 +60,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
     /**
      * The port to use when connecting to the Job Database.
      */
-    private int jobDatabasePort;
+    private String jobDatabasePortString;
 
     /**
      * The name to use when connecting to the Job Database.
@@ -90,7 +91,7 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
     public JobTrackingWorkerReporter() throws JobReportingException {
         this.jobDatabaseHost = Objects.requireNonNull(JobDatabaseProperties.getDatabaseHost()).toLowerCase(Locale.ENGLISH);
-        this.jobDatabasePort = JobDatabaseProperties.getDatabasePort();
+        this.jobDatabasePortString = Objects.requireNonNull(JobDatabaseProperties.getDatabasePort()).toLowerCase(Locale.ENGLISH);
         this.jobDatabaseName = Objects.requireNonNull(JobDatabaseProperties.getDatabaseName()).toLowerCase(Locale.ENGLISH);
         this.appName = JobDatabaseProperties.getApplicationName() != null ? JobDatabaseProperties.getApplicationName()
                              : "Job Tracking Worker";
@@ -318,23 +319,26 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      */
     private Connection getConnection() throws JobReportingException
     {
-        LOG.debug("Connecting to database host {}, port {}, name {} ...", jobDatabaseHost, jobDatabasePort, jobDatabaseName);
+        LOG.debug("Connecting to database host {}, port {}, name {} ...", jobDatabaseHost, jobDatabasePortString, jobDatabaseName);
 
         final PGSimpleDataSource dbSource = new PGSimpleDataSource();
         dbSource.setServerNames(new String[]{jobDatabaseHost});
-        dbSource.setPortNumbers(new int[]{jobDatabasePort});
         dbSource.setDatabaseName(jobDatabaseName);
         dbSource.setUser(jobDatabaseUsername);
         dbSource.setPassword(jobDatabasePassword);
         dbSource.setApplicationName(appName);
 
         try {
+            dbSource.setPortNumbers(new int[]{Integer.parseInt(jobDatabasePortString)});
             return dbSource.getConnection();
-        } catch (final SQLTransientException ex) {
-            LOG.error(FAILED_TO_CONNECT, jobDatabaseHost+" / "+jobDatabasePort+" / "+jobDatabaseName, ex);
+        } catch (final NumberFormatException ex){
+            LOG.error(FAILED_TO_CONNECT_INVALID_PORT, jobDatabaseName, jobDatabasePortString, ex);
+            throw new JobReportingException(ex.getMessage(), ex);
+        }catch (final SQLTransientException ex) {
+            LOG.error(FAILED_TO_CONNECT, jobDatabaseHost+" / "+jobDatabasePortString+" / "+jobDatabaseName, ex);
             throw new JobReportingTransientException(ex.getMessage(), ex);
         } catch (final SQLException ex) {
-            LOG.error(FAILED_TO_CONNECT, jobDatabaseHost+" / "+jobDatabasePort+" / "+jobDatabaseName, ex);
+            LOG.error(FAILED_TO_CONNECT, jobDatabaseHost+" / "+jobDatabasePortString+" / "+jobDatabaseName, ex);
 
             // Declare error code for issues like not enough connections, memory, disk, etc.
             final String CONNECTION_EXCEPTION = "08";

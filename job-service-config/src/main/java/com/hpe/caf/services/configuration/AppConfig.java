@@ -36,36 +36,27 @@ public class AppConfig {
     private Environment environment;
 
     public String getDatabaseHost(){
-        return environment.getProperty("JOB_SERVICE_DATABASE_HOST") != null ? environment.getProperty("JOB_SERVICE_DATABASE_HOST")
-                : null;
+        return environment.getProperty("JOB_SERVICE_DATABASE_HOST");
     }
 
-    public int getDatabasePort(){
-        final String portString = environment.getProperty("JOB_SERVICE_DATABASE_PORT");
-        if (null != portString){
-            return Integer.parseInt(portString);
-        }
-        return -1;
+    public String getDatabasePort(){
+        return environment.getProperty("JOB_SERVICE_DATABASE_PORT");
     }
 
     public String getDatabaseName(){
-        return environment.getProperty("JOB_SERVICE_DATABASE_NAME") != null ? environment.getProperty("JOB_SERVICE_DATABASE_NAME")
-                : null;
+        return environment.getProperty("JOB_SERVICE_DATABASE_NAME");
     }
 
     public String getDatabaseUsername(){
-        return environment.getProperty("CAF_DATABASE_USERNAME") != null ? environment.getProperty("CAF_DATABASE_USERNAME") 
-            : environment.getProperty("JOB_SERVICE_DATABASE_USERNAME");
+        return environment.getProperty("JOB_SERVICE_DATABASE_USERNAME");
     }
 
     public String getDatabasePassword(){
-        return environment.getProperty("CAF_DATABASE_PASSWORD") != null ? environment.getProperty("CAF_DATABASE_PASSWORD")
-            : environment.getProperty("JOB_SERVICE_DATABASE_PASSWORD");
+        return environment.getProperty("JOB_SERVICE_DATABASE_PASSWORD");
     }
     
     public String getApplicationName(){
-        return environment.getProperty("CAF_DATABASE_APPNAME") != null ? environment.getProperty("CAF_DATABASE_APPNAME")
-            : environment.getProperty("JOB_SERVICE_DATABASE_APPNAME");
+        return environment.getProperty("JOB_SERVICE_DATABASE_APPNAME");
     }
 
     public String getRabbitMQHost(){

@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.util.Objects;
+
 import org.postgresql.ds.PGSimpleDataSource;
 
 /**
@@ -42,12 +44,13 @@ public final class DatabaseConnectionProvider
 
         // Only JDBC/PostgreSQL connections supported.
         final String appname = appConfig.getApplicationName() != null ? appConfig.getApplicationName() : "Job Service";
+        final String dbPortString = Objects.requireNonNull(appConfig.getDatabasePort());
 
         try{
             // Open a connection.
             final PGSimpleDataSource dbSource = new PGSimpleDataSource();
             dbSource.setServerNames(new String[]{appConfig.getDatabaseHost()});
-            dbSource.setPortNumbers(new int[]{appConfig.getDatabasePort()});
+            dbSource.setPortNumbers(new int[]{Integer.parseInt(dbPortString)});
             dbSource.setDatabaseName(appConfig.getDatabaseName());
             dbSource.setUser(appConfig.getDatabaseUsername());
             dbSource.setPassword(appConfig.getDatabasePassword());
@@ -55,7 +58,10 @@ public final class DatabaseConnectionProvider
 
             LOG.debug("Connecting to database...");
             conn = dbSource.getConnection();
-        } catch (final Exception ex) {
+        } catch (final NumberFormatException ex){
+            LOG.error("Invalid database port: {}", dbPortString);
+            throw ex;
+        }catch (final Exception ex) {
             LOG.error("Cannot get connection");
             throw ex;
         }

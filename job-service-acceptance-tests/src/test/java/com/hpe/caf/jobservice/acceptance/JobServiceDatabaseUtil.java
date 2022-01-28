@@ -24,14 +24,13 @@ import org.testng.Assert;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
+import java.util.Objects;
 
 /**
  * This utility class provides helper methods to get database connection and assert database row states.
@@ -248,25 +247,15 @@ public class JobServiceDatabaseUtil
 
     private static Connection getDbConnection() throws SQLException
     {
-        final String dbHost = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST") != null
-            ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST")
-            : null;
-        final int dbPort = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT") != null
-            ? Integer.parseInt(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT"))
-            : -1;
-        final String dbName = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME") != null
-            ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME")
-            : null;
-        final String dbUser = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME") != null 
-            ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME")
-            : getPropertyOrEnvVar("CAF_DATABASE_USERNAME");
-        final String dbPass = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD") != null 
-            ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD")
-            : getPropertyOrEnvVar("CAF_DATABASE_PASSWORD");
-        final String appName = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME") != null 
-            ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME")
-            : getPropertyOrEnvVar("CAF_DATABASE_APPNAME");
+        final String dbHost = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST"));
+        final String dbPortString = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT"));
+        final String dbName = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME"));
+        final String dbUser = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME"));
+        final String dbPass = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD"));
+        final String appName = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME") != null ? getPropertyOrEnvVar(
+                "JOB_SERVICE_DATABASE_APPNAME") : "Job Service Acceptance";
         try {
+            final int dbPort = Integer.parseInt(dbPortString);
             final Connection conn;
             final PGSimpleDataSource dbSource = new PGSimpleDataSource();
             dbSource.setServerNames(new String[]{dbHost});
@@ -274,14 +263,15 @@ public class JobServiceDatabaseUtil
             dbSource.setDatabaseName(dbName);
             dbSource.setUser(dbUser);
             dbSource.setPassword(dbPass);
-            dbSource.setApplicationName(appName != null ? appName : "Job Service Acceptance");
-            LOG.info("Connecting to database " + dbName + " with username " + dbUser + " and password " + dbPass);
+            dbSource.setApplicationName(appName);
+            LOG.info("Connecting to database {} with host {}, port {}, username {} and password {}", dbName, dbHost, dbPort,
+                    dbUser, dbPass);
             conn = dbSource.getConnection();
             LOG.info("Connected to database");
             return conn;
         } catch (final Exception e) {
-            LOG.error("ERROR connecting to database " + dbName + " with username " + dbUser + " and password "
-                    + dbPass);
+            LOG.error("ERROR connecting to database {} with host {}, port {}, username {} and password {}", dbName, dbHost, dbPortString,
+                    dbUser, dbPass);
             throw e;
         }
     }

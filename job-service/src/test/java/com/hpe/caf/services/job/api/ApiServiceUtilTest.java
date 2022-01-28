@@ -50,7 +50,7 @@ public final class ApiServiceUtilTest {
         //  Test successful call to class method.
         AppConfig configProps = AppConfigProvider.getAppConfigProperties();
         Assert.assertEquals("testHost", configProps.getDatabaseHost());
-        Assert.assertEquals(8888, configProps.getDatabasePort());
+        Assert.assertEquals("8888", configProps.getDatabasePort());
         Assert.assertEquals("testName", configProps.getDatabaseName());
         Assert.assertEquals("testUserName", configProps.getDatabaseUsername());
         Assert.assertEquals("testPassword", configProps.getDatabasePassword());

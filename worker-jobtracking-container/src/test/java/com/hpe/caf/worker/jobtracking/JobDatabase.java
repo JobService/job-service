@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Random;
 import org.json.JSONObject;
@@ -157,24 +158,29 @@ public class JobDatabase {
 
 
     private Connection getConnection () throws SQLException {
+        final String dbHost = JobDatabaseProperties.getDatabaseHost();
+        final String dbPortString = JobDatabaseProperties.getDatabasePort();
+        final String dbName = JobDatabaseProperties.getDatabaseName();
+        final String dbUser = JobDatabaseProperties.getDatabaseUsername();
+        final String dbPass = JobDatabaseProperties.getDatabasePassword();
+        final String appName = JobDatabaseProperties.getApplicationName() != null ? JobDatabaseProperties.getApplicationName() : "Job Tracking Worker";
         try {
-            final String appName = JobDatabaseProperties.getApplicationName() != null ? JobDatabaseProperties.getApplicationName() : "Job Tracking Worker";
             Connection conn;
             final PGSimpleDataSource dbSource = new PGSimpleDataSource();
-            dbSource.setServerNames(new String[]{JobDatabaseProperties.getDatabaseHost()});
-            dbSource.setPortNumbers(new int[]{JobDatabaseProperties.getDatabasePort()});
-            dbSource.setDatabaseName(JobDatabaseProperties.getDatabaseName());
+            dbSource.setServerNames(new String[]{dbHost});
+            dbSource.setPortNumbers(new int[]{Integer.parseInt(dbPortString)});
+            dbSource.setDatabaseName(dbName);
             dbSource.setApplicationName(appName);
-            dbSource.setUser(JobDatabaseProperties.getDatabaseUsername());
-            dbSource.setPassword(JobDatabaseProperties.getDatabasePassword());
-            LOG.info("Connecting to database {} with username {} and password {}", JobDatabaseProperties.getDatabaseName(),
-                    JobDatabaseProperties.getDatabaseUsername(), JobDatabaseProperties.getDatabasePassword());
+            dbSource.setUser(dbUser);
+            dbSource.setPassword(dbPass);
+            LOG.info("Connecting to database {} with host {}, port {}, username {} and password {}.",
+                    dbName, dbHost, dbPortString, dbUser, dbPass);
             conn = dbSource.getConnection();
             LOG.info("Connected to database");
             return conn;
         } catch (Exception e) {
-            LOG.error("ERROR connecting to database {} with username {} and password {}. ", JobDatabaseProperties.getDatabaseName(),
-                    JobDatabaseProperties.getDatabaseUsername(), JobDatabaseProperties.getDatabasePassword(), e);
+            LOG.error("ERROR connecting to database {} with host {}, port {}, username {} and password {}.",
+                    dbName, dbHost, dbPortString, dbUser, dbPass, e);
             throw e;
         }
     }

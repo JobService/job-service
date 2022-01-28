@@ -69,7 +69,7 @@ public final class JobsResumeTest {
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
-        newEnv.put("JOB_SERVICE_DATABASE_PORT","8888");
+        newEnv.put("JOB_SERVICE_DATABASE_PORT", "8888");
         newEnv.put("JOB_SERVICE_DATABASE_NAME","testName");
         newEnv.put("JOB_SERVICE_DATABASE_USERNAME","testUserName");
         newEnv.put("JOB_SERVICE_DATABASE_PASSWORD","testPassword");
