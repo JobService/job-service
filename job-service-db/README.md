@@ -14,7 +14,8 @@ The Job Service database requires PostgreSQL 11 or later to be installed and con
 With PostgreSQL 11 or later installed and configured, download the [job-service-db-X.X.X-XXX-jar-with-dependencies](https://repo1.
 maven.org/maven2/com/github/jobservice/job-service-db/) jar from Artifactory and then run:
 
-	java -jar /job-service-db-2.3.0-159-jar-with-dependencies.jar -db.host localhost -db.port 5432 -db.name jobservice -db.pass root -db.user postgres
+	java -jar /job-service-db-6.0.0-SNAPSHOT-jar-with-dependencies.jar -db.host localhost -db.port 5432 -db.name jobservice -db.pass root 
+-db.user postgres
 
 The database connection, user and password string arguments will need changed to match your PostgreSQL 11 or later setup.
 
