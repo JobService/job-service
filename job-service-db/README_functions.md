@@ -3,22 +3,24 @@
 There are 2 types of functions that we currently use: internal and external. We use _function_ as a general term for both function and 
 procedures here.
 
-The internal function's name should start with 'internal_'. Ex: `internal_has_dependent_jobs()`
+The internal function's name should start with 'internal_'. Ex: `internal_has_dependent_jobs()` (note. the name of the .sql file might 
+differ)
 
 ## Adding a function
 
 When adding an **internal function**, we would need to forward declare it in the migration script. Ex:  
 
-    CREATE OR REPLACE FUNCTION internal_cleanup_completed_subtask_report(
-      in_partition_id VARCHAR(40),
-      in_job_id VARCHAR(48)
-    )
-    RETURNS VOID
-    LANGUAGE plpgsql VOLATILE
-    AS $$
+    DO $$
     BEGIN
-    END
-    $$;
+        CREATE FUNCTION internal_resolve_status(
+        in_current_job_status job_status,
+        in_proposed_job_status job_status
+        )
+        RETURNS job_status
+        LANGUAGE SQL IMMUTABLE
+        AS '/* Forward Declaration */SELECT NULL::job_status';
+    EXCEPTION WHEN duplicate_function THEN
+    END $$;
 
 The function would be empty and return a dummy value when required. The real implementation would occur in the script corresponding to 
 the function itself.
