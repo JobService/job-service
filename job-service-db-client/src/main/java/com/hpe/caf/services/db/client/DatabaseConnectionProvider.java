@@ -20,20 +20,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.Locale;
-import java.util.Properties;
+import java.util.Objects;
+
+import org.postgresql.ds.PGSimpleDataSource;
 
 /**
  * The DatabaseHelper class is responsible for database operations.
  */
 public final class DatabaseConnectionProvider
 {
-    private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
-    private static final String JDBC_DRIVER = "org.postgresql.Driver";
-    private static final String ERR_MSG_DB_URL_FORMAT_INVALID
-            = "Invalid database url string format - must start with jdbc:postgresql:";
-
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseConnectionProvider.class);
 
     private DatabaseConnectionProvider()
@@ -48,27 +43,25 @@ public final class DatabaseConnectionProvider
         final Connection conn;
 
         // Only JDBC/PostgreSQL connections supported.
-        final String dbURL = appConfig.getDatabaseURL().toLowerCase(Locale.ENGLISH);
         final String appname = appConfig.getApplicationName() != null ? appConfig.getApplicationName() : "Job Service";
-        if ( !dbURL.startsWith(JDBC_POSTGRESQL_PREFIX) )
-        {
-            throw new Exception(ERR_MSG_DB_URL_FORMAT_INVALID);
-        }
+        final String dbPortString = Objects.requireNonNull(appConfig.getDatabasePort());
 
         try{
-            // Register JDBC driver.
-            LOG.debug("Registering JDBC driver...");
-            Class.forName(JDBC_DRIVER);
-
             // Open a connection.
-            Properties myProp = new Properties();
-            myProp.put("user", appConfig.getDatabaseUsername());
-            myProp.put("password", appConfig.getDatabasePassword());
-            myProp.put("ApplicationName", appname);
+            final PGSimpleDataSource dbSource = new PGSimpleDataSource();
+            dbSource.setServerNames(new String[]{appConfig.getDatabaseHost()});
+            dbSource.setPortNumbers(new int[]{Integer.parseInt(dbPortString)});
+            dbSource.setDatabaseName(appConfig.getDatabaseName());
+            dbSource.setUser(appConfig.getDatabaseUsername());
+            dbSource.setPassword(appConfig.getDatabasePassword());
+            dbSource.setApplicationName(appname);
 
             LOG.debug("Connecting to database...");
-            conn = DriverManager.getConnection(dbURL, myProp);
-        } catch (final Exception ex) {
+            conn = dbSource.getConnection();
+        } catch (final NumberFormatException ex){
+            LOG.error("Invalid database port: {}", dbPortString);
+            throw ex;
+        }catch (final Exception ex) {
             LOG.error("Cannot get connection");
             throw ex;
         }

@@ -18,6 +18,7 @@ package com.hpe.caf.worker.jobtracking;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.services.job.util.JobTaskId;
+import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,17 +32,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Properties;
 
 /**
  * Implementation of job reporting to a job-tracking Job Database, specifically supporting only JDBC/PostgreSQL connections.
  */
 public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
-    private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
-    private static final String JDBC_DRIVER = "org.postgresql.Driver";
-
     private static final String FAILED_TO_CONNECT = "Failed to connect to database {}. ";
+    private static final String FAILED_TO_CONNECT_INVALID_PORT = "Failed to connect to database {}. Invalid port {}";
     private static final String FAILED_TO_REPORT_COMPLETION = "Failed to report the completion of job task {0}. {1}";
     private static final String FAILED_TO_REPORT_COMPLETIONS = "Failed to report the completion of job tasks {0}. {1}";
     private static final String FAILED_TO_REPORT_PROGRESS = "Failed to report the progress of job task {0}. {1} {2}";
@@ -52,9 +50,24 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobTrackingWorkerReporter.class);
 
+    /**
+     * The host to use when connecting to the Job Database.
+     */
     @NotNull
     @Size(min = 1)
-    private String jobDatabaseURL;
+    private String jobDatabaseHost;
+
+    /**
+     * The port to use when connecting to the Job Database.
+     */
+    private String jobDatabasePortString;
+
+    /**
+     * The name to use when connecting to the Job Database.
+     */
+    @NotNull
+    @Size(min = 1)
+    private String jobDatabaseName;
 
     /**
      * The username to use when connecting to the Job Database.
@@ -77,24 +90,13 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
 
 
     public JobTrackingWorkerReporter() throws JobReportingException {
-        this.jobDatabaseURL = Objects.requireNonNull(JobDatabaseProperties.getDatabaseUrl()).toLowerCase(Locale.ENGLISH);
-        this.appName = JobDatabaseProperties.getApplicationName() != null ? JobDatabaseProperties.getApplicationName() 
+        this.jobDatabaseHost = Objects.requireNonNull(JobDatabaseProperties.getDatabaseHost()).toLowerCase(Locale.ENGLISH);
+        this.jobDatabasePortString = Objects.requireNonNull(JobDatabaseProperties.getDatabasePort()).toLowerCase(Locale.ENGLISH);
+        this.jobDatabaseName = Objects.requireNonNull(JobDatabaseProperties.getDatabaseName()).toLowerCase(Locale.ENGLISH);
+        this.appName = JobDatabaseProperties.getApplicationName() != null ? JobDatabaseProperties.getApplicationName()
                              : "Job Tracking Worker";
-        if (!jobDatabaseURL.startsWith(JDBC_POSTGRESQL_PREFIX))
-        {
-            throw new JobReportingException("Invalid database url string format - must start with jdbc:postgresql:");
-        }
         this.jobDatabaseUsername = Objects.requireNonNull(JobDatabaseProperties.getDatabaseUsername());
         this.jobDatabasePassword = Objects.requireNonNull(JobDatabaseProperties.getDatabasePassword());
-
-        try {
-            LOG.debug("Registering JDBC driver \"{}\" ...", JDBC_DRIVER);
-            Class.forName(JDBC_DRIVER);
-        } catch (final Exception e){
-            LOG.error("Failed to register JDBC driver \"{}\" ...", JDBC_DRIVER);
-            throw new JobReportingException(MessageFormat.format("Failed to register JDBC driver \"{0}\". {1}", 
-                                                                 JDBC_DRIVER, e.getMessage()), e);
-        }
     }
 
     /**
@@ -317,20 +319,26 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
      */
     private Connection getConnection() throws JobReportingException
     {
-        LOG.debug("Connecting to database {} ...", jobDatabaseURL);
+        LOG.debug("Connecting to database host {}, port {}, name {} ...", jobDatabaseHost, jobDatabasePortString, jobDatabaseName);
 
-        final Properties connectionProps = new Properties();
-        connectionProps.put("user", jobDatabaseUsername);
-        connectionProps.put("password", jobDatabasePassword);
-        connectionProps.put("ApplicationName", appName);
+        final PGSimpleDataSource dbSource = new PGSimpleDataSource();
+        dbSource.setServerNames(new String[]{jobDatabaseHost});
+        dbSource.setDatabaseName(jobDatabaseName);
+        dbSource.setUser(jobDatabaseUsername);
+        dbSource.setPassword(jobDatabasePassword);
+        dbSource.setApplicationName(appName);
 
         try {
-            return DriverManager.getConnection(jobDatabaseURL, connectionProps);
-        } catch (final SQLTransientException ex) {
-            LOG.error(FAILED_TO_CONNECT, jobDatabaseURL, ex);
+            dbSource.setPortNumbers(new int[]{Integer.parseInt(jobDatabasePortString)});
+            return dbSource.getConnection();
+        } catch (final NumberFormatException ex){
+            LOG.error(FAILED_TO_CONNECT_INVALID_PORT, jobDatabaseName, jobDatabasePortString, ex);
+            throw new JobReportingException(ex.getMessage(), ex);
+        }catch (final SQLTransientException ex) {
+            LOG.error(FAILED_TO_CONNECT, jobDatabaseHost+" / "+jobDatabasePortString+" / "+jobDatabaseName, ex);
             throw new JobReportingTransientException(ex.getMessage(), ex);
         } catch (final SQLException ex) {
-            LOG.error(FAILED_TO_CONNECT, jobDatabaseURL, ex);
+            LOG.error(FAILED_TO_CONNECT, jobDatabaseHost+" / "+jobDatabasePortString+" / "+jobDatabaseName, ex);
 
             // Declare error code for issues like not enough connections, memory, disk, etc.
             final String CONNECTION_EXCEPTION = "08";

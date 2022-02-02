@@ -29,11 +29,10 @@
         <artifactId>job-service-aggregator</artifactId>
         <version>6.0.0-SNAPSHOT</version>
     </parent>
-    <!-- version can be removed when we upgrade th workerfrmework -->
     <dependencies>
         <dependency>
-            <groupId>com.github.cafapi.util</groupId>
-            <artifactId>util-liquibase-installer</artifactId>
+            <groupId>com.github.cafapi.util.flywayinstaller</groupId>
+            <artifactId>util-flywayinstaller-cli</artifactId>
             <scope>runtime</scope>
         </dependency>
     </dependencies>
@@ -56,7 +55,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.hpe.caf.utilliquibaseinstaller.Application</mainClass>
+                            <mainClass>com.github.cafapi.util.flywayinstaller.Application</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

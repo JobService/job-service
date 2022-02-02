@@ -15,10 +15,10 @@
  */
 package com.hpe.caf.services.job.api;
 
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
+import java.util.Objects;
 
+import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,31 +31,31 @@ public final class JobServiceConnectionUtil
     private static final Logger LOG = LoggerFactory.getLogger(JobServiceConnectionUtil.class);
     public static java.sql.Connection getDbConnection() throws SQLException
     {
-        final String databaseUrl = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL") != null
-                ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL")
-                : getPropertyOrEnvVar("CAF_DATABASE_URL");
-        final String dbUser = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME") != null
-                ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME")
-                : getPropertyOrEnvVar("CAF_DATABASE_USERNAME");
-        final String dbPass = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD") != null
-                ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD")
-                : getPropertyOrEnvVar("CAF_DATABASE_PASSWORD");
-        final String appName = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME") != null
-                ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME")
-                : getPropertyOrEnvVar("CAF_DATABASE_APPNAME");
+        final String dbHost = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST"));
+        final String dbPortString = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT"));
+        final String dbName = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME"));
+        final String dbUser = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME"));
+        final String dbPass = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD"));
+        final String appName = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME") != null ? getPropertyOrEnvVar(
+                "JOB_SERVICE_DATABASE_APPNAME") : "Job Service IT";
         try {
+            final int dbPort = Integer.parseInt(dbPortString);
             final java.sql.Connection conn;
-            final Properties myProp = new Properties();
-            myProp.put("user", dbUser);
-            myProp.put("password", dbPass);
-            myProp.put("ApplicationName", appName != null ? appName : "Job Service IT");
-            LOG.info("Connecting to database " + databaseUrl + " with username " + dbUser + " and password " + dbPass);
-            conn = DriverManager.getConnection(databaseUrl, myProp);
+            final PGSimpleDataSource dbSource = new PGSimpleDataSource();
+            dbSource.setServerNames(new String[]{dbHost});
+            dbSource.setPortNumbers(new int[]{dbPort});
+            dbSource.setDatabaseName(dbName);
+            dbSource.setUser(dbUser);
+            dbSource.setPassword(dbPass);
+            dbSource.setApplicationName(appName);
+            LOG.info("Connecting to database {} with host {}, port {}, username {} and password {}", dbName, dbHost, dbPort,
+                    dbUser, dbPass);
+            conn = dbSource.getConnection();
             LOG.info("Connected to database");
             return conn;
         } catch (final Exception e) {
-            LOG.error("ERROR connecting to database " + databaseUrl + " with username " + dbUser + " and password "
-                    + dbPass);
+            LOG.error("ERROR connecting to database {} with host {}, port {}, username {} and password {}", dbName, dbHost, dbPortString,
+                    dbUser, dbPass);
             throw e;
         }
     }

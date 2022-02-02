@@ -19,9 +19,10 @@
 echo "Installing Job Service database."
 
 ./install_job_service_db.sh \
-  -db.user $POSTGRES_USER \
-  -db.pass $POSTGRES_PASSWORD \
-  -db.name ${POSTGRES_DB:-jobservice} \
-  -db.connection jdbc:postgresql://127.0.0.1:5432
+  -db.host ${POSTGRES_SERVER} \
+  -db.port ${POSTGRES_PORT} \
+  -db.user ${POSTGRES_USER} \
+  -db.pass ${POSTGRES_PASSWORD} \
+  -db.name ${POSTGRES_DB}
 
 echo "Completed installation of Job Service database."

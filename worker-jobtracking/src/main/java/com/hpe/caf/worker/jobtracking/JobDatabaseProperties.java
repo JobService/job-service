@@ -16,16 +16,35 @@
 package com.hpe.caf.worker.jobtracking;
 
 
+import java.util.Objects;
+
 public class JobDatabaseProperties {
 
     /**
-     * Gets the database URL from the environment variable.
+     * Gets the database Host from the environment variable.
      *
-     * @return database url
+     * @return database host
      */
-    public static String getDatabaseUrl() {
-        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_URL")
-            : getPropertyOrEnvVar("JOB_DATABASE_URL");
+    public static String getDatabaseHost() {
+        return Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST"));
+    }
+
+    /**
+     * Gets the database port from the environment variable.
+     *
+     * @return database port
+     */
+    public static String getDatabasePort() {
+        return Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT"));
+    }
+
+    /**
+     * Gets the database name from the environment variable.
+     *
+     * @return database name
+     */
+    public static String getDatabaseName() {
+        return Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME"));
     }
 
     /**
@@ -34,8 +53,7 @@ public class JobDatabaseProperties {
      * @return database username
      */
     public static String getDatabaseUsername() {
-        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME")
-            : getPropertyOrEnvVar("JOB_DATABASE_USERNAME");
+        return Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME"));
     }
 
     /**
@@ -44,8 +62,7 @@ public class JobDatabaseProperties {
      * @return database password
      */
     public static String getDatabasePassword() {
-        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD")
-            : getPropertyOrEnvVar("JOB_DATABASE_PASSWORD");
+        return Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD"));
     }
     
     /**
@@ -54,8 +71,7 @@ public class JobDatabaseProperties {
      * @return application name
      */
     public static String getApplicationName() {
-        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME") != null ? getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME")
-            : getPropertyOrEnvVar("JOB_DATABASE_APPNAME");
+        return Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME"));
     }
     
     private static String getPropertyOrEnvVar(final String key)

@@ -17,7 +17,13 @@
 
 
 cd /database
+echo "Installing Job Service database."
+
 java -jar job-service-db-installer.jar \
-     -db.user "${JOB_SERVICE_DATABASE_USERNAME:-${CAF_DATABASE_USERNAME}}" \
-     -db.pass "${JOB_SERVICE_DATABASE_PASSWORD:-${CAF_DATABASE_PASSWORD}}" \
-     -db.connection.url "${JOB_SERVICE_DATABASE_URL:-${CAF_DATABASE_URL}}"
+     -db.host "${JOB_SERVICE_DATABASE_HOST}" \
+     -db.port "${JOB_SERVICE_DATABASE_PORT}" \
+     -db.user "${JOB_SERVICE_DATABASE_USERNAME}" \
+     -db.pass "${JOB_SERVICE_DATABASE_PASSWORD}" \
+     -db.name "${JOB_SERVICE_DATABASE_NAME}"
+
+echo "Completed installation of Job Service database."

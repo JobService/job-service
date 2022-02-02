@@ -37,9 +37,9 @@
         <datastore.container.id>b591d8c6615c4af99d7915719b01259c</datastore.container.id>
         <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
         <test.data>${project.basedir}/test-data</test.data>
-        <job.database.name>jobservice</job.database.name>
         <job.database.host>jobtracking-integrationtests-postgres</job.database.host>
-        <job.database.url>jdbc:postgresql://${job.database.host}:5432/${job.database.name}</job.database.url>
+        <job.database.port>5432</job.database.port>
+        <job.database.name>jobservice</job.database.name>
         <job.database.username>postgres</job.database.username>
         <job.database.password>root</job.database.password>
     </properties>
@@ -166,7 +166,9 @@
                         <CAF_CONFIG_PATH>${project.build.directory}/config-files</CAF_CONFIG_PATH>
                         <CAF_WORKER_HTTP_DATASTORE_URL>http://${docker.host.address}:${webdav.apache.port}/webdav</CAF_WORKER_HTTP_DATASTORE_URL>
                         <JOB_SERVICE_DATABASE_APPNAME>Job Tracking Worker</JOB_SERVICE_DATABASE_APPNAME>
-                        <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${job.database.name}</JOB_SERVICE_DATABASE_URL>
+                        <JOB_SERVICE_DATABASE_HOST>${docker.host.address}</JOB_SERVICE_DATABASE_HOST>
+                        <JOB_SERVICE_DATABASE_PORT>${postgres.db.port}</JOB_SERVICE_DATABASE_PORT>
+                        <JOB_SERVICE_DATABASE_NAME>${job.database.name}</JOB_SERVICE_DATABASE_NAME>
                         <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                         <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
                     </environmentVariables>
@@ -463,7 +465,9 @@
                                     <CAF_WORKER_RETRY_LIMIT>1</CAF_WORKER_RETRY_LIMIT>
                                     <CAF_WORKER_MAX_BATCH_TIME>1000</CAF_WORKER_MAX_BATCH_TIME>
                                     <CAF_WORKER_THREADS>1</CAF_WORKER_THREADS>
-                                    <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
+                                    <JOB_SERVICE_DATABASE_HOST>${job.database.host}</JOB_SERVICE_DATABASE_HOST>
+                                    <JOB_SERVICE_DATABASE_PORT>${job.database.port}</JOB_SERVICE_DATABASE_PORT>
+                                    <JOB_SERVICE_DATABASE_NAME>${job.database.name}</JOB_SERVICE_DATABASE_NAME>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Tracking Worker</JOB_SERVICE_DATABASE_APPNAME>

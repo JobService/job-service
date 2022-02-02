@@ -34,7 +34,9 @@ public class HealthCheckTest {
     public void testHealthCheckWithUnavailableDatabaseAndRabbitMQ() throws Exception
     {
         // Setup dud DB environment variables
-        environmentVariables.set("JOB_SERVICE_DATABASE_URL", "jdbc:postgresql://UNKNOWNHOST1234567890:9999/jobservicedb");
+        environmentVariables.set("JOB_SERVICE_DATABASE_HOST", "UNKNOWNHOST1234567890");
+        environmentVariables.set("JOB_SERVICE_DATABASE_PORT", "9999");
+        environmentVariables.set("JOB_SERVICE_DATABASE_NAME", "jobservicedb");
         environmentVariables.set("JOB_SERVICE_DATABASE_APPNAME", "unknownapplicationname");
         environmentVariables.set("JOB_SERVICE_DATABASE_USERNAME", "unknownuser");
         environmentVariables.set("JOB_SERVICE_DATABASE_PASSWORD", "unknownpass");

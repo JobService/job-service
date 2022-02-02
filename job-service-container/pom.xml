@@ -62,6 +62,10 @@
             <type>war</type>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-db</artifactId>
             <classifier>jar-with-dependencies</classifier>
@@ -95,11 +99,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -248,7 +247,9 @@
                         <CAF_WORKER_HTTP_DATASTORE_URL>http://${docker.host.address}:${webdav.apache.port}/webdav</CAF_WORKER_HTTP_DATASTORE_URL>
                         <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
                         <JOB_SERVICE_DATABASE_APPNAME>Job Service</JOB_SERVICE_DATABASE_APPNAME>
-                        <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${db.name}</JOB_SERVICE_DATABASE_URL>
+                        <JOB_SERVICE_DATABASE_HOST>${docker.host.address}</JOB_SERVICE_DATABASE_HOST>
+                        <JOB_SERVICE_DATABASE_PORT>${postgres.db.port}</JOB_SERVICE_DATABASE_PORT>
+                        <JOB_SERVICE_DATABASE_NAME>${db.name}</JOB_SERVICE_DATABASE_NAME>
                         <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
                         <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
@@ -501,7 +502,9 @@
                                     <CAF_APPNAME>test/jobservice</CAF_APPNAME>
                                     <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Service</JOB_SERVICE_DATABASE_APPNAME>
-                                    <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://jobservice-integrationtests-postgres:5432/${db.name}</JOB_SERVICE_DATABASE_URL>
+                                    <JOB_SERVICE_DATABASE_HOST>jobservice-integrationtests-postgres</JOB_SERVICE_DATABASE_HOST>
+                                    <JOB_SERVICE_DATABASE_PORT>5432</JOB_SERVICE_DATABASE_PORT>
+                                    <JOB_SERVICE_DATABASE_NAME>${db.name}</JOB_SERVICE_DATABASE_NAME>
                                     <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
                                     <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
@@ -569,7 +572,9 @@
                                 </ports>
                                 <env>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Service Scheduled Executor</JOB_SERVICE_DATABASE_APPNAME>
-                                    <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://jobservice-integrationtests-postgres:5432/${db.name}</JOB_SERVICE_DATABASE_URL>
+                                    <JOB_SERVICE_DATABASE_HOST>jobservice-integrationtests-postgres</JOB_SERVICE_DATABASE_HOST>
+                                    <JOB_SERVICE_DATABASE_PORT>5432</JOB_SERVICE_DATABASE_PORT>
+                                    <JOB_SERVICE_DATABASE_NAME>${db.name}</JOB_SERVICE_DATABASE_NAME>
                                     <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
                                     <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>

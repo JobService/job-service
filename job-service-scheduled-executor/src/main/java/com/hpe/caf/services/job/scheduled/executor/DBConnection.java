@@ -15,12 +15,13 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.Properties;
+import static java.text.MessageFormat.*;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Objects;
+
+import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,58 +33,42 @@ public final class DBConnection
     
     private static final Logger LOG = LoggerFactory.getLogger(DBConnection.class);
     
-    private static final String JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql:";
-    private static final String JDBC_DRIVER = "org.postgresql.Driver";
-    
     public static Connection get() throws ScheduledExecutorException
     {
-        final String databaseUrl = ScheduledExecutorConfig.getDatabaseURL();
-        final String dbUser = ScheduledExecutorConfig.getDatabaseUsername();
-        final String dbPass = ScheduledExecutorConfig.getDatabasePassword();
+        final String dbHost = Objects.requireNonNull(ScheduledExecutorConfig.getDatabaseHost());
+        final String dbPortString = Objects.requireNonNull(ScheduledExecutorConfig.getDatabasePort());
+        final String dbName = Objects.requireNonNull(ScheduledExecutorConfig.getDatabaseName());
+        final String dbUser = Objects.requireNonNull(ScheduledExecutorConfig.getDatabaseUsername());
+        final String dbPass = Objects.requireNonNull(ScheduledExecutorConfig.getDatabasePassword());
         final String appName =
                 ScheduledExecutorConfig.getApplicationName() != null ? ScheduledExecutorConfig
                         .getApplicationName()
                         : "Job Service Scheduled Executor";
         
-        // Only JDBC/PostgreSQL connections are supported.
-        if(!databaseUrl.startsWith(JDBC_POSTGRESQL_PREFIX))
-        {
-            throw new ScheduledExecutorException(
-                    "Invalid database url string format - must start with jdbc:postgresql:");
-        }
-        
-        try
-        {
-            LOG.debug("Registering JDBC driver \"{}\" ...", JDBC_DRIVER);
-            Class.forName(JDBC_DRIVER);
-        }
-        catch(final Exception e)
-        {
-            final String errorMessage = MessageFormat
-                    .format("Failed to register JDBC driver \"{0}\". {1}.", JDBC_DRIVER,
-                            e.getMessage());
-            LOG.error(errorMessage);
-            throw new ScheduledExecutorException(errorMessage, e);
-        }
-        
         final Connection conn;
         try
         {
-            final Properties myProp = new Properties();
-            myProp.put("user", dbUser);
-            myProp.put("password", dbPass);
-            myProp.put("ApplicationName", appName);
-            LOG.debug(MessageFormat
-                    .format("Connecting to database {0} with username {1} and password {2} ...", databaseUrl,
-                            dbUser, dbPass));
-            conn = DriverManager.getConnection(databaseUrl, myProp);
+            final PGSimpleDataSource dbSource = new PGSimpleDataSource();
+            dbSource.setServerNames(new String[]{dbHost});
+            dbSource.setPortNumbers(new int[]{Integer.parseInt(dbPortString)});
+            dbSource.setDatabaseName(dbName);
+            dbSource.setUser(dbUser);
+            dbSource.setPassword(dbPass);
+            dbSource.setApplicationName(appName);
+            LOG.debug("Connecting to database {} with host {}, port {}, username {} and password {}.",
+                            dbName, dbHost, dbPortString, dbUser, dbPass);
+            conn = dbSource.getConnection();
             LOG.debug("Connected to database.");
+        }
+        catch (final NumberFormatException e){
+            final String errorMessage = format("Invalid database port provided {}", dbPortString);
+            LOG.error(errorMessage);
+            throw new ScheduledExecutorException(errorMessage);
         }
         catch(final SQLException se)
         {
-            final String errorMessage = MessageFormat
-                    .format("Failed to connect to database {0} with username {1} and password {2}.",
-                            databaseUrl, dbUser, dbPass);
+            final String errorMessage = format("Failed to connect to database {} with host {}, port {}, username {} and password {}.",
+                    dbName, dbHost, dbPortString, dbUser, dbPass);
             /*
             SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Log forging. The values of databaseUrl, dbUser, dbPass are all set using
             properties or env variables.

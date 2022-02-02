@@ -36,7 +36,6 @@
         <maven.deploy.skip>true</maven.deploy.skip>
         <job.database.name>jobservice</job.database.name>
         <job.database.host>jobtracking-integrationtests-postgres</job.database.host>
-        <job.database.url>jdbc:postgresql://${job.database.host}:5432/${job.database.name}</job.database.url>
         <job.database.username>postgres</job.database.username>
         <job.database.password>root</job.database.password>
         <create.job.def.container.template.dir>templates</create.job.def.container.template.dir>
@@ -195,7 +194,9 @@
                         <CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>http://job-service:8080</CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>
                         <CAF_WORKER_HTTP_DATASTORE_URL>http://${docker.host.address}:${webdav.apache.port}/webdav</CAF_WORKER_HTTP_DATASTORE_URL>
                         <JOB_SERVICE_DATABASE_APPNAME>Job Service Acceptance</JOB_SERVICE_DATABASE_APPNAME>
-                        <JOB_SERVICE_DATABASE_URL>jdbc:postgresql://${docker.host.address}:${postgres.db.port}/${job.database.name}</JOB_SERVICE_DATABASE_URL>
+                        <JOB_SERVICE_DATABASE_HOST>${docker.host.address}</JOB_SERVICE_DATABASE_HOST>
+                        <JOB_SERVICE_DATABASE_PORT>${postgres.db.port}</JOB_SERVICE_DATABASE_PORT>
+                        <JOB_SERVICE_DATABASE_NAME>${job.database.name}</JOB_SERVICE_DATABASE_NAME>
                         <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                         <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
                     </environmentVariables>
@@ -468,7 +469,9 @@
                                     <CAF_APPNAME>test/jobservice</CAF_APPNAME>
                                     <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Service</JOB_SERVICE_DATABASE_APPNAME>
-                                    <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
+                                    <JOB_SERVICE_DATABASE_HOST>${job.database.host}</JOB_SERVICE_DATABASE_HOST>
+                                    <JOB_SERVICE_DATABASE_PORT>5432</JOB_SERVICE_DATABASE_PORT>
+                                    <JOB_SERVICE_DATABASE_NAME>${job.database.name}</JOB_SERVICE_DATABASE_NAME>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
                                     <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
@@ -527,7 +530,9 @@
                                     <CAF_WORKER_RETRY_LIMIT>1</CAF_WORKER_RETRY_LIMIT>
                                     <CAF_WORKER_THREADS>1</CAF_WORKER_THREADS>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Tracking Worker</JOB_SERVICE_DATABASE_APPNAME>
-                                    <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
+                                    <JOB_SERVICE_DATABASE_HOST>${job.database.host}</JOB_SERVICE_DATABASE_HOST>
+                                    <JOB_SERVICE_DATABASE_PORT>5432</JOB_SERVICE_DATABASE_PORT>
+                                    <JOB_SERVICE_DATABASE_NAME>${job.database.name}</JOB_SERVICE_DATABASE_NAME>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
                                 </env>
@@ -557,6 +562,7 @@
                         <!-- Run Batch worker -->
                         <image>
                             <alias>batch-worker</alias>
+                            <!--TODO version might need to be updated-->
                             <name>${dockerHubPublic}/jobservice/worker-batchsplit:1.0</name>
                             <run>
                                 <ports>
@@ -641,7 +647,9 @@
                                 </ports>
                                 <env>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Service Scheduled Executor</JOB_SERVICE_DATABASE_APPNAME>
-                                    <JOB_SERVICE_DATABASE_URL>${job.database.url}</JOB_SERVICE_DATABASE_URL>
+                                    <JOB_SERVICE_DATABASE_HOST>${job.database.host}</JOB_SERVICE_DATABASE_HOST>
+                                    <JOB_SERVICE_DATABASE_PORT>5432</JOB_SERVICE_DATABASE_PORT>
+                                    <JOB_SERVICE_DATABASE_NAME>${job.database.name}</JOB_SERVICE_DATABASE_NAME>
                                     <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
                                     <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
                                     <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
