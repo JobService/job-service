@@ -435,6 +435,9 @@
                                             <dependencySet>
                                                 <useProjectArtifact>false</useProjectArtifact>
                                                 <scope>runtime</scope>
+                                                <excludes>
+                                                    <exclude>com.github.jobservice:job-service-db</exclude>
+                                                </excludes>
                                                 <outputDirectory>/maven</outputDirectory>
                                             </dependencySet>
                                             <dependencySet>
