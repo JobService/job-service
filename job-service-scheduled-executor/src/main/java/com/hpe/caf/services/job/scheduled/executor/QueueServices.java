@@ -18,6 +18,7 @@ package com.hpe.caf.services.job.scheduled.executor;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.api.worker.QueueTaskMessage;
+import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.api.worker.TrackingInfo;
 import com.hpe.caf.services.job.util.JobTaskId;
@@ -71,14 +72,109 @@ public final class QueueServices implements AutoCloseable
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
+        final boolean useNewQueueMessageFormat = ScheduledExecutorConfig.useNewQueueMessageFormat();
+        final Object taskMessage;
+        if (useNewQueueMessageFormat) {
+            taskMessage = getQueueTaskMessage(partitionId, jobId, workerAction, taskId);
+        } else {
+            taskMessage = getTaskMessage(partitionId, jobId, workerAction, taskId);
+        }
 
+        //  Serialise the task message.
+        //  Wrap any CodecException as a RuntimeException as it shouldn't happen
+        final byte[] taskMessageBytes;
+        try {
+            LOG.debug("Serialise the task message ...");
+            taskMessageBytes = codec.serialise(taskMessage);
+        } catch (final CodecException e) {
+            LOG.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+
+        //  Send the message.
+        LOG.debug("Publishing the message ...");
+        publisherChannel.basicPublish(
+                "", targetQueue, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
+    }
+
+    private TaskMessage getTaskMessage(
+            final String partitionId,
+            final String jobId,
+            final WorkerAction workerAction,
+            final String taskId)
+    {
+        //  Serialise the data payload. Encoding type is provided in the WorkerAction.
+        final byte[] taskData;
+
+        //  Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
+        LOG.debug("Validating the task data ...");
+        final Object taskDataObj = workerAction.getTaskData();
+        final String taskDataStr = (String) taskDataObj;
+        final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
+
+        if (taskDataObj instanceof String) {
+            if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
+                taskData = taskDataStr.getBytes(StandardCharsets.UTF_8);
+            } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
+                taskData = Base64.decodeBase64(taskDataStr);
+            } else {
+                final String errorMessage = "Unknown taskDataEncoding";
+                LOG.error(errorMessage);
+                throw new RuntimeException(errorMessage);
+            }
+        } else if (taskDataObj instanceof Map<?, ?>) {
+            try {
+                taskData = codec.serialise(taskDataObj);
+            } catch (final CodecException e) {
+                final String errorMessage = "Failed to serialise TaskData";
+                LOG.error(errorMessage);
+                throw new RuntimeException(errorMessage, e);
+            }
+        } else {
+            final String errorMessage = "The taskData is an unexpected type";
+            LOG.error(errorMessage);
+            throw new RuntimeException(errorMessage);
+        }
+
+        //  Set up string for statusCheckUrl
+        final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
+                .path("partitions").path(partitionId)
+                .path("jobs").path(jobId)
+                .path("status").build().toString();
+
+        //  Construct the task message.
+        LOG.debug("Constructing the task message ...");
+        final TrackingInfo trackingInfo = new TrackingInfo(
+                new JobTaskId(partitionId, jobId).getMessageId(),
+                new Date(),
+                getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
+                statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
+
+        final TaskMessage taskMessage = new TaskMessage(
+                taskId,
+                workerAction.getTaskClassifier(),
+                workerAction.getTaskApiVersion(),
+                taskData,
+                TaskStatus.NEW_TASK,
+                Collections.<String, byte[]>emptyMap(),
+                targetQueue,
+                trackingInfo);
+        return taskMessage;
+    }
+
+    private QueueTaskMessage getQueueTaskMessage(
+            final String partitionId,
+            final String jobId,
+            final WorkerAction workerAction,
+            final String taskId)
+    {
         //  Serialise the data payload. Encoding type is provided in the WorkerAction.
         final Object taskData;
 
         //  Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
         LOG.debug("Validating the task data ...");
         final Object taskDataObj = workerAction.getTaskData();
-        
+
         if (taskDataObj instanceof String) {
             final String taskDataStr = (String) taskDataObj;
             final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
@@ -115,22 +211,7 @@ public final class QueueServices implements AutoCloseable
                 Collections.<String, byte[]>emptyMap(),
                 targetQueue,
                 trackingInfo);
-
-        //  Serialise the task message.
-        //  Wrap any CodecException as a RuntimeException as it shouldn't happen
-        final byte[] taskMessageBytes;
-        try {
-            LOG.debug("Serialise the task message ...");
-            taskMessageBytes = codec.serialise(taskMessage);
-        } catch (final CodecException e) {
-            LOG.error(e.getMessage());
-            throw new RuntimeException(e);
-        }
-
-        //  Send the message.
-        LOG.debug("Publishing the message ...");
-        publisherChannel.basicPublish(
-                "", targetQueue, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
+        return taskMessage;
     }
 
     private static byte[] toTaskDataByteArray(
