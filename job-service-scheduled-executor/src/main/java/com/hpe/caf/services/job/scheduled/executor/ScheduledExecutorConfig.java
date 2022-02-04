@@ -15,6 +15,10 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
+import java.sql.Array;
+import java.util.Arrays;
+import java.util.Locale;
+
 /**
  * Configuration class for the Job Service Scheduled Executor. Includes connection properties to both database and RabbitMQ.
  */
@@ -62,6 +66,12 @@ public class ScheduledExecutorConfig {
 
     public static String getTrackingPipe() {
         return getPropertyOrEnvVar("CAF_TRACKING_PIPE");
+    }
+    public static Boolean useNewQueueMessageFormat() {
+        final String useNewQueueMessageFormat = getPropertyOrEnvVar(
+                "JOB_SERVICE_USE_NEW_QUEUE_MESSAGE_FORMAT");
+        return Arrays.asList("TRUE", "FALSE").contains(useNewQueueMessageFormat.toUpperCase(Locale.ROOT)) ?
+                Boolean.parseBoolean(useNewQueueMessageFormat) : Boolean.FALSE;
     }
 
     public static String getStatusCheckIntervalSeconds() {
