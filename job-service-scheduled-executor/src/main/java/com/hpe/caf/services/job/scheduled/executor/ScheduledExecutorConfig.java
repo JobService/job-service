@@ -68,10 +68,8 @@ public class ScheduledExecutorConfig {
         return getPropertyOrEnvVar("CAF_TRACKING_PIPE");
     }
     public static Boolean useNewQueueMessageFormat() {
-        final String useNewQueueMessageFormat = getPropertyOrEnvVar(
-                "JOB_SERVICE_USE_NEW_QUEUE_MESSAGE_FORMAT");
-        return Arrays.asList("TRUE", "FALSE").contains(useNewQueueMessageFormat.toUpperCase(Locale.ROOT)) ?
-                Boolean.parseBoolean(useNewQueueMessageFormat) : Boolean.FALSE;
+        return Boolean.parseBoolean(getPropertyOrEnvVar(
+                "JOB_SERVICE_USE_NEW_QUEUE_MESSAGE_FORMAT"));
     }
 
     public static String getStatusCheckIntervalSeconds() {

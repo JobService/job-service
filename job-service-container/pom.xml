@@ -585,6 +585,7 @@
                                     <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
                                     <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
                                     <CAF_SCHEDULED_EXECUTOR_PERIOD>2</CAF_SCHEDULED_EXECUTOR_PERIOD>
+                                    <JOB_SERVICE_USE_NEW_QUEUE_MESSAGE_FORMAT>TRUE</JOB_SERVICE_USE_NEW_QUEUE_MESSAGE_FORMAT>
                                 </env>
                                 <links>
                                     <link>rabbitmq</link>
