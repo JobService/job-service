@@ -74,10 +74,25 @@ public final class QueueServices implements AutoCloseable
         final String taskId = UUID.randomUUID().toString();
         final boolean useNewQueueMessageFormat = ScheduledExecutorConfig.useNewQueueMessageFormat();
         final Object taskMessage;
+
+        //  Set up string for statusCheckUrl
+        final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
+                .path("partitions").path(partitionId)
+                .path("jobs").path(jobId)
+                .path("status").build().toString();
+
+        //  Construct the task message.
+        LOG.debug("Constructing the task message ...");
+        final TrackingInfo trackingInfo = new TrackingInfo(
+                new JobTaskId(partitionId, jobId).getMessageId(),
+                new Date(),
+                getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
+                statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
+
         if (useNewQueueMessageFormat) {
-            taskMessage = getQueueTaskMessage(partitionId, jobId, workerAction, taskId);
+            taskMessage = getQueueTaskMessage(trackingInfo, workerAction, taskId);
         } else {
-            taskMessage = getTaskMessage(partitionId, jobId, workerAction, taskId);
+            taskMessage = getTaskMessage(trackingInfo, workerAction, taskId);
         }
 
         //  Serialise the task message.
@@ -98,11 +113,10 @@ public final class QueueServices implements AutoCloseable
     }
 
     private TaskMessage getTaskMessage(
-            final String partitionId,
-            final String jobId,
+            final TrackingInfo trackingInfo,
             final WorkerAction workerAction,
-            final String taskId)
-    {
+            final String taskId
+    ){
         //  Serialise the data payload. Encoding type is provided in the WorkerAction.
         final byte[] taskData;
 
@@ -136,38 +150,22 @@ public final class QueueServices implements AutoCloseable
             throw new RuntimeException(errorMessage);
         }
 
-        //  Set up string for statusCheckUrl
-        final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
-                .path("partitions").path(partitionId)
-                .path("jobs").path(jobId)
-                .path("status").build().toString();
-
-        //  Construct the task message.
-        LOG.debug("Constructing the task message ...");
-        final TrackingInfo trackingInfo = new TrackingInfo(
-                new JobTaskId(partitionId, jobId).getMessageId(),
-                new Date(),
-                getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
-                statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
-
-        final TaskMessage taskMessage = new TaskMessage(
+        return new TaskMessage(
                 taskId,
                 workerAction.getTaskClassifier(),
                 workerAction.getTaskApiVersion(),
                 taskData,
                 TaskStatus.NEW_TASK,
-                Collections.<String, byte[]>emptyMap(),
+                Collections.emptyMap(),
                 targetQueue,
                 trackingInfo);
-        return taskMessage;
     }
 
     private QueueTaskMessage getQueueTaskMessage(
-            final String partitionId,
-            final String jobId,
+            final TrackingInfo trackingInfo,
             final WorkerAction workerAction,
-            final String taskId)
-    {
+            final String taskId
+    ){
         //  Serialise the data payload. Encoding type is provided in the WorkerAction.
         final Object taskData;
 
@@ -188,30 +186,15 @@ public final class QueueServices implements AutoCloseable
             throw new RuntimeException(errorMessage);
         }
 
-        //  Set up string for statusCheckUrl
-        final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
-            .path("partitions").path(partitionId)
-            .path("jobs").path(jobId)
-            .path("status").build().toString();
-
-        //  Construct the task message.
-        LOG.debug("Constructing the task message ...");
-        final TrackingInfo trackingInfo = new TrackingInfo(
-                new JobTaskId(partitionId, jobId).getMessageId(),
-                new Date(),
-                getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
-                statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
-
-        final QueueTaskMessage taskMessage = new QueueTaskMessage(
+        return new QueueTaskMessage(
                 taskId,
                 workerAction.getTaskClassifier(),
                 workerAction.getTaskApiVersion(),
                 taskData,
                 TaskStatus.NEW_TASK,
-                Collections.<String, byte[]>emptyMap(),
+                Collections.emptyMap(),
                 targetQueue,
                 trackingInfo);
-        return taskMessage;
     }
 
     private static byte[] toTaskDataByteArray(
