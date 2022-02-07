@@ -113,10 +113,10 @@ public final class QueueServices implements AutoCloseable
     }
 
     private TaskMessage getTaskMessage(
-            final TrackingInfo trackingInfo,
-            final WorkerAction workerAction,
-            final String taskId
-    ){
+        final TrackingInfo trackingInfo,
+        final WorkerAction workerAction,
+        final String taskId
+    ) {
         //  Serialise the data payload. Encoding type is provided in the WorkerAction.
         final byte[] taskData;
 
@@ -162,10 +162,10 @@ public final class QueueServices implements AutoCloseable
     }
 
     private QueueTaskMessage getQueueTaskMessage(
-            final TrackingInfo trackingInfo,
-            final WorkerAction workerAction,
-            final String taskId
-    ){
+        final TrackingInfo trackingInfo,
+        final WorkerAction workerAction,
+        final String taskId
+    ) {
         //  Serialise the data payload. Encoding type is provided in the WorkerAction.
         final Object taskData;
 
