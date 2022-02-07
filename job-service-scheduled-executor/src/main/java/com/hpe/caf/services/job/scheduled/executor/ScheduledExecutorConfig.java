@@ -16,6 +16,7 @@
 package com.hpe.caf.services.job.scheduled.executor;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * Configuration class for the Job Service Scheduled Executor. Includes connection properties to both database and RabbitMQ.
@@ -67,8 +68,8 @@ public class ScheduledExecutorConfig {
     }
 
     public static String useNewQueueMessageFormat() {
-        final String outPutFormatVersion = getPropertyOrEnvVar("JOB_SERVICE_MESSAGE_OUTPUT_FORMAT");
-        return Arrays.asList("v3", "v4").contains(outPutFormatVersion) ? outPutFormatVersion : "v3";
+        final String outPutFormatVersion = getPropertyOrEnvVar("JOB_SERVICE_MESSAGE_OUTPUT_FORMAT").toUpperCase(Locale.ROOT);
+        return Arrays.asList("V3", "V4").contains(outPutFormatVersion) ? outPutFormatVersion : "V3";
     }
 
     public static String getStatusCheckIntervalSeconds() {
