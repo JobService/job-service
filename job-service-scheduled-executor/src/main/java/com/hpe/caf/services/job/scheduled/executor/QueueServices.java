@@ -77,9 +77,9 @@ public final class QueueServices implements AutoCloseable
 
         //  Set up string for statusCheckUrl
         final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
-                .path("partitions").path(partitionId)
-                .path("jobs").path(jobId)
-                .path("status").build().toString();
+            .path("partitions").path(partitionId)
+            .path("jobs").path(jobId)
+            .path("status").build().toString();
 
         //  Construct the task message.
         LOG.debug("Constructing the task message ...");
@@ -151,14 +151,14 @@ public final class QueueServices implements AutoCloseable
         }
 
         return new TaskMessage(
-                taskId,
-                workerAction.getTaskClassifier(),
-                workerAction.getTaskApiVersion(),
-                taskData,
-                TaskStatus.NEW_TASK,
-                Collections.emptyMap(),
-                targetQueue,
-                trackingInfo);
+            taskId,
+            workerAction.getTaskClassifier(),
+            workerAction.getTaskApiVersion(),
+            taskData,
+            TaskStatus.NEW_TASK,
+            Collections.emptyMap(),
+            targetQueue,
+            trackingInfo);
     }
 
     private QueueTaskMessage getQueueTaskMessage(
@@ -187,14 +187,14 @@ public final class QueueServices implements AutoCloseable
         }
 
         return new QueueTaskMessage(
-                taskId,
-                workerAction.getTaskClassifier(),
-                workerAction.getTaskApiVersion(),
-                taskData,
-                TaskStatus.NEW_TASK,
-                Collections.emptyMap(),
-                targetQueue,
-                trackingInfo);
+            taskId,
+            workerAction.getTaskClassifier(),
+            workerAction.getTaskApiVersion(),
+            taskData,
+            TaskStatus.NEW_TASK,
+            Collections.emptyMap(),
+            targetQueue,
+            trackingInfo);
     }
 
     private static byte[] toTaskDataByteArray(
