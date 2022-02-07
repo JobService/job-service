@@ -661,7 +661,7 @@
                                     <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
                                     <CAF_SCHEDULED_EXECUTOR_PERIOD>2</CAF_SCHEDULED_EXECUTOR_PERIOD>
                                     <CAF_WORKER_INPUT_QUEUE>jobservicescheduler-in</CAF_WORKER_INPUT_QUEUE>
-                                    <JOB_SERVICE_USE_NEW_QUEUE_MESSAGE_FORMAT>TRUE</JOB_SERVICE_USE_NEW_QUEUE_MESSAGE_FORMAT>
+                                    <JOB_SERVICE_MESSAGE_OUTPUT_FORMAT>V4</JOB_SERVICE_MESSAGE_OUTPUT_FORMAT>
                                 </env>
                                 <links>
                                     <link>rabbitmq</link>
