@@ -89,10 +89,10 @@ public final class QueueServices implements AutoCloseable
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 
         final String messageFormatVersion = ScheduledExecutorConfig.useNewQueueMessageFormat();
-        if ("v4".equalsIgnoreCase(messageFormatVersion)) {
-            taskMessage = getQueueTaskMessage(trackingInfo, workerAction, taskId);
-        } else {
+        if ("v3".equalsIgnoreCase(messageFormatVersion)) {
             taskMessage = getTaskMessage(trackingInfo, workerAction, taskId);
+        } else {
+            taskMessage = getQueueTaskMessage(trackingInfo, workerAction, taskId);
         }
 
         //  Serialise the task message.
