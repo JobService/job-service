@@ -72,7 +72,6 @@ public final class QueueServices implements AutoCloseable
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
-        final boolean useNewQueueMessageFormat = ScheduledExecutorConfig.useNewQueueMessageFormat();
         final Object taskMessage;
 
         //  Set up string for statusCheckUrl
@@ -89,7 +88,8 @@ public final class QueueServices implements AutoCloseable
                 getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 
-        if (useNewQueueMessageFormat) {
+        final String messageFormatVersion = ScheduledExecutorConfig.useNewQueueMessageFormat();
+        if ("v4".equalsIgnoreCase(messageFormatVersion)) {
             taskMessage = getQueueTaskMessage(trackingInfo, workerAction, taskId);
         } else {
             taskMessage = getTaskMessage(trackingInfo, workerAction, taskId);
