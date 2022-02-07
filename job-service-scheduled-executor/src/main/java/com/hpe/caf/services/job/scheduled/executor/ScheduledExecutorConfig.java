@@ -15,10 +15,6 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
-import java.sql.Array;
-import java.util.Arrays;
-import java.util.Locale;
-
 /**
  * Configuration class for the Job Service Scheduled Executor. Includes connection properties to both database and RabbitMQ.
  */
