@@ -73,7 +73,6 @@ DROP FUNCTION IF EXISTS internal_drop_task_tables(
     in_partition_id VARCHAR(40),
     in_task_id VARCHAR(58)
 );
-DROP FUNCTION IF EXISTS get_dependent_jobs();
 DROP FUNCTION IF EXISTS get_job(in_job_id VARCHAR(58));
 DROP FUNCTION IF EXISTS get_job(
     in_partition_id VARCHAR(40),
