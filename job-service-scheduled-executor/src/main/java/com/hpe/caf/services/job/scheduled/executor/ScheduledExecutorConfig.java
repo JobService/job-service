@@ -68,8 +68,8 @@ public class ScheduledExecutorConfig {
     }
 
     public static String useNewQueueMessageFormat() {
-        final String outPutFormatVersion = getPropertyOrEnvVar("JOB_SERVICE_MESSAGE_OUTPUT_FORMAT").toUpperCase(Locale.ROOT);
-        return Arrays.asList("V3", "V4").contains(outPutFormatVersion) ? outPutFormatVersion : "V3";
+        final String outPutFormatVersion = getPropertyOrEnvVar("JOB_SERVICE_MESSAGE_OUTPUT_FORMAT");
+        return Arrays.asList("V3", "V4").contains(outPutFormatVersion) ? outPutFormatVersion.toUpperCase(Locale.ROOT) : "V3";
     }
 
     public static String getStatusCheckIntervalSeconds() {
