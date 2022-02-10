@@ -243,9 +243,14 @@
                 <version>2.10.6</version>
             </dependency>
             <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>8.4.4</version>
+            </dependency>
+            <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.2.13</version>
+                <version>42.3.2</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
