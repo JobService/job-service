@@ -10,7 +10,7 @@ ${version-number}
     The job-service-db is now using Flyway for its versioning and migrations.
 - **US359648 / US397417**: The Job Service can publish `V4` messages.  
     The Job Service can now send `V3` or `V4` format messages ( `V3` is default ).  
-    The `JOB_SERVICE_MESSAGE_OUTPUT_FORMAT` variable can be used to update it.
+    The `JOB_SERVICE_MESSAGE_OUTPUT_FORMAT` environment variable on the `job-service-scheduled-executor` can be used to control it.
 
 #### Breaking Changes
 - **353257**: The following environment variables are no longer supported:`JOB_SERVICE_DATABASE_URL`, `JOB_SERVICE_DATABASE_HOSTNAME`, 
