@@ -23,16 +23,16 @@ Ex:
 
     DO $$
     BEGIN
-    CREATE FUNCTION internal_get_task_status(
-    in_task_table_name VARCHAR(63)
-    )
-    RETURNS TABLE(
-    status job_status,
-    percentage_complete DOUBLE PRECISION,
-    failure_details TEXT
-    )
-    LANGUAGE plpgsql STABLE
-    AS 'BEGIN /* Forward Declaration */ END';
+        CREATE FUNCTION internal_get_task_status(
+            in_task_table_name VARCHAR(63)
+        )
+        RETURNS TABLE(
+            status job_status,
+            percentage_complete DOUBLE PRECISION,
+            failure_details TEXT
+        )
+        LANGUAGE plpgsql STABLE
+        AS 'BEGIN /* Forward Declaration */ END';
     EXCEPTION WHEN duplicate_function THEN
     END $$;  
 
@@ -43,15 +43,17 @@ Ex:
 
     DO $$
     BEGIN
-    CREATE FUNCTION internal_get_prereq_job_id_options(job_id_with_opts VARCHAR(128))
-    RETURNS TABLE(
-    job_id VARCHAR(48),
-    options_string VARCHAR(128),
-    precreated BOOLEAN,
-    unknown_options BOOLEAN
-    )
-    LANGUAGE SQL IMMUTABLE
-    AS '/* Forward Declaration */ SELECT NULL, NULL, NULL::BOOLEAN, NULL::BOOLEAN;';
+        CREATE FUNCTION internal_get_prereq_job_id_options(
+            job_id_with_opts VARCHAR(128)
+        )
+        RETURNS TABLE(
+            job_id VARCHAR(48),
+            options_string VARCHAR(128),
+            precreated BOOLEAN,
+            unknown_options BOOLEAN
+        )
+        LANGUAGE SQL IMMUTABLE
+        AS '/* Forward Declaration */ SELECT NULL, NULL, NULL::BOOLEAN, NULL::BOOLEAN;';
     EXCEPTION WHEN duplicate_function THEN
     END $$;
 
@@ -64,7 +66,7 @@ Ex: `DROP FUNCTION IF EXISTS internal_report_task_completion(in_task_table_name 
 
 ## Updating a function requiring a Change of signature
 
-If we need to change the function signature, then we need to drop the old one. To proceed, we add the drop function element into the 
-main migration script, then add the new signature as a _forward declared_ function, then update the function in the corresponding 
-script.
-
+If we need to change the function signature, then we need to:
+- Drop the old function signature. To proceed, we add the drop function element into the main migration script.  
+- Add the new signature as a _forward declared_ function (**_only for internal functions_**)
+- Update the function in the corresponding script. (Ex: R__clean_job.sql)
