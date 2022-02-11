@@ -21,3 +21,6 @@ T1
  |->T3
      |->T4
 ````
+- `JOB_SERVICE_MESSAGE_OUTPUT_FORMAT`  
+  `description`: This environment variable controls the format of the message being published by the scheduled-executor to the queue messaging system . It takes a String value which can be `V3` or `V4`.  
+  Its default format is `V3`
