@@ -10,7 +10,7 @@ differ)
 
 ### External function:
 - Create a new file with the function's name preceded with `R__` within the `procedures` folder  
-### Internal function: {#a-internal}
+### Internal function:  
 - Add `internal__` as prefix for the name of the function 
 - Add `R__internal__` as prefix for the function's file.
 - Forward declare the function in the migration script. 
@@ -65,6 +65,6 @@ Ex: `DROP FUNCTION IF EXISTS internal_report_task_completion(in_task_table_name 
 ## Updating a function requiring a Change of signature
 
 If we need to change the function signature, then we need to drop the old one. To proceed, we add the drop function element into the 
-main migration script, then add the new signature as a [_forward declared_](#a-internal) function, then update the function in the corresponding 
+main migration script, then add the new signature as a _forward declared_ function, then update the function in the corresponding 
 script.
 
