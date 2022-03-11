@@ -1,18 +1,19 @@
 # Types of functions
 
-There are 2 types of functions that we currently use: internal and external. We use _function_ as a general term for both function and 
-procedures here.
+There are 2 types of functions and procedures that we currently use: _internal_ and _public_. 
 
-The internal function's name should start with 'internal_'. Ex: `internal_has_dependent_jobs()` (note. the name of the .sql file might 
-differ)
+The internal function's name (or procedure's name) should start with 'internal_'. Ex: `internal_has_dependent_jobs()`.  
+Its filename should start with 'R__internal__'. Ex: `R__internal___hasDependentJobs.sql`
 
 ## Adding a function
 
-### External function:
-- Create a new file with the function's name preceded with `R__` within the `procedures` folder  
+### Function or Procedure:
+-  Chose the procedure or function folder depending on what you will be creating.
+### Public function:
+- Create a new file with the function's name preceded with `R__` within the `public` folder  
 ### Internal function:  
-- Add `internal__` as prefix for the name of the function 
 - Add `R__internal__` as prefix for the function's file.
+- Add `internal__` as prefix for the name of the function
 - Forward declare the function in the migration script. 
 - Ensure that we have `/* Forward Declaration */` in the body of the forward declared function.
 
