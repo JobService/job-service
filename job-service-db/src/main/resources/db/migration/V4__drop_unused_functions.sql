@@ -57,6 +57,38 @@ DROP FUNCTION IF EXISTS create_job(
     in_prerequisite_job_ids VARCHAR(128)[],
     in_delay INT
 );
+DROP FUNCTION IF EXISTS create_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_name VARCHAR(255),
+    in_description TEXT,
+    in_data TEXT,
+    in_job_hash INT,
+    in_task_classifier VARCHAR(255),
+    in_task_api_version INT,
+    in_task_data BYTEA,
+    in_task_pipe VARCHAR(255),
+    in_target_pipe VARCHAR(255),
+    in_delay INT,
+    in_labels VARCHAR(255)[][]
+);
+DROP FUNCTION IF EXISTS create_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_name VARCHAR(255),
+    in_description TEXT,
+    in_data TEXT,
+    in_job_hash INT,
+    in_task_classifier VARCHAR(255),
+    in_task_api_version INT,
+    in_task_data BYTEA,
+    in_task_pipe VARCHAR(255),
+    in_target_pipe VARCHAR(255),
+    in_prerequisite_job_ids VARCHAR(128)[],
+    in_delay INT,
+    in_labels VARCHAR(255)[][],
+    in_suspended_partition BOOLEAN
+);
 DROP FUNCTION IF EXISTS delete_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48),
@@ -78,6 +110,10 @@ DROP FUNCTION IF EXISTS get_job(in_job_id VARCHAR(58));
 DROP FUNCTION IF EXISTS get_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(58)
+);
+DROP FUNCTION IF EXISTS get_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48)
 );
 DROP FUNCTION IF EXISTS get_job_can_be_progressed(
     in_partition_id VARCHAR(40),
@@ -110,6 +146,18 @@ DROP FUNCTION IF EXISTS get_jobs(
     in_sort_ascending BOOLEAN,
     in_labels VARCHAR(255)[],
     in_filter VARCHAR(255));
+DROP FUNCTION IF EXISTS get_jobs(
+    in_partition_id VARCHAR(40),
+    in_job_id_starts_with VARCHAR(48),
+    in_status_type VARCHAR(20),
+    in_limit INT,
+    in_offset INT,
+    in_sort_field VARCHAR(20),
+    in_sort_label VARCHAR(255),
+    in_sort_ascending BOOLEAN,
+    in_labels VARCHAR(255)[],
+    in_filter VARCHAR(255)
+);
 DROP FUNCTION IF EXISTS get_jobs_count(
     in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),
@@ -226,4 +274,14 @@ DROP FUNCTION IF EXISTS internal_upsert_into_task_table(
     in_status job_status,
     in_percentage_complete DOUBLE PRECISION,
     in_failure_details TEXT
+);
+DROP FUNCTION IF EXISTS internal_create_job(
+    in_partition_id VARCHAR(40),
+    in_job_id VARCHAR(48),
+    in_name VARCHAR(255),
+    in_description TEXT,
+    in_data TEXT,
+    in_delay INT,
+    in_job_hash INT,
+    in_labels VARCHAR(255)[][]
 );

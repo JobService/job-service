@@ -324,3 +324,42 @@ BEGIN
     AS 'BEGIN /* Forward Declaration */ END';
 EXCEPTION WHEN duplicate_function THEN
 END $$;
+
+DO $$
+BEGIN
+    CREATE OR REPLACE FUNCTION internal_expire_job(
+        in_partition_id VARCHAR(40),
+        in_job_id VARCHAR(48)
+    )
+        RETURNS VOID
+        LANGUAGE plpgsql
+    AS 'BEGIN /* Forward Declaration */ END';
+EXCEPTION WHEN duplicate_function THEN
+END $$;
+
+DO $$
+BEGIN
+    CREATE OR REPLACE FUNCTION internal_upsert_job_policy(
+        in_partition_id VARCHAR(40),
+        in_job_id VARCHAR(48),
+        in_policies JOB_POLICY[]
+    )
+        RETURNS VOID
+        LANGUAGE plpgsql
+AS 'BEGIN /* Forward Declaration */ END';
+EXCEPTION WHEN duplicate_function THEN
+END $$;
+DO $$
+BEGIN
+    CREATE OR REPLACE FUNCTION internal_create_job(
+        in_data TEXT,
+        in_delay INT,
+        in_job_hash INT,
+        in_labels VARCHAR(255)[][] default null,
+        in_policies job_policy[] default null
+    )
+    RETURNS BOOLEAN
+    LANGUAGE plpgsql
+AS 'BEGIN /* Forward Declaration */ END';
+EXCEPTION WHEN duplicate_function THEN
+END $$;

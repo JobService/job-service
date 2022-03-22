@@ -28,6 +28,7 @@ import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.jobtype.JobTypes;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
+import com.hpe.caf.services.job.utilities.PolicyBuilder;
 import com.hpe.caf.util.ModuleLoader;
 import com.hpe.caf.worker.document.DocumentWorkerConstants;
 import com.hpe.caf.worker.document.DocumentWorkerDocumentTask;
@@ -85,6 +86,9 @@ public final class JobsPut {
                 LOG.error("createOrUpdateJob: Error - '{}'", ApiServiceUtil.ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS);
                 throw new BadRequestException(ApiServiceUtil.ERR_MSG_JOB_ID_CONTAINS_INVALID_CHARS);
             }
+
+            //  Validates the job expiry policies and populate the job with the complete list of them
+            PolicyBuilder.buildPolicyMap(job);
 
             // if `job` is provided, construct `task` from it
             final WorkerAction jobTask;
@@ -187,13 +191,13 @@ public final class JobsPut {
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
-                        job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended);
+                        job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended, job.getExpiry());
 
             } else {
                 jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
-                        job.getDelay(), job.getLabels());
+                        job.getDelay(), job.getLabels(), job.getExpiry());
             }
 
             if (!jobCreated) {
