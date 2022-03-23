@@ -120,7 +120,6 @@ public class JobServiceFilterIT
 
         final List<Job> jobs = jobsApi.getJobs(
             defaultPartitionId, correlationId, null, null, null, null, null, null, "labels.label1==value or labels.label3==value");
-        System.out.println("poloko " + jobs.size());
         assertTrue(jobs.size() == 2);
         cleanUpJobs(jobId1, jobId2, jobId3);
     }

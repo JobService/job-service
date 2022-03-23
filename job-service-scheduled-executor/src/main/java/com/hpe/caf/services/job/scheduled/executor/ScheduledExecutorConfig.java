@@ -26,10 +26,7 @@ public class ScheduledExecutorConfig {
     public static int getApplyExpirationPolicySchedulerPeriod() {
         //  Default to 60 seconds if CAF_APPLY_EXPIRATION_POLICY_SCHEDULER_PERIOD not specified.
         final String  period = getPropertyOrEnvVar("CAF_APPLY_EXPIRATION_POLICY_SCHEDULER_PERIOD");
-        if (null == period || period.isEmpty()) {
-            return 60;
-        }
-        return Integer.parseInt(period);
+        return (null != period && !period.isEmpty()) ? Integer.parseInt(period) : 60;
     }
 
     public static String getDatabaseHost(){

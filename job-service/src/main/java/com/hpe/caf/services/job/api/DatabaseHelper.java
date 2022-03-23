@@ -30,7 +30,6 @@ import com.hpe.caf.services.job.exceptions.ForbiddenException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
 import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import com.hpe.caf.services.job.utilities.ExpirationPolicyHelper;
-
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,20 +112,18 @@ public final class DatabaseHelper
             }
             stmt.setArray(9, array);
             stmt.setString(10, filter);
-            String jobId = "";
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
-            ExpirationPolicy expirationPolicy = null;
             try (final ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     final Job job = new Job();
                     job.setId(rs.getString("job_id"));
-                    if (!job.getId().equals(jobId)) {
-                        expirationPolicy = new ExpirationPolicy();
-                        jobId = job.getId();
+                    if (!job.getId().isEmpty()) {
+                        retrieveJob(job, rs, new ExpirationPolicy());
+                    } else {
+                        retrieveJob(job, rs, null);
                     }
-                    retrieveJob(job, rs, expirationPolicy);
                     LOG.debug("Job {}", job);
                     //We joined onto the labels table and there may be multiple rows for the same job, so merge their labels
                     jobs.merge(job.getId(), job, (orig, insert) -> {
@@ -296,9 +293,15 @@ public final class DatabaseHelper
         }
     }
 
-    private Array setExpirationPolicy(final ExpirationPolicy expirationPolicy, final Connection conn, final CallableStatement stmt, final int parameterIndex) throws SQLException {
+    private Array setExpirationPolicy(
+        final ExpirationPolicy expirationPolicy,
+        final Connection conn,
+        final CallableStatement stmt,
+        final int parameterIndex
+    ) throws SQLException
+    {
         final Array arrayP;
-        if (expirationPolicy != null) {
+        if (null != expirationPolicy) {
             final List<String> expirationPolicyList = ExpirationPolicyHelper.toPgCompositeList(expirationPolicy);
             arrayP = conn.createArrayOf(JOB_POLICY_TYPE_NAME, expirationPolicyList.toArray(new String[0]));
             LOG.debug("expirationPolicyDB: {}", expirationPolicyList);
