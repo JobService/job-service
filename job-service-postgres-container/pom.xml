@@ -199,7 +199,7 @@
                                 </cmd>
                                 <wait>
                                     <log>DB update finished.</log>
-                                    <time>3000</time>
+                                    <time>120000</time>
                                     <shutdown>500</shutdown>
                                 </wait>
                                 <log>
