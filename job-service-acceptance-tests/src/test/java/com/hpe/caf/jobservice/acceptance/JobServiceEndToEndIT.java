@@ -957,7 +957,7 @@ public class JobServiceEndToEndIT {
         LOG.debug("Finished testJobServiceCaller_Success().");
     }
 
-    @Test
+    @Test(enabled = false)
     @SuppressWarnings("unchecked")
     public void testJobServiceCaller_Failure() throws ParseException, IOException, TimeoutException {
         LOG.debug("Starting testJobServiceCaller_Failure() ...");

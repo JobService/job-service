@@ -15,49 +15,40 @@
 --
 
 /*
- *  Name: cancel_job
+ *  Name: internal_expire_job
  *
  *  Description:
- *  Cancels the specified job.
+ *  Expires the specified job.
  */
-CREATE OR REPLACE FUNCTION cancel_job(
+CREATE OR REPLACE FUNCTION internal_expire_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
 )
-RETURNS VOID
-LANGUAGE plpgsql
+    RETURNS VOID
+    LANGUAGE plpgsql VOLATILE
 AS $$
 DECLARE
     v_is_finished BOOLEAN;
 
 BEGIN
-    -- Raise exception if job identifier has not been specified
-    IF in_job_id IS NULL OR in_job_id = '' THEN
-        RAISE EXCEPTION 'The job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data;
-    END IF;
-
-    -- Only support Cancel operation on jobs with current status 'Waiting', 'Active' or 'Paused'
+    -- Only support Expire operation on jobs with current status 'Waiting', 'Active' or 'Paused'
     -- And take out an exclusive update lock on the job row
-    SELECT status IN ('Expired', 'Completed', 'Failed') INTO v_is_finished
+    SELECT status IN ('Failed', 'Cancelled', 'Completed') INTO v_is_finished
     FROM job
     WHERE partition_id = in_partition_id
-        AND job_id = in_job_id
-    FOR UPDATE;
+      AND job_id = in_job_id
+        FOR UPDATE;
 
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'job_id {%} not found', in_job_id USING ERRCODE = 'P0002'; -- sqlstate no_data_found
-    END IF;
-
-    IF v_is_finished THEN
-        RAISE EXCEPTION 'job_id {%} cannot be cancelled', in_job_id USING ERRCODE = '02000';
+    IF NOT FOUND OR v_is_finished THEN
+        RETURN;
     END IF;
 
     -- Mark the job cancelled in the job table
     UPDATE job
-    SET status = 'Cancelled', last_update_date = now() AT TIME ZONE 'UTC'
+    SET status = 'Expired', last_update_date = now() AT TIME ZONE 'UTC'
     WHERE partition_id = in_partition_id
-        AND job_id = in_job_id
-        AND status != 'Cancelled';
+      AND job_id = in_job_id
+      AND status != 'Expired';
 
     -- Drop any task tables relating to the job
     PERFORM internal_drop_task_tables(in_partition_id, in_job_id);

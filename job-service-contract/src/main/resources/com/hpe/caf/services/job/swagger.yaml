@@ -71,7 +71,7 @@ paths:
         in: query
         type: string
         required: false
-        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned; NotFinished - only those results with unfinished statuses (ie. Active, Paused, Waiting) will be returned.
+        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled, Expired) will be returned; NotFinished - only those results with unfinished statuses (ie. Active, Paused, Waiting) will be returned.
         enum:
           - All
           - NotCompleted
@@ -119,6 +119,20 @@ paths:
             type: array
             items:
               $ref: "#/definitions/job"
+        503:
+          description: The request failed due to a database connection error.
+  /partitions/default-expiry:
+    get:
+      tags:
+        - Jobs
+      summary: Gets the default expiry
+      description: Returns the default expiry  settings.
+      operationId: getDefaultExpiry
+      responses:
+        200:
+          description: Returns the default expiry settings.
+          schema:
+            $ref: "#/definitions/expirationPolicy"
         503:
           description: The request failed due to a database connection error.
   /partitions/{partitionId}/jobs/{jobId}:
@@ -377,6 +391,8 @@ definitions:
       description:
         type: string
         description: The description of the job
+      expiry:
+        $ref: "#/definitions/expirationPolicy"
       externalData:
         # TODO: Should we make this more structured than just string
         #       Name/Value Pairs perhaps
@@ -414,6 +430,66 @@ definitions:
         example:
           "tag:4": "4"
           owner: "bob"
+  expirationPolicy:
+    type: object
+    properties:
+      "Active":
+        $ref: "#/definitions/expirablePolicy"
+      "Completed":
+        $ref: "#/definitions/deletePolicy"
+      "Failed":
+        $ref: "#/definitions/deletePolicy"
+      "Cancelled":
+        $ref: "#/definitions/deletePolicy"
+      "Waiting":
+        $ref: "#/definitions/expirablePolicy"
+      "Paused":
+        $ref: "#/definitions/expirablePolicy"
+      "Expired":
+        $ref: "#/definitions/deletePolicy"
+    description: The expiration policy to be applied on the job
+  deletePolicy:
+    type: object
+    properties:
+      expiryTime:
+        type: string
+        pattern: '^(?<fullyear>\d{4})-(?<month>0[1-9]|1[0-2])-(?<mday>0[1-9]|[12][0-9]|3[01])T(?<hour>[01][0-9]|2[0-3]):(?<minute>[0-5][0-9]):(?<second>[0-5][0-9]|60)(?<secfrac>\.[0-9]+)?(Z|(\+|-)(?<offset_hour>[01][0-9]|2[0-3]):(?<offset_minute>[0-5][0-9]))$|^(lastUpdateTime|createTime)\+((P)\d+[DYM])$|^(lastUpdateTime|createTime)\+(PT)?(\d+[HMS])$|^none$'
+        example: 2021-04-12T23:20:50.52Z, lastUpdateTime+P1D, createTime+P90M, createTime+PT9H, none
+        description: The delay before expiration
+      operation:
+        type: string
+        enum:
+          - Delete
+        default: Delete
+        description: The action to apply on expired jobs
+      policer:
+        $ref: "#/definitions/policer"
+        description: The expiration details to be applied on the job
+  expirablePolicy:
+    type: object
+    properties:
+      expiryTime:
+        type: string
+        pattern: '^(?<fullyear>\d{4})-(?<month>0[1-9]|1[0-2])-(?<mday>0[1-9]|[12][0-9]|3[01])T(?<hour>[01][0-9]|2[0-3]):(?<minute>[0-5][0-9]):(?<second>[0-5][0-9]|60)(?<secfrac>\.[0-9]+)?(Z|(\+|-)(?<offset_hour>[01][0-9]|2[0-3]):(?<offset_minute>[0-5][0-9]))$|^(lastUpdateTime|createTime)\+((P)\d+[DYM])$|^(lastUpdateTime|createTime)\+(PT)?(\d+[HMS])$|^none$'
+        example: 2021-04-12T23:20:50.52Z, lastUpdateTime+P1D, createTime+P90M, createTime+PT9H, none
+        description: The delay before expiration
+      operation:
+        type: string
+        enum:
+          - Expire
+          - Delete
+        default: Expire
+        description: The action to apply on expired jobs
+      policer:
+        $ref: "#/definitions/policer"
+    description: The expiration details to be applied on the job
+  policer:
+    type: string
+    enum:
+      - User
+      - System
+    default: User
+    description: The instance defining the policy
   worker-action:
     type: object
     required:

@@ -218,3 +218,52 @@ CREATE INDEX IF NOT EXISTS idx_partition_id_and_job_id
 CREATE INDEX IF NOT EXISTS idx_job_partition_id_and_dependent_job_id
     ON public.job_dependency
         USING btree (partition_id, dependent_job_id);
+
+CREATE TYPE EXPIRATION_OPERATION AS ENUM('Expire', 'Delete');
+
+CREATE TYPE EXPIRATION_POLICER AS ENUM('User', 'System');
+
+ALTER TYPE JOB_STATUS ADD VALUE 'Expired';
+
+CREATE TYPE BASIC_POLICY AS (
+    job_status JOB_STATUS,
+    operation EXPIRATION_OPERATION,
+    expiration_time VARCHAR(58)
+);
+
+CREATE TYPE JOB_POLICY AS (
+    partition_id VARCHAR(40),
+    job_id VARCHAR(48),
+    b_policy BASIC_POLICY
+);
+
+CREATE TABLE job_expiration_policy(
+    partition_id VARCHAR(40) NOT NULL,
+    job_id VARCHAR(48) NOT NULL,
+    job_status JOB_STATUS NOT NULL,
+    operation EXPIRATION_OPERATION NOT NULL,
+    expiration_time VARCHAR(58) NOT NULL,
+    exact_expiry_time TIMESTAMP,
+    last_modified_offset INTERVAL,
+    CONSTRAINT pk_job_expiration_policy PRIMARY KEY (partition_id, job_id, job_status),
+    CONSTRAINT fk_expiration_policy_job FOREIGN KEY (partition_id, job_id)
+      REFERENCES job (partition_id, job_id),
+    CONSTRAINT exact_expiry_time CHECK(
+          (exact_expiry_time IS NOT NULL AND last_modified_offset IS NULL)
+          OR
+          (last_modified_offset IS NOT NULL AND exact_expiry_time IS NULL)
+      )
+);
+
+CREATE TABLE default_job_expiration_policy(
+    job_status JOB_STATUS NOT NULL,
+    operation EXPIRATION_OPERATION NOT NULL,
+    expiration_time VARCHAR(58) NOT NULL,
+    create_date_offset VARCHAR(12),
+    last_modified_offset INTERVAL,
+    CONSTRAINT create_date_offset CHECK(
+          (create_date_offset IS NOT NULL AND last_modified_offset IS NULL)
+          OR
+          (last_modified_offset IS NOT NULL AND create_date_offset IS NULL)
+      )
+);

@@ -34,7 +34,8 @@ CREATE OR REPLACE FUNCTION create_job(
     in_task_pipe VARCHAR(255),
     in_target_pipe VARCHAR(255),
     in_delay INT,
-    in_labels VARCHAR(255)[][] default null
+    in_labels VARCHAR(255)[][] default null,
+    in_policies job_policy[] default null
 )
 RETURNS TABLE(
     job_created BOOLEAN
@@ -77,7 +78,7 @@ BEGIN
         in_delay = 0;
     END IF;
 
-    IF NOT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, in_delay, in_job_hash, in_labels) THEN
+    IF NOT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, in_delay, in_job_hash, in_labels, in_policies) THEN
         RETURN QUERY SELECT FALSE;
         RETURN;
     END IF;

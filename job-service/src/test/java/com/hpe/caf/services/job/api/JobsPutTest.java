@@ -30,6 +30,8 @@ import static org.mockito.Mockito.times;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.hpe.caf.services.job.api.generated.model.ExpirablePolicy;
+import com.hpe.caf.services.job.api.generated.model.ExpirationPolicy;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.RestrictedTask;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
@@ -79,6 +81,12 @@ public final class JobsPutTest {
         job.setName("TestName");
         job.setDescription("TestDescription");
         job.setExternalData("TestExternalData");
+        final ExpirationPolicy expirationPolicy = new ExpirationPolicy();
+        final ExpirablePolicy expirablePolicy = new ExpirablePolicy();
+        expirablePolicy.setOperation(ExpirablePolicy.OperationEnum.EXPIRE);
+        expirablePolicy.setExpiryTime("createTime+P10D");
+        expirationPolicy.setActive(expirablePolicy);
+        job.setExpiry(expirationPolicy);
         return job;
     }
 
@@ -116,10 +124,12 @@ public final class JobsPutTest {
         //  Mock DatabaseHelper calls.
         when(mockDatabaseHelper.createJob(
                 anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                anyInt(), any(), anyString(), anyString(), anyInt(), anyMap())).thenReturn(true);
+                anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(),
+            any(ExpirationPolicy.class))).thenReturn(true);
         when(mockDatabaseHelper.createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false)
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false),
+            any(ExpirationPolicy.class)
         )).thenReturn(true);
         doNothing().when(mockDatabaseHelper).deleteJob(anyString(), anyString());
         PowerMockito.whenNew(DatabaseHelper.class).withArguments(any()).thenReturn(mockDatabaseHelper);
@@ -175,7 +185,8 @@ public final class JobsPutTest {
 
         verify(mockDatabaseHelper, times(1))
             .createJob(eq("partition"), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap());
+                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(),
+                any(ExpirationPolicy.class));
         assertEquals("create", result);
     }
 
@@ -183,7 +194,8 @@ public final class JobsPutTest {
     public void testCreateJob_Success_MatchingJobRow() throws Exception {
         when(mockDatabaseHelper.createJob(
                 anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                anyInt(), any(), anyString(), anyString(), anyInt(), anyMap())).thenReturn(false);
+                anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(),
+            any(ExpirationPolicy.class))).thenReturn(false);
 
         //  Test successful run of job creation when a matching job row already exists.
         final String result = JobsPut.createOrUpdateJob(
@@ -192,7 +204,8 @@ public final class JobsPutTest {
         verify(mockDatabaseHelper, times(1))
             .createJob(
                     anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap());
+                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(),
+                any(ExpirationPolicy.class));
         assertEquals("update", result);
     }
 
@@ -251,7 +264,8 @@ public final class JobsPutTest {
 
         verify(mockDatabaseHelper, times(1))
             .createJob(eq("partition"), eq("id"), anyString(),anyString(),anyString(),anyInt(), anyString(),
-                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap());
+                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(),
+                any(ExpirationPolicy.class));
         final ArgumentCaptor<WorkerAction> workerActionCaptor =
             ArgumentCaptor.forClass(WorkerAction.class);
 
@@ -306,7 +320,8 @@ public final class JobsPutTest {
         
         verify(mockDatabaseHelper, times(1)).createJob(
                 anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                anyInt(), any(), anyString(), anyString(), anyInt(), anyMap());
+                anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(),
+            any(ExpirationPolicy.class));
     }
 
     @Test
@@ -334,14 +349,16 @@ public final class JobsPutTest {
 
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false));
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false),
+            any(ExpirationPolicy.class));
     }
 
     @Test
     public void testJobCreationWithPrerequisites_MatchingJobRow() throws Exception {
         when(mockDatabaseHelper.createJobWithDependencies(
             anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false)
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false),
+            any(ExpirationPolicy.class)
         )).thenReturn(false);
 
         final NewJob job = makeJob();
@@ -354,7 +371,8 @@ public final class JobsPutTest {
         assertEquals("update", result);
         verify(mockDatabaseHelper, times(1)).createJobWithDependencies(
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false));
+            anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), Matchers.eq(false),
+            any(ExpirationPolicy.class));
     }
 
     
