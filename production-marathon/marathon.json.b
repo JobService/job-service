@@ -7,7 +7,7 @@
             "instances": 1,
             "container": {
                 "docker": {
-                    "image": "jobservice/prereleases:job-service-5.0.0-4",
+                    "image": "jobservice/prereleases:job-service-6.0.0-31",
                     "network": "BRIDGE",
                     "portMappings": [{
                         "containerPort": 8080,
@@ -22,7 +22,9 @@
             "env": {
                 "_JAVA_OPTIONS": "-Xms512m -Xmx512m",
                 "JOB_SERVICE_DATABASE_APPNAME": "Job Service",
-                "JOB_SERVICE_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DATABASE_HOSTNAME}:${JOB_SERVICE_DATABASE_PORT}/jobservice",
+                "JOB_SERVICE_DATABASE_HOST": "${JOB_SERVICE_DATABASE_HOST}",
+                "JOB_SERVICE_DATABASE_PORT": "${JOB_SERVICE_DATABASE_PORT}",
+                "JOB_SERVICE_DATABASE_NAME": "jobservice",
                 "JOB_SERVICE_DATABASE_USERNAME": "${JOB_SERVICE_DATABASE_USERNAME}",
                 "JOB_SERVICE_DATABASE_PASSWORD": "${JOB_SERVICE_DATABASE_PASSWORD}",
                 "CAF_TRACKING_PIPE": "jobtracking-in",
@@ -51,7 +53,7 @@
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "jobservice/prereleases:worker-jobtracking-5.0.0-4",
+                    "image": "jobservice/prereleases:worker-jobtracking-6.0.0-31",
                     "network": "BRIDGE",
                     "forcePullImage": true,
                     "portMappings": [{
@@ -74,7 +76,9 @@
                 "CAF_WORKER_INPUT_QUEUE": "jobtracking-in",
                 "CAF_WORKER_ERROR_QUEUE": "jobtracking-err",
                 "JOB_SERVICE_DATABASE_APPNAME": "Job Tracking Worker",
-                "JOB_SERVICE_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DATABASE_HOSTNAME}:${JOB_SERVICE_DATABASE_PORT}/jobservice",
+                "JOB_SERVICE_DATABASE_HOST": "${JOB_SERVICE_DATABASE_HOST}",
+                "JOB_SERVICE_DATABASE_PORT": "${JOB_SERVICE_DATABASE_PORT}",
+                "JOB_SERVICE_DATABASE_NAME": "jobservice",
                 "JOB_SERVICE_DATABASE_USERNAME": "${JOB_SERVICE_DATABASE_USERNAME}",
                 "JOB_SERVICE_DATABASE_PASSWORD": "${JOB_SERVICE_DATABASE_PASSWORD}",
                 "CAF_WEBSERVICE_URL": "http://${JOB_SERVICE_HOST}:${JOB_SERVICE_8080_SERVICE_PORT}/job-service/v1",
@@ -110,7 +114,7 @@
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "jobservice/prereleases:job-service-scheduled-executor-5.0.0-4",
+                    "image": "jobservice/prereleases:job-service-scheduled-executor-6.0.0-31",
                     "network": "BRIDGE",
                     "forcePullImage": true,
                     "portMappings": [{
@@ -125,7 +129,9 @@
                 "_JAVA_OPTIONS": "-Xms512m -Xmx512m",
                 "CAF_WORKER_INPUT_QUEUE": "jobservicescheduler-in",
                 "JOB_SERVICE_DATABASE_APPNAME": "Job Service Scheduled Executor",
-                "JOB_SERVICE_DATABASE_URL": "jdbc:postgresql://${JOB_SERVICE_DATABASE_HOSTNAME}:${JOB_SERVICE_DATABASE_PORT}/jobservice",
+                "JOB_SERVICE_DATABASE_HOST": "${JOB_SERVICE_DATABASE_HOST}",
+                "JOB_SERVICE_DATABASE_PORT": "${JOB_SERVICE_DATABASE_PORT}",
+                "JOB_SERVICE_DATABASE_NAME": "jobservice",
                 "JOB_SERVICE_DATABASE_USERNAME": "${JOB_SERVICE_DATABASE_USERNAME}",
                 "JOB_SERVICE_DATABASE_PASSWORD": "${JOB_SERVICE_DATABASE_PASSWORD}",
                 "CAF_TRACKING_PIPE": "jobtracking-in",
