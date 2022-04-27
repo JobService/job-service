@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright 2016-2021 Micro Focus or one of its affiliates.
+# Copyright 2016-2022 Micro Focus or one of its affiliates.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
