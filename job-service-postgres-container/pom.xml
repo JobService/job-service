@@ -96,7 +96,7 @@
                         <!-- Postgres DB -->
                         <image>
                             <alias>${js.database.host}</alias>
-                            <name>${dockerHubPublic}/library/postgres:11</name>
+                            <name>${dockerHubPublic}/library/postgres:14</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
@@ -147,7 +147,7 @@
                             <alias>job-service-postgres</alias>
                             <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <build>
-                                <from>${dockerHubPublic}/cafapi/java-postgres:2</from>
+                                <from>${dockerHubPublic}/cafapi/prereleases:java-postgres-3.0.0-US516003-SNAPSHOT</from>
                                 <optimise>true</optimise>
                                 <assembly>
                                     <mode>tar</mode>
