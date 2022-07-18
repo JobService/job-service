@@ -118,7 +118,7 @@
                         </image>
                         
                         <!-- Run old version of jobservice postgres container against postgres database to install jobservice schema. -->
-                        <image>
+<!--                        <image>
                             <alias>job-service-postgres-old</alias>
                             <name>${dockerHubPublic}/jobservice/job-service-postgres:2</name>
                             <run>
@@ -140,7 +140,7 @@
                                     <enabled>true</enabled>
                                 </log>
                             </run>
-                        </image>
+                        </image>-->
                         
                         <!-- Run jobservice postgres container against postgres database to upgrade jobservice schema. -->
                         <image>
