@@ -412,7 +412,7 @@
                         <!-- Run a PostgreSQL DB -->
                         <image>
                             <alias>${job.database.host}</alias>
-                            <name>${dockerHubPublic}/library/postgres:11</name>
+                            <name>${dockerHubPublic}/library/postgres:14</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
