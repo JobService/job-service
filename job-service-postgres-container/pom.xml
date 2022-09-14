@@ -147,7 +147,7 @@
                             <alias>job-service-postgres</alias>
                             <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <build>
-                                <from>${dockerHubPublic}/cafapi/java-postgres:3.0.0</from>
+                                <from>${dockerHubPublic}/cafapi/java-postgres:3</from>
                                 <optimise>true</optimise>
                                 <assembly>
                                     <mode>tar</mode>
