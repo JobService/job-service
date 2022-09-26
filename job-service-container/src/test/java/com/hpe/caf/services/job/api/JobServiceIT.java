@@ -1092,14 +1092,14 @@ public class JobServiceIT {
     @Test
     public void testDeleteLog() throws SQLException
     {
-        //prepare
+        // prepare
         final List<String> deletedOrCancelledJobs = new ArrayList();
 
         try(final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
         {
             final int totalTableCount = Integer.parseInt(System.getProperty("task.table.deletion.count"));
             final int totalParentTableCount = totalTableCount/96; // Each parent table results in creation of 96 child/sub-child tables.
-            LOG.info("Creating tables");
+            LOG.info("Preparing data for delete log test...");
             final Instant startTableCreation = Instant.now();
             IntStream
                     .rangeClosed(1, totalParentTableCount)
@@ -1112,18 +1112,21 @@ public class JobServiceIT {
                         createAndPopulateChildTables(dbConnection, parentTableName); //parentTableName - task_1, task_2 ...
                     });
             final Instant endTableCreation = Instant.now();
-            LOG.info("Total time taken to create " + getAllTablesByPattern(dbConnection).size() + " tables in ms. " + 
+            LOG.info("Total time taken to create {} tables in {} ms. ", getAllTablesByPattern(dbConnection).size(),
                                                             Duration.between(startTableCreation, endTableCreation).toMillis());
 
-            //act
+            // act
             // Simulate job deletion/cancellation
+            LOG.info("Simulate job deletion/cancellation...");
             deletedOrCancelledJobs.stream()
                     .forEach(id -> insertTableNameIntoParentTableLog(dbConnection, id));
 
             // drop_deleted_task_tables procedure is being called through the scheduled executor periodically.
+            LOG.info("drop_deleted_task_tables procedure is being called through the scheduled executor periodically...");
             waitWithRetriesTillTablesAreDropped(dbConnection, 3);
 
-            //assert
+            // assert
+            LOG.info("Verify delete log...");
             final List<String> foundTables = getAllTablesByPattern(dbConnection);
             assertEquals(foundTables.size(), 0);
             // assert number of rows in delete_log to be 0.
@@ -1139,6 +1142,7 @@ public class JobServiceIT {
     {
         int count = 0;
         do {
+            LOG.debug("waitWithRetriesTillTablesAreDropped attempt: {}", count + 1);
             Thread.sleep(70000);
             count++;
         } while (getAllTablesByPattern(dbConnection).size() != 0 && count < maxRetries);
@@ -1168,6 +1172,7 @@ public class JobServiceIT {
 
     private void insertRecordsInTaskTable(final java.sql.Connection dbConnection, final String parentTableName, final int rowCount)
     {
+        LOG.debug("insertRecordsInTaskTable {} rows into table {}", rowCount, parentTableName);
         try (final PreparedStatement jobIdentity = dbConnection.prepareStatement(insertMultipleRowsSQL(parentTableName, rowCount))) {
             jobIdentity.executeUpdate();
         } catch (final SQLException sqlException) {
@@ -1197,6 +1202,7 @@ public class JobServiceIT {
 
     private void insertTableNameIntoParentTableLog(final java.sql.Connection dbConnection, final String parentTableName)
     {
+        LOG.debug("Preparing call internal_insert_parent_table_to_delete {}...", parentTableName);
         try (final CallableStatement insertParentTableToDelete = dbConnection
                 .prepareCall("{call internal_insert_parent_table_to_delete(?)}")) {
             insertParentTableToDelete.setString(1, parentTableName);
@@ -1209,6 +1215,7 @@ public class JobServiceIT {
 
     private void createTaskTable(final java.sql.Connection dbConnection, final String parentTableName)
     {
+        LOG.debug("Preparing call internal_create_task_table {}...", parentTableName);
         try (final CallableStatement createTaskTableStmt = dbConnection
                 .prepareCall("{call internal_create_task_table(?)}")) {
             createTaskTableStmt.setString(1, parentTableName);
@@ -1221,6 +1228,7 @@ public class JobServiceIT {
 
     private List<String> getAllTablesByPattern(final java.sql.Connection dbConnection) throws SQLException
     {
+        LOG.debug("getAllTablesByPattern 'task_%'...");
         final List<String> foundTables = new ArrayList();
         final DatabaseMetaData dbm = dbConnection.getMetaData();
         try(ResultSet rs = dbm.getTables(null, "public", "task_%", null))
@@ -1230,19 +1238,24 @@ public class JobServiceIT {
                 foundTables.add(rs.getString("TABLE_NAME"));
             }
         }
+        LOG.debug("getAllTablesByPattern 'task_%' found {} tables : {}", foundTables.size(), foundTables);
         return foundTables;
     }
 
     private int getRowsInDeleteLog(final java.sql.Connection dbConnection) throws SQLException
     {
+        LOG.debug("getRowsInDeleteLog...");
         try(final PreparedStatement deleteLogCount = dbConnection.prepareStatement("select count(*) from delete_log");
             final ResultSet resultSet = deleteLogCount.executeQuery())
         {
             if(resultSet.next())
             {
-                return resultSet.getInt(1);
+                final int deleteRows = resultSet.getInt(1);
+                LOG.debug("{} rows in delete log", deleteRows);
+                return deleteRows;
             }
         }
+        LOG.debug("0 rows in delete log");
         return 0;
     }
 
