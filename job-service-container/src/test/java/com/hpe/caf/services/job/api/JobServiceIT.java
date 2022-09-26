@@ -190,8 +190,10 @@ public class JobServiceIT {
         workerServices = WorkerServices.getDefault();
         configurationSource = workerServices.getConfigurationSource();
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
-        rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
-        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitHost(
+            SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(
+            Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
         rabbitConn = RabbitUtil.createRabbitConnection(rabbitConfiguration.getRabbitConfiguration());
     }
 
@@ -1059,7 +1061,8 @@ public class JobServiceIT {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
         } catch (final ApiException e) {
             exceptionThrown = true;
-            assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
+            assertTrue(e.getMessage().contains(
+                "A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
         }
         assertTrue(exceptionThrown);
         exceptionThrown = false;
@@ -1069,7 +1072,8 @@ public class JobServiceIT {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
         } catch (final ApiException e) {
             exceptionThrown = true;
-            assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
+            assertTrue(e.getMessage().contains(
+                "A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
         }
         assertTrue(exceptionThrown);
         exceptionThrown = false;
@@ -1079,7 +1083,8 @@ public class JobServiceIT {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
         } catch (final ApiException e) {
             exceptionThrown = true;
-            assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
+            assertTrue(e.getMessage().contains(
+                "A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
         }
         assertTrue(exceptionThrown);
     }
