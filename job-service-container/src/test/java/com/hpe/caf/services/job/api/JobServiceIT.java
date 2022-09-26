@@ -74,7 +74,7 @@ import static org.testng.FileAssert.fail;
  * (Not an end to end integration test.)
  */
 public class JobServiceIT {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(JobServiceIT.class);
 
     private String connectionString;
@@ -167,17 +167,16 @@ public class JobServiceIT {
     public void setup() throws Exception {
         connectionString = System.getenv("webserviceurl");
 
-        //Populate maps for testing    
+        //Populate maps for testing
         taskMessageParams.put("datastorePartialReference", "sample-files");
         taskMessageParams.put("documentDataInputFolder", "/mnt/caf-datastore-root/sample-files");
         taskMessageParams.put("documentDataOutputFolder", "/mnt/bla");
-        
+
         testDataObjectMap.put("taskClassifier", "*.txt");
         testDataObjectMap.put("batchType", "WorkerDocumentBatchPlugin");
         testDataObjectMap.put("taskMessageType", "DocumentWorkerTaskBuilder");
         testDataObjectMap.put("taskMessageParams", taskMessageParams);
         testDataObjectMap.put("targetPipe", "languageidentification-in");
-        
 
         //set up client to connect to the web service running on docker, and call web methods from correct address.
         client.setBasePath(connectionString);
@@ -400,7 +399,7 @@ public class JobServiceIT {
         }
 
     }
-    
+
     @Test
     public void testCreateJobWithTaskData_Object() throws ApiException {
         //create a job
@@ -1084,7 +1083,7 @@ public class JobServiceIT {
         }
         assertTrue(exceptionThrown);
     }
-    
+
     @Test
     public void testDeleteLog() throws SQLException
     {
@@ -1110,7 +1109,7 @@ public class JobServiceIT {
             final Instant endTableCreation = Instant.now();
             LOG.info("Total time taken to create " + getAllTablesByPattern(dbConnection).size() + " tables in ms. " + 
                                                             Duration.between(startTableCreation, endTableCreation).toMillis());
-            
+
             //act
             // Simulate job deletion/cancellation
             deletedOrCancelledJobs.stream()
@@ -1214,7 +1213,7 @@ public class JobServiceIT {
             throw new RuntimeException(sqlException);
         }
     }
-    
+
     private List<String> getAllTablesByPattern(java.sql.Connection dbConnection) throws SQLException
     {
         List<String> foundTables = new ArrayList();
@@ -1228,7 +1227,7 @@ public class JobServiceIT {
         }
         return foundTables;
     }
-    
+
     private int getRowsInDeleteLog(java.sql.Connection dbConnection) throws SQLException
     {
         try(final PreparedStatement deleteLogCount = dbConnection.prepareStatement("select count(*) from delete_log");
