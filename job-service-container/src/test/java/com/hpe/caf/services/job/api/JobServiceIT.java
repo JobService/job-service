@@ -74,7 +74,7 @@ import static org.testng.FileAssert.fail;
  * (Not an end to end integration test.)
  */
 public class JobServiceIT {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(JobServiceIT.class);
 
     private String connectionString;
@@ -102,10 +102,10 @@ public class JobServiceIT {
      * @return Basic job definition to be submitted
      */
     private NewJob makeJob(final String jobId, final String testId) {
-        String jobName = "Job_" + jobId;
+        final String jobName = "Job_" + jobId;
 
         //create a WorkerAction task
-        WorkerAction workerActionTask = new WorkerAction();
+        final WorkerAction workerActionTask = new WorkerAction();
         workerActionTask.setTaskClassifier(jobName + "_" + testId);
         workerActionTask.setTaskApiVersion(1);
         workerActionTask.setTaskData("{\"data\" : \"" + jobName + "_TaskClassifier Sample Test Task Data.\"}");
@@ -118,11 +118,11 @@ public class JobServiceIT {
             rabbitChannel.queueDeclare("TaskQueue_" + jobId, true, false, false,
                     new HashMap<>());
             rabbitChannel.close();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
 
-        NewJob newJob = new NewJob();
+        final NewJob newJob = new NewJob();
         newJob.setName(jobName);
         newJob.setDescription(jobName + " Descriptive Text.");
         newJob.setExternalData(jobName + " External data.");
@@ -167,32 +167,33 @@ public class JobServiceIT {
     public void setup() throws Exception {
         connectionString = System.getenv("webserviceurl");
 
-        //Populate maps for testing    
+        //Populate maps for testing
         taskMessageParams.put("datastorePartialReference", "sample-files");
         taskMessageParams.put("documentDataInputFolder", "/mnt/caf-datastore-root/sample-files");
         taskMessageParams.put("documentDataOutputFolder", "/mnt/bla");
-        
+
         testDataObjectMap.put("taskClassifier", "*.txt");
         testDataObjectMap.put("batchType", "WorkerDocumentBatchPlugin");
         testDataObjectMap.put("taskMessageType", "DocumentWorkerTaskBuilder");
         testDataObjectMap.put("taskMessageParams", taskMessageParams);
         testDataObjectMap.put("targetPipe", "languageidentification-in");
-        
 
         //set up client to connect to the web service running on docker, and call web methods from correct address.
         client.setBasePath(connectionString);
 
-        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        final SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         client.setDateFormat(f);
         jobsApi = new JobsApi(client);
 
-        BootstrapConfiguration bootstrap = new SystemBootstrapConfiguration();
+        final BootstrapConfiguration bootstrap = new SystemBootstrapConfiguration();
         servicePath = bootstrap.getServicePath();
         workerServices = WorkerServices.getDefault();
         configurationSource = workerServices.getConfigurationSource();
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
-        rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
-        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitHost(
+            SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitPort(
+            Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
         rabbitConn = RabbitUtil.createRabbitConnection(rabbitConfiguration.getRabbitConfiguration());
     }
 
@@ -239,14 +240,14 @@ public class JobServiceIT {
     @Test
     public void testCreateJob() throws ApiException {
         //create a job
-        String jobId = UUID.randomUUID().toString();
-        String jobCorrelationId = "1";
+        final String jobId = UUID.randomUUID().toString();
+        final String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testCreateJob");
 
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
         //retrieve job using web method
-        Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+        final Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
         assertEquals(retrievedJob.getId(), jobId);
         assertEquals(retrievedJob.getName(), newJob.getName());
@@ -362,14 +363,14 @@ public class JobServiceIT {
     @Test
     public void testJobIsActive() throws ApiException {
         //create a job
-        String jobId = UUID.randomUUID().toString();
-        String jobCorrelationId = "1";
+        final String jobId = UUID.randomUUID().toString();
+        final String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testJobIsActive");
 
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
         // Check if job is active.
-        boolean isActive = jobsApi.getJobActive(defaultPartitionId, jobId, jobCorrelationId);
+        final boolean isActive = jobsApi.getJobActive(defaultPartitionId, jobId, jobCorrelationId);
 
         // Job will be in a 'Waiting' state, which is assumed as being Active.
         assertTrue(isActive);
@@ -385,7 +386,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
         //make sure the job is there
-        Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+        final Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
         assertEquals(retrievedJob.getId(), jobId);
 
         //delete the job
@@ -394,24 +395,24 @@ public class JobServiceIT {
         //make sure the job does not exist
         try {
             jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId).getDescription();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             assertTrue(e.getMessage().contains("\"message\":\"ERROR: job_id {" +jobId +"} not found"),
                     "Exception Message should return JobId not found");
         }
 
     }
-    
+
     @Test
     public void testCreateJobWithTaskData_Object() throws ApiException {
         //create a job
-        String jobId = UUID.randomUUID().toString();
-        String jobCorrelationId = "1";
+        final String jobId = UUID.randomUUID().toString();
+        final String jobCorrelationId = "1";
         final NewJob newJob = makeJob(jobId, "testObjectJob");
 
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
 
         //retrieve job using web method
-        Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+        final Job retrievedJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
         assertEquals(retrievedJob.getId(), jobId);
         assertEquals(retrievedJob.getName(), newJob.getName());
@@ -423,13 +424,13 @@ public class JobServiceIT {
     public void testRetrieveMultipleJobs() throws ApiException {
         String randomUUID = UUID.randomUUID().toString();
         for(int i=0; i<10; i++){
-            String jobId = randomUUID +"_"+i;
-            String jobName = "Job_"+randomUUID +"_"+i;
-            String jobDesc = jobName +" Descriptive Text.";
-            String jobCorrelationId = "100";
-            String jobExternalData = jobName +" External data.";
+            final String jobId = randomUUID +"_"+i;
+            final String jobName = "Job_"+randomUUID +"_"+i;
+            final String jobDesc = jobName +" Descriptive Text.";
+            final String jobCorrelationId = "100";
+            final String jobExternalData = jobName +" External data.";
 
-            WorkerAction workerActionTask = new WorkerAction();
+            final WorkerAction workerActionTask = new WorkerAction();
             workerActionTask.setTaskClassifier(jobName +"_TaskClassifier");
             workerActionTask.setTaskApiVersion(1);
             workerActionTask.setTaskData("{\"data\" : \"Sample Test Task Data.\"}");
@@ -446,7 +447,7 @@ public class JobServiceIT {
                 throw new RuntimeException(e);
             }
 
-            NewJob newJob = new NewJob();
+            final NewJob newJob = new NewJob();
             newJob.setName(jobName);
             newJob.setDescription(jobDesc);
             newJob.setExternalData(jobExternalData);
@@ -460,10 +461,10 @@ public class JobServiceIT {
         assertEquals(retrievedJobs.size(), 10);
 
         for(int i=0; i<10; i++) {
-            String expectedId = randomUUID +"_" +i;
-            String expectedName = "Job_" +randomUUID +"_" +i;
-            String expectedDescription = expectedName + " Descriptive Text.";
-            String expectedExternalData = expectedName +" External data.";
+            final String expectedId = randomUUID +"_" +i;
+            final String expectedName = "Job_" +randomUUID +"_" +i;
+            final String expectedDescription = expectedName + " Descriptive Text.";
+            final String expectedExternalData = expectedName +" External data.";
 
             final int resultIndex = 9 - i; // default order is by create date, descending
             assertEquals(retrievedJobs.get(resultIndex).getId(), expectedId);
@@ -993,12 +994,12 @@ public class JobServiceIT {
         assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(jobId1, jobId2)));
 
         //Assert all labels are returned, not just the ones used to filter the jobs
-        Job dbJob1 = jobs.stream().filter(j -> j.getId().equals(jobId1)).findFirst().orElse(null);
+        final Job dbJob1 = jobs.stream().filter(j -> j.getId().equals(jobId1)).findFirst().orElse(null);
         assertNotNull(dbJob1);
         assertTrue(dbJob1.getLabels().containsKey("tag:1"));
         assertTrue(dbJob1.getLabels().containsKey("tag:2"));
 
-        Job dbJob2 = jobs.stream().filter(j -> j.getId().equals(jobId2)).findFirst().orElse(null);
+        final Job dbJob2 = jobs.stream().filter(j -> j.getId().equals(jobId2)).findFirst().orElse(null);
         assertNotNull(dbJob2);
         assertTrue(dbJob2.getLabels().containsKey("tag:1"));
         assertTrue(dbJob2.getLabels().containsKey("owner"));
@@ -1035,7 +1036,7 @@ public class JobServiceIT {
                 2, 0, "createTime:asc", null, null);
         assertEquals(jobs.size(), 2);
         //Assert all labels are returned
-        Job dbJob1 = jobs.stream().filter(j -> j.getId().equals(jobId1)).findFirst().orElse(null);
+        final Job dbJob1 = jobs.stream().filter(j -> j.getId().equals(jobId1)).findFirst().orElse(null);
         assertNotNull(dbJob1);
         assertTrue(dbJob1.getLabels().containsKey("tag:1"));
         assertTrue(dbJob1.getLabels().containsKey("tag:2"));
@@ -1060,7 +1061,8 @@ public class JobServiceIT {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
         } catch (final ApiException e) {
             exceptionThrown = true;
-            assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
+            assertTrue(e.getMessage().contains(
+                "A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
         }
         assertTrue(exceptionThrown);
         exceptionThrown = false;
@@ -1070,7 +1072,8 @@ public class JobServiceIT {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
         } catch (final ApiException e) {
             exceptionThrown = true;
-            assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
+            assertTrue(e.getMessage().contains(
+                "A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
         }
         assertTrue(exceptionThrown);
         exceptionThrown = false;
@@ -1080,11 +1083,12 @@ public class JobServiceIT {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, job, correlationId);
         } catch (final ApiException e) {
             exceptionThrown = true;
-            assertTrue(e.getMessage().contains("A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
+            assertTrue(e.getMessage().contains(
+                "A provided label name contains an invalid character, only alphanumeric, '-' and '_' are supported"));
         }
         assertTrue(exceptionThrown);
     }
-    
+
     @Test
     public void testDeleteLog() throws SQLException
     {
@@ -1110,7 +1114,7 @@ public class JobServiceIT {
             final Instant endTableCreation = Instant.now();
             LOG.info("Total time taken to create " + getAllTablesByPattern(dbConnection).size() + " tables in ms. " + 
                                                             Duration.between(startTableCreation, endTableCreation).toMillis());
-            
+
             //act
             // Simulate job deletion/cancellation
             deletedOrCancelledJobs.stream()
@@ -1214,11 +1218,11 @@ public class JobServiceIT {
             throw new RuntimeException(sqlException);
         }
     }
-    
-    private List<String> getAllTablesByPattern(java.sql.Connection dbConnection) throws SQLException
+
+    private List<String> getAllTablesByPattern(final java.sql.Connection dbConnection) throws SQLException
     {
-        List<String> foundTables = new ArrayList();
-        DatabaseMetaData dbm = dbConnection.getMetaData();
+        final List<String> foundTables = new ArrayList();
+        final DatabaseMetaData dbm = dbConnection.getMetaData();
         try(ResultSet rs = dbm.getTables(null, "public", "task_%", null))
         {
             while(rs.next())
@@ -1228,8 +1232,8 @@ public class JobServiceIT {
         }
         return foundTables;
     }
-    
-    private int getRowsInDeleteLog(java.sql.Connection dbConnection) throws SQLException
+
+    private int getRowsInDeleteLog(final java.sql.Connection dbConnection) throws SQLException
     {
         try(final PreparedStatement deleteLogCount = dbConnection.prepareStatement("select count(*) from delete_log");
             final ResultSet resultSet = deleteLogCount.executeQuery())
@@ -1273,15 +1277,15 @@ public class JobServiceIT {
     private static QueueManager getQueueManager(final String queueName) throws IOException, TimeoutException {
         //Test messages are published to the target pipe specified in the test (jobservice-test-input-1).
         //The test will consume these messages and assert that the results are as expected.
-        QueueServices queueServices = QueueServicesFactory.create(rabbitConfiguration, queueName, workerServices.getCodec());
+        final QueueServices queueServices = QueueServicesFactory.create(rabbitConfiguration, queueName, workerServices.getCodec());
         boolean debugEnabled = SettingsProvider.defaultProvider.getBooleanSetting(SettingNames.createDebugMessage,false);
         return new QueueManager(queueServices, workerServices, debugEnabled);
     }
 
-    private static Timer getTimer(ExecutionContext context) {
-        String timeoutSetting = SettingsProvider.defaultProvider.getSetting(SettingNames.timeOutMs);
-        long timeout = timeoutSetting == null ? defaultTimeOutMs : Long.parseLong(timeoutSetting);
-        Timer timer = new Timer();
+    private static Timer getTimer(final ExecutionContext context) {
+        final String timeoutSetting = SettingsProvider.defaultProvider.getSetting(SettingNames.timeOutMs);
+        final long timeout = timeoutSetting == null ? defaultTimeOutMs : Long.parseLong(timeoutSetting);
+        final Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
