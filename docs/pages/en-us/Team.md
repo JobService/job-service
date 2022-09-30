@@ -171,7 +171,7 @@ team_members:
           icon: hpe-social-email
           url: mailto:raghavendran.gopalakrishnan@microfocus.com
 
-    - name: Jonathon McCoubrey
+    - name: Jonathan McCoubrey
       email: jonathan.mccoubrey@microfocus.com
       avatar: /assets/img/team/jonathan.jpg
       social:
