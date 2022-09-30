@@ -485,7 +485,7 @@
                                     <CAF_JOB_SERVICE_SUSPENDED_PARTITIONS_REGEX>^tenant-acme-c(.?rp|om|o)$</CAF_JOB_SERVICE_SUSPENDED_PARTITIONS_REGEX>
                                     <CAF_JOB_SERVICE_RESUME_JOB_QUEUE>worker-taskunstowing-in</CAF_JOB_SERVICE_RESUME_JOB_QUEUE>
                                     <CAF_JOB_SERVICE_LOG_LEVEL>DEBUG</CAF_JOB_SERVICE_LOG_LEVEL>
-                                    <CAF_LOG_LEVEL>DEBUG</CAF_LOG_LEVEL>
+                                    <CAF_LOG_LEVEL>INFO</CAF_LOG_LEVEL>
                                 </env>
                                 <volumes>
                                     <from>
