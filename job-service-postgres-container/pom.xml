@@ -147,7 +147,7 @@
                             <alias>job-service-postgres</alias>
                             <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <build>
-                                <from>${dockerHubPublic}/cafapi/java-postgres:2</from>
+                                <from>${dockerHubPublic}/cafapi/prereleases:java-postgres-4.0.0-US593021-SNAPSHOT</from>
                                 <optimise>true</optimise>
                                 <assembly>
                                     <mode>tar</mode>
