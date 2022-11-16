@@ -33,7 +33,7 @@
 
     <properties>
         <task.table.deletion.count>100</task.table.deletion.count>
-        <tomcatBaseImage>${dockerHubPublic}/cafapi/opensuse-tomcat-jre11:2</tomcatBaseImage>
+        <tomcatBaseImage>${dockerHubPublic}/cafapi/prereleases:opensuse-tomcat-jre17-1.0.0-SNAPSHOT</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
