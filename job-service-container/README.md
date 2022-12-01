@@ -1,6 +1,6 @@
 # Job Service Container
 
-This docker image contains the [Job Service](../job-service) hosted in Apache Tomcat 8.
+This docker image contains the [Job Service](../job-service) hosted in Apache Tomcat.
 
 [Job-service-deploy](https://github.com/JobService/job-service-deploy) can be used to deploy this container on Docker.
 
