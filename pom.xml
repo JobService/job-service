@@ -47,7 +47,6 @@
         <enforceCorrectDependencies>true</enforceCorrectDependencies>
         <enforceBannedDependencies>true</enforceBannedDependencies>
         <fabric8.docker.maven.version>0.38.1</fabric8.docker.maven.version>
-        <org.codehaus.jettison.version>1.5.2</org.codehaus.jettison.version>
     </properties>
 
     <dependencyManagement>
@@ -262,6 +261,11 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>1.7.26</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jettison</groupId>
+                <artifactId>jettison</artifactId>
+                <version>1.5.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
