@@ -47,6 +47,7 @@
         <enforceCorrectDependencies>true</enforceCorrectDependencies>
         <enforceBannedDependencies>true</enforceBannedDependencies>
         <fabric8.docker.maven.version>0.38.1</fabric8.docker.maven.version>
+        <org.codehaus.jettison.version>1.5.2</org.codehaus.jettison.version>
     </properties>
 
     <dependencyManagement>
