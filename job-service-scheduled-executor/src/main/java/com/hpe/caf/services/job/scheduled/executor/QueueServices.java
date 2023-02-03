@@ -15,6 +15,8 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
+import com.github.workerframework.workermessageprioritization.rabbitmq.Queue;
+import com.github.workerframework.workermessageprioritization.rerouting.StagingQueueCreator;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.api.worker.QueueTaskMessage;
@@ -33,11 +35,15 @@ import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
+
+import static com.github.workerframework.workermessageprioritization.rerouting.MessageRouter.LOAD_BALANCED_INDICATOR;
 
 /**
  * This class is responsible for sending task data to the target queue.
@@ -50,6 +56,7 @@ public final class QueueServices implements AutoCloseable
     private final Channel publisherChannel;
     private final String targetQueue;
     private final Codec codec;
+    private final StagingQueueCreator stagingQueueCreator;
 
     public QueueServices(final Connection connection, final Channel publisherChannel, final String targetQueue, final Codec codec) {
 
@@ -57,6 +64,7 @@ public final class QueueServices implements AutoCloseable
         this.publisherChannel = publisherChannel;
         this.targetQueue = targetQueue;
         this.codec = codec;
+        this.stagingQueueCreator = new StagingQueueCreator(publisherChannel);
     }
 
     /**
@@ -106,10 +114,24 @@ public final class QueueServices implements AutoCloseable
             throw new RuntimeException(e);
         }
 
+        //POC Q of Q's
+        final Queue originalTargetQueue = new Queue();
+        originalTargetQueue.setName(targetQueue);
+        originalTargetQueue.setDurable(true);
+        originalTargetQueue.setExclusive(false);
+        originalTargetQueue.setAuto_delete(false);
+        originalTargetQueue.setArguments(new HashMap<>());
+        originalTargetQueue.getArguments().put("x-max-priority", 5);
+        
+        final String stagingQueueName = targetQueue + LOAD_BALANCED_INDICATOR + "/" +
+                String.join("/", partitionId, workerAction.getTaskClassifier());
+        
+        stagingQueueCreator.createStagingQueue(originalTargetQueue, stagingQueueName);
+        
         //  Send the message.
         LOG.debug("Publishing the message ...");
         publisherChannel.basicPublish(
-                "", targetQueue, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
+                "", stagingQueueName, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
     }
 
     private TaskMessage getTaskMessage(
