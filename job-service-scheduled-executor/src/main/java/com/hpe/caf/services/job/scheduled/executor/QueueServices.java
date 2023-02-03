@@ -114,19 +114,27 @@ public final class QueueServices implements AutoCloseable
             throw new RuntimeException(e);
         }
         
-        //POC Q of Q's
-        final Queue originalTargetQueue = new Queue();
-        originalTargetQueue.setName(targetQueue);
-        originalTargetQueue.setDurable(true);
-        originalTargetQueue.setExclusive(false);
-        originalTargetQueue.setAuto_delete(false);
-        originalTargetQueue.setArguments(new HashMap<>());
-        originalTargetQueue.getArguments().put("x-max-priority", 5);
-        
-        final String stagingQueueName = targetQueue + LOAD_BALANCED_INDICATOR + "/" +
-                String.join("/", partitionId);
-        
-        stagingQueueCreator.createStagingQueue(originalTargetQueue, stagingQueueName);
+        final boolean wmpEnabled = Boolean.parseBoolean(System.getenv("CAF_WMP_ENABLED"));
+        final String stagingQueueName;
+        if(wmpEnabled) {
+            //POC Q of Q's
+            final Queue originalTargetQueue = new Queue();
+            originalTargetQueue.setName(targetQueue);
+            originalTargetQueue.setDurable(true);
+            originalTargetQueue.setExclusive(false);
+            originalTargetQueue.setAuto_delete(false);
+            originalTargetQueue.setArguments(new HashMap<>());
+            originalTargetQueue.getArguments().put("x-max-priority", 5);
+
+            stagingQueueName = targetQueue + LOAD_BALANCED_INDICATOR + "/" +
+                    String.join("/", partitionId);
+
+            stagingQueueCreator.createStagingQueue(originalTargetQueue, stagingQueueName);
+
+        }
+        else {
+            stagingQueueName = targetQueue;
+        }
         
         //  Send the message.
         LOG.debug("Publishing the message ...");
