@@ -113,7 +113,7 @@ public final class QueueServices implements AutoCloseable
             LOG.error(e.getMessage());
             throw new RuntimeException(e);
         }
-
+        
         //POC Q of Q's
         final Queue originalTargetQueue = new Queue();
         originalTargetQueue.setName(targetQueue);
@@ -124,7 +124,7 @@ public final class QueueServices implements AutoCloseable
         originalTargetQueue.getArguments().put("x-max-priority", 5);
         
         final String stagingQueueName = targetQueue + LOAD_BALANCED_INDICATOR + "/" +
-                String.join("/", partitionId, workerAction.getTaskClassifier());
+                String.join("/", partitionId);
         
         stagingQueueCreator.createStagingQueue(originalTargetQueue, stagingQueueName);
         
