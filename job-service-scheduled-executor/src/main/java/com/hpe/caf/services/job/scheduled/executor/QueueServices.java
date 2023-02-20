@@ -49,7 +49,7 @@ public final class QueueServices implements AutoCloseable
 
     private final static MessageRouterSingleton MESSAGE_ROUTER_SINGLETON = new MessageRouterSingleton();
 
-    private final static boolean CAF_WMP_ENABLED = Boolean.parseBoolean(System.getenv("CAF_WMP_ENABLED");
+    private final static boolean CAF_WMP_ENABLED = Boolean.parseBoolean(System.getenv("CAF_WMP_ENABLED"));
 
     private final Connection connection;
     private final Channel publisherChannel;
