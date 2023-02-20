@@ -104,10 +104,6 @@
         <!-- Message Prioritization -->
         <dependency>
             <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-message-prioritization-rabbitmq</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework</groupId>
             <artifactId>worker-message-prioritization-rerouting</artifactId>
         </dependency>
     </dependencies>

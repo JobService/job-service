@@ -209,11 +209,6 @@
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
-                <artifactId>worker-message-prioritization-rabbitmq</artifactId>
-                <version>1.0.0-627110-rory2-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-message-prioritization-rerouting</artifactId>
                 <version>1.0.0-627110-rory2-SNAPSHOT</version>
             </dependency>
