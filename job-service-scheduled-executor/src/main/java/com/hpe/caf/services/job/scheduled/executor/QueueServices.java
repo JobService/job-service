@@ -109,8 +109,15 @@ public final class QueueServices implements AutoCloseable
             throw new RuntimeException(e);
         }
 
-        MESSAGE_ROUTER_SINGLETON.init();
-        MESSAGE_ROUTER_SINGLETON.route(targetQueue, partitionId);
+        if (Boolean.parseBoolean(System.getenv("CAF_WMP_ENABLED"))) {
+            // TODO
+            // 1) partitionId is tenant-ingesttest20, should we try to parse tenantId from it, or just use partitionId. Does a
+            // partitionId always have a tenantId?
+            // 2) This always reroutes messages, do we need something like the action field in the workflows to enable/disable
+            // rerouting for a worker?
+            MESSAGE_ROUTER_SINGLETON.init();
+            MESSAGE_ROUTER_SINGLETON.route(targetQueue, partitionId);
+        }
 
         //  Send the message.
         LOG.debug("Publishing the message ...");
