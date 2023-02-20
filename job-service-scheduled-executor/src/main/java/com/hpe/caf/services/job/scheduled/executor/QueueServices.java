@@ -111,14 +111,18 @@ public final class QueueServices implements AutoCloseable
             throw new RuntimeException(e);
         }
 
+        final String stagingQueueName;
         if (CAF_WMP_ENABLED) {
             // TODO
-            // 1) partitionId is tenant-ingesttest20, should we try to parse tenantId from it, or just use partitionId. Does a
-            // partitionId always have a tenantId?
-            // 2) This always reroutes messages, do we need something like the action field in the workflows to enable/disable
-            // rerouting for a worker?
+            // 1) partitionId is tenant-rory, should we try to parse tenantId from it, or just use partitionId. Does a
+            // partitionId always have a tenantId? Maybe we should only call the message router if partitionId.startsWith("tenant-")?
+            // 2) This reroutes messages to whatever worker the targetQueue is for, do we need something like the
+            // action.applyMessagePrioritization field in the workflows to enable/disable rerouting for a worker?
+            // 3) There is no workflow name attached to the staging queue here. Do we need it? How do we get it?
             MESSAGE_ROUTER_SINGLETON.init();
-            MESSAGE_ROUTER_SINGLETON.route(targetQueue, partitionId);
+            stagingQueueName = MESSAGE_ROUTER_SINGLETON.route(targetQueue, partitionId);
+        } else {
+            stagingQueueName = targetQueue;
         }
 
         //  Send the message.
