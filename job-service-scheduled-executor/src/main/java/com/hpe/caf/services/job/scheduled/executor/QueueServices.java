@@ -15,6 +15,7 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
+import com.github.workerframework.workermessageprioritization.rerouting.MessageRouterSingleton;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.api.worker.QueueTaskMessage;
@@ -45,6 +46,8 @@ import java.util.concurrent.TimeoutException;
 public final class QueueServices implements AutoCloseable
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
+
+    private final static MessageRouterSingleton MESSAGE_ROUTER_SINGLETON = new MessageRouterSingleton();
 
     private final Connection connection;
     private final Channel publisherChannel;
@@ -105,6 +108,9 @@ public final class QueueServices implements AutoCloseable
             LOG.error(e.getMessage());
             throw new RuntimeException(e);
         }
+
+        MESSAGE_ROUTER_SINGLETON.init();
+        MESSAGE_ROUTER_SINGLETON.route(targetQueue, partitionId);
 
         //  Send the message.
         LOG.debug("Publishing the message ...");
