@@ -49,6 +49,8 @@ public final class QueueServices implements AutoCloseable
 
     private final static MessageRouterSingleton MESSAGE_ROUTER_SINGLETON = new MessageRouterSingleton();
 
+    private final static boolean CAF_WMP_ENABLED = Boolean.parseBoolean(System.getenv("CAF_WMP_ENABLED");
+
     private final Connection connection;
     private final Channel publisherChannel;
     private final String targetQueue;
@@ -109,7 +111,7 @@ public final class QueueServices implements AutoCloseable
             throw new RuntimeException(e);
         }
 
-        if (Boolean.parseBoolean(System.getenv("CAF_WMP_ENABLED"))) {
+        if (CAF_WMP_ENABLED) {
             // TODO
             // 1) partitionId is tenant-ingesttest20, should we try to parse tenantId from it, or just use partitionId. Does a
             // partitionId always have a tenantId?
