@@ -99,7 +99,7 @@ public class ScheduledExecutorConfig {
     public static String getCafWmpTargetQueueNamesPattern() {
         final String cafWmpTargetQueueNamesPattern =  getPropertyOrEnvVar("CAF_WMP_TARGET_QUEUE_NAMES_PATTERN");
         if (null == cafWmpTargetQueueNamesPattern || cafWmpTargetQueueNamesPattern.isEmpty()) {
-            return "^(?>dataprocessing-.*-in|worker-grammar-in|ingestion-batch-in)$";
+            return "^(?>dataprocessing-.*-in|worker-grammar-in|ingestion-batch-in|data-enrichment-batch-in)$";
         }
         return cafWmpTargetQueueNamesPattern;
     }
