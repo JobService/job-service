@@ -39,6 +39,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class is responsible for sending task data to the target queue.
@@ -47,9 +49,17 @@ public final class QueueServices implements AutoCloseable
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
 
-    private final static MessageRouterSingleton MESSAGE_ROUTER_SINGLETON = new MessageRouterSingleton();
+    private static final boolean CAF_WMP_ENABLED = ScheduledExecutorConfig.isCafWmpEnabled();
 
-    private final static boolean CAF_WMP_ENABLED = Boolean.parseBoolean(System.getenv("CAF_WMP_ENABLED"));
+    private static final Pattern CAF_WMP_PARTITION_ID_PATTERN
+            = CAF_WMP_ENABLED
+            ? Pattern.compile(ScheduledExecutorConfig.getCafWmpPartitionIdPattern())
+            : null;
+
+    private static final Pattern CAF_WMP_TARGET_QUEUE_NAMES_PATTERN
+            = CAF_WMP_ENABLED
+            ? Pattern.compile(ScheduledExecutorConfig.getCafWmpTargetQueueNamesPattern())
+            : null;
 
     private final Connection connection;
     private final Channel publisherChannel;
@@ -73,7 +83,8 @@ public final class QueueServices implements AutoCloseable
      */
     public void sendMessage(
         final String partitionId, final String jobId, final WorkerAction workerAction
-    ) throws IOException, URISyntaxException {
+    ) throws IOException, URISyntaxException, UnexpectedPartitionIdException
+    {
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
@@ -111,16 +122,32 @@ public final class QueueServices implements AutoCloseable
             throw new RuntimeException(e);
         }
 
+        // Reroute the message to a staging queue if applicable
         final String stagingQueueName;
-        if (CAF_WMP_ENABLED) {
-            // TODO
-            // 1) partitionId is tenant-rory, should we try to parse tenantId from it, or just use partitionId. Does a
-            // partitionId always have a tenantId? Maybe we should only call the message router if partitionId.startsWith("tenant-")?
-            // 2) This reroutes messages to whatever worker the targetQueue is for, do we need something like the
-            // action.applyMessagePrioritization field in the workflows to enable/disable rerouting for a worker?
-            // 3) There is no workflow name attached to the staging queue here. Do we need it? How do we get it?
-            MESSAGE_ROUTER_SINGLETON.init();
-            stagingQueueName = MESSAGE_ROUTER_SINGLETON.route(targetQueue, partitionId);
+
+        if (CAF_WMP_ENABLED && CAF_WMP_TARGET_QUEUE_NAMES_PATTERN.matcher(targetQueue).matches()) {
+
+            final Matcher matcher = CAF_WMP_PARTITION_ID_PATTERN.matcher(partitionId);
+
+            if (!matcher.matches()) {
+                throw new UnexpectedPartitionIdException(String.format(
+                        "Partition ID %s did not match expected pattern %s",
+                        partitionId,
+                        CAF_WMP_PARTITION_ID_PATTERN.toString()));
+            }
+
+            final String tenantId = matcher.group(1);
+
+            MessageRouterSingleton.init();
+
+            stagingQueueName = MessageRouterSingleton.route(targetQueue, tenantId);
+
+            LOG.debug("MessageRouterSingleton.route({}, {}) returned the following queue name: {}. " +
+                            "The following task data will be routed to this queue: {}",
+                    targetQueue,
+                    tenantId,
+                    stagingQueueName,
+                    workerAction);
         } else {
             stagingQueueName = targetQueue;
         }

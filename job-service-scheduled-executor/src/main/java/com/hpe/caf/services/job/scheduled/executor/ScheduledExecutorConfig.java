@@ -84,6 +84,26 @@ public class ScheduledExecutorConfig {
         return getPropertyOrEnvVar("CAF_WEBSERVICE_URL");
     }
 
+    public static boolean isCafWmpEnabled() {
+        return Boolean.parseBoolean(getPropertyOrEnvVar("CAF_WMP_ENABLED"));
+    }
+
+    public static String getCafWmpPartitionIdPattern() {
+        final String cafWmpPartitionIdPattern =  getPropertyOrEnvVar("CAF_WMP_PARTITION_ID_PATTERN");
+        if (null == cafWmpPartitionIdPattern || cafWmpPartitionIdPattern.isEmpty()) {
+            return "^tenant-(.+)$";
+        }
+        return cafWmpPartitionIdPattern;
+    }
+
+    public static String getCafWmpTargetQueueNamesPattern() {
+        final String cafWmpTargetQueueNamesPattern =  getPropertyOrEnvVar("CAF_WMP_TARGET_QUEUE_NAMES_PATTERN");
+        if (null == cafWmpTargetQueueNamesPattern || cafWmpTargetQueueNamesPattern.isEmpty()) {
+            return "^(?>dataprocessing-.*-in|worker-grammar-in)$";
+        }
+        return cafWmpTargetQueueNamesPattern;
+    }
+
     public static int getScheduledExecutorPeriod() {
         //  Default to 10 seconds if CAF_SCHEDULED_EXECUTOR_PERIOD not specified.
         final String  scheduledExecutorPeriod = getPropertyOrEnvVar("CAF_SCHEDULED_EXECUTOR_PERIOD");
