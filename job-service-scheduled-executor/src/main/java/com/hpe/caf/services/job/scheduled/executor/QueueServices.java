@@ -83,7 +83,7 @@ public final class QueueServices implements AutoCloseable
      */
     public void sendMessage(
         final String partitionId, final String jobId, final WorkerAction workerAction
-    ) throws IOException, URISyntaxException, UnexpectedPartitionIdException
+    ) throws IOException, URISyntaxException
     {
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
@@ -129,14 +129,7 @@ public final class QueueServices implements AutoCloseable
 
             final Matcher matcher = CAF_WMP_PARTITION_ID_PATTERN.matcher(partitionId);
 
-            if (!matcher.matches()) {
-                throw new UnexpectedPartitionIdException(String.format(
-                        "Partition ID %s did not match expected pattern %s",
-                        partitionId,
-                        CAF_WMP_PARTITION_ID_PATTERN.toString()));
-            }
-
-            final String tenantId = matcher.group(1);
+            final String tenantId = matcher.matches() ? matcher.group(1) : partitionId;
 
             MessageRouterSingleton.init();
 

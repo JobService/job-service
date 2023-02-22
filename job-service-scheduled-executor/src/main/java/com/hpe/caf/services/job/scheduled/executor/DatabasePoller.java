@@ -77,8 +77,6 @@ public class DatabasePoller
             LOG.debug("Sending task data to the target queue {} ...", workerAction);
             queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
             deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
-        } catch(final UnexpectedPartitionIdException ex) {
-            LOG.error("Failed to send message due to unexpected partition ID", ex);
         } catch(final Exception ex) {
             LOG.warn("Failed to send message about dependent jobs", ex);
         }
