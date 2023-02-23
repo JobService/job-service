@@ -26,7 +26,7 @@ ${version-number}
     `description`: Only applies when `CAF_WMP_ENABLED` is true. Used to specify the target queue names pattern. This pattern is used
     by the Job Service Scheduled Executor to check whether it should reroute a message to a staging queue or not. Only messages destined for
     target queues that match this pattern will be rerouted to staging queues.  
-    `default`: ^(?>dataprocessing-.*-in|worker-grammar-in|ingestion-batch-in|data-enrichment-batch-in)$
+    `default`: ^(?>dataprocessing-.*-in|ingestion-batch-in|data-enrichment-batch-in|appresources-worker-in|ajp-worker-in)$
 
   - `CAF_WMP_USE_TARGET_QUEUE_CAPACITY_TO_REROUTE`  
     `description`: Only applies when `CAF_WMP_ENABLED` is true. Determines whether the Job Service Scheduled Executor should use the target
