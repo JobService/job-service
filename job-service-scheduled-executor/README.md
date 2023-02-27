@@ -45,25 +45,3 @@ ID will be `acmecorp`.
 by the Job Service Scheduled Executor to check whether it should reroute a message to a staging queue or not. Only messages destined for 
 target queues that match this pattern will be rerouted to staging queues.  
 `default`: ^(?>dataprocessing-.*-in|ingestion-batch-in|data-enrichment-batch-in|appresources-worker-in|ajp-worker-in)$
-
-- `CAF_WMP_USE_TARGET_QUEUE_CAPACITY_TO_REROUTE`  
-`description`: Only applies when `CAF_WMP_ENABLED` is true. Determines whether the Job Service Scheduled Executor should use the target
-queue's capacity when making a decision on whether to reroute a message. If true, a message will only be rerouted to a staging 
-queue if the target queue does not have capacity for it. If false, a message will **always** be rerouted to a staging queue,
-irregardless of the target queue's capacity.  
-`default`: false
-
-- `CAF_WMP_KUBERNETES_NAMESPACES`  
-`description`: Used to specify the Kubernetes namespaces, comma separated, in which to search for a worker's labels. These labels
-contain information about each worker's target queue, such as its name and maximum length. A non-null and non-empty value must be
-provided for this environment variable if `CAF_WMP_USE_TARGET_QUEUE_CAPACITY_TO_REROUTE` is true. If
-`CAF_WMP_USE_TARGET_QUEUE_CAPACITY_TO_REROUTE` is false, this environment variable is not used.  
-`default`: None
-
-- `CAF_WMP_KUBERNETES_LABEL_CACHE_EXPIRY_MINUTES`   
-`description`: Used to specify the 'expire after write' minutes after which a Kubernetes label that has been added to the cache
-should be removed. Set this to 0 to disable caching. Only used when `CAF_WMP_USE_TARGET_QUEUE_CAPACITY_TO_REROUTE` is true. If
-`CAF_WMP_USE_TARGET_QUEUE_CAPACITY_TO_REROUTE` is false, this environment variable is not used.  
-`default`: 60
-
-
