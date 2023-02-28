@@ -25,3 +25,23 @@ T1
   `description`: This environment variable controls the format of the message being published by the scheduled-executor to the queue messaging system . It takes a String value which can be `V3` or `V4`.  
   The difference between those 2 formats is that **taskData** is _base64 encoded_ for `V3` while it's in plain json for `V4`.  
   Its default format is `V3`
+
+- `CAF_WMP_ENABLED`  
+`description`: Determines whether the Job Service Scheduled Executor should reroute a message to a worker's staging queue or not. If 
+true, a message will attempt to be rerouted. If false, a message will not be rerouted and will be sent to the target queue rather than
+to a staging queue.  
+`default`: false
+
+- `CAF_WMP_PARTITION_ID_PATTERN`   
+`description`: Only applies when `CAF_WMP_ENABLED` is true. Used to specify the partition ID pattern. This pattern is used
+by the Job Service Scheduled Executor to extract the tenant ID from the partition ID. The tenant ID is then used to construct the
+staging queue name.
+`default`: ^tenant-(.+)$  
+`example`: If the pattern is `^tenant-(.+)$` and the partition ID is `tenant-acmecorp`, the tenant ID extracted from this partition
+ID will be `acmecorp`.
+
+- `CAF_WMP_TARGET_QUEUE_NAMES_PATTERN`   
+`description`: Only applies when `CAF_WMP_ENABLED` is true. Used to specify the target queue names pattern. This pattern is used
+by the Job Service Scheduled Executor to check whether it should reroute a message to a staging queue or not. Only messages destined for 
+target queues that match this pattern will be rerouted to staging queues.  
+`default`: ^(?>dataprocessing-.*-in|ingestion-batch-in|data-enrichment-batch-in|appresources-worker-in|ajp-worker-in)$

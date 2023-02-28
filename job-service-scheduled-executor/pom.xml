@@ -100,6 +100,12 @@
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-util</artifactId>
         </dependency>
+
+        <!-- Message Prioritization -->
+        <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-message-prioritization-rerouting</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
