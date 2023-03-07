@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 window.onload = function () {
-    document.title = "Micro Focus Job Service";
+    document.title = "Open Text Job Service";
     window.ui = SwaggerUIBundle({
         url: "api-docs/swagger.yaml",
         dom_id: '#swagger-ui',
