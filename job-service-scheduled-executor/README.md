@@ -35,7 +35,7 @@ to a staging queue.
 - `CAF_WMP_PARTITION_ID_PATTERN`   
 `description`: Only applies when `CAF_WMP_ENABLED` is true. Used to specify the partition ID pattern. This pattern is used
 by the Job Service Scheduled Executor to extract the tenant ID from the partition ID. The tenant ID is then used to construct the
-staging queue name. The pattern must contain a named group called `tenantId`, which is what is used to extract the tenant ID.  
+staging queue name. The pattern must contain a named capturing group called `tenantId`, which is what is used to extract the tenant ID.  
 `default`: None  
 `example`: If the pattern is `^tenant-(?<tenantId>.+)$` and the partition ID is `tenant-acmecorp`, the tenant ID extracted from this 
 partition ID will be `acmecorp`.
