@@ -89,19 +89,11 @@ public class ScheduledExecutorConfig {
     }
 
     public static String getCafWmpPartitionIdPattern() {
-        final String cafWmpPartitionIdPattern =  getPropertyOrEnvVar("CAF_WMP_PARTITION_ID_PATTERN");
-        if (null == cafWmpPartitionIdPattern || cafWmpPartitionIdPattern.isEmpty()) {
-            return "^tenant-(.+)$";
-        }
-        return cafWmpPartitionIdPattern;
+        return getPropertyOrEnvVar("CAF_WMP_PARTITION_ID_PATTERN");
     }
 
     public static String getCafWmpTargetQueueNamesPattern() {
-        final String cafWmpTargetQueueNamesPattern =  getPropertyOrEnvVar("CAF_WMP_TARGET_QUEUE_NAMES_PATTERN");
-        if (null == cafWmpTargetQueueNamesPattern || cafWmpTargetQueueNamesPattern.isEmpty()) {
-            return "^(?>dataprocessing-.*-in|ingestion-batch-in|data-enrichment-batch-in|appresources-worker-in|ajp-worker-in)$";
-        }
-        return cafWmpTargetQueueNamesPattern;
+        return getPropertyOrEnvVar("CAF_WMP_TARGET_QUEUE_NAMES_PATTERN");
     }
 
     public static int getScheduledExecutorPeriod() {
