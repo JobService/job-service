@@ -28,5 +28,7 @@ ${version-number}
     by the Job Service Scheduled Executor to check whether it should reroute a message to a staging queue or not. Only messages destined for
     target queues that match this pattern will be rerouted to staging queues.  
     `default`: None
+- D632168: Updated to use Tomcat version [9.0.73](https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.73/README.html)  
+This includes fixes for [CVE-2023-24998](https://nvd.nist.gov/vuln/detail/CVE-2023-24998).
 
 #### Known Issues
