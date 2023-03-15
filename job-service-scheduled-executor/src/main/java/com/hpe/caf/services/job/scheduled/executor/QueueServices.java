@@ -37,6 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
@@ -53,12 +54,18 @@ public final class QueueServices implements AutoCloseable
 
     private static final Pattern CAF_WMP_PARTITION_ID_PATTERN
             = CAF_WMP_ENABLED
-            ? Pattern.compile(ScheduledExecutorConfig.getCafWmpPartitionIdPattern())
+            ? Pattern.compile(
+            Objects.requireNonNull(
+                    ScheduledExecutorConfig.getCafWmpPartitionIdPattern(),
+                    "CAF_WMP_PARTITION_ID_PATTERN must be set if CAF_WMP_ENABLED is true"))
             : null;
 
     private static final Pattern CAF_WMP_TARGET_QUEUE_NAMES_PATTERN
             = CAF_WMP_ENABLED
-            ? Pattern.compile(ScheduledExecutorConfig.getCafWmpTargetQueueNamesPattern())
+            ? Pattern.compile(
+            Objects.requireNonNull(
+                    ScheduledExecutorConfig.getCafWmpTargetQueueNamesPattern(),
+                    "CAF_WMP_TARGET_QUEUE_NAMES_PATTERN must be set if CAF_WMP_ENABLED is true"))
             : null;
 
     private final Connection connection;
@@ -128,7 +135,7 @@ public final class QueueServices implements AutoCloseable
 
             final Matcher matcher = CAF_WMP_PARTITION_ID_PATTERN.matcher(partitionId);
 
-            final String tenantId = matcher.matches() ? matcher.group(1) : partitionId;
+            final String tenantId = matcher.matches() ? matcher.group("tenantId") : partitionId;
 
             MessageRouterSingleton.init();
 
