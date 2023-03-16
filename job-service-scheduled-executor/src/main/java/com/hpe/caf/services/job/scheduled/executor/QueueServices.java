@@ -49,20 +49,17 @@ public final class QueueServices implements AutoCloseable
     private final Connection connection;
     private final Channel publisherChannel;
     private final String targetQueue;
-    private final String stagingQueueOrTargetQueue;
     private final Codec codec;
 
     public QueueServices(
             final Connection connection,
             final Channel publisherChannel,
             final String targetQueue,
-            final String stagingQueueOrTargetQueue,
             final Codec codec) {
 
         this.connection = connection;
         this.publisherChannel = publisherChannel;
         this.targetQueue = targetQueue;
-        this.stagingQueueOrTargetQueue = stagingQueueOrTargetQueue;
         this.codec = codec;
     }
 
@@ -115,9 +112,9 @@ public final class QueueServices implements AutoCloseable
         }
 
         //  Send the message.
-        LOG.debug("Publishing the message to {}...", stagingQueueOrTargetQueue);
+        LOG.debug("Publishing the message to {}...", targetQueue);
         publisherChannel.basicPublish(
-                "", stagingQueueOrTargetQueue, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
+                "", targetQueue, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
         publisherChannel.waitForConfirmsOrDie(10000);
     }
 

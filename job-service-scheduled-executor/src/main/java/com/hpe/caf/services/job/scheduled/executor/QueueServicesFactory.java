@@ -17,23 +17,15 @@ package com.hpe.caf.services.job.scheduled.executor;
 
 import com.github.workerframework.workermessageprioritization.rerouting.MessageRouterSingleton;
 import com.hpe.caf.api.Codec;
-import com.hpe.caf.configs.RabbitConfiguration;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.MessageProperties;
-import com.rabbitmq.client.RecoveryDelayHandler;
-import com.rabbitmq.client.ReturnListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
@@ -114,7 +106,7 @@ public final class QueueServicesFactory
         LOG.debug("Declaring worker queue {}...", stagingQueueOrTargetQueue);
         publishChannel.queueDeclarePassive(stagingQueueOrTargetQueue);
 
-        return new QueueServices(connection, publishChannel, targetQueue, stagingQueueOrTargetQueue, codec);
+        return new QueueServices(connection, publishChannel, stagingQueueOrTargetQueue, codec);
     }
 
     /**
