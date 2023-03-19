@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class is responsible for sending task data to the target queue.
@@ -45,6 +46,8 @@ import java.util.concurrent.TimeoutException;
 public final class QueueServices implements AutoCloseable
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
+
+    private static AtomicBoolean alreadySlept = new AtomicBoolean(false);
 
     private final Connection connection;
     private final Channel publisherChannel;
@@ -113,10 +116,11 @@ public final class QueueServices implements AutoCloseable
 
         //  Send the message.
         LOG.debug("Publishing the message to target queue {}...", targetQueue);
-        if (targetQueue.contains("rory")) {
+        if (targetQueue.contains("rory") && !alreadySlept.get()) {
             LOG.warn("Rory sleeping for 1 minute before calling basicPublish (delete " + targetQueue + " now)");
             try {
                 Thread.sleep(60000);
+                alreadySlept.set(true);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
