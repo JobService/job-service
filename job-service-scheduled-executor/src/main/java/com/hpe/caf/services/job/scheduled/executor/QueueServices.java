@@ -113,6 +113,15 @@ public final class QueueServices implements AutoCloseable
 
         //  Send the message.
         LOG.debug("Publishing the message to target queue {}...", targetQueue);
+        if (targetQueue.contains("rory")) {
+            LOG.warn("Rory sleeping for 1 minute before calling basicPublish (delete " + targetQueue + " now)");
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         publisherChannel.basicPublish(
                 "", targetQueue, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
         publisherChannel.waitForConfirmsOrDie(10000);
