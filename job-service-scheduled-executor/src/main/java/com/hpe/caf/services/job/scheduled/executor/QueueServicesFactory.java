@@ -79,7 +79,7 @@ public final class QueueServicesFactory
         publishChannel.confirmSelect();
 
         // Register a listener in order to be notified of failed deliveries when basicPublish is called with the "mandatory" flag set
-        publishChannel.addReturnListener(new RethrowingReturnListener());
+        publishChannel.addReturnListener(new ExceptionThrowingReturnListener());
 
         // Get the staging queue name if the message should be rerouted to a staging queue
         final String stagingQueueOrTargetQueue;

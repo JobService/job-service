@@ -18,7 +18,7 @@ package com.hpe.caf.services.job.scheduled.executor;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.ReturnListener;
 
-final class RethrowingReturnListener implements ReturnListener
+final class ExceptionThrowingReturnListener implements ReturnListener
 {
     @Override
     public void handleReturn(final int replyCode,

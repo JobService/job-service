@@ -112,7 +112,7 @@ public final class QueueServices implements AutoCloseable
         }
 
         //  Send the message.
-        LOG.debug("Publishing the message to {}...", targetQueue);
+        LOG.debug("Publishing the message to target queue {}...", targetQueue);
         publisherChannel.basicPublish(
                 "", targetQueue, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
         publisherChannel.waitForConfirmsOrDie(10000);
