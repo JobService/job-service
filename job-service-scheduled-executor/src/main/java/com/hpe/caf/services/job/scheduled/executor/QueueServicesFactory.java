@@ -97,7 +97,8 @@ public final class QueueServicesFactory
             LOG.debug("MessageRouterSingleton.route({}, {}) returned the following queue name: {}. " +
                             "Messages will be routed to this queue.",
                     targetQueue,
-                    tenantId);
+                    tenantId,
+                    stagingQueueOrTargetQueue);
         } else {
             stagingQueueOrTargetQueue = targetQueue;
         }
