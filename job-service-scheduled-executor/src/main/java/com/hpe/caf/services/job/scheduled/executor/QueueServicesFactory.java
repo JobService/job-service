@@ -112,7 +112,7 @@ public final class QueueServicesFactory
                 ? Optional.empty()
                 : Optional.of(stagingQueueOrTargetQueue);
 
-        return new QueueServices(connection, publishChannel, optionalStagingQueue, stagingQueueOrTargetQueue, codec);
+        return new QueueServices(connection, publishChannel, optionalStagingQueue, targetQueue, codec);
     }
 
     /**
