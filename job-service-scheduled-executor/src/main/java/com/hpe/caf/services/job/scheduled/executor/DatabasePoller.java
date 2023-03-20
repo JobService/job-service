@@ -81,15 +81,15 @@ public class DatabasePoller
 
             final String queue = queueServices.getOptionalStagingQueue().orElse(queueServices.getTargetQueue());
 
-            LOG.debug("Sending task data {} to the {} queue for partition ID {} and job ID {}...",
-                    workerAction, queue, partitionId, jobId);
+            LOG.debug("Sending the following task data to the {} queue for partition ID {} and job ID {}: {}",
+                    queue, partitionId, jobId, workerAction);
 
             try {
                 queueServices.sendMessage(partitionId, jobId, workerAction);
             } catch (final Exception ex) {
                 LOG.error(MessageFormat.format(
-                        "Failed to send task data {0} to the {1} queue for partition ID {2} and job ID {3}",
-                                workerAction, queue, partitionId, jobId), ex);
+                        "Failed to send the following task data to the {0} queue for partition ID {1} and job ID {2}: {3}",
+                        queue, partitionId, jobId, workerAction), ex);
 
                 return;
             }
@@ -97,17 +97,19 @@ public class DatabasePoller
             try {
                 deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
             } catch (final Exception ex) {
-                LOG.error(MessageFormat.format("Sent task task data {0} to the {1} queue for partition ID {2} and job ID {3}, " +
-                                "but an exception was thrown when trying to delete the job from the database",
-                        workerAction, queue, partitionId, jobId), ex);
+                LOG.error(MessageFormat.format(
+                        "Sent the following task data to the {0} queue for partition ID {1} and job ID {2}, " +
+                                "but an exception was thrown when trying to delete the job from the database: {3}",
+                        queue, partitionId, jobId, workerAction), ex);
 
                 return;
             }
 
-        } catch(final Exception ex) {
-            LOG.error(MessageFormat.format("Failed to send task data {0} to the queue for partition ID {1} and job ID {2}" +
+        } catch (final Exception ex) {
+            LOG.error(MessageFormat.format(
+                    "Failed to send the following task data to the queue for partition ID {0} and job ID {1} " +
                             "as an exception was thrown when trying to initialise the QueueServices object",
-                    workerAction, partitionId, jobId), ex);
+                    partitionId, jobId, workerAction), ex);
         }
     }
     
