@@ -118,12 +118,12 @@ public final class QueueServices implements AutoCloseable
             throw new RuntimeException(e);
         }
 
-        final String queueToSendMessageTo = optionalStagingQueue.orElse(targetQueue);
+        final String queue = optionalStagingQueue.orElse(targetQueue);
 
         //  Send the message.
-        LOG.debug("Publishing the message to {}...", queueToSendMessageTo);
-        if (queueToSendMessageTo.contains("rory") && !alreadySlept.get()) {
-            LOG.warn("Rory sleeping for 1 minute before calling basicPublish (delete " + queueToSendMessageTo + " now)");
+        LOG.debug("Publishing the message to the {} queue...", queue);
+        if (queue.contains("rory") && !alreadySlept.get()) {
+            LOG.warn("Rory sleeping for 1 minute before calling basicPublish (delete " + queue + " now)");
             try {
                 Thread.sleep(60000);
                 alreadySlept.set(true);
@@ -133,8 +133,7 @@ public final class QueueServices implements AutoCloseable
             }
         }
 
-        publisherChannel.basicPublish(
-                "", queueToSendMessageTo, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
+        publisherChannel.basicPublish("", queue, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
         publisherChannel.waitForConfirmsOrDie(10000);
     }
 
@@ -283,4 +282,13 @@ public final class QueueServices implements AutoCloseable
         }
     }
 
+    public Optional<String> getOptionalStagingQueue()
+    {
+        return optionalStagingQueue;
+    }
+
+    public String getTargetQueue()
+    {
+        return targetQueue;
+    }
 }

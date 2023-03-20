@@ -104,7 +104,7 @@ public final class QueueServicesFactory
             stagingQueueOrTargetQueue = targetQueue;
         }
 
-        //  Declare target worker queue.
+        //  Declare worker queue.
         LOG.debug("Declaring worker queue {}...", stagingQueueOrTargetQueue);
         publishChannel.queueDeclarePassive(stagingQueueOrTargetQueue);
 
