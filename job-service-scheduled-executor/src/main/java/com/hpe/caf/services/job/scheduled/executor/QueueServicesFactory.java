@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -107,7 +108,11 @@ public final class QueueServicesFactory
         LOG.debug("Declaring worker queue {}...", stagingQueueOrTargetQueue);
         publishChannel.queueDeclarePassive(stagingQueueOrTargetQueue);
 
-        return new QueueServices(connection, publishChannel, stagingQueueOrTargetQueue, codec);
+        final Optional<String> optionalStagingQueue = stagingQueueOrTargetQueue.equals(targetQueue)
+                ? Optional.empty()
+                : Optional.of(stagingQueueOrTargetQueue);
+
+        return new QueueServices(connection, publishChannel, optionalStagingQueue, stagingQueueOrTargetQueue, codec);
     }
 
     /**

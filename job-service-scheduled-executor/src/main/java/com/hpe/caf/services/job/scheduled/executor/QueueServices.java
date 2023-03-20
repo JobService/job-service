@@ -36,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,17 +52,20 @@ public final class QueueServices implements AutoCloseable
 
     private final Connection connection;
     private final Channel publisherChannel;
+    private final Optional<String> optionalStagingQueue;
     private final String targetQueue;
     private final Codec codec;
 
     public QueueServices(
             final Connection connection,
             final Channel publisherChannel,
+            final Optional<String> optionalStagingQueue,
             final String targetQueue,
             final Codec codec) {
 
         this.connection = connection;
         this.publisherChannel = publisherChannel;
+        this.optionalStagingQueue = optionalStagingQueue;
         this.targetQueue = targetQueue;
         this.codec = codec;
     }
@@ -114,10 +118,12 @@ public final class QueueServices implements AutoCloseable
             throw new RuntimeException(e);
         }
 
+        final String queueToSendMessageTo = optionalStagingQueue.orElse(targetQueue);
+
         //  Send the message.
-        LOG.debug("Publishing the message to target queue {}...", targetQueue);
-        if (targetQueue.contains("rory") && !alreadySlept.get()) {
-            LOG.warn("Rory sleeping for 1 minute before calling basicPublish (delete " + targetQueue + " now)");
+        LOG.debug("Publishing the message to {}...", queueToSendMessageTo);
+        if (queueToSendMessageTo.contains("rory") && !alreadySlept.get()) {
+            LOG.warn("Rory sleeping for 1 minute before calling basicPublish (delete " + queueToSendMessageTo + " now)");
             try {
                 Thread.sleep(60000);
                 alreadySlept.set(true);
@@ -126,8 +132,9 @@ public final class QueueServices implements AutoCloseable
                 e.printStackTrace();
             }
         }
+
         publisherChannel.basicPublish(
-                "", targetQueue, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
+                "", queueToSendMessageTo, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
         publisherChannel.waitForConfirmsOrDie(10000);
     }
 
