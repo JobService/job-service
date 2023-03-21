@@ -79,36 +79,17 @@ public class DatabasePoller
 
         try (final QueueServices queueServices = QueueServicesFactory.create(jtd.getTaskPipe(), jtd.getPartitionId(), codec)) {
 
-            final String queue = queueServices.getOptionalStagingQueue().orElse(queueServices.getTargetQueue());
+            final String queueToRouteTo = queueServices.getOptionalStagingQueue().orElse(queueServices.getTargetQueue());
 
             LOG.debug("Sending the following task data to the {} queue for partition ID {} and job ID {}: {}",
-                    queue, partitionId, jobId, workerAction);
+                    queueToRouteTo, partitionId, jobId, workerAction);
 
-            try {
-                queueServices.sendMessage(partitionId, jobId, workerAction);
-            } catch (final Exception ex) {
-                LOG.error(MessageFormat.format(
-                        "Failed to send the following task data to the {0} queue for partition ID {1} and job ID {2}: {3}",
-                        queue, partitionId, jobId, workerAction), ex);
+            queueServices.sendMessage(partitionId, jobId, workerAction);
 
-                return;
-            }
-
-            try {
-                deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
-            } catch (final Exception ex) {
-                LOG.error(MessageFormat.format(
-                        "Sent the following task data to the {0} queue for partition ID {1} and job ID {2}, " +
-                                "but an exception was thrown when trying to delete the job from the database: {3}",
-                        queue, partitionId, jobId, workerAction), ex);
-
-                return;
-            }
-
+            deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
         } catch (final Exception ex) {
             LOG.error(MessageFormat.format(
-                    "Failed to send the following task data to the queue for partition ID {0} and job ID {1} " +
-                            "as an exception was thrown when trying to initialise the QueueServices object",
+                    "Exception thrown during processing of job with partition ID {0}, job ID {1} and task data {2}",
                     partitionId, jobId, workerAction), ex);
         }
     }

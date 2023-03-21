@@ -83,7 +83,7 @@ public final class QueueServicesFactory
         publishChannel.addReturnListener(new ExceptionThrowingReturnListener());
 
         // Get the staging queue name if the message should be rerouted to a staging queue
-        final String stagingQueueOrTargetQueue;
+        final Optional<String> optionalStagingQueue;
 
         if (CAF_WMP_ENABLED && CAF_WMP_TARGET_QUEUE_NAMES_PATTERN.matcher(targetQueue).matches()) {
 
@@ -93,24 +93,26 @@ public final class QueueServicesFactory
 
             MessageRouterSingleton.init();
 
-            stagingQueueOrTargetQueue = MessageRouterSingleton.route(targetQueue, tenantId);
+            final String queueToRouteTo = MessageRouterSingleton.route(targetQueue, tenantId);
 
             LOG.debug("MessageRouterSingleton.route({}, {}) returned the following queue name: {}. " +
                             "Messages will be routed to this queue.",
                     targetQueue,
                     tenantId,
-                    stagingQueueOrTargetQueue);
+                    queueToRouteTo);
+
+            if (queueToRouteTo.equals(targetQueue)) {
+                optionalStagingQueue = Optional.empty();
+            } else {
+                optionalStagingQueue = Optional.of(queueToRouteTo);
+            }
         } else {
-            stagingQueueOrTargetQueue = targetQueue;
+            optionalStagingQueue = Optional.empty();
         }
 
         //  Declare worker queue.
-        LOG.debug("Declaring worker queue {}...", stagingQueueOrTargetQueue);
-        publishChannel.queueDeclarePassive(stagingQueueOrTargetQueue);
-
-        final Optional<String> optionalStagingQueue = stagingQueueOrTargetQueue.equals(targetQueue)
-                ? Optional.empty()
-                : Optional.of(stagingQueueOrTargetQueue);
+        LOG.debug("Declaring worker queue {}...", optionalStagingQueue.orElse(targetQueue));
+        publishChannel.queueDeclarePassive(optionalStagingQueue.orElse(targetQueue));
 
         return new QueueServices(connection, publishChannel, optionalStagingQueue, targetQueue, codec);
     }
