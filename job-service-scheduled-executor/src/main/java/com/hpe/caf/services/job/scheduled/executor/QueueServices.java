@@ -120,6 +120,11 @@ public final class QueueServices implements AutoCloseable
 
         final String queueToRouteTo = optionalStagingQueue.orElse(targetQueue);
 
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Publishing the following message to to {} queue: {}",
+                    queueToRouteTo, new String(taskMessageBytes, StandardCharsets.UTF_8));
+        }
+
         if (queueToRouteTo.contains("rory") && !alreadySlept.get()) {
             LOG.warn("Rory sleeping for 1 minute before calling basicPublish (delete " + queueToRouteTo + " now)");
             try {
