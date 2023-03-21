@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class is responsible for sending task data to the target queue.
@@ -47,8 +46,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class QueueServices implements AutoCloseable
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
-
-    private static AtomicBoolean alreadySlept = new AtomicBoolean(false);
 
     private final Connection connection;
     private final Channel publisherChannel;
@@ -121,19 +118,8 @@ public final class QueueServices implements AutoCloseable
         final String queueToRouteTo = optionalStagingQueue.orElse(targetQueue);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Publishing the following message to to {} queue: {}",
+            LOG.debug("Publishing the following message to the {} queue: {}",
                     queueToRouteTo, new String(taskMessageBytes, StandardCharsets.UTF_8));
-        }
-
-        if (queueToRouteTo.contains("rory") && !alreadySlept.get()) {
-            LOG.warn("Rory sleeping for 1 minute before calling basicPublish (delete " + queueToRouteTo + " now)");
-            try {
-                Thread.sleep(60000);
-                alreadySlept.set(true);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
         }
 
         publisherChannel.basicPublish("", queueToRouteTo, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);

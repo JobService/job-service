@@ -111,7 +111,7 @@ public final class QueueServicesFactory
         }
 
         //  Declare worker queue.
-        LOG.debug("Declaring worker queue {}...", optionalStagingQueue.orElse(targetQueue));
+        LOG.debug("Passively declaring worker queue {}...", optionalStagingQueue.orElse(targetQueue));
         publishChannel.queueDeclarePassive(optionalStagingQueue.orElse(targetQueue));
 
         return new QueueServices(connection, publishChannel, optionalStagingQueue, targetQueue, codec);
