@@ -49,20 +49,20 @@ public final class QueueServices implements AutoCloseable
 
     private final Connection connection;
     private final Channel publisherChannel;
-    private final Optional<String> optionalStagingQueue;
+    private final String stagingQueueOrTargetQueue;
     private final String targetQueue;
     private final Codec codec;
 
     public QueueServices(
             final Connection connection,
             final Channel publisherChannel,
-            final Optional<String> optionalStagingQueue,
+            final String stagingQueueOrTargetQueue,
             final String targetQueue,
             final Codec codec) {
 
         this.connection = connection;
         this.publisherChannel = publisherChannel;
-        this.optionalStagingQueue = optionalStagingQueue;
+        this.stagingQueueOrTargetQueue = stagingQueueOrTargetQueue;
         this.targetQueue = targetQueue;
         this.codec = codec;
     }
@@ -115,15 +115,12 @@ public final class QueueServices implements AutoCloseable
             throw new RuntimeException(e);
         }
 
-        final String queueToRouteTo = optionalStagingQueue.orElse(targetQueue);
-
         if (LOG.isDebugEnabled()) {
             LOG.debug("Publishing the following message to the {} queue: {}",
-                    queueToRouteTo, new String(taskMessageBytes, StandardCharsets.UTF_8));
+                    stagingQueueOrTargetQueue, new String(taskMessageBytes, StandardCharsets.UTF_8));
         }
 
-        publisherChannel.basicPublish("", queueToRouteTo, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
-        publisherChannel.waitForConfirmsOrDie(10000);
+        publisherChannel.basicPublish("", stagingQueueOrTargetQueue, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
     }
 
     private TaskMessage getTaskMessage(
@@ -269,15 +266,5 @@ public final class QueueServices implements AutoCloseable
             LOG.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
-    }
-
-    public Optional<String> getOptionalStagingQueue()
-    {
-        return optionalStagingQueue;
-    }
-
-    public String getTargetQueue()
-    {
-        return targetQueue;
     }
 }

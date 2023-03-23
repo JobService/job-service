@@ -76,14 +76,8 @@ public final class QueueServicesFactory
         LOG.debug("Creating channel ...");
         final Channel publishChannel = connection.createChannel();
 
-        // Enable publisher confirms on the channel
-        publishChannel.confirmSelect();
-
-        // Register a listener in order to be notified of failed deliveries when basicPublish is called with the "mandatory" flag set
-        publishChannel.addReturnListener(new ExceptionThrowingReturnListener());
-
         // Get the staging queue name if the message should be rerouted to a staging queue
-        final Optional<String> optionalStagingQueue;
+        final String stagingQueueOrTargetQueue;
 
         if (CAF_WMP_ENABLED && CAF_WMP_TARGET_QUEUE_NAMES_PATTERN.matcher(targetQueue).matches()) {
 
@@ -93,28 +87,22 @@ public final class QueueServicesFactory
 
             MessageRouterSingleton.init();
 
-            final String queueToRouteTo = MessageRouterSingleton.route(targetQueue, tenantId);
+            stagingQueueOrTargetQueue = MessageRouterSingleton.route(targetQueue, tenantId);
 
             LOG.debug("MessageRouterSingleton.route({}, {}) returned the following queue name: {}. " +
                             "Messages will be routed to this queue.",
                     targetQueue,
                     tenantId,
-                    queueToRouteTo);
-
-            if (queueToRouteTo.equals(targetQueue)) {
-                optionalStagingQueue = Optional.empty();
-            } else {
-                optionalStagingQueue = Optional.of(queueToRouteTo);
-            }
+                    stagingQueueOrTargetQueue);
         } else {
-            optionalStagingQueue = Optional.empty();
+            stagingQueueOrTargetQueue = targetQueue;
         }
 
         //  Declare worker queue.
-        LOG.debug("Passively declaring worker queue {}...", optionalStagingQueue.orElse(targetQueue));
-        publishChannel.queueDeclarePassive(optionalStagingQueue.orElse(targetQueue));
+        LOG.debug("Passively declaring worker queue {}...", stagingQueueOrTargetQueue);
+        publishChannel.queueDeclarePassive(stagingQueueOrTargetQueue);
 
-        return new QueueServices(connection, publishChannel, optionalStagingQueue, targetQueue, codec);
+        return new QueueServices(connection, publishChannel, stagingQueueOrTargetQueue, targetQueue, codec);
     }
 
     /**
@@ -123,12 +111,7 @@ public final class QueueServicesFactory
     private static Connection createConnection()
             throws IOException, TimeoutException
     {
-        return RabbitUtil.createRabbitConnection(
-                ScheduledExecutorConfig.getRabbitMQHost(),
-                ScheduledExecutorConfig.getRabbitMQPort(),
-                ScheduledExecutorConfig.getRabbitMQUsername(),
-                ScheduledExecutorConfig.getRabbitMQPassword(),
-                new RethrowingReturnListenerExceptionHandler());
+        return RabbitUtil.createRabbitConnection(ScheduledExecutorConfig.getRabbitMQHost(), ScheduledExecutorConfig.getRabbitMQPort(), ScheduledExecutorConfig.getRabbitMQUsername(), ScheduledExecutorConfig.getRabbitMQPassword());
     }
 
 }
