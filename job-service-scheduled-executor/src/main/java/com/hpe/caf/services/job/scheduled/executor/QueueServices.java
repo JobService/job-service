@@ -75,8 +75,7 @@ public final class QueueServices implements AutoCloseable
      */
     public void sendMessage(
         final String partitionId, final String jobId, final WorkerAction workerAction
-    ) throws IOException, URISyntaxException
-    {
+    ) throws IOException, URISyntaxException {
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
