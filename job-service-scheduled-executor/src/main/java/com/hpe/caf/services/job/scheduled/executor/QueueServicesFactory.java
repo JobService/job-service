@@ -112,5 +112,4 @@ public final class QueueServicesFactory
     {
         return RabbitUtil.createRabbitConnection(ScheduledExecutorConfig.getRabbitMQHost(), ScheduledExecutorConfig.getRabbitMQPort(), ScheduledExecutorConfig.getRabbitMQUsername(), ScheduledExecutorConfig.getRabbitMQPassword());
     }
-
 }

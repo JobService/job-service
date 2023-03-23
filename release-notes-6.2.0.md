@@ -31,10 +31,4 @@ ${version-number}
 - D632168: Updated to use Tomcat version [9.0.73](https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.73/README.html)  
 This includes fixes for [CVE-2023-24998](https://nvd.nist.gov/vuln/detail/CVE-2023-24998).
 
-#### Bug Fixes
-- 633176: Handle a queue being deleted.  
-  Previously, if the Job Service Scheduled Executor published a message to a queue that had been deleted, the message would be lost 
-  and the job would have been deleted from the database. Now, an error is logged and the job is not deleted from the database, allowing
-  it to be retried during the next run of the Job Service Scheduled Executor.
-
 #### Known Issues
