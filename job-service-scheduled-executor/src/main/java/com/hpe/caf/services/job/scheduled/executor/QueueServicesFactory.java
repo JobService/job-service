@@ -101,6 +101,9 @@ public final class QueueServicesFactory
         LOG.debug("Passively declaring worker queue {}...", stagingQueueOrTargetQueue);
         publishChannel.queueDeclarePassive(stagingQueueOrTargetQueue);
 
+        // stagingQueueOrTargetQueue = Queue where message should be published to
+        // targetQueue               = Queue that should be set in the 'to' field of the task message
+
         return new QueueServices(connection, publishChannel, stagingQueueOrTargetQueue, targetQueue, codec);
     }
 
