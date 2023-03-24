@@ -48,8 +48,9 @@ public final class QueueServices implements AutoCloseable
 
     private final Connection connection;
     private final Channel publisherChannel;
-    private final String stagingQueueOrTargetQueue;
-    private final String targetQueue;
+    private final String stagingQueueOrTargetQueue; // Queue where message should be published to
+    private final String targetQueue;               // Queue that should be set in the 'to' field of the task message
+
     private final Codec codec;
 
     public QueueServices(
