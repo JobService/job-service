@@ -77,7 +77,7 @@ public class DatabasePoller
             queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
             deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
         } catch(final Exception ex) {
-            LOG.error(MessageFormat.format(
+            LOG.warn(MessageFormat.format(
                     "Exception thrown during processing of job with partition ID {0}, job ID {1} and task data {2}",
                     jtd.getPartitionId(), jtd.getJobId(), workerAction), ex);
         }
