@@ -53,7 +53,7 @@ parameters:
     pattern: '^[^.,:;*?!|()]{1,48}$'
 
 paths:
-  /ping:
+  /partitions/ping:
     get:
       responses:
         '200':

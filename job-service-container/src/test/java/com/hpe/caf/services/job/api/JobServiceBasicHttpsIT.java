@@ -106,6 +106,7 @@ public class JobServiceBasicHttpsIT
     public void basicCommunicationTest2() throws IOException, URISyntaxException
     {
         final URI getRequestUrl = UriBuilder.fromUri(https_url)
+            .path("partitions")
             .path("ping")
             .build();
         final HttpGet request = new HttpGet(getRequestUrl);
