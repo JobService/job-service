@@ -15,16 +15,21 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
+import com.github.workerframework.workermessageprioritization.rerouting.MessageRouterSingleton;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class is responsible for creating the RabbitMQ connection and channel.
@@ -33,27 +38,73 @@ public final class QueueServicesFactory
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServicesFactory.class);
 
+    private static final boolean CAF_WMP_ENABLED = ScheduledExecutorConfig.isCafWmpEnabled();
+
+    private static final Pattern CAF_WMP_PARTITION_ID_PATTERN
+            = CAF_WMP_ENABLED
+            ? Pattern.compile(
+            Objects.requireNonNull(
+                    ScheduledExecutorConfig.getCafWmpPartitionIdPattern(),
+                    "CAF_WMP_PARTITION_ID_PATTERN must be set if CAF_WMP_ENABLED is true"))
+            : null;
+
+    private static final Pattern CAF_WMP_TARGET_QUEUE_NAMES_PATTERN
+            = CAF_WMP_ENABLED
+            ? Pattern.compile(
+            Objects.requireNonNull(
+                    ScheduledExecutorConfig.getCafWmpTargetQueueNamesPattern(),
+                    "CAF_WMP_TARGET_QUEUE_NAMES_PATTERN must be set if CAF_WMP_ENABLED is true"))
+            : null;
+
     /**
      * Create a new QueueServices object.
      *
      * @param   targetQueue                     the target queue
+     * @param   partitionId                     the partition ID
      * @param   codec                           the serialization codec
      * @return  ScheduledExecutorQueueServices  new ScheduledExecutorQueueServices object
      * @throws  IOException                     thrown if the connection cannot be created
      * @throws  TimeoutException                thrown if the connection cannot be created
      */
-    public static QueueServices create(final String targetQueue, final Codec codec) throws IOException, TimeoutException {
+    public static QueueServices create(final String targetQueue, final String partitionId, final Codec codec)
+            throws IOException, TimeoutException {
         //  Create connection and channel for publishing messages.
         LOG.debug("Creating connection ...");
         final Connection connection = createConnection();
+
         LOG.debug("Creating channel ...");
         final Channel publishChannel = connection.createChannel();
 
-        //  Declare target worker queue.
-        LOG.debug("Declaring target worker queue ...");
-        publishChannel.queueDeclarePassive(targetQueue);
+        // Get the staging queue name if the message should be rerouted to a staging queue
+        final String stagingQueueOrTargetQueue;
 
-        return new QueueServices(connection, publishChannel, targetQueue, codec);
+        if (CAF_WMP_ENABLED && CAF_WMP_TARGET_QUEUE_NAMES_PATTERN.matcher(targetQueue).matches()) {
+
+            final Matcher matcher = CAF_WMP_PARTITION_ID_PATTERN.matcher(partitionId);
+
+            final String tenantId = matcher.matches() ? matcher.group("tenantId") : partitionId;
+
+            MessageRouterSingleton.init();
+
+            stagingQueueOrTargetQueue = MessageRouterSingleton.route(targetQueue, tenantId);
+
+            LOG.debug("MessageRouterSingleton.route({}, {}) returned the following queue name: {}. " +
+                            "Messages will be routed to this queue.",
+                    targetQueue,
+                    tenantId,
+                    stagingQueueOrTargetQueue);
+        } else {
+            stagingQueueOrTargetQueue = targetQueue;
+        }
+
+        //  Declare worker queue.
+        LOG.debug("Passively declaring worker queue {}...", stagingQueueOrTargetQueue);
+        publishChannel.queueDeclarePassive(stagingQueueOrTargetQueue);
+
+        // stagingQueueOrTargetQueue = Queue where message should be published to
+        // targetQueue               = Queue that should be set in the 'to' field of the task message
+
+        return new QueueServices(connection, publishChannel, stagingQueueOrTargetQueue, targetQueue, codec);
     }
 
     /**

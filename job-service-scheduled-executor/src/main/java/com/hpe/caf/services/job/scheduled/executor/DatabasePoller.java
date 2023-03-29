@@ -73,12 +73,13 @@ public class DatabasePoller
 
     private static void sendMessageToQueueMessaging(final Codec codec, final JobTaskData jtd, final WorkerAction workerAction)
     {
-        try (final QueueServices queueServices= QueueServicesFactory.create(jtd.getTaskPipe(), codec)){
-            LOG.debug("Sending task data to the target queue {} ...", workerAction);
+        try (final QueueServices queueServices= QueueServicesFactory.create(jtd.getTaskPipe(), jtd.getPartitionId(), codec)){
             queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
             deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
         } catch(final Exception ex) {
-            LOG.warn("Failed to send message about dependent jobs", ex);
+            LOG.warn(MessageFormat.format(
+                    "Exception thrown during processing of job with partition ID {0}, job ID {1} and task data {2}",
+                    jtd.getPartitionId(), jtd.getJobId(), workerAction), ex);
         }
     }
     
