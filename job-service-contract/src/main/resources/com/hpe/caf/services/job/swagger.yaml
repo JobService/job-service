@@ -53,6 +53,11 @@ parameters:
     pattern: '^[^.,:;*?!|()]{1,48}$'
 
 paths:
+  /ping:
+    get:
+      responses:
+        '200':
+          description: OK
   /partitions/{partitionId}/jobs:
     parameters:
       - $ref: '#/parameters/partitionId'

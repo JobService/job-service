@@ -101,4 +101,21 @@ public class JobServiceBasicHttpsIT
 
         request.releaseConnection();
     }
+    
+    @Test
+    public void basicCommunicationTest2() throws IOException, URISyntaxException
+    {
+        final URI getRequestUrl = UriBuilder.fromUri(https_url)
+            .path("ping")
+            .build();
+        final HttpGet request = new HttpGet(getRequestUrl);
+
+        System.out.println("Sending GET to url: " + getRequestUrl);
+        final HttpResponse response = httpClient.execute(request);
+
+        Assert.assertTrue(response.getStatusLine().getStatusCode() == 200);
+        System.out.println("Response code: " + response.getStatusLine().getStatusCode());
+
+        request.releaseConnection();
+    }
 }
