@@ -17,15 +17,18 @@ ${version-number}
   - `CAF_WMP_PARTITION_ID_PATTERN`   
     `description`: Only applies when `CAF_WMP_ENABLED` is true. Used to specify the partition ID pattern. This pattern is used
     by the Job Service Scheduled Executor to extract the tenant ID from the partition ID. The tenant ID is then used to construct the
-    staging queue name.
-    `default`: ^tenant-(.+)$  
-    `example`: If the pattern is `^tenant-(.+)$` and the partition ID is `tenant-acmecorp`, the tenant ID extracted from this partition
-    ID will be `acmecorp`.
+    staging queue name. The pattern must contain a named capturing group called `tenantId`, which is what is used to extract the tenant
+    ID.  
+    `default`: None  
+    `example`: If the pattern is `^tenant-(?<tenantId>.+)$` and the partition ID is `tenant-acmecorp`, the tenant ID extracted from this
+    partition ID will be `acmecorp`.
 
   - `CAF_WMP_TARGET_QUEUE_NAMES_PATTERN`   
     `description`: Only applies when `CAF_WMP_ENABLED` is true. Used to specify the target queue names pattern. This pattern is used
     by the Job Service Scheduled Executor to check whether it should reroute a message to a staging queue or not. Only messages destined for
     target queues that match this pattern will be rerouted to staging queues.  
-    `default`: ^(?>dataprocessing-.*-in|ingestion-batch-in|data-enrichment-batch-in|appresources-worker-in|ajp-worker-in)$
+    `default`: None
+- D632168: Updated to use Tomcat version [9.0.73](https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.73/README.html)  
+This includes fixes for [CVE-2023-24998](https://nvd.nist.gov/vuln/detail/CVE-2023-24998).
 
 #### Known Issues
