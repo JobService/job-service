@@ -18,6 +18,9 @@ package com.hpe.caf.services.admin;
 import com.google.gson.Gson;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
+import com.hpe.caf.services.job.client.api.JobsApi;
+import com.hpe.caf.services.job.client.ApiClient;
+import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 import com.rabbitmq.client.Channel;
 import org.slf4j.Logger;
@@ -31,6 +34,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -50,6 +54,7 @@ public class HealthCheck extends HttpServlet
         // Health check that the DB and RabbitMQ can be contacted
         final boolean isDBHealthy = performDBHealthCheck(statusResponseMap);
         final boolean isRabbitMQHealthy = performRabbitMQHealthCheck(statusResponseMap);
+        final boolean isJobServiceHealthy = performJobServiceHealthCheck();
         final boolean isHealthy = isDBHealthy && isRabbitMQHealthy;
 
         final Gson gson = new Gson();
@@ -162,5 +167,21 @@ public class HealthCheck extends HttpServlet
             LOG.error("Database Health Check: Unhealthy : " + e.toString());
             return updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "database");
         }
+    }
+    
+    private boolean performJobServiceHealthCheck()
+    {
+        String connectionString = System.getenv("CAF_WEBSERVICE_URL");
+        ApiClient client = new ApiClient();
+        client.setBasePath(connectionString);
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        client.setDateFormat(f);
+        JobsApi jobsApi = new JobsApi(client);
+        try {
+            jobsApi.ping();
+        } catch (ApiException ex) {
+            return false;
+        }
+        return true;
     }
 }

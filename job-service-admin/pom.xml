@@ -36,6 +36,12 @@
             <artifactId>job-service-db-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-internal-client</artifactId>
+            <version>6.2.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>

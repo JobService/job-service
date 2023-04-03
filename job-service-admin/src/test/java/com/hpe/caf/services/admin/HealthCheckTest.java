@@ -36,6 +36,7 @@ public class HealthCheckTest {
         // Setup dud DB environment variables
         environmentVariables.set("JOB_SERVICE_DATABASE_HOST", "UNKNOWNHOST1234567890");
         environmentVariables.set("JOB_SERVICE_DATABASE_PORT", "9999");
+        environmentVariables.set("CAF_WEBSERVICE_URL", "http://jobservice:8080/job-service/v1");
         environmentVariables.set("JOB_SERVICE_DATABASE_NAME", "jobservicedb");
         environmentVariables.set("JOB_SERVICE_DATABASE_APPNAME", "unknownapplicationname");
         environmentVariables.set("JOB_SERVICE_DATABASE_USERNAME", "unknownuser");

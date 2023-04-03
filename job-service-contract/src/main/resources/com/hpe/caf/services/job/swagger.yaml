@@ -53,8 +53,13 @@ parameters:
     pattern: '^[^.,:;*?!|()]{1,48}$'
 
 paths:
-  /partitions/ping:
+  /ping:
     get:
+      tags:
+        - Jobs
+      summary: Ping Service
+      description: Ping Service
+      operationId: ping
       responses:
         '200':
           description: OK
