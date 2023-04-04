@@ -54,8 +54,8 @@ public class HealthCheck extends HttpServlet
         // Health check that the DB and RabbitMQ can be contacted
         final boolean isDBHealthy = performDBHealthCheck(statusResponseMap);
         final boolean isRabbitMQHealthy = performRabbitMQHealthCheck(statusResponseMap);
-        final boolean isJobServiceHealthy = performJobServiceHealthCheck();
-        final boolean isHealthy = isDBHealthy && isRabbitMQHealthy;
+        final boolean isPingHealthy = performPingHealthCheck(statusResponseMap);
+        final boolean isHealthy = isDBHealthy && isRabbitMQHealthy && isPingHealthy;
 
         final Gson gson = new Gson();
         final String responseBody = gson.toJson(statusResponseMap);
@@ -169,19 +169,24 @@ public class HealthCheck extends HttpServlet
         }
     }
     
-    private boolean performJobServiceHealthCheck()
+    private boolean performPingHealthCheck(final Map<String, Map<String, String>> statusResponseMap)
     {
-        String connectionString = System.getenv("CAF_WEBSERVICE_URL");
-        ApiClient client = new ApiClient();
+        LOG.debug("Ping Health Check: Starting...");
+        
+        final String connectionString = System.getenv("CAF_WEBSERVICE_URL");
+        final ApiClient client = new ApiClient();
         client.setBasePath(connectionString);
-        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        final SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         client.setDateFormat(f);
-        JobsApi jobsApi = new JobsApi(client);
+        final JobsApi jobsApi = new JobsApi(client);
         try {
+            LOG.debug("Ping Health Check: Attempting to Ping Web Service");
             jobsApi.ping();
-        } catch (ApiException ex) {
-            return false;
+            LOG.debug("Ping Health Check: Healthy");
+            return updateStatusResponseWithHealthOfComponent(statusResponseMap, true, null, "ping");
+        } catch (final Exception e) {
+            LOG.debug("Ping Health Check: Unhealthy : " + e.toString());
+            return updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "ping");
         }
-        return true;
     }
 }

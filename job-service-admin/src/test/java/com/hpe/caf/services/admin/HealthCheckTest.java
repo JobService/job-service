@@ -31,12 +31,12 @@ public class HealthCheckTest {
     public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
     @Test
-    public void testHealthCheckWithUnavailableDatabaseAndRabbitMQ() throws Exception
+    public void testHealthCheckWithUnavailableDatabaseAndRabbitMQAndPingFailure() throws Exception
     {
         // Setup dud DB environment variables
         environmentVariables.set("JOB_SERVICE_DATABASE_HOST", "UNKNOWNHOST1234567890");
         environmentVariables.set("JOB_SERVICE_DATABASE_PORT", "9999");
-        environmentVariables.set("CAF_WEBSERVICE_URL", "http://jobservice:8080/job-service/v1");
+        environmentVariables.set("CAF_WEBSERVICE_URL", "http://unknownhost:8080/");
         environmentVariables.set("JOB_SERVICE_DATABASE_NAME", "jobservicedb");
         environmentVariables.set("JOB_SERVICE_DATABASE_APPNAME", "unknownapplicationname");
         environmentVariables.set("JOB_SERVICE_DATABASE_USERNAME", "unknownuser");
@@ -74,6 +74,12 @@ public class HealthCheckTest {
         Assert.assertTrue("queue.message should contain the failed host: unknown-rabbitmq-host",
                           healthCheckResponse.queue.message.contains("unknown-rabbitmq-host"));
 
+        Assert.assertFalse("ping.healthy should be false in health check response",
+                           healthCheckResponse.ping.healthy);
+        
+        Assert.assertTrue("ping.message should contain the failed host: unknownhost",
+                          healthCheckResponse.ping.message.contains("unknownhost"));
+        
         Assert.assertEquals("Status code set should be 503", 503, httpServletResponse.getStatus());
     }
 
@@ -81,11 +87,13 @@ public class HealthCheckTest {
     {
         private final HealthCheckItem database;
         private final HealthCheckItem queue;
+        private final HealthCheckItem ping;
 
-        private HealthCheckResponse(final HealthCheckItem database, final HealthCheckItem queue)
+        private HealthCheckResponse(final HealthCheckItem database, final HealthCheckItem queue, final HealthCheckItem ping)
         {
             this.database = database;
             this.queue = queue;
+            this.ping = ping;
         }
 
         private final class HealthCheckItem
