@@ -229,7 +229,7 @@ public class JobServiceIT {
         }
 
         final String expectedHealthCheckResponseContent =
-                "{\"database\":{\"healthy\":\"true\"},\"queue\":{\"healthy\":\"true\"},\"ping\":{\"healthy\":\"true\"}}";
+                "{\"database\":{\"healthy\":\"true\"},\"ping\":{\"healthy\":\"true\"},\"queue\":{\"healthy\":\"true\"}}";
         assertEquals(IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8")),
                 expectedHealthCheckResponseContent, "Expected HealthCheck response should match the actual response");
 
