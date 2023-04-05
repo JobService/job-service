@@ -171,7 +171,7 @@ public class HealthCheck extends HttpServlet
     
     private boolean performPingHealthCheck(final Map<String, Map<String, String>> statusResponseMap)
     {
-        LOG.debug("Ping Health Check: Starting...");
+        System.out.println("Ping Health Check: Starting...");
         
         final String connectionString = System.getenv("CAF_WEBSERVICE_URL");
         final ApiClient client = new ApiClient();
@@ -180,12 +180,13 @@ public class HealthCheck extends HttpServlet
         client.setDateFormat(f);
         final JobsApi jobsApi = new JobsApi(client);
         try {
-            LOG.debug("Ping Health Check: Attempting to Ping Web Service");
+            System.out.println("Ping Health Check: Attempting to Ping Web Service");
             jobsApi.ping();
-            LOG.debug("Ping Health Check: Healthy");
+            System.out.println("Ping Health Check: Healthy");
             return updateStatusResponseWithHealthOfComponent(statusResponseMap, true, null, "ping");
         } catch (final Exception e) {
-            LOG.debug("Ping Health Check: Unhealthy : " + e.toString());
+            System.out.println("Ping Health Check: Unhealthy : " + e.toString());
+            e.printStackTrace(System.out);
             return updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "ping");
         }
     }
