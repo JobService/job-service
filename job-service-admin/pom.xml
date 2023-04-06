@@ -33,11 +33,11 @@
     <dependencies>
         <dependency>
             <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-client2</artifactId>
+            <artifactId>job-service-db-client</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-db-client</artifactId>
+            <artifactId>job-service-internal-client</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
