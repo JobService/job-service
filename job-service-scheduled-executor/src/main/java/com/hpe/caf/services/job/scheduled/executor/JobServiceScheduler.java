@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Micro Focus or one of its affiliates.
+ * Copyright 2016-2023 Open Text.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
+import com.github.workerframework.workermessageprioritization.rerouting.MessageRouterSingleton;
 import com.hpe.caf.worker.document.exceptions.DocumentWorkerTransientException;
 import com.hpe.caf.worker.document.extensibility.DocumentWorker;
 import com.hpe.caf.worker.document.model.Document;
@@ -38,6 +39,7 @@ public class JobServiceScheduler implements DocumentWorker
     @Override
     public void checkHealth(HealthMonitor healthMonitor)
     {
+        MessageRouterSingleton.checkHealth(healthMonitor);
     }
 
     @Override

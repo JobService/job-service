@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2016-2022 Micro Focus or one of its affiliates.
+    Copyright 2016-2023 Open Text.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -90,6 +90,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <containerNamePattern>%a-%t</containerNamePattern>
                     <autoPull>on</autoPull>
                     <removeVolumes>true</removeVolumes>
                     <images>
@@ -117,9 +118,9 @@
                             </run>
                         </image>
                         
-                        <!-- Run old version of jobservice postgres container against postgres database to install jobservice schema. -->
+                        <!-- Run liquibase version of jobservice postgres container against postgres database to install jobservice schema. -->
                         <image>
-                            <alias>job-service-postgres-old</alias>
+                            <alias>job-service-postgres-liquibase</alias>
                             <name>${dockerHubPublic}/jobservice/job-service-postgres:3</name>
                             <run>
                                 <links>
@@ -129,7 +130,8 @@
                                     <POSTGRES_DB>${js.database.name}</POSTGRES_DB>
                                 </env>
                                 <cmd>
-                                    ./install_job_service_db.sh -fd -db.connection jdbc:postgresql://${js.database.host}:5432 -db.name ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password}
+                                    ./install_job_service_db.sh -fd -db.connection jdbc:postgresql://${js.database.host}:5432
+                                    -db.name ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password}
                                 </cmd>
                                 <wait>
                                     <log>DB update finished.</log>
@@ -142,7 +144,33 @@
                             </run>
                         </image>
                         
-                        <!-- Run jobservice postgres container against postgres database to upgrade jobservice schema. -->
+                        <!-- Run flyway version of jobservice postgres container against postgres database to test jobservice schema upgrade. -->
+                        <image>
+                            <alias>job-service-postgres-flyway</alias>
+                            <name>${dockerHubPublic}/jobservice/job-service-postgres:6</name>
+                            <run>
+                                <links>
+                                    <link>${js.database.host}</link>
+                                </links>
+                                <env>
+                                    <POSTGRES_DB>${js.database.name}</POSTGRES_DB>
+                                </env>
+                                <cmd>
+                                    ./install_job_service_db.sh -db.host ${js.database.host} -db.port 5432 -db.name
+                                    ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password}
+                                </cmd>
+                                <wait>
+                                    <log>DB update finished.</log>
+                                    <time>120000</time>
+                                    <shutdown>500</shutdown>
+                                </wait>
+                                <log>
+                                    <enabled>true</enabled>
+                                </log>
+                            </run>
+                        </image>
+                        
+                        <!-- Run latest jobservice postgres container against postgres database to upgrade jobservice schema. -->
                         <image>
                             <alias>job-service-postgres</alias>
                             <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2016-2022 Micro Focus or one of its affiliates.
+    Copyright 2016-2023 Open Text.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -37,13 +37,13 @@
     <inceptionYear>2016</inceptionYear>
 
     <organization>
-        <name>EntIT Software LLC, a Micro Focus company</name>
+        <name>EntIT Software LLC, an Open Text company</name>
         <url>https://www.microfocus.com</url>
     </organization>
 
     <properties>
-        <copyrightYear>2022</copyrightYear>
-        <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Micro Focus or one of its affiliates.</copyrightNotice>
+        <copyrightYear>2023</copyrightYear>
+        <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Open Text.</copyrightNotice>
         <swagger-contract-version>${project.version}</swagger-contract-version>
         <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
     </properties>

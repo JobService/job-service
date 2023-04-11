@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Micro Focus or one of its affiliates.
+ * Copyright 2016-2023 Open Text.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
-import com.github.workerframework.workermessageprioritization.rerouting.MessageRouterSingleton;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.api.worker.QueueTaskMessage;
@@ -37,11 +36,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This class is responsible for sending task data to the target queue.
@@ -50,33 +46,23 @@ public final class QueueServices implements AutoCloseable
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
 
-    private static final boolean CAF_WMP_ENABLED = ScheduledExecutorConfig.isCafWmpEnabled();
-
-    private static final Pattern CAF_WMP_PARTITION_ID_PATTERN
-            = CAF_WMP_ENABLED
-            ? Pattern.compile(
-            Objects.requireNonNull(
-                    ScheduledExecutorConfig.getCafWmpPartitionIdPattern(),
-                    "CAF_WMP_PARTITION_ID_PATTERN must be set if CAF_WMP_ENABLED is true"))
-            : null;
-
-    private static final Pattern CAF_WMP_TARGET_QUEUE_NAMES_PATTERN
-            = CAF_WMP_ENABLED
-            ? Pattern.compile(
-            Objects.requireNonNull(
-                    ScheduledExecutorConfig.getCafWmpTargetQueueNamesPattern(),
-                    "CAF_WMP_TARGET_QUEUE_NAMES_PATTERN must be set if CAF_WMP_ENABLED is true"))
-            : null;
-
     private final Connection connection;
     private final Channel publisherChannel;
-    private final String targetQueue;
+    private final String stagingQueueOrTargetQueue; // Queue where message should be published to
+    private final String targetQueue;               // Queue that should be set in the 'to' field of the task message
+
     private final Codec codec;
 
-    public QueueServices(final Connection connection, final Channel publisherChannel, final String targetQueue, final Codec codec) {
+    public QueueServices(
+            final Connection connection,
+            final Channel publisherChannel,
+            final String stagingQueueOrTargetQueue,
+            final String targetQueue,
+            final Codec codec) {
 
         this.connection = connection;
         this.publisherChannel = publisherChannel;
+        this.stagingQueueOrTargetQueue = stagingQueueOrTargetQueue;
         this.targetQueue = targetQueue;
         this.codec = codec;
     }
@@ -128,33 +114,12 @@ public final class QueueServices implements AutoCloseable
             throw new RuntimeException(e);
         }
 
-        // Reroute the message to a staging queue if applicable
-        final String stagingQueueName;
-
-        if (CAF_WMP_ENABLED && CAF_WMP_TARGET_QUEUE_NAMES_PATTERN.matcher(targetQueue).matches()) {
-
-            final Matcher matcher = CAF_WMP_PARTITION_ID_PATTERN.matcher(partitionId);
-
-            final String tenantId = matcher.matches() ? matcher.group("tenantId") : partitionId;
-
-            MessageRouterSingleton.init();
-
-            stagingQueueName = MessageRouterSingleton.route(targetQueue, tenantId);
-
-            LOG.debug("MessageRouterSingleton.route({}, {}) returned the following queue name: {}. " +
-                            "The following task data will be routed to this queue: {}",
-                    targetQueue,
-                    tenantId,
-                    stagingQueueName,
-                    workerAction);
-        } else {
-            stagingQueueName = targetQueue;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Publishing the following message to the {} queue: {}",
+                    stagingQueueOrTargetQueue, new String(taskMessageBytes, StandardCharsets.UTF_8));
         }
 
-        //  Send the message.
-        LOG.debug("Publishing the message ...");
-        publisherChannel.basicPublish(
-                "", stagingQueueName, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
+        publisherChannel.basicPublish("", stagingQueueOrTargetQueue, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
     }
 
     private TaskMessage getTaskMessage(

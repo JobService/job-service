@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Micro Focus or one of its affiliates.
+ * Copyright 2016-2023 Open Text.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,12 +73,13 @@ public class DatabasePoller
 
     private static void sendMessageToQueueMessaging(final Codec codec, final JobTaskData jtd, final WorkerAction workerAction)
     {
-        try (final QueueServices queueServices= QueueServicesFactory.create(jtd.getTaskPipe(), codec)){
-            LOG.debug("Sending task data to the target queue {} ...", workerAction);
+        try (final QueueServices queueServices= QueueServicesFactory.create(jtd.getTaskPipe(), jtd.getPartitionId(), codec)){
             queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
             deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
         } catch(final Exception ex) {
-            LOG.warn("Failed to send message about dependent jobs", ex);
+            LOG.warn(MessageFormat.format(
+                    "Exception thrown during processing of job with partition ID {0}, job ID {1} and task data {2}",
+                    jtd.getPartitionId(), jtd.getJobId(), workerAction), ex);
         }
     }
     
