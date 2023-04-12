@@ -177,7 +177,7 @@ public class HealthCheck extends HttpServlet
         if (pingUrl == null) {
             connectionString = "http://localhost:8080/job-service/v1";
         } else {
-            connectionString = System.getenv("JOB_SERVICE_INTERNAL_PING_URL");
+            connectionString = pingUrl;
         }
         final ApiClient client = new ApiClient();
         client.setBasePath(connectionString);
