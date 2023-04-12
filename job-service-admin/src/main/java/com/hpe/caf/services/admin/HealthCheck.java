@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.client.ApiClient;
-import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 import com.rabbitmq.client.Channel;
@@ -171,7 +170,7 @@ public class HealthCheck extends HttpServlet
     
     private boolean performPingHealthCheck(final Map<String, Map<String, String>> statusResponseMap)
     {
-        System.out.println("Ping Health Check: Starting...");
+        LOG.debug("Ping Health Check: Starting...");
         
         final String connectionString = System.getenv("CAF_WEBSERVICE_URL");
         final ApiClient client = new ApiClient();
@@ -180,13 +179,12 @@ public class HealthCheck extends HttpServlet
         client.setDateFormat(f);
         final JobsApi jobsApi = new JobsApi(client);
         try {
-            System.out.println("Ping Health Check: Attempting to Ping Web Service");
+            LOG.debug("Ping Health Check: Attempting to Ping Web Service");
             jobsApi.ping();
-            System.out.println("Ping Health Check: Healthy");
+            LOG.debug("Ping Health Check: Healthy");
             return updateStatusResponseWithHealthOfComponent(statusResponseMap, true, null, "ping");
         } catch (final Exception e) {
-            System.out.println("Ping Health Check: Unhealthy : " + e.toString());
-            e.printStackTrace(System.out);
+            LOG.error("Ping Health Check: Unhealthy : " + e.toString());
             return updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "ping");
         }
     }

@@ -237,7 +237,7 @@ public class JobsApi  {
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @io.swagger.annotations.ApiResponses(value = {
-        @io.swagger.annotations.ApiResponse(code = 200, message = "Returns the count of jobs", response = String.class) })
+        @io.swagger.annotations.ApiResponse(code = 200, message = "Successful Ping", response = String.class) })
     public Response ping() throws Exception{
         return delegate.ping();
     }
