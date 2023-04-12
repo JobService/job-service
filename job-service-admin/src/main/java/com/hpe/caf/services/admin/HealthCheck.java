@@ -172,7 +172,13 @@ public class HealthCheck extends HttpServlet
     {
         LOG.debug("Ping Health Check: Starting...");
         
-        final String connectionString = System.getenv("CAF_WEBSERVICE_URL");
+        final String connectionString;
+        final String pingUrl = System.getenv("JOB_SERVICE_INTERNAL_PING_URL");
+        if (pingUrl == null) {
+            connectionString = "http://localhost:8080/job-service/v1";
+        } else {
+            connectionString = System.getenv("JOB_SERVICE_INTERNAL_PING_URL");
+        }
         final ApiClient client = new ApiClient();
         client.setBasePath(connectionString);
         final SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");

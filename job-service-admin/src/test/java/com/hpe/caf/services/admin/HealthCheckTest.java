@@ -36,7 +36,6 @@ public class HealthCheckTest {
         // Setup dud DB environment variables
         environmentVariables.set("JOB_SERVICE_DATABASE_HOST", "UNKNOWNHOST1234567890");
         environmentVariables.set("JOB_SERVICE_DATABASE_PORT", "9999");
-        environmentVariables.set("CAF_WEBSERVICE_URL", "http://unknownhost:8080/");
         environmentVariables.set("JOB_SERVICE_DATABASE_NAME", "jobservicedb");
         environmentVariables.set("JOB_SERVICE_DATABASE_APPNAME", "unknownapplicationname");
         environmentVariables.set("JOB_SERVICE_DATABASE_USERNAME", "unknownuser");
@@ -46,7 +45,9 @@ public class HealthCheckTest {
         environmentVariables.set("CAF_RABBITMQ_PORT", "9999");
         environmentVariables.set("CAF_RABBITMQ_USERNAME", "unknownuser");
         environmentVariables.set("CAF_RABBITMQ_PASSWORD", "unknownpass");
-
+        //Setup dud Job Service environment variables
+        environmentVariables.set("JOB_SERVICE_INTERNAL_PING_URL", "http://unknownhost:8080/job-service/v1");
+        
         final HealthCheck healthCheck = new HealthCheck();
 
         final HttpServletResponseForTesting httpServletResponse = new HttpServletResponseForTesting();
