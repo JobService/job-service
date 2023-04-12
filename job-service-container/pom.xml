@@ -509,7 +509,7 @@
                                     <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
                                     <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
                                     <CAF_STATUS_CHECK_INTERVAL_SECONDS>5</CAF_STATUS_CHECK_INTERVAL_SECONDS>
-                                    <CAF_WEBSERVICE_URL>http://localhost:8080/job-service/v1</CAF_WEBSERVICE_URL>
+                                    <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
                                     <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
                                     <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
                                     <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
