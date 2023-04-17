@@ -241,6 +241,6 @@ public class JobsApi  {
         @io.swagger.annotations.ApiResponse(code = 500, message = "The request failed due to an internal server error.", response = void.class)
     })
     public Response ping() throws Exception{
-        return delegate.ping();
+        throw new Exception("Ping failed");
     }
 }
