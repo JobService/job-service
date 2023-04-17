@@ -62,7 +62,9 @@ paths:
       operationId: ping
       responses:
         '200':
-          description: OK
+          description: Successful Ping
+        '500':
+          description: The request failed due to an internal server error.
   /partitions/{partitionId}/jobs:
     parameters:
       - $ref: '#/parameters/partitionId'
