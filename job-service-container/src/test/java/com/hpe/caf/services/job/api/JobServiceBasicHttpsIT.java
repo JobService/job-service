@@ -102,7 +102,7 @@ public class JobServiceBasicHttpsIT
         request.releaseConnection();
     }
     
-    //@Test
+    @Test
     public void basicCommunicationTest2() throws IOException, URISyntaxException
     {
         final URI getRequestUrl = UriBuilder.fromUri(https_url)
