@@ -212,7 +212,7 @@ public class JobServiceIT {
         defaultPartitionId = UUID.randomUUID().toString();
     }
 
-    //@Test
+    @Test
     public void testHealthCheck() throws NoSuchAlgorithmException, KeyManagementException, IOException
     {
         final String getRequestUrl = SettingsProvider.defaultProvider.getSetting("healthcheckurl");
