@@ -27,7 +27,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
-@Path("/partitions")
+@Path("/")
 @Consumes({ "application/json" })
 @Produces({ "application/json" })
 @io.swagger.annotations.Api(description = "the jobs API")
@@ -38,7 +38,7 @@ public class JobsApi  {
     private final JobStatsApiService statsDelegate = JobStatsApiServiceFactory.getJobStatsApi();
 
     @GET
-    @Path("/{partitionId}/jobs")
+    @Path("partitions/{partitionId}/jobs")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @io.swagger.annotations.ApiOperation(value = "Gets the list of jobs", notes = "Returns the list of job definitions defined in the system", response = Job.class, responseContainer = "List", tags={ "Jobs",  })
@@ -61,7 +61,7 @@ public class JobsApi  {
     }
 
     @GET
-    @Path("/{partitionId}/jobs/{jobId}")
+    @Path("partitions/{partitionId}/jobs/{jobId}")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @io.swagger.annotations.ApiOperation(value = "Gets the specified job", notes = "Retrieves information about the specified job", response = Job.class, tags={ "Jobs",  })
@@ -81,7 +81,7 @@ public class JobsApi  {
     }
 
     @PUT
-    @Path("/{partitionId}/jobs/{jobId}")
+    @Path("partitions/{partitionId}/jobs/{jobId}")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @io.swagger.annotations.ApiOperation(value = "Adds a new job", notes = "Creates the specified job using the job definition included in the http body", response = void.class, tags={ "Jobs",  })
@@ -102,7 +102,7 @@ public class JobsApi  {
     }
 
     @DELETE
-    @Path("/{partitionId}/jobs/{jobId}")
+    @Path("partitions/{partitionId}/jobs/{jobId}")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @io.swagger.annotations.ApiOperation(value = "Deletes the specified job", notes = "Deletes the specified job from the system", response = void.class, tags={ "Jobs" })
@@ -122,7 +122,7 @@ public class JobsApi  {
     }
 
     @POST
-    @Path("/{partitionId}/jobs/{jobId}/cancel")
+    @Path("partitions/{partitionId}/jobs/{jobId}/cancel")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @io.swagger.annotations.ApiOperation(value = "Cancels the job", notes = "Cancels the specified job", response = void.class, tags={ "Jobs",  })
@@ -142,7 +142,7 @@ public class JobsApi  {
     }
 
     @POST
-    @Path("/{partitionId}/jobs/{jobId}/pause")
+    @Path("partitions/{partitionId}/jobs/{jobId}/pause")
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @io.swagger.annotations.ApiOperation(value = "Pauses the job.", notes = "Pauses the specified job.", response = void.class, tags = {"Jobs",})
@@ -160,7 +160,7 @@ public class JobsApi  {
     }
 
     @POST
-    @Path("/{partitionId}/jobs/{jobId}/resume")
+    @Path("partitions/{partitionId}/jobs/{jobId}/resume")
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @io.swagger.annotations.ApiOperation(value = "Pauses the job.", notes = "Pauses the specified job.", response = void.class, tags = {"Jobs",})
@@ -178,7 +178,7 @@ public class JobsApi  {
     }
 
     @GET
-    @Path("/{partitionId}/jobs/{jobId}/isActive")
+    @Path("partitions/{partitionId}/jobs/{jobId}/isActive")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @io.swagger.annotations.ApiOperation(value = "Checks if the job is active", notes = "Checks if the specified job is active", response = Boolean.class, tags={ "Jobs" })
@@ -196,7 +196,7 @@ public class JobsApi  {
     }
 
     @GET
-    @Path("/{partitionId}/jobs/{jobId}/status")
+    @Path("partitions/{partitionId}/jobs/{jobId}/status")
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @io.swagger.annotations.ApiOperation(value = "Gets the status of the job.", notes = "Gets the status of the specified job.", response = Boolean.class, tags = {"Jobs"})
@@ -214,7 +214,7 @@ public class JobsApi  {
     }
 
     @GET
-    @Path("/{partitionId}/jobStats/count")
+    @Path("partitions/{partitionId}/jobStats/count")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @io.swagger.annotations.ApiOperation(value = "Gets a count of jobs", notes = "Returns a count of job definitions defined in the system", response = Long.class, tags={ "Jobs",  })
@@ -230,5 +230,17 @@ public class JobsApi  {
         @Context SecurityContext securityContext)
         throws Exception {
         return statsDelegate.getJobStatsCount(partitionId, jobIdStartsWith, statusType, filter, cAFCorrelationId, securityContext);
+    }
+    
+    @GET
+    @Path("ping")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @io.swagger.annotations.ApiResponses(value = {
+        @io.swagger.annotations.ApiResponse(code = 200, message = "Successful Ping", response = String.class),
+        @io.swagger.annotations.ApiResponse(code = 500, message = "The request failed due to an internal server error.", response = void.class)
+    })
+    public Response ping() throws Exception{
+        return delegate.ping();
     }
 }

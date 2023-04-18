@@ -36,6 +36,10 @@
             <artifactId>job-service-db-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-internal-client</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>

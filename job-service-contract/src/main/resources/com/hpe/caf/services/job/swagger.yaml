@@ -53,6 +53,18 @@ parameters:
     pattern: '^[^.,:;*?!|()]{1,48}$'
 
 paths:
+  /ping:
+    get:
+      tags:
+        - Jobs
+      summary: Ping Service
+      description: Ping Service
+      operationId: ping
+      responses:
+        '200':
+          description: Successful Ping
+        '500':
+          description: The request failed due to an internal server error.
   /partitions/{partitionId}/jobs:
     parameters:
       - $ref: '#/parameters/partitionId'

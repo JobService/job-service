@@ -18,6 +18,8 @@ package com.hpe.caf.services.admin;
 import com.google.gson.Gson;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
+import com.hpe.caf.services.job.client.ApiClient;
+import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 import com.rabbitmq.client.Channel;
 import org.slf4j.Logger;
@@ -31,6 +33,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -50,7 +53,8 @@ public class HealthCheck extends HttpServlet
         // Health check that the DB and RabbitMQ can be contacted
         final boolean isDBHealthy = performDBHealthCheck(statusResponseMap);
         final boolean isRabbitMQHealthy = performRabbitMQHealthCheck(statusResponseMap);
-        final boolean isHealthy = isDBHealthy && isRabbitMQHealthy;
+        final boolean isPingHealthy = performPingHealthCheck(statusResponseMap);
+        final boolean isHealthy = isDBHealthy && isRabbitMQHealthy && isPingHealthy;
 
         final Gson gson = new Gson();
         final String responseBody = gson.toJson(statusResponseMap);
@@ -161,6 +165,33 @@ public class HealthCheck extends HttpServlet
         } catch (final Exception e) {
             LOG.error("Database Health Check: Unhealthy : " + e.toString());
             return updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "database");
+        }
+    }
+    
+    private boolean performPingHealthCheck(final Map<String, Map<String, String>> statusResponseMap)
+    {
+        LOG.debug("Ping Health Check: Starting...");
+        
+        final String connectionString;
+        final String pingUrl = System.getenv("JOB_SERVICE_INTERNAL_PING_URL");
+        if (pingUrl == null) {
+            connectionString = "http://localhost:8080/job-service/v1";
+        } else {
+            connectionString = pingUrl;
+        }
+        final ApiClient client = new ApiClient();
+        client.setBasePath(connectionString);
+        final SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        client.setDateFormat(f);
+        final JobsApi jobsApi = new JobsApi(client);
+        try {
+            LOG.debug("Ping Health Check: Attempting to Ping Web Service");
+            jobsApi.ping();
+            LOG.debug("Ping Health Check: Healthy");
+            return updateStatusResponseWithHealthOfComponent(statusResponseMap, true, null, "ping");
+        } catch (final Exception e) {
+            LOG.error("Ping Health Check: Unhealthy : " + e.toString());
+            return updateStatusResponseWithHealthOfComponent(statusResponseMap, false, e.toString(), "ping");
         }
     }
 }

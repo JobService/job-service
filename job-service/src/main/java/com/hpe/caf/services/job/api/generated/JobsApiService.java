@@ -55,4 +55,6 @@ public abstract class JobsApiService {
       public abstract Response getJobStatus(String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
         throws Exception;
 
+      public abstract Response ping()
+        throws Exception;
 }

@@ -111,4 +111,9 @@ public class JobsApiServiceImpl extends JobsApiService {
         return Response.ok().header("CacheableJobStatus", true).entity(jobStatusResult.jobStatus).cacheControl(cacheControl).build();
     }
 
+    @Override
+    public Response ping() throws Exception
+    {
+        return Response.ok("{\"success\" : true}").build();
+    }
 }
