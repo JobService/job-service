@@ -382,7 +382,7 @@
                             <alias>jobtracking-worker</alias>
                             <name>${dockerJobServiceOrg}worker-jobtracking${dockerProjectVersion}</name>
                             <build>
-                                <from>${dockerHubPublic}/cafapi/opensuse-jre17:1</from>
+                                <from>${dockerHubPublic}/cafapi/prereleases:opensuse-jre17-1.3.0-SNAPSHOT</from>
                                 <labels>
                                     <caf.worker-queue.impl>${caf.worker-queue.impl}</caf.worker-queue.impl>
                                     <caf.worker-store.impl>${caf.worker-store.impl}</caf.worker-store.impl>
