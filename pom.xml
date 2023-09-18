@@ -211,7 +211,7 @@
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-message-prioritization-rerouting</artifactId>
-                <version>1.0.0-97</version>
+                <version>1.3.0-US773019-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.squareup.okio</groupId>
