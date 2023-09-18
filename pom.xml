@@ -212,12 +212,6 @@
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-message-prioritization-rerouting</artifactId>
                 <version>1.0.0-97</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.squareup.okio</groupId>
-                        <artifactId>okio</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -241,8 +235,8 @@
             </dependency>
             <dependency>
                 <groupId>com.squareup.okio</groupId>
-                <artifactId>okio-jvm</artifactId>
-                <version>3.5.0</version>
+                <artifactId>okio</artifactId>
+                <version>2.5.0</version>
             </dependency>
             <dependency>
                 <groupId>com.squareup.okhttp</groupId>
