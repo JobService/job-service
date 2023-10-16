@@ -335,4 +335,16 @@
         <url>https://github.com/JobService/job-service</url>
     </scm>
 
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>0.43.4</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
 </project>
