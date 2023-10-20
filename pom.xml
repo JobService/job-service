@@ -33,20 +33,17 @@
     <parent>
         <groupId>com.github.cafapi</groupId>
         <artifactId>caf-common-parent</artifactId>
-        <version>2.3.0-212</version>
+        <version>5.0.0-SNAPSHOT</version>
     </parent>
     
     <inceptionYear>2016</inceptionYear>
 
     <properties>
         <copyrightYear>2023</copyrightYear>
-        <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Open Text.</copyrightNotice>
         <dockerHubOrganization>jobservice</dockerHubOrganization>
         <dockerJobServiceOrg>${dockerImagePrefix}${dockerHubOrganization}${dockerOrgSeperator}</dockerJobServiceOrg>
         <dockerProjectVersion>${dockerVersionSeperator}${project.version}</dockerProjectVersion>
         <DOCKER_HUB_PUBLIC>${dockerHubPublic}</DOCKER_HUB_PUBLIC>
-        <enforceCorrectDependencies>true</enforceCorrectDependencies>
-        <enforceBannedDependencies>true</enforceBannedDependencies>
     </properties>
 
     <dependencyManagement>
