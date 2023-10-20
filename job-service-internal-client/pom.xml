@@ -62,7 +62,7 @@
             <plugin>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-codegen-maven-plugin</artifactId>
-                <version>${swagger-codegen-maven-plugin-version}</version>
+                <version>2.4.34</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.github.jobservice</groupId>
