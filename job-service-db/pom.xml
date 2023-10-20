@@ -46,7 +46,7 @@
                     <licenseSets>
                         <licenseSet>
                             <excludes combine.children="append">
-                                <exclude>**/changelog.xml</exclude>
+                                <exclude>**/db/migration/**/*.sql</exclude>
                             </excludes>
                         </licenseSet>
                     </licenseSets>
