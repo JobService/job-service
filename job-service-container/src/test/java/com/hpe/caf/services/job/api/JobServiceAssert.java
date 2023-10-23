@@ -18,7 +18,7 @@ package com.hpe.caf.services.job.api;
 import com.hpe.caf.services.job.client.ApiException;
 import org.testng.Assert;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 public class JobServiceAssert {
 

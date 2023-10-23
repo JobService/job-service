@@ -18,8 +18,8 @@ package com.hpe.caf.services.job.jobtype;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import java.io.IOException;
 import java.io.InputStream;
 import org.yaml.snakeyaml.Yaml;

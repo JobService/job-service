@@ -22,7 +22,7 @@ import com.hpe.caf.services.job.util.JobTaskId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriBuilder;
 import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
