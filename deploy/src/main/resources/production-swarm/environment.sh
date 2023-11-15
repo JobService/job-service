@@ -23,6 +23,6 @@ export CAF_JOB_SERVICE_RESUME_JOB_QUEUE=worker-taskunstowing-in
 
 ## RabbitMQ Connection Details
 export CAF_RABBITMQ_HOST=192.168.56.10
-export CAF_RABBITMQ_PORT=5672
+export CAF_RABBITMQ_PORT=5671
 export CAF_RABBITMQ_USERNAME=guest
 export CAF_RABBITMQ_PASSWORD=guest
