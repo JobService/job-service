@@ -46,6 +46,8 @@ import java.util.concurrent.TimeoutException;
 final class IntegrationTestQueueServices implements AutoCloseable
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationTestQueueServices.class);
+    private static final String RABBIT_PROP_QUEUE_TYPE = "x-queue-type";
+    private static final String RABBIT_PROP_QUEUE_TYPE_QUORUM = "quorum";
     private static final String DOCKER_HOST_ADDRESS = SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress);
     private static final String RABBITMQ_NODE_PORT = SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort);
     private static final String RABBITMQ_CTRL_PORT = SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqCtrlPort);
@@ -76,7 +78,9 @@ final class IntegrationTestQueueServices implements AutoCloseable
 
         LOGGER.info("Declaring Rabbit MQ queues...");
         LOGGER.info("Declaring Rabbit MQ resume job queue...");
-        resumeJobQueueChannel.queueDeclare(RESUME_JOB_QUEUE_NAME, true, false, false, null);
+        final Map<String, Object> args = new HashMap<>();
+        args.put(RABBIT_PROP_QUEUE_TYPE, RABBIT_PROP_QUEUE_TYPE_QUORUM);
+        resumeJobQueueChannel.queueDeclare(RESUME_JOB_QUEUE_NAME, true, false, false, args);
 
         rabbitHost = new HttpHost(DOCKER_HOST_ADDRESS, Integer.parseInt(RABBITMQ_CTRL_PORT), "http");
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
