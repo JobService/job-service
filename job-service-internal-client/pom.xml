@@ -23,7 +23,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-internal-client</artifactId>
-    <version>6.3.0-SNAPSHOT</version>
+    <version>6.2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>job-service-internal-client</name>
 
