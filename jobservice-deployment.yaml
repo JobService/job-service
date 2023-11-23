@@ -10,7 +10,7 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2023-08-24T13:18:41Z
+      creationTimestamp: 2023-11-22T20:41:05Z
       labels:
         io.kompose.service: jobservicedb
     spec:
@@ -55,7 +55,7 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2023-08-24T13:18:41Z
+      creationTimestamp: 2023-11-22T20:41:05Z
       labels:
         io.kompose.service: rabbitmq
     spec:
@@ -86,13 +86,13 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2023-08-24T13:18:41Z
+      creationTimestamp: 2023-11-22T20:41:05Z
       labels:
         io.kompose.service: jobservice
     spec:
       containers:
       - name: jobservice
-        image: jobservice/prereleases:job-service-6.2.1-176
+        image: jobservice/prereleases:job-service-6.2.2-266
         imagePullPolicy: Always
         env:
           - name: JOB_SERVICE_DATABASE_APPNAME
@@ -173,13 +173,13 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2023-08-24T13:18:41Z
+      creationTimestamp: 2023-11-22T20:41:05Z
       labels:
         io.kompose.service: jobtrackingworker
     spec:
       containers:
       - name: worker-jobtracking
-        image: jobservice/prereleases:worker-jobtracking-6.2.1-176
+        image: jobservice/prereleases:worker-jobtracking-6.2.2-266
         imagePullPolicy: Always
         env:
           - name: JOB_SERVICE_DATABASE_APPNAME
@@ -259,13 +259,13 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2023-08-24T13:18:41Z
+      creationTimestamp: 2023-11-22T20:41:05Z
       labels:
         io.kompose.service: jobservicescheduledexecutor
     spec:
       containers:
       - name: jobservicescheduledexecutor
-        image: jobservice/prereleases:job-service-scheduled-executor-6.2.1-176
+        image: jobservice/prereleases:job-service-scheduled-executor-6.2.2-266
         imagePullPolicy: Always
         env:
           - name: JOB_SERVICE_DATABASE_APPNAME
@@ -344,7 +344,7 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2023-08-24T13:18:41Z
+      creationTimestamp: 2023-11-22T20:41:05Z
       labels:
         io.kompose.service: worker-globfilter
     spec:
@@ -402,7 +402,7 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2023-08-24T13:18:41Z
+      creationTimestamp: 2023-11-22T20:41:05Z
       labels:
         io.kompose.service: worker-langdetect
     spec:
@@ -462,7 +462,7 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: 2023-08-24T13:18:41Z
+      creationTimestamp: 2023-11-22T20:41:05Z
       labels:
         io.kompose.service: filebrowser
     spec:
