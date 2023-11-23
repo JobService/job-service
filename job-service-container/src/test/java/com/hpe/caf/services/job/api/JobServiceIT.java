@@ -76,9 +76,6 @@ import static org.testng.FileAssert.fail;
 public class JobServiceIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobServiceIT.class);
-    private static final String RABBIT_PROP_QUEUE_TYPE = "x-queue-type";
-    private static final String RABBIT_PROP_QUEUE_TYPE_QUORUM = "quorum";
-
     private String connectionString;
     private String defaultPartitionId;
     private ApiClient client = new ApiClient();
@@ -118,7 +115,7 @@ public class JobServiceIT {
         try {
             final Channel rabbitChannel = rabbitConn.createChannel();
             final Map<String, Object> args = new HashMap<>();
-            args.put(RABBIT_PROP_QUEUE_TYPE, RABBIT_PROP_QUEUE_TYPE_QUORUM);
+            args.put(JobServiceConnectionUtil.RABBIT_PROP_QUEUE_TYPE, JobServiceConnectionUtil.RABBIT_PROP_QUEUE_TYPE_QUORUM);
             rabbitChannel.queueDeclare("TaskQueue_" + jobId, true, false, false,
                     args);
             rabbitChannel.close();
@@ -445,7 +442,7 @@ public class JobServiceIT {
             try {
                 Channel rabbitChannel = rabbitConn.createChannel();
                 final Map<String, Object> args = new HashMap<>();
-                args.put(RABBIT_PROP_QUEUE_TYPE, RABBIT_PROP_QUEUE_TYPE_QUORUM);
+                args.put(JobServiceConnectionUtil.RABBIT_PROP_QUEUE_TYPE, JobServiceConnectionUtil.RABBIT_PROP_QUEUE_TYPE_QUORUM);
                 rabbitChannel.queueDeclare("TaskQueue_" + randomUUID, true, false, false,
                         args);
                 rabbitChannel.close();

@@ -44,8 +44,6 @@ import static org.testng.Assert.*;
  */
 public class JobServiceFilterIT
 {
-    private static final String RABBIT_PROP_QUEUE_TYPE = "x-queue-type";
-    private static final String RABBIT_PROP_QUEUE_TYPE_QUORUM = "quorum";
 
     private String connectionString;
     private String defaultPartitionId;
@@ -334,7 +332,7 @@ public class JobServiceFilterIT
         try {
             final Channel rabbitChannel = rabbitConn.createChannel();
             final Map<String, Object> args = new HashMap<>();
-            args.put(RABBIT_PROP_QUEUE_TYPE, RABBIT_PROP_QUEUE_TYPE_QUORUM);
+            args.put(JobServiceConnectionUtil.RABBIT_PROP_QUEUE_TYPE, JobServiceConnectionUtil.RABBIT_PROP_QUEUE_TYPE_QUORUM);
             rabbitChannel.queueDeclare("TaskQueue_" + jobId, true, false, false,
                     args);
             rabbitChannel.close();
