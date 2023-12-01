@@ -210,8 +210,13 @@
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
-                <artifactId>worker-message-prioritization-rerouting</artifactId>
+                <artifactId>worker-message-prioritization-distribution</artifactId>
                 <version>1.4.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.workerframework</groupId>
+                <artifactId>worker-message-prioritization-rerouting</artifactId>
+                <version>1.0.0-97</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
