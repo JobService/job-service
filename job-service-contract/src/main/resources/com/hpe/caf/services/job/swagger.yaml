@@ -57,6 +57,7 @@ parameters:
     type: array
     items:
       type: string
+      pattern: '^[^.,:;*?!|()]{1,48}$'
     required: false
     description: List of Job identifiers
 
