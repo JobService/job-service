@@ -51,6 +51,14 @@ parameters:
     required: true
     description: The identifier of the job
     pattern: '^[^.,:;*?!|()]{1,48}$'
+  jobIds:
+    name: jobIds
+    in: query
+    type: array
+    items:
+      type: string
+    required: false
+    description: List of Job IDs
 
 paths:
   /ping:
@@ -282,6 +290,34 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         404:
           description: The specified job is not found.
+        503:
+          description: The request failed due to a database connection error.
+  /partitions/{partitionId}/jobs/cancelJobs:
+    parameters:
+      - $ref: '#/parameters/partitionId'
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that correlates events
+          across different services.
+      - $ref: '#/parameters/jobIds'
+      - name: filter
+        description: Only results who satisfy this value will be returned
+        in: query
+        type: string
+        required: false
+    post:
+      tags:
+        - Jobs
+      summary: Cancels series of jobs.
+      description: Cancels jobs based on filter or list of JobIDs provided.
+      operationId: cancelJobs
+      responses:
+        204:
+          description: The cancellation has been accepted.
+        400:
+          description: The request could not be processed because one or more arguments are invalid.
         503:
           description: The request failed due to a database connection error.
   /partitions/{partitionId}/jobs/{jobId}/pause:
