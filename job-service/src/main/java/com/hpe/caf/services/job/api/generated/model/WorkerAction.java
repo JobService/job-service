@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
-@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-03-03T15:07:30.523Z")
+@jakarta.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-03-03T15:07:30.523Z")
 @XmlRootElement(name = "WorkerAction")
 public class WorkerAction   {
 

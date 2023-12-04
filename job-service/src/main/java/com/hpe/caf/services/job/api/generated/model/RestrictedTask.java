@@ -35,7 +35,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Defines how the job should be executed, using a specific job type configured on the service.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaJerseyServerCodegen", date = "2019-06-10T17:07:29.912+01:00[Europe/London]")public class RestrictedTask {
+@jakarta.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaJerseyServerCodegen", date = "2019-06-10T17:07:29.912+01:00[Europe/London]")public class RestrictedTask {
   @JsonProperty("typeId")
   private String typeId = null;
 

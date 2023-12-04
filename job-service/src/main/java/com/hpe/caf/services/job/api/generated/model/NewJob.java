@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * Exactly one of task and job should be specified.
  */
-@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-03-03T15:07:30.523Z")
+@jakarta.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-03-03T15:07:30.523Z")
 @XmlRootElement(name = "NewJob")
 public class NewJob   {
 
