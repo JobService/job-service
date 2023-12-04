@@ -75,6 +75,19 @@ public class JobsApiServiceImpl extends JobsApiService {
     }
 
     @Override
+    public Response cancelJobs(String partitionId, List<String> jobIds, String filter, String cAFCorrelationId,SecurityContext securityContext)
+        throws Exception {
+        // If list of Job IDs provided
+        for (String jobId : jobIds) {
+            JobsCancel.cancelJob(partitionId, jobId);
+        }
+
+        // TODO: filter
+
+        return Response.noContent().build();
+    }
+
+    @Override
     public Response pauseJob(final String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
         JobsPause.pauseJob(partitionId, jobId);

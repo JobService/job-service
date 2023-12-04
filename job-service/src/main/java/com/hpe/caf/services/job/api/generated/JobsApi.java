@@ -15,10 +15,13 @@
  */
 package com.hpe.caf.services.job.api.generated;
 
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -139,6 +142,27 @@ public class JobsApi  {
             @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,@Context SecurityContext securityContext)
             throws Exception {
         return delegate.cancelJob(partitionId, jobId,cAFCorrelationId,securityContext);
+    }
+
+    @POST
+    @Path("partitions/{partitionId}/jobs/cancelJobs")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Cancels a series of jobs", notes = "Cancels the specified job", response = void.class, tags={ "Jobs", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "The cancellation has been accepted", response = void.class),
+
+            @ApiResponse(code = 400, message = "The 'jobIds' parameter contains invalid characters.", response = void.class),
+
+            @ApiResponse(code = 404, message = "A job specified in the array is not found.", response = void.class) })
+
+    public Response cancelJobs(
+            @ApiParam(value = "Only allow access to jobs in the container with this name", required = true) @PathParam("partitionId") String partitionId,
+            @ApiParam(value = "List of job identifiers", required = false) @PathParam("jobIds") List<String> jobIds,
+            @ApiParam(value = "Filter jobs with the specified filter criteria") @QueryParam("filter") String filter,
+            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" ) @HeaderParam("CAF-Correlation-Id") String cAFCorrelationId, @Context SecurityContext securityContext)
+            throws Exception {
+        return delegate.cancelJobs(partitionId, jobIds, filter, cAFCorrelationId, securityContext);
     }
 
     @POST
