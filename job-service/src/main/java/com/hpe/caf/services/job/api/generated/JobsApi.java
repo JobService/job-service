@@ -148,13 +148,13 @@ public class JobsApi  {
     @Path("partitions/{partitionId}/jobs/cancelJobs")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
-    @ApiOperation(value = "Cancels a series of jobs", notes = "Cancels the specified job", response = void.class, tags={ "Jobs", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 204, message = "The cancellation has been accepted", response = void.class),
+    @io.swagger.annotations.ApiOperation(value = "Cancels multiple jobs", notes = "Cancels specified jobs", response = void.class, tags={ "Jobs", })
+    @io.swagger.annotations.ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 204, message = "The cancellation has been accepted", response = void.class),
 
-            @ApiResponse(code = 400, message = "The 'jobIds' parameter contains invalid characters.", response = void.class),
+            @io.swagger.annotations.ApiResponse(code = 400, message = "The 'jobId' parameter contains invalid characters.", response = void.class),
 
-            @ApiResponse(code = 404, message = "A job specified in the array is not found.", response = void.class) })
+            @io.swagger.annotations.ApiResponse(code = 404, message = "The specified job is not found.", response = void.class) })
 
     public Response cancelJobs(
             @ApiParam(value = "Only allow access to jobs in the container with this name", required = true) @PathParam("partitionId") String partitionId,

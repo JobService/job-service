@@ -58,7 +58,7 @@ parameters:
     items:
       type: string
     required: false
-    description: List of Job IDs
+    description: List of Job identifiers
 
 paths:
   /ping:
@@ -303,7 +303,7 @@ paths:
           across different services.
       - $ref: '#/parameters/jobIds'
       - name: filter
-        description: Only results who satisfy this value will be returned
+        description: Only jobs which meet this criteria will be cancelled
         in: query
         type: string
         required: false
@@ -311,7 +311,7 @@ paths:
       tags:
         - Jobs
       summary: Cancels series of jobs.
-      description: Cancels jobs based on filter or list of JobIDs provided.
+      description: Cancels multiple jobs based on either filter criteria or a list of Job IDs
       operationId: cancelJobs
       responses:
         204:
