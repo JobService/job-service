@@ -28,12 +28,12 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>6.2.2-SNAPSHOT</version>
+        <version>6.3.0-SNAPSHOT</version>
     </parent>
 
     <properties>
         <task.table.deletion.count>100</task.table.deletion.count>
-        <tomcatBaseImage>${dockerHubPublic}/cafapi/opensuse-tomcat-jre17:1</tomcatBaseImage>
+        <tomcatBaseImage>${dockerHubPublic}/cafapi/prereleases:opensuse-tomcat-jre17-1.7.0-SNAPSHOT</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>
