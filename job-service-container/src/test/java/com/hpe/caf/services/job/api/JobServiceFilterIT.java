@@ -331,8 +331,10 @@ public class JobServiceFilterIT
 
         try {
             final Channel rabbitChannel = rabbitConn.createChannel();
+            final Map<String, Object> args = new HashMap<>();
+            args.put(JobServiceConnectionUtil.RABBIT_PROP_QUEUE_TYPE, JobServiceConnectionUtil.RABBIT_PROP_QUEUE_TYPE_QUORUM);
             rabbitChannel.queueDeclare("TaskQueue_" + jobId, true, false, false,
-                    new HashMap<>());
+                    args);
             rabbitChannel.close();
         } catch (Exception e) {
             throw new RuntimeException(e);

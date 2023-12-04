@@ -24,6 +24,10 @@ import org.slf4j.LoggerFactory;
 
 public final class JobServiceConnectionUtil
 {
+
+    public static final String RABBIT_PROP_QUEUE_TYPE = "x-queue-type";
+    public static final String RABBIT_PROP_QUEUE_TYPE_QUORUM = "quorum";
+
     private JobServiceConnectionUtil()
     {
     }
