@@ -51,15 +51,6 @@ parameters:
     required: true
     description: The identifier of the job
     pattern: '^[^.,:;*?!|()]{1,48}$'
-  jobIds:
-    name: jobIds
-    in: query
-    type: array
-    items:
-      type: string
-      pattern: '^[^.,:;*?!|()]{1,48}$'
-    required: false
-    description: List of Job identifiers
 
 paths:
   /ping:
@@ -302,7 +293,14 @@ paths:
         description: |
           An identifier that correlates events
           across different services.
-      - $ref: '#/parameters/jobIds'
+      - name: jobIds
+        in: body
+        description: "List of Job IDs to cancel"
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
       - name: filter
         description: Only jobs which meet this criteria will be cancelled
         in: query

@@ -158,7 +158,7 @@ public class JobsApi  {
 
     public Response cancelJobs(
             @ApiParam(value = "Only allow access to jobs in the container with this name", required = true) @PathParam("partitionId") String partitionId,
-            @ApiParam(value = "List of job identifiers", required = false) @PathParam("jobIds") List<String> jobIds,
+            @ApiParam(value = "List of Job IDs to cancel", required = false) List<String> jobIds,
             @ApiParam(value = "Filter jobs with the specified filter criteria") @QueryParam("filter") String filter,
             @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" ) @HeaderParam("CAF-Correlation-Id") String cAFCorrelationId, @Context SecurityContext securityContext)
             throws Exception {
