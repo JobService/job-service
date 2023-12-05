@@ -303,10 +303,10 @@ paths:
             type: string
             pattern: '^[^.,:;*?!|()]{1,48}$'
       - name: filter
-        description: Only jobs which meet this criteria will be cancelled
         in: query
         type: string
         required: false
+        description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`'
     post:
       tags:
         - Jobs
