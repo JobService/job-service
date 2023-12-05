@@ -599,6 +599,29 @@ public class JobServiceIT {
             "last-update-time should be updated on cancel");
     }
 
+    @Test
+    public void testCancelJobs() throws ApiException {
+        String jobCorrelationId = "1";
+
+        // create multiple jobs
+        List<String> jobIds = new ArrayList<>();
+        for(int i = 0; i < 10; i++) {
+            String jobId = UUID.randomUUID().toString();
+            jobIds.add(jobId);
+            final NewJob newJob = makeJob(jobId, "testCancelJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        jobsApi.cancelJobs(defaultPartitionId, jobIds, jobCorrelationId, null);
+
+        for (String jobId : jobIds) {
+            Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+
+            assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
+        }
+    }
+
     /**
      * This tests cancelling the same job twice, which should succeed without changing the status.
      */
