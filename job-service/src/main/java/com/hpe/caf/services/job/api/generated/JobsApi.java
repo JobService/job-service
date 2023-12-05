@@ -150,7 +150,7 @@ public class JobsApi  {
     @Produces({ "application/json" })
     @io.swagger.annotations.ApiOperation(value = "Cancels multiple jobs", notes = "Cancels specified jobs", response = void.class, tags={ "Jobs", })
     @io.swagger.annotations.ApiResponses(value = {
-            @io.swagger.annotations.ApiResponse(code = 204, message = "The cancellation has been accepted", response = void.class),
+            @io.swagger.annotations.ApiResponse(code = 200, message = "The cancellation has been accepted", response = String.class),
 
             @io.swagger.annotations.ApiResponse(code = 400, message = "The 'jobId' parameter contains invalid characters.", response = void.class),
 

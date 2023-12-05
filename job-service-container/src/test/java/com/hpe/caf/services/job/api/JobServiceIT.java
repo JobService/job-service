@@ -601,22 +601,22 @@ public class JobServiceIT {
 
     @Test
     public void testCancelJobs() throws ApiException {
-        String jobCorrelationId = "1";
+        final String jobCorrelationId = "1";
 
         // create multiple jobs
-        List<String> jobIds = new ArrayList<>();
+        final List<String> jobIds = new ArrayList<>();
         for(int i = 0; i < 10; i++) {
-            String jobId = UUID.randomUUID().toString();
+            final String jobId = UUID.randomUUID().toString();
             jobIds.add(jobId);
             final NewJob newJob = makeJob(jobId, "testCancelJob");
 
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         }
 
-        jobsApi.cancelJobs(defaultPartitionId, jobIds, jobCorrelationId, null);
+        jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIds, null);
 
         for (String jobId : jobIds) {
-            Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+            final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
             assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
         }

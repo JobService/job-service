@@ -22,6 +22,7 @@ import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.exceptions.NotFoundException;
 
 import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
@@ -77,14 +78,17 @@ public class JobsApiServiceImpl extends JobsApiService {
     @Override
     public Response cancelJobs(String partitionId, List<String> jobIds, String filter, String cAFCorrelationId,SecurityContext securityContext)
         throws Exception {
+        int cancelCount = 0;
+
         // If list of Job IDs provided
         for (String jobId : jobIds) {
             JobsCancel.cancelJob(partitionId, jobId);
+            cancelCount++;
         }
 
         // TODO: filter
 
-        return Response.noContent().build();
+        return Response.ok(String.format("Successfully cancelled %s Jobs", cancelCount), MediaType.APPLICATION_JSON).build();
     }
 
     @Override

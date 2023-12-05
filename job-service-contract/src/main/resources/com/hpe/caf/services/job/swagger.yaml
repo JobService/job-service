@@ -296,11 +296,12 @@ paths:
       - name: jobIds
         in: body
         description: "List of Job IDs to cancel"
-        required: true
+        required: false
         schema:
           type: array
           items:
             type: string
+            pattern: '^[^.,:;*?!|()]{1,48}$'
       - name: filter
         description: Only jobs which meet this criteria will be cancelled
         in: query
@@ -313,7 +314,7 @@ paths:
       description: Cancels multiple jobs based on either filter criteria or a list of Job IDs
       operationId: cancelJobs
       responses:
-        204:
+        200:
           description: The cancellation has been accepted.
         400:
           description: The request could not be processed because one or more arguments are invalid.
