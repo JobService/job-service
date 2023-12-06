@@ -17,9 +17,13 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigProvider;
+import com.hpe.caf.services.job.api.filter.RsqlToSqlUtils;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.List;
 
 public final class JobsCancel {
     private static final Logger LOG = LoggerFactory.getLogger(JobsCancel.class);
@@ -66,4 +70,47 @@ public final class JobsCancel {
         }
     }
 
+    /**
+     * Cancels jobs which meet the filtering criteria
+     *
+     * @param partitionId       required partitionId of the job to cancel
+     * @param jobIdStartsWith   optional jobIdStartsWith condition
+     * @param statusType        optional status of the job
+     * @param labelExists       optional metadata to filter against
+     * @param filter            optional filter to use when returning results
+     * @throws Exception        bad request or database exceptions
+     */
+    public static void cancelJobs(final String partitionId, final String jobIdStartsWith, final String statusType,
+                                final String labelExists, final String filter) throws Exception {
+        try {
+            LOG.debug("cancelJobs: Starting...");
+            ApiServiceUtil.validatePartitionId(partitionId);
+
+            List<String> labelValues = null;
+            if(labelExists != null && !labelExists.isEmpty()) {
+                final String[] split = labelExists.split(",");
+                labelValues = Arrays.asList(split);
+            }
+
+            final String filterQuery = RsqlToSqlUtils.convertToSqlSyntax(filter);
+
+            //  Get app config settings.
+            LOG.debug("cancelJobs: Reading database connection properties...");
+            AppConfig config = AppConfigProvider.getAppConfigProperties();
+
+            //  Get database helper instance.
+            DatabaseHelper databaseHelper = new DatabaseHelper(config);
+
+            //  Cancel the specified job.
+            LOG.debug("cancelJobs: Cancelling the jobs...");
+            databaseHelper.cancelJobs(
+                    partitionId, jobIdStartsWith, statusType, labelValues, filterQuery
+            );
+
+            LOG.debug("cancelJobs: Done");
+        } catch (Exception e) {
+            LOG.error("Error - ", e);
+            throw e;
+        }
+    }
 }

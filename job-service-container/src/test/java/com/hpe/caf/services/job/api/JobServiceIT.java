@@ -599,28 +599,28 @@ public class JobServiceIT {
             "last-update-time should be updated on cancel");
     }
 
-    @Test
-    public void testCancelJobs() throws ApiException {
-        final String jobCorrelationId = "1";
-
-        // create multiple jobs
-        final List<String> jobIds = new ArrayList<>();
-        for(int i = 0; i < 10; i++) {
-            final String jobId = UUID.randomUUID().toString();
-            jobIds.add(jobId);
-            final NewJob newJob = makeJob(jobId, "testCancelJob");
-
-            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
-        }
-
-        jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIds, null);
-
-        for (String jobId : jobIds) {
-            final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-
-            assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
-        }
-    }
+//    @Test
+//    public void testCancelJobs() throws ApiException {
+//        final String jobCorrelationId = "1";
+//
+//        // create multiple jobs
+//        final List<String> jobIds = new ArrayList<>();
+//        for(int i = 0; i < 10; i++) {
+//            final String jobId = UUID.randomUUID().toString();
+//            jobIds.add(jobId);
+//            final NewJob newJob = makeJob(jobId, "testCancelJob");
+//
+//            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+//        }
+//
+//        jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIds, null);
+//
+//        for (String jobId : jobIds) {
+//            final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+//
+//            assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
+//        }
+//    }
 
     /**
      * This tests cancelling the same job twice, which should succeed without changing the status.

@@ -463,6 +463,33 @@ public final class DatabaseHelper
     }
 
     /**
+     * Cancels the specified jobs
+     */
+    public void cancelJobs(final String partitionId, String jobIdStartsWith, String statusType,
+                           final List<String> labels, final String filter) throws Exception {
+        try (
+                final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?)}")
+        ) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2, jobIdStartsWith);
+            stmt.setString(3, statusType);
+            Array array;
+            if (labels != null) {
+                array = conn.createArrayOf("VARCHAR", labels.toArray());
+            } else {
+                array = conn.createArrayOf("VARCHAR", new String[0]);
+            }
+            stmt.setArray(4, array);
+            stmt.setString(5, filter);
+            LOG.debug("Calling cancel_job() database function...");
+            stmt.execute();
+        } catch (final SQLException se) {
+            throw mapSqlNoDataException(se);
+        }
+    }
+
+    /**
      * Pauses the specified job.
      */
     public void pauseJob(final String partitionId, String jobId) throws Exception {

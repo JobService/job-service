@@ -291,17 +291,29 @@ paths:
         in: header
         type: string
         description: |
-          An identifier that correlates events
+          An identifier that correlates events 
           across different services.
-      - name: jobIds
-        in: body
-        description: "List of Job IDs to cancel"
+      - name: jobIdStartsWith
+        in: query
+        type: string
         required: false
-        schema:
-          type: array
-          items:
-            type: string
-            pattern: '^[^.,:;*?!|()]{1,48}$'
+        description: Only those results whose job id starts with this value will be returned
+      - name: statusType
+        in: query
+        type: string
+        required: false
+        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned; NotFinished - only those results with unfinished statuses (ie. Active, Paused, Waiting) will be returned.
+        enum:
+          - All
+          - NotCompleted
+          - Completed
+          - Inactive
+          - NotFinished
+      - name: labelExist
+        in: query
+        type: string
+        required: false
+        description: 'Filter to jobs with the specified labels, in the format label=<labelName>,<labelName>'
       - name: filter
         in: query
         type: string
