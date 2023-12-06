@@ -234,31 +234,6 @@ public final class DatabaseHelper
         return job;
     }
 
-    public List<String> getJobIds(final String partitionId, final String filter) throws Exception
-    {
-        final List<String> jobIds = new ArrayList<>();
-        try (
-                final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call get_job_ids(?,?)}")
-        ) {
-            stmt.setString(1, partitionId);
-            stmt.setString(2, filter);
-
-            //  Execute a query to return a list of all job definitions in the system.
-            LOG.debug("Calling get_job_ids() database function...");
-
-            try (final ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    jobIds.add(rs.getString("job_id"));
-                }
-            }
-        } catch (final SQLException se) {
-            throw mapSqlConnectionException(se);
-        }
-
-        return jobIds;
-    }
-
     /**
      * Call one of the `create_job` database functions and parse the result.
      *

@@ -79,14 +79,6 @@ public class JobsApiServiceImpl extends JobsApiService {
     public Response cancelJobs(String partitionId, List<String> jobIds, String filter, String cAFCorrelationId,SecurityContext securityContext)
         throws Exception {
 
-        if (jobIds == null) {
-            if(filter != null) {
-                jobIds = JobIdsGet.getJobIds(partitionId, filter);
-            } else {
-                throw new BadRequestException("You must provide either list of Job IDs or a filter");
-            }
-        }
-
         for (String jobId : jobIds) {
             JobsCancel.cancelJob(partitionId, jobId);
         }
