@@ -465,23 +465,31 @@ public final class DatabaseHelper
     /**
      * Cancels the specified jobs
      */
-    public void cancelJobs(final String partitionId, String jobIdStartsWith, String statusType,
-                           final List<String> labels, final String filter) throws Exception {
+    public void cancelJobs(final String partitionId, final List<String> jobIds, final String jobIdStartsWith,
+                           final String statusType, final List<String> labels, final String filter)
+            throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
-            stmt.setString(2, jobIdStartsWith);
-            stmt.setString(3, statusType);
-            Array array;
-            if (labels != null) {
-                array = conn.createArrayOf("VARCHAR", labels.toArray());
+            Array jobIdsArray;
+            if(jobIds != null) {
+                jobIdsArray = conn.createArrayOf("VARCHAR", jobIds.toArray());
             } else {
-                array = conn.createArrayOf("VARCHAR", new String[0]);
+                jobIdsArray = conn.createArrayOf("VARCHAR", new String[0]);
             }
-            stmt.setArray(4, array);
-            stmt.setString(5, filter);
+            stmt.setArray(2, jobIdsArray);
+            stmt.setString(3, jobIdStartsWith);
+            stmt.setString(4, statusType);
+            Array labelsArray;
+            if (labels != null) {
+                labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());
+            } else {
+                labelsArray = conn.createArrayOf("VARCHAR", new String[0]);
+            }
+            stmt.setArray(5, labelsArray);
+            stmt.setString(6, filter);
             LOG.debug("Calling cancel_job() database function...");
             stmt.execute();
         } catch (final SQLException se) {

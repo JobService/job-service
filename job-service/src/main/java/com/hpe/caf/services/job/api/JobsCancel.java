@@ -105,7 +105,7 @@ public final class JobsCancel {
             //  Cancel the specified job.
             LOG.debug("cancelJobs: Cancelling the jobs...");
             databaseHelper.cancelJobs(
-                    partitionId, jobIdStartsWith, statusType, labelValues, filterQuery
+                    partitionId, jobIds, jobIdStartsWith, statusType, labelValues, filterQuery
             );
 
             LOG.debug("cancelJobs: Done");
