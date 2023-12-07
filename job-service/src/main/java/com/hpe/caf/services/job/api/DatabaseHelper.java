@@ -490,7 +490,7 @@ public final class DatabaseHelper
             }
             stmt.setArray(5, labelsArray);
             stmt.setString(6, filter);
-            LOG.debug("Calling cancel_job() database function...");
+            LOG.debug("Calling cancel_jobs() database function...");
             stmt.execute();
         } catch (final SQLException se) {
             throw mapSqlNoDataException(se);

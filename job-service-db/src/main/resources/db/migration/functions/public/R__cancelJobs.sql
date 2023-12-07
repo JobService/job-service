@@ -33,12 +33,13 @@ CREATE OR REPLACE FUNCTION cancel_jobs(
     in_labels VARCHAR(255)[],
     in_filter VARCHAR(255)
 )
-RETURNS VOID
+RETURNS INTEGER
 LANGUAGE plpgsql
 AS $function$
 DECLARE
 job_id_element VARCHAR(48);
 job_ids_array VARCHAR(48)[];
+success_count INTEGER := 0;
 
 BEGIN
 
@@ -46,12 +47,23 @@ BEGIN
         job_ids_array := in_job_ids;
     ELSE
         job_ids_array := array(select job_id FROM public.get_jobs(in_partition_id, in_job_id_starts_with, in_status_type, 1000, 0, 'create_date', null, false, in_labels, in_filter));
-    end IF;
+    END IF;
 
     FOREACH job_id_element in array job_ids_array LOOP
-	    perform cancel_job(in_partition_id, job_id_element);
+        BEGIN
+            IF cancel_job(in_partition_id, job_id_element) THEN
+                    success_count := success_count + 1;
+            END IF;
+
+            exception
+                when sqlstate '02000' then
+                    raise warning 'Job ID: "%" has not been cancelled', job_id_element;
+                when sqlstate 'P0002' then
+                    raise warning 'Job ID: "%" has not been cancelled', job_id_element;
+        END;
     END LOOP;
 
+    RETURN success_count;
 END
 $function$
 ;
