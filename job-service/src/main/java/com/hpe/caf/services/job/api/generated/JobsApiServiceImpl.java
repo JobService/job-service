@@ -76,10 +76,11 @@ public class JobsApiServiceImpl extends JobsApiService {
     }
 
     @Override
-    public Response cancelJobs(String partitionId, final String jobIdStartsWith, final String statusType, String label, final String filter,
-                               String cAFCorrelationId, SecurityContext securityContext) throws Exception {
+    public Response cancelJobs(String partitionId, final List<String> jobIds, final String jobIdStartsWith, final String statusType,
+                               String label, final String filter, String cAFCorrelationId, SecurityContext securityContext)
+            throws Exception {
 
-        JobsCancel.cancelJobs(partitionId, jobIdStartsWith, statusType, label, filter);
+        JobsCancel.cancelJobs(partitionId, jobIds, jobIdStartsWith, statusType, label, filter);
 
         return Response.ok().build();
     }
