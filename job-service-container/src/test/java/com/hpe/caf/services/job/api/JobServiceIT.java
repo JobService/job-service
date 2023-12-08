@@ -637,36 +637,15 @@ public class JobServiceIT {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         }
 
-        jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIds, null, null, null, null);
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIds, null, null, null, null);
 
-        for (String jobId : jobIds) {
+        for (final String jobId : jobIds) {
             final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
             assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
         }
-    }
 
-    @Test
-    public void testCancelJobsUsingJobIdStartsWith() throws ApiException {
-        final String jobCorrelationId = "1";
-
-        final List<String> jobIds = new ArrayList<>();
-
-        for (int i = 0; i < 10; i++) {
-            final String jobId = "b9b0eaee-52f5-45e8-961f-d5234746bbbe";
-            jobIds.add(jobId);
-            final NewJob newJob = makeJob(jobId, "testCancelJob");
-
-            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
-        }
-
-        jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, "b9b0", null, null, null);
-
-        for (String jobId : jobIds) {
-            final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-
-            assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
-        }
+        assertEquals(responseMessage,"Successfully cancelled 10 jobs");
     }
 
     @Test

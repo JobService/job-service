@@ -465,16 +465,17 @@ public final class DatabaseHelper
     /**
      * Cancels the specified jobs
      */
-    public void cancelJobs(final String partitionId, final List<String> jobIds, final String jobIdStartsWith,
+    public int cancelJobs(final String partitionId, final List<String> jobIds, final String jobIdStartsWith,
                            final String statusType, final List<String> labels, final String filter)
             throws Exception {
+        int successfulCancellations;
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
             Array jobIdsArray;
-            if(jobIds != null) {
+            if (jobIds != null) {
                 jobIdsArray = conn.createArrayOf("VARCHAR", jobIds.toArray());
             } else {
                 jobIdsArray = conn.createArrayOf("VARCHAR", new String[0]);
@@ -490,11 +491,21 @@ public final class DatabaseHelper
             }
             stmt.setArray(5, labelsArray);
             stmt.setString(6, filter);
-            LOG.debug("Calling cancel_jobs() database function...");
-            stmt.execute();
-        } catch (final SQLException se) {
-            throw mapSqlNoDataException(se);
+
+            // Expect number of successful cancellations to be returned
+            stmt.registerOutParameter(1, Types.INTEGER);
+
+            try {
+                LOG.debug("Calling cancel_jobs() database function...");
+                stmt.execute();
+
+                successfulCancellations = stmt.getInt(1);
+            } catch (final SQLException se) {
+                throw mapSqlNoDataException(se);
+            }
         }
+
+        return successfulCancellations;
     }
 
     /**

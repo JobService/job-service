@@ -337,6 +337,8 @@ paths:
       responses:
         200:
           description: The cancellation has been accepted.
+          schema:
+            type: string
         400:
           description: The request could not be processed because one or more arguments are invalid.
         503:

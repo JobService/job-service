@@ -80,7 +80,7 @@ public final class JobsCancel {
      * @param filter            optional filter to use when returning results
      * @throws Exception        bad request or database exceptions
      */
-    public static void cancelJobs(final String partitionId, final List<String> jobIds, final String jobIdStartsWith,
+    public static int cancelJobs(final String partitionId, final List<String> jobIds, final String jobIdStartsWith,
                                   final String statusType, final String labelExists, final String filter)
             throws Exception {
         try {
@@ -102,13 +102,14 @@ public final class JobsCancel {
             //  Get database helper instance.
             DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
-            //  Cancel the specified job.
+            //  Cancel the specified jobs.
             LOG.debug("cancelJobs: Cancelling the jobs...");
-            databaseHelper.cancelJobs(
+            final int successfulCancellations = databaseHelper.cancelJobs(
                     partitionId, jobIds, jobIdStartsWith, statusType, labelValues, filterQuery
             );
 
             LOG.debug("cancelJobs: Done");
+            return successfulCancellations;
         } catch (Exception e) {
             LOG.error("Error - ", e);
             throw e;

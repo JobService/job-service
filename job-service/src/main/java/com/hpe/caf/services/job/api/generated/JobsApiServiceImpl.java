@@ -80,9 +80,8 @@ public class JobsApiServiceImpl extends JobsApiService {
                                String label, final String filter, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
 
-        JobsCancel.cancelJobs(partitionId, jobIds, jobIdStartsWith, statusType, label, filter);
-
-        return Response.ok().build();
+        final int successfulCancellations = JobsCancel.cancelJobs(partitionId, jobIds, jobIdStartsWith, statusType, label, filter);
+        return Response.ok(String.format("Successfully cancelled %s jobs", successfulCancellations)).build();
     }
 
     @Override
