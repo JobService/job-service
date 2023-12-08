@@ -637,15 +637,16 @@ public class JobServiceIT {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         }
 
-        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIds, null, null, null, null);
+        final String filter = String.format("id=in=(%s, %s, %s)", jobIds.get(0), jobIds.get(1), jobIds.get(2));
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null, filter);
 
-        for (final String jobId : jobIds) {
-            final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+        for (int i = 0; i < 3; i++) {
+            final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobIds.get(i), jobCorrelationId);
 
             assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
         }
 
-        assertEquals(responseMessage,"Successfully cancelled 10 jobs");
+        assertEquals(responseMessage,"Successfully cancelled 3 jobs");
     }
 
     @Test

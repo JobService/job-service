@@ -293,15 +293,6 @@ paths:
         description: |
           An identifier that correlates events 
           across different services.
-      - name: jobIds
-        in: body
-        description: "List of Job IDs to cancel"
-        required: false
-        schema:
-          type: array
-          items:
-            type: string
-            pattern: '^[^.,:;*?!|()]{1,48}$'
       - name: jobIdStartsWith
         in: query
         type: string
