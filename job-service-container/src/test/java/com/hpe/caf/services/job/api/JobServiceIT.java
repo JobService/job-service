@@ -650,6 +650,32 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testCancelJobsUsingJobIdStartsWith() throws ApiException {
+        final String jobCorrelationId = "1";
+
+        final List<String> jobIds = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            final String jobId = "1234_" + UUID.randomUUID();
+            jobIds.add(jobId);
+            final NewJob newJob = makeJob(jobId, "testCancelJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        final String jobIdStartsWith = "1234_";
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null, null);
+
+        for(String jobId : jobIds) {
+            final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+
+            assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
+        }
+
+        assertEquals(responseMessage, "Successfully cancelled 10 jobs");
+    }
+
+    @Test
     public void testGetJobFromDifferentPartition() throws ApiException {
         final String jobId = UUID.randomUUID().toString();
         final String jobCorrelationId = "1";
