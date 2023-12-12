@@ -284,7 +284,7 @@ paths:
           description: The specified job is not found.
         503:
           description: The request failed due to a database connection error.
-  /partitions/{partitionId}/jobs/cancelJobs:
+  /partitions/{partitionId}/jobs:cancel:
     parameters:
       - $ref: '#/parameters/partitionId'
       - name: CAF-Correlation-Id

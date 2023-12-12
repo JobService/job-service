@@ -145,7 +145,7 @@ public class JobsApi  {
     }
 
     @POST
-    @Path("partitions/{partitionId}/jobs/cancelJobs")
+    @Path("partitions/{partitionId}/jobs:cancel")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @io.swagger.annotations.ApiOperation(value = "Cancels multiple jobs", notes = "Cancels specified jobs", response = void.class, tags={ "Jobs", })
