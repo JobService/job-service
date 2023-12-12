@@ -24,7 +24,7 @@ CREATE OR REPLACE FUNCTION cancel_jobs(
     in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),
     in_status_type VARCHAR(20),
-    -- Hard coding limit to 1000 --
+    in_limit INT,
     -- Hard coding offset to 0 --
     -- Hard coding sort_field to 'create_date' --
     -- Hard coding sort_label to null --
@@ -44,7 +44,7 @@ BEGIN
             in_partition_id,
             in_job_id_starts_with,
             in_status_type,
-            1000,
+            in_limit,
             0,
             'create_date',
             null,

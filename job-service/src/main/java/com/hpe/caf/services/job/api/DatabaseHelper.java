@@ -471,19 +471,20 @@ public final class DatabaseHelper
         int successfulCancellations;
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
             stmt.setString(2, jobIdStartsWith);
             stmt.setString(3, statusType);
+            stmt.setInt(4, 100);
             Array labelsArray;
             if (labels != null) {
                 labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());
             } else {
                 labelsArray = conn.createArrayOf("VARCHAR", new String[0]);
             }
-            stmt.setArray(4, labelsArray);
-            stmt.setString(5, filter);
+            stmt.setArray(5, labelsArray);
+            stmt.setString(6, filter);
 
             // Expect number of successful cancellations to be returned
             stmt.registerOutParameter(1, Types.INTEGER);
