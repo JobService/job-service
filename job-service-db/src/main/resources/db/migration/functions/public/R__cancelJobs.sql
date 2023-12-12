@@ -25,7 +25,7 @@ CREATE OR REPLACE FUNCTION cancel_jobs(
     in_job_id_starts_with VARCHAR(48),
     in_status_type VARCHAR(20),
     in_limit INT,
-    -- Hard coding offset to 0 --
+    in_offset INT,
     -- Hard coding sort_field to 'create_date' --
     -- Hard coding sort_label to null --
     -- Hard coding sort_ascending to false --
@@ -45,7 +45,7 @@ BEGIN
             in_job_id_starts_with,
             in_status_type,
             in_limit,
-            0,
+            in_offset,
             'create_date',
             null,
             false,

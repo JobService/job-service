@@ -465,38 +465,50 @@ public final class DatabaseHelper
     /**
      * Cancels the specified jobs
      */
-    public int cancelJobs(final String partitionId, final String jobIdStartsWith, final String statusType,
+    public int cancelJobs(final String partitionId, String jobIdStartsWith, String statusType,
                           final List<String> labels, final String filter)
             throws Exception {
-        int successfulCancellations;
+        int successfulCancellations = 0;
+        final int limit = 100;
+        int offset = 0;
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?,?,?)}")
         ) {
-            stmt.setString(1, partitionId);
-            stmt.setString(2, jobIdStartsWith);
-            stmt.setString(3, statusType);
-            stmt.setInt(4, 100);
-            Array labelsArray;
-            if (labels != null) {
-                labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());
-            } else {
-                labelsArray = conn.createArrayOf("VARCHAR", new String[0]);
-            }
-            stmt.setArray(5, labelsArray);
-            stmt.setString(6, filter);
+            do {
+                if (jobIdStartsWith == null) {
+                    jobIdStartsWith = "";
+                }
+                if (statusType == null) {
+                    statusType = "";
+                }
+                stmt.setString(1, partitionId);
+                stmt.setString(2, jobIdStartsWith);
+                stmt.setString(3, statusType);
+                stmt.setInt(4, limit);
+                stmt.setInt(5, offset);
+                Array labelsArray;
+                if (labels != null) {
+                    labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());
+                } else {
+                    labelsArray = conn.createArrayOf("VARCHAR", new String[0]);
+                }
+                stmt.setArray(6, labelsArray);
+                stmt.setString(7, filter);
 
-            // Expect number of successful cancellations to be returned
-            stmt.registerOutParameter(1, Types.INTEGER);
+                // Expect number of successful cancellations to be returned
+                stmt.registerOutParameter(1, Types.INTEGER);
 
-            try {
-                LOG.debug("Calling cancel_jobs() database function...");
-                stmt.execute();
+                try {
+                    LOG.debug("Calling cancel_jobs() database function...");
+                    stmt.execute();
 
-                successfulCancellations = stmt.getInt(1);
-            } catch (final SQLException se) {
-                throw mapSqlNoDataException(se);
-            }
+                    offset += limit;
+                    successfulCancellations += stmt.getInt(1);
+                } catch (final SQLException se) {
+                    throw mapSqlNoDataException(se);
+                }
+            } while (stmt.getInt(1) > 0);
         }
 
         return successfulCancellations;
