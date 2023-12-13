@@ -84,14 +84,6 @@ public class JobsApiServiceImpl extends JobsApiService {
                                final String filter, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
 
-        if (statusType != null && !statusType.isEmpty()) {
-            // Ensure a valid statusType was provided
-            if (statusType.equals("Completed") || statusType.equals("Failed")) {
-                final String errorMessage = String.format("Parameter statusType : '%s' provided. Cannot cancel jobs with this status type.", statusType);
-                throw new BadRequestException(errorMessage);
-            }
-        }
-
         final int successfulCancellations = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, statusType, label, filter);
         return Response.ok(String.format("Successfully cancelled %s jobs", successfulCancellations)).build();
     }

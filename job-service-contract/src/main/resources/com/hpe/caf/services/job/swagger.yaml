@@ -302,12 +302,10 @@ paths:
         in: query
         type: string
         required: false
-        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned; NotFinished - only those results with unfinished statuses (ie. Active, Paused, Waiting) will be returned.
+        description: All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be cancelled; NotFinished - only those results with unfinished statuses (ie. Active, Paused, Waiting) will be cancelled.
         enum:
           - All
           - NotCompleted
-          - Completed
-          - Inactive
           - NotFinished
       - name: labelExist
         in: query
@@ -322,8 +320,8 @@ paths:
     post:
       tags:
         - Jobs
-      summary: Cancels series of jobs.
-      description: Cancels multiple jobs based on either filter criteria or a list of Job IDs
+      summary: Cancels multiple jobs that meet the criteria of provided parameters.
+      description: Cancels multiple jobs that meet the criteria of provided parameters.
       operationId: cancelJobs
       responses:
         200:
