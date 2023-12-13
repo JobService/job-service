@@ -727,6 +727,15 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testCancelJobUsingStatusType_InvalidFailedStatusType()
+    {
+        final String jobCorrelationId = "1";
+
+        assertThrowsApiException(Response.Status.BAD_REQUEST,
+                () -> jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, "Failed", null, null));
+    }
+
+    @Test
     public void testGetJobFromDifferentPartition() throws ApiException {
         final String jobId = UUID.randomUUID().toString();
         final String jobCorrelationId = "1";
