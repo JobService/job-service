@@ -23,7 +23,7 @@
 CREATE OR REPLACE FUNCTION cancel_jobs(
     in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),
-    in_status_type VARCHAR(20),
+    -- Hard coding status_type to 'NotFinished' (Active, Paused, Waiting)
     in_limit INT,
     in_offset INT,
     -- Hard coding sort_field to 'create_date' --
@@ -40,9 +40,8 @@ DECLARE
 BEGIN
     RETURN (
         SELECT COUNT(cancel_job(in_partition_id, job_id))
-        FROM public.get_jobs(in_partition_id, in_job_id_starts_with, in_status_type, in_limit, in_offset,
+        FROM public.get_jobs(in_partition_id, in_job_id_starts_with, 'NotFinished', in_limit, in_offset,
             'create_date', null, false, in_labels, in_filter)
-        WHERE status != 'Completed' AND status != 'Failed' AND status != 'Cancelled'
     );
 END
 $function$

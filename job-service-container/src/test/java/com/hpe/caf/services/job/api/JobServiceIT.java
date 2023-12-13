@@ -638,7 +638,7 @@ public class JobServiceIT {
         }
 
         final String filter = String.format("id=in=(%s, %s, %s)", jobIds.get(0), jobIds.get(1), jobIds.get(2));
-        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null, filter);
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, filter);
 
         for (int i = 0; i < 3; i++) {
             final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobIds.get(i), jobCorrelationId);
@@ -663,33 +663,9 @@ public class JobServiceIT {
         }
 
         final String jobIdStartsWith = "1234_";
-        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null, null);
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
 
         for (String jobId : jobIds) {
-            final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-            assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
-        }
-
-        assertEquals(responseMessage, "Successfully cancelled 10 jobs");
-    }
-
-    @Test
-    public void testCancelJobsUsingStatusType() throws ApiException
-    {
-        final String jobCorrelationId = "1";
-        final List<String> jobIds = new ArrayList<>();
-
-        for (int i = 0; i < 10; i++) {
-            final String jobId = UUID.randomUUID().toString();
-            jobIds.add(jobId);
-            final NewJob newJob = makeJob(jobId, "testCancelJob"); // creates jobs with JobStatus = "Waiting" by default
-
-            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
-        }
-
-        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, "Waiting", null, null);
-
-        for (final String jobId : jobIds) {
             final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
             assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
         }
@@ -712,7 +688,7 @@ public class JobServiceIT {
         }
 
         final String jobIdStartsWith = "1234_";
-        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null, null);
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
 
         for (String jobId : jobIds) {
             final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
@@ -740,20 +716,11 @@ public class JobServiceIT {
         // Cancel one job before bulk cancellation call - so there are only 49 jobs to cancel
         jobsApi.cancelJob(defaultPartitionId, jobIds.get(0), jobCorrelationId);
 
-        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null, null);
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null);
 
         // Only expect 49 jobs to be cancelled
         // TODO: should we then tell the user why one has not been completed?
         assertEquals(responseMessage, "Successfully cancelled 49 jobs");
-    }
-
-    @Test
-    public void testCancelJobsUsingStatusType_InvalidFailedStatusType()
-    {
-        final String jobCorrelationId = "1";
-
-        assertThrowsApiException(Response.Status.BAD_REQUEST,
-                () -> jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, "Failed", null, null));
     }
 
     @Test

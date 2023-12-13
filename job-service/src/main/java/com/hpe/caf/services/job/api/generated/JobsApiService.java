@@ -42,8 +42,8 @@ public abstract class JobsApiService {
 
       public abstract Response cancelJob(String partitionId,String jobId,String cAFCorrelationId,SecurityContext securityContext)
               throws Exception;
-      public abstract Response cancelJobs(String partitionId, final String jobIdStartsWith, final String statusType, String label,
-                                          final String filter, String cAFCorrelationId, SecurityContext securityContext)
+      public abstract Response cancelJobs(String partitionId, final String jobIdStartsWith, String label, final String filter,
+                                          String cAFCorrelationId, SecurityContext securityContext)
               throws Exception;
 
       public abstract Response pauseJob(String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)

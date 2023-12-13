@@ -465,36 +465,31 @@ public final class DatabaseHelper
     /**
      * Cancels the specified jobs
      */
-    public int cancelJobs(final String partitionId, String jobIdStartsWith, String statusType,
-                          final List<String> labels, final String filter)
+    public int cancelJobs(final String partitionId, String jobIdStartsWith, final List<String> labels, final String filter)
             throws Exception {
         int successfulCancellations = 0;
         final int limit = 100;
         int offset = 0;
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?,?)}")
         ) {
             do {
                 if (jobIdStartsWith == null) {
                     jobIdStartsWith = "";
                 }
-                if (statusType == null) {
-                    statusType = "";
-                }
                 stmt.setString(1, partitionId);
                 stmt.setString(2, jobIdStartsWith);
-                stmt.setString(3, statusType);
-                stmt.setInt(4, limit);
-                stmt.setInt(5, offset);
+                stmt.setInt(3, limit);
+                stmt.setInt(4, offset);
                 Array labelsArray;
                 if (labels != null) {
                     labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());
                 } else {
                     labelsArray = conn.createArrayOf("VARCHAR", new String[0]);
                 }
-                stmt.setArray(6, labelsArray);
-                stmt.setString(7, filter);
+                stmt.setArray(5, labelsArray);
+                stmt.setString(6, filter);
 
                 // Expect number of successful cancellations to be returned
                 stmt.registerOutParameter(1, Types.INTEGER);

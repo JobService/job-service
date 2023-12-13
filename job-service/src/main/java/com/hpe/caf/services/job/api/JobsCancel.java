@@ -75,13 +75,11 @@ public final class JobsCancel {
      *
      * @param partitionId       required partitionId of the job to cancel
      * @param jobIdStartsWith   optional jobIdStartsWith condition
-     * @param statusType        optional status of the job
      * @param labelExists       optional metadata to filter against
      * @param filter            optional filter to use when returning results
      * @throws Exception        bad request or database exceptions
      */
-    public static int cancelJobs(final String partitionId, final String jobIdStartsWith, final String statusType,
-                                 final String labelExists, final String filter)
+    public static int cancelJobs(final String partitionId, final String jobIdStartsWith, final String labelExists, final String filter)
             throws Exception {
         try {
             LOG.debug("cancelJobs: Starting...");
@@ -104,9 +102,7 @@ public final class JobsCancel {
 
             //  Cancel the specified jobs.
             LOG.debug("cancelJobs: Cancelling the jobs...");
-            final int successfulCancellations = databaseHelper.cancelJobs(
-                    partitionId, jobIdStartsWith, statusType, labelValues, filterQuery
-            );
+            final int successfulCancellations = databaseHelper.cancelJobs(partitionId, jobIdStartsWith, labelValues, filterQuery);
 
             LOG.debug("cancelJobs: Done");
             return successfulCancellations;
