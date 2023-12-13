@@ -624,9 +624,9 @@ public class JobServiceIT {
     }
 
     @Test
-    public void testCancelJobsUsingJobIdsList() throws ApiException {
+    public void testCancelJobsUsingJobIdsList() throws ApiException
+    {
         final String jobCorrelationId = "1";
-
         final List<String> jobIds = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
@@ -642,7 +642,6 @@ public class JobServiceIT {
 
         for (int i = 0; i < 3; i++) {
             final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobIds.get(i), jobCorrelationId);
-
             assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
         }
 
@@ -650,9 +649,9 @@ public class JobServiceIT {
     }
 
     @Test
-    public void testCancelJobsUsingJobIdStartsWith() throws ApiException {
+    public void testCancelJobsUsingJobIdStartsWith() throws ApiException
+    {
         final String jobCorrelationId = "1";
-
         final List<String> jobIds = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
@@ -666,9 +665,8 @@ public class JobServiceIT {
         final String jobIdStartsWith = "1234_";
         final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null, null);
 
-        for(String jobId : jobIds) {
+        for (String jobId : jobIds) {
             final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-
             assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
         }
 
@@ -676,9 +674,9 @@ public class JobServiceIT {
     }
 
     @Test
-    public void testCancelJobsUsingStatusType() throws ApiException {
+    public void testCancelJobsUsingStatusType() throws ApiException
+    {
         final String jobCorrelationId = "1";
-
         final List<String> jobIds = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
@@ -691,9 +689,8 @@ public class JobServiceIT {
 
         final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, "Waiting", null, null);
 
-        for(String jobId : jobIds) {
+        for (final String jobId : jobIds) {
             final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-
             assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
         }
 
@@ -701,9 +698,9 @@ public class JobServiceIT {
     }
 
     @Test
-    public void testCancelLargeNumberOfJobs() throws ApiException {
+    public void testCancelLargeNumberOfJobs() throws ApiException
+    {
         final String jobCorrelationId = "1";
-
         final List<String> jobIds = new ArrayList<>();
 
         for (int i = 0; i < 1000; i++) {
@@ -717,7 +714,7 @@ public class JobServiceIT {
         final String jobIdStartsWith = "1234_";
         final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null, null);
 
-        for(String jobId : jobIds) {
+        for (String jobId : jobIds) {
             final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
 
             assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
@@ -727,7 +724,31 @@ public class JobServiceIT {
     }
 
     @Test
-    public void testCancelJobUsingStatusType_InvalidFailedStatusType()
+    public void testCancelJobs_JobAlreadyCancelled() throws ApiException
+    {
+        final String jobCorrelationId = "1";
+        final List<String> jobIds = new ArrayList<>();
+
+        for (int i = 0; i < 50; i++) {
+            final String jobId = UUID.randomUUID().toString();
+            jobIds.add(jobId);
+            final NewJob newJob = makeJob(jobId, "testCancelJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        // Cancel one job before bulk cancellation call - so there are only 49 jobs to cancel
+        jobsApi.cancelJob(defaultPartitionId, jobIds.get(0), jobCorrelationId);
+
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null, null);
+
+        // Only expect 49 jobs to be cancelled
+        // TODO: should we then tell the user why one has not been completed?
+        assertEquals(responseMessage, "Successfully cancelled 49 jobs");
+    }
+
+    @Test
+    public void testCancelJobsUsingStatusType_InvalidFailedStatusType()
     {
         final String jobCorrelationId = "1";
 

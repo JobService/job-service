@@ -40,18 +40,9 @@ DECLARE
 BEGIN
     RETURN (
         SELECT COUNT(cancel_job(in_partition_id, job_id))
-        FROM public.get_jobs(
-            in_partition_id,
-            in_job_id_starts_with,
-            in_status_type,
-            in_limit,
-            in_offset,
-            'create_date',
-            null,
-            false,
-            in_labels,
-            in_filter
-        )
+        FROM public.get_jobs(in_partition_id, in_job_id_starts_with, in_status_type, in_limit, in_offset,
+            'create_date', null, false, in_labels, in_filter)
+        WHERE status != 'Completed' AND status != 'Failed' AND status != 'Cancelled'
     );
 END
 $function$
