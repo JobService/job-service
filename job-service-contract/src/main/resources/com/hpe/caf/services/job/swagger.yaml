@@ -297,7 +297,7 @@ paths:
         in: query
         type: string
         required: false
-        description: Only those results whose job id starts with this value will be returned
+        description: Only those results whose job id starts with this value will be cancelled
       - name: labelExist
         in: query
         type: string

@@ -480,7 +480,7 @@ public final class DatabaseHelper
                 stmt.setString(1, partitionId);
                 stmt.setString(2, jobIdStartsWith);
                 stmt.setInt(3, limit);
-                Array labelsArray;
+                final Array labelsArray;
                 if (labels != null) {
                     labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());
                 } else {

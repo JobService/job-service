@@ -15,13 +15,10 @@
  */
 package com.hpe.caf.services.job.api.generated;
 
-import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -148,13 +145,13 @@ public class JobsApi  {
     @Path("partitions/{partitionId}/jobs:cancel")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
-    @io.swagger.annotations.ApiOperation(value = "Cancels multiple jobs", notes = "Cancels specified jobs", response = void.class, tags={ "Jobs", })
+    @io.swagger.annotations.ApiOperation(value = "Cancels multiple jobs", notes = "Cancels specified jobs", response = void.class, tags={ "Jobs" })
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "The cancellation has been accepted", response = String.class),
 
-            @io.swagger.annotations.ApiResponse(code = 400, message = "The 'jobId' parameter contains invalid characters.", response = void.class),
+            @io.swagger.annotations.ApiResponse(code = 400, message = "The request could not be processed because one or more arguments are invalid.", response = void.class),
 
-            @io.swagger.annotations.ApiResponse(code = 404, message = "The specified job is not found.", response = void.class) })
+            @io.swagger.annotations.ApiResponse(code = 503, message = "The request failed due to a database connection error.", response = void.class) })
 
     public Response cancelJobs(
             @ApiParam(value = "Only allow access to jobs in the container with this name", required = true) @PathParam("partitionId") String partitionId,
