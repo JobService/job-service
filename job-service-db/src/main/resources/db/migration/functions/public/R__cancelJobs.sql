@@ -36,13 +36,23 @@ RETURNS INTEGER
 LANGUAGE plpgsql
 AS $function$
 DECLARE
-
+    jobIds varchar[];
+    jobId varchar;
+    counter integer;
 BEGIN
-    RETURN (
-        SELECT COUNT(cancel_job(in_partition_id, job_id))
-        FROM public.get_jobs(in_partition_id, in_job_id_starts_with, 'NotFinished', in_limit, 0,
-            'create_date', null, false, in_labels, in_filter)
-    );
+    jobIds := ARRAY(SELECT DISTINCT job_id FROM public.get_jobs(in_partition_id, in_job_id_starts_with, 'NotFinished',
+        in_limit, 0, 'create_date', null, false, in_labels, in_filter));
+
+    counter := 0;
+
+    FOREACH jobId IN ARRAY jobIds
+    LOOP
+        if cancel_job(in_partition_id, jobId) then
+            counter := counter + 1;
+        end if;
+    end loop;
+
+    return counter;
 END
 $function$
 ;

@@ -723,6 +723,43 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testCancelJobsByLabel() throws ApiException {
+        final String jobId1 = UUID.randomUUID().toString();
+        final String jobId2 = UUID.randomUUID().toString();
+        final String jobId3 = UUID.randomUUID().toString();
+
+        final String correlationId = "1";
+
+        final NewJob job1 = makeJob(jobId1, "testJob");
+        job1.getLabels().put("tag:1", "1");
+        job1.getLabels().put("tag:2", "2");
+
+        final NewJob job2 = makeJob(jobId2, "testJob");
+        job2.getLabels().put("tag:1", "1");
+        job2.getLabels().put("owner", "bob");
+
+        final NewJob job3 = makeJob(jobId3, "testJob");
+        job3.getLabels().put("random", "label");
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, job1, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, job2, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, job3, correlationId);
+
+        // cancel jobs with label "tag:1"
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, correlationId, null,
+        "tag:1", null);
+
+        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
+                null, null, "tag:1", null);
+
+        for (final Job job : cancelledJobs) {
+            assertEquals(job.getStatus(), JobStatus.Cancelled);
+        }
+
+        assertEquals(responseMessage, "Successfully cancelled 2 jobs");
+    }
+
+    @Test
     public void testGetJobFromDifferentPartition() throws ApiException {
         final String jobId = UUID.randomUUID().toString();
         final String jobCorrelationId = "1";
