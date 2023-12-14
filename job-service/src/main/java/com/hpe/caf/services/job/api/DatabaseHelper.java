@@ -469,10 +469,9 @@ public final class DatabaseHelper
             throws Exception {
         int successfulCancellations = 0;
         final int limit = 100;
-        int offset = 0;
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?)}")
         ) {
             do {
                 if (jobIdStartsWith == null) {
@@ -481,15 +480,14 @@ public final class DatabaseHelper
                 stmt.setString(1, partitionId);
                 stmt.setString(2, jobIdStartsWith);
                 stmt.setInt(3, limit);
-                stmt.setInt(4, offset);
                 Array labelsArray;
                 if (labels != null) {
                     labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());
                 } else {
                     labelsArray = conn.createArrayOf("VARCHAR", new String[0]);
                 }
-                stmt.setArray(5, labelsArray);
-                stmt.setString(6, filter);
+                stmt.setArray(4, labelsArray);
+                stmt.setString(5, filter);
 
                 // Expect number of successful cancellations to be returned
                 stmt.registerOutParameter(1, Types.INTEGER);
@@ -498,7 +496,6 @@ public final class DatabaseHelper
                     LOG.debug("Calling cancel_jobs() database function...");
                     stmt.execute();
 
-                    offset += limit;
                     successfulCancellations += stmt.getInt(1);
                 } catch (final SQLException se) {
                     throw mapSqlNoDataException(se);

@@ -677,23 +677,21 @@ public class JobServiceIT {
     public void testCancelLargeNumberOfJobs() throws ApiException
     {
         final String jobCorrelationId = "1";
-        final List<String> jobIds = new ArrayList<>();
 
         for (int i = 0; i < 1000; i++) {
-            final String jobId = "1234_" + UUID.randomUUID();
-            jobIds.add(jobId);
+            final String jobId = UUID.randomUUID().toString();
             final NewJob newJob = makeJob(jobId, "testCancelJob");
 
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         }
 
-        final String jobIdStartsWith = "1234_";
-        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null);
 
-        for (String jobId : jobIds) {
-            final Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, null, null,
+                1000, 0, null, null, null);
 
-            assertEquals(cancelledJob.getStatus(), JobStatus.Cancelled);
+        for(Job job : cancelledJobs) {
+            assertEquals(job.getStatus(), JobStatus.Cancelled);
         }
 
         assertEquals(responseMessage, "Successfully cancelled 1000 jobs");
