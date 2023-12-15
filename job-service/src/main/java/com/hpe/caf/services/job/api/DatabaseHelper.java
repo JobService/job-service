@@ -19,6 +19,7 @@ import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.api.generated.model.SortField;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
@@ -78,34 +79,8 @@ public final class DatabaseHelper
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?,?)}")
         ) {
-            if (jobIdStartsWith == null) {
-                jobIdStartsWith = "";
-            }
-            if (statusType == null) {
-                statusType = "";
-            }
-            if (limit == null) {
-                limit = 0;
-            }
-            if (offset == null) {
-                offset = 0;
-            }
-            stmt.setString(1, partitionId);
-            stmt.setString(2, jobIdStartsWith);
-            stmt.setString(3, statusType);
-            stmt.setInt(4, limit);
-            stmt.setInt(5, offset);
-            stmt.setString(6, sortField.getDbField());
-            stmt.setString(7, sortField.getSortLabel());
-            stmt.setBoolean(8, sortDirection.getDbValue());
-            Array array;
-            if (labels != null) {
-                array = conn.createArrayOf("VARCHAR", labels.toArray());
-            } else {
-                array = conn.createArrayOf("VARCHAR", new String[0]);
-            }
-            stmt.setArray(9, array);
-            stmt.setString(10, filter);
+            buildGetJobsStatement(partitionId, jobIdStartsWith, statusType, limit, offset, sortField,
+                    sortDirection, labels, filter, stmt, conn);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
@@ -136,10 +111,6 @@ public final class DatabaseHelper
                         orig.getLabels().putAll(insert.getLabels());
                         return orig;
                     });
-                }
-            } finally {
-                if (array != null) {
-                    array.free();
                 }
             }
         } catch (final SQLException se) {
@@ -471,23 +442,14 @@ public final class DatabaseHelper
         final int limit = 100;
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?,?,?,?,?,?)}")
         ) {
             do {
-                if (jobIdStartsWith == null) {
-                    jobIdStartsWith = "";
-                }
-                stmt.setString(1, partitionId);
-                stmt.setString(2, jobIdStartsWith);
-                stmt.setInt(3, limit);
-                final Array labelsArray;
-                if (labels != null) {
-                    labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());
-                } else {
-                    labelsArray = conn.createArrayOf("VARCHAR", new String[0]);
-                }
-                stmt.setArray(4, labelsArray);
-                stmt.setString(5, filter);
+                final SortField sortField = JobSortField.CREATE_DATE;
+                final SortDirection sortDirection = SortDirection.DESCENDING;
+
+                buildGetJobsStatement(partitionId, jobIdStartsWith, "NotFinished", limit, 0, sortField,
+                        sortDirection, labels, filter, stmt, conn);
 
                 // Expect number of successful cancellations to be returned
                 stmt.registerOutParameter(1, Types.INTEGER);
@@ -633,6 +595,44 @@ public final class DatabaseHelper
             throw new ServiceUnavailableException(se.getMessage(), se);
         } else {
             throw se;
+        }
+    }
+
+    private void buildGetJobsStatement(final String partitionId, String jobIdStartsWith, String statusType, Integer limit, Integer offset,
+                                       final SortField sortField, final SortDirection sortDirection, final List<String> labels,
+                                       final String filter, final CallableStatement stmt, final Connection conn) throws Exception
+    {
+        if (jobIdStartsWith == null) {
+            jobIdStartsWith = "";
+        }
+        if (statusType == null) {
+            statusType = "";
+        }
+        if (limit == null) {
+            limit = 0;
+        }
+        if (offset == null) {
+            offset = 0;
+        }
+        stmt.setString(1, partitionId);
+        stmt.setString(2, jobIdStartsWith);
+        stmt.setString(3, statusType);
+        stmt.setInt(4, limit);
+        stmt.setInt(5, offset);
+        stmt.setString(6, sortField.getDbField());
+        stmt.setString(7, sortField.getSortLabel());
+        stmt.setBoolean(8, sortDirection.getDbValue());
+        Array array;
+        if (labels != null) {
+            array = conn.createArrayOf("VARCHAR", labels.toArray());
+        } else {
+            array = conn.createArrayOf("VARCHAR", new String[0]);
+        }
+        stmt.setArray(9, array);
+        stmt.setString(10, filter);
+
+        if (array != null) {
+            array.free();
         }
     }
 }

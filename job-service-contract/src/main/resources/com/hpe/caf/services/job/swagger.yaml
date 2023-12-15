@@ -315,7 +315,7 @@ paths:
       description: Cancels multiple jobs that meet the criteria of provided parameters.
       operationId: cancelJobs
       responses:
-        200:
+        204:
           description: The cancellation has been accepted.
           schema:
             type: string

@@ -647,6 +647,10 @@ public class JobServiceIT {
             assertEquals(job.getStatus(), JobStatus.Cancelled);
         }
 
+        // Assert that job not specified has not been cancelled
+        final Job excludedJobExample = jobsApi.getJob(defaultPartitionId, jobIds.get(3), jobCorrelationId);
+        assertEquals(excludedJobExample.getStatus(), JobStatus.Waiting);
+
         assertEquals(responseMessage,"Successfully cancelled 3 jobs");
     }
 
