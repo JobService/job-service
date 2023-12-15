@@ -396,6 +396,52 @@ public final class DatabaseHelper
         }
     }
 
+    public int deleteJobs(final String partitionId, String jobIdStartsWith, String statusType,
+                          final List<String> labels, final String filter) throws Exception
+    {
+        int successfulDeletions = 0;
+        final int limit = 100;
+        try (
+                final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                final CallableStatement stmt = conn.prepareCall("{call delete_jobs(?,?,?,?,?,?)}")
+                ) {
+            do {
+                if (jobIdStartsWith == null) {
+                    jobIdStartsWith = "";
+                }
+                if (statusType == null) {
+                    statusType = "";
+                }
+                stmt.setString(1, partitionId);
+                stmt.setString(2, jobIdStartsWith);
+                stmt.setInt(3, limit);
+                stmt.setString(4, statusType);
+                final Array labelsArray;
+                if (labels != null) {
+                    labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());
+                } else {
+                    labelsArray = conn.createArrayOf("VARCHAR", new String[0]);
+                }
+                stmt.setArray(5, labelsArray);
+                stmt.setString(6, filter);
+
+                // Expect number of successful deletions to be returned
+                stmt.registerOutParameter(1, Types.INTEGER);
+
+                try {
+                    LOG.debug("Calling delete_jobs() database function...");
+                    stmt.execute();
+
+                    successfulDeletions += stmt.getInt(1);
+                } catch (final SQLException se) {
+                    throw mapSqlNoDataException(se);
+                }
+            } while (stmt.getInt(1) > 0);
+        }
+
+        return successfulDeletions;
+    }
+
     public Job.StatusEnum getJobStatus(final String partitionId, final String jobId) throws Exception
     {
         try (

@@ -40,6 +40,10 @@ public abstract class JobsApiService {
       public abstract Response deleteJob(String partitionId,String jobId,String cAFCorrelationId,SecurityContext securityContext)
               throws Exception;
 
+      public abstract Response deleteJobs(final String partitionId, final String jobIdStartsWith, final String statusType, final String label,
+                                          final String filter, final String cAFCorrelationId, final SecurityContext securityContext)
+            throws Exception;
+
       public abstract Response cancelJob(String partitionId,String jobId,String cAFCorrelationId,SecurityContext securityContext)
               throws Exception;
 
