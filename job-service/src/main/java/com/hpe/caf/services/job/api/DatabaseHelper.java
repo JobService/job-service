@@ -414,8 +414,8 @@ public final class DatabaseHelper
                 }
                 stmt.setString(1, partitionId);
                 stmt.setString(2, jobIdStartsWith);
-                stmt.setInt(3, limit);
-                stmt.setString(4, statusType);
+                stmt.setString(3, statusType);
+                stmt.setInt(4, limit);
                 final Array labelsArray;
                 if (labels != null) {
                     labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());

@@ -404,6 +404,55 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testDeleteJobsUsingJobIdsList() throws ApiException
+    {
+        final String jobCorrelationId = "1";
+        final List<String> jobIds = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            final String jobId = UUID.randomUUID().toString();
+            jobIds.add(jobId);
+            final NewJob newJob = makeJob(jobId, "testDeleteJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        final String filter = String.format("id=in=(%s, %s, %s)", jobIds.get(0), jobIds.get(1), jobIds.get(2));
+
+        final String responseMessage = jobsApi.deleteJobs(defaultPartitionId, jobCorrelationId, null, null, filter);
+
+
+        final List<Job> deletedJobs = jobsApi.getJobs(
+                defaultPartitionId, jobCorrelationId,null,null,null,null,null, null, filter);
+        assertEquals(deletedJobs.size(), 0);
+
+        assertEquals(responseMessage,"Successfully deleted 3 jobs");
+    }
+
+    @Test
+    public void testDeleteJobsUsingJobIdStartsWith() throws ApiException
+    {
+        final String jobCorrelationId = "1";
+
+        for (int i = 0; i < 10; i++) {
+            final String jobId = "1234_" + UUID.randomUUID();
+            final NewJob newJob = makeJob(jobId, "testDeleteJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        final String jobIdStartsWith = "1234_";
+        final String responseMessage = jobsApi.deleteJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
+
+        final List<Job> deletedJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null,
+                null, null, null, null);
+
+        assertTrue(deletedJobs.isEmpty());
+
+        assertEquals(responseMessage, "Successfully deleted 10 jobs");
+    }
+
+    @Test
     public void testCreateJobWithTaskData_Object() throws ApiException {
         //create a job
         final String jobId = UUID.randomUUID().toString();
