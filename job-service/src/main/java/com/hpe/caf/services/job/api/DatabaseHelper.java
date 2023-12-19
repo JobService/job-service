@@ -19,7 +19,6 @@ import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.api.generated.model.SortField;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
@@ -469,18 +468,26 @@ public final class DatabaseHelper
     public int cancelJobs(final String partitionId, String jobIdStartsWith, final List<String> labels, final String filter)
             throws Exception {
         int successfulCancellations = 0;
-        final int limit = 100;
+
+        final String cancelBatchLimitEnvVar = System.getenv("CAF_CANCEL_JOBS_BATCH_LIMIT");
+        final int cancelBatchLimit = (cancelBatchLimitEnvVar != null) ? Integer.parseInt(cancelBatchLimitEnvVar) : 100;
+
+        LOG.debug("cancelJobs: Set cancelBatchLimit to {}", cancelBatchLimit);
+
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?)}")
         ) {
+            // Expect number of successful cancellations to be returned
+            stmt.registerOutParameter(1, Types.INTEGER);
+
             do {
                 if (jobIdStartsWith == null) {
                     jobIdStartsWith = "";
                 }
                 stmt.setString(1, partitionId);
                 stmt.setString(2, jobIdStartsWith);
-                stmt.setInt(3, limit);
+                stmt.setInt(3, cancelBatchLimit);
                 final Array labelsArray;
                 if (labels != null) {
                     labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());
@@ -489,9 +496,6 @@ public final class DatabaseHelper
                 }
                 stmt.setArray(4, labelsArray);
                 stmt.setString(5, filter);
-
-                // Expect number of successful cancellations to be returned
-                stmt.registerOutParameter(1, Types.INTEGER);
 
                 try {
                     LOG.debug("Calling cancel_jobs() database function...");
