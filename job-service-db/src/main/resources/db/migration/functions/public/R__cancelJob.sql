@@ -20,13 +20,11 @@
  *  Description:
  *  Cancels the specified job.
  */
-DROP FUNCTION IF EXISTS cancel_job(character varying,character varying);
-
 CREATE OR REPLACE FUNCTION cancel_job(
     in_partition_id VARCHAR(40),
     in_job_id VARCHAR(48)
 )
-RETURNS BOOLEAN
+RETURNS VOID
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -66,7 +64,5 @@ BEGIN
 
     -- Removes all related subtasks from completed_subtask_report table
     PERFORM internal_cleanup_completed_subtask_report(in_partition_id, in_job_id);
-
-    return true;
 END
 $$;

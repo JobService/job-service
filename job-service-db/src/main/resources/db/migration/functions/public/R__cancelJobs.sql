@@ -23,12 +23,12 @@
 CREATE OR REPLACE FUNCTION cancel_jobs(
     in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),
-    in_status_type VARCHAR(20),
+    -- Hard coding status_type to 'NotFinished' (Active, Paused, Waiting)
     in_limit INT,
-    in_offset INT,
-    in_sort_field VARCHAR(20),
-    in_sort_label VARCHAR(255),
-    in_sort_ascending BOOLEAN,
+    -- Hard coding offset to 0
+    -- Hard coding sort_field to 'create_date' --
+    -- Hard coding sort_label to null --
+    -- Hard coding sort_ascending to false --
     in_labels VARCHAR(255)[],
     in_filter VARCHAR(255)
 )
@@ -40,16 +40,15 @@ DECLARE
     jobId varchar;
     counter integer;
 BEGIN
-    jobIds := ARRAY(SELECT DISTINCT job_id FROM public.get_jobs(in_partition_id, in_job_id_starts_with, in_status_type,
-        in_limit, in_offset, in_sort_field, in_sort_label, in_sort_ascending, in_labels, in_filter));
+    jobIds := ARRAY(SELECT DISTINCT job_id FROM public.get_jobs(in_partition_id, in_job_id_starts_with,
+        'NotFinished', in_limit, 0, 'create_date', null, false, in_labels, in_filter) ORDER BY job_id);
 
     counter := 0;
 
     FOREACH jobId IN ARRAY jobIds
     LOOP
-        if cancel_job(in_partition_id, jobId) then
-            counter := counter + 1;
-        end if;
+        PERFORM cancel_job(in_partition_id, jobId);
+        counter := counter + 1;
     end loop;
 
     return counter;

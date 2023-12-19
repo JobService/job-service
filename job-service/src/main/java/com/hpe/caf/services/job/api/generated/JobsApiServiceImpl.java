@@ -74,8 +74,8 @@ public class JobsApiServiceImpl extends JobsApiService {
     }
 
     @Override
-    public Response cancelJobs(String partitionId, final String jobIdStartsWith, String label, final String filter,
-                               String cAFCorrelationId, SecurityContext securityContext) throws Exception
+    public Response cancelJobs(final String partitionId, final String jobIdStartsWith, final String label, final String filter,
+                               final String cAFCorrelationId, final SecurityContext securityContext) throws Exception
     {
 
         final int successfulCancellations = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, label, filter);

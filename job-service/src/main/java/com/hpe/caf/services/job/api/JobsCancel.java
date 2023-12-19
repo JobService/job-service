@@ -106,7 +106,7 @@ public final class JobsCancel {
 
             LOG.debug("cancelJobs: Done");
             return successfulCancellations;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.error("Error - ", e);
             throw e;
         }
