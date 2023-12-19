@@ -9,10 +9,10 @@
      in_job_id_starts_with VARCHAR(48),
      in_status_type VARCHAR (20),
      in_limit INT,
-     in_offset INT,
-     in_sort_field VARCHAR(20),
-     in_sort_label VARCHAR(255),
-     in_sort_ascending BOOLEAN,
+     -- Hard coding offset to 0 --
+     -- Hard coding sort-field to 'create_date' --
+     -- Hard coding sort_label to null --
+     -- Hard coding sort_ascending to false --
      in_labels VARCHAR(255)[],
      in_filter VARCHAR(255)
  )
@@ -25,7 +25,7 @@
      counter INT;
  BEGIN
     jobIds := ARRAY(SELECT DISTINCT job_id FROM public.get_jobs(in_partition_id, in_job_id_starts_with, in_status_type,
-        in_limit, in_offset, in_sort_field, in_sort_label, in_sort_ascending, in_labels, in_filter));
+        in_limit, 0, 'create_date', null, false, in_labels, in_filter));
 
     counter := 0;
 
