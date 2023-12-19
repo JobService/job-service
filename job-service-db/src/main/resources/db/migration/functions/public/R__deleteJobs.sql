@@ -25,15 +25,14 @@
      counter INT;
  BEGIN
     jobIds := ARRAY(SELECT DISTINCT job_id FROM public.get_jobs(in_partition_id, in_job_id_starts_with, in_status_type,
-        in_limit, 0, 'create_date', null, false, in_labels, in_filter));
+        in_limit, 0, 'create_date', null, false, in_labels, in_filter) ORDER BY job_id);
 
     counter := 0;
 
     FOREACH jobId IN ARRAY jobIds
     LOOP
-        if delete_job(in_partition_id, jobId) then
-            counter := counter + 1;
-        end if;
+        PERFORM delete_job(in_partition_id, jobId);
+        counter := counter + 1;
     end loop;
 
     return counter;

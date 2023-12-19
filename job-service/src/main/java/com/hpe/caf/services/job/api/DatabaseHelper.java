@@ -400,11 +400,18 @@ public final class DatabaseHelper
                           final List<String> labels, final String filter) throws Exception
     {
         int successfulDeletions = 0;
-        final int limit = 100;
+
+        final String deleteBatchLimitEnvVar = System.getenv("CAF_DELETE_JOBS_BATCH_LIMIT");
+        final int deleteBatchLimit = (deleteBatchLimitEnvVar != null) ? Integer.parseInt(deleteBatchLimitEnvVar) : 100;
+        LOG.debug("cancelJobs: Set cancelBatchLimit to {}", deleteBatchLimit);
+
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call delete_jobs(?,?,?,?,?,?)}")
                 ) {
+            // Expect number of successful deletions to be returned
+            stmt.registerOutParameter(1, Types.INTEGER);
+
             do {
                 if (jobIdStartsWith == null) {
                     jobIdStartsWith = "";
@@ -415,7 +422,7 @@ public final class DatabaseHelper
                 stmt.setString(1, partitionId);
                 stmt.setString(2, jobIdStartsWith);
                 stmt.setString(3, statusType);
-                stmt.setInt(4, limit);
+                stmt.setInt(4, deleteBatchLimit);
                 final Array labelsArray;
                 if (labels != null) {
                     labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());
@@ -424,9 +431,6 @@ public final class DatabaseHelper
                 }
                 stmt.setArray(5, labelsArray);
                 stmt.setString(6, filter);
-
-                // Expect number of successful deletions to be returned
-                stmt.registerOutParameter(1, Types.INTEGER);
 
                 try {
                     LOG.debug("Calling delete_jobs() database function...");

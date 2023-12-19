@@ -99,7 +99,7 @@ public final class JobsDelete {
 
             LOG.debug("deleteJobs: Done");
             return successfulDeletions;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.error("Error - ", e);
             throw e;
         }
