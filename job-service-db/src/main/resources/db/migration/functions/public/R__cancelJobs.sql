@@ -26,7 +26,7 @@ CREATE OR REPLACE FUNCTION cancel_jobs(
     -- Hard coding status_type to 'NotFinished' (Active, Paused, Waiting)
     in_limit INT,
     -- Hard coding offset to 0
-    -- Hard coding sort_field to 'create_date' --
+    -- Hard coding sort_field to 'job_id' --
     -- Hard coding sort_label to null --
     -- Hard coding sort_ascending to false --
     in_labels VARCHAR(255)[],
