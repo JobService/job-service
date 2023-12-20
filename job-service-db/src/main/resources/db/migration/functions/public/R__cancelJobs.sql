@@ -38,20 +38,16 @@ AS $function$
 DECLARE
     jobIds varchar[];
     jobId varchar;
-    counter integer;
 BEGIN
     jobIds := ARRAY(SELECT DISTINCT job_id FROM public.get_jobs(in_partition_id, in_job_id_starts_with,
-        'NotFinished', in_limit, 0, 'create_date', null, false, in_labels, in_filter) ORDER BY job_id);
-
-    counter := 0;
+        'NotFinished', in_limit, 0, 'job_id', null, false, in_labels, in_filter));
 
     FOREACH jobId IN ARRAY jobIds
     LOOP
         PERFORM cancel_job(in_partition_id, jobId);
-        counter := counter + 1;
-    end loop;
+    END LOOP;
 
-    return counter;
+    return ARRAY_LENGTH(jobIds, 1);
 END
 $function$
 ;

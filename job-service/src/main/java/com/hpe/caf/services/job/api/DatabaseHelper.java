@@ -469,9 +469,7 @@ public final class DatabaseHelper
             throws Exception {
         int successfulCancellations = 0;
 
-        final String cancelBatchLimitEnvVar = System.getenv("CAF_CANCEL_JOBS_BATCH_LIMIT");
-        final int cancelBatchLimit = (cancelBatchLimitEnvVar != null) ? Integer.parseInt(cancelBatchLimitEnvVar) : 100;
-
+        final int cancelBatchLimit = appConfig.getCancelJobsBatchLimit();
         LOG.debug("cancelJobs: Set cancelBatchLimit to {}", cancelBatchLimit);
 
         try (
@@ -502,10 +500,14 @@ public final class DatabaseHelper
                     stmt.execute();
 
                     successfulCancellations += stmt.getInt(1);
-                } catch (final SQLException se) {
-                    throw mapSqlNoDataException(se);
+                } finally {
+                    if (labelsArray != null) {
+                        labelsArray.free();
+                    }
                 }
             } while (stmt.getInt(1) > 0);
+        } catch (final SQLException se) {
+            throw mapSqlNoDataException(se);
         }
 
         return successfulCancellations;
