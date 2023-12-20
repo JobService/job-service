@@ -88,10 +88,10 @@ public final class JobsDelete {
 
             // Get the app config settings.
             LOG.debug("deleteJobs: Reading database connection properties...");
-            AppConfig config = AppConfigProvider.getAppConfigProperties();
+            final AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             // Get database helper instance
-            DatabaseHelper databaseHelper = new DatabaseHelper(config);
+            final DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
             // Delete the specified jobs.
             LOG.debug("deleteJobs: Deleting the jobs...");

@@ -401,14 +401,13 @@ public final class DatabaseHelper
     {
         int successfulDeletions = 0;
 
-        final String deleteBatchLimitEnvVar = System.getenv("CAF_DELETE_JOBS_BATCH_LIMIT");
-        final int deleteBatchLimit = (deleteBatchLimitEnvVar != null) ? Integer.parseInt(deleteBatchLimitEnvVar) : 100;
+        final int deleteBatchLimit = appConfig.getDeleteJobsBatchLimit();
         LOG.debug("cancelJobs: Set cancelBatchLimit to {}", deleteBatchLimit);
 
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
                 final CallableStatement stmt = conn.prepareCall("{call delete_jobs(?,?,?,?,?,?)}")
-                ) {
+        ) {
             // Expect number of successful deletions to be returned
             stmt.registerOutParameter(1, Types.INTEGER);
 
@@ -437,10 +436,14 @@ public final class DatabaseHelper
                     stmt.execute();
 
                     successfulDeletions += stmt.getInt(1);
-                } catch (final SQLException se) {
-                    throw mapSqlNoDataException(se);
+                } finally {
+                    if (labelsArray != null) {
+                        labelsArray.free();
+                    }
                 }
             } while (stmt.getInt(1) > 0);
+        } catch (final SQLException se) {
+            throw mapSqlNoDataException(se);
         }
 
         return successfulDeletions;
