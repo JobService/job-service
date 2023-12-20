@@ -95,10 +95,10 @@ public final class JobsCancel {
 
             //  Get app config settings.
             LOG.debug("cancelJobs: Reading database connection properties...");
-            AppConfig config = AppConfigProvider.getAppConfigProperties();
+            final AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
-            DatabaseHelper databaseHelper = new DatabaseHelper(config);
+            final DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
             //  Cancel the specified jobs.
             LOG.debug("cancelJobs: Cancelling the jobs...");
