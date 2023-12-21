@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2016-2023 Open Text.
+    Copyright 2016-2024 Open Text.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@
 
     <properties>
         <task.table.deletion.count>100</task.table.deletion.count>
-        <tomcatBaseImage>${dockerHubPublic}/cafapi/prereleases:opensuse-tomcat-jre17-1.7.0-SNAPSHOT</tomcatBaseImage>
+        <tomcatBaseImage>${dockerHubPublic}/cafapi/opensuse-tomcat-jre17:1</tomcatBaseImage>
         <webserviceWarName>job-service</webserviceWarName>
         <webserviceBasePath>/v1</webserviceBasePath>
         <swaggerUIWarName>job-service-ui</swaggerUIWarName>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Open Text.
+ * Copyright 2016-2024 Open Text.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,9 +135,21 @@ public class AppConfig {
         return defaultName;
     }
 
+    public int getCancelJobsBatchLimit()
+    {
+        final String defaultBatchLimit = environment.getProperty("CAF_CANCEL_JOBS_BATCH_LIMIT");
+
+        if (defaultBatchLimit == null) {
+            return 100;
+        } else {
+            return Integer.parseInt(defaultBatchLimit);
+        }
+    }
+
     public int getDeleteJobsBatchLimit()
     {
         final String defaultBatchLimit = environment.getProperty("CAF_DELETE_JOBS_BATCH_LIMIT");
+
         if (defaultBatchLimit == null) {
             return 100;
         }

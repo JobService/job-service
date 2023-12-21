@@ -4,6 +4,7 @@
 ${version-number}
 
 #### New Features
+- US771133: Support bulk cancellation of multiple jobs through new API endpoint `/partitions/{partitionId}/jobs:cancel`.
 - US868107: Support bulk deletion of multiple jobs through new API endpoint `/partitions/{partitionId}/jobs:delete`.
 
 #### Known Issues

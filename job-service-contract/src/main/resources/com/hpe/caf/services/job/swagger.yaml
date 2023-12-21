@@ -1,5 +1,5 @@
 #
-# Copyright 2016-2023 Open Text.
+# Copyright 2016-2024 Open Text.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -321,6 +321,45 @@ paths:
           description: The `jobId` parameter contains invalid characters.
         404:
           description: The specified job is not found.
+        503:
+          description: The request failed due to a database connection error.
+  /partitions/{partitionId}/jobs:cancel:
+    parameters:
+      - $ref: '#/parameters/partitionId'
+      - name: CAF-Correlation-Id
+        in: header
+        type: string
+        description: |
+          An identifier that correlates events 
+          across different services.
+      - name: jobIdStartsWith
+        in: query
+        type: string
+        required: false
+        description: Only those results whose job id starts with this value will be cancelled
+      - name: labelExist
+        in: query
+        type: string
+        required: false
+        description: 'Filter to jobs with the specified labels, in the format label=<labelName>,<labelName>'
+      - name: filter
+        in: query
+        type: string
+        required: false
+        description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`'
+    post:
+      tags:
+        - Jobs
+      summary: Cancels multiple jobs that meet the criteria of provided parameters.
+      description: Cancels multiple jobs that meet the criteria of provided parameters.
+      operationId: cancelJobs
+      responses:
+        204:
+          description: The cancellation has been accepted.
+          schema:
+            type: string
+        400:
+          description: The request could not be processed because one or more arguments are invalid.
         503:
           description: The request failed due to a database connection error.
   /partitions/{partitionId}/jobs/{jobId}/pause:
