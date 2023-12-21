@@ -25,7 +25,6 @@ import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.util.List;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-02-29T10:25:31.219Z")
 public class JobsApiServiceImpl extends JobsApiService {
@@ -72,6 +71,15 @@ public class JobsApiServiceImpl extends JobsApiService {
             throws Exception {
         JobsCancel.cancelJob(partitionId, jobId);
         return Response.noContent().build();
+    }
+
+    @Override
+    public Response cancelJobs(final String partitionId, final String jobIdStartsWith, final String label, final String filter,
+                               final String cAFCorrelationId, final SecurityContext securityContext) throws Exception
+    {
+
+        final int successfulCancellations = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, label, filter);
+        return Response.ok(String.format("Successfully cancelled %s jobs", successfulCancellations)).build();
     }
 
     @Override

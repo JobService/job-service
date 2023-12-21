@@ -463,6 +463,57 @@ public final class DatabaseHelper
     }
 
     /**
+     * Cancels the specified jobs
+     */
+    public int cancelJobs(final String partitionId, String jobIdStartsWith, final List<String> labels, final String filter)
+            throws Exception {
+        int successfulCancellations = 0;
+
+        final int cancelBatchLimit = appConfig.getCancelJobsBatchLimit();
+        LOG.debug("cancelJobs: Set cancelBatchLimit to {}", cancelBatchLimit);
+
+        try (
+                final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
+                final CallableStatement stmt = conn.prepareCall("{call cancel_jobs(?,?,?,?,?)}")
+        ) {
+            // Expect number of successful cancellations to be returned
+            stmt.registerOutParameter(1, Types.INTEGER);
+
+            do {
+                if (jobIdStartsWith == null) {
+                    jobIdStartsWith = "";
+                }
+                stmt.setString(1, partitionId);
+                stmt.setString(2, jobIdStartsWith);
+                stmt.setInt(3, cancelBatchLimit);
+                final Array labelsArray;
+                if (labels != null) {
+                    labelsArray = conn.createArrayOf("VARCHAR", labels.toArray());
+                } else {
+                    labelsArray = conn.createArrayOf("VARCHAR", new String[0]);
+                }
+                stmt.setArray(4, labelsArray);
+                stmt.setString(5, filter);
+
+                try {
+                    LOG.debug("Calling cancel_jobs() database function...");
+                    stmt.execute();
+
+                    successfulCancellations += stmt.getInt(1);
+                } finally {
+                    if (labelsArray != null) {
+                        labelsArray.free();
+                    }
+                }
+            } while (stmt.getInt(1) > 0);
+        } catch (final SQLException se) {
+            throw mapSqlNoDataException(se);
+        }
+
+        return successfulCancellations;
+    }
+
+    /**
      * Pauses the specified job.
      */
     public void pauseJob(final String partitionId, String jobId) throws Exception {

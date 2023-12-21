@@ -142,6 +142,29 @@ public class JobsApi  {
     }
 
     @POST
+    @Path("partitions/{partitionId}/jobs:cancel")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @io.swagger.annotations.ApiOperation(value = "Cancels multiple jobs", notes = "Cancels specified jobs", response = void.class, tags={ "Jobs" })
+    @io.swagger.annotations.ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 204, message = "The cancellation has been accepted", response = String.class),
+
+            @io.swagger.annotations.ApiResponse(code = 400, message = "The request could not be processed because one or more arguments are invalid.", response = void.class),
+
+            @io.swagger.annotations.ApiResponse(code = 503, message = "The request failed due to a database connection error.", response = void.class) })
+
+    public Response cancelJobs(
+            @ApiParam(value = "Only allow access to jobs in the container with this name", required = true) @PathParam("partitionId") String partitionId,
+            @ApiParam(value = "Only those results whose job id starts with this value will be returned") @QueryParam("jobIdStartsWith") String jobIdStartsWith,
+            @ApiParam(value = "Filter jobs with any of the specified labels, in the format label=<labelName>,<labelName>") @QueryParam("labelExist") String label,
+            @ApiParam(value = "Filter jobs with the specified filter criteria") @QueryParam("filter") String filter,
+            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" ) @HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,
+            @Context SecurityContext securityContext)
+            throws Exception {
+        return delegate.cancelJobs(partitionId, jobIdStartsWith, label, filter, cAFCorrelationId, securityContext);
+    }
+
+    @POST
     @Path("partitions/{partitionId}/jobs/{jobId}/pause")
     @Consumes({"application/json"})
     @Produces({"application/json"})
