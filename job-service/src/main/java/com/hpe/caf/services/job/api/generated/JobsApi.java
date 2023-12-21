@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Open Text.
+ * Copyright 2016-2024 Open Text.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,6 +121,30 @@ public class JobsApi  {
         return delegate.deleteJob(partitionId, jobId,cAFCorrelationId,securityContext);
     }
 
+    @DELETE
+    @Path("partitions/{partitionId}/jobs:delete")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @io.swagger.annotations.ApiOperation(value = "Deletes multiple jobs", notes = "Deletes multiple jobs", response = String.class, tags={ "Jobs" })
+    @io.swagger.annotations.ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 204, message = "Indicates that the job was successfully deleted", response = String.class),
+
+            @io.swagger.annotations.ApiResponse(code = 400, message = "The request could not be processed because one or more arguments are invalid.", response = void.class),
+
+            @io.swagger.annotations.ApiResponse(code = 503, message = "The request failed due to a database connection error.", response = void.class) })
+
+    public Response deleteJobs(
+            @ApiParam(value = "Only allow access to jobs in the container with this name", required = true) @PathParam("partitionId") String partitionId,
+            @ApiParam(value = "Only those results whose job id starts with this value will be deleted") @QueryParam("jobIdStartsWith") String jobIdStartsWith,
+            @ApiParam(value = "All - no status filter is applied (Default); NotCompleted - only those results with statuses other than Completed will be returned; Completed - only those results with Completed status will be returned; Inactive - only those results with inactive statuses (i.e. Completed, Failed, Cancelled) will be returned; NotFinished - only those results with unfinished statuses (ie. Active, Paused, Waiting) will be returned.") @QueryParam("statusType") String statusType,
+            @ApiParam(value = "Filter to jobs with the specified labels, in the format label=<labelName>,<labelName>") @QueryParam("labelExist") String label,
+            @ApiParam(value = "Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`") @QueryParam("filter") String filter,
+            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services") @HeaderParam("CAF_Correlation-Id") String cAFCorrelationId,
+            @Context SecurityContext securityContext)
+        throws Exception {
+        return delegate.deleteJobs(partitionId, jobIdStartsWith, statusType, label, filter, cAFCorrelationId, securityContext);
+    }
+
     @POST
     @Path("partitions/{partitionId}/jobs/{jobId}/cancel")
     @Consumes({ "application/json" })
@@ -139,6 +163,29 @@ public class JobsApi  {
             @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" )@HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,@Context SecurityContext securityContext)
             throws Exception {
         return delegate.cancelJob(partitionId, jobId,cAFCorrelationId,securityContext);
+    }
+
+    @POST
+    @Path("partitions/{partitionId}/jobs:cancel")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @io.swagger.annotations.ApiOperation(value = "Cancels multiple jobs", notes = "Cancels specified jobs", response = void.class, tags={ "Jobs" })
+    @io.swagger.annotations.ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 204, message = "The cancellation has been accepted", response = String.class),
+
+            @io.swagger.annotations.ApiResponse(code = 400, message = "The request could not be processed because one or more arguments are invalid.", response = void.class),
+
+            @io.swagger.annotations.ApiResponse(code = 503, message = "The request failed due to a database connection error.", response = void.class) })
+
+    public Response cancelJobs(
+            @ApiParam(value = "Only allow access to jobs in the container with this name", required = true) @PathParam("partitionId") String partitionId,
+            @ApiParam(value = "Only those results whose job id starts with this value will be returned") @QueryParam("jobIdStartsWith") String jobIdStartsWith,
+            @ApiParam(value = "Filter jobs with any of the specified labels, in the format label=<labelName>,<labelName>") @QueryParam("labelExist") String label,
+            @ApiParam(value = "Filter jobs with the specified filter criteria") @QueryParam("filter") String filter,
+            @ApiParam(value = "An identifier that can be used to correlate events that occurred\nacross different CAF services" ) @HeaderParam("CAF-Correlation-Id") String cAFCorrelationId,
+            @Context SecurityContext securityContext)
+            throws Exception {
+        return delegate.cancelJobs(partitionId, jobIdStartsWith, label, filter, cAFCorrelationId, securityContext);
     }
 
     @POST

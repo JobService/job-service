@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Open Text.
+ * Copyright 2016-2024 Open Text.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.core.UriInfo;
-import java.util.List;
 
 @jakarta.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-02-29T10:25:31.219Z")
 public class JobsApiServiceImpl extends JobsApiService {
@@ -68,10 +67,29 @@ public class JobsApiServiceImpl extends JobsApiService {
     }
 
     @Override
+    public Response deleteJobs(final String partitionId, final String jobIdStartsWith, final String statusType, final String label,
+                               final String filter, final String cAFCorrelationId, final SecurityContext securityContext)
+            throws Exception
+    {
+        final int successfulDeletions = JobsDelete.deleteJobs(partitionId, jobIdStartsWith, statusType, label, filter);
+
+        return Response.ok(String.format("Successfully deleted %s jobs", successfulDeletions)).build();
+    }
+
+    @Override
     public Response cancelJob(final String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
         JobsCancel.cancelJob(partitionId, jobId);
         return Response.noContent().build();
+    }
+
+    @Override
+    public Response cancelJobs(final String partitionId, final String jobIdStartsWith, final String label, final String filter,
+                               final String cAFCorrelationId, final SecurityContext securityContext) throws Exception
+    {
+
+        final int successfulCancellations = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, label, filter);
+        return Response.ok(String.format("Successfully cancelled %s jobs", successfulCancellations)).build();
     }
 
     @Override

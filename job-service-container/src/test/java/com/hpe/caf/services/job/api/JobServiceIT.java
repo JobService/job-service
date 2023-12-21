@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Open Text.
+ * Copyright 2016-2024 Open Text.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -404,6 +404,55 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testDeleteJobsUsingJobIdsList() throws ApiException
+    {
+        final String jobCorrelationId = "1";
+        final List<String> jobIds = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            final String jobId = UUID.randomUUID().toString();
+            jobIds.add(jobId);
+            final NewJob newJob = makeJob(jobId, "testDeleteJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        final String filter = String.format("id=in=(%s, %s, %s)", jobIds.get(0), jobIds.get(1), jobIds.get(2));
+
+        final String responseMessage = jobsApi.deleteJobs(defaultPartitionId, jobCorrelationId, null, null, filter);
+
+
+        final List<Job> deletedJobs = jobsApi.getJobs(
+                defaultPartitionId, jobCorrelationId,null,null,null,null,null, null, filter);
+        assertEquals(deletedJobs.size(), 0);
+
+        assertEquals(responseMessage,"Successfully deleted 3 jobs");
+    }
+
+    @Test
+    public void testDeleteJobsUsingJobIdStartsWith() throws ApiException
+    {
+        final String jobCorrelationId = "1";
+
+        for (int i = 0; i < 10; i++) {
+            final String jobId = "1234_" + UUID.randomUUID();
+            final NewJob newJob = makeJob(jobId, "testDeleteJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        final String jobIdStartsWith = "1234_";
+        final String responseMessage = jobsApi.deleteJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
+
+        final List<Job> deletedJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null,
+                null, null, null, null);
+
+        assertTrue(deletedJobs.isEmpty());
+
+        assertEquals(responseMessage, "Successfully deleted 10 jobs");
+    }
+
+    @Test
     public void testCreateJobWithTaskData_Object() throws ApiException {
         //create a job
         final String jobId = UUID.randomUUID().toString();
@@ -621,6 +670,146 @@ public class JobServiceIT {
             "status should remain cancelled");
         assertEquals(cancelledJob.getLastUpdateTime(), cancelledAgainJob.getLastUpdateTime(),
             "last-update-time should not be updated on second cancel");
+    }
+
+    @Test
+    public void testCancelJobsUsingJobIdsList() throws ApiException
+    {
+        final String jobCorrelationId = "1";
+        final List<String> jobIds = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            final String jobId = UUID.randomUUID().toString();
+            jobIds.add(jobId);
+            final NewJob newJob = makeJob(jobId, "testCancelJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        final String filter = String.format("id=in=(%s, %s, %s)", jobIds.get(0), jobIds.get(1), jobIds.get(2));
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, filter);
+
+        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, null, null, null,
+                null, null, null, filter);
+
+        for (final Job job : cancelledJobs) {
+            assertEquals(job.getStatus(), JobStatus.Cancelled);
+        }
+
+        // Assert that job not specified has not been cancelled
+        final Job excludedJobExample = jobsApi.getJob(defaultPartitionId, jobIds.get(3), jobCorrelationId);
+        assertEquals(excludedJobExample.getStatus(), JobStatus.Waiting);
+
+        assertEquals(responseMessage,"Successfully cancelled 3 jobs");
+    }
+
+    @Test
+    public void testCancelJobsUsingJobIdStartsWith() throws ApiException
+    {
+        final String jobCorrelationId = "1";
+
+        for (int i = 0; i < 10; i++) {
+            final String jobId = "1234_" + UUID.randomUUID();
+            final NewJob newJob = makeJob(jobId, "testCancelJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        final String jobIdStartsWith = "1234_";
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
+
+        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null,
+                null, null, null, null);
+
+        for (final Job job : cancelledJobs) {
+            assertEquals(job.getStatus(), JobStatus.Cancelled);
+        }
+
+        assertEquals(responseMessage, "Successfully cancelled 10 jobs");
+    }
+
+    @Test
+    public void testCancelLargeNumberOfJobs() throws ApiException
+    {
+        final String jobCorrelationId = "1";
+
+        for (int i = 0; i < 1000; i++) {
+            final String jobId = UUID.randomUUID().toString();
+            final NewJob newJob = makeJob(jobId, "testCancelJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null);
+
+        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, null, null, 1000,
+                null, null, null, null);
+
+        for (final Job job : cancelledJobs) {
+            assertEquals(job.getStatus(), JobStatus.Cancelled);
+        }
+
+        assertEquals(responseMessage, "Successfully cancelled 1000 jobs");
+    }
+
+    @Test
+    public void testCancelJobs_JobAlreadyCancelled() throws ApiException
+    {
+        final String jobCorrelationId = "1";
+        final List<String> jobIds = new ArrayList<>();
+
+        for (int i = 0; i < 50; i++) {
+            final String jobId = UUID.randomUUID().toString();
+            jobIds.add(jobId);
+            final NewJob newJob = makeJob(jobId, "testCancelJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        // Cancel one job before bulk cancellation call - so there are only 49 jobs to cancel
+        jobsApi.cancelJob(defaultPartitionId, jobIds.get(0), jobCorrelationId);
+
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null);
+
+        // Only expect 49 jobs to be cancelled
+        assertEquals(responseMessage, "Successfully cancelled 49 jobs");
+    }
+
+    @Test
+    public void testCancelJobsByLabel() throws ApiException {
+        final String jobId1 = UUID.randomUUID().toString();
+        final String jobId2 = UUID.randomUUID().toString();
+        final String jobId3 = UUID.randomUUID().toString();
+
+        final String correlationId = "1";
+
+        final NewJob job1 = makeJob(jobId1, "testJob");
+        job1.getLabels().put("tag:1", "1");
+        job1.getLabels().put("tag:2", "2");
+
+        final NewJob job2 = makeJob(jobId2, "testJob");
+        job2.getLabels().put("tag:1", "1");
+        job2.getLabels().put("owner", "bob");
+
+        final NewJob job3 = makeJob(jobId3, "testJob");
+        job3.getLabels().put("random", "label");
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId1, job1, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId2, job2, correlationId);
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, job3, correlationId);
+
+        // cancel jobs with label "tag:1"
+        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, correlationId, null,
+        "tag:1", null);
+
+        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
+                null, null, "tag:1", null);
+
+        for (final Job job : cancelledJobs) {
+            assertEquals(job.getStatus(), JobStatus.Cancelled);
+        }
+
+        assertEquals(responseMessage, "Successfully cancelled 2 jobs");
     }
 
     @Test
