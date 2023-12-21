@@ -138,6 +138,18 @@ public class AppConfig {
     public int getCancelJobsBatchLimit()
     {
         final String defaultBatchLimit = environment.getProperty("CAF_CANCEL_JOBS_BATCH_LIMIT");
+
+        if (defaultBatchLimit == null) {
+            return 100;
+        } else {
+            return Integer.parseInt(defaultBatchLimit);
+        }
+    }
+
+    public int getDeleteJobsBatchLimit()
+    {
+        final String defaultBatchLimit = environment.getProperty("CAF_DELETE_JOBS_BATCH_LIMIT");
+
         if (defaultBatchLimit == null) {
             return 100;
         }

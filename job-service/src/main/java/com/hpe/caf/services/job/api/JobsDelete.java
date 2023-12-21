@@ -17,9 +17,13 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigProvider;
+import com.hpe.caf.services.job.api.filter.RsqlToSqlUtils;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.List;
 
 public final class JobsDelete {
 
@@ -67,4 +71,37 @@ public final class JobsDelete {
         }
     }
 
+    public static int deleteJobs(final String partitionId, final String jobIdStartsWith, final String statusType,
+                                 final String labelExists, final String filter) throws Exception
+    {
+        try {
+            LOG.debug("deleteJobs: Starting...");
+            ApiServiceUtil.validatePartitionId(partitionId);
+
+            List<String> labelValues = null;
+            if (labelExists != null && !labelExists.isEmpty()) {
+                final String[] split = labelExists.split(",");
+                labelValues = Arrays.asList(split);
+            }
+
+            final String filterQuery = RsqlToSqlUtils.convertToSqlSyntax(filter);
+
+            // Get the app config settings.
+            LOG.debug("deleteJobs: Reading database connection properties...");
+            final AppConfig config = AppConfigProvider.getAppConfigProperties();
+
+            // Get database helper instance
+            final DatabaseHelper databaseHelper = new DatabaseHelper(config);
+
+            // Delete the specified jobs.
+            LOG.debug("deleteJobs: Deleting the jobs...");
+            final int successfulDeletions = databaseHelper.deleteJobs(partitionId, jobIdStartsWith, statusType, labelValues, filterQuery);
+
+            LOG.debug("deleteJobs: Done");
+            return successfulDeletions;
+        } catch (final Exception e) {
+            LOG.error("Error - ", e);
+            throw e;
+        }
+    }
 }

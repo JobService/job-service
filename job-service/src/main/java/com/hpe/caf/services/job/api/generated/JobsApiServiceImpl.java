@@ -67,6 +67,16 @@ public class JobsApiServiceImpl extends JobsApiService {
     }
 
     @Override
+    public Response deleteJobs(final String partitionId, final String jobIdStartsWith, final String statusType, final String label,
+                               final String filter, final String cAFCorrelationId, final SecurityContext securityContext)
+            throws Exception
+    {
+        final int successfulDeletions = JobsDelete.deleteJobs(partitionId, jobIdStartsWith, statusType, label, filter);
+
+        return Response.ok(String.format("Successfully deleted %s jobs", successfulDeletions)).build();
+    }
+
+    @Override
     public Response cancelJob(final String partitionId, String jobId, String cAFCorrelationId, SecurityContext securityContext)
             throws Exception {
         JobsCancel.cancelJob(partitionId, jobId);
