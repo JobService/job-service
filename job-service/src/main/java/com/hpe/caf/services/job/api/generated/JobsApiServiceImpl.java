@@ -89,7 +89,7 @@ public class JobsApiServiceImpl extends JobsApiService {
     {
 
         final int successfulCancellations = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, label, filter);
-        return Response.ok().entity(String.format("Successfully cancelled %s jobs", successfulCancellations)).build();
+        return Response.ok().entity(String.format("Successfully canceled %s jobs", successfulCancellations)).build();
     }
 
     @Override
