@@ -230,7 +230,7 @@ paths:
       description: Deletes multiple jobs that meet the criteria of provided parameters.
       operationId: deleteJobs
       responses:
-        204:
+        200:
           description: Indicates that the jobs were successfully deleted.
           schema:
             type: string
@@ -354,7 +354,7 @@ paths:
       description: Cancels multiple jobs that meet the criteria of provided parameters.
       operationId: cancelJobs
       responses:
-        204:
+        200:
           description: The cancellation has been accepted.
           schema:
             type: string
