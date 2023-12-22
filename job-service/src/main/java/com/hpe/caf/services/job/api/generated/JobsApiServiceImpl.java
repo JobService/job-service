@@ -73,7 +73,7 @@ public class JobsApiServiceImpl extends JobsApiService {
     {
         final int successfulDeletions = JobsDelete.deleteJobs(partitionId, jobIdStartsWith, statusType, label, filter);
 
-        return Response.ok(String.format("Successfully deleted %s jobs", successfulDeletions)).build();
+        return Response.ok().entity(String.format("Successfully deleted %s jobs", successfulDeletions)).build();
     }
 
     @Override
@@ -89,7 +89,7 @@ public class JobsApiServiceImpl extends JobsApiService {
     {
 
         final int successfulCancellations = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, label, filter);
-        return Response.ok(String.format("Successfully cancelled %s jobs", successfulCancellations)).build();
+        return Response.ok().entity(String.format("Successfully cancelled %s jobs", successfulCancellations)).build();
     }
 
     @Override
