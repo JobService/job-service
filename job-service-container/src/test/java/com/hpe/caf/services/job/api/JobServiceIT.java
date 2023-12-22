@@ -700,7 +700,7 @@ public class JobServiceIT {
         final Job excludedJobExample = jobsApi.getJob(defaultPartitionId, jobIds.get(3), jobCorrelationId);
         assertEquals(excludedJobExample.getStatus(), JobStatus.Waiting);
 
-        assertEquals(responseMessage,"Successfully cancelled 3 jobs");
+        assertEquals(responseMessage,"Successfully canceled 3 jobs");
     }
 
     @Test
@@ -725,7 +725,7 @@ public class JobServiceIT {
             assertEquals(job.getStatus(), JobStatus.Cancelled);
         }
 
-        assertEquals(responseMessage, "Successfully cancelled 10 jobs");
+        assertEquals(responseMessage, "Successfully canceled 10 jobs");
     }
 
     @Test
@@ -749,7 +749,7 @@ public class JobServiceIT {
             assertEquals(job.getStatus(), JobStatus.Cancelled);
         }
 
-        assertEquals(responseMessage, "Successfully cancelled 1000 jobs");
+        assertEquals(responseMessage, "Successfully canceled 1000 jobs");
     }
 
     @Test
@@ -772,7 +772,7 @@ public class JobServiceIT {
         final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null);
 
         // Only expect 49 jobs to be cancelled
-        assertEquals(responseMessage, "Successfully cancelled 49 jobs");
+        assertEquals(responseMessage, "Successfully canceled 49 jobs");
     }
 
     @Test
