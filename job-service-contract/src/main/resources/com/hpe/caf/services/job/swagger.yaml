@@ -223,7 +223,7 @@ paths:
         type: string
         required: false
         description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`'
-    delete:
+    get:
       tags:
         - Jobs
       summary: Deletes multiple jobs that meet the criteria of provided parameters.
@@ -347,7 +347,7 @@ paths:
         type: string
         required: false
         description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`'
-    post:
+    get:
       tags:
         - Jobs
       summary: Cancels multiple jobs that meet the criteria of provided parameters.
