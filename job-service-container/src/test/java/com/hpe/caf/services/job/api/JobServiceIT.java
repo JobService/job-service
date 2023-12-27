@@ -809,7 +809,7 @@ public class JobServiceIT {
             assertEquals(job.getStatus(), JobStatus.Cancelled);
         }
 
-        assertEquals(responseMessage, "Successfully cancelled 2 jobs");
+        assertEquals(responseMessage, "Successfully canceled 2 jobs");
     }
 
     @Test
