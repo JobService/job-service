@@ -223,12 +223,14 @@ paths:
         type: string
         required: false
         description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`'
-    get:
+    delete:
       tags:
         - Jobs
       summary: Deletes multiple jobs that meet the criteria of provided parameters.
       description: Deletes multiple jobs that meet the criteria of provided parameters.
       operationId: deleteJobs
+      produces:
+        - text/plain
       responses:
         200:
           description: Indicates that the jobs were successfully deleted.
@@ -347,12 +349,14 @@ paths:
         type: string
         required: false
         description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`'
-    get:
+    post:
       tags:
         - Jobs
       summary: Cancels multiple jobs that meet the criteria of provided parameters.
       description: Cancels multiple jobs that meet the criteria of provided parameters.
       operationId: cancelJobs
+      produces:
+        - text/plain
       responses:
         200:
           description: The cancellation has been accepted.

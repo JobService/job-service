@@ -121,10 +121,10 @@ public class JobsApi  {
         return delegate.deleteJob(partitionId, jobId,cAFCorrelationId,securityContext);
     }
 
-    @GET
+    @DELETE
     @Path("partitions/{partitionId}/jobs:delete")
     @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @Produces({ "text/plain" })
     @io.swagger.annotations.ApiOperation(value = "Deletes multiple jobs", notes = "Deletes multiple jobs", response = String.class, tags={ "Jobs" })
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Indicates that the job was successfully deleted", response = String.class),
@@ -165,10 +165,10 @@ public class JobsApi  {
         return delegate.cancelJob(partitionId, jobId,cAFCorrelationId,securityContext);
     }
 
-    @GET
+    @POST
     @Path("partitions/{partitionId}/jobs:cancel")
     @Consumes({ "application/json" })
-    @Produces({ "application/json" })
+    @Produces({ "text/plain" })
     @io.swagger.annotations.ApiOperation(value = "Cancels multiple jobs", notes = "Cancels specified jobs", response = String.class, tags={ "Jobs" })
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "The cancellation has been accepted", response = String.class),
