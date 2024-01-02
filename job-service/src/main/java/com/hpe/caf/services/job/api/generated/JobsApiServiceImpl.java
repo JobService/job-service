@@ -71,9 +71,8 @@ public class JobsApiServiceImpl extends JobsApiService {
                                final String filter, final String cAFCorrelationId, final SecurityContext securityContext)
             throws Exception
     {
-        final int successfulDeletions = JobsDelete.deleteJobs(partitionId, jobIdStartsWith, statusType, label, filter);
-
-        return Response.ok().entity(String.format("Successfully deleted %s jobs", successfulDeletions)).build();
+        final Long successfulDeletions = JobsDelete.deleteJobs(partitionId, jobIdStartsWith, statusType, label, filter);
+        return Response.ok().entity(successfulDeletions).build();
     }
 
     @Override
@@ -88,8 +87,8 @@ public class JobsApiServiceImpl extends JobsApiService {
                                final String cAFCorrelationId, final SecurityContext securityContext) throws Exception
     {
 
-        final int successfulCancellations = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, label, filter);
-        return Response.ok().entity(String.format("Successfully canceled %s jobs", successfulCancellations)).build();
+        final Long successfulCancellations = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, label, filter);
+        return Response.ok().entity(successfulCancellations).build();
     }
 
     @Override

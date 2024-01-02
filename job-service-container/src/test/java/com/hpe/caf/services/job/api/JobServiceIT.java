@@ -419,14 +419,15 @@ public class JobServiceIT {
 
         final String filter = String.format("id=in=(%s, %s, %s)", jobIds.get(0), jobIds.get(1), jobIds.get(2));
 
-        final String responseMessage = jobsApi.deleteJobs(defaultPartitionId, jobCorrelationId, null, null, filter);
+        final long response = jobsApi.deleteJobs(defaultPartitionId, jobCorrelationId, null, null, filter);
 
 
         final List<Job> deletedJobs = jobsApi.getJobs(
                 defaultPartitionId, jobCorrelationId,null,null,null,null,null, null, filter);
-        assertEquals(deletedJobs.size(), 0);
 
-        assertEquals(responseMessage,"Successfully deleted 3 jobs");
+        assertTrue(deletedJobs.isEmpty());
+
+        assertEquals(response, 3);
     }
 
     @Test
@@ -442,14 +443,14 @@ public class JobServiceIT {
         }
 
         final String jobIdStartsWith = "1234_";
-        final String responseMessage = jobsApi.deleteJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
+        final long response = jobsApi.deleteJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
 
         final List<Job> deletedJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null,
                 null, null, null, null);
 
         assertTrue(deletedJobs.isEmpty());
 
-        assertEquals(responseMessage, "Successfully deleted 10 jobs");
+        assertEquals(response, 10);
     }
 
     @Test
@@ -687,7 +688,7 @@ public class JobServiceIT {
         }
 
         final String filter = String.format("id=in=(%s, %s, %s)", jobIds.get(0), jobIds.get(1), jobIds.get(2));
-        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, filter);
+        final long response = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, filter);
 
         final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, null, null, null,
                 null, null, null, filter);
@@ -700,7 +701,7 @@ public class JobServiceIT {
         final Job excludedJobExample = jobsApi.getJob(defaultPartitionId, jobIds.get(3), jobCorrelationId);
         assertEquals(excludedJobExample.getStatus(), JobStatus.Waiting);
 
-        assertEquals(responseMessage,"Successfully canceled 3 jobs");
+        assertEquals(response, 3);
     }
 
     @Test
@@ -716,7 +717,7 @@ public class JobServiceIT {
         }
 
         final String jobIdStartsWith = "1234_";
-        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
+        final long response = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
 
         final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null,
                 null, null, null, null);
@@ -725,7 +726,7 @@ public class JobServiceIT {
             assertEquals(job.getStatus(), JobStatus.Cancelled);
         }
 
-        assertEquals(responseMessage, "Successfully canceled 10 jobs");
+        assertEquals(response, 10);
     }
 
     @Test
@@ -740,7 +741,7 @@ public class JobServiceIT {
             jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         }
 
-        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null);
+        final long response = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null);
 
         final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, null, null, 1000,
                 null, null, null, null);
@@ -749,7 +750,7 @@ public class JobServiceIT {
             assertEquals(job.getStatus(), JobStatus.Cancelled);
         }
 
-        assertEquals(responseMessage, "Successfully canceled 1000 jobs");
+        assertEquals(response, 1000);
     }
 
     @Test
@@ -769,10 +770,10 @@ public class JobServiceIT {
         // Cancel one job before bulk cancellation call - so there are only 49 jobs to cancel
         jobsApi.cancelJob(defaultPartitionId, jobIds.get(0), jobCorrelationId);
 
-        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null);
+        final long response = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null);
 
         // Only expect 49 jobs to be cancelled
-        assertEquals(responseMessage, "Successfully canceled 49 jobs");
+        assertEquals(response, 49);
     }
 
     @Test
@@ -799,7 +800,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, job3, correlationId);
 
         // cancel jobs with label "tag:1"
-        final String responseMessage = jobsApi.cancelJobs(defaultPartitionId, correlationId, null,
+        final long response = jobsApi.cancelJobs(defaultPartitionId, correlationId, null,
         "tag:1", null);
 
         final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
@@ -809,7 +810,7 @@ public class JobServiceIT {
             assertEquals(job.getStatus(), JobStatus.Cancelled);
         }
 
-        assertEquals(responseMessage, "Successfully canceled 2 jobs");
+        assertEquals(response, 2);
     }
 
     @Test

@@ -124,10 +124,10 @@ public class JobsApi  {
     @DELETE
     @Path("partitions/{partitionId}/jobs:delete")
     @Consumes({ "application/json" })
-    @Produces({ "text/plain" })
-    @io.swagger.annotations.ApiOperation(value = "Deletes multiple jobs", notes = "Deletes multiple jobs", response = String.class, tags={ "Jobs" })
+    @Produces({ "application/json" })
+    @io.swagger.annotations.ApiOperation(value = "Deletes multiple jobs", notes = "Deletes multiple jobs", response = Long.class, tags={ "Jobs" })
     @io.swagger.annotations.ApiResponses(value = {
-            @io.swagger.annotations.ApiResponse(code = 200, message = "Indicates that the job was successfully deleted", response = String.class),
+            @io.swagger.annotations.ApiResponse(code = 200, message = "Returns the number of jobs that were successfully deleted.", response = Long.class),
 
             @io.swagger.annotations.ApiResponse(code = 400, message = "The request could not be processed because one or more arguments are invalid.", response = void.class),
 
@@ -168,10 +168,10 @@ public class JobsApi  {
     @POST
     @Path("partitions/{partitionId}/jobs:cancel")
     @Consumes({ "application/json" })
-    @Produces({ "text/plain" })
-    @io.swagger.annotations.ApiOperation(value = "Cancels multiple jobs", notes = "Cancels specified jobs", response = String.class, tags={ "Jobs" })
+    @Produces({ "application/json" })
+    @io.swagger.annotations.ApiOperation(value = "Cancels multiple jobs", notes = "Cancels specified jobs", response = Long.class, tags={ "Jobs" })
     @io.swagger.annotations.ApiResponses(value = {
-            @io.swagger.annotations.ApiResponse(code = 200, message = "The cancellation has been accepted", response = String.class),
+            @io.swagger.annotations.ApiResponse(code = 200, message = "Returns the number of jobs that were successfully cancelled.", response = Long.class),
 
             @io.swagger.annotations.ApiResponse(code = 400, message = "The request could not be processed because one or more arguments are invalid.", response = void.class),
 
