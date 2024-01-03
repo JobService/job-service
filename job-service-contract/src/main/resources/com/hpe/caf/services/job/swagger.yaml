@@ -230,10 +230,11 @@ paths:
       description: Deletes multiple jobs that meet the criteria of provided parameters.
       operationId: deleteJobs
       responses:
-        204:
-          description: Indicates that the jobs were successfully deleted.
+        200:
+          description: Returns the number of jobs that were successfully deleted.
           schema:
-            type: string
+            type: integer
+            format: int64
         400:
           description: The request could not be processed because one or more arguments are invalid.
         503:
@@ -354,10 +355,11 @@ paths:
       description: Cancels multiple jobs that meet the criteria of provided parameters.
       operationId: cancelJobs
       responses:
-        204:
-          description: The cancellation has been accepted.
+        200:
+          description: Returns the number of jobs that were successfully cancelled.
           schema:
-            type: string
+            type: integer
+            format: int64
         400:
           description: The request could not be processed because one or more arguments are invalid.
         503:
