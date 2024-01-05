@@ -121,7 +121,7 @@ public class JobsApi  {
         return delegate.deleteJob(partitionId, jobId,cAFCorrelationId,securityContext);
     }
 
-    @DELETE
+    @POST
     @Path("partitions/{partitionId}/jobs:delete")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
