@@ -93,7 +93,7 @@ public class JobsApiServiceImpl extends JobsApiService {
     {
         final ObjectMapper mapper = new ObjectMapper();
         final Long value = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, label, filter);
-        final Map<String, Long> resultMap = Collections.singletonMap("jobsCancelled", value);
+        final Map<String, Long> resultMap = Collections.singletonMap("jobsCanceled", value);
         final String json = mapper.writeValueAsString(resultMap);
 
         return Response.ok().entity(json).build();
