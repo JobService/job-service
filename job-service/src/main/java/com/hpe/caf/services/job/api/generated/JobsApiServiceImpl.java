@@ -15,8 +15,6 @@
  */
 package com.hpe.caf.services.job.api.generated;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.hpe.caf.services.job.api.*;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
@@ -25,6 +23,8 @@ import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collections;
+import java.util.Map;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-02-29T10:25:31.219Z")
 public class JobsApiServiceImpl extends JobsApiService {
@@ -71,12 +71,10 @@ public class JobsApiServiceImpl extends JobsApiService {
                                final String filter, final String cAFCorrelationId, final SecurityContext securityContext)
             throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
         final Long value = JobsDelete.deleteJobs(partitionId, jobIdStartsWith, statusType, label, filter);
-        final ObjectNode jsonNode = mapper.createObjectNode();
-        jsonNode.put("jobsDeleted", value);
+        final Map<String, Long> resultMap = Collections.singletonMap("jobsDeleted", value);
 
-        return Response.ok().entity(jsonNode).build();
+        return Response.ok().entity(resultMap).build();
     }
 
     @Override
@@ -90,12 +88,10 @@ public class JobsApiServiceImpl extends JobsApiService {
     public Response cancelJobs(final String partitionId, final String jobIdStartsWith, final String label, final String filter,
                                final String cAFCorrelationId, final SecurityContext securityContext) throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
         final Long value = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, label, filter);
-        final ObjectNode jsonNode = mapper.createObjectNode();
-        jsonNode.put("jobsCanceled", value);
+        final Map<String, Long> resultMap = Collections.singletonMap("jobsCanceled", value);
 
-        return Response.ok().entity(jsonNode).build();
+        return Response.ok().entity(resultMap).build();
     }
 
     @Override
