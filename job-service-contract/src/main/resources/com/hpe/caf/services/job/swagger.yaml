@@ -223,7 +223,7 @@ paths:
         type: string
         required: false
         description: 'Filter jobs with the specified criteria, in the format `labels.<label-key> == <label-value>` or `id == 1`'
-    delete:
+    post:
       tags:
         - Jobs
       summary: Deletes multiple jobs that meet the criteria of provided parameters.
@@ -233,8 +233,12 @@ paths:
         200:
           description: Returns the number of jobs that were successfully deleted.
           schema:
-            type: integer
-            format: int64
+            type: object
+            properties:
+              jobsDeleted:
+                type: integer
+                format: int64
+                example: 10
         400:
           description: The request could not be processed because one or more arguments are invalid.
         503:
@@ -358,8 +362,12 @@ paths:
         200:
           description: Returns the number of jobs that were successfully cancelled.
           schema:
-            type: integer
-            format: int64
+            type: object
+            properties:
+              jobsCanceled:
+                type: integer
+                format: int64
+                example: 10
         400:
           description: The request could not be processed because one or more arguments are invalid.
         503:

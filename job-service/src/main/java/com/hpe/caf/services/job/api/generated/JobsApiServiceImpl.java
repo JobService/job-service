@@ -18,13 +18,13 @@ package com.hpe.caf.services.job.api.generated;
 import com.hpe.caf.services.job.api.*;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
-import com.hpe.caf.services.job.exceptions.BadRequestException;
-import com.hpe.caf.services.job.exceptions.NotFoundException;
 
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collections;
+import java.util.Map;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2016-02-29T10:25:31.219Z")
 public class JobsApiServiceImpl extends JobsApiService {
@@ -71,8 +71,10 @@ public class JobsApiServiceImpl extends JobsApiService {
                                final String filter, final String cAFCorrelationId, final SecurityContext securityContext)
             throws Exception
     {
-        final Long successfulDeletions = JobsDelete.deleteJobs(partitionId, jobIdStartsWith, statusType, label, filter);
-        return Response.ok().entity(successfulDeletions).build();
+        final Long value = JobsDelete.deleteJobs(partitionId, jobIdStartsWith, statusType, label, filter);
+        final Map<String, Long> resultMap = Collections.singletonMap("jobsDeleted", value);
+
+        return Response.ok().entity(resultMap).build();
     }
 
     @Override
@@ -86,9 +88,10 @@ public class JobsApiServiceImpl extends JobsApiService {
     public Response cancelJobs(final String partitionId, final String jobIdStartsWith, final String label, final String filter,
                                final String cAFCorrelationId, final SecurityContext securityContext) throws Exception
     {
+        final Long value = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, label, filter);
+        final Map<String, Long> resultMap = Collections.singletonMap("jobsCanceled", value);
 
-        final Long successfulCancellations = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, label, filter);
-        return Response.ok().entity(successfulCancellations).build();
+        return Response.ok().entity(resultMap).build();
     }
 
     @Override
