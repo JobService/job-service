@@ -16,7 +16,6 @@
 package com.hpe.caf.services.job.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
