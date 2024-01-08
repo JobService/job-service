@@ -798,7 +798,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, job3, correlationId);
 
         // cancel jobs with label "tag:1"
-        final Object response = jobsApi.cancelJobs(defaultPartitionId, correlationId, null,
+        final InlineResponse200 response = jobsApi.cancelJobs(defaultPartitionId, correlationId, null,
         "tag:1", null);
 
         final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
@@ -808,7 +808,7 @@ public class JobServiceIT {
             assertEquals(job.getStatus(), JobStatus.Cancelled);
         }
 
-        assertEquals(response, 2);
+        assertEquals((long) response.getJobsCanceled(), 2L);
     }
 
     @Test
