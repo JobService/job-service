@@ -16,6 +16,7 @@
 package com.hpe.caf.services.job.api.generated;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.hpe.caf.services.job.api.*;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
@@ -74,10 +75,10 @@ public class JobsApiServiceImpl extends JobsApiService {
     {
         final ObjectMapper mapper = new ObjectMapper();
         final Long value = JobsDelete.deleteJobs(partitionId, jobIdStartsWith, statusType, label, filter);
-        final Map<String, Long> resultMap = Collections.singletonMap("jobsDeleted", value);
-        final String json = mapper.writeValueAsString(resultMap);
+        final ObjectNode jsonNode = mapper.createObjectNode();
+        jsonNode.put("jobsDeleted", value);
 
-        return Response.ok().entity(json).build();
+        return Response.ok().entity(jsonNode).build();
     }
 
     @Override
@@ -93,10 +94,10 @@ public class JobsApiServiceImpl extends JobsApiService {
     {
         final ObjectMapper mapper = new ObjectMapper();
         final Long value = JobsCancel.cancelJobs(partitionId, jobIdStartsWith, label, filter);
-        final Map<String, Long> resultMap = Collections.singletonMap("jobsCanceled", value);
-        final String json = mapper.writeValueAsString(resultMap);
+        final ObjectNode jsonNode = mapper.createObjectNode();
+        jsonNode.put("jobsCanceled", value);
 
-        return Response.ok().entity(json).build();
+        return Response.ok().entity(jsonNode).build();
     }
 
     @Override
