@@ -15,7 +15,6 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hpe.caf.api.BootstrapConfiguration;
 import com.hpe.caf.api.ConfigurationSource;
@@ -676,7 +675,7 @@ public class JobServiceIT {
     }
 
     @Test
-    public void testCancelJobsUsingJobIdsList() throws ApiException, JsonProcessingException
+    public void testCancelJobsUsingJobIdsList() throws ApiException
     {
         final String jobCorrelationId = "1";
         final List<String> jobIds = new ArrayList<>();
