@@ -71,7 +71,7 @@ public final class JobsDelete {
         }
     }
 
-    public static int deleteJobs(final String partitionId, final String jobIdStartsWith, final String statusType,
+    public static long deleteJobs(final String partitionId, final String jobIdStartsWith, final String statusType,
                                  final String labelExists, final String filter) throws Exception
     {
         try {

@@ -79,7 +79,7 @@ public final class JobsCancel {
      * @param filter            optional filter to use when returning results
      * @throws Exception        bad request or database exceptions
      */
-    public static int cancelJobs(final String partitionId, final String jobIdStartsWith, final String labelExists, final String filter)
+    public static long cancelJobs(final String partitionId, final String jobIdStartsWith, final String labelExists, final String filter)
             throws Exception {
         try {
             LOG.debug("cancelJobs: Starting...");
