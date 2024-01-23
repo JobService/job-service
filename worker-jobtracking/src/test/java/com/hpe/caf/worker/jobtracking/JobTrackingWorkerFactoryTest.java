@@ -38,8 +38,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * JUnit test to verify the worker correctly performs the desired action.
@@ -64,7 +64,7 @@ public class JobTrackingWorkerFactoryTest {
         Codec codec = new JsonCodec();
         JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
-        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_SUCCESS, Collections.EMPTY_MAP, toQueue);
+        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_SUCCESS, Collections.emptyMap(), toQueue);
         TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), 0, statusCheckUrl, trackingPipe, toQueue); //trackToPipe==toQueue
         tm.setTracking(tracking);
 
@@ -130,7 +130,7 @@ public class JobTrackingWorkerFactoryTest {
         Codec codec = new JsonCodec();
         JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
-        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_SUCCESS, Collections.EMPTY_MAP, toQueue);
+        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_SUCCESS, Collections.emptyMap(), toQueue);
         TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), 0, statusCheckUrl, trackingPipe, trackToPipe);
         tm.setTracking(tracking);
 
@@ -158,11 +158,11 @@ public class JobTrackingWorkerFactoryTest {
         Codec codec = new JsonCodec();
         JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
-        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_EXCEPTION, Collections.EMPTY_MAP, toQueue);
+        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_EXCEPTION, Collections.emptyMap(), toQueue);
         TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), 0, statusCheckUrl, trackingPipe, trackToPipe);
         tm.setTracking(tracking);
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED, "EXCEEDED_RETRIES");
 
         WorkerCallback mockCallback = Mockito.mock(WorkerCallback.class);
@@ -187,11 +187,11 @@ public class JobTrackingWorkerFactoryTest {
         Codec codec = new JsonCodec();
         JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
 
-        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_FAILURE, Collections.EMPTY_MAP, toQueue);
+        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_FAILURE, Collections.emptyMap(), toQueue);
         TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), 0, statusCheckUrl, trackingPipe, trackToPipe);
         tm.setTracking(tracking);
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_RETRY, 1);
 
         WorkerCallback mockCallback = Mockito.mock(WorkerCallback.class);

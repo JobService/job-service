@@ -15,55 +15,27 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service</artifactId>
-    <packaging>war</packaging>
     <name>job-service</name>
 
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
 
-    <build>
-        <finalName>job-service</finalName>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <port>9090</port>
-                    <path>/</path>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.4.0</version>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/gen/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
     <dependencies>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>cz.jirutka.rsql</groupId>
             <artifactId>rsql-parser</artifactId>
@@ -73,11 +45,11 @@
             <artifactId>sqlbuilder</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.java-json-tools</groupId>
-            <artifactId>json-schema-core</artifactId>
+            <groupId>com.github.cafapi.correlation</groupId>
+            <artifactId>caf-correlation-constants</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.java-json-tools</groupId>
+            <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
         </dependency>
         <dependency>
@@ -93,38 +65,8 @@
             <artifactId>job-service-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-jersey-jaxrs</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>com.schibsted.spt.data</groupId>
             <artifactId>jslt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-core</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-servlet</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
-            <artifactId>jackson-jakarta-rs-json-provider</artifactId>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.rabbitmq</groupId>
@@ -155,22 +97,8 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>jsr311-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <scope>provided</scope>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
@@ -211,63 +139,166 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- Logging -->
-        <dependency>
-            <groupId>com.github.cafapi.logging</groupId>
-            <artifactId>caf-logging-logback</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.cafapi.correlation</groupId>
-            <artifactId>caf-correlation-jservlet</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.cafapi.correlation</groupId>
-            <artifactId>caf-correlation-constants</artifactId>
-        </dependency>
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>7.1.0</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-    
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.github.jobservice</groupId>
+                        <artifactId>job-service-contract</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>generate-jaxrs-server-stub-code</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <!-- https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin#general-configuration-parameters -->
+                            <inputSpec>/com/hpe/caf/services/job/swagger.yaml</inputSpec>
+                            <generatorName>jaxrs-spec</generatorName>
+                            <output>${project.build.directory}/openapi-codegen</output>
+                            <apiPackage>com.hpe.caf.services.job.api.generated</apiPackage>
+                            <modelPackage>com.hpe.caf.services.job.api.generated.model</modelPackage>
+                            <configOptions>
+                                <!-- https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/jaxrs-spec.md#config-options -->
+                                <implicitHeaders>true</implicitHeaders>
+                                <interfaceOnly>true</interfaceOnly>
+                                <returnResponse>true</returnResponse>
+                                <useBeanValidation>false</useBeanValidation>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useSwaggerAnnotations>false</useSwaggerAnnotations>
+                                <useTags>true</useTags>
+                            </configOptions>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <addCompileSourceRoot>false</addCompileSourceRoot>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <executions>
+                    <!--
+                        Since https://github.com/OpenAPITools/openapi-generator/issues/2480 the Spring generator has had an flag for
+                        allowing checked exceptions.  This step is working around the fact that the current version of the jaxrs-spec
+                        generator doesn't.  It seems to have been removed for https://github.com/swagger-api/swagger-codegen/pull/7437.
+                        Reading through the comments it may yet be added, hopefully parameterised.
+                    -->
+                    <execution>
+                        <id>allow-jobsapi-checked-exceptions</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <property>
+                                    <name>openapiCodegenDir</name>
+                                    <value>${project.build.directory}/openapi-codegen</value>
+                                </property>
+                            </properties>
+                            <scripts>
+                                <script><![CDATA[
+    def jobsApiFile = new File(
+        openapiCodegenDir + '/src/gen/java/com/hpe/caf/services/job/api/generated/JobsApi.java')
+
+    jobsApiFile.write(jobsApiFile.text.replaceAll('\\);', ') throws Exception;'))
+                                ]]>
+                                </script>
+                            </scripts>
+                        </configuration>
+                    </execution>
+                    <!--
+                        Update the NewJob parameters to expose it as a JsonNode object.
+
+                        I'm not sure but it might be possible to configure the openapi-generator-maven-plugin plugin to do this instead:
+                        https://openapi-generator.tech/docs/customization
+                    -->
+                    <execution>
+                        <id>adjust-newjob-parameters</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <property>
+                                    <name>openapiCodegenDir</name>
+                                    <value>${project.build.directory}/openapi-codegen</value>
+                                </property>
+                            </properties>
+                            <scripts>
+                                <script><![CDATA[
+    def newJobModelFile = new File(
+        openapiCodegenDir + '/src/gen/java/com/hpe/caf/services/job/api/generated/model/NewJob.java')
+
+    newJobModelFile.write(newJobModelFile.text
+        .replaceAll('Object parameters', 'com.fasterxml.jackson.databind.JsonNode parameters')
+        .replaceAll('Object getParameters', 'com.fasterxml.jackson.databind.JsonNode getParameters'))
+                                ]]>
+                                </script>
+                            </scripts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-openapi-codegen-files</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/openapi-codegen-src</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <targetPath>jaxrs</targetPath>
+                                    <directory>${project.build.directory}/openapi-codegen/src/gen/java</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/openapi-codegen-src/jaxrs</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <excludePackageNames>
+                        com.hpe.caf.services.job.api.generated:com.hpe.caf.services.job.api.generated.*
+                    </excludePackageNames>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

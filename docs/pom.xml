@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -40,12 +40,6 @@
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-contract</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 
@@ -184,7 +178,6 @@
             <plugin>
                 <groupId>com.googlecode.maven-download-plugin</groupId>
                 <artifactId>download-maven-plugin</artifactId>
-                <version>1.7.1</version>
                 <executions>
                     <execution>
                         <id>download-target-file</id>

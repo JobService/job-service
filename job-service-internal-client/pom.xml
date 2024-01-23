@@ -21,53 +21,67 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.jobservice</groupId>
-    <artifactId>job-service-internal-client</artifactId>
-    <version>6.3.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
-    <name>job-service-internal-client</name>
-
     <parent>
-        <groupId>com.github.cafapi</groupId>
-        <artifactId>swagger-restapi-client-base</artifactId>
-        <version>1.14.0-1</version>
-        <relativePath/>
+        <groupId>com.github.jobservice</groupId>
+        <artifactId>job-service-aggregator</artifactId>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
-    
-    <inceptionYear>2016</inceptionYear>
 
-    <organization>
-        <name>EntIT Software LLC, an Open Text company</name>
-        <url>https://www.microfocus.com</url>
-    </organization>
-
-    <properties>
-        <copyrightYear>2024</copyrightYear>
-        <copyrightNotice>Copyright ${project.inceptionYear}-${copyrightYear} Open Text.</copyrightNotice>
-        <swagger-contract-version>${project.version}</swagger-contract-version>
-        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
-    </properties>
+    <artifactId>job-service-internal-client</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-contract</artifactId>
-            <version>${swagger-contract-version}</version>
-            <scope>provided</scope>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-multipart</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-codegen-maven-plugin</artifactId>
-                <version>2.4.34</version>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
                 <dependencies>
                     <dependency>
                         <groupId>com.github.jobservice</groupId>
                         <artifactId>job-service-contract</artifactId>
-                        <version>${swagger-contract-version}</version>
+                        <version>${project.version}</version>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -77,41 +91,78 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
+                            <!-- https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin#general-configuration-parameters -->
                             <inputSpec>/com/hpe/caf/services/job/swagger.yaml</inputSpec>
-                            <language>java</language>
-                            <modelPackage>com.hpe.caf.services.job.client.model</modelPackage>
+                            <generatorName>java</generatorName>
+                            <output>${project.build.directory}/openapi-codegen</output>
                             <apiPackage>com.hpe.caf.services.job.client.api</apiPackage>
+                            <modelPackage>com.hpe.caf.services.job.client.model</modelPackage>
                             <invokerPackage>com.hpe.caf.services.job.client</invokerPackage>
+                            <!-- <generateAliasAsModel>true</generateAliasAsModel> -->
                             <configOptions>
-                                <groupId>${project.groupId}</groupId>
-                                <artifactId>${project.artifactId}</artifactId>
-                                <artifactVersion>${project.version}</artifactVersion>
+                                <!-- https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/java.md#config-options -->
+                                <!--
+                                    I've set `disallowAdditionalPropertiesIfNotPresent` to `false` below but it is not currently working.
+                                    See issues OpenAPITools/openapi-generator#10306 and OpenAPITools/openapi-generator#10645.
+                                    This `additionalModelTypeAnnotations` config has been added to workaround the issue.
+                                -->
+                                <additionalModelTypeAnnotations>@com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)</additionalModelTypeAnnotations>
+                                <disallowAdditionalPropertiesIfNotPresent>false</disallowAdditionalPropertiesIfNotPresent>
+                                <library>jersey3</library>
                             </configOptions>
+                            <generateModelTests>false</generateModelTests>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <generateApiTests>false</generateApiTests>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <addCompileSourceRoot>false</addCompileSourceRoot>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.mycila</groupId>
-                <artifactId>license-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-openapi-codegen-files</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/openapi</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/openapi-codegen/src/main/java</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-openapi-codegen-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/openapi</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <inlineHeader>
-<![CDATA[
-${copyrightNotice}
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-]]>
-                    </inlineHeader>
+                    <doclint>all,-accessibility,-html,-missing,-reference,-syntax</doclint>
                 </configuration>
             </plugin>
         </plugins>

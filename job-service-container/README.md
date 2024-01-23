@@ -1,6 +1,6 @@
 # Job Service Container
 
-This docker image contains the [Job Service](../job-service) hosted in Apache Tomcat.
+This docker image contains the [Job Service](../job-service) hosted using the Dropwizard framework.
 
 [Job-service-deploy](https://github.com/JobService/job-service-deploy) can be used to deploy this container on Docker.
 

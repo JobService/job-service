@@ -28,254 +28,32 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
-
-    <properties>
-        <task.table.deletion.count>100</task.table.deletion.count>
-        <tomcatBaseImage>${dockerHubPublic}/cafapi/opensuse-tomcat-jre17:1</tomcatBaseImage>
-        <webserviceWarName>job-service</webserviceWarName>
-        <webserviceBasePath>/v1</webserviceBasePath>
-        <swaggerUIWarName>job-service-ui</swaggerUIWarName>
-        <db.name>jobservice</db.name>
-        <caf.config.impl>config-file</caf.config.impl>
-        <caf.codec.impl>codec-json</caf.codec.impl>
-        <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
-        <dummyUrl>http://self:1234/job-service/v1</dummyUrl>
-    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service</artifactId>
-            <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-admin</artifactId>
-            <type>war</type>
-        </dependency>
-        <!-- Swagger UI -->
-        <dependency>
-            <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-ui</artifactId>
-            <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
+            <artifactId>job-service-dropwizard</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-db</artifactId>
             <classifier>jar-with-dependencies</classifier>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.el</groupId>
-            <artifactId>javax.el-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-internal-client</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework.testing</groupId>
-            <artifactId>workerframework-testing-util</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework.testing</groupId>
-            <artifactId>workerframework-testing-integration</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.cafapi.codec</groupId>
-            <artifactId>${caf.codec.impl}</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.cafapi.config</groupId>
-            <artifactId>${caf.config.impl}</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>${caf.worker-queue.impl}</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-util</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>use-default-fixed-ports</id>
-            <properties>
-                <webservice.adminport>25080</webservice.adminport>
-                <webservice.https.adminport>25083</webservice.https.adminport>
-                <rabbitmq.node.port>5672</rabbitmq.node.port>
-                <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
-                <postgres.db.port>5432</postgres.db.port>
-                <webservice.healthcheckport>8081</webservice.healthcheckport>
-                <webdav.apache.port>32775</webdav.apache.port>
-                <scheduler-worker.adminport>8087</scheduler-worker.adminport>
-                <!--<CAF_JOBSERVICE_PORT>8080</CAF_JOBSERVICE_PORT>-->
-                <!--<db.connection>jdbc:postgresql://${docker.host.address}:${postgres.db.port}</db.connection>-->
-            </properties>
-        </profile>
-        <profile>
-            <id>nightly-test</id>
-            <activation>
-                <property>
-                    <name>RE_BUILD_TYPE</name>
-                    <value>release</value>
-                </property>
-            </activation>
-            <properties>
-                <task.table.deletion.count>30000</task.table.deletion.count>
-            </properties>
-        </profile>
-    </profiles>
-
     <build>
         <plugins>
-            <!-- Compile test sources. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                        <configuration>
-                            <testCompilerArgument>-parameters</testCompilerArgument>
-                            <source>1.8</source>
-                            <target>1.8</target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Process the test resources, test cases. -->
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-resources-plugin</artifactId>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<phase>process-test-resources</phase>-->
-            <!--<goals>-->
-            <!--<goal>testResources</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
-
-            <!-- Run integration tests. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>webservice-Docker</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <systemPropertyVariables>
-                        <webservice.adminport>${webservice.adminport}</webservice.adminport>
-                        <docker.host.address>${docker.host.address}</docker.host.address>
-                        <rabbitmq.node.port>${rabbitmq.node.port}</rabbitmq.node.port>
-                        <rabbitmq.ctrl.port>${rabbitmq.ctrl.port}</rabbitmq.ctrl.port>
-                        <task.table.deletion.count>${task.table.deletion.count}</task.table.deletion.count>
-                    </systemPropertyVariables>
-                    <environmentVariables>
-                        <CAF_APPNAME>test/jobservice</CAF_APPNAME>
-                        <CAF_CONFIG_PATH>${project.basedir}/test-config</CAF_CONFIG_PATH>
-                        <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
-                        <CAF_STATUS_CHECK_INTERVAL_SECONDS>5</CAF_STATUS_CHECK_INTERVAL_SECONDS>
-                        <CAF_WORKER_HTTP_DATASTORE_URL>http://${docker.host.address}:${webdav.apache.port}/webdav</CAF_WORKER_HTTP_DATASTORE_URL>
-                        <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
-                        <JOB_SERVICE_DATABASE_APPNAME>Job Service</JOB_SERVICE_DATABASE_APPNAME>
-                        <JOB_SERVICE_DATABASE_HOST>${docker.host.address}</JOB_SERVICE_DATABASE_HOST>
-                        <JOB_SERVICE_DATABASE_PORT>${postgres.db.port}</JOB_SERVICE_DATABASE_PORT>
-                        <JOB_SERVICE_DATABASE_NAME>${db.name}</JOB_SERVICE_DATABASE_NAME>
-                        <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
-                        <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
-                        <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
-                        <healthcheckurl>http://${docker.host.address}:${webservice.healthcheckport}/healthcheck</healthcheckurl>
-                        <webserviceurlhttps>https://${docker.host.address}:${webservice.https.adminport}/job-service/v1</webserviceurlhttps>
-                    </environmentVariables>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>start</id>
+                        <id>build-docker-image</id>
                         <phase>package</phase>
                         <goals>
                             <goal>build</goal>
-                            <goal>start</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>stop</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
                         </goals>
                     </execution>
                     <execution>
@@ -284,9 +62,6 @@
                         <goals>
                             <goal>push</goal>
                         </goals>
-                        <configuration>
-                            <filter>job-service</filter>
-                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
@@ -297,149 +72,18 @@
                     <removeVolumes>true</removeVolumes>
                     <images>
                         <image>
-                            <alias>webdav</alias>
-                            <name>${dockerHubPublic}/cloudesire/webdav</name>
-                            <run>
-                                <volumes>
-                                    <bind>
-                                        <volume>/srv/common/webdav</volume>
-                                    </bind>
-                                </volumes>
-                                <ports>
-                                    <port>${webdav.apache.port}:8080</port>
-                                </ports>
-                                <env>
-                                    <APACHE_PORT>8080</APACHE_PORT>
-                                </env>
-                                <wait>
-                                    <log>WebDAV Server startup complete</log>
-                                    <http>
-                                        <url>http://${docker.host.address}:${webdav.apache.port}</url>
-                                    </http>
-                                    <time>120000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                            </run>
-                        </image>
-                        <!-- pull in a normal postgres DB for integration tests -->
-                        <image>
-                            <alias>jobservice-integrationtests-postgres</alias>
-                            <name>${dockerHubPublic}/library/postgres:14</name>
-                            <run>
-                                <ports>
-                                    <port>${postgres.db.port}:5432</port>
-                                </ports>
-                                <env>
-                                    <POSTGRES_PASSWORD>root</POSTGRES_PASSWORD>
-                                    <POSTGRES_USER>postgres</POSTGRES_USER>
-                                    <POSTGRES_DB>${db.name}</POSTGRES_DB>
-                                </env>
-                                <wait>
-                                    <log>PostgreSQL init process complete</log>
-                                    <time>120000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                            </run>
-                        </image>
-
-                        <!--Run rabbitmq for tests. -->
-                        <image>
-                            <alias>rabbitmq</alias>
-                            <name>${dockerHubPublic}/library/rabbitmq:3-management</name>
-                            <run>
-                                <ports>
-                                    <port>${rabbitmq.ctrl.port}:15672</port>
-                                    <port>${rabbitmq.node.port}:5672</port>
-                                </ports>
-                                <wait>
-                                    <log>Server startup complete</log>
-                                    <http>
-                                        <url>http://${docker.host.address}:${rabbitmq.ctrl.port}</url>
-                                    </http>
-                                    <time>120000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                            </run>
-                        </image>
-                        <!--Build image for config files-->
-                        <image>
-                            <alias>config</alias>
-                            <name>${project.artifactId}-test-config:${project.version}</name>
-                            <build>
-                                <from>${dockerHubPublic}/library/busybox:latest</from>
-                                <assembly>
-                                    <exportTargetDir>true</exportTargetDir>
-                                    <basedir>/config</basedir>
-                                    <inline>
-                                        <fileSets>
-                                            <fileSet>
-                                                <directory>test-config</directory>
-                                                <outputDirectory>/</outputDirectory>
-                                                <includes>
-                                                    <include>*</include>
-                                                </includes>
-                                            </fileSet>
-                                        </fileSets>
-                                    </inline>
-                                </assembly>
-                            </build>
-                        </image>
-                        <!--Build image for keystore-->
-                        <image>
-                            <alias>keystore</alias>
-                            <name>${project.artifactId}-keystore:${project.version}</name>
-                            <build>
-                                <from>${dockerHubPublic}/cafapi/opensuse-jre11:3</from>
-                                <runCmds>
-                                    <runCmd>mkdir /test-keystore</runCmd>
-                                    <runCmd>$JRE_HOME/bin/keytool -genkey -noprompt -alias tomcat -dname "CN=myname, OU=myorganisational.unit, O=myorganisation, L=mycity, S=myprovince, C=GB" -keystore /test-keystore/tomcat.keystore -storepass changeit -keypass changeit -keyalg RSA</runCmd>
-                                </runCmds>
-                                <volumes>
-                                    <volume>/test-keystore</volume>
-                                </volumes>
-                            </build>
-                        </image>
-
-                        <!-- Image containing job type definition files for integration tests -->
-                        <image>
-                            <alias>job-type-definitions</alias>
-                            <name>${project.artifactId}-job-type-definitions:${project.version}</name>
-                            <build>
-                                <from>${dockerHubPublic}/library/busybox:latest</from>
-                                <assembly>
-                                    <exportTargetDir>true</exportTargetDir>
-                                    <basedir>/</basedir>
-                                    <inline>
-                                        <fileSets>
-                                            <fileSet>
-                                                <fileMode>0644</fileMode>
-                                                <lineEnding>unix</lineEnding>
-                                                <directory>src/test/resources/job-type-definitions</directory>
-                                                <outputDirectory>test-job-type-definitions</outputDirectory>
-                                            </fileSet>
-                                        </fileSets>
-                                    </inline>
-                                </assembly>
-                                <volumes>
-                                    <volume>/test-job-type-definitions</volume>
-                                </volumes>
-                            </build>
-                        </image>
-
-                        <image>
                             <alias>job-service</alias>
                             <name>${dockerJobServiceOrg}job-service${dockerProjectVersion}</name>
                             <build>
-                                <from>${tomcatBaseImage}</from>
+                                <from>${dockerHubPublic}/cafapi/opensuse-jre17:1</from>
+                                <cmd>
+                                    <exec>
+                                        <args>/maven/service.sh</args>
+                                    </exec>
+                                </cmd>
+                                <healthCheck>
+                                    <cmd>curl -f http://localhost:8081/healthcheck || exit 1</cmd>
+                                </healthCheck>
                                 <assembly>
                                     <basedir>/</basedir>
                                     <mode>tar</mode>
@@ -451,33 +95,16 @@
                                                 <directory>src/main/startup.d/</directory>
                                                 <outputDirectory>startup/startup.d/</outputDirectory>
                                             </fileSet>
+                                            <fileSet>
+                                                <outputDirectory>maven</outputDirectory>
+                                                <fileMode>0755</fileMode>
+                                                <includes>
+                                                    <include>service.sh</include>
+                                                </includes>
+                                                <lineEnding>unix</lineEnding>
+                                            </fileSet>
                                         </fileSets>
                                         <dependencySets>
-                                            <dependencySet>
-                                                <outputDirectory>usr/share/tomcat/webapps/job-service</outputDirectory>
-                                                <includes>
-                                                    <include>com.github.jobservice:job-service</include>
-                                                </includes>
-                                                <unpack>true</unpack>
-                                                <useProjectArtifact>false</useProjectArtifact>
-                                            </dependencySet>
-                                            <dependencySet>
-                                                <outputDirectory>usr/share/tomcat/webapps/job-service-ui</outputDirectory>
-                                                <includes>
-                                                    <include>com.github.jobservice:job-service-ui</include>
-                                                </includes>
-                                                <unpack>true</unpack>
-                                                <useProjectArtifact>false</useProjectArtifact>
-                                            </dependencySet>
-                                            <!-- Including the healthcheck web application. -->
-                                            <dependencySet>
-                                                <outputDirectory>usr/share/tomcat/adminapps/ROOT</outputDirectory>
-                                                <includes>
-                                                    <include>com.github.jobservice:job-service-admin</include>
-                                                </includes>
-                                                <unpack>true</unpack>
-                                                <useProjectArtifact>false</useProjectArtifact>
-                                            </dependencySet>
                                             <dependencySet>
                                                 <useProjectArtifact>false</useProjectArtifact>
                                                 <includes>
@@ -486,121 +113,17 @@
                                                 <outputDirectory>database</outputDirectory>
                                                 <outputFileNameMapping>job-service-db-installer.jar</outputFileNameMapping>
                                             </dependencySet>
+                                            <dependencySet>
+                                                <outputDirectory>maven</outputDirectory>
+                                                <excludes>
+                                                    <exclude>com.github.jobservice:job-service-db</exclude>
+                                                </excludes>
+                                                <useProjectArtifact>false</useProjectArtifact>
+                                            </dependencySet>
                                         </dependencySets>
                                     </inline>
                                 </assembly>
                             </build>
-                            <run>
-                                <ports>
-                                    <port>${webservice.adminport}:8080</port>
-                                    <port>${webservice.https.adminport}:8443</port>
-                                    <port>${webservice.healthcheckport}:8081</port>
-                                </ports>
-                                <env>
-                                    <!-- When the container is deployed in Marathon it will use the environment variable values specified in the container json. -->
-                                    <CAF_APPNAME>test/jobservice</CAF_APPNAME>
-                                    <CAF_CONFIG_PATH>/config</CAF_CONFIG_PATH>
-                                    <JOB_SERVICE_DATABASE_APPNAME>Job Service</JOB_SERVICE_DATABASE_APPNAME>
-                                    <JOB_SERVICE_DATABASE_HOST>jobservice-integrationtests-postgres</JOB_SERVICE_DATABASE_HOST>
-                                    <JOB_SERVICE_DATABASE_PORT>5432</JOB_SERVICE_DATABASE_PORT>
-                                    <JOB_SERVICE_DATABASE_NAME>${db.name}</JOB_SERVICE_DATABASE_NAME>
-                                    <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
-                                    <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
-                                    <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
-                                    <CAF_STATUS_CHECK_INTERVAL_SECONDS>5</CAF_STATUS_CHECK_INTERVAL_SECONDS>
-                                    <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
-                                    <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
-                                    <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
-                                    <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
-                                    <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
-                                    <SSL_TOMCAT_CA_CERT_LOCATION>/test-keystore/tomcat.keystore</SSL_TOMCAT_CA_CERT_LOCATION>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR>/test-job-type-definitions</CAF_JOB_SERVICE_JOB_TYPE_DEFINITIONS_DIR>
-                                    <CAF_JOB_SERVICE_RESUME_JOB_QUEUE>worker-taskunstowing-in</CAF_JOB_SERVICE_RESUME_JOB_QUEUE>
-
-                                    <CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE>basic task-pipe</CAF_JOB_SERVICE_JOB_TYPE_BASIC_TASK_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE>basic target-pipe</CAF_JOB_SERVICE_JOB_TYPE_BASIC_TARGET_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TASK_PIPE>config task-pipe</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TASK_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TARGET_PIPE>config target-pipe</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_TARGET_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER>upper value</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_UPPER>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_LOWER>lower value</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_LOWER>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_MULTIPLE>multiple value</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_MULTIPLE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_NODESC>nodesc value</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_NODESC>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_CONFIG_NUMBER>123</CAF_JOB_SERVICE_JOB_TYPE_CONFIG_NUMBER>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TASK_PIPE>params task-pipe</CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TASK_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TARGET_PIPE>params target-pipe</CAF_JOB_SERVICE_JOB_TYPE_PARAMS_TARGET_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TASK_PIPE>complex task-pipe</CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TASK_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE>complex target-pipe</CAF_JOB_SERVICE_JOB_TYPE_COMPLEX-TRANSFORM_TARGET_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TASK_PIPE>invalid-output task-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TASK_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>invalid-output target-pipe</CAF_JOB_SERVICE_JOB_TYPE_INVALID-OUTPUT_TARGET_PIPE>
-                                    <CAF_JOB_SERVICE_JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE>null-target-pipe task-pipe</CAF_JOB_SERVICE_JOB_TYPE_NULL-TARGET-PIPE_TASK_PIPE>
-                                </env>
-                                <volumes>
-                                    <from>
-                                        <image>keystore</image>
-                                        <image>config</image>
-                                        <image>webdav</image>
-                                        <image>job-type-definitions</image>
-                                    </from>
-                                </volumes>
-                                <links>
-                                    <link>jobservice-integrationtests-postgres</link>
-                                    <link>rabbitmq</link>
-                                </links>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                                <wait>
-                                    <http>
-                                        <url>
-                                            http://${docker.host.address}:${webservice.adminport}
-                                        </url>
-                                    </http>
-                                    <time>120000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                            </run>
-                        </image>
-
-                        <!-- Run the Job Service Scheduled Executor -->
-                        <image>
-                            <alias>job-service-scheduled-executor</alias>
-                            <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
-                            <run>
-                                <ports>
-                                    <port>${scheduler-worker.adminport}:8081</port>
-                                </ports>
-                                <env>
-                                    <JOB_SERVICE_DATABASE_APPNAME>Job Service Scheduled Executor</JOB_SERVICE_DATABASE_APPNAME>
-                                    <JOB_SERVICE_DATABASE_HOST>jobservice-integrationtests-postgres</JOB_SERVICE_DATABASE_HOST>
-                                    <JOB_SERVICE_DATABASE_PORT>5432</JOB_SERVICE_DATABASE_PORT>
-                                    <JOB_SERVICE_DATABASE_NAME>${db.name}</JOB_SERVICE_DATABASE_NAME>
-                                    <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
-                                    <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
-                                    <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
-                                    <CAF_STATUS_CHECK_INTERVAL_SECONDS>1</CAF_STATUS_CHECK_INTERVAL_SECONDS>
-                                    <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
-                                    <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
-                                    <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
-                                    <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
-                                    <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
-                                    <CAF_SCHEDULED_EXECUTOR_PERIOD>2</CAF_SCHEDULED_EXECUTOR_PERIOD>
-                                    <JOB_SERVICE_MESSAGE_OUTPUT_FORMAT>V4</JOB_SERVICE_MESSAGE_OUTPUT_FORMAT>
-                                </env>
-                                <links>
-                                    <link>rabbitmq</link>
-                                    <link>jobservice-integrationtests-postgres</link>
-                                </links>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                                <wait>
-                                    <http>
-                                        <url>http://${docker.host.address}:${scheduler-worker.adminport}/healthcheck</url>
-                                    </http>
-                                    <time>200000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                            </run>
                         </image>
                     </images>
                 </configuration>

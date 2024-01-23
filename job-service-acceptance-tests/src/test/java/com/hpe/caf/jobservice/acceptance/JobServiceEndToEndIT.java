@@ -31,11 +31,11 @@ import com.hpe.caf.services.job.client.model.Job;
 import com.hpe.caf.services.job.client.model.NewJob;
 import com.hpe.caf.services.job.client.model.WorkerAction;
 import com.hpe.caf.services.job.client.model.JobStatus;
+import com.hpe.caf.services.job.testing.worker_example_shared.ExampleWorkerConstants;
+import com.hpe.caf.services.job.testing.worker_example_shared.ExampleWorkerStatus;
 import com.hpe.caf.worker.batch.BatchWorkerConstants;
 import com.hpe.caf.worker.batch.BatchWorkerTask;
 import com.hpe.caf.worker.document.DocumentWorkerDocumentTask;
-import com.hpe.caf.worker.example.ExampleWorkerConstants;
-import com.hpe.caf.worker.example.ExampleWorkerStatus;
 import com.hpe.caf.worker.queue.rabbit.RabbitWorkerQueueConfiguration;
 import com.hpe.caf.worker.testing.*;
 import org.json.simple.JSONArray;
@@ -1212,20 +1212,20 @@ public class JobServiceEndToEndIT {
     public void testPauseWaitingJobIsSuccessful() throws Exception {
         final String jobId = generateJobId();
         createJob(jobId, true);
-        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+        waitUntilJobStatusIs(JobStatus.WAITING, jobId);
         pauseJob(jobId);
-        waitUntilJobStatusIs(JobStatus.Paused, jobId);
+        waitUntilJobStatusIs(JobStatus.PAUSED, jobId);
     }
 
     @Test
     public void testPausePausedJobIsSuccessful() throws Exception {
         final String jobId = generateJobId();
         createJob(jobId, true);
-        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+        waitUntilJobStatusIs(JobStatus.WAITING, jobId);
         pauseJob(jobId);
-        waitUntilJobStatusIs(JobStatus.Paused, jobId);
+        waitUntilJobStatusIs(JobStatus.PAUSED, jobId);
         pauseJob(jobId);
-        waitUntilJobStatusIs(JobStatus.Paused, jobId);
+        waitUntilJobStatusIs(JobStatus.PAUSED, jobId);
     }
 
     @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
@@ -1248,9 +1248,9 @@ public class JobServiceEndToEndIT {
     public void testPauseCancelledJobIsNotAllowed() throws Exception {
         final String jobId = generateJobId();
         createJob(jobId, true);
-        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+        waitUntilJobStatusIs(JobStatus.WAITING, jobId);
         cancelJob(jobId);
-        waitUntilJobStatusIs(JobStatus.Cancelled, jobId);
+        waitUntilJobStatusIs(JobStatus.CANCELLED, jobId);
         try {
             pauseJob(jobId);
         } catch (final ApiException e) {
@@ -1269,15 +1269,15 @@ public class JobServiceEndToEndIT {
             integrationTestQueueServices.startListening();
             final String jobId = generateJobId();
             createJob(jobId, true);
-            waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+            waitUntilJobStatusIs(JobStatus.WAITING, jobId);
 
             // when the job is paused then resumed
             pauseJob(jobId);
-            waitUntilJobStatusIs(JobStatus.Paused, jobId);
+            waitUntilJobStatusIs(JobStatus.PAUSED, jobId);
             resumeJob(jobId);
 
             // then the status of the job should now be active
-            waitUntilJobStatusIs(JobStatus.Active, jobId);
+            waitUntilJobStatusIs(JobStatus.ACTIVE, jobId);
 
             // and a message should be sent to the resume job queue
             integrationTestQueueServices.waitForMessages(1, 30000, IntegrationTestQueueServices.RESUME_JOB_QUEUE_NAME);
@@ -1352,7 +1352,7 @@ public class JobServiceEndToEndIT {
         final String jobId = generateJobId();
         createJob(jobId, true);
         waitUntilJobCompletes(jobId);
-        waitUntilJobStatusIs(JobStatus.Completed, jobId);
+        waitUntilJobStatusIs(JobStatus.COMPLETED, jobId);
         try {
             resumeJob(jobId);
         } catch (final ApiException e) {
@@ -1367,9 +1367,9 @@ public class JobServiceEndToEndIT {
     public void testResumeCancelledJobIsNotAllowed() throws Exception {
         final String jobId = generateJobId();
         createJob(jobId, true);
-        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+        waitUntilJobStatusIs(JobStatus.WAITING, jobId);
         cancelJob(jobId);
-        waitUntilJobStatusIs(JobStatus.Cancelled, jobId);
+        waitUntilJobStatusIs(JobStatus.CANCELLED, jobId);
         try {
             resumeJob(jobId);
         } catch (final ApiException e) {
@@ -1384,7 +1384,7 @@ public class JobServiceEndToEndIT {
     public void testResumeWaitingJobIsNotAllowed() throws Exception {
         final String jobId = generateJobId();
         createJob(jobId, true);
-        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+        waitUntilJobStatusIs(JobStatus.WAITING, jobId);
         try {
             resumeJob(jobId);
         } catch (final ApiException e) {
@@ -1399,7 +1399,7 @@ public class JobServiceEndToEndIT {
     public void testGetJobStatus() throws Exception {
         final String jobId = generateJobId();
         createJob(jobId, true);
-        waitUntilJobStatusIs(JobStatus.Waiting, jobId);
+        waitUntilJobStatusIs(JobStatus.WAITING, jobId);
     }
 
     @Test
@@ -1586,7 +1586,7 @@ public class JobServiceEndToEndIT {
      * @throws InterruptedException
      */
     private void waitUntilJobCompletes(String jobId) throws ApiException, InterruptedException {
-        waitUntilJobStatusIs(JobStatus.Completed, jobId);
+        waitUntilJobStatusIs(JobStatus.COMPLETED, jobId);
     }
 
     private void waitUntilJobStatusIs(final JobStatus expectedJobStatus, final String jobId) throws ApiException, InterruptedException {

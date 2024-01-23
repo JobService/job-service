@@ -19,6 +19,7 @@ import com.hpe.caf.services.db.client.DatabaseConnectionProvider;
 import com.hpe.caf.services.job.api.generated.model.Failure;
 import com.hpe.caf.services.job.api.generated.model.Job;
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.api.generated.model.SortField;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
@@ -33,7 +34,6 @@ import java.sql.*;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -118,7 +118,7 @@ public final class DatabaseHelper
                     job.setExternalData(rs.getString("data"));
                     job.setCreateTime(getDate(rs.getString("create_date")));
                     job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
-                    job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
+                    job.setStatus(JobStatus.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
                     job.setPercentageComplete(rs.getFloat("percentage_complete"));
 
                     //  Parse JSON failure sub-strings.
@@ -213,7 +213,7 @@ public final class DatabaseHelper
                     job.setExternalData(rs.getString("data"));
                     job.setCreateTime(getDate(rs.getString("create_date")));
                     job.setLastUpdateTime(getDate(rs.getString("last_update_date")));
-                    job.setStatus(Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
+                    job.setStatus(JobStatus.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH)));
                     job.setPercentageComplete(rs.getFloat("percentage_complete"));
 
                     //  Parse JSON failure sub-strings.
@@ -396,7 +396,7 @@ public final class DatabaseHelper
         }
     }
 
-    public int deleteJobs(final String partitionId, String jobIdStartsWith, String statusType,
+    public int deleteJobs(final String partitionId, String jobIdStartsWith,
                           final List<String> labels, final String filter) throws Exception
     {
         int successfulDeletions = 0;
@@ -415,12 +415,9 @@ public final class DatabaseHelper
                 if (jobIdStartsWith == null) {
                     jobIdStartsWith = "";
                 }
-                if (statusType == null) {
-                    statusType = "";
-                }
                 stmt.setString(1, partitionId);
                 stmt.setString(2, jobIdStartsWith);
-                stmt.setString(3, statusType);
+                stmt.setString(3, "");
                 stmt.setInt(4, deleteBatchLimit);
                 final Array labelsArray;
                 if (labels != null) {
@@ -449,7 +446,7 @@ public final class DatabaseHelper
         return successfulDeletions;
     }
 
-    public Job.StatusEnum getJobStatus(final String partitionId, final String jobId) throws Exception
+    public JobStatus getJobStatus(final String partitionId, final String jobId) throws Exception
     {
         try (
             final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
@@ -461,7 +458,7 @@ public final class DatabaseHelper
             LOG.debug("Calling get_job() database function...");
             final ResultSet rs = stmt.executeQuery();
             rs.next();
-            return Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH));
+            return JobStatus.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH));
         } catch (final SQLException se) {
             throw mapSqlNoDataException(se);
         }
@@ -485,9 +482,9 @@ public final class DatabaseHelper
             LOG.debug("Calling get_job() database function...");
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
-                final Job.StatusEnum status =
-                    Job.StatusEnum.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH));
-                active = status == Job.StatusEnum.ACTIVE || status == Job.StatusEnum.WAITING;
+                final JobStatus status =
+                    JobStatus.valueOf(rs.getString("status").toUpperCase(Locale.ENGLISH));
+                active = status == JobStatus.ACTIVE || status == JobStatus.WAITING;
             }
 
         } catch (final SQLException se) {
@@ -625,7 +622,7 @@ public final class DatabaseHelper
                 //  Valid failure JSON not detected.
                 Failure f = new Failure();
                 f.setFailureId(FAILURE_PROPERTY_MISSING);
-                f.setFailureTime(new Date());
+                f.setFailureTime(System.currentTimeMillis());
                 f.failureSource(FAILURE_PROPERTY_MISSING);
                 f.failureMessage(failure);
                 failures.add(f);
@@ -649,10 +646,10 @@ public final class DatabaseHelper
     /**
      * Returns java.util.date from a string.
      */
-    private static Date getDate(String dateString) throws ParseException {
+    private static long getDate(String dateString) throws ParseException {
 
         Instant instant = Instant.parse ( dateString );
-        return java.util.Date.from( instant );
+        return instant.toEpochMilli();
 
     }
 

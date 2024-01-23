@@ -21,11 +21,6 @@ T1
  |->T3
      |->T4
 ````
-- `JOB_SERVICE_MESSAGE_OUTPUT_FORMAT`  
-  `description`: This environment variable controls the format of the message being published by the scheduled-executor to the queue messaging system . It takes a String value which can be `V3` or `V4`.  
-  The difference between those 2 formats is that **taskData** is _base64 encoded_ for `V3` while it's in plain json for `V4`.  
-  Its default format is `V3`
-
 - `CAF_WMP_ENABLED`  
 `description`: Determines whether the Job Service Scheduled Executor should reroute a message to a worker's staging queue or not. If 
 true, a message will attempt to be rerouted. If false, a message will not be rerouted and will be sent to the target queue rather than

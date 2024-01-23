@@ -23,7 +23,7 @@ import com.hpe.caf.services.job.client.ApiException;
 import com.hpe.caf.services.job.client.api.JobsApi;
 import com.hpe.caf.services.job.client.model.Failure;
 import com.hpe.caf.services.job.client.model.Job;
-import com.hpe.caf.worker.example.ExampleWorkerResult;
+import com.hpe.caf.services.job.testing.worker_example_shared.ExampleWorkerResult;
 import com.hpe.caf.worker.testing.ExecutionContext;
 import com.hpe.caf.worker.testing.ResultHandler;
 import com.hpe.caf.worker.testing.TestItem;
@@ -38,7 +38,7 @@ import java.util.TimerTask;
 /**
  * Verifies result messages issued at the end of the end-to-end test.
  */
-public class FinalOutputDeliveryHandler implements ResultHandler<TaskMessage> {
+public class FinalOutputDeliveryHandler implements ResultHandler {
 
     private final Codec codec;
     private final JobsApi jobsApi;
@@ -77,14 +77,14 @@ public class FinalOutputDeliveryHandler implements ResultHandler<TaskMessage> {
             }
         } catch (Exception e) {
             LOG.error("Error while handling result message {}. ", resultMessage.getTaskId(), e);
-            context.failed(new TestItem(resultMessage.getTaskId(), null, null), e.getMessage());
+            context.failed(new TestItem<>(resultMessage.getTaskId(), null, null), e.getMessage());
         }
 
         if (currentWorkerItemNumber == expectedWorkerItems.size()) {
             if (expectation.isExpectJobCancellation()) {
                 String errorMessage = "Job cancellation expected so we did not expect to receive all result messages for the job";
                 LOG.error(errorMessage);
-                context.failed(new TestItem(resultMessage.getTaskId(), null, null), errorMessage);
+                context.failed(new TestItem<>(resultMessage.getTaskId(), null, null), errorMessage);
             }
             context.finishedSuccessfully();
         }
@@ -106,7 +106,7 @@ public class FinalOutputDeliveryHandler implements ResultHandler<TaskMessage> {
         if (tracking != null && tracking.getTrackTo().equals(expectation.getTrackTo())) {
             String errorMessage = "Unexpected tracking info found on a result message from the end-to-end test for job " + expectation.getJobId() + ". This message has arrived at its trackTo queue " + expectation.getTrackTo() + " so it should have had its tracking info removed.";
             LOG.error(errorMessage);
-            context.failed(new TestItem(resultMessage.getTaskId(), null, null), errorMessage);
+            context.failed(new TestItem<>(resultMessage.getTaskId(), null, null), errorMessage);
         }
     }
 
@@ -139,7 +139,7 @@ public class FinalOutputDeliveryHandler implements ResultHandler<TaskMessage> {
         if (expectedFailures != failuresFound) {
             String errorMessage = "Expected job " + expectation.getJobId() + " to have " + (expectedFailures ? "" : "no ") + "failures." + (expectedFailures ? "" : " Found " + String.valueOf(numFailures) + " failures: " + String.valueOf(getFailureMessages(job)));
             LOG.error(errorMessage);
-            context.failed(new TestItem(resultMessage.getTaskId(), null, null), errorMessage);
+            context.failed(new TestItem<>(resultMessage.getTaskId(), null, null), errorMessage);
         }
     }
 
@@ -168,7 +168,7 @@ public class FinalOutputDeliveryHandler implements ResultHandler<TaskMessage> {
         if (!expected.equals(actual)) {
             String errorMessage = "Expected job " + expectation.getJobId() + " to have " + valueName + " = " + expected + " but it has " + valueName + " = " + actual;
             LOG.error(errorMessage);
-            context.failed(new TestItem(resultMessage.getTaskId(), null, null), errorMessage);
+            context.failed(new TestItem<>(resultMessage.getTaskId(), null, null), errorMessage);
         }
     }
 
@@ -186,7 +186,7 @@ public class FinalOutputDeliveryHandler implements ResultHandler<TaskMessage> {
                 if (currentWorkerItemNumber == expectedWorkerItems.size()) {
                     String errorMessage = "Job cancellation expected so we did not expect to receive all result messages for the job";
                     LOG.error(errorMessage);
-                    context.failed(new TestItem("JobId=" + expectation.getJobId(), null, null), errorMessage);
+                    context.failed(new TestItem<>("JobId=" + expectation.getJobId(), null, null), errorMessage);
                 }
                 verifyJobCancelled();
                 context.finishedSuccessfully();
@@ -203,11 +203,11 @@ public class FinalOutputDeliveryHandler implements ResultHandler<TaskMessage> {
             if (!"Cancelled".equals(job.getStatus().toString())) {
                 String errorMessage = "Expected job " + expectation.getJobId() + " to have status = CANCELLED but it has STATUS = " + job.getStatus();
                 LOG.error(errorMessage);
-                context.failed(new TestItem("JobId=" + expectation.getJobId(), null, null), errorMessage);
+                context.failed(new TestItem<>("JobId=" + expectation.getJobId(), null, null), errorMessage);
             }
         } catch (ApiException e) {
             LOG.error("Error while verifying job cancellation for job {}. ", expectation.getJobId(), e);
-            context.failed(new TestItem("JobId=" + expectation.getJobId(), null, null), e.getMessage());
+            context.failed(new TestItem<>("JobId=" + expectation.getJobId(), null, null), e.getMessage());
         }
     }
 }

@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -79,8 +79,8 @@
             <artifactId>worker-batch-shared</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-example-shared</artifactId>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-testing-worker-shared</artifactId>
         </dependency>
 
         <!-- Logging -->
@@ -257,7 +257,7 @@
                                 <artifactItem>
                                     <groupId>com.github.jobservice</groupId>
                                     <artifactId>worker-batch-plugins-package</artifactId>
-                                    <version>2.0.0-9</version>
+                                    <version>3.1.0-161</version>
                                     <type>tar.gz</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/worker-batch-plugins-package-unpacked</outputDirectory>
@@ -339,10 +339,7 @@
                                         <fileSets>
                                             <fileSet>
                                                 <directory>test-configs</directory>
-                                                <outputDirectory>/</outputDirectory>
-                                                <includes>
-                                                    <include>*</include>
-                                                </includes>
+                                                <outputDirectory>.</outputDirectory>
                                             </fileSet>
                                         </fileSets>
                                     </inline>
@@ -363,10 +360,7 @@
                                         <fileSets>
                                             <fileSet>
                                                 <directory>test-job-definitions</directory>
-                                                <outputDirectory>/</outputDirectory>
-                                                <includes>
-                                                    <include>*</include>
-                                                </includes>
+                                                <outputDirectory>.</outputDirectory>
                                             </fileSet>
                                         </fileSets>
                                     </inline>
@@ -377,7 +371,7 @@
                         <!-- Image for Batch Worker plugins -->
                         <image>
                             <alias>plugin</alias>
-                            <name>worker-batch-container-test-plugins</name>
+                            <name>${project.artifactId}-worker-batch-test-plugins:${project.version}</name>
                             <build>
                                 <from>${dockerHubPublic}/library/busybox:latest</from>
                                 <assembly>
@@ -389,17 +383,14 @@
                                                 <includes>
                                                     <include>com.hpe.caf.worker.batch:worker-batch-test-plugin</include>
                                                 </includes>
-                                                <outputDirectory>/</outputDirectory>
+                                                <outputDirectory>.</outputDirectory>
                                                 <useProjectArtifact>false</useProjectArtifact>
                                             </dependencySet>
                                         </dependencySets>
                                         <fileSets>
                                             <fileSet>
                                                 <directory>${project.build.directory}/worker-batch-plugins-package-unpacked/batch-plugins</directory>
-                                                <outputDirectory>/</outputDirectory>
-                                                <includes>
-                                                    <include>*</include>
-                                                </includes>
+                                                <outputDirectory>.</outputDirectory>
                                             </fileSet>
                                         </fileSets>
                                     </inline>
@@ -498,7 +489,7 @@
                                 </log>
                                 <wait>
                                     <http>
-                                        <url>http://${docker.host.address}:${jobservice.adminport}</url>
+                                        <url>http://${docker.host.address}:${jobservice.adminport}/job-service-ui/</url>
                                     </http>
                                     <time>120000</time>
                                     <shutdown>500</shutdown>
@@ -659,7 +650,6 @@
                                     <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
                                     <CAF_SCHEDULED_EXECUTOR_PERIOD>2</CAF_SCHEDULED_EXECUTOR_PERIOD>
                                     <CAF_WORKER_INPUT_QUEUE>jobservicescheduler-in</CAF_WORKER_INPUT_QUEUE>
-                                    <JOB_SERVICE_MESSAGE_OUTPUT_FORMAT>V4</JOB_SERVICE_MESSAGE_OUTPUT_FORMAT>
                                 </env>
                                 <links>
                                     <link>rabbitmq</link>

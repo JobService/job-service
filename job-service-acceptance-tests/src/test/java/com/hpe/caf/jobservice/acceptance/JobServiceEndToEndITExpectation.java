@@ -16,7 +16,7 @@
 package com.hpe.caf.jobservice.acceptance;
 
 import com.hpe.caf.api.worker.TaskStatus;
-import com.hpe.caf.worker.example.ExampleWorkerStatus;
+import com.hpe.caf.services.job.testing.worker_example_shared.ExampleWorkerStatus;
 
 import java.util.List;
 

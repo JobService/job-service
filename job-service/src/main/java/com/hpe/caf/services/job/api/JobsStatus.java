@@ -18,6 +18,7 @@ package com.hpe.caf.services.job.api;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.api.generated.model.Job;
+import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,17 +28,17 @@ public final class JobsStatus {
     private static final Logger LOG = LoggerFactory.getLogger(JobsStatus.class);
 
     public static class JobsStatusResult {
-        public final Job.StatusEnum jobStatus;
+        public final JobStatus jobStatus;
         public final int statusCheckIntervalSecs;
 
-        public JobsStatusResult(final Job.StatusEnum jobStatus, final int statusCheckIntervalSecs) {
+        public JobsStatusResult(final JobStatus jobStatus, final int statusCheckIntervalSecs) {
             this.jobStatus = jobStatus;
             this.statusCheckIntervalSecs = statusCheckIntervalSecs;
         }
     }
 
     public static JobsStatusResult getJobStatus(final String partitionId, final String jobId) throws Exception {
-        Job.StatusEnum jobStatus;
+        JobStatus jobStatus;
         int statusCheckIntervalSeconds;
 
         try {

@@ -16,33 +16,19 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.github.jobservice</groupId>
-    <artifactId>worker-jobtracking-container</artifactId>
-    <packaging>pom</packaging>
 
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
 
-    <properties>
-        <caf.config.impl>config-file</caf.config.impl>
-        <caf.codec.impl>codec-json</caf.codec.impl>
-        <caf.worker-store.impl>worker-store-fs</caf.worker-store.impl>
-        <datastore.container.id>b591d8c6615c4af99d7915719b01259c</datastore.container.id>
-        <caf.worker-queue.impl>worker-queue-rabbit</caf.worker-queue.impl>
-        <test.data>${project.basedir}/test-data</test.data>
-        <job.database.host>jobtracking-integrationtests-postgres</job.database.host>
-        <job.database.port>5432</job.database.port>
-        <job.database.name>jobservice</job.database.name>
-        <job.database.username>postgres</job.database.username>
-        <job.database.password>root</job.database.password>
-    </properties>
+    <artifactId>worker-jobtracking-container</artifactId>
+    <packaging>pom</packaging>
 
     <dependencies>
         <!--Core worker framework dependencies and concrete implementations.-->
@@ -50,36 +36,6 @@
             <groupId>com.github.workerframework</groupId>
             <artifactId>standard-worker-container</artifactId>
             <type>pom</type>
-            <exclusions>
-                <exclusion>
-                    <artifactId>worker-store-cs</artifactId>
-                    <groupId>com.github.workerframework</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.github.cafapi.config</groupId>
-            <artifactId>${caf.config.impl}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>${caf.worker-store.impl}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>${caf.worker-queue.impl}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.cafapi.codec</groupId>
-            <artifactId>${caf.codec.impl}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.cafapi.util</groupId>
-            <artifactId>util-ref</artifactId>
         </dependency>
         <!--Worker jobtracking dependencies.-->
         <dependency>
@@ -90,105 +46,11 @@
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-db</artifactId>
             <classifier>jar-with-dependencies</classifier>
-            <scope>runtime</scope>
-        </dependency>
-        <!--Test dependencies.-->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <scope>test</scope>
-        </dependency>        
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework.testing</groupId>
-            <artifactId>workerframework-testing-util</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework.testing</groupId>
-            <artifactId>workerframework-testing-integration</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.workerframework</groupId>
-            <artifactId>worker-example-shared</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!--Run integration tests.-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <systemPropertyVariables>
-                        <docker.host.address>${docker.host.address}</docker.host.address>
-                        <worker.adminport>${worker.adminport}</worker.adminport>
-                        <rabbitmq.node.port>${rabbitmq.node.port}</rabbitmq.node.port>
-                        <rabbitmq.ctrl.port>${rabbitmq.ctrl.port}</rabbitmq.ctrl.port>
-                        <input.folder>${test.data}</input.folder>
-                        <expected.folder>${test.data}</expected.folder>
-                        <datastore.container.id>${datastore.container.id}</datastore.container.id>
-                        <datastore.enabled>true</datastore.enabled>
-                        <worker.testing.usehttpdatastore>true</worker.testing.usehttpdatastore>
-                    </systemPropertyVariables>
-                    <!-- DEBUGGING -->
-                    <!--   <debugForkedProcess>true</debugForkedProcess>-->
-
-                    <environmentVariables>
-                        <CAF_APPNAME>caf/worker</CAF_APPNAME>
-                        <CAF_CONFIG_DECODER>JavascriptDecoder</CAF_CONFIG_DECODER>
-                        <CAF_CONFIG_ENABLE_SUBSTITUTOR>false</CAF_CONFIG_ENABLE_SUBSTITUTOR>
-                        <CAF_CONFIG_PATH>${project.build.directory}/config-files</CAF_CONFIG_PATH>
-                        <CAF_WORKER_HTTP_DATASTORE_URL>http://${docker.host.address}:${webdav.apache.port}/webdav</CAF_WORKER_HTTP_DATASTORE_URL>
-                        <JOB_SERVICE_DATABASE_APPNAME>Job Tracking Worker</JOB_SERVICE_DATABASE_APPNAME>
-                        <JOB_SERVICE_DATABASE_HOST>${docker.host.address}</JOB_SERVICE_DATABASE_HOST>
-                        <JOB_SERVICE_DATABASE_PORT>${postgres.db.port}</JOB_SERVICE_DATABASE_PORT>
-                        <JOB_SERVICE_DATABASE_NAME>${job.database.name}</JOB_SERVICE_DATABASE_NAME>
-                        <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
-                        <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
-                    </environmentVariables>
-                </configuration>
-            </plugin>
-
-            <!--Compile test sources.-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -209,14 +71,6 @@
                                 </resource>
                             </resources>
                         </configuration>
-                    </execution>
-
-                    <!-- Compile test resources -->
-                    <execution>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>testResources</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -242,17 +96,6 @@
                             </artifactItems>
                         </configuration>
                     </execution>
-
-                    <!-- Copies dependencies to the output lib folder -->
-                    <execution>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
 
@@ -269,28 +112,11 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>start</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>stop</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                    <execution>
                         <id>upload-docker-container</id>
                         <phase>deploy</phase>
                         <goals>
                             <goal>push</goal>
                         </goals>
-                        <configuration>
-                            <filter>jobtracking-worker</filter>
-                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
@@ -301,92 +127,10 @@
                     <removeVolumes>true</removeVolumes>
                     <images>
                         <image>
-                            <alias>webdav</alias>
-                            <name>${dockerHubPublic}/cloudesire/webdav</name>
-                            <run>
-                                <volumes>
-                                    <bind>
-                                        <volume>/srv/common/webdav</volume>
-                                    </bind>
-                                </volumes>
-                                <ports>
-                                    <port>${webdav.apache.port}:8080</port>
-                                </ports>
-                                <env>
-                                    <APACHE_PORT>8080</APACHE_PORT>
-                                </env>
-                                <wait>
-                                    <log>WebDAV Server startup complete</log>
-                                    <http>
-                                        <url>http://${docker.host.address}:${webdav.apache.port}</url>
-                                    </http>
-                                    <time>120000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                            </run>
-                        </image>
-                        <!-- pull in a normal postgres DB for integration tests -->
-                        <image>
-                            <alias>${job.database.host}</alias>
-                            <name>${dockerHubPublic}/library/postgres:14</name>
-                            <run>
-                                <ports>
-                                    <port>${postgres.db.port}:5432</port>
-                                </ports>
-                                <env>
-                                    <POSTGRES_PASSWORD>${job.database.password}</POSTGRES_PASSWORD>
-                                    <POSTGRES_USER>${job.database.username}</POSTGRES_USER>
-                                    <POSTGRES_DB>${job.database.name}</POSTGRES_DB>
-                                </env>
-                                <wait>
-                                    <log>PostgreSQL init process complete</log>
-                                    <time>120000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                            </run>
-                        </image>
-
-                        <!--Run RabbitMQ.-->
-                        <image>
-                            <alias>rabbitmq</alias>
-                            <name>${dockerHubPublic}/library/rabbitmq:3-management</name>
-                            <run>
-                                <ports>
-                                    <port>${rabbitmq.ctrl.port}:15672</port>
-                                    <port>${rabbitmq.node.port}:5672</port>
-                                </ports>
-                                <wait>
-                                    <log>Server startup complete</log>
-                                    <http>
-                                        <url>http://${docker.host.address}:${rabbitmq.ctrl.port}</url>
-                                    </http>
-                                    <time>120000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                            </run>
-                        </image>
-
-                        <!--Job Tracking worker image.-->
-                        <image>
                             <alias>jobtracking-worker</alias>
                             <name>${dockerJobServiceOrg}worker-jobtracking${dockerProjectVersion}</name>
                             <build>
                                 <from>${dockerHubPublic}/cafapi/opensuse-jre17:1</from>
-                                <labels>
-                                    <caf.worker-queue.impl>${caf.worker-queue.impl}</caf.worker-queue.impl>
-                                    <caf.worker-store.impl>${caf.worker-store.impl}</caf.worker-store.impl>
-                                    <caf.config.impl>${caf.config.impl}</caf.config.impl>
-                                    <caf.codec.impl>${caf.codec.impl}</caf.codec.impl>
-                                </labels>
                                 <healthCheck>
                                     <cmd>curl -f http://localhost:8081/healthcheck || exit 1</cmd>
                                 </healthCheck>
@@ -417,10 +161,6 @@
                                             <fileSet>
                                                 <directory>${project.build.directory}/config-files</directory>
                                                 <outputDirectory>maven/config</outputDirectory>
-                                                <excludes>
-                                                    <!-- Only required for integration tests -->
-                                                    <exclude>cfg~caf~worker~HttpDataStoreConfiguration.js</exclude>
-                                                </excludes>
                                             </fileSet>
                                             <fileSet>
                                                 <fileMode>0755</fileMode>
@@ -450,75 +190,11 @@
                                     </inline>
                                 </assembly>
                             </build>
-                            <run>
-                                <ports>
-                                    <port>${worker.adminport}:8081</port>
-                                    <!-- DEBUGGING -->
-                                    <!-- <port>5005:5005</port>-->
-
-                                </ports>
-                                <env>
-                                    <CAF_RABBITMQ_BACKOFF_INTERVAL>1</CAF_RABBITMQ_BACKOFF_INTERVAL>
-                                    <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
-                                    <CAF_RABBITMQ_MAX_ATTEMPTS>20</CAF_RABBITMQ_MAX_ATTEMPTS>
-                                    <CAF_RABBITMQ_MAX_BACKOFF_INTERVAL>30</CAF_RABBITMQ_MAX_BACKOFF_INTERVAL>
-                                    <CAF_RABBITMQ_PREFETCH_BUFFER>0</CAF_RABBITMQ_PREFETCH_BUFFER>
-                                    <CAF_WORKER_RETRY_LIMIT>1</CAF_WORKER_RETRY_LIMIT>
-                                    <CAF_WORKER_MAX_BATCH_TIME>1000</CAF_WORKER_MAX_BATCH_TIME>
-                                    <CAF_WORKER_THREADS>1</CAF_WORKER_THREADS>
-                                    <JOB_SERVICE_DATABASE_HOST>${job.database.host}</JOB_SERVICE_DATABASE_HOST>
-                                    <JOB_SERVICE_DATABASE_PORT>${job.database.port}</JOB_SERVICE_DATABASE_PORT>
-                                    <JOB_SERVICE_DATABASE_NAME>${job.database.name}</JOB_SERVICE_DATABASE_NAME>
-                                    <JOB_SERVICE_DATABASE_USERNAME>${job.database.username}</JOB_SERVICE_DATABASE_USERNAME>
-                                    <JOB_SERVICE_DATABASE_PASSWORD>${job.database.password}</JOB_SERVICE_DATABASE_PASSWORD>
-                                    <JOB_SERVICE_DATABASE_APPNAME>Job Tracking Worker</JOB_SERVICE_DATABASE_APPNAME>
-                                    <!-- DEBUGGING -->
-                                    <!-- <_JAVA_OPTIONS>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005</_JAVA_OPTIONS>-->
-                                </env>
-                                <volumes>
-                                    <from>
-                                        <image>webdav</image>
-                                    </from>
-                                </volumes>
-                                <links>
-                                    <link>rabbitmq</link>
-                                    <link>${job.database.host}</link>
-                                </links>
-                                <log>
-                                    <enabled>true</enabled>
-                                </log>
-                                <wait>
-                                    <http>
-                                        <url>http://${docker.host.address}:${worker.adminport}</url>
-                                    </http>
-                                    <time>120000</time>
-                                    <shutdown>500</shutdown>
-                                </wait>
-                            </run>
                         </image>
                     </images>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>use-default-fixed-ports</id>
-            <properties>
-                <worker.adminport>8081</worker.adminport>
-                <rabbitmq.node.port>5672</rabbitmq.node.port>
-                <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
-                <postgres.db.port>5432</postgres.db.port>
-                <webdav.apache.port>32775</webdav.apache.port>
-            </properties>
-        </profile>
-        <profile>
-            <id>long-running-tests</id>
-            <properties>
-                <test.data>${project.basedir}/test-data-long</test.data>
-            </properties>
-        </profile>
-    </profiles>
 
 </project>
