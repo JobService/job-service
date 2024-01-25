@@ -21,7 +21,7 @@ import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigProvider;
-import com.hpe.caf.services.job.api.generated.model.Job;
+import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
@@ -77,17 +77,17 @@ public final class JobsResume
             final DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
             // Get the status of the job.
-            final Job.StatusEnum jobStatus = databaseHelper.getJobStatus(partitionId, jobId);
+            final JobStatus jobStatus = databaseHelper.getJobStatus(partitionId, jobId);
 
             // Validate the job can be resumed.
-            if (jobStatus != Job.StatusEnum.PAUSED && jobStatus != Job.StatusEnum.ACTIVE) {
+            if (jobStatus != JobStatus.PAUSED && jobStatus != JobStatus.ACTIVE) {
                 final String errorMessage = String.format("job_id {%s} cannot be resumed as it has a status of {%s}. Only jobs with a "
                     + "status of Paused can be resumed.", jobId, jobStatus);
                 throw new BadRequestException(errorMessage);
             }
 
             // Resume the job if its paused, do nothing if already active.
-            if (jobStatus == Job.StatusEnum.PAUSED) {
+            if (jobStatus == JobStatus.PAUSED) {
                 final String resumeJobQueue = config.getResumeJobQueue();
                 try {
                     // Send a message to the resume job queue.

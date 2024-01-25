@@ -71,7 +71,7 @@ public final class JobsDelete {
         }
     }
 
-    public static long deleteJobs(final String partitionId, final String jobIdStartsWith, final String statusType,
+    public static long deleteJobs(final String partitionId, final String jobIdStartsWith,
                                  final String labelExists, final String filter) throws Exception
     {
         try {
@@ -95,7 +95,7 @@ public final class JobsDelete {
 
             // Delete the specified jobs.
             LOG.debug("deleteJobs: Deleting the jobs...");
-            final int successfulDeletions = databaseHelper.deleteJobs(partitionId, jobIdStartsWith, statusType, labelValues, filterQuery);
+            final int successfulDeletions = databaseHelper.deleteJobs(partitionId, jobIdStartsWith, labelValues, filterQuery);
 
             LOG.debug("deleteJobs: Done");
             return successfulDeletions;

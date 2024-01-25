@@ -40,4 +40,9 @@ then
 fi
 
 cd /maven
-exec java $CAF_WORKER_JAVA_OPTS -cp "*" com.hpe.caf.worker.core.WorkerApplication server ${dropwizardConfig}
+exec java $CAF_WORKER_JAVA_OPTS \
+    -Dpolyglot.engine.WarnInterpreterOnly=false \
+    -cp "*" \
+    com.hpe.caf.worker.core.WorkerApplication \
+    server \
+    ${dropwizardConfig}

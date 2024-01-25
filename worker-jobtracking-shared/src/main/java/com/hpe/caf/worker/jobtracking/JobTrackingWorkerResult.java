@@ -15,7 +15,7 @@
  */
 package com.hpe.caf.worker.jobtracking;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**

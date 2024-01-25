@@ -598,8 +598,8 @@ definitions:
       failureId:
         type: string
       failureTime:
-        type: string
-        format: date-time
+        type: integer
+        format: int64
       failureSource:
         type: string
       failureMessage:

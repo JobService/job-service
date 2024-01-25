@@ -23,9 +23,10 @@ import com.hpe.caf.services.job.exceptions.NotFoundException;
 import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import com.rabbitmq.client.AlreadyClosedException;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
@@ -66,6 +67,7 @@ public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
 
         //  Include exception message in response.
         return Response.status(httpStatus)
+            .type(MediaType.APPLICATION_JSON)
             .entity(new ApiResponseMessage(exception.getMessage()))
             .build();
     }

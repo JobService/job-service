@@ -17,7 +17,6 @@ package com.hpe.caf.services.job.scheduled.executor;
 
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.api.CodecException;
-import com.hpe.caf.api.worker.QueueTaskMessage;
 import com.hpe.caf.api.worker.TaskMessage;
 import com.hpe.caf.api.worker.TaskStatus;
 import com.hpe.caf.api.worker.TrackingInfo;
@@ -29,7 +28,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -80,7 +79,6 @@ public final class QueueServices implements AutoCloseable
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
-        final Object taskMessage;
 
         //  Set up string for statusCheckUrl
         final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
@@ -96,12 +94,7 @@ public final class QueueServices implements AutoCloseable
                 getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 
-        final String messageFormatVersion = ScheduledExecutorConfig.useNewQueueMessageFormat();
-        if ("v3".equalsIgnoreCase(messageFormatVersion)) {
-            taskMessage = getTaskMessage(trackingInfo, workerAction, taskId);
-        } else {
-            taskMessage = getQueueTaskMessage(trackingInfo, workerAction, taskId);
-        }
+        final Object taskMessage = getTaskMessage(trackingInfo, workerAction, taskId);
 
         //  Serialise the task message.
         //  Wrap any CodecException as a RuntimeException as it shouldn't happen
@@ -169,67 +162,6 @@ public final class QueueServices implements AutoCloseable
             Collections.emptyMap(),
             targetQueue,
             trackingInfo);
-    }
-
-    private QueueTaskMessage getQueueTaskMessage(
-        final TrackingInfo trackingInfo,
-        final WorkerAction workerAction,
-        final String taskId
-    ) {
-        //  Serialise the data payload. Encoding type is provided in the WorkerAction.
-        final Object taskData;
-
-        //  Check whether taskData is in the form of a string or object, and serialise/decode as appropriate.
-        LOG.debug("Validating the task data ...");
-        final Object taskDataObj = workerAction.getTaskData();
-
-        if (taskDataObj instanceof String) {
-            final String taskDataStr = (String) taskDataObj;
-            final WorkerAction.TaskDataEncodingEnum encoding = workerAction.getTaskDataEncoding();
-
-            taskData = tryToDeserialiseToMap(toTaskDataByteArray(taskDataStr, encoding));
-        } else if (taskDataObj instanceof Map<?, ?>) {
-            taskData = taskDataObj;
-        } else {
-            final String errorMessage = "The taskData is an unexpected type";
-            LOG.error(errorMessage);
-            throw new RuntimeException(errorMessage);
-        }
-
-        return new QueueTaskMessage(
-            taskId,
-            workerAction.getTaskClassifier(),
-            workerAction.getTaskApiVersion(),
-            taskData,
-            TaskStatus.NEW_TASK,
-            Collections.emptyMap(),
-            targetQueue,
-            trackingInfo);
-    }
-
-    private static byte[] toTaskDataByteArray(
-        final String taskDataStr,
-        final WorkerAction.TaskDataEncodingEnum encoding)
-    {
-        if (encoding == null || encoding == WorkerAction.TaskDataEncodingEnum.UTF8) {
-            return taskDataStr.getBytes(StandardCharsets.UTF_8);
-        } else if (encoding == WorkerAction.TaskDataEncodingEnum.BASE64) {
-            return Base64.decodeBase64(taskDataStr);
-        } else {
-            final String errorMessage = "Unknown taskDataEncoding";
-            LOG.error(errorMessage);
-            throw new RuntimeException(errorMessage);
-        }
-    }
-
-    private Object tryToDeserialiseToMap(final byte[] taskData)
-    {
-        try {
-            return codec.deserialise(taskData, Map.class);
-        } catch (final CodecException ex) {
-            LOG.info("Issue encountered while deserialising {}", taskData, ex);
-            return taskData;
-        }
     }
 
     private static long getStatusCheckIntervalMillis(final String statusCheckIntervalSeconds)

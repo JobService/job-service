@@ -28,7 +28,7 @@ import com.hpe.caf.worker.tracking.report.TrackingReportTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;

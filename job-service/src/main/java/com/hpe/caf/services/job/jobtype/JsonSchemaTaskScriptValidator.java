@@ -16,31 +16,27 @@
 package com.hpe.caf.services.job.jobtype;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.github.fge.jsonschema.core.report.LogLevel;
-import com.github.fge.jsonschema.core.report.ProcessingMessage;
-import com.github.fge.jsonschema.core.report.ProcessingReport;
-import com.github.fge.jsonschema.main.JsonSchema;
-import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.SpecVersionDetector;
+import com.networknt.schema.ValidationMessage;
+import java.util.Set;
 
 public final class JsonSchemaTaskScriptValidator {
 
     private static JsonSchemaTaskScriptValidator INSTANCE;
 
-    private static final JsonSchemaFactory JSON_SCHEMA_FACTORY = JsonSchemaFactory.byDefault();
-
     private final JsonSchema compiledTaskScriptSchema;
 
     private JsonSchemaTaskScriptValidator(final JsonNode taskScriptSchema)
-        throws InvalidTaskScriptSchemaException {
-        try {
-            this.compiledTaskScriptSchema = JSON_SCHEMA_FACTORY.getJsonSchema(taskScriptSchema);
-        } catch (final ProcessingException e) {
-            throw new InvalidTaskScriptSchemaException("Schema used to validate taskScript is invalid", e);
-        }
+    {
+        final VersionFlag schemaVersion = SpecVersionDetector.detectOptionalVersion(taskScriptSchema).orElse(VersionFlag.V4);
+        final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(schemaVersion);
+        this.compiledTaskScriptSchema = factory.getSchema(taskScriptSchema);
     }
 
-    public static void initialise(final JsonNode taskScriptSchema) throws InvalidTaskScriptSchemaException
+    public static void initialise(final JsonNode taskScriptSchema)
     {
         INSTANCE = new JsonSchemaTaskScriptValidator(taskScriptSchema);
     }
@@ -54,22 +50,12 @@ public final class JsonSchemaTaskScriptValidator {
     }
 
     public void validate(final JsonNode taskScript) throws InvalidJobTypeDefinitionException {
-        final ProcessingReport results;
-        try {
-            results = compiledTaskScriptSchema.validate(taskScript);
-        } catch (final ProcessingException e) {
-            throw new InvalidJobTypeDefinitionException("Invalid taskScript", e);
-        }
+        final Set<ValidationMessage> errors = compiledTaskScriptSchema.validate(taskScript);
 
-        if (!results.isSuccess()) {
+        if (!errors.isEmpty()) {
             final StringBuilder errorMessage = new StringBuilder("Invalid taskScript:");
-            for (final ProcessingMessage result : results) {
-                if (result.getLogLevel() == LogLevel.ERROR ||
-                    result.getLogLevel() == LogLevel.FATAL
-                ) {
-                    errorMessage.append('\n');
-                    errorMessage.append(result.getMessage());
-                }
+            for (final ValidationMessage error : errors) {
+                errorMessage.append('\n').append(error.getMessage());
             }
             throw new InvalidJobTypeDefinitionException(errorMessage.toString());
         }
