@@ -26,6 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
@@ -67,7 +70,8 @@ public final class QueueServicesFactory
      * @throws  TimeoutException                thrown if the connection cannot be created
      */
     public static QueueServices create(final String targetQueue, final String partitionId, final Codec codec)
-            throws IOException, TimeoutException {
+            throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
+    {
         //  Create connection and channel for publishing messages.
         LOG.debug("Creating connection ...");
         final Connection connection = createConnection();
@@ -111,8 +115,8 @@ public final class QueueServicesFactory
      * Creates a connection to rabbit messaging server.
      */
     private static Connection createConnection()
-            throws IOException, TimeoutException
+            throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
     {
-        return RabbitUtil.createRabbitConnection(ScheduledExecutorConfig.getRabbitMQHost(), ScheduledExecutorConfig.getRabbitMQPort(), ScheduledExecutorConfig.getRabbitMQUsername(), ScheduledExecutorConfig.getRabbitMQPassword());
+        return RabbitUtil.createRabbitConnection(ScheduledExecutorConfig.getRabbitMQProtocol(), ScheduledExecutorConfig.getRabbitMQHost(), ScheduledExecutorConfig.getRabbitMQPort(), ScheduledExecutorConfig.getRabbitMQUsername(), ScheduledExecutorConfig.getRabbitMQPassword());
     }
 }

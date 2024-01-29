@@ -52,6 +52,7 @@ import org.testng.annotations.Test;
 
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -1475,7 +1476,9 @@ public class JobServiceIT {
         };
     }
 
-    private static QueueManager getQueueManager(final String queueName) throws IOException, TimeoutException {
+    private static QueueManager getQueueManager(final String queueName)
+            throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
+    {
         //Test messages are published to the target pipe specified in the test (jobservice-test-input-1).
         //The test will consume these messages and assert that the results are as expected.
         final QueueServices queueServices = QueueServicesFactory.create(rabbitConfiguration, queueName, workerServices.getCodec());
