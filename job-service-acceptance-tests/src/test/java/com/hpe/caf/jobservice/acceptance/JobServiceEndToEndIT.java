@@ -110,6 +110,7 @@ public class JobServiceEndToEndIT {
         workerServices = WorkerServices.getDefault();
         configurationSource = workerServices.getConfigurationSource();
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
+        rabbitConfiguration.getRabbitConfiguration().setRabbitProtocol(SettingsProvider.defaultProvider.getSetting("rabbitmq.node.protocol"));
         rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
         rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
         jobsApi = createJobsApi();

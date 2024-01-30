@@ -175,6 +175,7 @@
                 </executions>
                 <configuration>
                     <systemPropertyVariables>
+                        <rabbitmq.node.protocol>amqps</rabbitmq.node.protocol>
                         <docker.host.address>${docker.host.address}</docker.host.address>
                         <rabbitmq.node.port>${rabbitmq.node.port}</rabbitmq.node.port>
                         <rabbitmq.ctrl.port>${rabbitmq.ctrl.port}</rabbitmq.ctrl.port>
