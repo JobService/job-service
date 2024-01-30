@@ -2,6 +2,7 @@
         "backoffInterval": 1,
         "maxBackoffInterval": 30,
         "maxAttempts": 20,
+        "rabbitProtocol": "amqp",
         "rabbitHost": "rabbitmq",
         "rabbitPort": 5672,
         "rabbitUser": "guest",
