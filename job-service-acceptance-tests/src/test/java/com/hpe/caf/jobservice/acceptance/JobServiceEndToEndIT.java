@@ -53,7 +53,10 @@ import static org.testng.Assert.assertEquals;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -107,6 +110,7 @@ public class JobServiceEndToEndIT {
         workerServices = WorkerServices.getDefault();
         configurationSource = workerServices.getConfigurationSource();
         rabbitConfiguration = configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
+        rabbitConfiguration.getRabbitConfiguration().setRabbitProtocol(SettingsProvider.defaultProvider.getSetting("rabbitmq.node.protocol"));
         rabbitConfiguration.getRabbitConfiguration().setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
         rabbitConfiguration.getRabbitConfiguration().setRabbitPort(Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
         jobsApi = createJobsApi();
@@ -853,7 +857,9 @@ public class JobServiceEndToEndIT {
 
     @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     @SuppressWarnings("unchecked")
-    public void testJobServiceCaller_Success() throws ParseException, IOException, TimeoutException {
+    public void testJobServiceCaller_Success()
+            throws ParseException, IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
+    {
 
         LOG.debug("Starting testJobServiceCaller_Success() ...");
 
@@ -1558,7 +1564,9 @@ public class JobServiceEndToEndIT {
         return "J" + System.currentTimeMillis() + "-" + (int) (Math.random() * 10000);
     }
 
-    private QueueManager getFinalQueueManager() throws IOException, TimeoutException {
+    private QueueManager getFinalQueueManager()
+            throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
+    {
         // The end-to-end test should ultimately result in an example worker result message
         // on the exampleWorkerMessageOutQueue, so we'll consume from there.
         QueueServices queueServices = QueueServicesFactory.create(rabbitConfiguration, exampleWorkerMessageOutQueue, workerServices.getCodec());

@@ -41,7 +41,10 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -343,7 +346,9 @@ public class JobTrackingWorkerIT {
     }
 
 
-    private QueueManager getQueueManager(final String forwardingQueue) throws IOException, TimeoutException {
+    private QueueManager getQueueManager(final String forwardingQueue)
+            throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
+    {
         //Test messages are published to the Job Tracking Worker input queue, as specified in rabbitConfiguration.
         //The Job Tracking Worker should forward these to forwardingQueue so we'll consume from there rather than the Job Tracking Worker's own output queue.
         QueueServices queueServices = QueueServicesFactory.create(rabbitConfiguration, forwardingQueue, workerServices.getCodec());

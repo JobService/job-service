@@ -47,6 +47,11 @@ public class ScheduledExecutorConfig {
         return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME");
     }
 
+    public static String getRabbitMQProtocol()
+    {
+        return getPropertyOrEnvVar("CAF_RABBITMQ_PROTOCOL");
+    }
+
     public static String getRabbitMQHost(){
         return getPropertyOrEnvVar("CAF_RABBITMQ_HOST");
     }

@@ -59,6 +59,11 @@ public class AppConfig {
         return environment.getProperty("JOB_SERVICE_DATABASE_APPNAME");
     }
 
+    public String getRabbitMQProtocol()
+    {
+        return environment.getProperty("CAF_RABBITMQ_PROTOCOL");
+    }
+
     public String getRabbitMQHost(){
         return environment.getProperty("CAF_RABBITMQ_HOST");
     }

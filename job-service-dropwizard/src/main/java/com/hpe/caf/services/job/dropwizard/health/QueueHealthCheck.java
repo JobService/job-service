@@ -20,6 +20,9 @@ import com.hpe.caf.util.rabbitmq.RabbitUtil;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,9 +70,11 @@ public final class QueueHealthCheck extends HealthCheck
         return Result.healthy();
     }
 
-    private static Connection createConnection() throws IOException, TimeoutException
+    private static Connection createConnection()
+            throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
     {
         return RabbitUtil.createRabbitConnection(
+                System.getenv("CAF_RABBITMQ_PROTOCOL"),
                 System.getenv("CAF_RABBITMQ_HOST"),
                 Integer.parseInt(System.getenv("CAF_RABBITMQ_PORT")),
                 System.getenv("CAF_RABBITMQ_USERNAME"),

@@ -64,8 +64,10 @@ public class JobServiceFilterIT
         final ConfigurationSource configurationSource = workerServices.getConfigurationSource();
         final RabbitWorkerQueueConfiguration rabbitConfiguration =
                 configurationSource.getConfiguration(RabbitWorkerQueueConfiguration.class);
-        rabbitConfiguration.getRabbitConfiguration()
-                .setRabbitHost(SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitProtocol(
+                SettingsProvider.defaultProvider.getSetting("rabbitmq.node.protocol"));
+        rabbitConfiguration.getRabbitConfiguration().setRabbitHost(
+                SettingsProvider.defaultProvider.getSetting(SettingNames.dockerHostAddress));
         rabbitConfiguration.getRabbitConfiguration().setRabbitPort(
                         Integer.parseInt(SettingsProvider.defaultProvider.getSetting(SettingNames.rabbitmqNodePort)));
         rabbitConn = RabbitUtil.createRabbitConnection(rabbitConfiguration.getRabbitConfiguration());

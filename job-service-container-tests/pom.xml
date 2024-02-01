@@ -249,6 +249,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <webservice.adminport>${webservice.adminport}</webservice.adminport>
+                        <rabbitmq.node.protocol>amqp</rabbitmq.node.protocol>
                         <docker.host.address>${docker.host.address}</docker.host.address>
                         <rabbitmq.node.port>${rabbitmq.node.port}</rabbitmq.node.port>
                         <rabbitmq.ctrl.port>${rabbitmq.ctrl.port}</rabbitmq.ctrl.port>
@@ -463,6 +464,7 @@
                                     <CAF_TRACKING_PIPE>tracking-workflow-in</CAF_TRACKING_PIPE>
                                     <CAF_STATUS_CHECK_INTERVAL_SECONDS>5</CAF_STATUS_CHECK_INTERVAL_SECONDS>
                                     <CAF_WEBSERVICE_URL>${dummyUrl}</CAF_WEBSERVICE_URL>
+                                    <CAF_RABBITMQ_PROTOCOL>amqp</CAF_RABBITMQ_PROTOCOL>
                                     <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
                                     <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
                                     <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>
@@ -537,6 +539,7 @@
                                     <CAF_TRACKING_PIPE>jobtrackingworker-test-input-1</CAF_TRACKING_PIPE>
                                     <CAF_STATUS_CHECK_INTERVAL_SECONDS>1</CAF_STATUS_CHECK_INTERVAL_SECONDS>
                                     <CAF_WEBSERVICE_URL>http://job-service:8080/job-service/v1</CAF_WEBSERVICE_URL>
+                                    <CAF_RABBITMQ_PROTOCOL>amqp</CAF_RABBITMQ_PROTOCOL>
                                     <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
                                     <CAF_RABBITMQ_PORT>5672</CAF_RABBITMQ_PORT>
                                     <CAF_RABBITMQ_USERNAME>guest</CAF_RABBITMQ_USERNAME>

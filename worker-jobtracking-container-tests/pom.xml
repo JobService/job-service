@@ -349,10 +349,12 @@
                                 </ports>
                                 <env>
                                     <CAF_RABBITMQ_BACKOFF_INTERVAL>1</CAF_RABBITMQ_BACKOFF_INTERVAL>
+                                    <CAF_RABBITMQ_PROTOCOL>amqp</CAF_RABBITMQ_PROTOCOL>
                                     <CAF_RABBITMQ_HOST>rabbitmq</CAF_RABBITMQ_HOST>
                                     <CAF_RABBITMQ_MAX_ATTEMPTS>20</CAF_RABBITMQ_MAX_ATTEMPTS>
                                     <CAF_RABBITMQ_MAX_BACKOFF_INTERVAL>30</CAF_RABBITMQ_MAX_BACKOFF_INTERVAL>
                                     <CAF_RABBITMQ_PREFETCH_BUFFER>0</CAF_RABBITMQ_PREFETCH_BUFFER>
+                                    <CAF_RABBITMQ_QUEUE_TYPE>quorum</CAF_RABBITMQ_QUEUE_TYPE>
                                     <CAF_WORKER_RETRY_LIMIT>1</CAF_WORKER_RETRY_LIMIT>
                                     <CAF_WORKER_MAX_BATCH_TIME>1000</CAF_WORKER_MAX_BATCH_TIME>
                                     <CAF_WORKER_THREADS>1</CAF_WORKER_THREADS>

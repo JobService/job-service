@@ -54,6 +54,7 @@ public final class JobsActiveTest {
         newEnv.put("JOB_SERVICE_DATABASE_PASSWORD","testPassword");
         newEnv.put("JOB_SERVICE_DATABASE_APPNAME","testAppName");
 
+        newEnv.put("CAF_RABBITMQ_PROTOCOL", "amqp");
         newEnv.put("CAF_RABBITMQ_HOST","localhost");
         newEnv.put("CAF_RABBITMQ_PORT","5672");
         newEnv.put("CAF_RABBITMQ_USERNAME","guest");
