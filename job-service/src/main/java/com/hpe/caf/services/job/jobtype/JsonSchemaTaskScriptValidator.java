@@ -31,7 +31,7 @@ public final class JsonSchemaTaskScriptValidator {
 
     private JsonSchemaTaskScriptValidator(final JsonNode taskScriptSchema)
     {
-        final VersionFlag schemaVersion = SpecVersionDetector.detectOptionalVersion(taskScriptSchema).orElse(VersionFlag.V4);
+        final VersionFlag schemaVersion = SpecVersionDetector.detectOptionalVersion(taskScriptSchema, true).orElse(VersionFlag.V4);
         final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(schemaVersion);
         this.compiledTaskScriptSchema = factory.getSchema(taskScriptSchema);
     }
