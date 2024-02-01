@@ -41,7 +41,7 @@ final class JsonSchemaParametersValidator implements ParametersValidator {
      */
     public JsonSchemaParametersValidator(final String jobTypeId, final JsonNode schema)
     {
-        final VersionFlag schemaVersion = SpecVersionDetector.detectOptionalVersion(schema).orElse(VersionFlag.V4);
+        final VersionFlag schemaVersion = SpecVersionDetector.detectOptionalVersion(schema, true).orElse(VersionFlag.V4);
         final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(schemaVersion);
         this.schema = factory.getSchema(schema);
     }
