@@ -49,7 +49,12 @@ public class ScheduledExecutorConfig {
 
     public static String getRabbitMQProtocol()
     {
-        return getPropertyOrEnvVar("CAF_RABBITMQ_PROTOCOL");
+        // Default to 'amqp' if CAF_RABBITMQ_PROTOCOL is not specified
+        final String rabbitMqProtocol = getPropertyOrEnvVar("CAF_RABBITMQ_PROTOCOL");
+        if (null == rabbitMqProtocol || rabbitMqProtocol.isEmpty()) {
+            return "amqp";
+        }
+        return rabbitMqProtocol;
     }
 
     public static String getRabbitMQHost(){
