@@ -74,10 +74,20 @@ public final class QueueHealthCheck extends HealthCheck
             throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
     {
         return RabbitUtil.createRabbitConnection(
-                System.getenv("CAF_RABBITMQ_PROTOCOL"),
+                getRabbitProtocol(),
                 System.getenv("CAF_RABBITMQ_HOST"),
                 Integer.parseInt(System.getenv("CAF_RABBITMQ_PORT")),
                 System.getenv("CAF_RABBITMQ_USERNAME"),
                 System.getenv("CAF_RABBITMQ_PASSWORD"));
+    }
+
+    private static String getRabbitProtocol()
+    {
+        // Default to 'amqp' if CAF_RABBITMQ_PROTOCOL is not specified
+        final String rabbitProtocol = System.getenv("CAF_RABBITMQ_PROTOCOL");
+        if (null == rabbitProtocol || rabbitProtocol.isEmpty()) {
+            return "amqp";
+        }
+        return rabbitProtocol;
     }
 }
