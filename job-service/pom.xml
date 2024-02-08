@@ -248,36 +248,6 @@
                             </scripts>
                         </configuration>
                     </execution>
-                    <!--
-                        Initializing the failures field to empty list to maintain backward compatibility.
-                        https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/jaxrs-spec.md#config-options mentions
-                        the containerDefaultToNull configOption but is not working as expected and the failures field is being initialized as null.
-                    -->
-                    <execution>
-                        <id>initialise-failures-field</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
-                        <configuration>
-                            <properties>
-                                <property>
-                                    <name>openapiCodegenDir</name>
-                                    <value>${project.build.directory}/openapi-codegen</value>
-                                </property>
-                            </properties>
-                            <scripts>
-                                <script><![CDATA[
-    def jobModelFile = new File(
-        openapiCodegenDir + '/src/gen/java/com/hpe/caf/services/job/api/generated/model/Job.java')
-
-    jobModelFile.write(jobModelFile.text
-        .replaceAll('private List<Failure> failures;', 'private List<Failure> failures = new ArrayList<Failure>();'))
-                                ]]>
-                                </script>
-                            </scripts>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>
