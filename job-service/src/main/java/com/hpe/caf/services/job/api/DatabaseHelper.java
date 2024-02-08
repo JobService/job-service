@@ -123,9 +123,7 @@ public final class DatabaseHelper
 
                     //  Parse JSON failure sub-strings.
                     final String failureDetails = rs.getString("failure_details");
-                    if (ApiServiceUtil.isNotNullOrEmpty(failureDetails)) {
-                        job.setFailures(getFailuresAsList(failureDetails));
-                    }
+                    job.setFailures(getFailuresAsList(failureDetails));
 
                     final String label = rs.getString("label");
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
@@ -218,9 +216,8 @@ public final class DatabaseHelper
 
                     //  Parse JSON failure sub-strings.
                     final String failureDetails = rs.getString("failure_details");
-                    if (ApiServiceUtil.isNotNullOrEmpty(failureDetails)) {
-                        job.setFailures(getFailuresAsList(failureDetails));
-                    }
+                    job.setFailures(getFailuresAsList(failureDetails));
+
                     final String label = rs.getString("label");
                     if (ApiServiceUtil.isNotNullOrEmpty(label)) {
                         job.getLabels().put(label, rs.getString("label_value"));
@@ -605,6 +602,10 @@ public final class DatabaseHelper
     private static List<Failure> getFailuresAsList (String failureDetails) throws Exception {
 
         List<Failure> failures = new ArrayList<>();
+
+        if(failureDetails == null || failureDetails.isEmpty()) {
+            return failures;
+        }
 
         //  Split on newline character.
         for (String failure: failureDetails.split("\\r?\\n")){
