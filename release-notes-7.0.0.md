@@ -19,7 +19,7 @@ ${version-number}
 - **US361030**: Dropped CORS headers  
   The `Access-Control-Allow-*` headers are no longer returned by the Job Service.
 
-- **D854021:** Worker Framwork V4 Format message support dropped  
+- **D854021:** Worker Framework V4 Format message support dropped  
   The Job Tracking Worker has been updated to use a new version of the worker framework which no longer supports the V4 format message.<br><br>
   The Job Service Scheduled Executor no longer respects the `JOB_SERVICE_MESSAGE_OUTPUT_FORMAT` environment variable.  The V3 format message is always output regardless of the setting.
 
