@@ -1,11 +1,9 @@
-!not-ready-for-release!
-
 #### Version Number
 ${version-number}
 
 #### New Features
-- US771133: Support bulk cancellation of multiple jobs through new API endpoint `/partitions/{partitionId}/jobs:cancel`.
-- US868107: Support bulk deletion of multiple jobs through new API endpoint `/partitions/{partitionId}/jobs:delete`.
+- **US771133**: Support bulk cancellation of multiple jobs through new API endpoint `/partitions/{partitionId}/jobs:cancel`.
+- **US868107**: Support bulk deletion of multiple jobs through new API endpoint `/partitions/{partitionId}/jobs:delete`.
 
 #### Breaking Changes
 - **US361030**: SSL configuration environment variables changed  
@@ -26,3 +24,4 @@ ${version-number}
   The Job Service Scheduled Executor no longer respects the `JOB_SERVICE_MESSAGE_OUTPUT_FORMAT` environment variable.  The V3 format message is always output regardless of the setting.
 
 #### Known Issues
+- None.
