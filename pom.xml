@@ -211,7 +211,7 @@
             <dependency>
                 <groupId>com.github.cafapi.dropwizard</groupId>
                 <artifactId>dropwizard-ssl</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.0-888061-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.logging</groupId>
