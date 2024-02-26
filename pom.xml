@@ -209,11 +209,6 @@
                 <version>3.0.0-549</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.ssl</groupId>
-                <artifactId>caf-ssl-dropwizard</artifactId>
-                <version>1.0.0-888061-SNAPSHOT</version>
-            </dependency>
-            <dependency>
                 <groupId>com.github.cafapi.logging</groupId>
                 <artifactId>caf-logging-common</artifactId>
                 <version>2.0.0-238</version>
@@ -227,6 +222,11 @@
                 <groupId>com.github.cafapi.logging</groupId>
                 <artifactId>caf-logging-logback-converters</artifactId>
                 <version>2.0.0-238</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cafapi.ssl</groupId>
+                <artifactId>caf-ssl-dropwizard</artifactId>
+                <version>1.0.0-888061-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>
