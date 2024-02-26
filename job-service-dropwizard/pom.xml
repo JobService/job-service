@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.cafapi.dropwizard</groupId>
-            <artifactId>dropwizard-ssl</artifactId>
+            <artifactId>caf-dropwizard-ssl</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>

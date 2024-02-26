@@ -17,7 +17,7 @@ package com.hpe.caf.services.job.dropwizard;
 
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.github.cafapi.correlation.dropwizard.CorrelationIdBundle;
-import com.github.cafapi.dropwizardssl.DropWizardSslBundleProvider;
+import com.github.cafapi.dropwizard.ssl.DropWizardSslBundleProvider;
 import com.hpe.caf.services.job.api.JobServiceModule;
 import com.hpe.caf.services.job.dropwizard.health.DatabaseHealthCheck;
 import com.hpe.caf.services.job.dropwizard.health.PingHealthCheck;
