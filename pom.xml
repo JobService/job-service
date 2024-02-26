@@ -209,8 +209,8 @@
                 <version>3.0.0-549</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.dropwizard</groupId>
-                <artifactId>dropwizard-ssl</artifactId>
+                <groupId>com.github.cafapi.ssl</groupId>
+                <artifactId>caf-ssl-dropwizard</artifactId>
                 <version>1.0.0-888061-SNAPSHOT</version>
             </dependency>
             <dependency>

@@ -39,8 +39,8 @@
             <artifactId>caf-correlation-dropwizard</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.dropwizard</groupId>
-            <artifactId>caf-dropwizard-ssl</artifactId>
+            <groupId>com.github.cafapi.ssl</groupId>
+            <artifactId>caf-ssl-dropwizard</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>
