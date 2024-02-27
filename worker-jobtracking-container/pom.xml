@@ -45,7 +45,7 @@
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-db</artifactId>
-            <classifier>jar-with-dependencies</classifier>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
@@ -173,18 +173,7 @@
                                             <dependencySet>
                                                 <useProjectArtifact>false</useProjectArtifact>
                                                 <scope>runtime</scope>
-                                                <excludes>
-                                                    <exclude>com.github.jobservice:job-service-db</exclude>
-                                                </excludes>
                                                 <outputDirectory>/maven</outputDirectory>
-                                            </dependencySet>
-                                            <dependencySet>
-                                                <useProjectArtifact>false</useProjectArtifact>
-                                                <includes>
-                                                    <include>com.github.jobservice:job-service-db</include>
-                                                </includes>
-                                                <outputDirectory>database</outputDirectory>
-                                                <outputFileNameMapping>job-service-db-installer.jar</outputFileNameMapping>
                                             </dependencySet>
                                         </dependencySets>
                                     </inline>
