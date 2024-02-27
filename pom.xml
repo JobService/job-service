@@ -245,8 +245,13 @@
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util.flywayinstaller</groupId>
+                <artifactId>util-flywayinstaller</artifactId>
+                <version>2.1.0-US888078-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cafapi.util.flywayinstaller</groupId>
                 <artifactId>util-flywayinstaller-cli</artifactId>
-                <version>2.0.0-184</version>
+                <version>2.1.0-US888078-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing</groupId>
@@ -298,14 +303,7 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db</artifactId>
-                <classifier>jar-with-dependencies</classifier>
                 <version>7.1.0-SNAPSHOT</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
@@ -446,6 +444,11 @@
                 <version>3.0.2</version>
             </dependency>
             <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.10.1</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
                 <version>2.24.1</version>
@@ -529,6 +532,11 @@
                 <groupId>cz.jirutka.rsql</groupId>
                 <artifactId>rsql-parser</artifactId>
                 <version>2.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>4.7.5</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
@@ -839,6 +847,16 @@
                 <version>1.0.4</version>
             </dependency>
             <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>10.7.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-database-postgresql</artifactId>
+                <version>10.7.1</version>
+            </dependency>
+            <dependency>
                 <groupId>org.glassfish.expressly</groupId>
                 <artifactId>expressly</artifactId>
                 <version>5.0.0</version>
@@ -899,6 +917,11 @@
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-server</artifactId>
                 <version>3.0.12</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-toml</artifactId>
+                <version>2.16.1</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.ext</groupId>

@@ -18,6 +18,6 @@
 
 echo "Installing Job Service database"
 
-java -jar /job-service-db.jar $@
+java -classpath *:classpath com.github.cafapi.util.flywayinstaller.Application $@
 
 echo "Installed Job Service database"

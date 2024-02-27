@@ -36,11 +36,6 @@
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-dropwizard</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-db</artifactId>
-            <classifier>jar-with-dependencies</classifier>
-        </dependency>
     </dependencies>
 
     <build>
@@ -106,19 +101,9 @@
                                         </fileSets>
                                         <dependencySets>
                                             <dependencySet>
-                                                <useProjectArtifact>false</useProjectArtifact>
-                                                <includes>
-                                                    <include>com.github.jobservice:job-service-db</include>
-                                                </includes>
-                                                <outputDirectory>database</outputDirectory>
-                                                <outputFileNameMapping>job-service-db-installer.jar</outputFileNameMapping>
-                                            </dependencySet>
-                                            <dependencySet>
                                                 <outputDirectory>maven</outputDirectory>
-                                                <excludes>
-                                                    <exclude>com.github.jobservice:job-service-db</exclude>
-                                                </excludes>
                                                 <useProjectArtifact>false</useProjectArtifact>
+                                                <scope>runtime</scope>
                                             </dependencySet>
                                         </dependencySets>
                                     </inline>
