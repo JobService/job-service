@@ -103,7 +103,6 @@
                                             <dependencySet>
                                                 <outputDirectory>maven</outputDirectory>
                                                 <useProjectArtifact>false</useProjectArtifact>
-                                                <scope>runtime</scope>
                                             </dependencySet>
                                         </dependencySets>
                                     </inline>

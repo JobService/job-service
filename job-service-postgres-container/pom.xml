@@ -182,7 +182,6 @@
                                         <dependencySets>
                                             <dependencySet>
                                                 <useProjectArtifact>false</useProjectArtifact>
-                                                <scope>runtime</scope>
                                             </dependencySet>
                                         </dependencySets>
                                         <fileSets>

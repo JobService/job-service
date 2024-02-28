@@ -172,7 +172,6 @@
                                         <dependencySets>
                                             <dependencySet>
                                                 <useProjectArtifact>false</useProjectArtifact>
-                                                <scope>runtime</scope>
                                                 <outputDirectory>/maven</outputDirectory>
                                             </dependencySet>
                                         </dependencySets>
