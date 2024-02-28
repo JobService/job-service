@@ -113,6 +113,11 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-db</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>com.microfocus.webjars</groupId>
             <artifactId>swagger-ui-dist</artifactId>
             <scope>runtime</scope>

@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-db</artifactId>
-            <classifier>jar-with-dependencies</classifier>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
@@ -181,12 +181,7 @@
                                     <inline>
                                         <dependencySets>
                                             <dependencySet>
-                                                <fileMode>0755</fileMode>
                                                 <useProjectArtifact>false</useProjectArtifact>
-                                                <includes>
-                                                    <include>com.github.jobservice:job-service-db</include>
-                                                </includes>
-                                                <outputFileNameMapping>job-service-db.jar</outputFileNameMapping>
                                             </dependencySet>
                                         </dependencySets>
                                         <fileSets>

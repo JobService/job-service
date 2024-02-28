@@ -16,8 +16,9 @@
 #
 
 
-cd /database
-java -jar job-service-db-installer.jar \
+cd /maven
+java -cp "*" \
+     com.github.cafapi.util.flywayinstaller.Application \
      -db.host "${JOB_SERVICE_DATABASE_HOST}" \
      -db.port "${JOB_SERVICE_DATABASE_PORT}" \
      -db.user "${JOB_SERVICE_DATABASE_USERNAME}" \
