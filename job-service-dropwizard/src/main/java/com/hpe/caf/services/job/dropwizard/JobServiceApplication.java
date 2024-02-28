@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.dropwizard;
 
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.github.cafapi.correlation.dropwizard.CorrelationIdBundle;
+import com.github.cafapi.ssl.dropwizard.DropWizardSslBundleProvider;
 import com.hpe.caf.services.job.api.JobServiceModule;
 import com.hpe.caf.services.job.dropwizard.health.DatabaseHealthCheck;
 import com.hpe.caf.services.job.dropwizard.health.PingHealthCheck;
@@ -61,7 +62,7 @@ public final class JobServiceApplication extends Application<JobServiceConfigura
 
         // Add functionality bundles
         bootstrap.addBundle(new CorrelationIdBundle<>());
-        bootstrap.addBundle(DropWizardSslBundle.INSTANCE);
+        bootstrap.addBundle(DropWizardSslBundleProvider.getInstance());
         bootstrap.addBundle(JobServiceSwaggerUiBundle.INSTANCE);
     }
 
