@@ -48,11 +48,6 @@
         </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service-db</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-db-client</artifactId>
         </dependency>
         <dependency>
@@ -111,6 +106,11 @@
         <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-contract</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jobservice</groupId>
+            <artifactId>job-service-db</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
