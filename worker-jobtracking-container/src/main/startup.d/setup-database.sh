@@ -17,7 +17,7 @@
 
 
 cd /maven
-java -cp "*:classpath" \
+java -cp "*" \
      com.github.cafapi.util.flywayinstaller.Application \
      -db.host "${JOB_SERVICE_DATABASE_HOST}" \
      -db.port "${JOB_SERVICE_DATABASE_PORT}" \
