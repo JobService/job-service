@@ -16,7 +16,7 @@ maven.org/maven2/com/github/jobservice/job-service-db/) jar from Artifactory int
 
 From the folder with the jars run:
 
-	java -classpath *:classpath com.github.cafapi.util.flywayinstaller.Application -db.host localhost -db.port 5432 -db.name jobservice -db.pass root -db.user postgres
+	java -cp "*:classpath" com.github.cafapi.util.flywayinstaller.Application -db.host localhost -db.port 5432 -db.name jobservice -db.pass root -db.user postgres
 
 The database connection, user and password string arguments will need changed to match your PostgreSQL 11 or later setup.
 
