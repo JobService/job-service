@@ -45,6 +45,8 @@ RETURNS TABLE(
 )
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    failed_prerequisite_job_ids VARCHAR[];
 BEGIN
     -- Raise exception if job identifier has not been specified
     IF in_job_id IS NULL OR in_job_id = '' THEN
@@ -79,6 +81,16 @@ BEGIN
     -- Set default value for delay if no value provided
     IF in_delay IS NULL THEN
         in_delay = 0;
+    END IF;
+
+    -- Raise exception if any prerequisite jobs have failed
+    SELECT ARRAY_AGG(job_id) INTO failed_prerequisite_job_ids
+    FROM job
+    WHERE job_id = ANY(in_prerequisite_job_ids)
+      AND status = 'Failed';
+
+    IF array_length(failed_prerequisite_job_ids, 1) > 0 THEN
+        RAISE EXCEPTION 'One or more prerequisite jobs have failed. Failed Job IDs: %', ARRAY_TO_STRING(failed_prerequisite_job_ids, ', ') USING ERRCODE = '02000'; -- sqlstate no data
     END IF;
 
     IF NOT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, in_delay, in_job_hash, in_labels) THEN

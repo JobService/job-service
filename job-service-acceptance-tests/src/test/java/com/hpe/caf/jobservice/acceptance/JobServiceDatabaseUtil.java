@@ -15,6 +15,7 @@
  */
 package com.hpe.caf.jobservice.acceptance;
 
+import com.hpe.caf.api.worker.JobStatus;
 import com.hpe.caf.worker.batch.BatchWorkerConstants;
 
 import org.postgresql.ds.PGSimpleDataSource;
@@ -27,6 +28,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -290,6 +293,45 @@ public class JobServiceDatabaseUtil
         {
             rs.next();
             Assert.assertNotEquals(rs.getInt("result"), 0, "Soft deleted table names not present. ");
+        }
+    }
+
+    public static void insertRowIntoJobTable(final String jobId, final JobStatus jobStatus) throws SQLException 
+    {
+        final String sql = "INSERT INTO public.job ("
+            + "job_id, "
+            + "name, "
+            + "description, "
+            + "\"data\", "
+            + "create_date, "
+            + "status, "
+            + "percentage_complete, "
+            + "failure_details, "
+            + "job_hash, "
+            + "delay, "
+            + "last_update_date, "
+            + "partition_id) "
+            + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (final Connection dbConnection = getDbConnection()) {
+            PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
+
+            preparedStatement.setString(1, jobId); // job_id
+            preparedStatement.setString(2, ""); // name
+            preparedStatement.setString(3, ""); // description
+            preparedStatement.setString(4, ""); // data
+            preparedStatement.setTimestamp(5, new Timestamp(System.currentTimeMillis())); // create_data
+            preparedStatement.setObject(6, jobStatus, Types.OTHER); // status
+            preparedStatement.setDouble(7, 0.00); // percentage_complete
+            preparedStatement.setString(8, ""); // failure_details
+            preparedStatement.setInt(9, 0); // job_hash
+            preparedStatement.setInt(10, 0); // delay
+            preparedStatement.setTimestamp(11, new Timestamp(System.currentTimeMillis())); // last_update_date
+            preparedStatement.setString(12, "default"); // partition_id
+
+            // Execute the SQL statement
+            int rowsAffected = preparedStatement.executeUpdate();
+            System.out.println(rowsAffected + " rows affected.");
         }
     }
 }
