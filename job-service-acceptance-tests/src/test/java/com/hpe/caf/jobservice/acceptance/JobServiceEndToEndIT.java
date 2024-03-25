@@ -496,7 +496,8 @@ public class JobServiceEndToEndIT {
 
         final String parentJobId = generateJobId();
         final String failedPrerequisiteJobId = generateJobId();
-        JobServiceDatabaseUtil.insertRowIntoJobTable(failedPrerequisiteJobId, com.hpe.caf.api.worker.JobStatus.Failed);
+        JobServiceDatabaseUtil.insertRowIntoJobTable(
+                failedPrerequisiteJobId, defaultPartitionId, com.hpe.caf.api.worker.JobStatus.Failed);
         try {
             createJobWithPrerequisites(parentJobId, true, 0, failedPrerequisiteJobId);
             Assert.fail("Expected an ApiException to be thrown containing a HTTP 400 response when trying to create a job with a "

@@ -296,7 +296,10 @@ public class JobServiceDatabaseUtil
         }
     }
 
-    public static void insertRowIntoJobTable(final String jobId, final JobStatus jobStatus) throws SQLException 
+    public static void insertRowIntoJobTable(
+            final String jobId,
+            final String partitionId,
+            final JobStatus jobStatus) throws SQLException
     {
         final String sql = "INSERT INTO public.job ("
             + "job_id, "
@@ -327,7 +330,7 @@ public class JobServiceDatabaseUtil
             preparedStatement.setInt(9, 0); // job_hash
             preparedStatement.setInt(10, 0); // delay
             preparedStatement.setTimestamp(11, new Timestamp(System.currentTimeMillis())); // last_update_date
-            preparedStatement.setString(12, "default"); // partition_id
+            preparedStatement.setString(12, partitionId); // partition_id
 
             // Execute the SQL statement
             int rowsAffected = preparedStatement.executeUpdate();

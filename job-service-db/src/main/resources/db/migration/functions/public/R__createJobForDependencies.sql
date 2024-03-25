@@ -45,8 +45,6 @@ RETURNS TABLE(
 )
 LANGUAGE plpgsql
 AS $$
-DECLARE
-    failed_prerequisite_job_ids VARCHAR[];
 BEGIN
     -- Raise exception if job identifier has not been specified
     IF in_job_id IS NULL OR in_job_id = '' THEN
@@ -81,16 +79,6 @@ BEGIN
     -- Set default value for delay if no value provided
     IF in_delay IS NULL THEN
         in_delay = 0;
-    END IF;
-
-    -- Raise exception if any prerequisite jobs have failed
-    SELECT ARRAY_AGG(job_id) INTO failed_prerequisite_job_ids
-    FROM job
-    WHERE job_id = ANY(in_prerequisite_job_ids)
-      AND status = 'Failed';
-
-    IF array_length(failed_prerequisite_job_ids, 1) > 0 THEN
-        RAISE EXCEPTION 'One or more prerequisite jobs have failed. Failed Job IDs: %', ARRAY_TO_STRING(failed_prerequisite_job_ids, ', ') USING ERRCODE = '02000'; -- sqlstate no data
     END IF;
 
     IF NOT internal_create_job(in_partition_id, in_job_id, in_name, in_description, in_data, in_delay, in_job_hash, in_labels) THEN
@@ -150,6 +138,20 @@ BEGIN
         SELECT job_id FROM prereqs_created_but_not_complete
         UNION
         SELECT job_id FROM prereqs_not_created_yet
+        -- The SELECT query below is only used for its side effects, which is to call the 'internal_raise_exception_for_failed_prereqs'
+        -- function (its not enough to just add a new CTE to this pipeline that calls the
+        -- 'internal_raise_exception_for_failed_prereqs' function, as that new CTE must also be used in a later query, otherwise the
+        -- 'internal_raise_exception_for_failed_prereqs' won't get called).
+        -- If any prereqs have a 'Failed' status, the SELECT query will raise an exception and terminate this function ('create_job').
+        -- If no prereqs have a 'Failed' status, the SELECT query won't return anything.
+        UNION
+        SELECT job_id
+        FROM (SELECT uj.job_id, internal_raise_exception_for_failed_prereqs(array_agg(uj.job_id)) AS failed_prereqs
+              FROM updated_jobs uj
+              WHERE uj.partition_id = in_partition_id
+                AND uj.job_id IN (SELECT job_id FROM prereqs)
+                AND uj.status = 'Failed'
+              GROUP BY uj.job_id) AS failed_jobs
     )
 
     INSERT INTO public.job_dependency(partition_id, job_id, dependent_job_id)
