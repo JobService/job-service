@@ -1,5 +1,3 @@
-!not-ready-for-release!
-
 #### Version Number
 ${version-number}
 
@@ -7,7 +5,7 @@ ${version-number}
 - This release includes dependency updates only.
 
 #### New Features
--None
+- None
 
 #### Known Issues
 - None
