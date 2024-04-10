@@ -488,6 +488,26 @@ public class JobServiceEndToEndIT {
         JobServiceDatabaseUtil.assertJobStatus(parentJobId, "waiting");
     }
 
+    @Test
+    public void testJobWithFailedPrerequisiteJob() throws Exception
+    {
+        numTestItemsToGenerate = 2;                 // CAF-3677: Remove this on fix
+        testItemAssetIds = generateWorkerBatch();   // CAF-3677: Remove this on fix
+
+        final String parentJobId = generateJobId();
+        final String failedPrerequisiteJobId = generateJobId();
+        JobServiceDatabaseUtil.insertRowIntoJobTable(
+                failedPrerequisiteJobId, defaultPartitionId, com.hpe.caf.api.worker.JobStatus.Failed);
+        try {
+            createJobWithPrerequisites(parentJobId, true, 0, failedPrerequisiteJobId);
+            Assert.fail("Expected an ApiException to be thrown containing a HTTP 400 response when trying to create a job with a "
+                + "failed prerequisite job, but an ApiException was not thrown");
+        } catch (final ApiException apiEx) {
+            Assert.assertEquals(apiEx.getCode(), 400);
+            JobServiceDatabaseUtil.assertJobRowDoesNotExist(parentJobId);
+        }   
+    }
+
     @Test(enabled = false) // See https://portal.digitalsafe.net/browse/SCMOD-13004
     public void testJobWithPrerequisiteJobs() throws Exception
     {

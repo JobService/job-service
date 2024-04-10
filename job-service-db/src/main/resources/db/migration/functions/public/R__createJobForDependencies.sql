@@ -133,11 +133,23 @@ BEGIN
             SELECT job_id FROM job WHERE partition_id = in_partition_id
         )
     ),
+    prereqs_created_but_failed(dummy) AS
+    (
+         -- This query will raise an exception if any prereqs have a 'Failed' status.
+        SELECT internal_raise_exception_for_failed_prereqs(array_agg(job_id))
+        FROM prereqs_created_but_not_complete
+        WHERE status = 'Failed'
+    ),
     all_incomplete_prereqs(prerequisite_job_id) AS
     (
         SELECT job_id FROM prereqs_created_but_not_complete
         UNION
         SELECT job_id FROM prereqs_not_created_yet
+        -- The SELECT query below is only used for its side effects, which is to call the 'prereqs_created_but_failed' CTE.
+        -- If any prereqs have a 'Failed' status, the SELECT query below will raise an exception and terminate this function ('create_job').
+        -- If no prereqs have a 'Failed' status, the SELECT query below won't return anything.
+        UNION
+        SELECT NULL FROM prereqs_created_but_failed WHERE NOT dummy
     )
 
     INSERT INTO public.job_dependency(partition_id, job_id, dependent_job_id)
