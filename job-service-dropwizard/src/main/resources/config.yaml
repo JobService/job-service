@@ -16,6 +16,12 @@
 
 server:
   rootPath: /job-service/v1/
+  applicationConnectors:
+  - type: http
+    port: 8080
+  adminConnectors:
+  - type: http
+    port: 8081
 
 logging:
   type: external
