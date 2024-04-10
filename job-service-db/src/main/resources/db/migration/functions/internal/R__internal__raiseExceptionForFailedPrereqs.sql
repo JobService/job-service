@@ -21,7 +21,7 @@
  *  Accepts an array of failed prerequisite job ids and raises an exception if the array is not empty.
  */
 CREATE OR REPLACE FUNCTION internal_raise_exception_for_failed_prereqs(in_failed_prereq_jobs_ids VARCHAR(128)[]) RETURNS BOOLEAN
-    LANGUAGE plpgsql AS
+    LANGUAGE plpgsql IMMUTABLE AS
 $$BEGIN
     IF array_length(in_failed_prereq_jobs_ids, 1) > 0 THEN
         RAISE EXCEPTION 'One or more prerequisite jobs have failed. Failed Job IDs: %', ARRAY_TO_STRING(in_failed_prereq_jobs_ids, ', ') USING ERRCODE = '02000'; -- sqlstate no data

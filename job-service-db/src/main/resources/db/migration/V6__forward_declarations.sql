@@ -24,7 +24,7 @@ DO $$
 BEGIN
     CREATE FUNCTION internal_raise_exception_for_failed_prereqs(in_failed_prereq_jobs_ids VARCHAR(128)[])
     RETURNS BOOLEAN
-    LANGUAGE plpgsql STABLE
+    LANGUAGE plpgsql IMMUTABLE
     AS 'BEGIN /* Forward Declaration */ END';
 EXCEPTION WHEN duplicate_function THEN
 END $$;
