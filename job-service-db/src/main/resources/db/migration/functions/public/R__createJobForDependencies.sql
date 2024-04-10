@@ -133,25 +133,23 @@ BEGIN
             SELECT job_id FROM job WHERE partition_id = in_partition_id
         )
     ),
+    prereqs_created_but_failed(dummy) AS
+    (
+         -- This query will raise an exception if any prereqs have a 'Failed' status.
+        SELECT internal_raise_exception_for_failed_prereqs(array_agg(job_id))
+        FROM prereqs_created_but_not_complete
+        WHERE status = 'Failed'
+    ),
     all_incomplete_prereqs(prerequisite_job_id) AS
     (
         SELECT job_id FROM prereqs_created_but_not_complete
         UNION
         SELECT job_id FROM prereqs_not_created_yet
-        -- The SELECT query below is only used for its side effects, which is to call the 'internal_raise_exception_for_failed_prereqs'
-        -- function (its not enough to just add a new CTE to this pipeline that calls the
-        -- 'internal_raise_exception_for_failed_prereqs' function, as that new CTE must also be used in a later query, otherwise the
-        -- 'internal_raise_exception_for_failed_prereqs' won't get called).
-        -- If any prereqs have a 'Failed' status, the SELECT query will raise an exception and terminate this function ('create_job').
-        -- If no prereqs have a 'Failed' status, the SELECT query won't return anything.
+        -- The SELECT query below is only used for its side effects, which is to call the 'prereqs_created_but_failed' CTE.
+        -- If any prereqs have a 'Failed' status, the SELECT query below will raise an exception and terminate this function ('create_job').
+        -- If no prereqs have a 'Failed' status, the SELECT query below won't return anything.
         UNION
-        SELECT job_id
-        FROM (SELECT uj.job_id, internal_raise_exception_for_failed_prereqs(array_agg(uj.job_id)) AS failed_prereqs
-              FROM updated_jobs uj
-              WHERE uj.partition_id = in_partition_id
-                AND uj.job_id IN (SELECT job_id FROM prereqs)
-                AND uj.status = 'Failed'
-              GROUP BY uj.job_id) AS failed_jobs
+        SELECT NULL FROM prereqs_created_but_failed WHERE NOT dummy
     )
 
     INSERT INTO public.job_dependency(partition_id, job_id, dependent_job_id)
