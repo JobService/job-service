@@ -16,7 +16,7 @@
 package com.hpe.caf.services.job.scheduled.executor;
 
 public final class StagingQueueRerouter {
-    private StagingQueueRerouter() {};
+    private StagingQueueRerouter() {}
 
     private static final String LOAD_BALANCED_INDICATOR = "»";
 
