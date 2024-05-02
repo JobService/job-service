@@ -23,6 +23,7 @@
 CREATE OR REPLACE FUNCTION internal_create_task_table(in_table_name VARCHAR(63))
 RETURNS VOID
 LANGUAGE plpgsql
+SET client_min_messages TO WARNING
 AS $$
 BEGIN
     -- Create a new task table
