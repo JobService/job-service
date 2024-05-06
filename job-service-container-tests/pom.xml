@@ -304,7 +304,7 @@
                     <images>
                         <image>
                             <alias>webdav</alias>
-                            <name>${dockerHubPublic}/cloudesire/webdav</name>
+                            <name>${projectDockerRegistry}/cloudesire/webdav</name>
                             <run>
                                 <volumes>
                                     <bind>
@@ -333,7 +333,7 @@
                         <!-- pull in a normal postgres DB for integration tests -->
                         <image>
                             <alias>jobservice-integrationtests-postgres</alias>
-                            <name>${dockerHubPublic}/library/postgres:14</name>
+                            <name>${projectDockerRegistry}/library/postgres</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
@@ -357,7 +357,7 @@
                         <!--Run rabbitmq for tests. -->
                         <image>
                             <alias>rabbitmq</alias>
-                            <name>${dockerHubPublic}/library/rabbitmq:3-management</name>
+                            <name>${projectDockerRegistry}/library/rabbitmq</name>
                             <run>
                                 <ports>
                                     <port>${rabbitmq.ctrl.port}:15672</port>
@@ -381,7 +381,7 @@
                             <alias>config</alias>
                             <name>${project.artifactId}-test-config:${project.version}</name>
                             <build>
-                                <from>${dockerHubPublic}/library/busybox:latest</from>
+                                <from>${projectDockerRegistry}/library/busybox</from>
                                 <assembly>
                                     <exportTargetDir>true</exportTargetDir>
                                     <basedir>/config</basedir>
@@ -401,7 +401,7 @@
                             <alias>keystore</alias>
                             <name>${project.artifactId}-keystore:${project.version}</name>
                             <build>
-                                <from>${dockerHubPublic}/cafapi/opensuse-jre17:1</from>
+                                <from>${projectDockerRegistry}/cafapi/opensuse-jre17</from>
                                 <runCmds>
                                     <runCmd>mkdir /test-keystore</runCmd>
                                     <runCmd>$JRE_HOME/bin/keytool -genkey -noprompt -alias tomcat -dname "CN=myname, OU=myorganisational.unit, O=myorganisation, L=mycity, S=myprovince, C=GB" -keystore /test-keystore/tomcat.keystore -storepass changeit -keypass changeit -keyalg RSA</runCmd>
@@ -417,7 +417,7 @@
                             <alias>job-type-definitions</alias>
                             <name>${project.artifactId}-job-type-definitions:${project.version}</name>
                             <build>
-                                <from>${dockerHubPublic}/library/busybox:latest</from>
+                                <from>${projectDockerRegistry}/library/busybox</from>
                                 <assembly>
                                     <exportTargetDir>true</exportTargetDir>
                                     <basedir>/</basedir>
