@@ -1354,7 +1354,7 @@
                         <image>
                             <repository>${dockerHubPublic}/library/postgres</repository>
                             <tag>14</tag>
-                            <digest>sha256:a28005f051c26406f8e718e411a1068462a297dae049cddb513194d36dd8f29f</digest>
+                            <digest>sha256:d6850c40261fdc9a4fb33b9521d9d641c4a5dcb82145f7bcc32c9258f81e75a2</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/library/rabbitmq</repository>
