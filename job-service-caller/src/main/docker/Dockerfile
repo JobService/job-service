@@ -14,8 +14,7 @@
 # limitations under the License.
 #
 
-ARG DOCKER_HUB_PUBLIC=docker.io
-FROM ${DOCKER_HUB_PUBLIC}/cafapi/opensuse-python3:2
+FROM ${projectDockerRegistry}/cafapi/opensuse-python3
 
 # Install pip and requests
 RUN zypper -n install python3-pip && \
