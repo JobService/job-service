@@ -70,7 +70,7 @@
                             <alias>job-service</alias>
                             <name>${dockerJobServiceOrg}job-service${dockerProjectVersion}</name>
                             <build>
-                                <from>${dockerHubPublic}/cafapi/opensuse-jre17:1</from>
+                                <from>${projectDockerRegistry}/cafapi/opensuse-jre17</from>
                                 <cmd>
                                     <exec>
                                         <args>/maven/service.sh</args>
