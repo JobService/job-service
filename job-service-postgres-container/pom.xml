@@ -95,7 +95,7 @@
                         <!-- Postgres DB -->
                         <image>
                             <alias>${js.database.host}</alias>
-                            <name>${dockerHubPublic}/library/postgres:14</name>
+                            <name>${projectDockerRegistry}/library/postgres</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
@@ -119,6 +119,7 @@
                         <!-- Run liquibase version of jobservice postgres container against postgres database to install jobservice schema. -->
                         <image>
                             <alias>job-service-postgres-liquibase</alias>
+                            <!-- TODO: Version 6 is also required-->
                             <name>${dockerHubPublic}/jobservice/job-service-postgres:3</name>
                             <run>
                                 <links>
@@ -145,7 +146,7 @@
                         <!-- Run flyway version of jobservice postgres container against postgres database to test jobservice schema upgrade. -->
                         <image>
                             <alias>job-service-postgres-flyway</alias>
-                            <name>${dockerHubPublic}/jobservice/job-service-postgres:6</name>
+                            <name>${projectDockerRegistry}/jobservice/job-service-postgres</name>
                             <run>
                                 <links>
                                     <link>${js.database.host}</link>
@@ -173,7 +174,7 @@
                             <alias>job-service-postgres</alias>
                             <name>${dockerJobServiceOrg}job-service-postgres${dockerProjectVersion}</name>
                             <build>
-                                <from>${dockerHubPublic}/cafapi/java-postgres:4</from>
+                                <from>${projectDockerRegistry}/cafapi/java-postgres</from>
                                 <optimise>true</optimise>
                                 <assembly>
                                     <mode>tar</mode>
