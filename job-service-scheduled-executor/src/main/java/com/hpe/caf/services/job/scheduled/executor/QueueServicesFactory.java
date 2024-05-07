@@ -15,6 +15,7 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
+import com.github.workerframework.workermessageprioritization.rerouting.MessageRouterSingleton;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 
@@ -87,7 +88,9 @@ public final class QueueServicesFactory
 
             final String tenantId = matcher.matches() ? matcher.group("tenantId") : partitionId;
 
-            stagingQueueOrTargetQueue = StagingQueueRerouter.route(targetQueue, tenantId);
+            MessageRouterSingleton.init();
+
+            stagingQueueOrTargetQueue = MessageRouterSingleton.route(targetQueue, tenantId);
 
             LOG.debug("MessageRouterSingleton.route({}, {}) returned the following queue name: {}. " +
                             "Messages will be routed to this queue.",

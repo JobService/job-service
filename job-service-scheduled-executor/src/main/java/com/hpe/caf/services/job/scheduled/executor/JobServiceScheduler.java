@@ -15,6 +15,7 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
+import com.github.workerframework.workermessageprioritization.rerouting.MessageRouterSingleton;
 import com.hpe.caf.worker.document.exceptions.DocumentWorkerTransientException;
 import com.hpe.caf.worker.document.extensibility.DocumentWorker;
 import com.hpe.caf.worker.document.model.Document;
@@ -38,6 +39,7 @@ public class JobServiceScheduler implements DocumentWorker
     @Override
     public void checkHealth(HealthMonitor healthMonitor)
     {
+        MessageRouterSingleton.checkHealth(healthMonitor);
     }
 
     @Override
