@@ -119,8 +119,7 @@
                         <!-- Run liquibase version of jobservice postgres container against postgres database to install jobservice schema. -->
                         <image>
                             <alias>job-service-postgres-liquibase</alias>
-                            <!-- TODO: Version 6 is also required-->
-                            <name>${dockerHubPublic}/jobservice/job-service-postgres:3</name>
+                            <name>${dockerHubPublic}/jobservice/job-service-postgres:3.5.0</name>
                             <run>
                                 <links>
                                     <link>${js.database.host}</link>
