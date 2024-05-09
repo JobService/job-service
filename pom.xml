@@ -1311,11 +1311,13 @@
                     <imageManagement>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/doc-site-compiler</repository>
-                            <tag>2</tag>
+                            <tag>2.0.0</tag>
+                            <digest>sha256:f86cfd00743cf4c61672313c9fe1f4b955608cec2b19a251f9d3845145f8a2d6</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/java-postgres</repository>
-                            <tag>4</tag>
+                            <tag>4.0.0</tag>
+                            <digest>sha256:a530618e5212245b4bed8066772f07440a8e114516be77e99f451697b4d8ac61</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-jre17</repository>
@@ -1324,7 +1326,8 @@
                         </image>            
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
-                            <tag>2</tag>
+                            <tag>2.10.1</tag>
+                            <digest>sha256:10c4c126ba09b98b06e936d471700416bf0d08b44ca14a4e865679fac5797e2a</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafdataprocessing/worker-example</repository>
@@ -1333,32 +1336,37 @@
                         <image>
                             <repository>${dockerHubPublic}/cloudesire/webdav</repository>
                             <tag>latest</tag>
-                            <digest>sha256:92a7498003381dc5b939dbc7d53b5e6c380758f3947588230dfaf7e73718bda8</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/jobservice/job-service-postgres</repository>
-                            <tag>6</tag>
+                            <tag>6.2.2</tag>
+                            <digest>sha256:b3d7cb9dcb8c3ad0a4e58f8e29448d61138af8cdf53711fb24811a161e574be6</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/jobservice/worker-batchsplit</repository>
-                            <tag>1.0</tag>
+                            <tag>1.0.0</tag>
+                            <digest>sha256:77076425598161649d5df89abbb974596a9eb5f3e943c0ce29bfe16be574a751</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/library/busybox</repository>
-                            <tag>latest</tag>
+                            <tag>1.36.1</tag>
+                            <digest>sha256:5eef5ed34e1e1ff0a4ae850395cbf665c4de6b4b83a32a0bc7bcb998e24e7bbb</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/library/httpd</repository>
-                            <tag>2.4</tag>
+                            <tag>2.4.59-bookworm</tag>
+                            <digest>sha256:36c8c79f900108f0f09fd4148ad35ade57cba0dc19d13f3d15be24ce94e6a639</digest>
                         </image>
                         <image>
-                            <repository>${dockerHubPublic}/library/postgres</repository>
-                            <tag>14</tag>
+                            <repository>library/postgres</repository>
+                            <tag>14.11-bookworm</tag>
                             <digest>sha256:d6850c40261fdc9a4fb33b9521d9d641c4a5dcb82145f7bcc32c9258f81e75a2</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/library/rabbitmq</repository>
-                            <tag>3-management</tag>
+                            <tag>3.13.2-management</tag>
+                            <latestTag>management</latestTag>
+                            <digest>sha256:eee9afbc17c32424ba6309dfd2d9efc9b9b1863ffe231b3d2be2815758b0d649</digest>
                         </image>
                     </imageManagement>
                 </configuration>
