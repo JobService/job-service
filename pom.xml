@@ -1331,7 +1331,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafdataprocessing/worker-example</repository>
-                            <tag>1.8</tag>
+                            <tag>1.8.0</tag>
+                            <digest>sha256:0da24717ef875fa51a4650860ea31e48a1ee0cb69b999dc8b52efd2f753361bd</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cloudesire/webdav</repository>
