@@ -300,7 +300,7 @@
                         WebDav image 
                         <image>
                             <alias>webdav</alias>
-                            <name>${dockerHubPublic}/cloudesire/webdav</name>
+                            <name>${projectDockerRegistry}/cloudesire/webdav</name>
                             <run>
                                 <volumes>
                                     <bind>
@@ -332,7 +332,7 @@
                             <alias>config</alias>
                             <name>${project.artifactId}-test-config:${project.version}</name>
                             <build>
-                                <from>${dockerHubPublic}/library/busybox:latest</from>
+                                <from>${projectDockerRegistry}/library/busybox</from>
                                 <assembly>
                                     <exportTargetDir>true</exportTargetDir>
                                     <basedir>/config</basedir>
@@ -353,7 +353,7 @@
                             <alias>jobDefinition</alias>
                             <name>${project.artifactId}-test-job-definition:${project.version}</name>
                             <build>
-                                <from>${dockerHubPublic}/library/busybox:latest</from>
+                                <from>${projectDockerRegistry}/library/busybox</from>
                                 <assembly>
                                     <exportTargetDir>true</exportTargetDir>
                                     <basedir>/jobDefinition</basedir>
@@ -374,7 +374,7 @@
                             <alias>plugin</alias>
                             <name>${project.artifactId}-worker-batch-test-plugins:${project.version}</name>
                             <build>
-                                <from>${dockerHubPublic}/library/busybox:latest</from>
+                                <from>${projectDockerRegistry}/library/busybox</from>
                                 <assembly>
                                     <exportTargetDir>true</exportTargetDir>
                                     <basedir>/mnt/mesos/sandbox/batch-plugins</basedir>
@@ -402,7 +402,7 @@
                         <!-- Run a PostgreSQL DB -->
                         <image>
                             <alias>${job.database.host}</alias>
-                            <name>${dockerHubPublic}/library/postgres:14</name>
+                            <name>${projectDockerRegistry}/library/postgres</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
@@ -427,7 +427,7 @@
                         <!-- Run RabbitMQ -->
                         <image>
                             <alias>rabbitmq</alias>
-                            <name>${dockerHubPublic}/library/rabbitmq:3-management</name>
+                            <name>${projectDockerRegistry}/library/rabbitmq</name>
                             <run>
                                 <ports>
                                     <port>${rabbitmq.ctrl.port}:15672</port>
@@ -555,7 +555,7 @@
                         <image>
                             <alias>batch-worker</alias>
                             <!--TODO version might need to be updated-->
-                            <name>${dockerHubPublic}/jobservice/worker-batchsplit:1.0</name>
+                            <name>${projectDockerRegistry}/jobservice/worker-batchsplit</name>
                             <run>
                                 <ports>
                                     <port>${batch-worker.adminport}:8081</port>
@@ -591,7 +591,7 @@
                         <!-- Run Example worker -->
                         <image>
                             <alias>example-worker</alias>
-                            <name>${dockerHubPublic}/cafdataprocessing/worker-example:1.8</name>
+                            <name>${projectDockerRegistry}/cafdataprocessing/worker-example</name>
                             <run>
                                 <ports>
                                     <port>${example-worker.adminport}:8081</port>

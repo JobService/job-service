@@ -264,7 +264,7 @@
                     <images>
                         <image>
                             <alias>webdav</alias>
-                            <name>${dockerHubPublic}/cloudesire/webdav</name>
+                            <name>${projectDockerRegistry}/cloudesire/webdav</name>
                             <run>
                                 <volumes>
                                     <bind>
@@ -293,7 +293,7 @@
                         <!-- pull in a normal postgres DB for integration tests -->
                         <image>
                             <alias>${job.database.host}</alias>
-                            <name>${dockerHubPublic}/library/postgres:14</name>
+                            <name>${projectDockerRegistry}/library/postgres</name>
                             <run>
                                 <ports>
                                     <port>${postgres.db.port}:5432</port>
@@ -317,7 +317,7 @@
                         <!--Run RabbitMQ.-->
                         <image>
                             <alias>rabbitmq</alias>
-                            <name>${dockerHubPublic}/library/rabbitmq:3-management</name>
+                            <name>${projectDockerRegistry}/library/rabbitmq</name>
                             <run>
                                 <ports>
                                     <port>${rabbitmq.ctrl.port}:15672</port>
