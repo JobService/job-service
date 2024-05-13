@@ -15,7 +15,6 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
-import com.github.workerframework.workermessageprioritization.rerouting.MessageRouterSingleton;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 
@@ -29,6 +28,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
@@ -88,9 +89,7 @@ public final class QueueServicesFactory
 
             final String tenantId = matcher.matches() ? matcher.group("tenantId") : partitionId;
 
-            MessageRouterSingleton.init();
-
-            stagingQueueOrTargetQueue = MessageRouterSingleton.route(targetQueue, tenantId);
+            stagingQueueOrTargetQueue = StagingQueueRerouter.route(targetQueue, tenantId);
 
             LOG.debug("MessageRouterSingleton.route({}, {}) returned the following queue name: {}. " +
                             "Messages will be routed to this queue.",
@@ -102,8 +101,11 @@ public final class QueueServicesFactory
         }
 
         //  Declare worker queue.
-        LOG.debug("Passively declaring worker queue {}...", stagingQueueOrTargetQueue);
-        publishChannel.queueDeclarePassive(stagingQueueOrTargetQueue);
+        LOG.debug("Declaring worker queue {}...", stagingQueueOrTargetQueue);
+        final Map<String, Object> queueArguments = new HashMap<>();
+        queueArguments.put("x-queue-type", "quorum");
+        //setting queue properties: durable - true, exclusive - false, autoDelete - false
+        publishChannel.queueDeclare(stagingQueueOrTargetQueue, true, false, false, queueArguments);
 
         // stagingQueueOrTargetQueue = Queue where message should be published to
         // targetQueue               = Queue that should be set in the 'to' field of the task message
