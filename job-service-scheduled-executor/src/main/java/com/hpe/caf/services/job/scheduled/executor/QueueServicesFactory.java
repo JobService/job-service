@@ -15,7 +15,6 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
-import com.github.workerframework.workermessageprioritization.rerouting.MessageRouterSingleton;
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 
@@ -29,6 +28,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
@@ -59,6 +60,23 @@ public final class QueueServicesFactory
                     "CAF_WMP_TARGET_QUEUE_NAMES_PATTERN must be set if CAF_WMP_ENABLED is true"))
             : null;
 
+    private static final String RABBIT_PROP_KEY_MAX_PRIORITY = "x-max-priority";
+
+    private static final String RABBIT_PROP_QUEUE_TYPE = "x-queue-type";
+
+    private static final String RABBIT_PROP_QUEUE_TYPE_CLASSIC = "classic";
+
+    private static final Map<String, Object> QUEUE_ARGUMENTS = new HashMap<>();
+
+    static {
+        final int queueMaxPriority = ScheduledExecutorConfig.getQueueMaxPriority();
+        final String queueType = ScheduledExecutorConfig.getQueueType();
+        if (queueMaxPriority > 0 && queueType.equals(RABBIT_PROP_QUEUE_TYPE_CLASSIC)) {
+            QUEUE_ARGUMENTS.put(RABBIT_PROP_KEY_MAX_PRIORITY, queueMaxPriority);
+        }
+        QUEUE_ARGUMENTS.put(RABBIT_PROP_QUEUE_TYPE, queueType);
+    }
+
     /**
      * Create a new QueueServices object.
      *
@@ -88,9 +106,7 @@ public final class QueueServicesFactory
 
             final String tenantId = matcher.matches() ? matcher.group("tenantId") : partitionId;
 
-            MessageRouterSingleton.init();
-
-            stagingQueueOrTargetQueue = MessageRouterSingleton.route(targetQueue, tenantId);
+            stagingQueueOrTargetQueue = StagingQueueRerouter.route(targetQueue, tenantId);
 
             LOG.debug("MessageRouterSingleton.route({}, {}) returned the following queue name: {}. " +
                             "Messages will be routed to this queue.",
@@ -102,8 +118,10 @@ public final class QueueServicesFactory
         }
 
         //  Declare worker queue.
-        LOG.debug("Passively declaring worker queue {}...", stagingQueueOrTargetQueue);
-        publishChannel.queueDeclarePassive(stagingQueueOrTargetQueue);
+        LOG.debug("Declaring worker queue {}...", stagingQueueOrTargetQueue);
+
+        //setting queue properties: durable - true, exclusive - false, autoDelete - false
+        publishChannel.queueDeclare(stagingQueueOrTargetQueue, true, false, false, QUEUE_ARGUMENTS);
 
         // stagingQueueOrTargetQueue = Queue where message should be published to
         // targetQueue               = Queue that should be set in the 'to' field of the task message
