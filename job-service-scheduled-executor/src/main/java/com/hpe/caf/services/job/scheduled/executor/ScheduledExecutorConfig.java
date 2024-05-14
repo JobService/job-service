@@ -118,6 +118,22 @@ public class ScheduledExecutorConfig {
         return Integer.parseInt(period);
     }
 
+    public static String getQueueType() {
+        final String queueType = getPropertyOrEnvVar("CAF_RABBITMQ_QUEUE_TYPE");
+        if (null == queueType || queueType.isEmpty()) {
+            return "quorum";
+        }
+        return queueType;
+    }
+
+    public static int getQueueMaxPriority() {
+        final String queueMaxPriority = getPropertyOrEnvVar("CAF_RABBITMQ_MAX_PRIORITY");
+        if (null == queueMaxPriority || queueMaxPriority.isEmpty()) {
+            return 0;
+        }
+        return Integer.parseInt(queueMaxPriority);
+    }
+
     private static String getPropertyOrEnvVar(final String key)
     {
         final String propertyValue = System.getProperty(key);
