@@ -60,11 +60,22 @@ public final class QueueServicesFactory
                     "CAF_WMP_TARGET_QUEUE_NAMES_PATTERN must be set if CAF_WMP_ENABLED is true"))
             : null;
 
-    public static final String RABBIT_PROP_KEY_MAX_PRIORITY = "x-max-priority";
+    private static final String RABBIT_PROP_KEY_MAX_PRIORITY = "x-max-priority";
 
-    public static final String RABBIT_PROP_QUEUE_TYPE = "x-queue-type";
+    private static final String RABBIT_PROP_QUEUE_TYPE = "x-queue-type";
 
-    public static final String RABBIT_PROP_QUEUE_TYPE_CLASSIC = "classic";
+    private static final String RABBIT_PROP_QUEUE_TYPE_CLASSIC = "classic";
+
+    private static final Map<String, Object> queueArguments = new HashMap<>();
+
+    static {
+        final int queueMaxPriority = ScheduledExecutorConfig.getQueueMaxPriority();
+        final String queueType = ScheduledExecutorConfig.getQueueType();
+        if (queueMaxPriority > 0 && queueType.equals(RABBIT_PROP_QUEUE_TYPE_CLASSIC)) {
+            queueArguments.put(RABBIT_PROP_KEY_MAX_PRIORITY, queueMaxPriority);
+        }
+        queueArguments.put(RABBIT_PROP_QUEUE_TYPE, queueType);
+    }
 
     /**
      * Create a new QueueServices object.
@@ -108,13 +119,7 @@ public final class QueueServicesFactory
 
         //  Declare worker queue.
         LOG.debug("Declaring worker queue {}...", stagingQueueOrTargetQueue);
-        final Map<String, Object> queueArguments = new HashMap<>();
-        final int queueMaxPriority = ScheduledExecutorConfig.getQueueMaxPriority();
-        final String queueType = ScheduledExecutorConfig.getQueueType();
-        if (queueMaxPriority > 0 && queueType.equals(RABBIT_PROP_QUEUE_TYPE_CLASSIC)) {
-                queueArguments.put(RABBIT_PROP_KEY_MAX_PRIORITY, queueMaxPriority);
-        }
-        queueArguments.put(RABBIT_PROP_QUEUE_TYPE, queueType);
+
         //setting queue properties: durable - true, exclusive - false, autoDelete - false
         publishChannel.queueDeclare(stagingQueueOrTargetQueue, true, false, false, queueArguments);
 
