@@ -72,9 +72,9 @@ public final class QueueServicesFactory
         final int queueMaxPriority = ScheduledExecutorConfig.getQueueMaxPriority();
         final String queueType = ScheduledExecutorConfig.getQueueType();
         if (queueMaxPriority > 0 && queueType.equals(RABBIT_PROP_QUEUE_TYPE_CLASSIC)) {
-            queueArguments.put(RABBIT_PROP_KEY_MAX_PRIORITY, queueMaxPriority);
+            QUEUE_ARGUMENTS.put(RABBIT_PROP_KEY_MAX_PRIORITY, queueMaxPriority);
         }
-        queueArguments.put(RABBIT_PROP_QUEUE_TYPE, queueType);
+        QUEUE_ARGUMENTS.put(RABBIT_PROP_QUEUE_TYPE, queueType);
     }
 
     /**
