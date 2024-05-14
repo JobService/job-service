@@ -66,7 +66,7 @@ public final class QueueServicesFactory
 
     private static final String RABBIT_PROP_QUEUE_TYPE_CLASSIC = "classic";
 
-    private static final Map<String, Object> queueArguments = new HashMap<>();
+    private static final Map<String, Object> QUEUE_ARGUMENTS = new HashMap<>();
 
     static {
         final int queueMaxPriority = ScheduledExecutorConfig.getQueueMaxPriority();
@@ -121,7 +121,7 @@ public final class QueueServicesFactory
         LOG.debug("Declaring worker queue {}...", stagingQueueOrTargetQueue);
 
         //setting queue properties: durable - true, exclusive - false, autoDelete - false
-        publishChannel.queueDeclare(stagingQueueOrTargetQueue, true, false, false, queueArguments);
+        publishChannel.queueDeclare(stagingQueueOrTargetQueue, true, false, false, QUEUE_ARGUMENTS);
 
         // stagingQueueOrTargetQueue = Queue where message should be published to
         // targetQueue               = Queue that should be set in the 'to' field of the task message
