@@ -32,29 +32,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.hpe.caf.services.job.api.generated.model.NewJob;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.jobtype.JobType;
 import com.hpe.caf.services.job.jobtype.JobTypes;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({JobsPut.class,QueueServices.class, QueueServicesFactory.class, DatabaseHelper.class, AppConfig.class})
-@PowerMockIgnore("javax.management.*")
+@RunWith(MockitoJUnitRunner.class)
 public final class JobsPutTest {
 
     public static final String TEST_TASK_DATA = "{\"data\" : \"TestTaskData\"}";
@@ -67,6 +64,8 @@ public final class JobsPutTest {
     private HashMap <String,Object> testDataObjectMap;
     private HashMap <String,String> taskMessageParams;
     private JobType basicJobType;
+    private MockedStatic<DatabaseHelperFactory> databaseHelperFactoryMockedStatic;
+    private MockedStatic<QueueServicesFactory> queueServicesFactoryMockedStatic;
 
     /**
      * @return Simple new job with just outer values filled in - no `task` or `job`
@@ -111,6 +110,10 @@ public final class JobsPutTest {
     @Before
     public void setup() throws Exception {
         //  Mock DatabaseHelper calls.
+        mockDatabaseHelper = Mockito.mock(DatabaseHelper.class);
+        databaseHelperFactoryMockedStatic =
+                Mockito.mockStatic(DatabaseHelperFactory.class);
+        when(DatabaseHelperFactory.createDatabaseHelper(any())).thenReturn(mockDatabaseHelper);
         when(mockDatabaseHelper.createJob(
                 anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
                 anyInt(), any(), anyString(), anyString(), anyInt(), anyMap())).thenReturn(true);
@@ -119,7 +122,6 @@ public final class JobsPutTest {
             anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), eq(false)
         )).thenReturn(true);
         doNothing().when(mockDatabaseHelper).deleteJob(anyString(), anyString());
-        PowerMockito.whenNew(DatabaseHelper.class).withArguments(any()).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
@@ -141,12 +143,11 @@ public final class JobsPutTest {
             (partitionId, jobId, params) -> jsonObject);
         JobTypes.initialise(() -> Collections.singletonList(basicJobType));
 
-        //  Mock QueueServices calls.
-        PowerMockito.whenNew(QueueServices.class).withArguments(any(),any(),anyString(),any()).thenReturn(mockQueueServices);
-
-        //  Mock QueueServicesFactory calls.
-        PowerMockito.mockStatic(QueueServicesFactory.class);
-        PowerMockito.doReturn(mockQueueServices).when(QueueServicesFactory.class, "create", any(), anyString(), any());
+        //  Mock QueueServices and QueueServicesFactory calls.
+        mockQueueServices = Mockito.mock(QueueServices.class);
+        queueServicesFactoryMockedStatic =
+                Mockito.mockStatic(QueueServicesFactory.class);
+        when(QueueServicesFactory.create(any(),anyString(),any())).thenReturn(mockQueueServices);
         
         testDataObjectMap = new HashMap<>();
         taskMessageParams = new HashMap<>();
@@ -161,6 +162,12 @@ public final class JobsPutTest {
         testDataObjectMap.put("taskMessageType", "DocumentWorkerTaskBuilder");
         testDataObjectMap.put("taskMessageParams", taskMessageParams);
         testDataObjectMap.put("targetPipe", "languageidentification-in");
+    }
+
+    @After
+    public void cleanUp() throws Exception {
+        databaseHelperFactoryMockedStatic.close();
+        queueServicesFactoryMockedStatic.close();
     }
     
     @Test

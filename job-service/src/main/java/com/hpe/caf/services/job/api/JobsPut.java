@@ -166,7 +166,7 @@ public final class JobsPut {
             AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
-            DatabaseHelper databaseHelper = new DatabaseHelper(config);
+            DatabaseHelper databaseHelper = DatabaseHelperFactory.createDatabaseHelper(config);
 
             //  Create hash of parameters not being stored in the database.
             int jobHash = job.hashCode();

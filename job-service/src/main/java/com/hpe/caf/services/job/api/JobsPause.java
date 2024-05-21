@@ -54,7 +54,7 @@ public final class JobsPause {
             AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
-            DatabaseHelper databaseHelper = new DatabaseHelper(config);
+            DatabaseHelper databaseHelper = DatabaseHelperFactory.createDatabaseHelper(config);
 
             //  Pause the specified job.
             LOG.debug("pause: Pausing the job...");

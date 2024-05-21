@@ -15,34 +15,36 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({JobsStatsGetCount.class, DatabaseHelper.class, AppConfig.class})
-@PowerMockIgnore("javax.management.*")
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
 public final class JobStatsGetCountTest {
 
     @Mock
     private DatabaseHelper mockDatabaseHelper;
 
+    private MockedStatic<DatabaseHelperFactory> databaseHelperFactoryMockedStatic;
+
     @Before
     public void setup() throws Exception {
         //  Mock DatabaseHelper calls.
-        Mockito.doNothing().when(mockDatabaseHelper)
-            .deleteJob(Mockito.anyString(), Mockito.anyString());
-        PowerMockito.whenNew(DatabaseHelper.class).withArguments(Mockito.any()).thenReturn(mockDatabaseHelper);
+        mockDatabaseHelper = Mockito.mock(DatabaseHelper.class);
+        databaseHelperFactoryMockedStatic =
+                Mockito.mockStatic(DatabaseHelperFactory.class);
+        when(DatabaseHelperFactory.createDatabaseHelper(any())).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
@@ -53,6 +55,11 @@ public final class JobStatsGetCountTest {
         newEnv.put("JOB_SERVICE_DATABASE_APPNAME","testAppName");
         newEnv.put("CAF_JOB_SERVICE_RESUME_JOB_QUEUE", "testResumeJobQueue");
         TestUtil.setSystemEnvironmentFields(newEnv);
+    }
+
+    @After
+    public void cleanUp() throws Exception {
+        databaseHelperFactoryMockedStatic.close();
     }
 
     @Test

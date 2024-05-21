@@ -20,52 +20,51 @@ import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
+import org.mockito.junit.MockitoJUnitRunner;
 import java.util.HashMap;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({JobsResume.class, DatabaseHelper.class, AppConfig.class, QueueServices.class, QueueServicesFactory.class,})
-@PowerMockIgnore("javax.management.*")
+@RunWith(MockitoJUnitRunner.class)
 public final class JobsResumeTest {
 
     @Mock
     private DatabaseHelper mockDatabaseHelper;
 
     @Mock
-    private QueueServicesFactory mockQueueServicesFactory;
-
-    @Mock
     private QueueServices mockQueueServices;
+
+    private MockedStatic<DatabaseHelperFactory> databaseHelperFactoryMockedStatic;
+    private MockedStatic<QueueServicesFactory> queueServicesFactoryMockedStatic;
 
     @Before
     public void setup() throws Exception {
         //  Mock DatabaseHelper calls.
+        mockDatabaseHelper = Mockito.mock(DatabaseHelper.class);
+        databaseHelperFactoryMockedStatic =
+                Mockito.mockStatic(DatabaseHelperFactory.class);
+        when(DatabaseHelperFactory.createDatabaseHelper(any())).thenReturn(mockDatabaseHelper);
         Mockito.doNothing().when(mockDatabaseHelper)
             .resumeJob(Mockito.anyString(), Mockito.anyString());
-        PowerMockito.whenNew(DatabaseHelper.class).withArguments(Mockito.any()).thenReturn(mockDatabaseHelper);
 
-        //  Mock QueueServices calls.
+        //  Mock QueueServices and QueueServicesFactory calls.
+        mockQueueServices = Mockito.mock(QueueServices.class);
+        queueServicesFactoryMockedStatic =
+                Mockito.mockStatic(QueueServicesFactory.class);
+        when(QueueServicesFactory.create(any(),anyString(),any())).thenReturn(mockQueueServices);
         doNothing().when(mockQueueServices).sendMessage(any(), any(), any(), any(), anyBoolean());
-        PowerMockito.whenNew(QueueServices.class).withArguments(any(), any(), anyString(), any()).thenReturn(mockQueueServices);
-
-        //  Mock QueueServicesFactory calls.
-        PowerMockito.mockStatic(QueueServicesFactory.class);
-        PowerMockito.doReturn(mockQueueServices).when(QueueServicesFactory.class, "create", any(), anyString(), any());
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
@@ -76,6 +75,12 @@ public final class JobsResumeTest {
         newEnv.put("JOB_SERVICE_DATABASE_APPNAME","testAppName");
         newEnv.put("CAF_JOB_SERVICE_RESUME_JOB_QUEUE", "testResumeJobQueue");
         TestUtil.setSystemEnvironmentFields(newEnv);
+    }
+
+    @After
+    public void cleanUp() throws Exception {
+        databaseHelperFactoryMockedStatic.close();
+        queueServicesFactoryMockedStatic.close();
     }
 
     @Test

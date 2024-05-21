@@ -58,7 +58,7 @@ public final class JobsGetById {
             AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
-            DatabaseHelper databaseHelper = new DatabaseHelper(config);
+            DatabaseHelper databaseHelper = DatabaseHelperFactory.createDatabaseHelper(config);
 
             //  Get the job definition for the specified job id.
             LOG.debug("getJobById: Getting job definition...");

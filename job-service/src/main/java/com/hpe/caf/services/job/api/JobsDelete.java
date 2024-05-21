@@ -57,7 +57,7 @@ public final class JobsDelete {
             AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
-            DatabaseHelper databaseHelper = new DatabaseHelper(config);
+            DatabaseHelper databaseHelper = DatabaseHelperFactory.createDatabaseHelper(config);
 
             //  Delete the specified job from the system.
             LOG.debug("deleteJob: Deleting job...");
@@ -91,7 +91,7 @@ public final class JobsDelete {
             final AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             // Get database helper instance
-            final DatabaseHelper databaseHelper = new DatabaseHelper(config);
+            final DatabaseHelper databaseHelper = DatabaseHelperFactory.createDatabaseHelper(config);
 
             // Delete the specified jobs.
             LOG.debug("deleteJobs: Deleting the jobs...");

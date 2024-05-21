@@ -103,7 +103,7 @@ public final class JobsGet {
             AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
-            DatabaseHelper databaseHelper = new DatabaseHelper(config);
+            DatabaseHelper databaseHelper = DatabaseHelperFactory.createDatabaseHelper(config);
 
             //  Get list of job definitions in the system.
             LOG.debug("getJobs: Getting list of job definitions...");
