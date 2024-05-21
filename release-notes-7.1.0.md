@@ -4,7 +4,7 @@
 ${version-number}
 
 #### New Features
-US915147: New liveness and readiness endpoints added to Job Tracking Worker and TODO
+US915147: New liveness and readiness endpoints added to the Job Tracking Worker.
 - A new `/health-check?name=all&type=ALIVE` endpoint has been added on the default REST port (8080) to check if a worker is alive.
 - A new `/health-check?name=all&type=READY` endpoint has been added on the default REST port (8080) to check if a worker is ready.
 - See the [Worker Framework Documentation](https://github.com/WorkerFramework/worker-framework/tree/develop/worker-core#liveness-and-readiness-checks-within-the-worker-framework)
