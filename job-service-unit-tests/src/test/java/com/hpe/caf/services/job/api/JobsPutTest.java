@@ -121,7 +121,6 @@ public final class JobsPutTest {
             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
             anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), eq(false)
         )).thenReturn(true);
-        doNothing().when(mockDatabaseHelper).deleteJob(anyString(), anyString());
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
