@@ -1322,7 +1322,7 @@
                             <tag>2.4</tag>
                         </image>
                         <image>
-                            <repository>library/postgres</repository>
+                            <repository>${dockerHubPublic}/library/postgres</repository>
                             <tag>14.11-bookworm</tag>
                             <digest>sha256:d6850c40261fdc9a4fb33b9521d9d641c4a5dcb82145f7bcc32c9258f81e75a2</digest>
                         </image>
