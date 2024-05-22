@@ -65,7 +65,7 @@ public final class JobsStatus {
             statusCheckIntervalSeconds = Integer.parseInt(config.getStatusCheckIntervalSeconds());
 
             //  Get database helper instance.
-            DatabaseHelper databaseHelper = DatabaseHelperFactory.createDatabaseHelper(config);
+            DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
             //  Get the status of the specified job.
             LOG.debug("getJobStatus: Getting job status...");

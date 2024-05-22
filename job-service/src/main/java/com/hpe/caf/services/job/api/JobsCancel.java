@@ -57,7 +57,7 @@ public final class JobsCancel {
             AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
-            DatabaseHelper databaseHelper = DatabaseHelperFactory.createDatabaseHelper(config);
+            DatabaseHelper databaseHelper =new DatabaseHelper(config);
 
             //  Cancel the specified job.
             LOG.debug("cancel: Cancelling the job...");
@@ -98,7 +98,7 @@ public final class JobsCancel {
             final AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
-            final DatabaseHelper databaseHelper = DatabaseHelperFactory.createDatabaseHelper(config);
+            final DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
             //  Cancel the specified jobs.
             LOG.debug("cancelJobs: Cancelling the jobs...");

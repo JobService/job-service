@@ -74,7 +74,7 @@ public final class JobsResume
             final AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
-            final DatabaseHelper databaseHelper = DatabaseHelperFactory.createDatabaseHelper(config);
+            final DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
             // Get the status of the job.
             final JobStatus jobStatus = databaseHelper.getJobStatus(partitionId, jobId);

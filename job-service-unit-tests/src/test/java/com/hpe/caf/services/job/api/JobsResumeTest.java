@@ -25,10 +25,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import java.util.HashMap;
+import java.util.Queue;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -46,24 +49,9 @@ public final class JobsResumeTest {
     @Mock
     private QueueServices mockQueueServices;
 
-    private MockedStatic<DatabaseHelperFactory> databaseHelperFactoryMockedStatic;
-    private MockedStatic<QueueServicesFactory> queueServicesFactoryMockedStatic;
-
     @Before
     public void setup() throws Exception {
-        //  Mock DatabaseHelper calls.
-        mockDatabaseHelper = Mockito.mock(DatabaseHelper.class);
-        databaseHelperFactoryMockedStatic =
-                Mockito.mockStatic(DatabaseHelperFactory.class);
-        when(DatabaseHelperFactory.createDatabaseHelper(any())).thenReturn(mockDatabaseHelper);
-        Mockito.doNothing().when(mockDatabaseHelper)
-            .resumeJob(Mockito.anyString(), Mockito.anyString());
-
-        //  Mock QueueServices and QueueServicesFactory calls.
         mockQueueServices = Mockito.mock(QueueServices.class);
-        queueServicesFactoryMockedStatic =
-                Mockito.mockStatic(QueueServicesFactory.class);
-        when(QueueServicesFactory.create(any(),anyString(),any())).thenReturn(mockQueueServices);
         doNothing().when(mockQueueServices).sendMessage(any(), any(), any(), any(), anyBoolean());
 
         HashMap<String, String> newEnv  = new HashMap<>();
@@ -77,25 +65,25 @@ public final class JobsResumeTest {
         TestUtil.setSystemEnvironmentFields(newEnv);
     }
 
-    @After
-    public void cleanUp() throws Exception {
-        databaseHelperFactoryMockedStatic.close();
-        queueServicesFactoryMockedStatic.close();
-    }
-
     @Test
     public void testResumeJob_Success() throws Exception {
-        Mockito.when(mockDatabaseHelper.getJobStatus(
-            anyString(), anyString()
-        )).thenReturn(JobStatus.PAUSED);
-        
-        //  Test successful run of job resume.
-        JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1))
-            .resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
+                Mockito.when(mock.getJobStatus(anyString(), anyString())).thenReturn(JobStatus.PAUSED);
+                Mockito.doNothing().when(mock).resumeJob(Mockito.anyString(), Mockito.anyString());
+            });
+            MockedStatic<QueueServicesFactory> queueServicesFactoryMockedStatic = Mockito.mockStatic(QueueServicesFactory.class)){
 
-        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any(), anyBoolean());
+                when(QueueServicesFactory.create(any(),anyString(),any())).thenReturn(mockQueueServices);
+
+            //  Test successful run of job resume.
+                JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+
+                Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1))
+                        .resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+
+                verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any(), anyBoolean());
+            }
     }
 
     @Test(expected = BadRequestException.class)

@@ -73,7 +73,7 @@ public final class JobsActive {
             statusCheckIntervalSeconds = Integer.parseInt(config.getStatusCheckIntervalSeconds());
 
             //  Get database helper instance.
-            DatabaseHelper databaseHelper = DatabaseHelperFactory.createDatabaseHelper(config);
+            DatabaseHelper databaseHelper = new DatabaseHelper(config);
 
             //  Check if the specified job is active or not.
             LOG.debug("isJobActive: Checking job status...");

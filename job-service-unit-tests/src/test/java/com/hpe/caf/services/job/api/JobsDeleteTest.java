@@ -16,37 +16,20 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
+import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 @RunWith(MockitoJUnitRunner.class)
 public final class JobsDeleteTest {
 
-    @Mock
-    private DatabaseHelper mockDatabaseHelper;
-
-    private MockedStatic<DatabaseHelperFactory> databaseHelperFactoryMockedStatic;
-
     @Before
     public void setup() throws Exception {
-        //  Mock DatabaseHelper calls.
-        mockDatabaseHelper = Mockito.mock(DatabaseHelper.class);
-        databaseHelperFactoryMockedStatic =
-                Mockito.mockStatic(DatabaseHelperFactory.class);
-        when(DatabaseHelperFactory.createDatabaseHelper(any())).thenReturn(mockDatabaseHelper);
-        Mockito.doNothing().when(mockDatabaseHelper)
-            .deleteJob(Mockito.anyString(), Mockito.anyString());
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
@@ -59,18 +42,17 @@ public final class JobsDeleteTest {
         TestUtil.setSystemEnvironmentFields(newEnv);
     }
 
-    @After
-    public void cleanUp() throws Exception {
-        databaseHelperFactoryMockedStatic.close();
-    }
-
     @Test
     public void testDeleteJob_Success() throws Exception {
-        //  Test successful run of job deletion.
-        JobsDelete.deleteJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
+                    Mockito.doNothing().when(mock).deleteJob(Mockito.anyString(), Mockito.anyString());
+                })) {
+            //  Test successful run of job deletion.
+            JobsDelete.deleteJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1))
-            .deleteJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1))
+                    .deleteJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        }
     }
 
     @Test(expected = BadRequestException.class)

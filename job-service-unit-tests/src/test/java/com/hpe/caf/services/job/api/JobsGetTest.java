@@ -16,37 +16,27 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
+import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import com.hpe.caf.services.job.queue.QueueServicesFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 @RunWith(MockitoJUnitRunner.class)
 public final class JobsGetTest {
 
-    @Mock
-    private DatabaseHelper mockDatabaseHelper;
-
-    private MockedStatic<DatabaseHelperFactory> databaseHelperFactoryMockedStatic;
-
     @Before
     public void setup() throws Exception {
-        //  Mock DatabaseHelper calls.
-        mockDatabaseHelper = Mockito.mock(DatabaseHelper.class);
-        databaseHelperFactoryMockedStatic =
-                Mockito.mockStatic(DatabaseHelperFactory.class);
-        when(DatabaseHelperFactory.createDatabaseHelper(any())).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
@@ -59,18 +49,15 @@ public final class JobsGetTest {
         TestUtil.setSystemEnvironmentFields(newEnv);
     }
 
-    @After
-    public void cleanUp() throws Exception {
-        databaseHelperFactoryMockedStatic.close();
-    }
-
     @Test
     public void testGetJob_Success() throws Exception {
-        //  Test successful run of job retrieval.
-        JobsGet.getJobs("partition", "", null, 0, 0, null, null, null);
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class)){
+            //  Test successful run of job retrieval.
+            JobsGet.getJobs("partition", "", null, 0, 0, null, null, null);
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null);
+            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1)).getJobs(
+                    "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null);
+        }
     }
 
     @Test(expected = BadRequestException.class)
@@ -80,16 +67,20 @@ public final class JobsGetTest {
 
     @Test
     public void testGetJobs_Success_WithSort() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc", null, null);
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null);
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class)) {
+            JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc", null, null);
+            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1)).getJobs(
+                    "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null);
+        }
     }
 
     @Test
     public void testGetJobs_Success_WithNameSort() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "name:asc", null, null);
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.NAME, SortDirection.ASCENDING, null, null);
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class)) {
+            JobsGet.getJobs("partition", "", null, 0, 0, "name:asc", null, null);
+            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1)).getJobs(
+                    "partition", "", null, 0, 0, JobSortField.NAME, SortDirection.ASCENDING, null, null);
+        }
     }
 
     @Test(expected = BadRequestException.class)

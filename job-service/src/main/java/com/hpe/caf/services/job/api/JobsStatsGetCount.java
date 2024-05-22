@@ -49,7 +49,7 @@ public final class JobsStatsGetCount {
             AppConfig config = AppConfigProvider.getAppConfigProperties();
 
             //  Get database helper instance.
-            DatabaseHelper databaseHelper = DatabaseHelperFactory.createDatabaseHelper(config);
+            DatabaseHelper databaseHelper = new DatabaseHelper(config);
             final String convertedFilter = RsqlToSqlUtils.convertToSqlSyntax(filter);
 
             //  Get number of job definitions in the system.
