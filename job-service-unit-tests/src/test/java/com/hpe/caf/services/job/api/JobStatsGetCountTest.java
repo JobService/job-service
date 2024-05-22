@@ -15,34 +15,21 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({JobsStatsGetCount.class, DatabaseHelper.class, AppConfig.class})
-@PowerMockIgnore("javax.management.*")
+@RunWith(MockitoJUnitRunner.class)
 public final class JobStatsGetCountTest {
-
-    @Mock
-    private DatabaseHelper mockDatabaseHelper;
 
     @Before
     public void setup() throws Exception {
-        //  Mock DatabaseHelper calls.
-        Mockito.doNothing().when(mockDatabaseHelper)
-            .deleteJob(Mockito.anyString(), Mockito.anyString());
-        PowerMockito.whenNew(DatabaseHelper.class).withArguments(Mockito.any()).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
@@ -57,10 +44,12 @@ public final class JobStatsGetCountTest {
 
     @Test
     public void testGetJobCount_Success() throws Exception {
-        //  Test successful run of job count retrieval.
-        JobsStatsGetCount.getJobsCount("partition", "", null, null);
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class)) {
+            //  Test successful run of job count retrieval.
+            JobsStatsGetCount.getJobsCount("partition", "", null, null);
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobsCount("partition", "", null, null);
+            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1)).getJobsCount("partition", "", null, null);
+        }
     }
 
     @Test(expected = BadRequestException.class)

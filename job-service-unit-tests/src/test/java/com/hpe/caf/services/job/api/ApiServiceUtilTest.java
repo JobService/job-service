@@ -22,15 +22,11 @@ import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({AppConfig.class})
-@PowerMockIgnore("javax.management.*")
+@RunWith(MockitoJUnitRunner.class)
 public final class ApiServiceUtilTest {
 
     @Test

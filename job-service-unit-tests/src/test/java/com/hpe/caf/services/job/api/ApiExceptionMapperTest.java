@@ -24,17 +24,13 @@ import com.rabbitmq.client.ShutdownSignalException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({BadRequestException.class, NotFoundException.class})
-@PowerMockIgnore("javax.management.*")
+@RunWith(MockitoJUnitRunner.class)
 public final class ApiExceptionMapperTest {
 
     @Test

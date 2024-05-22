@@ -15,36 +15,22 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({JobsActive.class, DatabaseHelper.class, AppConfig.class})
-@PowerMockIgnore("javax.management.*")
+@RunWith(MockitoJUnitRunner.class)
 public final class JobsActiveTest {
-
-    @Mock
-    private DatabaseHelper mockDatabaseHelper;
 
     @Before
     public void setup() throws Exception {
-
-        //  Mock DatabaseHelper calls.
-        Mockito.when(mockDatabaseHelper.isJobActive(Mockito.anyString(), Mockito.anyString()))
-            .thenReturn(true);
-        PowerMockito.whenNew(DatabaseHelper.class).withArguments(Mockito.any()).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
@@ -69,13 +55,18 @@ public final class JobsActiveTest {
 
     @Test
     public void testIsJobActive_Success() throws Exception {
-        //  Test successful run of job isActive.
-        JobsActive.JobsActiveResult result =
-            JobsActive.isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
+                    Mockito.when(mock.isJobActive(Mockito.anyString(), Mockito.anyString()))
+                            .thenReturn(true);
+                })) {
+            //  Test successful run of job isActive.
+            JobsActive.JobsActiveResult result =
+                    JobsActive.isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
 
-        Assert.assertTrue(result.active);
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1))
-            .isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+            Assert.assertTrue(result.active);
+            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1))
+                    .isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        }
     }
 
     @Test(expected = BadRequestException.class)

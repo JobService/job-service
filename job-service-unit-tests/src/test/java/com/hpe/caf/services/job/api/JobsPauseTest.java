@@ -15,34 +15,28 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({JobsPause.class, DatabaseHelper.class, AppConfig.class})
-@PowerMockIgnore("javax.management.*")
-public final class JobsPauseTest {
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-    @Mock
-    private DatabaseHelper mockDatabaseHelper;
+@RunWith(MockitoJUnitRunner.class)
+public final class JobsPauseTest {
 
     @Before
     public void setup() throws Exception {
-        //  Mock DatabaseHelper calls.
-        Mockito.doNothing().when(mockDatabaseHelper)
-            .pauseJob(Mockito.anyString(), Mockito.anyString());
-        PowerMockito.whenNew(DatabaseHelper.class).withArguments(Mockito.any()).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
@@ -57,11 +51,16 @@ public final class JobsPauseTest {
 
     @Test
     public void testPauseJob_Success() throws Exception {
-        //  Test successful run of job pause.
-        JobsPause.pauseJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1))
-            .pauseJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
+            when(mock.getJobStatus(any(), any())).thenReturn(JobStatus.ACTIVE);
+        })) {
+            //  Test successful run of job pause.
+            JobsPause.pauseJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+
+            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1))
+                    .pauseJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        }
     }
 
     @Test(expected = BadRequestException.class)
