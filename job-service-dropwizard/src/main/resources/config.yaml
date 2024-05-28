@@ -68,3 +68,4 @@ health:
         downtimeInterval: ${JOB_SERVICE_READINESS_DOWNTIME_INTERVAL_DURATION:-60s}
         failureAttempts: ${JOB_SERVICE_READINESS_FAILURE_ATTEMPTS:-3}
         successAttempts: ${JOB_SERVICE_READINESS_SUCCESS_ATTEMPTS:-1}
+        
