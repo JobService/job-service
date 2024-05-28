@@ -268,7 +268,7 @@
                         <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
                         <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
-                        <healthcheckurl>http://${docker.host.address}:${webservice.adminport}/health-check?type=READY</healthcheckurl>
+                        <healthcheckurl>http://${docker.host.address}:${webservice.adminport}/health-check?name=all&amp;type=READY</healthcheckurl>
                         <webserviceurlhttps>https://${docker.host.address}:${webservice.https.adminport}/job-service/v1</webserviceurlhttps>
                     </environmentVariables>
                 </configuration>
@@ -525,7 +525,7 @@
                             <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
                             <run>
                                 <ports>
-                                    <port>${scheduler-worker.adminport}:8080</port>
+                                    <port>${scheduler-worker.adminport}:8081</port>
                                 </ports>
                                 <env>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Service Scheduled Executor</JOB_SERVICE_DATABASE_APPNAME>
@@ -553,7 +553,7 @@
                                 </log>
                                 <wait>
                                     <http>
-                                        <url>http://${docker.host.address}:${scheduler-worker.adminport}/health-check?type=READY</url>
+                                        <url>http://${docker.host.address}:${scheduler-worker.adminport}/healthcheck</url>
                                     </http>
                                     <time>200000</time>
                                     <shutdown>500</shutdown>

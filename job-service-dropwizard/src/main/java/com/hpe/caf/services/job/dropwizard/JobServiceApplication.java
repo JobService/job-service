@@ -61,7 +61,8 @@ public final class JobServiceApplication extends Application<JobServiceConfigura
         if (useInternalConfig) {
             bootstrap.setConfigurationSourceProvider(new SubstitutingSourceProvider(
                     new ResourceConfigurationSourceProvider(),
-                    new EnvironmentVariableSubstitutor(false, true)));        }
+                    new EnvironmentVariableSubstitutor(false, true)));
+        }
 
         // Add functionality bundles
         bootstrap.addBundle(new CorrelationIdBundle<>());

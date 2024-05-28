@@ -635,7 +635,7 @@
                             <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
                             <run>
                                 <ports>
-                                    <port>${scheduler-worker.adminport}:8080</port>
+                                    <port>${scheduler-worker.adminport}:8081</port>
                                 </ports>
                                 <env>
                                     <JOB_SERVICE_DATABASE_APPNAME>Job Service Scheduled Executor</JOB_SERVICE_DATABASE_APPNAME>
@@ -664,7 +664,7 @@
                                 </log>
                                 <wait>
                                     <http>
-                                        <url>http://${docker.host.address}:${scheduler-worker.adminport}/health-check?type=READY</url>
+                                        <url>http://${docker.host.address}:${scheduler-worker.adminport}/healthcheck</url>
                                     </http>
                                     <time>200000</time>
                                     <shutdown>500</shutdown>
