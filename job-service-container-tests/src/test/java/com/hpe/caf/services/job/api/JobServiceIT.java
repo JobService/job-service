@@ -264,9 +264,9 @@ public class JobServiceIT {
             }
         }
 
-        assertEquals("true", isDatabaseHealthy);
-        assertEquals("true", isPingHealthy);
-        assertEquals("true", isQueueHealthy);
+        assertTrue(isDatabaseHealthy, "Database is healthy");
+        assertTrue(isPingHealthy, "Ping is healthy");
+        assertTrue(isQueueHealthy, "Queue is healthy");
     }
 
     @Test
