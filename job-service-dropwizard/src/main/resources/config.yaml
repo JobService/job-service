@@ -25,3 +25,46 @@ server:
 
 logging:
   type: external
+
+health:
+  healthChecks:
+    - name: deadlocks
+      type: alive
+      critical: true
+      initialState: false
+      schedule:
+        initialDelay: ${JOB_SERVICE_LIVENESS_INITIAL_DELAY_DURATION:-15s}
+        checkInterval: ${JOB_SERVICE_LIVENESS_CHECK_INTERVAL_DURATION:-60s}
+        downtimeInterval: ${JOB_SERVICE_LIVENESS_DOWNTIME_INTERVAL_DURATION:-60s}
+        failureAttempts: ${JOB_SERVICE_LIVENESS_FAILURE_ATTEMPTS:-3}
+        successAttempts: ${JOB_SERVICE_LIVENESS_SUCCESS_ATTEMPTS:-1}
+    - name: database
+      type: ready
+      critical: true
+      initialState: false
+      schedule:
+        initialDelay: ${JOB_SERVICE_READINESS_INITIAL_DELAY_DURATION:-15s}
+        checkInterval: ${JOB_SERVICE_READINESS_CHECK_INTERVAL_DURATION:-60s}
+        downtimeInterval: ${JOB_SERVICE_READINESS_DOWNTIME_INTERVAL_DURATION:-60s}
+        failureAttempts: ${JOB_SERVICE_READINESS_FAILURE_ATTEMPTS:-3}
+        successAttempts: ${JOB_SERVICE_READINESS_SUCCESS_ATTEMPTS:-1}
+    - name: ping
+      type: ready
+      critical: true
+      initialState: false
+      schedule:
+        initialDelay: ${JOB_SERVICE_READINESS_INITIAL_DELAY_DURATION:-15s}
+        checkInterval: ${JOB_SERVICE_READINESS_CHECK_INTERVAL_DURATION:-60s}
+        downtimeInterval: ${JOB_SERVICE_READINESS_DOWNTIME_INTERVAL_DURATION:-60s}
+        failureAttempts: ${JOB_SERVICE_READINESS_FAILURE_ATTEMPTS:-3}
+        successAttempts: ${JOB_SERVICE_READINESS_SUCCESS_ATTEMPTS:-1}
+    - name: queue
+      type: ready
+      critical: true
+      initialState: false
+      schedule:
+        initialDelay: ${JOB_SERVICE_READINESS_INITIAL_DELAY_DURATION:-15s}
+        checkInterval: ${JOB_SERVICE_READINESS_CHECK_INTERVAL_DURATION:-60s}
+        downtimeInterval: ${JOB_SERVICE_READINESS_DOWNTIME_INTERVAL_DURATION:-60s}
+        failureAttempts: ${JOB_SERVICE_READINESS_FAILURE_ATTEMPTS:-3}
+        successAttempts: ${JOB_SERVICE_READINESS_SUCCESS_ATTEMPTS:-1}

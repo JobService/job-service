@@ -243,9 +243,30 @@ public class JobServiceIT {
 
         final JsonNode responseJson = objectMapper.readTree(responseString);
         assertTrue(responseJson != null);
-        assertEquals("true", responseJson.at("/database/healthy").asText());
-        assertEquals("true", responseJson.at("/ping/healthy").asText());
-        assertEquals("true", responseJson.at("/queue/healthy").asText());
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode jsonArray = mapper.readTree(responseString);
+
+        boolean isDatabaseHealthy = false;
+        boolean isPingHealthy = false;
+        boolean isQueueHealthy = false;
+
+        for (final JsonNode node : jsonArray) {
+            final String name = node.get("name").asText();
+            final boolean healthy = node.get("healthy").asBoolean();
+
+            if (name.equals("database")) {
+                isDatabaseHealthy = healthy;
+            } else if (name.equals("ping")) {
+                isPingHealthy = healthy;
+            } else if (name.equals("queue")) {
+                isQueueHealthy = healthy;
+            }
+        }
+
+        assertTrue(isDatabaseHealthy, "Database is healthy");
+        assertTrue(isPingHealthy, "Ping is healthy");
+        assertTrue(isQueueHealthy, "Queue is healthy");
     }
 
     @Test
