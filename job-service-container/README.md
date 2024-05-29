@@ -19,7 +19,7 @@ This docker image contains the [Job Service](../job-service) hosted using the Dr
 ## Feature Testing
 The testing for Job Service is defined [here](../testcases)
 
-### Environment Variables
+## Environment Variables
 
 ##### JOB\_SERVICE\_LIVENESS\_INITIAL\_DELAY\_DURATION
 The initial delay to use when first scheduling the liveness check. Default value: 15s
