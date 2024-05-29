@@ -251,7 +251,7 @@ public class JobServiceIT {
         boolean isPingHealthy = false;
         boolean isQueueHealthy = false;
 
-        for (JsonNode node : jsonArray) {
+        for (final JsonNode node : jsonArray) {
             final String name = node.get("name").asText();
             final boolean healthy = node.get("healthy").asBoolean();
 
