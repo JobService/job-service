@@ -26,25 +26,28 @@ import com.hpe.caf.worker.tracking.report.TrackingReportConstants;
 import com.hpe.caf.worker.tracking.report.TrackingReportStatus;
 import com.hpe.caf.worker.tracking.report.TrackingReportTask;
 import java.util.ArrayList;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.verify;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 /**
  * JUnit test to verify the worker correctly performs the desired action.
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class JobTrackingWorkerFactoryTest {
 
     private static final String taskId = "task-id";
@@ -225,8 +228,8 @@ public class JobTrackingWorkerFactoryTest {
 
         //verify results
         Mockito.verify(reporter, Mockito.times(1)).reportJobTaskProgress(Mockito.eq(jobTaskId), Mockito.anyInt());
-        Assert.assertEquals(TaskStatus.RESULT_SUCCESS, response.getTaskStatus());
-        Assert.assertArrayEquals(response.getData(), new byte[]{});
+        assertEquals(TaskStatus.RESULT_SUCCESS, response.getTaskStatus());
+        assertArrayEquals(response.getData(), new byte[]{});
     }
 
 

@@ -15,8 +15,8 @@
  */
 package com.hpe.caf.services.job.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class JobTaskIdTest {
 
@@ -24,15 +24,14 @@ public class JobTaskIdTest {
     public void testMessageId() {
         final String messageId = new JobTaskId("the partition-id", "the job-id").getMessageId();
         final JobTaskId id = JobTaskId.fromMessageId(messageId);
-        Assert.assertEquals("should preserve partition ID", "the partition-id", id.getPartitionId());
-        Assert.assertEquals("should preserve job ID", "the job-id", id.getId());
+        Assertions.assertEquals("the partition-id", id.getPartitionId(), "should preserve partition ID");
+        Assertions.assertEquals( "the job-id", id.getId(), "should preserve job ID");
     }
 
     @Test
     public void testFromOldFormatMessageId() {
         final JobTaskId id = JobTaskId.fromMessageId("the job-id");
-        Assert.assertEquals("should use default partition",
-            JobTaskId.DEFAULT_PARTITION_ID, id.getPartitionId());
-        Assert.assertEquals("should preserve job ID", "the job-id", id.getId());
+        Assertions.assertEquals(JobTaskId.DEFAULT_PARTITION_ID, id.getPartitionId(), "should use default partition");
+        Assertions.assertEquals("the job-id", id.getId(), "should preserve job ID");
     }
 }

@@ -22,11 +22,6 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -34,6 +29,10 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DefaultDefinitionParserTest {
     /**
@@ -64,10 +63,7 @@ public class DefaultDefinitionParserTest {
             "/job-type-definitions/" + testId + ".yaml");
     }
 
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() {
         appConfig = Mockito.mock(AppConfig.class);
         loadTaskScriptSchema();
@@ -78,6 +74,7 @@ public class DefaultDefinitionParserTest {
     }
 
     @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testBasicDefinition() throws Exception {
         setupValidConfig();
         final JobType jobType =
@@ -85,18 +82,14 @@ public class DefaultDefinitionParserTest {
         final WorkerAction task =
             jobType.buildTask("partition id", "job id", NullNode.getInstance());
 
-        Assert.assertEquals("should use provided ID", "basic-id", jobType.getId());
-        Assert.assertEquals("should parse classifier",
-            "basic classifier", task.getTaskClassifier());
-        Assert.assertEquals("should parse api version", 74, task.getTaskApiVersion().intValue());
-        Assert.assertEquals("should get task pipe from config",
-            "basic task pipe", task.getTaskPipe());
-        Assert.assertEquals("should get target pipe from config",
-            "basic target pipe", task.getTargetPipe());
+        assertEquals("basic-id", jobType.getId(), "should use provided ID");
+        assertEquals("basic classifier", task.getTaskClassifier(), "should parse classifier");
+        assertEquals(74, task.getTaskApiVersion().intValue(), "should parse api version");
+        assertEquals("basic task pipe", task.getTaskPipe(), "should get task pipe from config");
+        assertEquals("basic target pipe", task.getTargetPipe(), "should get target pipe from config");
 
         // should fill in params schema that expects null
-        expectedException.expect(BadRequestException.class);
-        jobType.buildTask("partition id", "job id", TextNode.valueOf("not null params"));
+        Assertions.assertThrows(BadRequestException.class, () -> jobType.buildTask("partition id", "job id", TextNode.valueOf("not null params")));
     }
 
     @Test
@@ -107,9 +100,8 @@ public class DefaultDefinitionParserTest {
         final WorkerAction task = jobType.buildTask("partition id", "job id", NullNode.getInstance());
         final String expectedTaskData = "{cfg={TARGET_PIPE=basic target pipe,TASK_PIPE=basic task pipe}, taskMessageParams={" +
                 "graaljs:setResponse.js=function onProcessTask(e){console.log('hello world!');}}}";
-        Assert.assertEquals("Constant values should be used for replacement",
-                expectedTaskData.replaceAll("\\s+", ""),
-                task.getTaskData().toString().replaceAll("\\s+", ""));
+        assertEquals(expectedTaskData.replaceAll("\\s+", ""), task.getTaskData().toString().replaceAll("\\s+", ""),
+                "Constant values should be used for replacement");
     }
 
     @Test
@@ -119,118 +111,136 @@ public class DefaultDefinitionParserTest {
         final WorkerAction task
             = jobType.buildTask("partition id", "job id", NullNode.getInstance());
 
-        Assert.assertEquals("should use provided ID", "basic-id", jobType.getId());
-        Assert.assertEquals("should parse classifier",
-                            "basic classifier", task.getTaskClassifier());
-        Assert.assertEquals("should parse api version", 74, task.getTaskApiVersion().intValue());
-        Assert.assertEquals("should parse task pipe",
-                            "task pipe not from config", task.getTaskPipe());
-        Assert.assertEquals("should parse target",
-                            "target pipe not from config", task.getTargetPipe());
+        assertEquals("basic-id", jobType.getId(), "should use provided ID");
+        assertEquals("basic classifier", task.getTaskClassifier(), "should parse classifier");
+        assertEquals(74, task.getTaskApiVersion().intValue(), "should parse api version");
+        assertEquals("task pipe not from config", task.getTaskPipe(), "should parse task pipe");
+        assertEquals("target pipe not from config", task.getTargetPipe(), "should parse target");
 
         final Map<String, Map<String, String>> taskData = JobTypeTestUtil.objectMapper.convertValue(
             task.getTaskData(), new TypeReference<Map<String, Map<String, String>>>(){});
-        Assert.assertEquals("should fill in empty configuration",
-                            Collections.EMPTY_MAP, taskData.get("cfg"));
+        assertEquals(Collections.EMPTY_MAP, taskData.get("cfg"), "should fill in empty configuration");
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testInputStreamError() throws Exception {
         setupValidConfig();
-        new DefaultDefinitionParser(appConfig).parse("id", new InputStream() {
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> new DefaultDefinitionParser(appConfig).parse("id", new InputStream() {
             @Override
-            public int read() throws IOException { throw new IOException("disk error"); }
-        });
+            public int read() throws IOException {
+                throw new IOException("disk error");
+            }
+        }));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testInvalidYamlSyntax() throws Exception {
         setupValidConfig();
-        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("invalid-yaml-syntax"));
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> new DefaultDefinitionParser(appConfig).parse("id", getDefinition("invalid-yaml-syntax")));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testInvalidTaskScriptSyntax() throws Exception {
         setupValidConfig();
-        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("invalid-taskscript-syntax"));
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> new DefaultDefinitionParser(appConfig).parse("id", getDefinition("invalid-taskscript-syntax")));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testExtraProperty() throws Exception {
-        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("extra-property"));
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> new DefaultDefinitionParser(appConfig).parse("id", getDefinition("extra-property")));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testMissingTaskClassifier() throws Exception {
         setupValidConfig();
         final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-taskclassifier"));
-        jobType.buildTask("partition id", "id", NullNode.getInstance());
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> jobType.buildTask("partition id", "id", NullNode.getInstance()));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testTaskClassifierWithWrongType() throws Exception {
         setupValidConfig();
         final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("wrongtype-taskclassifier"));
-        jobType.buildTask("partition id", "id", NullNode.getInstance());
+       Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () ->  jobType.buildTask("partition id", "id", NullNode.getInstance()));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testEmptyStringTaskClassifier() throws Exception {
         setupValidConfig();
         final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("empty-taskclassifier"));
-        jobType.buildTask("partition id", "id", NullNode.getInstance());
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> jobType.buildTask("partition id", "id", NullNode.getInstance()));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testMissingTaskApiVersion() throws Exception {
         setupValidConfig();
         final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-taskapiversion"));
-        jobType.buildTask("partition id", "id", NullNode.getInstance());
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> jobType.buildTask("partition id", "id", NullNode.getInstance()));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testTaskApiVersionWithWrongType() throws Exception {
         setupValidConfig();
         final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("wrongtype-taskapiversion"));
-        jobType.buildTask("partition id", "id", NullNode.getInstance());
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> jobType.buildTask("partition id", "id", NullNode.getInstance()));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testMissingTaskData() throws Exception {
         setupValidConfig();
-        final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-taskdata"));
-        jobType.buildTask("partition id", "id", NullNode.getInstance());
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> {
+            final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-taskdata"));
+            jobType.buildTask("partition id", "id", NullNode.getInstance());
+        });
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testTaskDataWithWrongType() throws Exception {
         setupValidConfig();
         final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("wrongtype-taskdata"));
-        jobType.buildTask("partition id", "id", NullNode.getInstance());
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> jobType.buildTask("partition id", "id", NullNode.getInstance()));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testTaskPipeMissingFromConfig() throws Exception {
         Mockito.when(appConfig.getJobProperty("TASK_PIPE")).thenReturn(null);
         Mockito.when(appConfig.getJobProperty("TARGET_PIPE")).thenReturn("basic target pipe");
-        final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("basic"));
-        jobType.buildTask("partition id", "id", NullNode.getInstance());
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> {
+            final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("basic"));
+            Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> jobType.buildTask("partition id", "id", NullNode.getInstance()));
+        });
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testEmptyStringTaskPipe() throws Exception {
         Mockito.when(appConfig.getJobProperty("TASK_PIPE")).thenReturn("");
         Mockito.when(appConfig.getJobProperty("TARGET_PIPE")).thenReturn("basic target pipe");
         final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("basic"));
-        jobType.buildTask("partition id", "id", NullNode.getInstance());
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> jobType.buildTask("partition id", "id", NullNode.getInstance()));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testTargetPipeMissingFromConfig() throws Exception {
         Mockito.when(appConfig.getJobProperty("TASK_PIPE")).thenReturn("basic task pipe");
         Mockito.when(appConfig.getJobProperty("TARGET_PIPE")).thenReturn(null);
-        final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("basic"));
-        jobType.buildTask("partition id", "id", NullNode.getInstance());
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> {
+            final JobType jobType = new DefaultDefinitionParser(appConfig).parse("id", getDefinition("basic"));
+            jobType.buildTask("partition id", "id", NullNode.getInstance());
+        });
     }
 
     @Test
@@ -246,19 +256,20 @@ public class DefaultDefinitionParserTest {
         final Map<String, String> expectedConfig = new HashMap<>();
         expectedConfig.put("TASK_PIPE", "basic task pipe");
         expectedConfig.put("TARGET_PIPE", "basic target pipe");
-        Assert.assertEquals("should retrieve configuration and provide it to the task script",
-            expectedConfig, taskData.get("cfg"));
+        assertEquals(expectedConfig, taskData.get("cfg"), "should retrieve configuration and provide it to the task script");
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testConfigurationPropertiesWithMissingName() throws Exception {
         setupValidConfig();
         Mockito.when(appConfig.getJobProperty("prop_a")).thenReturn("value a");
         Mockito.when(appConfig.getJobProperty("prop_b")).thenReturn("value b");
-        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-config-name"));
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-config-name")));
     }
 
     @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testJobParametersSchemaValidation() throws Exception {
         setupValidConfig();
         final JobType jobType =
@@ -268,14 +279,14 @@ public class DefaultDefinitionParserTest {
         jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
 
         // expects string - should throw with number
-        expectedException.expect(BadRequestException.class);
-        jobType.buildTask("partition id", "job id", IntNode.valueOf(123));
+        Assertions.assertThrows(BadRequestException.class, () -> jobType.buildTask("partition id", "job id", IntNode.valueOf(123)));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testMissingTaskScript() throws Exception {
         setupValidConfig();
-        new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-taskscript"));
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> new DefaultDefinitionParser(appConfig).parse("id", getDefinition("missing-taskscript")));
     }
 
 }

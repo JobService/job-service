@@ -15,46 +15,44 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.MockedConstruction;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import java.util.HashMap;
+import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.util.Assert;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public final class JobsStatusTest {
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
 
-        HashMap<String, String> newEnv  = new HashMap<>();
-        newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
+        HashMap<String, String> newEnv = new HashMap<>();
+        newEnv.put("JOB_SERVICE_DATABASE_HOST", "testHost");
         newEnv.put("JOB_SERVICE_DATABASE_PORT", "8888");
-        newEnv.put("JOB_SERVICE_DATABASE_NAME","testName");
-        newEnv.put("JOB_SERVICE_DATABASE_USERNAME","testUserName");
-        newEnv.put("JOB_SERVICE_DATABASE_PASSWORD","testPassword");
-        newEnv.put("JOB_SERVICE_DATABASE_APPNAME","testAppName");
+        newEnv.put("JOB_SERVICE_DATABASE_NAME", "testName");
+        newEnv.put("JOB_SERVICE_DATABASE_USERNAME", "testUserName");
+        newEnv.put("JOB_SERVICE_DATABASE_PASSWORD", "testPassword");
+        newEnv.put("JOB_SERVICE_DATABASE_APPNAME", "testAppName");
 
         newEnv.put("CAF_RABBITMQ_PROTOCOL", "amqp");
-        newEnv.put("CAF_RABBITMQ_HOST","localhost");
-        newEnv.put("CAF_RABBITMQ_PORT","5672");
-        newEnv.put("CAF_RABBITMQ_USERNAME","guest");
-        newEnv.put("CAF_RABBITMQ_PASSWORD","guest");
-        newEnv.put("CAF_TRACKING_PIPE","demo-jobtracking-in");
-        newEnv.put("CAF_STATUS_CHECK_INTERVAL_SECONDS","1");
-        newEnv.put("CAF_WEBSERVICE_URL","http://localhost:9090/v1");
+        newEnv.put("CAF_RABBITMQ_HOST", "localhost");
+        newEnv.put("CAF_RABBITMQ_PORT", "5672");
+        newEnv.put("CAF_RABBITMQ_USERNAME", "guest");
+        newEnv.put("CAF_RABBITMQ_PASSWORD", "guest");
+        newEnv.put("CAF_TRACKING_PIPE", "demo-jobtracking-in");
+        newEnv.put("CAF_STATUS_CHECK_INTERVAL_SECONDS", "1");
+        newEnv.put("CAF_WEBSERVICE_URL", "http://localhost:9090/v1");
         newEnv.put("CAF_JOB_SERVICE_RESUME_JOB_QUEUE", "testResumeJobQueue");
 
         TestUtil.setSystemEnvironmentFields(newEnv);
@@ -67,36 +65,39 @@ public final class JobsStatusTest {
             when(mock.getJobStatus(any(), any())).thenReturn(JobStatus.ACTIVE);
         })) {
             //  Test successful run of job getStatus.
-            final JobsStatus.JobsStatusResult jobStatusResult =
-                    JobsStatus.getJobStatus("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+            final JobsStatus.JobsStatusResult jobStatusResult
+                    = JobsStatus.getJobStatus("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
 
-            Assert.assertEquals("Unexpected job status", JobStatus.ACTIVE, jobStatusResult.jobStatus);
-            Assert.assertEquals("Unexpected status check interval secs", 1, jobStatusResult.statusCheckIntervalSecs);
+            assertEquals(JobStatus.ACTIVE, jobStatusResult.jobStatus, "Unexpected job status");
+            assertEquals(1, jobStatusResult.statusCheckIntervalSecs, "Unexpected status check interval secs");
             Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1))
                     .getJobStatus("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobStatus_Failure_EmptyJobId() throws Exception {
         //  Test failed run of job getStatus with empty job id.
-        JobsStatus.getJobStatus("partition", "");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsStatus.getJobStatus("partition", ""));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobStatus_Failure_EmptyPartitionId() throws Exception {
-        JobsStatus.getJobStatus("", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsStatus.getJobStatus("", "067e6162-3b6f-4ae2-a171-2470b63dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobStatus_Failure_InvalidJobId_Period() throws Exception {
         //  Test failed run of job getStatus with job id containing invalid characters.
-        JobsStatus.getJobStatus("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsStatus.getJobStatus("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void testGetJobStatus_Failure_InvalidJobId_Asterisk() throws Exception {
         //  Test failed run of job getStatus with job id containing invalid characters.
-        JobsStatus.getJobStatus("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsStatus.getJobStatus("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00"));
     }
 }

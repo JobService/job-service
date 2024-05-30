@@ -16,26 +16,22 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
-import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import com.hpe.caf.services.job.queue.QueueServicesFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.MockedConstruction;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public final class JobsGetTest {
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
 
         HashMap<String, String> newEnv  = new HashMap<>();
@@ -60,9 +56,10 @@ public final class JobsGetTest {
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobs_Failure_EmptyPartitionId() throws Exception {
-        JobsGet.getJobs("", "", null, 0, 0, null, null, null);
+         Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("", "", null, 0, 0, null, null, null));
     }
 
     @Test
@@ -83,18 +80,21 @@ public final class JobsGetTest {
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobs_Failure_InvalidSort() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "invalid", null, null);
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("partition", "", null, 0, 0, "invalid", null, null));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobs_Failure_InvalidSortField() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "unknown:desc", null, null);
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("partition", "", null, 0, 0, "unknown:desc", null, null));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobs_Failure_InvalidSortDirection() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random", null, null);
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random", null, null));
     }
 }

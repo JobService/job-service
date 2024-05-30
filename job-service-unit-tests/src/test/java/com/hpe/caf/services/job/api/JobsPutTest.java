@@ -15,8 +15,6 @@
  */
 package com.hpe.caf.services.job.api;
 
-import static org.junit.Assert.assertEquals;
-
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -34,17 +32,19 @@ import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.jobtype.JobType;
 import com.hpe.caf.services.job.jobtype.JobTypes;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.*;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public final class JobsPutTest {
 
     public static final String TEST_TASK_DATA = "{\"data\" : \"TestTaskData\"}";
@@ -96,7 +96,7 @@ public final class JobsPutTest {
         return job;
     }
    
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
 
         HashMap<String, String> newEnv  = new HashMap<>();
@@ -182,45 +182,52 @@ public final class JobsPutTest {
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_JobIdNotSpecified() throws Exception {
 
         //  Test failed run of job creation with empty job id.
-        JobsPut.createOrUpdateJob("partition", "", makeJob());
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "", makeJob()));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_InvalidJobId_Period() throws Exception {
 
         //  Test failed run of job creation with job id containing invalid characters.
-        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b6.dff00", makeJob());
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b6.dff00", makeJob()));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_PartitionIdNotSpecified() throws Exception {
-        JobsPut.createOrUpdateJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00", makeJob());
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00", makeJob()));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_InvalidJobId_Asterisk() throws Exception {
 
         //  Test failed run of job creation with job id containing invalid characters.
-        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b6*dff00", makeJob());
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b6*dff00", makeJob()));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateRestrictedJob_Failure_typeAndTaskSpecified() throws Exception {
         final NewJob job = makeRestrictedJob("basic", null);
         job.setTask(makeJob().getTask());
-        JobsPut.createOrUpdateJob("partition", "id", job);
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "id", job));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateRestrictedJob_Failure_missingType() throws Exception {
-        JobsPut.createOrUpdateJob("partition", "id", makeRestrictedJob("missing", null));
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "id", makeRestrictedJob("missing", null)));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateRestrictedJob_Failure_invalidParams() throws Exception {
         final JobType failingJobType = new JobType(
             "id",
@@ -228,7 +235,7 @@ public final class JobsPutTest {
                 throw new BadRequestException("invalid params");
             });
         JobTypes.initialise(() -> Collections.singletonList(failingJobType));
-        JobsPut.createOrUpdateJob("partition", "id", makeRestrictedJob("basic", null));
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "id", makeRestrictedJob("basic", null)));
     }
 
     public void testCreateRestrictedJob_Success() throws Exception {
@@ -247,7 +254,8 @@ public final class JobsPutTest {
 
     // null params
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_TaskDataNotSpecified() throws Exception {
 
         NewJob job = new NewJob();
@@ -264,12 +272,14 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where task data has not been specified.
-        try {
-            JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
-        } catch (BadRequestException bre) {
-            assertEquals(JobsPut.ERR_MSG_TASK_DATA_NOT_SPECIFIED, bre.getMessage());
-            throw bre;
-        }
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            try {
+                JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+            } catch (BadRequestException bre) {
+                assertEquals(JobsPut.ERR_MSG_TASK_DATA_NOT_SPECIFIED, bre.getMessage());
+                throw bre;
+            }
+        });
     }
     
     @Test
@@ -362,7 +372,8 @@ public final class JobsPutTest {
     }
 
     
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_TaskData_unsupportedType() throws Exception
     {
         NewJob job = new NewJob();
@@ -378,15 +389,18 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where taskData is an unsupported datatype
-        try {
-            JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
-        } catch (BadRequestException bre) {
-            assertEquals(JobsPut.ERR_MSG_TASK_DATA_DATATYPE_ERROR, bre.getMessage());
-            throw bre;
-        }
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            try {
+                JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+            } catch (BadRequestException bre) {
+                assertEquals(JobsPut.ERR_MSG_TASK_DATA_DATATYPE_ERROR, bre.getMessage());
+                throw bre;
+            }
+        });
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_TaskDataObjectAndEncodingConflict() throws Exception {
         NewJob job = new NewJob();
         WorkerAction action = new WorkerAction();
@@ -401,23 +415,26 @@ public final class JobsPutTest {
         action.setTargetPipe("JobServiceQueue");
         job.setTask(action);
 
-        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
-            when(mock.createJob(
-                    anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap())).thenReturn(true);
-            when(mock.createJobWithDependencies(
-                    anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                    anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), eq(false)
-            )).thenReturn(true);
-        })) {
-            JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
-        } catch (BadRequestException bre) {
-            assertEquals(JobsPut.ERR_MSG_TASK_DATA_OBJECT_ENCODING_CONFLICT, bre.getMessage());
-            throw bre;
-        }
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
+                when(mock.createJob(
+                        anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
+                        anyInt(), any(), anyString(), anyString(), anyInt(), anyMap())).thenReturn(true);
+                when(mock.createJobWithDependencies(
+                        anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
+                        anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), eq(false)
+                )).thenReturn(true);
+            })) {
+                JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+            } catch (BadRequestException bre) {
+                assertEquals(JobsPut.ERR_MSG_TASK_DATA_OBJECT_ENCODING_CONFLICT, bre.getMessage());
+                throw bre;
+            }
+        });
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_TaskClassifierNotSpecified() throws Exception {
 
         NewJob job = new NewJob();
@@ -434,10 +451,11 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where task classifier has not been specified.
-        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_TaskApiVersionNotSpecified() throws Exception {
 
         NewJob job = new NewJob();
@@ -454,10 +472,11 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where task api version has not been specified.
-        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_TargetQueueNotSpecified() throws Exception {
 
         NewJob job = new NewJob();
@@ -474,10 +493,11 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where target queue has not been specified.
-        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_TaskQueueNotSpecified() throws Exception {
 
         NewJob job = new NewJob();
@@ -494,6 +514,6 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where target queue has not been specified.
-        JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job));
     }
 }

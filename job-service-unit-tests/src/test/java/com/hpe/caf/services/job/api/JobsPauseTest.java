@@ -17,25 +17,23 @@ package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.MockedConstruction;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public final class JobsPauseTest {
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
 
         HashMap<String, String> newEnv  = new HashMap<>();
@@ -63,26 +61,30 @@ public final class JobsPauseTest {
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testPauseJob_Failure_EmptyJobId() throws Exception {
         //  Test failed run of job pause with empty job id.
-        JobsPause.pauseJob("partition", "");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPause.pauseJob("partition", ""));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testPauseJob_Success_EmptyPartitionId() throws Exception {
-        JobsPause.pauseJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPause.pauseJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testPauseJob_Failure_InvalidJobId_Period() throws Exception {
         //  Test failed run of job pause with job id containing invalid characters.
-        JobsPause.pauseJob("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPause.pauseJob("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testPauseJob_Failure_InvalidJobId_Asterisk() throws Exception {
         //  Test failed run of job pause with job id containing invalid characters.
-        JobsPause.pauseJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsPause.pauseJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00"));
     }
 }

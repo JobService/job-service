@@ -16,19 +16,19 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.HashMap;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashMap;
-
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public final class JobStatsGetCountTest {
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
 
         HashMap<String, String> newEnv  = new HashMap<>();
@@ -52,8 +52,9 @@ public final class JobStatsGetCountTest {
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobCount_Success_EmptyPartitionId() throws Exception {
-        JobsStatsGetCount.getJobsCount("", "", null, null);
+        Assertions.assertThrows(BadRequestException.class, () -> JobsStatsGetCount.getJobsCount("", "", null, null));
     }
 }

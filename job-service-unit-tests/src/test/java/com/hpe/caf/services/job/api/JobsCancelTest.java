@@ -16,19 +16,20 @@
 package com.hpe.caf.services.job.api;
 
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public final class JobsCancelTest {
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
 
         HashMap<String, String> newEnv  = new HashMap<>();
@@ -55,26 +56,30 @@ public final class JobsCancelTest {
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCancelJob_Failure_EmptyJobId() throws Exception {
         //  Test failed run of job cancellation with empty job id.
-        JobsCancel.cancelJob("partition", "");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsCancel.cancelJob("partition", ""));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCancelJob_Success_EmptyPartitionId() throws Exception {
-        JobsCancel.cancelJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsCancel.cancelJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCancelJob_Failure_InvalidJobId_Period() throws Exception {
         //  Test failed run of job cancellation with job id containing invalid characters.
-        JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCancelJob_Failure_InvalidJobId_Asterisk() throws Exception {
         //  Test failed run of job cancellation with job id containing invalid characters.
-        JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00"));
     }
 }
