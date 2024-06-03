@@ -80,20 +80,20 @@ public final class JobsActiveTest {
     @Test
     @SuppressWarnings("ThrowableResultIgnored")
     public void testIsJobActive_Failure_EmptyPartitionId() throws Exception {
-         Assertions.assertThrows(BadRequestException.class, () ->  JobsActive.isJobActive("", "067e6162-3b6f-4ae2-a171-2470b63dff00"));
+        Assertions.assertThrows(BadRequestException.class, () -> JobsActive.isJobActive("", "067e6162-3b6f-4ae2-a171-2470b63dff00"));
     }
 
     @Test
     @SuppressWarnings("ThrowableResultIgnored")
     public void testIsJobActive_Failure_InvalidJobId_Period() throws Exception {
         //  Test failed run of job isActive with job id containing invalid characters.
-         Assertions.assertThrows(BadRequestException.class, () ->  JobsActive.isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00"));
+        Assertions.assertThrows(BadRequestException.class, () -> JobsActive.isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00"));
     }
 
     @Test
     @SuppressWarnings("ThrowableResultIgnored")
     public void testIsJobActive_Failure_InvalidJobId_Asterisk() throws Exception {
         //  Test failed run of job isActive with job id containing invalid characters.
-        Assertions.assertThrows(BadRequestException.class, () ->  JobsActive.isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00"));
+        Assertions.assertThrows(BadRequestException.class, () -> JobsActive.isJobActive("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00"));
     }
 }

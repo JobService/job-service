@@ -255,7 +255,6 @@ public final class JobsPutTest {
     // null params
 
     @Test
-    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_TaskDataNotSpecified() throws Exception {
 
         NewJob job = new NewJob();
@@ -272,14 +271,8 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where task data has not been specified.
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            try {
-                JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
-            } catch (BadRequestException bre) {
-                assertEquals(JobsPut.ERR_MSG_TASK_DATA_NOT_SPECIFIED, bre.getMessage());
-                throw bre;
-            }
-        });
+        Exception bre = Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job));
+        assertEquals(JobsPut.ERR_MSG_TASK_DATA_NOT_SPECIFIED, bre.getMessage());
     }
     
     @Test
@@ -373,7 +366,6 @@ public final class JobsPutTest {
 
     
     @Test
-    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_TaskData_unsupportedType() throws Exception
     {
         NewJob job = new NewJob();
@@ -389,18 +381,11 @@ public final class JobsPutTest {
         job.setTask(action);
 
         //  Test failed run of job creation where taskData is an unsupported datatype
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            try {
-                JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
-            } catch (BadRequestException bre) {
-                assertEquals(JobsPut.ERR_MSG_TASK_DATA_DATATYPE_ERROR, bre.getMessage());
-                throw bre;
-            }
-        });
+        Exception bre = Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job));
+        assertEquals(JobsPut.ERR_MSG_TASK_DATA_DATATYPE_ERROR, bre.getMessage());
     }
 
     @Test
-    @SuppressWarnings("ThrowableResultIgnored")
     public void testCreateJob_Failure_TaskDataObjectAndEncodingConflict() throws Exception {
         NewJob job = new NewJob();
         WorkerAction action = new WorkerAction();
@@ -415,22 +400,19 @@ public final class JobsPutTest {
         action.setTargetPipe("JobServiceQueue");
         job.setTask(action);
 
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
-                when(mock.createJob(
-                        anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
-                        anyInt(), any(), anyString(), anyString(), anyInt(), anyMap())).thenReturn(true);
-                when(mock.createJobWithDependencies(
-                        anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
-                        anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), eq(false)
-                )).thenReturn(true);
-            })) {
-                JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job);
-            } catch (BadRequestException bre) {
-                assertEquals(JobsPut.ERR_MSG_TASK_DATA_OBJECT_ENCODING_CONFLICT, bre.getMessage());
-                throw bre;
-            }
-        });
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
+            when(mock.createJob(
+                    anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
+                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap())).thenReturn(true);
+            when(mock.createJobWithDependencies(
+                    anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
+                    anyInt(), any(), anyString(), anyString(), any(), anyInt(), anyMap(), eq(false)
+            )).thenReturn(true);
+        })) {
+            Exception bre = Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job));
+            assertEquals(JobsPut.ERR_MSG_TASK_DATA_OBJECT_ENCODING_CONFLICT, bre.getMessage());
+        }
+
     }
 
     @Test
