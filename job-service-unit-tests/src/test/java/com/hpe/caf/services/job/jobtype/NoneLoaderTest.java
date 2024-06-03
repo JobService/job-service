@@ -15,23 +15,22 @@
  */
 package com.hpe.caf.services.job.jobtype;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.Collections;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class NoneLoaderTest {
 
     @Test
     public void testLoad() {
-        Assert.assertEquals(Collections.emptyList(), new NoneLoader().load());
+        assertEquals(Collections.emptyList(), new NoneLoader().load());
     }
 
     @Test
     public void testLoadTwice() throws Exception {
         final Loader loader = new NoneLoader();
-        Assert.assertEquals(Collections.emptyList(), loader.load());
-        Assert.assertEquals(Collections.emptyList(), loader.load());
+        assertEquals(Collections.emptyList(), loader.load());
+        assertEquals(Collections.emptyList(), loader.load());
     }
 
 }

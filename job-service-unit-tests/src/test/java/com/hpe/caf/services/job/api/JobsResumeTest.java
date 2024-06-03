@@ -15,22 +15,19 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import java.util.HashMap;
-import java.util.Queue;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -39,8 +36,12 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public final class JobsResumeTest {
 
     @Mock
@@ -49,7 +50,7 @@ public final class JobsResumeTest {
     @Mock
     private QueueServices mockQueueServices;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         mockQueueServices = Mockito.mock(QueueServices.class);
         doNothing().when(mockQueueServices).sendMessage(any(), any(), any(), any(), anyBoolean());
@@ -86,26 +87,30 @@ public final class JobsResumeTest {
             }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testResumeJob_Failure_EmptyJobId() throws Exception {
         //  Test failed run of job resume with empty job id.
-        JobsResume.resumeJob("partition", "");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsResume.resumeJob("partition", ""));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testResumeJob_Success_EmptyPartitionId() throws Exception {
-        JobsResume.resumeJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsResume.resumeJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testResumeJob_Failure_InvalidJobId_Period() throws Exception {
         //  Test failed run of job resume with job id containing invalid characters.
-        JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testResumeJob_Failure_InvalidJobId_Asterisk() throws Exception {
         //  Test failed run of job resume with job id containing invalid characters.
-        JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00");
+       Assertions.assertThrows(BadRequestException.class, () ->  JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00"));
     }
 }

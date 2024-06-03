@@ -18,23 +18,24 @@ package com.hpe.caf.services.job.jobtype;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.hpe.caf.services.job.api.generated.model.WorkerAction;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class JobTypeTest {
 
-    @Before
+    @BeforeEach
     public void loadTaskScriptSchema() {
         TaskScriptSchemaInitialization.initialize();
     }
 
     @Test
     public void testGetId() {
-        Assert.assertEquals("id 1", JobTypeTestUtil.testJobType1.getId());
+        assertEquals("id 1", JobTypeTestUtil.testJobType1.getId());
     }
 
     @Test
@@ -59,36 +60,33 @@ public class JobTypeTest {
         final WorkerAction task =
             jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
 
-        Assert.assertEquals("classifier should be as provided",
-            "classifier", task.getTaskClassifier());
-        Assert.assertEquals("api version should be as provided",
-            123, task.getTaskApiVersion().intValue());
-        Assert.assertEquals("task pipe should be as provided",
-            "task pipe", task.getTaskPipe());
-        Assert.assertEquals("target pipe should be as provided",
-            "target pipe", task.getTargetPipe());
+        assertEquals("classifier", task.getTaskClassifier(), "classifier should be as provided");
+        assertEquals(123, task.getTaskApiVersion().intValue(), "api version should be as provided");
+        assertEquals("task pipe", task.getTaskPipe(), "task pipe should be as provided");
+        assertEquals("target pipe", task.getTargetPipe(), "target pipe should be as provided");
 
         final Map<String, Object> expectedTaskData = new HashMap<>();
         expectedTaskData.put("partitionId", "partition id");
         expectedTaskData.put("jobId", "job id");
         expectedTaskData.put("parameters", "params");
-        Assert.assertEquals("task data should be as returned by provided builder",
-                            expectedTaskData, task.getTaskData());
+        assertEquals(expectedTaskData, task.getTaskData(), "task data should be as returned by provided builder");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testBuildTaskWithInvalidParams() throws Exception {
         final JobType jobType = new JobType(
             "id",
             (partitionId, jobId, params) -> { throw new BadRequestException("invalid params"); });
-        jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
+        Assertions.assertThrows(BadRequestException.class, () -> jobType.buildTask("partition id", "job id", TextNode.valueOf("params")));
     }
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testBuildTaskWithInvalidTask() throws Exception {
         final JobType jobType = new JobType(
             "id",
             (partitionId, jobId, params) -> TextNode.valueOf("should be object"));
-        jobType.buildTask("partition id", "job id", TextNode.valueOf("params"));
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> jobType.buildTask("partition id", "job id", TextNode.valueOf("params")));
     }
 }

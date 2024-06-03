@@ -16,38 +16,41 @@
 package com.hpe.caf.services.job.jobtype;
 
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class JobTypesTest {
 
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testInitialiseWithDuplicateIds() throws Exception {
-        JobTypes.initialise(() -> Arrays.asList(
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> JobTypes.initialise(() -> Arrays.asList(
             JobTypeTestUtil.testJobType1, JobTypeTestUtil.testJobType1
-        ));
+        )));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetWithNoTypes() throws Exception {
         JobTypes.initialise(() -> Collections.emptyList());
-        JobTypes.getInstance().getJobType("type");
+        Assertions.assertThrows(BadRequestException.class, () -> JobTypes.getInstance().getJobType("type"));
     }
 
     @Test
     public void testGetExistingType() throws Exception {
         JobTypes.initialise(() -> Collections.singletonList(JobTypeTestUtil.testJobType1));
-        Assert.assertEquals(JobTypeTestUtil.testJobType1,
-            JobTypes.getInstance().getJobType("id 1"));
+        assertEquals(JobTypeTestUtil.testJobType1,  JobTypes.getInstance().getJobType("id 1"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testUnknownType() throws Exception {
         JobTypes.initialise(() -> Collections.singletonList(JobTypeTestUtil.testJobType1));
-        JobTypes.getInstance().getJobType("id 2");
+        Assertions.assertThrows(BadRequestException.class, () -> JobTypes.getInstance().getJobType("id 2"));
     }
 
     @Test
@@ -55,9 +58,9 @@ public class JobTypesTest {
         JobTypes.initialise(() -> Arrays.asList(
             JobTypeTestUtil.testJobType1, JobTypeTestUtil.testJobType2
         ));
-        Assert.assertEquals(JobTypeTestUtil.testJobType1,
+        assertEquals(JobTypeTestUtil.testJobType1,
             JobTypes.getInstance().getJobType("id 1"));
-        Assert.assertEquals(JobTypeTestUtil.testJobType2,
+        assertEquals(JobTypeTestUtil.testJobType2,
             JobTypes.getInstance().getJobType("id 2"));
     }
 

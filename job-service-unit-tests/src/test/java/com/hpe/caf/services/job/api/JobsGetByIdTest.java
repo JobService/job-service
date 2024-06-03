@@ -15,30 +15,25 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.configuration.AppConfig;
-import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.MockedConstruction;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public final class JobsGetByIdTest {
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
 
         HashMap<String, String> newEnv  = new HashMap<>();
@@ -66,26 +61,30 @@ public final class JobsGetByIdTest {
         }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJob_Failure_EmptyJobId() throws Exception {
         //  Test failed run of job retrieval with empty job id.
-        JobsGetById.getJob("partition", "");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGetById.getJob("partition", ""));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJob_Success_EmptyPartitionId() throws Exception {
-        JobsGetById.getJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGetById.getJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJob_Failure_InvalidJobId_Period() throws Exception {
         //  Test failed run of job retrieval with job id containing invalid characters.
-        JobsGetById.getJob("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGetById.getJob("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJob_Failure_InvalidJobId_Asterisk() throws Exception {
         //  Test failed run of job retrieval with job id containing invalid characters.
-        JobsGetById.getJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGetById.getJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00"));
     }
 }

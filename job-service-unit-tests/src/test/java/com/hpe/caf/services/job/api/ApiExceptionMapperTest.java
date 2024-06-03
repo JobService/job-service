@@ -21,16 +21,16 @@ import com.hpe.caf.services.job.exceptions.NotFoundException;
 import com.hpe.caf.services.job.exceptions.ServiceUnavailableException;
 import com.rabbitmq.client.AlreadyClosedException;
 import com.rabbitmq.client.ShutdownSignalException;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public final class ApiExceptionMapperTest {
 
     @Test
@@ -42,7 +42,7 @@ public final class ApiExceptionMapperTest {
         Response r = aem.toResponse(bre);
 
         //  Expected response status should map onto BAD REQUEST (i.e. 400)
-        Assert.assertEquals(r.getStatus(),400);
+        assertEquals(400, r.getStatus());
 
     }
 
@@ -55,7 +55,7 @@ public final class ApiExceptionMapperTest {
         Response r = aem.toResponse(bre);
 
         //  Expected response status should map onto NOT FOUND (i.e. 404)
-        Assert.assertEquals(r.getStatus(),404);
+        assertEquals(404, r.getStatus());
 
     }
 
@@ -68,7 +68,7 @@ public final class ApiExceptionMapperTest {
         Response r = aem.toResponse(sue);
 
         //  Expected response status should map onto SERVICE UNAVAILABLE (i.e. 503)
-        Assert.assertEquals(r.getStatus(),503);
+        assertEquals(503, r.getStatus());
 
     }
 
@@ -82,7 +82,7 @@ public final class ApiExceptionMapperTest {
         Response r = aem.toResponse(sue);
 
         //  Expected response status should map onto SERVICE UNAVAILABLE (i.e. 400)
-        Assert.assertEquals(400, r.getStatus());
+        assertEquals(400, r.getStatus());
 
     }
 
@@ -95,7 +95,7 @@ public final class ApiExceptionMapperTest {
         final Response r = aem.toResponse(bre);
 
         //  Expected response status should map onto INTERNAL SERVER ERROR (i.e. 500)
-        Assert.assertEquals(503, r.getStatus());
+        assertEquals(503, r.getStatus());
 
     }
 
@@ -109,7 +109,7 @@ public final class ApiExceptionMapperTest {
         final Response r = aem.toResponse(bre);
 
         //  Expected response status should map onto INTERNAL SERVER ERROR (i.e. 500)
-        Assert.assertEquals(503, r.getStatus());
+        assertEquals(503, r.getStatus());
 
     }
 
@@ -122,7 +122,7 @@ public final class ApiExceptionMapperTest {
         final Response r = aem.toResponse(bre);
 
         //  Expected response status should map onto INTERNAL SERVER ERROR (i.e. 500)
-        Assert.assertEquals(503, r.getStatus());
+        assertEquals(503, r.getStatus());
 
     }
 
@@ -136,7 +136,7 @@ public final class ApiExceptionMapperTest {
         Response r = aem.toResponse(bre);
 
         //  Expected response status should map onto INTERNAL SERVER ERROR (i.e. 500)
-        Assert.assertEquals(r.getStatus(),500);
+        assertEquals(500, r.getStatus());
 
     }
 }

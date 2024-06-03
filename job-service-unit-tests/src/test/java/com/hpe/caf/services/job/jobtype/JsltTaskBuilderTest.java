@@ -18,12 +18,13 @@ package com.hpe.caf.services.job.jobtype;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class JsltTaskBuilderTest {
     private static final ParametersValidator paramValidatorSuccess = params -> {};
@@ -46,42 +47,45 @@ public class JsltTaskBuilderTest {
         expectedTask.put("partitionId", "partition id");
         expectedTask.put("jobId", "job id");
         expectedTask.put("parameters", "params");
-        Assert.assertEquals(JobTypeTestUtil.convertJson(expectedTask), actualTask);
+        assertEquals(JobTypeTestUtil.convertJson(expectedTask), actualTask);
     }
 
-    @SuppressWarnings("ResultOfObjectAllocationIgnored")
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @SuppressWarnings({"ResultOfObjectAllocationIgnored", "ThrowableResultIgnored"})
+    @Test
     public void testBuildWithIncorrectScriptSyntax() throws Exception {
-        new JsltTaskBuilder(
-            "type", Collections.emptyMap(), Collections.emptyMap(), paramValidatorSuccess,
-            "not a valid script");
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> new JsltTaskBuilder(
+                "type", Collections.emptyMap(), Collections.emptyMap(), paramValidatorSuccess,
+                "not a valid script"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testBuildWithParamValidationError() throws Exception {
         final TaskBuilder builder = new JsltTaskBuilder(
             "type", Collections.emptyMap(), Collections.emptyMap(),
             params -> { throw new BadRequestException("invalid params"); },
             ".");
-        builder.build("partition id", "job id", TextNode.valueOf("params"));
+        Assertions.assertThrows(BadRequestException.class, () -> builder.build("partition id", "job id", TextNode.valueOf("params")));
     }
 
     // a script which fails by using `error()`
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testBuildWithFailingScript() throws Exception {
         final TaskBuilder builder = new JsltTaskBuilder(
             "type", Collections.emptyMap(), Collections.emptyMap(), paramValidatorSuccess,
             "error(\"input not quite right\")");
-        builder.build("partition id", "job id", TextNode.valueOf("params"));
+        Assertions.assertThrows(BadRequestException.class, () -> builder.build("partition id", "job id", TextNode.valueOf("params")));
     }
 
     // a script which is syntactically correct but fails without explicitly using `error()`
-    @Test(expected = InvalidJobTypeDefinitionException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testBuildWithInvalidScript() throws Exception {
         final TaskBuilder builder = new JsltTaskBuilder(
             "type", Collections.emptyMap(), Collections.emptyMap(), paramValidatorSuccess,
             "{ \"result\": .jobId[\"key\"] }"); // can't index string with string
-        builder.build("partition id", "job id", TextNode.valueOf("params"));
+        Assertions.assertThrows(InvalidJobTypeDefinitionException.class, () -> builder.build("partition id", "job id", TextNode.valueOf("params")));
     }
 
     @Test
@@ -95,7 +99,7 @@ public class JsltTaskBuilderTest {
 
         final Map<String, Object> expectedTaskData = new HashMap<>();
         expectedTaskData.put("empty", Collections.emptyMap());
-        Assert.assertEquals(JobTypeTestUtil.convertJson(expectedTaskData), actualTaskData);
+        assertEquals(JobTypeTestUtil.convertJson(expectedTaskData), actualTaskData);
     }
 
 }
