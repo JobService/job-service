@@ -135,8 +135,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -193,6 +193,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <docker.host.address>${docker.host.address}</docker.host.address>
+                        <worker.restport>${worker.restport}</worker.restport>
                         <worker.adminport>${worker.adminport}</worker.adminport>
                         <rabbitmq.node.port>${rabbitmq.node.port}</rabbitmq.node.port>
                         <rabbitmq.ctrl.port>${rabbitmq.ctrl.port}</rabbitmq.ctrl.port>
@@ -343,6 +344,7 @@
                             <name>${dockerJobServiceOrg}worker-jobtracking${dockerProjectVersion}</name>
                             <run>
                                 <ports>
+                                    <port>${worker.restport}:8080</port>
                                     <port>${worker.adminport}:8081</port>
                                     <!-- DEBUGGING -->
                                     <!-- <port>5005:5005</port>-->
@@ -381,7 +383,7 @@
                                 </log>
                                 <wait>
                                     <http>
-                                        <url>http://${docker.host.address}:${worker.adminport}</url>
+                                        <url>http://${docker.host.address}:${worker.restport}/health-check?type=READY</url>
                                     </http>
                                     <time>120000</time>
                                     <shutdown>500</shutdown>
@@ -398,6 +400,7 @@
         <profile>
             <id>use-default-fixed-ports</id>
             <properties>
+                <worker.restport>8080</worker.restport>
                 <worker.adminport>8081</worker.adminport>
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>

@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hpe.caf.services.job.jobtype;
+package com.hpe.caf.services.job.scheduled.executor;
 
-import java.util.Collections;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import org.junit.jupiter.api.Test;
+public final class StagingQueueRerouter {
+    private StagingQueueRerouter() {}
 
-public class NoneLoaderTest {
+    private static final String LOAD_BALANCED_INDICATOR = "»";
 
-    @Test
-    public void testLoad() {
-        assertEquals(Collections.emptyList(), new NoneLoader().load());
+    /**
+     * Create a staging queue name from the 
+     * @param targetQueue The original queue name
+     * @param tenant The tenant id
+     * @return A new queue name that combines the original queue name with the tenant id
+     */
+    public static String route(final String targetQueue, final String tenant) {
+        return targetQueue + LOAD_BALANCED_INDICATOR + "/" + tenant;
     }
-
-    @Test
-    public void testLoadTwice() throws Exception {
-        final Loader loader = new NoneLoader();
-        assertEquals(Collections.emptyList(), loader.load());
-        assertEquals(Collections.emptyList(), loader.load());
-    }
-
 }

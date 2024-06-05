@@ -19,18 +19,17 @@ import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.configuration.AppConfigException;
 import com.hpe.caf.services.configuration.AppConfigProvider;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
+import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({AppConfig.class})
-@PowerMockIgnore("javax.management.*")
+@ExtendWith(MockitoExtension.class)
 public final class ApiServiceUtilTest {
 
     @Test
@@ -49,15 +48,16 @@ public final class ApiServiceUtilTest {
 
         //  Test successful call to class method.
         AppConfig configProps = AppConfigProvider.getAppConfigProperties();
-        Assert.assertEquals("testHost", configProps.getDatabaseHost());
-        Assert.assertEquals("8888", configProps.getDatabasePort());
-        Assert.assertEquals("testName", configProps.getDatabaseName());
-        Assert.assertEquals("testUserName", configProps.getDatabaseUsername());
-        Assert.assertEquals("testPassword", configProps.getDatabasePassword());
-        Assert.assertEquals("testAppName", configProps.getApplicationName());
+        assertEquals("testHost", configProps.getDatabaseHost());
+        assertEquals("8888", configProps.getDatabasePort());
+        assertEquals("testName", configProps.getDatabaseName());
+        assertEquals("testUserName", configProps.getDatabaseUsername());
+        assertEquals("testPassword", configProps.getDatabasePassword());
+        assertEquals("testAppName", configProps.getApplicationName());
     }
 
-    @Test(expected = AppConfigException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetAppConfigPropertiesFailure_MissingDBProps () throws Exception {
 
         //  Set-up test database connection properties.
@@ -70,7 +70,7 @@ public final class ApiServiceUtilTest {
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         //  Test expected failure call to class method because of missing properties/
-        AppConfigProvider.getAppConfigProperties();
+        Assertions.assertThrows(AppConfigException.class, () -> AppConfigProvider.getAppConfigProperties());
     }
 
     @Test
@@ -78,7 +78,7 @@ public final class ApiServiceUtilTest {
 
         String test = "Test";
         boolean isNotNullOrEmpty = ApiServiceUtil.isNotNullOrEmpty(test);
-        Assert.assertTrue(isNotNullOrEmpty);
+        assertTrue(isNotNullOrEmpty);
 
     }
 
@@ -87,7 +87,7 @@ public final class ApiServiceUtilTest {
 
         String test = "";
         boolean isNotNullOrEmpty = ApiServiceUtil.isNotNullOrEmpty(test);
-        Assert.assertFalse(isNotNullOrEmpty);
+        assertFalse(isNotNullOrEmpty);
 
     }
 
@@ -96,7 +96,7 @@ public final class ApiServiceUtilTest {
 
         String test = "Te.st";
         boolean isInvalid = ApiServiceUtil.containsInvalidCharacters(test);
-        Assert.assertTrue(isInvalid);
+        assertTrue(isInvalid);
 
     }
 
@@ -105,7 +105,7 @@ public final class ApiServiceUtilTest {
 
         String test = "Te*t";
         boolean isInvalid = ApiServiceUtil.containsInvalidCharacters(test);
-        Assert.assertTrue(isInvalid);
+        assertTrue(isInvalid);
 
     }
 
@@ -114,7 +114,7 @@ public final class ApiServiceUtilTest {
 
         String test = "Test";
         boolean isInvalid = ApiServiceUtil.containsInvalidCharacters(test);
-        Assert.assertFalse(isInvalid);
+        assertFalse(isInvalid);
 
     }
 
@@ -122,24 +122,28 @@ public final class ApiServiceUtilTest {
         ApiServiceUtil.validatePartitionId("something valid");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testValidatePartitionId_Null() throws BadRequestException {
-        ApiServiceUtil.validatePartitionId(null);
+       Assertions.assertThrows(BadRequestException.class, () -> ApiServiceUtil.validatePartitionId(null));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testValidatePartitionId_Empty() throws BadRequestException {
-        ApiServiceUtil.validatePartitionId("");
+       Assertions.assertThrows(BadRequestException.class, () -> ApiServiceUtil.validatePartitionId(""));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testValidatePartitionId_TooLong() throws BadRequestException {
-        ApiServiceUtil.validatePartitionId("a very long partition ID more than forty characters");
+       Assertions.assertThrows(BadRequestException.class, () -> ApiServiceUtil.validatePartitionId("a very long partition ID more than forty characters"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testValidatePartitionId_InvalidChars() throws BadRequestException {
-        ApiServiceUtil.validatePartitionId("not:valid");
+       Assertions.assertThrows(BadRequestException.class, () -> ApiServiceUtil.validatePartitionId("not:valid"));
     }
 
 }

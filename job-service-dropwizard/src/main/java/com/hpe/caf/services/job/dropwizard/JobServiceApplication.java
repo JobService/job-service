@@ -22,7 +22,9 @@ import com.hpe.caf.services.job.api.JobServiceModule;
 import com.hpe.caf.services.job.dropwizard.health.DatabaseHealthCheck;
 import com.hpe.caf.services.job.dropwizard.health.PingHealthCheck;
 import com.hpe.caf.services.job.dropwizard.health.QueueHealthCheck;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
@@ -57,7 +59,9 @@ public final class JobServiceApplication extends Application<JobServiceConfigura
     {
         // Pick up the built-in config file from resources
         if (useInternalConfig) {
-            bootstrap.setConfigurationSourceProvider(new ResourceConfigurationSourceProvider());
+            bootstrap.setConfigurationSourceProvider(new SubstitutingSourceProvider(
+                    new ResourceConfigurationSourceProvider(),
+                    new EnvironmentVariableSubstitutor(false, true)));
         }
 
         // Add functionality bundles

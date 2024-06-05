@@ -20,7 +20,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -34,6 +33,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class JobServiceBasicHttpsIT
 {
@@ -96,7 +96,7 @@ public class JobServiceBasicHttpsIT
         System.out.println("Sending GET to url: " + getRequestUrl);
         final HttpResponse response = httpClient.execute(request);
 
-        Assert.assertTrue(response.getStatusLine().getStatusCode() == 200);
+        assertTrue(response.getStatusLine().getStatusCode() == 200);
         System.out.println("Response code: " + response.getStatusLine().getStatusCode());
 
         request.releaseConnection();
@@ -113,7 +113,7 @@ public class JobServiceBasicHttpsIT
         System.out.println("Sending GET to url: " + getRequestUrl);
         final HttpResponse response = httpClient.execute(request);
 
-        Assert.assertTrue(response.getStatusLine().getStatusCode() == 200);
+        assertTrue(response.getStatusLine().getStatusCode() == 200);
         System.out.println("Response code: " + response.getStatusLine().getStatusCode());
 
         request.releaseConnection();

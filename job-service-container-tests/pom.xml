@@ -127,8 +127,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -193,7 +193,6 @@
                 <rabbitmq.node.port>5672</rabbitmq.node.port>
                 <rabbitmq.ctrl.port>15672</rabbitmq.ctrl.port>
                 <postgres.db.port>5432</postgres.db.port>
-                <webservice.healthcheckport>8081</webservice.healthcheckport>
                 <webdav.apache.port>32775</webdav.apache.port>
                 <scheduler-worker.adminport>8087</scheduler-worker.adminport>
                 <!--<CAF_JOBSERVICE_PORT>8080</CAF_JOBSERVICE_PORT>-->
@@ -269,7 +268,7 @@
                         <JOB_SERVICE_DATABASE_USERNAME>postgres</JOB_SERVICE_DATABASE_USERNAME>
                         <JOB_SERVICE_DATABASE_PASSWORD>root</JOB_SERVICE_DATABASE_PASSWORD>
                         <webserviceurl>http://${docker.host.address}:${webservice.adminport}/job-service/v1</webserviceurl>
-                        <healthcheckurl>http://${docker.host.address}:${webservice.healthcheckport}/healthcheck</healthcheckurl>
+                        <healthcheckurl>http://${docker.host.address}:${webservice.adminport}/health-check?name=all&amp;type=READY</healthcheckurl>
                         <webserviceurlhttps>https://${docker.host.address}:${webservice.https.adminport}/job-service/v1</webserviceurlhttps>
                     </environmentVariables>
                 </configuration>
@@ -445,7 +444,6 @@
                                 <ports>
                                     <port>${webservice.adminport}:8080</port>
                                     <port>${webservice.https.adminport}:8443</port>
-                                    <port>${webservice.healthcheckport}:8081</port>
                                     <port>${webservice.debugport}:5005</port>
                                 </ports>
                                 <env>

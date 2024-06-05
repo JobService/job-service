@@ -15,34 +15,22 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({JobsCancel.class, DatabaseHelper.class, AppConfig.class})
-@PowerMockIgnore("javax.management.*")
+@ExtendWith(MockitoExtension.class)
 public final class JobsCancelTest {
 
-    @Mock
-    private DatabaseHelper mockDatabaseHelper;
-
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        //  Mock DatabaseHelper calls.
-        Mockito.doNothing().when(mockDatabaseHelper)
-            .cancelJob(Mockito.anyString(), Mockito.anyString());
-        PowerMockito.whenNew(DatabaseHelper.class).withArguments(Mockito.any()).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
@@ -57,33 +45,41 @@ public final class JobsCancelTest {
 
     @Test
     public void testCancelJob_Success() throws Exception {
-        //  Test successful run of job cancellation.
-        JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
+                    Mockito.doNothing().when(mock).deleteJob(Mockito.anyString(), Mockito.anyString());
+                })) {
+            //  Test successful run of job cancellation.
+            JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1))
-            .cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1))
+                    .cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCancelJob_Failure_EmptyJobId() throws Exception {
         //  Test failed run of job cancellation with empty job id.
-        JobsCancel.cancelJob("partition", "");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsCancel.cancelJob("partition", ""));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCancelJob_Success_EmptyPartitionId() throws Exception {
-        JobsCancel.cancelJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsCancel.cancelJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCancelJob_Failure_InvalidJobId_Period() throws Exception {
         //  Test failed run of job cancellation with job id containing invalid characters.
-        JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testCancelJob_Failure_InvalidJobId_Asterisk() throws Exception {
         //  Test failed run of job cancellation with job id containing invalid characters.
-        JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsCancel.cancelJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00"));
     }
 }

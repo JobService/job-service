@@ -17,7 +17,8 @@ package com.hpe.caf.services.job.jobtype;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class JsonSchemaParametersValidatorTest {
 
@@ -28,11 +29,12 @@ public class JsonSchemaParametersValidatorTest {
         new JsonSchemaParametersValidator("id", schema).validate(params);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testInvalidJson() throws Exception {
         final JsonNode schema = JobTypeTestUtil.buildJson("{ \"type\": \"number\" }");
         final JsonNode params = JobTypeTestUtil.buildJson("\"not a number\"");
-        new JsonSchemaParametersValidator("id", schema).validate(params);
+        Assertions.assertThrows(BadRequestException.class, () -> new JsonSchemaParametersValidator("id", schema).validate(params));
     }
 
 }

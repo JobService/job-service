@@ -18,8 +18,8 @@ package com.hpe.caf.services.job.api.filter;
 import com.healthmarketscience.sqlbuilder.Condition;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.ast.Node;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class CustomRSQLVisitorTest
 {

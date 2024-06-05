@@ -15,38 +15,24 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.api.generated.model.JobSortField;
 import com.hpe.caf.services.job.api.generated.model.SortDirection;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({JobsGet.class, DatabaseHelper.class, AppConfig.class})
-@PowerMockIgnore("javax.management.*")
+@ExtendWith(MockitoExtension.class)
 public final class JobsGetTest {
 
-    @Mock
-    private DatabaseHelper mockDatabaseHelper;
-
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        //  Mock DatabaseHelper calls.
-        Mockito.doNothing().when(mockDatabaseHelper)
-            .deleteJob(Mockito.anyString(), Mockito.anyString());
-        PowerMockito.whenNew(DatabaseHelper.class).withArguments(Mockito.any()).thenReturn(mockDatabaseHelper);
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
@@ -61,44 +47,54 @@ public final class JobsGetTest {
 
     @Test
     public void testGetJob_Success() throws Exception {
-        //  Test successful run of job retrieval.
-        JobsGet.getJobs("partition", "", null, 0, 0, null, null, null);
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class)){
+            //  Test successful run of job retrieval.
+            JobsGet.getJobs("partition", "", null, 0, 0, null, null, null);
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null);
+            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1)).getJobs(
+                    "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null);
+        }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobs_Failure_EmptyPartitionId() throws Exception {
-        JobsGet.getJobs("", "", null, 0, 0, null, null, null);
+         Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("", "", null, 0, 0, null, null, null));
     }
 
     @Test
     public void testGetJobs_Success_WithSort() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc", null, null);
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null);
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class)) {
+            JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc", null, null);
+            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1)).getJobs(
+                    "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null);
+        }
     }
 
     @Test
     public void testGetJobs_Success_WithNameSort() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "name:asc", null, null);
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1)).getJobs(
-            "partition", "", null, 0, 0, JobSortField.NAME, SortDirection.ASCENDING, null, null);
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class)) {
+            JobsGet.getJobs("partition", "", null, 0, 0, "name:asc", null, null);
+            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1)).getJobs(
+                    "partition", "", null, 0, 0, JobSortField.NAME, SortDirection.ASCENDING, null, null);
+        }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobs_Failure_InvalidSort() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "invalid", null, null);
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("partition", "", null, 0, 0, "invalid", null, null));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobs_Failure_InvalidSortField() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "unknown:desc", null, null);
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("partition", "", null, 0, 0, "unknown:desc", null, null));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobs_Failure_InvalidSortDirection() throws Exception {
-        JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random", null, null);
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random", null, null));
     }
 }

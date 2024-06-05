@@ -15,57 +15,45 @@
  */
 package com.hpe.caf.services.job.api;
 
-import com.hpe.caf.services.configuration.AppConfig;
 import com.hpe.caf.services.job.api.generated.model.JobStatus;
 import com.hpe.caf.services.job.exceptions.BadRequestException;
 import com.hpe.caf.services.job.queue.QueueServices;
 import com.hpe.caf.services.job.queue.QueueServicesFactory;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import java.util.HashMap;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({JobsResume.class, DatabaseHelper.class, AppConfig.class, QueueServices.class, QueueServicesFactory.class,})
-@PowerMockIgnore("javax.management.*")
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public final class JobsResumeTest {
 
     @Mock
     private DatabaseHelper mockDatabaseHelper;
 
     @Mock
-    private QueueServicesFactory mockQueueServicesFactory;
-
-    @Mock
     private QueueServices mockQueueServices;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        //  Mock DatabaseHelper calls.
-        Mockito.doNothing().when(mockDatabaseHelper)
-            .resumeJob(Mockito.anyString(), Mockito.anyString());
-        PowerMockito.whenNew(DatabaseHelper.class).withArguments(Mockito.any()).thenReturn(mockDatabaseHelper);
-
-        //  Mock QueueServices calls.
+        mockQueueServices = Mockito.mock(QueueServices.class);
         doNothing().when(mockQueueServices).sendMessage(any(), any(), any(), any(), anyBoolean());
-        PowerMockito.whenNew(QueueServices.class).withArguments(any(), any(), anyString(), any()).thenReturn(mockQueueServices);
-
-        //  Mock QueueServicesFactory calls.
-        PowerMockito.mockStatic(QueueServicesFactory.class);
-        PowerMockito.doReturn(mockQueueServices).when(QueueServicesFactory.class, "create", any(), anyString(), any());
 
         HashMap<String, String> newEnv  = new HashMap<>();
         newEnv.put("JOB_SERVICE_DATABASE_HOST","testHost");
@@ -80,39 +68,49 @@ public final class JobsResumeTest {
 
     @Test
     public void testResumeJob_Success() throws Exception {
-        Mockito.when(mockDatabaseHelper.getJobStatus(
-            anyString(), anyString()
-        )).thenReturn(JobStatus.PAUSED);
-        
-        //  Test successful run of job resume.
-        JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
 
-        Mockito.verify(mockDatabaseHelper, Mockito.times(1))
-            .resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
+                Mockito.when(mock.getJobStatus(anyString(), anyString())).thenReturn(JobStatus.PAUSED);
+                Mockito.doNothing().when(mock).resumeJob(Mockito.anyString(), Mockito.anyString());
+            });
+            MockedStatic<QueueServicesFactory> queueServicesFactoryMockedStatic = Mockito.mockStatic(QueueServicesFactory.class)){
 
-        verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any(), anyBoolean());
+                when(QueueServicesFactory.create(any(),anyString(),any())).thenReturn(mockQueueServices);
+
+            //  Test successful run of job resume.
+                JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+
+                Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1))
+                        .resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+
+                verify(mockQueueServices, times(1)).sendMessage(any(), any(), any(), any(), anyBoolean());
+            }
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testResumeJob_Failure_EmptyJobId() throws Exception {
         //  Test failed run of job resume with empty job id.
-        JobsResume.resumeJob("partition", "");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsResume.resumeJob("partition", ""));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testResumeJob_Success_EmptyPartitionId() throws Exception {
-        JobsResume.resumeJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsResume.resumeJob("", "067e6162-3b6f-4ae2-a171-2470b63dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testResumeJob_Failure_InvalidJobId_Period() throws Exception {
         //  Test failed run of job resume with job id containing invalid characters.
-        JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00");
+        Assertions.assertThrows(BadRequestException.class, () -> JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b.3dff00"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
+    @SuppressWarnings("ThrowableResultIgnored")
     public void testResumeJob_Failure_InvalidJobId_Asterisk() throws Exception {
         //  Test failed run of job resume with job id containing invalid characters.
-        JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00");
+       Assertions.assertThrows(BadRequestException.class, () ->  JobsResume.resumeJob("partition", "067e6162-3b6f-4ae2-a171-2470b*3dff00"));
     }
 }

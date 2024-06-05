@@ -132,7 +132,7 @@
                             <build>
                                 <from>${projectDockerRegistry}/cafapi/opensuse-jre17</from>
                                 <healthCheck>
-                                    <cmd>curl -f http://localhost:8081/healthcheck || exit 1</cmd>
+                                    <cmd>curl -f http://localhost:8080/health-check?type=READY || exit 1</cmd>
                                 </healthCheck>
                                 <cmd>/maven/worker.sh</cmd>
                                 <env>
