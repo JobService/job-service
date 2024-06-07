@@ -1291,8 +1291,7 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
-                            <tag>2.8.1</tag>
-                            <digest>sha256:9e904b4c1f732688e4e500fccf60ff1f25ef629dcf3b0a1f274fa3af8c026703</digest>
+                            <tag>4.0.1</tag>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafdataprocessing/worker-example</repository>
