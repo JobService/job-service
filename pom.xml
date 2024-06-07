@@ -1332,7 +1332,7 @@
                     <ignoreVersions>
                         <ignoreVersion>
                             <type>regex</type>
-                            <version>(?!1\.0\.0$)</version>
+                            <version>^(?!1\.0\.0$).*</version>
                             <images>
                                 <image>(?i).*jobservice/worker-batchsplit.*</image>
                             </images>
