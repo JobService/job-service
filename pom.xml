@@ -1291,8 +1291,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
-                            <tag>2.8.1</tag>
-                            <digest>sha256:9e904b4c1f732688e4e500fccf60ff1f25ef629dcf3b0a1f274fa3af8c026703</digest>
+                            <tag>4.0.1</tag>
+                            <digest>sha256:18628bccbf6c15f3335e1e62e5e786a6bce55ddbd244e6bfa79d0c6f09790e28</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafdataprocessing/worker-example</repository>
@@ -1305,12 +1305,12 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/jobservice/job-service-postgres</repository>
-                            <tag>7.0.2</tag>
-                            <digest>sha256:676c166c8749f81c07d0e24ec6528fd8b5f3950514d9f29e6514cad64b1c0dc3</digest>
+                            <tag>6.2.2</tag>
+                            <digest>sha256:b3d7cb9dcb8c3ad0a4e58f8e29448d61138af8cdf53711fb24811a161e574be6</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/jobservice/worker-batchsplit</repository>
-                            <tag>1.0.0-SNAPSHOT</tag>
+                            <tag>1.0.0</tag>
                             <digest>sha256:77076425598161649d5df89abbb974596a9eb5f3e943c0ce29bfe16be574a751</digest>
                         </image>
                         <image>
@@ -1323,14 +1323,14 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/library/postgres</repository>
-                            <tag>16.3</tag>
-                            <digest>sha256:1bf73ccae25238fa555100080042f0b2f9be08eb757e200fe6afc1fc413a1b3c</digest>
+                            <tag>14.11-bookworm</tag>
+                            <digest>sha256:d6850c40261fdc9a4fb33b9521d9d641c4a5dcb82145f7bcc32c9258f81e75a2</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/library/rabbitmq</repository>
-                            <tag>3.13.3-management</tag>
+                            <tag>3.13.2-management</tag>
                             <latestTag>management</latestTag>
-                            <digest>sha256:43ef6b8536c47db9e047994bd6b8113cf5ab2ece9e3798a3e1284c0ade5ec743</digest>
+                            <digest>sha256:eee9afbc17c32424ba6309dfd2d9efc9b9b1863ffe231b3d2be2815758b0d649</digest>
                         </image>
                     </imageManagement>
                 </configuration>
