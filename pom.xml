@@ -1310,7 +1310,7 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/jobservice/worker-batchsplit</repository>
-                            <tag>1.0.0-SNAPSHOT</tag>
+                            <tag>1.0.0</tag>
                             <digest>sha256:77076425598161649d5df89abbb974596a9eb5f3e943c0ce29bfe16be574a751</digest>
                         </image>
                         <image>
@@ -1330,6 +1330,15 @@
                             <tag>3-management</tag>
                         </image>
                     </imageManagement>
+                    <ignoreVersions>
+                        <ignoreVersion>
+                            <type>regex</type>
+                            <version>(?!1\.0\.0$)</version>
+                            <images>
+                                <image>(?i).*jobservice/worker-batchsplit.*</image>
+                            </images>
+                        </ignoreVersion>
+                    </ignoreVersions>
                 </configuration>
             </plugin>
         </plugins>
