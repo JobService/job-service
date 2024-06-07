@@ -1291,8 +1291,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
-                            <tag>2.8.1</tag>
-                            <digest>sha256:9e904b4c1f732688e4e500fccf60ff1f25ef629dcf3b0a1f274fa3af8c026703</digest>
+                            <tag>4.0.1</tag>
+                            <digest>sha256:18628bccbf6c15f3335e1e62e5e786a6bce55ddbd244e6bfa79d0c6f09790e28</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafdataprocessing/worker-example</repository>
@@ -1310,7 +1310,7 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/jobservice/worker-batchsplit</repository>
-                            <tag>1.0.0-SNAPSHOT</tag>
+                            <tag>1.0.0</tag>
                             <digest>sha256:77076425598161649d5df89abbb974596a9eb5f3e943c0ce29bfe16be574a751</digest>
                         </image>
                         <image>
