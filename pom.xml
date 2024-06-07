@@ -1305,8 +1305,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/jobservice/job-service-postgres</repository>
-                            <tag>6.2.2</tag>
-                            <digest>sha256:b3d7cb9dcb8c3ad0a4e58f8e29448d61138af8cdf53711fb24811a161e574be6</digest>
+                            <tag>7.0.2</tag>
+                            <digest>sha256:676c166c8749f81c07d0e24ec6528fd8b5f3950514d9f29e6514cad64b1c0dc3</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/jobservice/worker-batchsplit</repository>
@@ -1323,14 +1323,14 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/library/postgres</repository>
-                            <tag>14.11-bookworm</tag>
-                            <digest>sha256:d6850c40261fdc9a4fb33b9521d9d641c4a5dcb82145f7bcc32c9258f81e75a2</digest>
+                            <tag>16.3</tag>
+                            <digest>sha256:1bf73ccae25238fa555100080042f0b2f9be08eb757e200fe6afc1fc413a1b3c</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/library/rabbitmq</repository>
-                            <tag>3.13.2-management</tag>
+                            <tag>3.13.3-management</tag>
                             <latestTag>management</latestTag>
-                            <digest>sha256:eee9afbc17c32424ba6309dfd2d9efc9b9b1863ffe231b3d2be2815758b0d649</digest>
+                            <digest>sha256:43ef6b8536c47db9e047994bd6b8113cf5ab2ece9e3798a3e1284c0ade5ec743</digest>
                         </image>
                     </imageManagement>
                 </configuration>
