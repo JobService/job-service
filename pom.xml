@@ -1330,15 +1330,6 @@
                             <tag>3-management</tag>
                         </image>
                     </imageManagement>
-                    <ignoreVersions>
-                        <ignoreVersion>
-                            <type>regex</type>
-                            <version>^(?!1\.0\.0$).*</version>
-                            <images>
-                                <image>(?i).*jobservice/worker-batchsplit.*</image>
-                            </images>
-                        </ignoreVersion>
-                    </ignoreVersions>
                 </configuration>
             </plugin>
         </plugins>
