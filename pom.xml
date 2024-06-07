@@ -1323,14 +1323,11 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/library/postgres</repository>
-                            <tag>16.3</tag>
-                            <digest>sha256:1bf73ccae25238fa555100080042f0b2f9be08eb757e200fe6afc1fc413a1b3c</digest>
+                            <tag>latest</tag>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/library/rabbitmq</repository>
-                            <tag>3.13.3-management</tag>
-                            <latestTag>management</latestTag>
-                            <digest>sha256:43ef6b8536c47db9e047994bd6b8113cf5ab2ece9e3798a3e1284c0ade5ec743</digest>
+                            <tag>3-management</tag>
                         </image>
                     </imageManagement>
                 </configuration>
