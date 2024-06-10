@@ -162,37 +162,37 @@
             <dependency>
                 <groupId>com.github.cafapi</groupId>
                 <artifactId>caf-api</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
+                <version>3.1.0-596</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.cipher</groupId>
                 <artifactId>cipher-null</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
+                <version>3.1.0-596</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.codec</groupId>
                 <artifactId>codec-json</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
+                <version>3.1.0-596</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.config</groupId>
                 <artifactId>config-caf</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
+                <version>3.1.0-596</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.config</groupId>
                 <artifactId>config-decoder</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
+                <version>3.1.0-596</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.config</groupId>
                 <artifactId>config-file</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
+                <version>3.1.0-596</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.config</groupId>
                 <artifactId>config-system</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
+                <version>3.1.0-596</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.correlation</groupId>
@@ -212,22 +212,22 @@
             <dependency>
                 <groupId>com.github.cafapi.decoder</groupId>
                 <artifactId>decoder-js</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
+                <version>3.1.0-596</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.logging</groupId>
                 <artifactId>caf-logging-common</artifactId>
-                <version>2.0.0-238</version>
+                <version>2.1.0-374</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.logging</groupId>
                 <artifactId>caf-logging-logback</artifactId>
-                <version>2.0.0-238</version>
+                <version>2.1.0-374</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.logging</groupId>
                 <artifactId>caf-logging-logback-converters</artifactId>
-                <version>2.0.0-238</version>
+                <version>2.1.0-374</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.ssl</groupId>
@@ -237,22 +237,22 @@
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>
                 <artifactId>util-moduleloader</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
+                <version>3.1.0-596</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>
                 <artifactId>util-naming</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
+                <version>3.1.0-596</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>
                 <artifactId>util-process-identifier</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
+                <version>3.1.0-596</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>
                 <artifactId>util-ref</artifactId>
-                <version>3.1.0-SNAPSHOT</version>
+                <version>3.1.0-596</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util.flywayinstaller</groupId>
@@ -478,6 +478,12 @@
                 <groupId>com.googlecode.json-simple</groupId>
                 <artifactId>json-simple</artifactId>
                 <version>1.1.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.healthmarketscience.sqlbuilder</groupId>
@@ -623,52 +629,52 @@
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-annotation</artifactId>
-                <version>4.2.25</version>
+                <version>4.2.26</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
-                <version>4.2.25</version>
+                <version>4.2.26</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-healthchecks</artifactId>
-                <version>4.2.25</version>
+                <version>4.2.26</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jakarta-servlets</artifactId>
-                <version>4.2.25</version>
+                <version>4.2.26</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jersey3</artifactId>
-                <version>4.2.25</version>
+                <version>4.2.26</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jetty11</artifactId>
-                <version>4.2.25</version>
+                <version>4.2.26</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jmx</artifactId>
-                <version>4.2.25</version>
+                <version>4.2.26</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-json</artifactId>
-                <version>4.2.25</version>
+                <version>4.2.26</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jvm</artifactId>
-                <version>4.2.25</version>
+                <version>4.2.26</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-logback</artifactId>
-                <version>4.2.25</version>
+                <version>4.2.26</version>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
@@ -724,11 +730,6 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>2.12.7</version>
-            </dependency>
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.13.2</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
@@ -1022,16 +1023,6 @@
                 <version>24.0.1</version>
             </dependency>
             <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest</artifactId>
-                <version>2.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-core</artifactId>
-                <version>2.2</version>
-            </dependency>
-            <dependency>
                 <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <version>8.0.1.Final</version>
@@ -1323,14 +1314,11 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/library/postgres</repository>
-                            <tag>16.3</tag>
-                            <digest>sha256:1bf73ccae25238fa555100080042f0b2f9be08eb757e200fe6afc1fc413a1b3c</digest>
+                            <tag>latest</tag>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/library/rabbitmq</repository>
-                            <tag>3.13.3-management</tag>
-                            <latestTag>management</latestTag>
-                            <digest>sha256:43ef6b8536c47db9e047994bd6b8113cf5ab2ece9e3798a3e1284c0ade5ec743</digest>
+                            <tag>3-management</tag>
                         </image>
                     </imageManagement>
                 </configuration>
