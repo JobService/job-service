@@ -21,7 +21,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +29,8 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * This utility class provides helper methods for the job service caller tests.
@@ -331,8 +332,8 @@ public final class JobServiceCallerTestsHelper {
         if (filename != null) {
             File file = new File(classLoader.getResource(filename).getFile());
 
-            Assert.assertNotNull(file);
-            Assert.assertTrue(file.exists());
+            assertNotNull(file);
+            assertTrue(file.exists());
 
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
