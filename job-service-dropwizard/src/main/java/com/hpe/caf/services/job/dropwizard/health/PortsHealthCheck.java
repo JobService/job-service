@@ -78,7 +78,7 @@ public final class PortsHealthCheck extends HealthCheck
                         return Result.unhealthy(message);
                     }
 
-                    LOGGER.error(getMessage(serverConnectorName, serverConnectorPort, "started and open")); // TODO debug
+                    LOGGER.debug(getMessage(serverConnectorName, serverConnectorPort, "started and open"));
 
                     break;
                 case READY:
@@ -88,7 +88,7 @@ public final class PortsHealthCheck extends HealthCheck
                         return Result.unhealthy(message);
                     }
 
-                    LOGGER.error(getMessage(serverConnectorName, serverConnectorPort, "accepting connections")); // TODO debug
+                    LOGGER.debug(getMessage(serverConnectorName, serverConnectorPort, "accepting connections"));
 
                     break;
                 default:
