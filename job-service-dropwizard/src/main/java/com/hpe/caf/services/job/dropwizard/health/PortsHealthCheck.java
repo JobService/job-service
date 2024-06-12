@@ -70,15 +70,17 @@ public final class PortsHealthCheck extends HealthCheck
                         final String message = getMessage(serverConnectorName, serverConnectorPort, "not started");
                         LOGGER.error(message);
                         return Result.unhealthy(message);
+                    } else {
+                        LOGGER.debug(getMessage(serverConnectorName, serverConnectorPort, "started"));
                     }
 
                     if (!serverConnector.isOpen()) {
                         final String message = getMessage(serverConnectorName, serverConnectorPort, "not open");
                         LOGGER.error(message);
                         return Result.unhealthy(message);
+                    } else {
+                        LOGGER.debug(getMessage(serverConnectorName, serverConnectorPort, "open"));
                     }
-
-                    LOGGER.debug(getMessage(serverConnectorName, serverConnectorPort, "started and open"));
 
                     break;
                 case READY:
@@ -86,9 +88,9 @@ public final class PortsHealthCheck extends HealthCheck
                         final String message = getMessage(serverConnectorName, serverConnectorPort, "not accepting connections");
                         LOGGER.error(message);
                         return Result.unhealthy(message);
+                    } else {
+                        LOGGER.debug(getMessage(serverConnectorName, serverConnectorPort, "accepting connections"));
                     }
-
-                    LOGGER.debug(getMessage(serverConnectorName, serverConnectorPort, "accepting connections"));
 
                     break;
                 default:
