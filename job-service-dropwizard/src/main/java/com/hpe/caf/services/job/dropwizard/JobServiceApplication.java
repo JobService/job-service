@@ -21,6 +21,7 @@ import com.github.cafapi.ssl.dropwizard.DropWizardSslBundleProvider;
 import com.hpe.caf.services.job.api.JobServiceModule;
 import com.hpe.caf.services.job.dropwizard.health.DatabaseHealthCheck;
 import com.hpe.caf.services.job.dropwizard.health.PingHealthCheck;
+import com.hpe.caf.services.job.dropwizard.health.PortsHealthCheck;
 import com.hpe.caf.services.job.dropwizard.health.QueueHealthCheck;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
@@ -80,6 +81,10 @@ public final class JobServiceApplication extends Application<JobServiceConfigura
         healthChecks.register("database", new DatabaseHealthCheck());
         healthChecks.register("ping", new PingHealthCheck());
         healthChecks.register("queue", new QueueHealthCheck());
+
+        // Cannot pass environment.getApplicationContext().getServer() here as the server will be null until the application starts
+        healthChecks.register("ports-alive", new PortsHealthCheck(environment, PortsHealthCheck.Type.ALIVE));
+        healthChecks.register("ports-ready", new PortsHealthCheck(environment, PortsHealthCheck.Type.READY));
 
         JobServiceModule.registerProviders(environment.jersey()::register);
     }
