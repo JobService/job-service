@@ -267,22 +267,22 @@
             <dependency>
                 <groupId>com.github.cafdataprocessing</groupId>
                 <artifactId>worker-document</artifactId>
-                <version>6.1.0-SNAPSHOT</version>
+                <version>6.1.0-1459</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing</groupId>
                 <artifactId>worker-document-interface</artifactId>
-                <version>6.1.0-SNAPSHOT</version>
+                <version>6.1.0-1459</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing</groupId>
                 <artifactId>worker-document-shared</artifactId>
-                <version>6.1.0-SNAPSHOT</version>
+                <version>6.1.0-1459</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing</groupId>
                 <artifactId>worker-document-utility</artifactId>
-                <version>6.1.0-SNAPSHOT</version>
+                <version>6.1.0-1459</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
