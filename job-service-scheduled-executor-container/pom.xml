@@ -133,7 +133,7 @@
                             <alias>job-service-scheduled-executor</alias>
                             <name>${dockerJobServiceOrg}job-service-scheduled-executor${dockerProjectVersion}</name>
                             <build>
-                                <from>${projectDockerRegistry}/cafapi/opensuse-jre17</from>
+                                <from>${projectDockerRegistry}/cafapi/opensuse-jre21</from>
                                 <cmd>
                                     <exec>
                                         <args>/maven/worker.sh</args>
