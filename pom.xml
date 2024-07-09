@@ -1283,13 +1283,13 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-jre17</repository>
-                            <tag>4.0.1</tag>
-                            <digest>sha256:434c16f975fbbe2f4adfc879d88a32b5f8fcc92a2d8e29e3598dc10088717405</digest>
+                            <tag>4.1.0</tag>
+                            <digest>sha256:ebb4816ac8b80c07f091f30104ae5710e5e624c985cfd41fafc3dbf4c631a5a9</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
-                            <tag>4.0.1</tag>
-                            <digest>sha256:18628bccbf6c15f3335e1e62e5e786a6bce55ddbd244e6bfa79d0c6f09790e28</digest>
+                            <tag>4.1.0</tag>
+                            <digest>sha256:af1e68c2dae187a197847adda1d05ebcd9fabcdfdca197357fd1b67ddf3fb03a</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafdataprocessing/worker-example</repository>
