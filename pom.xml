@@ -1279,7 +1279,7 @@
                         <image>
                             <targetRepository>cafapi/java-postgres</targetRepository>
                             <repository>${dockerHubPublic}/cafapi/prereleases</repository>
-                            <tag>java-postgres-4.1.0-US929026-SNAPSHOT</tag>
+                            <tag>java-postgres-4.1.0-SNAPSHOT</tag>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-jre21</repository>
