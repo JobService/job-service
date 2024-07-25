@@ -119,7 +119,7 @@
                         <!-- Run liquibase version of jobservice postgres container against postgres database to install jobservice schema. -->
                         <image>
                             <alias>job-service-postgres-liquibase</alias>
-                            <name>${dockerHubPublic}/jobservice/job-service-postgres:3.5.0</name>
+                            <name>${dockerHubPublic}/jobservice/job-service-postgres-liquibase</name>
                             <run>
                                 <links>
                                     <link>${js.database.host}</link>
@@ -145,7 +145,7 @@
                         <!-- Run flyway version of jobservice postgres container against postgres database to test jobservice schema upgrade. -->
                         <image>
                             <alias>job-service-postgres-flyway</alias>
-                            <name>${projectDockerRegistry}/jobservice/job-service-postgres</name>
+                            <name>${projectDockerRegistry}/jobservice/job-service-postgres-flyway</name>
                             <run>
                                 <links>
                                     <link>${js.database.host}</link>
