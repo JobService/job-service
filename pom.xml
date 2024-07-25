@@ -1302,7 +1302,16 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/jobservice/job-service-postgres</repository>
+                            <targetRepository>jobservice/job-service-postgres-liquibase</targetRepository>
+                            <tag>3.5.0</tag>
+                            <latestTag>3.5.0</latestTag>
+                            <digest>sha256:5323cd5945f90795e6448480b8cc622a9472b76f93c0eb97510ca15058e7b337</digest>
+                        </image>
+                        <image>
+                            <repository>${dockerHubPublic}/jobservice/job-service-postgres</repository>
+                            <targetRepository>jobservice/job-service-postgres-flyway</targetRepository>
                             <tag>7.0.2</tag>
+                            <latestTag>7.0.2</latestTag>
                             <digest>sha256:676c166c8749f81c07d0e24ec6528fd8b5f3950514d9f29e6514cad64b1c0dc3</digest>
                         </image>
                         <image>
