@@ -267,22 +267,22 @@
             <dependency>
                 <groupId>com.github.cafdataprocessing</groupId>
                 <artifactId>worker-document</artifactId>
-                <version>6.1.0-1459</version>
+                <version>6.2.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing</groupId>
                 <artifactId>worker-document-interface</artifactId>
-                <version>6.1.0-1459</version>
+                <version>6.2.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing</groupId>
                 <artifactId>worker-document-shared</artifactId>
-                <version>6.1.0-1459</version>
+                <version>6.2.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing</groupId>
                 <artifactId>worker-document-utility</artifactId>
-                <version>6.1.0-1459</version>
+                <version>6.2.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
@@ -513,7 +513,7 @@
             <dependency>
                 <groupId>com.networknt</groupId>
                 <artifactId>json-schema-validator</artifactId>
-                <version>1.5.0</version>
+                <version>1.5.1</version>
             </dependency>
             <dependency>
                 <groupId>com.rabbitmq</groupId>
@@ -749,7 +749,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.15.0</version>
+                <version>3.14.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -857,12 +857,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>10.16.0</version>
+                <version>10.17.0</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>10.16.0</version>
+                <version>10.17.0</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.expressly</groupId>
@@ -904,32 +904,32 @@
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet</artifactId>
-                <version>3.0.14</version>
+                <version>3.0.15</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet-core</artifactId>
-                <version>3.0.14</version>
+                <version>3.0.15</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
-                <version>3.0.14</version>
+                <version>3.0.15</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-common</artifactId>
-                <version>3.0.14</version>
+                <version>3.0.15</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>3.0.14</version>
+                <version>3.0.15</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.ext</groupId>
                 <artifactId>jersey-bean-validation</artifactId>
-                <version>3.0.14</version>
+                <version>3.0.15</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.glassfish</groupId>
@@ -940,27 +940,27 @@
             <dependency>
                 <groupId>org.glassfish.jersey.ext</groupId>
                 <artifactId>jersey-entity-filtering</artifactId>
-                <version>3.0.14</version>
+                <version>3.0.15</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.ext</groupId>
                 <artifactId>jersey-metainf-services</artifactId>
-                <version>3.0.14</version>
+                <version>3.0.15</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.inject</groupId>
                 <artifactId>jersey-hk2</artifactId>
-                <version>3.0.14</version>
+                <version>3.0.15</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-json-jackson</artifactId>
-                <version>3.0.14</version>
+                <version>3.0.15</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-multipart</artifactId>
-                <version>3.0.14</version>
+                <version>3.0.15</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.js</groupId>
@@ -1302,8 +1302,17 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/jobservice/job-service-postgres</repository>
-                            <tag>7.1.0</tag>
-                            <digest>sha256:9a006709527292a785d44233097036e65d431018454c1e1fffb5b1663d68f48c</digest>
+                            <targetRepository>jobservice/job-service-postgres-liquibase</targetRepository>
+                            <tag>7.0</tag>
+                            <latestTag>3.5.0</latestTag>
+                            <digest>sha256:676c166c8749f81c07d0e24ec6528fd8b5f3950514d9f29e6514cad64b1c0dc3</digest>
+                        </image>
+                        <image>
+                            <repository>${dockerHubPublic}/jobservice/job-service-postgres</repository>
+                            <targetRepository>jobservice/job-service-postgres-flyway</targetRepository>
+                            <tag>7.0</tag>
+                            <latestTag>7.0.2</latestTag>
+                            <digest>sha256:676c166c8749f81c07d0e24ec6528fd8b5f3950514d9f29e6514cad64b1c0dc3</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/jobservice/worker-batchsplit</repository>
