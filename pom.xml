@@ -1287,6 +1287,11 @@
                             <digest>sha256:547758c42c0ec49654dd92447e5cc1e630b8df704d6898ddb8a8a3864a092967</digest>
                         </image>
                         <image>
+                            <targetRepository>cafapi/oraclelinux-jre21</targetRepository>
+                            <repository>${dockerHubPublic}/cafapi/prereleases</repository>
+                            <tag>oraclelinux-jre21-1.0.0-SNAPSHOT</tag>
+                        </image>
+                        <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
                             <tag>4.1.0</tag>
                             <digest>sha256:af1e68c2dae187a197847adda1d05ebcd9fabcdfdca197357fd1b67ddf3fb03a</digest>
