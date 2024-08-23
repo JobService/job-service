@@ -59,11 +59,6 @@
                 <version>1.5.7</version>
             </dependency>
             <dependency>
-                <groupId>ch.qos.logback.access</groupId>
-                <artifactId>common</artifactId>
-                <version>2.0.3</version>
-            </dependency>
-            <dependency>
                 <groupId>com.beust</groupId>
                 <artifactId>jcommander</artifactId>
                 <version>1.82</version>
