@@ -31,22 +31,22 @@ function set_default_crash_dump_file_path_if_not_set() {
   mkdir -vp "$CRASH_DUMP_FILE_PATH"
 }
 
-# If CRASH_DUMP_ON_OUT_OF_MEMORY_ERROR is true, then add JVM argument and append CAF_WORKER_JAVA_OPTS
+# If CRASH_DUMP_ON_OUT_OF_MEMORY_ERROR is true, then add JVM argument and append JOB_SERVICE_JAVA_OPTS
 if [ "$CRASH_DUMP_ON_OUT_OF_MEMORY_ERROR" == "true" ]
 then
   set_default_crash_dump_file_path_if_not_set
 
-  CAF_WORKER_JAVA_OPTS="${CAF_WORKER_JAVA_OPTS} -XX:+CrashOnOutOfMemoryError -XX:ErrorFile=${CRASH_DUMP_FILE_PATH}${HOSTNAME}_crash.log"
-  echo "CRASH_DUMP_ON_OUT_OF_MEMORY_ERROR set: Updated CAF_WORKER_JAVA_OPTS: $CAF_WORKER_JAVA_OPTS"
+  JOB_SERVICE_JAVA_OPTS="${JOB_SERVICE_JAVA_OPTS} -XX:+CrashOnOutOfMemoryError -XX:ErrorFile=${CRASH_DUMP_FILE_PATH}${HOSTNAME}_crash.log"
+  echo "CRASH_DUMP_ON_OUT_OF_MEMORY_ERROR set: Updated JOB_SERVICE_JAVA_OPTS: $JOB_SERVICE_JAVA_OPTS"
 fi
 
-# If HEAP_DUMP_ON_OUT_OF_MEMORY_ERROR is true, then add JVM argument and append CAF_WORKER_JAVA_OPTS
+# If HEAP_DUMP_ON_OUT_OF_MEMORY_ERROR is true, then add JVM argument and append JOB_SERVICE_JAVA_OPTS
 if [ "$HEAP_DUMP_ON_OUT_OF_MEMORY_ERROR" == "true" ]
 then
   set_default_crash_dump_file_path_if_not_set
 
-  CAF_WORKER_JAVA_OPTS="${CAF_WORKER_JAVA_OPTS} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${CRASH_DUMP_FILE_PATH}${HOSTNAME}_heap_dump.hprof"
-  echo "HEAP_DUMP_ON_OUT_OF_MEMORY_ERROR set: Updated CAF_WORKER_JAVA_OPTS: $CAF_WORKER_JAVA_OPTS"
+  JOB_SERVICE_JAVA_OPTS="${JOB_SERVICE_JAVA_OPTS} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${CRASH_DUMP_FILE_PATH}${HOSTNAME}_heap_dump.hprof"
+  echo "HEAP_DUMP_ON_OUT_OF_MEMORY_ERROR set: Updated JOB_SERVICE_JAVA_OPTS: $JOB_SERVICE_JAVA_OPTS"
 fi
 
 cd /maven
