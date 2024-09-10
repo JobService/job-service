@@ -1284,7 +1284,7 @@
                         <image>
                             <targetRepository>cafapi/oraclelinux-jre21</targetRepository>
                             <repository>${dockerHubPublic}/cafapi/prereleases</repository>
-                            <tag>oraclelinux-jre21-1.0.0-SNAPSHOT</tag>
+                            <tag>oraclelinux-jre21-1.0.0-US954003-SNAPSHOT</tag>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
