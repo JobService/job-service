@@ -36,7 +36,7 @@ if [ "$CRASH_DUMP_ON_OUT_OF_MEMORY_ERROR" == "true" ]
 then
   set_default_crash_dump_file_path_if_not_set
 
-  JOB_SERVICE_JAVA_OPTS="${JOB_SERVICE_JAVA_OPTS} -XX:+CrashOnOutOfMemoryError -XX:ErrorFile=${CRASH_DUMP_FILE_PATH}${HOSTNAME}_crash.log"
+  JOB_SERVICE_JAVA_OPTS="${JOB_SERVICE_JAVA_OPTS} -XX:+CrashOnOutOfMemoryError -XX:ErrorFile=${CRASH_DUMP_FILE_PATH}${HOSTNAME}_crash_$(date -u '+%Y%m%dT%H%M%SZ').log"
   echo "CRASH_DUMP_ON_OUT_OF_MEMORY_ERROR set: Updated JOB_SERVICE_JAVA_OPTS: $JOB_SERVICE_JAVA_OPTS"
 fi
 
@@ -45,7 +45,7 @@ if [ "$HEAP_DUMP_ON_OUT_OF_MEMORY_ERROR" == "true" ]
 then
   set_default_crash_dump_file_path_if_not_set
 
-  JOB_SERVICE_JAVA_OPTS="${JOB_SERVICE_JAVA_OPTS} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${CRASH_DUMP_FILE_PATH}${HOSTNAME}_heap_dump.hprof"
+  JOB_SERVICE_JAVA_OPTS="${JOB_SERVICE_JAVA_OPTS} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${CRASH_DUMP_FILE_PATH}${HOSTNAME}_heap_dump_$(date -u '+%Y%m%dT%H%M%SZ').hprof"
   echo "HEAP_DUMP_ON_OUT_OF_MEMORY_ERROR set: Updated JOB_SERVICE_JAVA_OPTS: $JOB_SERVICE_JAVA_OPTS"
 fi
 
