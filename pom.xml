@@ -1275,7 +1275,7 @@
                             <targetRepository>cafapi/java-postgres</targetRepository>
                             <repository>${dockerHubPublic}/cafapi/java-postgres</repository>
                             <tag>4.1.0</tag>
-                            <digest>sha256:4ad319017e159f7b220f2e411f1b9d9e0f33741cbc5b0ba94d47808356834b32</digest>
+                            <digest>sha256:3fe14436f1045abe729f2bfa9e0db178cc695ed43d7dda3f397872abb4f35012</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-jre21</repository>
