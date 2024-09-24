@@ -1284,8 +1284,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>1.0.0</tag>
-                            <digest>sha256:23ca581d948e68681b95b2390c3e7a55e6e043046a540983912887f1ece43be4</digest>
+                            <tag>1.0.1</tag>
+                            <digest>sha256:36ded31ff3ba176bd89daca34682f747dd30bc6bb11c3a71c20378a1bf847a44</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
