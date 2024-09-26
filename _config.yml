@@ -2,7 +2,7 @@ title: Job Service
 email: jobservice@hpe.com
 
 description: Job Service Documentation
-baseurl: "/job-service"
+baseurl: ""
 
 # Build settings
 exclude: ['node_modules']
