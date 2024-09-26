@@ -1,5 +1,3 @@
-!not-ready-for-release!
-
 #### Version Number
 ${version-number}
 
@@ -9,3 +7,4 @@ ${version-number}
 - I948127: JVM arguments introduced for diagnosing OutOfMemoryError.
 
 #### Known Issues
+- None
