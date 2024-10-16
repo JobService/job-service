@@ -42,24 +42,6 @@ public final class QueueServicesFactory
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServicesFactory.class);
 
-    private static final boolean CAF_WMP_ENABLED = ScheduledExecutorConfig.isCafWmpEnabled();
-
-    private static final Pattern CAF_WMP_PARTITION_ID_PATTERN
-            = CAF_WMP_ENABLED
-            ? Pattern.compile(
-            Objects.requireNonNull(
-                    ScheduledExecutorConfig.getCafWmpPartitionIdPattern(),
-                    "CAF_WMP_PARTITION_ID_PATTERN must be set if CAF_WMP_ENABLED is true"))
-            : null;
-
-    private static final Pattern CAF_WMP_TARGET_QUEUE_NAMES_PATTERN
-            = CAF_WMP_ENABLED
-            ? Pattern.compile(
-            Objects.requireNonNull(
-                    ScheduledExecutorConfig.getCafWmpTargetQueueNamesPattern(),
-                    "CAF_WMP_TARGET_QUEUE_NAMES_PATTERN must be set if CAF_WMP_ENABLED is true"))
-            : null;
-
     private static final String RABBIT_PROP_KEY_MAX_PRIORITY = "x-max-priority";
 
     private static final String RABBIT_PROP_QUEUE_TYPE = "x-queue-type";
@@ -97,36 +79,16 @@ public final class QueueServicesFactory
         LOG.debug("Creating channel ...");
         final Channel publishChannel = connection.createChannel();
 
-        // Get the staging queue name if the message should be rerouted to a staging queue
-        final String stagingQueueOrTargetQueue;
-
-        if (CAF_WMP_ENABLED && CAF_WMP_TARGET_QUEUE_NAMES_PATTERN.matcher(targetQueue).matches()) {
-
-            final Matcher matcher = CAF_WMP_PARTITION_ID_PATTERN.matcher(partitionId);
-
-            final String tenantId = matcher.matches() ? matcher.group("tenantId") : partitionId;
-
-            stagingQueueOrTargetQueue = StagingQueueRerouter.route(targetQueue, tenantId);
-
-            LOG.debug("MessageRouterSingleton.route({}, {}) returned the following queue name: {}. " +
-                            "Messages will be routed to this queue.",
-                    targetQueue,
-                    tenantId,
-                    stagingQueueOrTargetQueue);
-        } else {
-            stagingQueueOrTargetQueue = targetQueue;
-        }
-
         //  Declare worker queue.
-        LOG.debug("Declaring worker queue {}...", stagingQueueOrTargetQueue);
+        LOG.debug("Declaring worker queue {}...", targetQueue);
 
         //setting queue properties: durable - true, exclusive - false, autoDelete - false
-        publishChannel.queueDeclare(stagingQueueOrTargetQueue, true, false, false, QUEUE_ARGUMENTS);
+        publishChannel.queueDeclare(targetQueue, true, false, false, QUEUE_ARGUMENTS);
 
         // stagingQueueOrTargetQueue = Queue where message should be published to
         // targetQueue               = Queue that should be set in the 'to' field of the task message
 
-        return new QueueServices(connection, publishChannel, stagingQueueOrTargetQueue, targetQueue, codec);
+        return new QueueServices(connection, publishChannel, targetQueue, targetQueue, codec);
     }
 
     /**
