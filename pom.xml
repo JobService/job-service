@@ -56,12 +56,12 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.5.8</version>
+                <version>1.5.11</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.5.8</version>
+                <version>1.5.11</version>
             </dependency>
             <dependency>
                 <groupId>com.beust</groupId>
@@ -81,72 +81,72 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-toml</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-guava</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jdk8</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
                 <artifactId>jackson-jakarta-rs-base</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
                 <artifactId>jackson-jakarta-rs-json-provider</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-blackbird</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-parameter-names</artifactId>
-                <version>2.17.2</version>
+                <version>2.18.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.woodstox</groupId>
@@ -446,7 +446,7 @@
             <dependency>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
-                <version>2.31.0</version>
+                <version>2.34.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -456,7 +456,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>33.3.0-jre</version>
+                <version>33.3.1-jre</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -507,12 +507,12 @@
             <dependency>
                 <groupId>com.networknt</groupId>
                 <artifactId>json-schema-validator</artifactId>
-                <version>1.5.1</version>
+                <version>1.5.2</version>
             </dependency>
             <dependency>
                 <groupId>com.rabbitmq</groupId>
                 <artifactId>amqp-client</artifactId>
-                <version>5.21.0</version>
+                <version>5.22.0</version>
             </dependency>
             <dependency>
                 <groupId>com.schibsted.spt.data</groupId>
@@ -527,7 +527,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.16.1</version>
+                <version>2.17.0</version>
             </dependency>
             <dependency>
                 <groupId>cz.jirutka.rsql</groupId>
@@ -542,72 +542,72 @@
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-assets</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-configuration</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-core</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-health</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-jackson</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-jersey</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-jetty</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-lifecycle</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-logging</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-metrics</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-request-logging</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-servlets</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-util</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-validation</artifactId>
-                <version>4.0.8</version>
+                <version>4.0.9</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.glassfish</groupId>
@@ -623,62 +623,62 @@
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-annotation</artifactId>
-                <version>4.2.27</version>
+                <version>4.2.28</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
-                <version>4.2.27</version>
+                <version>4.2.28</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-healthchecks</artifactId>
-                <version>4.2.27</version>
+                <version>4.2.28</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jakarta-servlets</artifactId>
-                <version>4.2.27</version>
+                <version>4.2.28</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jersey3</artifactId>
-                <version>4.2.27</version>
+                <version>4.2.28</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jetty11</artifactId>
-                <version>4.2.27</version>
+                <version>4.2.28</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jmx</artifactId>
-                <version>4.2.27</version>
+                <version>4.2.28</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-json</artifactId>
-                <version>4.2.27</version>
+                <version>4.2.28</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jvm</artifactId>
-                <version>4.2.27</version>
+                <version>4.2.28</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-logback</artifactId>
-                <version>4.2.27</version>
+                <version>4.2.28</version>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-commons</artifactId>
-                <version>1.13.4</version>
+                <version>1.13.6</version>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-observation</artifactId>
-                <version>1.13.4</version>
+                <version>1.13.6</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.activation</groupId>
@@ -723,17 +723,17 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.12.7</version>
+                <version>2.13.0</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.15.1</version>
+                <version>1.15.5</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
-                <version>1.15.1</version>
+                <version>1.15.5</version>
             </dependency>
             <dependency>
                 <groupId>net.sourceforge.argparse4j</groupId>
@@ -790,7 +790,7 @@
             <dependency>
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
-                <version>3.47.0</version>
+                <version>3.48.1</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jettison</groupId>
@@ -851,12 +851,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>10.17.3</version>
+                <version>10.20.0</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>10.17.3</version>
+                <version>10.20.0</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.expressly</groupId>
@@ -898,32 +898,32 @@
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet</artifactId>
-                <version>3.0.15</version>
+                <version>3.0.16</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet-core</artifactId>
-                <version>3.0.15</version>
+                <version>3.0.16</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
-                <version>3.0.15</version>
+                <version>3.0.16</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-common</artifactId>
-                <version>3.0.15</version>
+                <version>3.0.16</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>3.0.15</version>
+                <version>3.0.16</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.ext</groupId>
                 <artifactId>jersey-bean-validation</artifactId>
-                <version>3.0.15</version>
+                <version>3.0.16</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.glassfish</groupId>
@@ -934,93 +934,99 @@
             <dependency>
                 <groupId>org.glassfish.jersey.ext</groupId>
                 <artifactId>jersey-entity-filtering</artifactId>
-                <version>3.0.15</version>
+                <version>3.0.16</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.ext</groupId>
                 <artifactId>jersey-metainf-services</artifactId>
-                <version>3.0.15</version>
+                <version>3.0.16</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.inject</groupId>
                 <artifactId>jersey-hk2</artifactId>
-                <version>3.0.15</version>
+                <version>3.0.16</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-json-jackson</artifactId>
-                <version>3.0.15</version>
+                <version>3.0.16</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-multipart</artifactId>
-                <version>3.0.15</version>
+                <version>3.0.16</version>
+            </dependency>
+            <dependency>
+                <groupId>org.graalvm.js</groupId>
+                <artifactId>js-community</artifactId>
+                <type>pom</type>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.js</groupId>
                 <artifactId>js-language</artifactId>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.js</groupId>
                 <artifactId>js-scriptengine</artifactId>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.polyglot</groupId>
                 <artifactId>js-community</artifactId>
                 <type>pom</type>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.polyglot</groupId>
                 <artifactId>polyglot</artifactId>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.regex</groupId>
                 <artifactId>regex</artifactId>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.sdk</groupId>
                 <artifactId>collections</artifactId>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.sdk</groupId>
                 <artifactId>jniutils</artifactId>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.sdk</groupId>
                 <artifactId>nativeimage</artifactId>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.sdk</groupId>
                 <artifactId>word</artifactId>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.shadowed</groupId>
                 <artifactId>icu4j</artifactId>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.truffle</groupId>
                 <artifactId>truffle-api</artifactId>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.truffle</groupId>
                 <artifactId>truffle-compiler</artifactId>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.truffle</groupId>
                 <artifactId>truffle-runtime</artifactId>
-                <version>24.0.2</version>
+                <version>24.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.hibernate.validator</groupId>
@@ -1045,12 +1051,12 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.11.0</version>
+                <version>5.11.2</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-commons</artifactId>
-                <version>1.11.0</version>
+                <version>1.11.2</version>
             </dependency>
             <dependency>
                 <groupId>org.jvnet.mimepull</groupId>
@@ -1060,7 +1066,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>5.13.0</version>
+                <version>5.14.2</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
@@ -1070,7 +1076,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>5.13.0</version>
+                <version>5.14.2</version>
             </dependency>
             <dependency>
                 <groupId>org.objenesis</groupId>
@@ -1120,22 +1126,22 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aop</artifactId>
-                <version>6.1.12</version>
+                <version>6.1.14</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
-                <version>6.1.12</version>
+                <version>6.1.14</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>6.1.12</version>
+                <version>6.1.14</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>6.1.12</version>
+                <version>6.1.14</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework</groupId>
@@ -1146,7 +1152,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-expression</artifactId>
-                <version>6.1.12</version>
+                <version>6.1.14</version>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
