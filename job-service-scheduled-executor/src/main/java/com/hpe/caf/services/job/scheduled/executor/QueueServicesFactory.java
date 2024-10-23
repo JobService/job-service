@@ -30,10 +30,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This class is responsible for creating the RabbitMQ connection and channel.
@@ -85,10 +82,7 @@ public final class QueueServicesFactory
         //setting queue properties: durable - true, exclusive - false, autoDelete - false
         publishChannel.queueDeclare(targetQueue, true, false, false, QUEUE_ARGUMENTS);
 
-        // stagingQueueOrTargetQueue = Queue where message should be published to
-        // targetQueue               = Queue that should be set in the 'to' field of the task message
-
-        return new QueueServices(connection, publishChannel, targetQueue, targetQueue, codec);
+        return new QueueServices(connection, publishChannel, targetQueue, codec);
     }
 
     /**
