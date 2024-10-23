@@ -47,7 +47,6 @@ public final class QueueServices implements AutoCloseable
 
     private final Connection connection;
     private final Channel publisherChannel;
-    private final String stagingQueueOrTargetQueue; // Queue where message should be published to
     private final String targetQueue;               // Queue that should be set in the 'to' field of the task message
 
     private final Codec codec;
@@ -55,13 +54,11 @@ public final class QueueServices implements AutoCloseable
     public QueueServices(
             final Connection connection,
             final Channel publisherChannel,
-            final String stagingQueueOrTargetQueue,
             final String targetQueue,
             final Codec codec) {
 
         this.connection = connection;
         this.publisherChannel = publisherChannel;
-        this.stagingQueueOrTargetQueue = stagingQueueOrTargetQueue;
         this.targetQueue = targetQueue;
         this.codec = codec;
     }
@@ -109,10 +106,10 @@ public final class QueueServices implements AutoCloseable
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Publishing the following message to the {} queue: {}",
-                    stagingQueueOrTargetQueue, new String(taskMessageBytes, StandardCharsets.UTF_8));
+                    targetQueue, new String(taskMessageBytes, StandardCharsets.UTF_8));
         }
 
-        publisherChannel.basicPublish("", stagingQueueOrTargetQueue, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
+        publisherChannel.basicPublish("", targetQueue, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
     }
 
     private TaskMessage getTaskMessage(
