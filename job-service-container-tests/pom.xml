@@ -77,6 +77,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.github.cafapi.util</groupId>
+            <artifactId>util-secret</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-internal-client</artifactId>
             <scope>test</scope>

@@ -15,6 +15,9 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.hpe.caf.secret.SecretUtil;
+
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Objects;
 
@@ -33,13 +36,13 @@ public final class JobServiceConnectionUtil
     }
     
     private static final Logger LOG = LoggerFactory.getLogger(JobServiceConnectionUtil.class);
-    public static java.sql.Connection getDbConnection() throws SQLException
+    public static java.sql.Connection getDbConnection() throws SQLException, IOException
     {
         final String dbHost = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST"));
         final String dbPortString = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT"));
         final String dbName = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME"));
         final String dbUser = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME"));
-        final String dbPass = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD"));
+        final String dbPass = Objects.requireNonNull(getPropertyOrSecret("JOB_SERVICE_DATABASE_PASSWORD"));
         final String appName = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME") != null ? getPropertyOrEnvVar(
                 "JOB_SERVICE_DATABASE_APPNAME") : "Job Service IT";
         try {
@@ -68,5 +71,11 @@ public final class JobServiceConnectionUtil
     {
         final String propertyValue = System.getProperty(key);
         return (propertyValue != null) ? propertyValue : System.getenv(key);
+    }
+
+    private static String getPropertyOrSecret(final String key) throws IOException
+    {
+        final String propertyValue = System.getProperty(key);
+        return (propertyValue != null) ? propertyValue : SecretUril.getSecret(key);
     }
 }

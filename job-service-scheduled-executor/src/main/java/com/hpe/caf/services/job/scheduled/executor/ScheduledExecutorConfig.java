@@ -15,8 +15,11 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Locale;
+
+import com.hpe.caf.secret.SecretUtil;
 
 /**
  * Configuration class for the Job Service Scheduled Executor. Includes connection properties to both database and RabbitMQ.
@@ -39,8 +42,8 @@ public class ScheduledExecutorConfig {
         return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME");
     }
 
-    public static String getDatabasePassword(){
-        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD");
+    public static String getDatabasePassword() throws IOException {
+        return getPropertyOrSecret("JOB_SERVICE_DATABASE_PASSWORD");
     }
     
     public static String getApplicationName(){
@@ -69,8 +72,8 @@ public class ScheduledExecutorConfig {
         return getPropertyOrEnvVar("CAF_RABBITMQ_USERNAME");
     }
 
-    public static String getRabbitMQPassword(){
-        return getPropertyOrEnvVar("CAF_RABBITMQ_PASSWORD");
+    public static String getRabbitMQPassword() throws IOException {
+        return getPropertyOrSecret("CAF_RABBITMQ_PASSWORD");
     }
 
     public static String getTrackingPipe() {
@@ -128,4 +131,9 @@ public class ScheduledExecutorConfig {
         return (propertyValue != null) ? propertyValue : System.getenv(key);
     }
 
+    private static String getPropertyOrSecret(final String key) throws IOException
+    {
+        final String propertyValue = System.getProperty(key);
+        return (propertyValue != null) ? propertyValue : SecretUtil.getSecret(key);
+    }
 }

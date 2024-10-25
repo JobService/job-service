@@ -161,37 +161,37 @@
             <dependency>
                 <groupId>com.github.cafapi</groupId>
                 <artifactId>caf-api</artifactId>
-                <version>3.1.0-596</version>
+                <version>3.2.0-684</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.cipher</groupId>
                 <artifactId>cipher-null</artifactId>
-                <version>3.1.0-596</version>
+                <version>3.2.0-684</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.codec</groupId>
                 <artifactId>codec-json</artifactId>
-                <version>3.1.0-596</version>
+                <version>3.2.0-684</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.config</groupId>
                 <artifactId>config-caf</artifactId>
-                <version>3.1.0-596</version>
+                <version>3.2.0-684</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.config</groupId>
                 <artifactId>config-decoder</artifactId>
-                <version>3.1.0-596</version>
+                <version>3.2.0-684</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.config</groupId>
                 <artifactId>config-file</artifactId>
-                <version>3.1.0-596</version>
+                <version>3.2.0-684</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.config</groupId>
                 <artifactId>config-system</artifactId>
-                <version>3.1.0-596</version>
+                <version>3.2.0-684</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.correlation</groupId>
@@ -211,7 +211,7 @@
             <dependency>
                 <groupId>com.github.cafapi.decoder</groupId>
                 <artifactId>decoder-js</artifactId>
-                <version>3.1.0-596</version>
+                <version>3.2.0-684</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.logging</groupId>
@@ -231,37 +231,47 @@
             <dependency>
                 <groupId>com.github.cafapi.ssl</groupId>
                 <artifactId>caf-ssl-dropwizard</artifactId>
-                <version>1.0.0-13</version>
+                <version>1.1.0-56</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>
                 <artifactId>util-moduleloader</artifactId>
-                <version>3.1.0-596</version>
+                <version>3.2.0-684</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>
                 <artifactId>util-naming</artifactId>
-                <version>3.1.0-596</version>
+                <version>3.2.0-684</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>
                 <artifactId>util-process-identifier</artifactId>
-                <version>3.1.0-596</version>
+                <version>3.2.0-684</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util</groupId>
                 <artifactId>util-ref</artifactId>
-                <version>3.1.0-596</version>
+                <version>3.2.0-684</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cafapi.util</groupId>
+                <artifactId>util-secret</artifactId>
+                <version>3.2.0-684</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cafapi.util.dropwizard</groupId>
+                <artifactId>caf-substitutor-dropwizard</artifactId>
+                <version>1.0.0-7</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util.flywayinstaller</groupId>
                 <artifactId>util-flywayinstaller</artifactId>
-                <version>3.0.0-197</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util.flywayinstaller</groupId>
                 <artifactId>util-flywayinstaller-cli</artifactId>
-                <version>3.0.0-197</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing</groupId>
@@ -376,57 +386,57 @@
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>standard-worker-container</artifactId>
                 <type>pom</type>
-                <version>8.1.0-1251</version>
+                <version>8.2.0-1283</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>util-rabbitmq</artifactId>
-                <version>8.1.0-1251</version>
+                <version>8.2.0-1283</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-api</artifactId>
-                <version>8.1.0-1251</version>
+                <version>8.2.0-1283</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-caf</artifactId>
-                <version>8.1.0-1251</version>
+                <version>8.2.0-1283</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-configs</artifactId>
-                <version>8.1.0-1251</version>
+                <version>8.2.0-1283</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-core</artifactId>
-                <version>8.1.0-1251</version>
+                <version>8.2.0-1283</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-default-configs</artifactId>
-                <version>8.1.0-1251</version>
+                <version>8.2.0-1283</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-queue-rabbit</artifactId>
-                <version>8.1.0-1251</version>
+                <version>8.2.0-1283</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-store-fs</artifactId>
-                <version>8.1.0-1251</version>
+                <version>8.2.0-1283</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-store-http</artifactId>
-                <version>8.1.0-1251</version>
+                <version>8.2.0-1283</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-tracking-report</artifactId>
-                <version>8.1.0-1251</version>
+                <version>8.2.0-1283</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework.testing</groupId>
@@ -1285,13 +1295,13 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-jre21</repository>
-                            <tag>4.1.0</tag>
-                            <digest>sha256:547758c42c0ec49654dd92447e5cc1e630b8df704d6898ddb8a8a3864a092967</digest>
+                            <tag>4.2.0</tag>
+                            <digest>sha256:1aa674b535973fe04c5a7f35d7da0d15f240de24fbed32f76b8496bec1b2ef9a</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>1.0.1</tag>
-                            <digest>sha256:36ded31ff3ba176bd89daca34682f747dd30bc6bb11c3a71c20378a1bf847a44</digest>
+                            <tag>1.1.0</tag>
+                            <digest>sha256:ed8093edcab86b8d35e3b6db21f7f136d36068cddd67a9ce728661b6266f3eb4</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>

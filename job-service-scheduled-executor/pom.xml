@@ -101,6 +101,12 @@
             <artifactId>job-service-util</artifactId>
         </dependency>
 
+        <!-- Secret retrieval -->
+        <dependency>
+            <groupId>com.github.cafapi.util</groupId>
+            <artifactId>util-secret</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

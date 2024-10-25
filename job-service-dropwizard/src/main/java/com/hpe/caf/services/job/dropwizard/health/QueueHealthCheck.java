@@ -16,6 +16,7 @@
 package com.hpe.caf.services.job.dropwizard.health;
 
 import com.codahale.metrics.health.HealthCheck;
+import com.hpe.caf.secret.SecretUtil;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -78,7 +79,7 @@ public final class QueueHealthCheck extends HealthCheck
                 System.getenv("CAF_RABBITMQ_HOST"),
                 Integer.parseInt(System.getenv("CAF_RABBITMQ_PORT")),
                 System.getenv("CAF_RABBITMQ_USERNAME"),
-                System.getenv("CAF_RABBITMQ_PASSWORD"));
+                SecretUtil.getSecret("CAF_RABBITMQ_PASSWORD"));
     }
 
     private static String getRabbitProtocol()

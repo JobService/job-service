@@ -16,7 +16,10 @@
 package com.hpe.caf.worker.jobtracking;
 
 
+import java.io.IOException;
 import java.util.Objects;
+
+import com.hpe.caf.secret.SecretUtil;
 
 public class JobDatabaseProperties {
 
@@ -61,8 +64,8 @@ public class JobDatabaseProperties {
      *
      * @return database password
      */
-    public static String getDatabasePassword() {
-        return Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD"));
+    public static String getDatabasePassword() throws IOException {
+        return Objects.requireNonNull(getPropertyOrSecret("JOB_SERVICE_DATABASE_PASSWORD"));
     }
     
     /**
@@ -78,5 +81,11 @@ public class JobDatabaseProperties {
     {
         final String propertyValue = System.getProperty(key);
         return (propertyValue != null) ? propertyValue : System.getenv(key);
+    }
+
+    private static String getPropertyOrSecret(final String key) throws IOException
+    {
+        final String propertyValue = System.getProperty(key);
+        return (propertyValue != null) ? propertyValue : SecretUtil.getSecret(key);
     }
 }

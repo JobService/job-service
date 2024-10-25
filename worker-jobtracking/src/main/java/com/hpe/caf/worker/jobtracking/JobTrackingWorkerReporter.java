@@ -24,6 +24,9 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.MessageFormat;
@@ -96,7 +99,11 @@ public class JobTrackingWorkerReporter implements JobTrackingReporter {
         this.appName = JobDatabaseProperties.getApplicationName() != null ? JobDatabaseProperties.getApplicationName()
                              : "Job Tracking Worker";
         this.jobDatabaseUsername = Objects.requireNonNull(JobDatabaseProperties.getDatabaseUsername());
-        this.jobDatabasePassword = Objects.requireNonNull(JobDatabaseProperties.getDatabasePassword());
+        try {
+            this.jobDatabasePassword = Objects.requireNonNull(JobDatabaseProperties.getDatabasePassword());
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /**

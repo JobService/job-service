@@ -20,10 +20,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.regex.Pattern;
+
+import com.hpe.caf.secret.SecretUtil;
 
 /**
  * Configuration class for the job service api. Includes connection properties to both database and RabbitMQ.
@@ -51,10 +54,15 @@ public class AppConfig {
         return environment.getProperty("JOB_SERVICE_DATABASE_USERNAME");
     }
 
-    public String getDatabasePassword(){
-        return environment.getProperty("JOB_SERVICE_DATABASE_PASSWORD");
+    public String getDatabasePassword() throws IOException {
+        final String propertyFromEnvironment = environment.getProperty("JOB_SERVICE_DATABASE_PASSWORD");
+        if (propertyFromEnvironment != null && !propertyFromEnvironment.isEmpty()) {
+            return propertyFromEnvironment;
+        } else {
+            return SecretUtil.getSecret("JOB_SERVICE_DATABASE_PASSWORD");
+        }
     }
-    
+
     public String getApplicationName(){
         return environment.getProperty("JOB_SERVICE_DATABASE_APPNAME");
     }
@@ -76,8 +84,13 @@ public class AppConfig {
         return environment.getProperty("CAF_RABBITMQ_USERNAME");
     }
 
-    public String getRabbitMQPassword(){
-        return environment.getProperty("CAF_RABBITMQ_PASSWORD");
+    public String getRabbitMQPassword() throws IOException {
+        final String propertyFromEnvironment = environment.getProperty("CAF_RABBITMQ_PASSWORD");
+        if (propertyFromEnvironment != null && !propertyFromEnvironment.isEmpty()) {
+           return propertyFromEnvironment;
+        } else {
+            return SecretUtil.getSecret("CAF_RABBITMQ_PASSWORD");
+        }
     }
 
     public String getTrackingPipe() {

@@ -17,12 +17,14 @@ package com.hpe.caf.jobservice.acceptance;
 
 import com.hpe.caf.api.worker.JobStatus;
 import com.hpe.caf.worker.batch.BatchWorkerConstants;
+import com.hpe.caf.secret.SecretUtil;
 
 import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 
+import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,7 +44,7 @@ public class JobServiceDatabaseUtil
 {
     private static final Logger LOG = LoggerFactory.getLogger(JobServiceDatabaseUtil.class);
 
-    public static void assertJobStatus(final String jobId, final String expectedStatus) throws SQLException
+    public static void assertJobStatus(final String jobId, final String expectedStatus) throws SQLException, IOException
     {
         try (final Connection dbConnection = getDbConnection()) {
 
@@ -59,7 +61,7 @@ public class JobServiceDatabaseUtil
         }
     }
 
-    public static int getJobDelay(final String jobId) throws SQLException
+    public static int getJobDelay(final String jobId) throws SQLException, IOException
     {
         try (final Connection dbConnection = getDbConnection()) {
 
@@ -75,7 +77,7 @@ public class JobServiceDatabaseUtil
         }
     }
 
-    public static String getJobTaskDataEligibleRunDate(final String jobId) throws SQLException
+    public static String getJobTaskDataEligibleRunDate(final String jobId) throws SQLException, IOException
     {
         try (final Connection dbConnection = getDbConnection()) {
 
@@ -91,7 +93,7 @@ public class JobServiceDatabaseUtil
         }
     }
 
-    public static void assertJobRowExists(final String jobId) throws SQLException
+    public static void assertJobRowExists(final String jobId) throws SQLException, IOException
     {
         try (final Connection dbConnection = getDbConnection()) {
 
@@ -109,7 +111,7 @@ public class JobServiceDatabaseUtil
         }
     }
 
-    public static void assertJobRowDoesNotExist(final String jobId) throws SQLException
+    public static void assertJobRowDoesNotExist(final String jobId) throws SQLException, IOException
     {
         try (final Connection dbConnection = getDbConnection()) {
 
@@ -126,7 +128,7 @@ public class JobServiceDatabaseUtil
 
     public static void assertJobDependencyRowsExist(final String jobId, final String dependentJobId,
                                                     final String batchWorkerMessageInQueue,
-                                                    final String exampleWorkerMessageOutQueue) throws SQLException
+                                                    final String exampleWorkerMessageOutQueue) throws SQLException, IOException
     {
         try (final Connection dbConnection = getDbConnection()) {
 
@@ -160,7 +162,7 @@ public class JobServiceDatabaseUtil
     }
 
     public static void assertJobTaskDataRowExists(final String jobId)
-            throws SQLException
+            throws SQLException, IOException
     {
         try (final Connection dbConnection = getDbConnection();
              final PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?")) {
@@ -177,7 +179,7 @@ public class JobServiceDatabaseUtil
     }
 
     public static void assertJobTaskDataRowDoesNotExist(final String jobId)
-            throws SQLException
+            throws SQLException, IOException
     {
         try (final Connection dbConnection = getDbConnection();
              final PreparedStatement st = dbConnection.prepareStatement("SELECT * FROM job_task_data WHERE job_id = ?")) {
@@ -191,7 +193,7 @@ public class JobServiceDatabaseUtil
     }
 
     public static void assertJobDependencyRowsDoNotExist(final String jobId, final String dependentJobId)
-            throws SQLException
+            throws SQLException, IOException
     {
         try (final Connection dbConnection = getDbConnection()) {
 
@@ -214,7 +216,7 @@ public class JobServiceDatabaseUtil
         }
     }
 
-    public static void assertJobLabelRowsDoNotExist(final String jobId) throws SQLException {
+    public static void assertJobLabelRowsDoNotExist(final String jobId) throws SQLException, IOException {
         try (final Connection dbConnection = getDbConnection()) {
 
             //  Verify job task data row has been removed.
@@ -228,7 +230,7 @@ public class JobServiceDatabaseUtil
         }
     }
 
-    public static boolean isJobEligibleToRun(final String jobId) throws SQLException
+    public static boolean isJobEligibleToRun(final String jobId) throws SQLException, IOException
     {
         try (
                 final Connection connection = getDbConnection();
@@ -248,13 +250,13 @@ public class JobServiceDatabaseUtil
         }
     }
 
-    private static Connection getDbConnection() throws SQLException
+    private static Connection getDbConnection() throws SQLException, IOException
     {
         final String dbHost = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST"));
         final String dbPortString = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT"));
         final String dbName = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME"));
         final String dbUser = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME"));
-        final String dbPass = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD"));
+        final String dbPass = Objects.requireNonNull(getPropertyOrSecret("JOB_SERVICE_DATABASE_PASSWORD"));
         final String appName = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME") != null ? getPropertyOrEnvVar(
                 "JOB_SERVICE_DATABASE_APPNAME") : "Job Service Acceptance";
         try {
@@ -284,8 +286,13 @@ public class JobServiceDatabaseUtil
         final String propertyValue = System.getProperty(key);
         return (propertyValue != null) ? propertyValue : System.getenv(key);
     }
-    
-    public static void assertDeleteLogNotEmpty() throws SQLException
+
+    private static String getPropertyOrSecret(final String key) throws IOException
+    {
+        final String propertyValue = System.getProperty(key);
+        return (propertyValue != null) ? propertyValue : SecretUtil.getSecret(key);
+    }
+    public static void assertDeleteLogNotEmpty() throws SQLException, IOException
     {
         try(final Connection dbConnection = getDbConnection();
             final PreparedStatement st = dbConnection.prepareStatement("SELECT count(*) as result FROM public.delete_log ");
@@ -299,7 +306,7 @@ public class JobServiceDatabaseUtil
     public static void insertRowIntoJobTable(
             final String jobId,
             final String partitionId,
-            final JobStatus jobStatus) throws SQLException
+            final JobStatus jobStatus) throws SQLException, IOException
     {
         final String sql = "INSERT INTO public.job ("
             + "job_id, "
