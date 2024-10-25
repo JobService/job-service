@@ -76,6 +76,6 @@ public final class JobServiceConnectionUtil
     private static String getPropertyOrSecret(final String key) throws IOException
     {
         final String propertyValue = System.getProperty(key);
-        return (propertyValue != null) ? propertyValue : SecretUril.getSecret(key);
+        return (propertyValue != null) ? propertyValue : SecretUtil.getSecret(key);
     }
 }
