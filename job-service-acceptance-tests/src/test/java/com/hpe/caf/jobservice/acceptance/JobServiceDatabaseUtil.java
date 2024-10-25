@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
