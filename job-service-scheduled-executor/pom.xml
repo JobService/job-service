@@ -101,10 +101,14 @@
             <artifactId>job-service-util</artifactId>
         </dependency>
 
-        <!-- Secret retrieval -->
+        <!-- Secret retrieval + caching -->
         <dependency>
             <groupId>com.github.cafapi.util</groupId>
             <artifactId>util-secret</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
 
     </dependencies>

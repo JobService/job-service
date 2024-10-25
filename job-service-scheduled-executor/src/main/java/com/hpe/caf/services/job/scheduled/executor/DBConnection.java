@@ -40,14 +40,7 @@ public final class DBConnection
         final String dbPortString = Objects.requireNonNull(ScheduledExecutorConfig.getDatabasePort());
         final String dbName = Objects.requireNonNull(ScheduledExecutorConfig.getDatabaseName());
         final String dbUser = Objects.requireNonNull(ScheduledExecutorConfig.getDatabaseUsername());
-        final String dbPass;
-        try {
-            dbPass = Objects.requireNonNull(ScheduledExecutorConfig.getDatabasePassword());
-        } catch (final IOException e) {
-            final String errorMessage = "Unable to get database password";
-            LOG.error(errorMessage);
-            throw new ScheduledExecutorException(errorMessage, e);
-        }
+        final String dbPass = Objects.requireNonNull(ScheduledExecutorConfig.getDatabasePassword());
         final String appName =
                 ScheduledExecutorConfig.getApplicationName() != null ? ScheduledExecutorConfig
                         .getApplicationName()

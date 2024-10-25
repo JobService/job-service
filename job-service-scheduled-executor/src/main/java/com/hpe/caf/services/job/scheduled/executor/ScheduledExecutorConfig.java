@@ -16,9 +16,11 @@
 package com.hpe.caf.services.job.scheduled.executor;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.hpe.caf.secret.SecretUtil;
 
 /**
@@ -26,7 +28,14 @@ import com.hpe.caf.secret.SecretUtil;
  */
 public class ScheduledExecutorConfig {
 
-    private static volatile String cachedDatabasePassword = null;
+    private static final LoadingCache<String, String> SECRETS_CACHE = CacheBuilder.newBuilder()
+            .build(new CacheLoader<>() {
+                @Override
+                public String load(String key) throws IOException {
+                    final String propertyValue = System.getProperty(key);
+                    return (propertyValue != null) ? propertyValue : SecretUtil.getSecret(key);
+                }
+            });
 
     public static String getDatabaseHost(){
         return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST");
@@ -44,11 +53,12 @@ public class ScheduledExecutorConfig {
         return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME");
     }
 
-    public static String getDatabasePassword() throws IOException {
-        if (cachedDatabasePassword == null) {
-            cachedDatabasePassword = getPropertyOrSecret("JOB_SERVICE_DATABASE_PASSWORD");
+    public static String getDatabasePassword(){
+        try {
+            return SECRETS_CACHE.get("JOB_SERVICE_DATABASE_PASSWORD");
+        } catch (final ExecutionException e) {
+            throw new RuntimeException("Failed to get secret for 'JOB_SERVICE_DATABASE_PASSWORD'", e);
         }
-        return cachedDatabasePassword;
     }
 
     public static String getApplicationName(){
@@ -77,8 +87,12 @@ public class ScheduledExecutorConfig {
         return getPropertyOrEnvVar("CAF_RABBITMQ_USERNAME");
     }
 
-    public static String getRabbitMQPassword() throws IOException {
-        return getPropertyOrSecret("CAF_RABBITMQ_PASSWORD");
+    public static String getRabbitMQPassword(){
+        try {
+            return SECRETS_CACHE.get("CAF_RABBITMQ_PASSWORD");
+        } catch (final ExecutionException e) {
+            throw new RuntimeException("Failed to get secret for 'CAF_RABBITMQ_PASSWORD'", e);
+        }
     }
 
     public static String getTrackingPipe() {
@@ -134,11 +148,5 @@ public class ScheduledExecutorConfig {
     {
         final String propertyValue = System.getProperty(key);
         return (propertyValue != null) ? propertyValue : System.getenv(key);
-    }
-
-    private static String getPropertyOrSecret(final String key) throws IOException
-    {
-        final String propertyValue = System.getProperty(key);
-        return (propertyValue != null) ? propertyValue : SecretUtil.getSecret(key);
     }
 }

@@ -24,8 +24,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.hpe.caf.secret.SecretUtil;
 
 /**
@@ -34,6 +38,19 @@ import com.hpe.caf.secret.SecretUtil;
 @Configuration
 @PropertySource(value = "classpath:${JOB_SERVICE_API_CONFIG_PATH:config.properties}", ignoreResourceNotFound = true)
 public class AppConfig {
+
+    private final LoadingCache<String, String> secretsCache = CacheBuilder.newBuilder()
+            .build(new CacheLoader<>() {
+                @Override
+                public String load(String key) throws IOException {
+                    final String propertyFromEnvironment = environment.getProperty(key);
+                    if (propertyFromEnvironment != null && !propertyFromEnvironment.isEmpty()) {
+                        return propertyFromEnvironment;
+                    } else {
+                        return SecretUtil.getSecret(key);
+                    }
+                }
+            });
 
     @Autowired
     private Environment environment;
@@ -54,12 +71,11 @@ public class AppConfig {
         return environment.getProperty("JOB_SERVICE_DATABASE_USERNAME");
     }
 
-    public String getDatabasePassword() throws IOException {
-        final String propertyFromEnvironment = environment.getProperty("JOB_SERVICE_DATABASE_PASSWORD");
-        if (propertyFromEnvironment != null && !propertyFromEnvironment.isEmpty()) {
-            return propertyFromEnvironment;
-        } else {
-            return SecretUtil.getSecret("JOB_SERVICE_DATABASE_PASSWORD");
+    public String getDatabasePassword() {
+        try {
+            return secretsCache.get("JOB_SERVICE_DATABASE_PASSWORD");
+        } catch (final ExecutionException e) {
+            throw new RuntimeException("Failed to get secret for 'JOB_SERVICE_DATABASE_PASSWORD'", e);
         }
     }
 
@@ -84,12 +100,11 @@ public class AppConfig {
         return environment.getProperty("CAF_RABBITMQ_USERNAME");
     }
 
-    public String getRabbitMQPassword() throws IOException {
-        final String propertyFromEnvironment = environment.getProperty("CAF_RABBITMQ_PASSWORD");
-        if (propertyFromEnvironment != null && !propertyFromEnvironment.isEmpty()) {
-           return propertyFromEnvironment;
-        } else {
-            return SecretUtil.getSecret("CAF_RABBITMQ_PASSWORD");
+    public String getRabbitMQPassword() {
+        try {
+            return secretsCache.get("CAF_RABBITMQ_PASSWORD");
+        } catch (final ExecutionException e) {
+            throw new RuntimeException("Failed to get secret for 'CAF_RABBITMQ_PASSWORD'", e);
         }
     }
 

@@ -15,8 +15,6 @@
  */
 package com.hpe.caf.services.configuration;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -25,8 +23,6 @@ public final class AppConfigProvider
 {
     private static final String ERR_MSG_DB_CONNECTION_PROPS_MISSING = "One or more PostgreSQL database connection " +
             "properties have not been provided.";
-    private static final String ERR_MSG_DB_CONNECTION_PROPS_IO_ERROR = "One or more PostgreSQL database connection " +
-            "properties have returned an IO error.";
     private static final String ERR_MSG_DB_CONNECTION_PORT_INVALID = "The PostgreSQL database connection port" +
             "provided is invalid. ";
     private static final String ERR_MSG_RESUME_JOB_QUEUE_PROP_MISSING = "CAF_JOB_SERVICE_RESUME_JOB_QUEUE property has not been " +
@@ -70,8 +66,6 @@ public final class AppConfigProvider
             throw new AppConfigException(ERR_MSG_DB_CONNECTION_PROPS_MISSING);
         } catch (final NumberFormatException ex){
             throw new AppConfigException(ERR_MSG_DB_CONNECTION_PORT_INVALID + properties.getDatabasePort());
-        } catch (final IOException ioe) {
-            throw new AppConfigException(ERR_MSG_DB_CONNECTION_PROPS_IO_ERROR, ioe);
         }
 
         //  Make sure the resume job queue property has been specified.

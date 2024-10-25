@@ -18,6 +18,7 @@ package com.hpe.caf.services.job.api;
 import com.hpe.caf.secret.SecretUtil;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.sql.SQLException;
 import java.util.Objects;
 
@@ -36,7 +37,7 @@ public final class JobServiceConnectionUtil
     }
     
     private static final Logger LOG = LoggerFactory.getLogger(JobServiceConnectionUtil.class);
-    public static java.sql.Connection getDbConnection() throws SQLException, IOException
+    public static java.sql.Connection getDbConnection() throws SQLException
     {
         final String dbHost = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST"));
         final String dbPortString = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT"));
@@ -73,9 +74,17 @@ public final class JobServiceConnectionUtil
         return (propertyValue != null) ? propertyValue : System.getenv(key);
     }
 
-    private static String getPropertyOrSecret(final String key) throws IOException
+    private static String getPropertyOrSecret(final String key)
     {
         final String propertyValue = System.getProperty(key);
-        return (propertyValue != null) ? propertyValue : SecretUtil.getSecret(key);
+        if (propertyValue != null) {
+            return propertyValue;
+        } else {
+            try {
+                return SecretUtil.getSecret(key);
+            } catch(final IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
     }
 }
