@@ -44,11 +44,11 @@ public class AppConfig {
                 @Override
                 public String load(String key) throws IOException {
                     final String propertyFromEnvironment = environment.getProperty(key);
-                    if (propertyFromEnvironment != null && !propertyFromEnvironment.isEmpty()) {
-                        return propertyFromEnvironment;
-                    } else {
-                        return SecretUtil.getSecret(key);
-                    }
+                    System.err.println("RORY--------------------------");
+                    System.err.println("RORY propertyFromEnvironment " + key + " = " + propertyFromEnvironment);
+                    final String secret = SecretUtil.getSecret(key);
+                    System.err.println("RORY secret " + key + " = " + secret);
+                    return secret;
                 }
             });
 

@@ -79,7 +79,7 @@ public final class QueueHealthCheck extends HealthCheck
                 System.getenv("CAF_RABBITMQ_HOST"),
                 Integer.parseInt(System.getenv("CAF_RABBITMQ_PORT")),
                 System.getenv("CAF_RABBITMQ_USERNAME"),
-                SecretUtil.getSecret("CAF_RABBITMQ_PASSWORD"));
+                SecretUtil.getSecret("CAF_RABBITMQ_PASSWORD")); // TODO move to ctor
     }
 
     private static String getRabbitProtocol()
