@@ -26,6 +26,8 @@ import com.hpe.caf.secret.SecretUtil;
  */
 public class ScheduledExecutorConfig {
 
+    private static volatile String cachedDatabasePassword = null;
+
     public static String getDatabaseHost(){
         return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST");
     }
@@ -43,9 +45,12 @@ public class ScheduledExecutorConfig {
     }
 
     public static String getDatabasePassword() throws IOException {
-        return getPropertyOrSecret("JOB_SERVICE_DATABASE_PASSWORD");
+        if (cachedDatabasePassword == null) {
+            cachedDatabasePassword = getPropertyOrSecret("JOB_SERVICE_DATABASE_PASSWORD");
+        }
+        return cachedDatabasePassword;
     }
-    
+
     public static String getApplicationName(){
         return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME");
     }
