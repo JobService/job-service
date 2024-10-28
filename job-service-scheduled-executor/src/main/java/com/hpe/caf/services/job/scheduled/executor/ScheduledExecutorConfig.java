@@ -31,7 +31,7 @@ public class ScheduledExecutorConfig {
     private static final LoadingCache<String, String> SECRETS_CACHE = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {
                 @Override
-                public String load(String key) throws IOException {
+                public String load(final String key) throws IOException {
                     final String propertyValue = System.getProperty(key);
                     return (propertyValue != null) ? propertyValue : SecretUtil.getSecret(key);
                 }

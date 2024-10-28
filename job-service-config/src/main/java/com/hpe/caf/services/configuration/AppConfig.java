@@ -42,7 +42,7 @@ public class AppConfig {
     private static final LoadingCache<String, String> SECRETS_CACHE = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {
                 @Override
-                public String load(String key) throws IOException {
+                public String load(final String key) throws IOException {
                     return SecretUtil.getSecret(key);
                 }
             });
@@ -66,11 +66,11 @@ public class AppConfig {
         return environment.getProperty("JOB_SERVICE_DATABASE_USERNAME");
     }
 
-    public String getDatabasePassword() {
+    public String getDatabasePassword() throws AppConfigException {
         try {
             return SECRETS_CACHE.get("JOB_SERVICE_DATABASE_PASSWORD");
         } catch (final ExecutionException e) {
-            throw new RuntimeException("Failed to get secret for 'JOB_SERVICE_DATABASE_PASSWORD'", e);
+            throw new AppConfigException("Failed to get secret for 'JOB_SERVICE_DATABASE_PASSWORD'", e);
         }
     }
 
@@ -95,11 +95,11 @@ public class AppConfig {
         return environment.getProperty("CAF_RABBITMQ_USERNAME");
     }
 
-    public String getRabbitMQPassword() {
+    public String getRabbitMQPassword() throws AppConfigException {
         try {
             return SECRETS_CACHE.get("CAF_RABBITMQ_PASSWORD");
         } catch (final ExecutionException e) {
-            throw new RuntimeException("Failed to get secret for 'CAF_RABBITMQ_PASSWORD'", e);
+            throw new AppConfigException("Failed to get secret for 'CAF_RABBITMQ_PASSWORD'", e);
         }
     }
 

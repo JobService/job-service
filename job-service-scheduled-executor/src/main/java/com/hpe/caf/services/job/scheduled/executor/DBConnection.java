@@ -17,7 +17,6 @@ package com.hpe.caf.services.job.scheduled.executor;
 
 import static java.text.MessageFormat.*;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
