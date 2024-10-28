@@ -68,7 +68,7 @@ public class AppConfig {
 
     public String getDatabasePassword() {
         try {
-            return secretsCache.get("JOB_SERVICE_DATABASE_PASSWORD");
+            return SECRETS_CACHE.get("JOB_SERVICE_DATABASE_PASSWORD");
         } catch (final ExecutionException e) {
             throw new RuntimeException("Failed to get secret for 'JOB_SERVICE_DATABASE_PASSWORD'", e);
         }
@@ -97,7 +97,7 @@ public class AppConfig {
 
     public String getRabbitMQPassword() {
         try {
-            return secretsCache.get("CAF_RABBITMQ_PASSWORD");
+            return SECRETS_CACHE.get("CAF_RABBITMQ_PASSWORD");
         } catch (final ExecutionException e) {
             throw new RuntimeException("Failed to get secret for 'CAF_RABBITMQ_PASSWORD'", e);
         }
