@@ -39,16 +39,11 @@ import com.hpe.caf.secret.SecretUtil;
 @PropertySource(value = "classpath:${JOB_SERVICE_API_CONFIG_PATH:config.properties}", ignoreResourceNotFound = true)
 public class AppConfig {
 
-    private final LoadingCache<String, String> secretsCache = CacheBuilder.newBuilder()
+    private static final LoadingCache<String, String> SECRETS_CACHE = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {
                 @Override
                 public String load(String key) throws IOException {
-                    final String propertyFromEnvironment = environment.getProperty(key);
-                    System.err.println("RORY--------------------------");
-                    System.err.println("RORY propertyFromEnvironment " + key + " = " + propertyFromEnvironment);
-                    final String secret = SecretUtil.getSecret(key);
-                    System.err.println("RORY secret " + key + " = " + secret);
-                    return secret;
+                    return SecretUtil.getSecret(key);
                 }
             });
 
