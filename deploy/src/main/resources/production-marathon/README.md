@@ -26,6 +26,8 @@ The `marathon.env` file supports configurable property settings necessary for se
 
 - `JOB_SERVICE_DATABASE_PASSWORD`: The password for the Postgres database.
 
+- `JOB_SERVICE_DATABASE_PASSWORD_FILE`: The file containing the password for the Postgres database.
+
 - `CAF_RABBITMQ_HOST`: This configures the host address for RabbitMQ.
 
 - `CAF_RABBITMQ_PORT`: This configures the port where RabbitMQ is accepting messages.
@@ -33,6 +35,8 @@ The `marathon.env` file supports configurable property settings necessary for se
 - `CAF_RABBITMQ_USERNAME`: This configures the username for RabbitMQ.
 
 - `CAF_RABBITMQ_PASSWORD`: This configures the password for RabbitMQ.
+
+- `CAF_RABBITMQ_PASSWORD_FILE`: File containing the password for RabbitMQ.
 
 
 ### Additional Marathon Configuration

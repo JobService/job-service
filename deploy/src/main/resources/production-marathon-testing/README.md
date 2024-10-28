@@ -13,6 +13,7 @@ The `marathon.env` file supports configurable property settings necessary for se
 - `CAF_RABBITMQ_HOST`: The hostname for the RabbitMQ instance
 - `CAF_RABBITMQ_PORT`: The port for the RabbitMQ instance
 - `CAF_RABBITMQ_PASSWORD`: The password for the RabbitMQ instance
+- `CAF_RABBITMQ_PASSWORD_FILE`: The file containing the password for the RabbitMQ instance
 - `CAF_RABBITMQ_USERNAME`: The username for the RabbitMQ instance
 
 - `CAF_WORKER_GLOBFILTER_INPUT_QUEUE`: The RabbitMQ queue on which the Glob Filter worker listens

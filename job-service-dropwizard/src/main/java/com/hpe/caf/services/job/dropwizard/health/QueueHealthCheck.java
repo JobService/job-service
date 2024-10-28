@@ -16,10 +16,12 @@
 package com.hpe.caf.services.job.dropwizard.health;
 
 import com.codahale.metrics.health.HealthCheck;
+import com.hpe.caf.secret.SecretUtil;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -30,6 +32,17 @@ import org.slf4j.LoggerFactory;
 public final class QueueHealthCheck extends HealthCheck
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueueHealthCheck.class);
+
+    private final String rabbitPassword;
+
+    public QueueHealthCheck()
+    {
+        try {
+            this.rabbitPassword = SecretUtil.getSecret("CAF_RABBITMQ_PASSWORD");
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
     @Override
     protected Result check() throws Exception
@@ -70,7 +83,7 @@ public final class QueueHealthCheck extends HealthCheck
         return Result.healthy();
     }
 
-    private static Connection createConnection()
+    private Connection createConnection()
             throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
     {
         return RabbitUtil.createRabbitConnection(
@@ -78,7 +91,7 @@ public final class QueueHealthCheck extends HealthCheck
                 System.getenv("CAF_RABBITMQ_HOST"),
                 Integer.parseInt(System.getenv("CAF_RABBITMQ_PORT")),
                 System.getenv("CAF_RABBITMQ_USERNAME"),
-                System.getenv("CAF_RABBITMQ_PASSWORD"));
+                rabbitPassword);
     }
 
     private static String getRabbitProtocol()

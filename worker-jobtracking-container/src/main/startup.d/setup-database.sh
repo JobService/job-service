@@ -22,5 +22,5 @@ java -cp "*" \
      -db.host "${JOB_SERVICE_DATABASE_HOST}" \
      -db.port "${JOB_SERVICE_DATABASE_PORT}" \
      -db.user "${JOB_SERVICE_DATABASE_USERNAME}" \
-     -db.pass "${JOB_SERVICE_DATABASE_PASSWORD}" \
+     -db.secretKeys "JOB_SERVICE_DATABASE_PASSWORD" \
      -db.name "${JOB_SERVICE_DATABASE_NAME}"

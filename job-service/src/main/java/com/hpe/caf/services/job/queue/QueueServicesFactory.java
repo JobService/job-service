@@ -17,6 +17,7 @@ package com.hpe.caf.services.job.queue;
 
 import com.hpe.caf.api.Codec;
 import com.hpe.caf.services.configuration.AppConfig;
+import com.hpe.caf.services.configuration.AppConfigException;
 import com.hpe.caf.util.rabbitmq.RabbitUtil;
 
 import com.rabbitmq.client.Channel;
@@ -47,7 +48,7 @@ public final class QueueServicesFactory {
      * @throws  TimeoutException    thrown if the connection cannot be created
      */
     public static QueueServices create(final AppConfig configuration, final String targetQueue, final Codec codec)
-            throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
+            throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException, AppConfigException
     {
         //  Create connection and channel for publishing messages.
         Connection connection;
@@ -72,7 +73,7 @@ public final class QueueServicesFactory {
      * Creates a connection to rabbit messaging server.
      */
     private static Connection createConnection(AppConfig configuration)
-            throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
+            throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException, AppConfigException
     {
         return RabbitUtil.createRabbitConnection(configuration.getRabbitMQProtocol(), configuration.getRabbitMQHost(),
                 configuration.getRabbitMQPort(), configuration.getRabbitMQUsername(), configuration.getRabbitMQPassword());

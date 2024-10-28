@@ -15,6 +15,10 @@
  */
 package com.hpe.caf.services.job.api;
 
+import com.hpe.caf.secret.SecretUtil;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.sql.SQLException;
 import java.util.Objects;
 
@@ -39,7 +43,7 @@ public final class JobServiceConnectionUtil
         final String dbPortString = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT"));
         final String dbName = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME"));
         final String dbUser = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME"));
-        final String dbPass = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD"));
+        final String dbPass = Objects.requireNonNull(getPropertyOrSecret("JOB_SERVICE_DATABASE_PASSWORD"));
         final String appName = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME") != null ? getPropertyOrEnvVar(
                 "JOB_SERVICE_DATABASE_APPNAME") : "Job Service IT";
         try {
@@ -68,5 +72,19 @@ public final class JobServiceConnectionUtil
     {
         final String propertyValue = System.getProperty(key);
         return (propertyValue != null) ? propertyValue : System.getenv(key);
+    }
+
+    private static String getPropertyOrSecret(final String key)
+    {
+        final String propertyValue = System.getProperty(key);
+        if (propertyValue != null) {
+            return propertyValue;
+        } else {
+            try {
+                return SecretUtil.getSecret(key);
+            } catch(final IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
     }
 }

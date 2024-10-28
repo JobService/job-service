@@ -71,6 +71,10 @@
             <artifactId>util-ref</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.cafapi.util</groupId>
+            <artifactId>util-secret</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.hpe.caf.worker.batch</groupId>
             <artifactId>worker-batch-test-plugin</artifactId>
         </dependency>

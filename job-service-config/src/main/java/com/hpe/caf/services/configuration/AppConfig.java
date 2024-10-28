@@ -20,10 +20,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.hpe.caf.secret.SecretUtil;
 
 /**
  * Configuration class for the job service api. Includes connection properties to both database and RabbitMQ.
@@ -31,6 +38,14 @@ import java.util.regex.Pattern;
 @Configuration
 @PropertySource(value = "classpath:${JOB_SERVICE_API_CONFIG_PATH:config.properties}", ignoreResourceNotFound = true)
 public class AppConfig {
+
+    private static final LoadingCache<String, String> SECRETS_CACHE = CacheBuilder.newBuilder()
+            .build(new CacheLoader<>() {
+                @Override
+                public String load(final String key) throws IOException {
+                    return SecretUtil.getSecret(key);
+                }
+            });
 
     @Autowired
     private Environment environment;
@@ -51,10 +66,14 @@ public class AppConfig {
         return environment.getProperty("JOB_SERVICE_DATABASE_USERNAME");
     }
 
-    public String getDatabasePassword(){
-        return environment.getProperty("JOB_SERVICE_DATABASE_PASSWORD");
+    public String getDatabasePassword() throws AppConfigException {
+        try {
+            return SECRETS_CACHE.get("JOB_SERVICE_DATABASE_PASSWORD");
+        } catch (final ExecutionException e) {
+            throw new AppConfigException("Failed to get secret for 'JOB_SERVICE_DATABASE_PASSWORD'", e);
+        }
     }
-    
+
     public String getApplicationName(){
         return environment.getProperty("JOB_SERVICE_DATABASE_APPNAME");
     }
@@ -76,8 +95,12 @@ public class AppConfig {
         return environment.getProperty("CAF_RABBITMQ_USERNAME");
     }
 
-    public String getRabbitMQPassword(){
-        return environment.getProperty("CAF_RABBITMQ_PASSWORD");
+    public String getRabbitMQPassword() throws AppConfigException {
+        try {
+            return SECRETS_CACHE.get("CAF_RABBITMQ_PASSWORD");
+        } catch (final ExecutionException e) {
+            throw new AppConfigException("Failed to get secret for 'CAF_RABBITMQ_PASSWORD'", e);
+        }
     }
 
     public String getTrackingPipe() {

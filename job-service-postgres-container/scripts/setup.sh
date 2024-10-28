@@ -22,7 +22,7 @@ echo "Installing Job Service database."
   -db.host ${POSTGRES_SERVER} \
   -db.port ${POSTGRES_PORT} \
   -db.user ${POSTGRES_USER} \
-  -db.pass ${POSTGRES_PASSWORD} \
+  -db.secretKeys "POSTGRES_PASSWORD" \
   -db.name ${POSTGRES_DB}
 
 echo "Completed installation of Job Service database."

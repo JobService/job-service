@@ -17,12 +17,15 @@ package com.hpe.caf.jobservice.acceptance;
 
 import com.hpe.caf.api.worker.JobStatus;
 import com.hpe.caf.worker.batch.BatchWorkerConstants;
+import com.hpe.caf.secret.SecretUtil;
 
 import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -254,7 +257,7 @@ public class JobServiceDatabaseUtil
         final String dbPortString = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PORT"));
         final String dbName = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_NAME"));
         final String dbUser = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_USERNAME"));
-        final String dbPass = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD"));
+        final String dbPass = Objects.requireNonNull(getPropertyOrSecret("JOB_SERVICE_DATABASE_PASSWORD"));
         final String appName = getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME") != null ? getPropertyOrEnvVar(
                 "JOB_SERVICE_DATABASE_APPNAME") : "Job Service Acceptance";
         try {
@@ -284,7 +287,21 @@ public class JobServiceDatabaseUtil
         final String propertyValue = System.getProperty(key);
         return (propertyValue != null) ? propertyValue : System.getenv(key);
     }
-    
+
+    private static String getPropertyOrSecret(final String key)
+    {
+        final String propertyValue = System.getProperty(key);
+        if (propertyValue != null) {
+            return propertyValue;
+        } else {
+            try {
+                return SecretUtil.getSecret(key);
+            } catch(final IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+    }
+
     public static void assertDeleteLogNotEmpty() throws SQLException
     {
         try(final Connection dbConnection = getDbConnection();

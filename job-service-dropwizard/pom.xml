@@ -116,6 +116,10 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>com.github.cafapi.util</groupId>
+            <artifactId>util-secret</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service-contract</artifactId>
             <scope>runtime</scope>

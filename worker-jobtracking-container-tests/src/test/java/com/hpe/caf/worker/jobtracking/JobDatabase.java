@@ -15,6 +15,8 @@
  */
 package com.hpe.caf.worker.jobtracking;
 
+import java.io.UncheckedIOException;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Array;
 import java.sql.CallableStatement;
@@ -162,7 +164,12 @@ public class JobDatabase {
         final String dbPortString = JobDatabaseProperties.getDatabasePort();
         final String dbName = JobDatabaseProperties.getDatabaseName();
         final String dbUser = JobDatabaseProperties.getDatabaseUsername();
-        final String dbPass = JobDatabaseProperties.getDatabasePassword();
+        final String dbPass;
+        try {
+            dbPass = JobDatabaseProperties.getDatabasePassword();
+        } catch(final IOException e) {
+            throw new UncheckedIOException(e);
+        }
         final String appName = JobDatabaseProperties.getApplicationName() != null ? JobDatabaseProperties.getApplicationName() : "Job Tracking Worker";
         try {
             Connection conn;

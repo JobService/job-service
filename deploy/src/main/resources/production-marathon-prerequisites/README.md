@@ -16,6 +16,8 @@ The `marathon.env` file supports configurable property settings necessary for se
 
 - `JOB_SERVICE_DATABASE_PASSWORD`: The password for the Postgres database.
 
+- `JOB_SERVICE_DATABASE_PASSWORD_FILE`: The file containing the password for the Postgres database.
+
 ### Additional Marathon Configuration
 The `marathon.json.b` deployment template file specifies default values for a number of additional settings which you may choose to modify directly for your custom deployment. These include:
 

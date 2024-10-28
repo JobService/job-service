@@ -214,9 +214,12 @@
                                 <links>
                                     <link>${js.database.host}</link>
                                 </links>
+                                <env>
+                                    <POSTGRES_PASSWORD>${js.database.password}</POSTGRES_PASSWORD>
+                                </env>
                                 <cmd>
                                     ./install_job_service_db.sh -db.host ${js.database.host} -db.port 5432 -db.name
-                                    ${js.database.name} -db.user ${js.database.username} -db.pass ${js.database.password}
+                                    ${js.database.name} -db.user ${js.database.username} -db.secretKeys POSTGRES_PASSWORD
                                 </cmd>
                                 <wait>
                                     <log>DB update finished.</log>

@@ -15,13 +15,27 @@
  */
 package com.hpe.caf.services.job.scheduled.executor;
 
-import java.util.Arrays;
-import java.util.Locale;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.hpe.caf.secret.SecretUtil;
 
 /**
  * Configuration class for the Job Service Scheduled Executor. Includes connection properties to both database and RabbitMQ.
  */
 public class ScheduledExecutorConfig {
+
+    private static final LoadingCache<String, String> SECRETS_CACHE = CacheBuilder.newBuilder()
+            .build(new CacheLoader<>() {
+                @Override
+                public String load(final String key) throws IOException {
+                    final String propertyValue = System.getProperty(key);
+                    return (propertyValue != null) ? propertyValue : SecretUtil.getSecret(key);
+                }
+            });
 
     public static String getDatabaseHost(){
         return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST");
@@ -40,9 +54,13 @@ public class ScheduledExecutorConfig {
     }
 
     public static String getDatabasePassword(){
-        return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_PASSWORD");
+        try {
+            return SECRETS_CACHE.get("JOB_SERVICE_DATABASE_PASSWORD");
+        } catch (final ExecutionException e) {
+            throw new RuntimeException("Failed to get secret for 'JOB_SERVICE_DATABASE_PASSWORD'", e);
+        }
     }
-    
+
     public static String getApplicationName(){
         return getPropertyOrEnvVar("JOB_SERVICE_DATABASE_APPNAME");
     }
@@ -70,7 +88,11 @@ public class ScheduledExecutorConfig {
     }
 
     public static String getRabbitMQPassword(){
-        return getPropertyOrEnvVar("CAF_RABBITMQ_PASSWORD");
+        try {
+            return SECRETS_CACHE.get("CAF_RABBITMQ_PASSWORD");
+        } catch (final ExecutionException e) {
+            throw new RuntimeException("Failed to get secret for 'CAF_RABBITMQ_PASSWORD'", e);
+        }
     }
 
     public static String getTrackingPipe() {
@@ -127,5 +149,4 @@ public class ScheduledExecutorConfig {
         final String propertyValue = System.getProperty(key);
         return (propertyValue != null) ? propertyValue : System.getenv(key);
     }
-
 }
