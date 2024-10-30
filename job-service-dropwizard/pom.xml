@@ -43,6 +43,10 @@
             <artifactId>caf-ssl-dropwizard</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.cafapi.util.dropwizard</groupId>
+            <artifactId>caf-substitutor-dropwizard</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.jobservice</groupId>
             <artifactId>job-service</artifactId>
         </dependency>
