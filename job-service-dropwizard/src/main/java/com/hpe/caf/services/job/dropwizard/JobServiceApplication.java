@@ -18,12 +18,12 @@ package com.hpe.caf.services.job.dropwizard;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.github.cafapi.correlation.dropwizard.CorrelationIdBundle;
 import com.github.cafapi.ssl.dropwizard.DropWizardSslBundleProvider;
+import com.github.cafapi.util.dropwizard.CafConfigSubstitutor;
 import com.hpe.caf.services.job.api.JobServiceModule;
 import com.hpe.caf.services.job.dropwizard.health.DatabaseHealthCheck;
 import com.hpe.caf.services.job.dropwizard.health.PingHealthCheck;
 import com.hpe.caf.services.job.dropwizard.health.PortsHealthCheck;
 import com.hpe.caf.services.job.dropwizard.health.QueueHealthCheck;
-import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.core.Application;
@@ -62,7 +62,7 @@ public final class JobServiceApplication extends Application<JobServiceConfigura
         if (useInternalConfig) {
             bootstrap.setConfigurationSourceProvider(new SubstitutingSourceProvider(
                     new ResourceConfigurationSourceProvider(),
-                    new EnvironmentVariableSubstitutor(false, true)));
+                    new CafConfigSubstitutor(false, true)));
         }
 
         // Add functionality bundles
