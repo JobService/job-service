@@ -138,16 +138,6 @@
             <artifactId>swagger-ui-dist</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <!--
-                This is for compatibility with Hibernate Validator 8.
-                dropwizard-validation and jersey-bean-validation are referencing org.glassfish:jakarta.el so that has been excluded.
-                This can probably be removed when DropWizard is updated to use Hibernate Validator 8.
-            -->
-            <groupId>org.glassfish.expressly</groupId>
-            <artifactId>expressly</artifactId>
-            <scope>runtime</scope>
-        </dependency>
     </dependencies>
 
     <build>
