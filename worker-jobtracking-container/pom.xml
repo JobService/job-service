@@ -42,12 +42,12 @@
             <groupId>com.github.jobservice</groupId>
             <artifactId>worker-jobtracking</artifactId>
         </dependency>
-        <!--
-            Work around an issue whereby the jakarta.el-api jar is not being included in the Docker image.
-            This may be fixed by https://github.com/dropwizard/dropwizard/pull/9570 but we won't know for sure until it is merged and a
-            version of DropWizard that includes it is released.
-        -->
         <dependency>
+            <!--
+                Work around an issue whereby the jakarta.el-api jar is not being included in the Docker image.
+                This may be fixed by https://github.com/dropwizard/dropwizard/pull/9570 but we won't know for sure until it is merged and
+                a version of DropWizard that includes it is released.
+            -->
             <groupId>jakarta.el</groupId>
             <artifactId>jakarta.el-api</artifactId>
         </dependency>
