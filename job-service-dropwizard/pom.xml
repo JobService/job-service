@@ -140,12 +140,12 @@
         </dependency>
         <dependency>
             <!--
-                This is for compatibility with Hibernate Validator 8.
-                dropwizard-validation and jersey-bean-validation are referencing org.glassfish:jakarta.el so that has been excluded.
-                This can probably be removed when DropWizard is updated to use Hibernate Validator 8.
+                Work around an issue whereby the jakarta.el-api jar is not being included in the Docker image.
+                This may be fixed by https://github.com/dropwizard/dropwizard/pull/9570 but we won't know for sure until it is merged and
+                a version of DropWizard that includes it is released.
             -->
-            <groupId>org.glassfish.expressly</groupId>
-            <artifactId>expressly</artifactId>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
             <scope>runtime</scope>
         </dependency>
     </dependencies>
