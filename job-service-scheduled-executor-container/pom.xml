@@ -46,7 +46,7 @@
             <artifactId>job-service-scheduled-executor</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.cafdataprocessing</groupId>
+            <groupId>com.github.cafdataprocessing.workers.document</groupId>
             <artifactId>worker-document</artifactId>
         </dependency>
         <dependency>

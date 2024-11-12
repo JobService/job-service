@@ -32,7 +32,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.cafapi.util</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>util-secret</artifactId>
         </dependency>
         <dependency>

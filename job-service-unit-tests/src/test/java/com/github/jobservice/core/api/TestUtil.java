@@ -1,0 +1,43 @@
+/*
+ * Copyright 2016-2024 Open Text.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.jobservice.core.api;
+
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.Map;
+
+public final class TestUtil {
+
+    public static void setSystemEnvironmentFields(Map<String, String> newenv) throws Exception {
+        Class[] classes = Collections.class.getDeclaredClasses();
+
+        //  Get map view of the current system environment.
+        Map<String, String> env = System.getenv();
+        for(Class cl : classes) {
+            if("java.util.Collections$UnmodifiableMap".equals(cl.getName())) {
+                Field field = cl.getDeclaredField("m");
+                field.setAccessible(true);
+                Object obj = field.get(env);
+                Map<String, String> map = (Map<String, String>) obj;
+                map.clear();
+                map.putAll(newenv);
+            }
+        }
+        System.out.println(env);
+        System.out.println(System.getenv("JOB_SERVICE_DATABASE_PASSWORD"));
+    }
+
+}

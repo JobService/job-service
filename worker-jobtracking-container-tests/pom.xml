@@ -27,6 +27,7 @@
         <version>8.1.0-SNAPSHOT</version>
     </parent>
 
+    <groupId>com.github.jobservice.workers.jobtracking</groupId>
     <artifactId>worker-jobtracking-container-tests</artifactId>
     <packaging>pom</packaging>
 
@@ -44,43 +45,43 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.jobservice</groupId>
+            <groupId>com.github.jobservice.workers.jobtracking</groupId>
             <artifactId>worker-jobtracking-container</artifactId>
             <type>pom</type>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>caf-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.codec</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>codec-json</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.config</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>config-file</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.config</groupId>
-            <artifactId>config-system</artifactId>
+            <groupId>com.github.cafapi.common</groupId>
+            <artifactId>bootstrapconfig-system</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.decoder</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>decoder-js</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.util</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>util-naming</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.util</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>util-ref</artifactId>
             <scope>test</scope>
         </dependency>
@@ -95,7 +96,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.jobservice</groupId>
+            <groupId>com.github.jobservice.workers.jobtracking</groupId>
             <artifactId>worker-jobtracking</artifactId>
             <scope>test</scope>
         </dependency>

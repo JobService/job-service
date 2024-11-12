@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<Configuration package="com.hpe.caf.services.job.scheduled.executor" status="WARN">
+<Configuration package="com.github.jobservice.scheduledexecutor" status="WARN">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>

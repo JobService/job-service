@@ -159,39 +159,39 @@
                 <version>3.1.8</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi</groupId>
+                <groupId>com.github.cafapi.common</groupId>
                 <artifactId>caf-api</artifactId>
-                <version>3.2.0-684</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.cipher</groupId>
+                <groupId>com.github.cafapi.common</groupId>
                 <artifactId>cipher-null</artifactId>
-                <version>3.2.0-684</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.codec</groupId>
+                <groupId>com.github.cafapi.common</groupId>
                 <artifactId>codec-json</artifactId>
-                <version>3.2.0-684</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.config</groupId>
+                <groupId>com.github.cafapi.common</groupId>
                 <artifactId>config-caf</artifactId>
-                <version>3.2.0-684</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.config</groupId>
+                <groupId>com.github.cafapi.common</groupId>
                 <artifactId>config-decoder</artifactId>
-                <version>3.2.0-684</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.config</groupId>
+                <groupId>com.github.cafapi.common</groupId>
                 <artifactId>config-file</artifactId>
-                <version>3.2.0-684</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.config</groupId>
-                <artifactId>config-system</artifactId>
-                <version>3.2.0-684</version>
+                <groupId>com.github.cafapi.common</groupId>
+                <artifactId>bootstrapconfig-system</artifactId>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.correlation</groupId>
@@ -209,9 +209,9 @@
                 <version>2.0.0-248</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.decoder</groupId>
+                <groupId>com.github.cafapi.common</groupId>
                 <artifactId>decoder-js</artifactId>
-                <version>3.2.0-684</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.logging</groupId>
@@ -234,29 +234,29 @@
                 <version>1.1.0-56</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.util</groupId>
+                <groupId>com.github.cafapi.common</groupId>
                 <artifactId>util-moduleloader</artifactId>
-                <version>3.2.0-684</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.util</groupId>
+                <groupId>com.github.cafapi.common</groupId>
                 <artifactId>util-naming</artifactId>
-                <version>3.2.0-684</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.util</groupId>
+                <groupId>com.github.cafapi.common</groupId>
                 <artifactId>util-process-identifier</artifactId>
-                <version>3.2.0-684</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.util</groupId>
+                <groupId>com.github.cafapi.common</groupId>
                 <artifactId>util-ref</artifactId>
-                <version>3.2.0-684</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafapi.util</groupId>
+                <groupId>com.github.cafapi.common</groupId>
                 <artifactId>util-secret</artifactId>
-                <version>3.2.0-684</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util.dropwizard</groupId>
@@ -274,28 +274,28 @@
                 <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafdataprocessing</groupId>
+                <groupId>com.github.cafdataprocessing.workers.document</groupId>
                 <artifactId>worker-document</artifactId>
-                <version>6.1.1-1480</version>
+                <version>7.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafdataprocessing</groupId>
+                <groupId>com.github.cafdataprocessing.workers.document</groupId>
                 <artifactId>worker-document-interface</artifactId>
-                <version>6.1.1-1480</version>
+                <version>7.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafdataprocessing</groupId>
+                <groupId>com.github.cafdataprocessing.workers.document</groupId>
                 <artifactId>worker-document-shared</artifactId>
-                <version>6.1.1-1480</version>
+                <version>7.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.cafdataprocessing</groupId>
+                <groupId>com.github.cafdataprocessing.workers.document</groupId>
                 <artifactId>worker-document-utility</artifactId>
-                <version>6.1.1-1480</version>
+                <version>7.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
-                <artifactId>job-service</artifactId>
+                <artifactId>job-service-core</artifactId>
                 <version>8.1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -356,17 +356,17 @@
                 <version>8.1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.jobservice</groupId>
+                <groupId>com.github.jobservice.workers.batch</groupId>
                 <artifactId>worker-batch-shared</artifactId>
-                <version>3.6.1-176</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.jobservice</groupId>
+                <groupId>com.github.jobservice.workers.jobtracking</groupId>
                 <artifactId>worker-jobtracking</artifactId>
                 <version>8.1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.github.jobservice</groupId>
+                <groupId>com.github.jobservice.workers.jobtracking</groupId>
                 <artifactId>worker-jobtracking-container</artifactId>
                 <type>pom</type>
                 <version>8.1.0-SNAPSHOT</version>
@@ -378,7 +378,7 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.github.jobservice</groupId>
+                <groupId>com.github.jobservice.workers.jobtracking</groupId>
                 <artifactId>worker-jobtracking-shared</artifactId>
                 <version>8.1.0-SNAPSHOT</version>
             </dependency>
@@ -386,67 +386,67 @@
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>standard-worker-container</artifactId>
                 <type>pom</type>
-                <version>8.2.0-1283</version>
+                <version>9.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>util-rabbitmq</artifactId>
-                <version>8.2.0-1283</version>
+                <version>9.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-api</artifactId>
-                <version>8.2.0-1283</version>
+                <version>9.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-caf</artifactId>
-                <version>8.2.0-1283</version>
+                <version>9.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-configs</artifactId>
-                <version>8.2.0-1283</version>
+                <version>9.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-core</artifactId>
-                <version>8.2.0-1283</version>
+                <version>9.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-default-configs</artifactId>
-                <version>8.2.0-1283</version>
+                <version>9.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-queue-rabbit</artifactId>
-                <version>8.2.0-1283</version>
+                <version>9.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-store-fs</artifactId>
-                <version>8.2.0-1283</version>
+                <version>9.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-store-http</artifactId>
-                <version>8.2.0-1283</version>
+                <version>9.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-tracking-report</artifactId>
-                <version>8.2.0-1283</version>
+                <version>9.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework.testing</groupId>
                 <artifactId>workerframework-testing-integration</artifactId>
-                <version>3.0.0-205</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework.testing</groupId>
                 <artifactId>workerframework-testing-util</artifactId>
-                <version>3.0.0-205</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
@@ -500,14 +500,9 @@
                 <version>1.1.1</version>
             </dependency>
             <dependency>
-                <groupId>com.hpe.caf.worker.batch</groupId>
+                <groupId>com.github.jobservice.workers.batch</groupId>
                 <artifactId>worker-batch-extensibility</artifactId>
-                <version>1.13.0-51</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hpe.caf.worker.batch</groupId>
-                <artifactId>worker-batch-test-plugin</artifactId>
-                <version>1.13.0-50</version>
+                <version>4.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.microfocus.webjars</groupId>
@@ -1190,7 +1185,7 @@
         <module>job-service-config</module>
         <module>job-service-db-client</module>
         <module>job-service-dropwizard</module>
-        <module>job-service</module>
+        <module>job-service-core</module>
         <module>job-service-unit-tests</module>
         <module>job-service-internal-client</module>
         <module>job-service-scheduled-executor</module>

@@ -3,6 +3,9 @@
 #### Version Number
 ${version-number}
 
+#### Breaking changes
+- US975260: Refactor to remove HPE references in package names
+
 #### New Features
 - US969005: Add support for getting secrets from configurable sources.
   - Secrets can be retrieved from the following sources:
