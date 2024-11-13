@@ -28,7 +28,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>8.1.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -43,7 +43,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.cafapi.config</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>config-file</artifactId>
         </dependency>
         <dependency>
@@ -63,23 +63,19 @@
             <artifactId>worker-queue-rabbit</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.codec</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>codec-json</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.util</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>util-ref</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.util</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>util-secret</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.hpe.caf.worker.batch</groupId>
-            <artifactId>worker-batch-test-plugin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.jobservice</groupId>
+            <groupId>com.github.jobservice.workers.batch</groupId>
             <artifactId>worker-batch-shared</artifactId>
         </dependency>
         <dependency>
@@ -136,7 +132,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafdataprocessing</groupId>
+            <groupId>com.github.cafdataprocessing.workers.document</groupId>
             <artifactId>worker-document-shared</artifactId>
             <scope>test</scope>
         </dependency>
@@ -194,7 +190,7 @@
                         <CAF_WEBSERVICE_URL>http://${docker.host.address}:${jobservice.adminport}/job-service/v1</CAF_WEBSERVICE_URL>
                         <CAF_STATUS_CHECK_INTERVAL_SECONDS>5</CAF_STATUS_CHECK_INTERVAL_SECONDS>
                         <CAF_DOCKER_HOST>http://${docker.host.address}:2375</CAF_DOCKER_HOST>
-                        <CAF_DOCKER_VERSION>1.22</CAF_DOCKER_VERSION>
+                        <CAF_DOCKER_VERSION>1.24</CAF_DOCKER_VERSION>
                         <CAF_JOB_SERVICE_CALLER_IMAGE>${dockerJobServiceOrg}job-service-caller${dockerProjectVersion}</CAF_JOB_SERVICE_CALLER_IMAGE>
                         <CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>http://job-service:8080</CAF_JOB_SERVICE_CALLER_WEBSERVICE_LINK_URL>
                         <CAF_WORKER_HTTP_DATASTORE_URL>http://${docker.host.address}:${webdav.apache.port}/webdav</CAF_WORKER_HTTP_DATASTORE_URL>
@@ -374,36 +370,6 @@
                             </build>
                         </image>
 
-                        <!-- Image for Batch Worker plugins -->
-                        <image>
-                            <alias>plugin</alias>
-                            <name>${project.artifactId}-worker-batch-test-plugins:${project.version}</name>
-                            <build>
-                                <from>${projectDockerRegistry}/library/busybox</from>
-                                <assembly>
-                                    <exportTargetDir>true</exportTargetDir>
-                                    <basedir>/mnt/mesos/sandbox/batch-plugins</basedir>
-                                    <inline>
-                                        <dependencySets>
-                                            <dependencySet>
-                                                <includes>
-                                                    <include>com.hpe.caf.worker.batch:worker-batch-test-plugin</include>
-                                                </includes>
-                                                <outputDirectory>.</outputDirectory>
-                                                <useProjectArtifact>false</useProjectArtifact>
-                                            </dependencySet>
-                                        </dependencySets>
-                                        <fileSets>
-                                            <fileSet>
-                                                <directory>${project.build.directory}/worker-batch-plugins-package-unpacked/batch-plugins</directory>
-                                                <outputDirectory>.</outputDirectory>
-                                            </fileSet>
-                                        </fileSets>
-                                    </inline>
-                                </assembly>
-                            </build>
-                        </image>
-
                         <!-- Run a PostgreSQL DB -->
                         <image>
                             <alias>${job.database.host}</alias>
@@ -572,7 +538,6 @@
                                 <volumes>
                                     <from>
                                         <image>config</image>
-                                        <image>plugin</image>
                                         <image>webdav</image>
                                     </from>
                                 </volumes>

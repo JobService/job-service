@@ -37,9 +37,9 @@ The Batch Worker Plugin creates worker-specific task messages. The implementatio
 The Batch Worker Plugin and Batch Worker Services interfaces ([worker-batch-extensibility](https://github.com/JobService/worker-batch/tree/develop/worker-batch-extensibility)) should be included in the dependencies section of the project POM:
 
     <dependency>
-        <groupId>com.hpe.caf.worker.batch</groupId>
+        <groupId>com.github.jobservice.workers.batch</groupId>
         <artifactId>worker-batch-extensibility</artifactId>
-        <version>1.1.0</version>
+        <version>4.0.0-SNAPSHOT</version>
         <scope>provided</scope>
     </dependency>
 
@@ -47,7 +47,7 @@ The Batch Worker Plugin and Batch Worker Services interfaces ([worker-batch-exte
 
 The Batch Worker Plugin class is responsible for interpreting and recursively splitting the batch definition into individual worker items that can be sent to a queue that a target worker is listening on. The primary requirement of the Batch Worker Plugin class is that it should implement the `BatchWorkerPlugin` interface defined in ([worker-batch-extensibility](https://github.com/JobService/worker-batch/tree/develop/worker-batch-extensibility)):
 
-    package com.hpe.caf.worker.batch.plugins;
+    package com.hgithub.jobservice.workers.batch.plugins;
     
     import ...;
     

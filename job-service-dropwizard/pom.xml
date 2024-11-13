@@ -24,7 +24,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>8.1.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>job-service-dropwizard</artifactId>
@@ -48,7 +48,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>
-            <artifactId>job-service</artifactId>
+            <artifactId>job-service-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.jobservice</groupId>
@@ -120,7 +120,7 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.util</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>util-secret</artifactId>
         </dependency>
         <dependency>
@@ -169,7 +169,7 @@
                                 <argument>${debug.argument}</argument>
                                 <argument>-classpath</argument>
                                 <classpath />
-                                <argument>com.hpe.caf.services.job.dropwizard.JobServiceApplication</argument>
+                                <argument>com.github.jobservice.dropwizard.JobServiceApplication</argument>
                             </arguments>
                         </configuration>
                     </execution>

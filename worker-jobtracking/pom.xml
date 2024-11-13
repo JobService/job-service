@@ -20,13 +20,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.jobservice</groupId>
+    <groupId>com.github.jobservice.workers.jobtracking</groupId>
     <artifactId>worker-jobtracking</artifactId>
 
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>8.1.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -40,7 +40,7 @@
             <artifactId>worker-tracking-report</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.jobservice</groupId>
+            <groupId>com.github.jobservice.workers.jobtracking</groupId>
             <artifactId>worker-jobtracking-shared</artifactId>
         </dependency>
         <dependency>
@@ -81,11 +81,11 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>caf-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.util</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>util-secret</artifactId>
         </dependency>
         <dependency>
@@ -108,7 +108,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cafapi.codec</groupId>
+            <groupId>com.github.cafapi.common</groupId>
             <artifactId>codec-json</artifactId>
             <scope>test</scope>
         </dependency>

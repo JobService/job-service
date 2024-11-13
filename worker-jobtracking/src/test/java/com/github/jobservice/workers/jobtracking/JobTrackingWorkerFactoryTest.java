@@ -1,0 +1,260 @@
+/*
+ * Copyright 2016-2024 Open Text.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.jobservice.workers.jobtracking;
+
+import java.util.ArrayList;
+
+import com.github.cafapi.common.api.Codec;
+import com.github.cafapi.common.api.ConfigurationException;
+import com.github.cafapi.common.api.ConfigurationSource;
+import com.github.cafapi.common.codecs.jsonlzf.JsonCodec;
+import com.github.workerframework.api.DataStore;
+import com.github.workerframework.api.TaskInformation;
+import com.github.workerframework.api.TaskMessage;
+import com.github.workerframework.api.TaskStatus;
+import com.github.workerframework.api.TrackingInfo;
+import com.github.workerframework.api.WorkerCallback;
+import com.github.workerframework.api.WorkerException;
+import com.github.workerframework.api.WorkerResponse;
+import com.github.workerframework.api.WorkerTaskData;
+import com.github.workerframework.tracking.report.TrackingReport;
+import com.github.workerframework.tracking.report.TrackingReportConstants;
+import com.github.workerframework.tracking.report.TrackingReportStatus;
+import com.github.workerframework.tracking.report.TrackingReportTask;
+import com.github.workerframework.util.rabbitmq.RabbitHeaders;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.verify;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
+/**
+ * JUnit test to verify the worker correctly performs the desired action.
+ */
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+public class JobTrackingWorkerFactoryTest {
+
+    private static final String taskId = "task-id";
+    private static final String anotherWorkerClassifier = "AnotherWorker";
+    private static final String toQueue = "to-queue";
+    private static final String trackingPipe = "tracking-pipe";
+    private static final String trackToPipe = "track-to-pipe";
+    private static final String queueMsgId = "queue-msg-id";
+    private static final String outputQueue = "output-queue";
+    private static final String jobTaskId = "J123.1.2";
+    private static final String statusCheckUrl = "http://status-check-host:1234/blah";
+
+
+    @Test
+    public void testProxiedCompleteTask() throws Exception {
+        //Setup
+        Codec codec = new JsonCodec();
+        JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
+
+        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_SUCCESS, Collections.emptyMap(), toQueue);
+        TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), 0, statusCheckUrl, trackingPipe, toQueue); //trackToPipe==toQueue
+        tm.setTracking(tracking);
+
+        Map<String, Object> headers = Collections.emptyMap();
+
+        WorkerCallback mockCallback = Mockito.mock(WorkerCallback.class);
+
+        //Create the worker factory subject to testing
+        JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
+
+        TaskInformation taskInformation = Mockito.mock(TaskInformation.class);
+
+        //Test
+        workerFactory.determineForwardingAction(tm, taskInformation, headers, mockCallback);
+
+        //verify results
+        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
+        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskComplete(Mockito.eq(jobTaskId));
+    }
+
+    @Test
+    public void testTrackingReportTask() throws Exception
+    {
+        //Setup
+        final Codec codec = new JsonCodec();
+        final JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
+        final WorkerTaskData wtd = Mockito.mock(WorkerTaskData.class);
+        final TrackingReportTask trackingReport = new TrackingReportTask();
+        trackingReport.trackingReports = new ArrayList<>();
+        int completedPercentage = 0;
+        for(int i =0 ; i < 4; i++){
+            final TrackingReport tr = new TrackingReport();
+            completedPercentage = completedPercentage + 25;
+            tr.retries = null;
+            tr.estimatedPercentageCompleted = completedPercentage + 25;
+            tr.status = tr.estimatedPercentageCompleted == 100
+                ? TrackingReportStatus.Complete
+                : TrackingReportStatus.Progress;
+            tr.jobTaskId = taskId;
+            tr.failure = null;
+            trackingReport.trackingReports.add(tr);
+        }
+        Mockito.when(wtd.getClassifier()).thenReturn(TrackingReportConstants.TRACKING_REPORT_TASK_NAME);
+        Mockito.when(wtd.getData()).thenReturn(codec.serialise(trackingReport));
+        Mockito.when(wtd.getVersion()).thenReturn(TrackingReportConstants.TRACKING_REPORT_TASK_API_VER);
+
+        //Create the worker factory subject to testing
+        final JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
+
+        //Test
+        final WorkerResponse response = workerFactory.getWorker(wtd).doWork();
+
+        assertEquals(TaskStatus.RESULT_SUCCESS, response.getTaskStatus());
+        assertEquals(1, response.getApiVersion());
+        assertEquals("JobTrackingWorker", response.getMessageType());
+        verify(reporter, Mockito.times(3)).reportJobTaskProgress(eq(taskId), anyInt());
+        verify(reporter, Mockito.times(1)).reportJobTaskComplete(eq(taskId));
+    }
+
+    @Test
+    public void testProxiedInProgressTask() throws Exception {
+        //Setup
+        Codec codec = new JsonCodec();
+        JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
+
+        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_SUCCESS, Collections.emptyMap(), toQueue);
+        TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), 0, statusCheckUrl, trackingPipe, trackToPipe);
+        tm.setTracking(tracking);
+
+        Map<String, Object> headers = Collections.emptyMap();
+
+        WorkerCallback mockCallback = Mockito.mock(WorkerCallback.class);
+
+        //Create the worker factory subject to testing
+        JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
+
+        TaskInformation taskInformation = Mockito.mock(TaskInformation.class);
+
+        //Test
+        workerFactory.determineForwardingAction(tm, taskInformation, headers, mockCallback);
+
+        //verify results
+        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
+        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskProgress(Mockito.eq(jobTaskId), Mockito.anyInt());
+    }
+
+
+    @Test
+    public void testProxiedRejectedTask() throws Exception {
+        //Setup
+        Codec codec = new JsonCodec();
+        JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
+
+        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_EXCEPTION, Collections.emptyMap(), toQueue);
+        TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), 0, statusCheckUrl, trackingPipe, trackToPipe);
+        tm.setTracking(tracking);
+
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_REJECTED, "EXCEEDED_RETRIES");
+
+        WorkerCallback mockCallback = Mockito.mock(WorkerCallback.class);
+
+        //Create the worker factory subject to testing
+        JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
+
+        TaskInformation taskInformation = Mockito.mock(TaskInformation.class);
+
+        //Test
+        workerFactory.determineForwardingAction(tm, taskInformation, headers, mockCallback);
+
+        //verify results
+        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
+        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskRejected(Mockito.eq(jobTaskId), Mockito.any());
+    }
+
+
+    @Test
+    public void testProxiedFailedTask() throws Exception {
+        //Setup
+        Codec codec = new JsonCodec();
+        JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
+
+        TaskMessage tm = new TaskMessage(taskId, anotherWorkerClassifier, 1, new byte[0], TaskStatus.RESULT_FAILURE, Collections.emptyMap(), toQueue);
+        TrackingInfo tracking = new TrackingInfo(jobTaskId, new Date(), 0, statusCheckUrl, trackingPipe, trackToPipe);
+        tm.setTracking(tracking);
+
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(RabbitHeaders.RABBIT_HEADER_CAF_WORKER_RETRY, 1);
+
+        WorkerCallback mockCallback = Mockito.mock(WorkerCallback.class);
+
+        //Create the worker factory subject to testing
+        JobTrackingWorkerFactory workerFactory = createJobTrackingWorkerFactory(codec, reporter);
+
+        TaskInformation taskInformation = Mockito.mock(TaskInformation.class);
+
+        //Test
+        workerFactory.determineForwardingAction(tm, taskInformation, headers, mockCallback);
+
+        //verify results
+        Mockito.verify(mockCallback, Mockito.times(1)).forward(Mockito.eq(taskInformation), Mockito.eq(toQueue), Mockito.eq(tm),  Mockito.anyMap());
+        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskProgress(Mockito.eq(jobTaskId),Mockito.anyInt());
+    }
+
+
+    @Test
+    public void testTrackingEventTask() throws Exception {
+        //Setup
+        Codec codec = new JsonCodec();
+        JobTrackingReporter reporter = Mockito.mock(JobTrackingReporter.class);
+
+        //Create the worker subject to testing
+        JobTrackingWorker worker = new JobTrackingWorker(createTrackedTask(jobTaskId), outputQueue, codec, reporter,
+                                                         Mockito.mock(WorkerTaskData.class));
+
+        //Test
+        WorkerResponse response = worker.doWork();
+
+        //verify results
+        Mockito.verify(reporter, Mockito.times(1)).reportJobTaskProgress(Mockito.eq(jobTaskId), Mockito.anyInt());
+        assertEquals(TaskStatus.RESULT_SUCCESS, response.getTaskStatus());
+        assertArrayEquals(response.getData(), new byte[]{});
+    }
+
+
+    private JobTrackingWorkerFactory createJobTrackingWorkerFactory(Codec codec, JobTrackingReporter reporter) throws WorkerException, ConfigurationException {
+        final JobTrackingWorkerConfiguration jobServiceWorkerConfigs = Mockito.mock(JobTrackingWorkerConfiguration.class);
+        Mockito.when(jobServiceWorkerConfigs.getOutputQueue()).thenReturn("newOutputQueue");
+        final ConfigurationSource configSource = Mockito.mock(ConfigurationSource.class);
+        Mockito.when(configSource.getConfiguration(Mockito.any())).thenReturn(jobServiceWorkerConfigs);
+        final DataStore store = Mockito.mock(DataStore.class);
+        return new JobTrackingWorkerFactory(configSource, store, codec, reporter);
+    }
+
+
+    private JobTrackingWorkerTask createTrackedTask(final String jobTaskId) {
+        JobTrackingWorkerTask task = new JobTrackingWorkerTask();
+        task.setJobTaskId(jobTaskId);
+        return task;
+    }
+}

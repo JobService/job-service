@@ -53,4 +53,4 @@ cd /maven
 exec java \
     ${JOB_SERVICE_JAVA_OPTS} \
     -classpath *:classpath \
-    com.hpe.caf.services.job.dropwizard.JobServiceApplication
+    com.github.jobservice.dropwizard.JobServiceApplication

@@ -49,7 +49,7 @@ It acts as the entry-point for background operations to be initiated, tracked, a
 
 Users interact with the Swagger user interface page to make GET, POST, PUT and DELETE HTTP requests to the Job Service, which in turn interacts with the Job Service database and returns responses to the user.
 
-The specification for the Job Service web API is defined in the [swagger.yaml](https://github.com/JobService/job-service/tree/develop/job-service-contract/src/main/resources/com/hpe/caf/services/job/swagger.yaml) file in the [job-service-contract](https://github.com/JobService/job-service/tree/develop/job-service-contract) project.
+The specification for the Job Service web API is defined in the [swagger.yaml](https://github.com/JobService/job-service/tree/develop/job-service-contract/src/main/resources/com/github/jobservice/contract/swagger.yaml) file in the [job-service-contract](https://github.com/JobService/job-service/tree/develop/job-service-contract) project.
 
 The Job Service itself is stateless, which means it can be auto-scaled in future.
 

@@ -27,7 +27,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>8.1.0-SNAPSHOT</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -46,7 +46,7 @@
             <artifactId>job-service-scheduled-executor</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.cafdataprocessing</groupId>
+            <groupId>com.github.cafdataprocessing.workers.document</groupId>
             <artifactId>worker-document</artifactId>
         </dependency>
         <dependency>
