@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import com.github.cafapi.common.api.Codec;
 import com.github.cafapi.common.api.ConfigurationException;
 import com.github.cafapi.common.api.ConfigurationSource;
-import com.github.cafapi.common.codecs.jsonlzf.JsonCodec;
+import com.github.cafapi.common.codecs.json.JsonCodec;
 import com.github.workerframework.api.DataStore;
 import com.github.workerframework.api.TaskInformation;
 import com.github.workerframework.api.TaskMessage;
