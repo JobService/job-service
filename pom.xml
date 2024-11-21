@@ -1288,18 +1288,18 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-jre21</repository>
-                            <tag>4.2.0</tag>
-                            <digest>sha256:1aa674b535973fe04c5a7f35d7da0d15f240de24fbed32f76b8496bec1b2ef9a</digest>
+                            <tag>4.2.2</tag>
+                            <digest>sha256:5ca5ca6c3d3360ff7d12e2d45320ba83d8dae3587e85ee367ee93834c14ddd05</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>1.1.0</tag>
-                            <digest>sha256:ed8093edcab86b8d35e3b6db21f7f136d36068cddd67a9ce728661b6266f3eb4</digest>
+                            <tag>1.1.2</tag>
+                            <digest>sha256:1665922e758fe9a1d27aec29ac633663cb76ccb4ba504face735acd926766ed6</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
-                            <tag>4.1.0</tag>
-                            <digest>sha256:af1e68c2dae187a197847adda1d05ebcd9fabcdfdca197357fd1b67ddf3fb03a</digest>
+                            <tag>4.2.2</tag>
+                            <digest>sha256:4797db7ee639b3229278e0ee63ab7b1a915b06f7187c38ff1ab16006d7dad356</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafdataprocessing/worker-example</repository>
