@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -38,14 +39,22 @@ import com.google.common.cache.LoadingCache;
 @Configuration
 @PropertySource(value = "classpath:${JOB_SERVICE_API_CONFIG_PATH:config.properties}", ignoreResourceNotFound = true)
 public class AppConfig {
+    private static final String JOB_SERVICE_SECRETS_CACHE_COUNT_CONFIG = "JOB_SERVICE_SECRETS_CACHE_COUNT";
+    private static final int JOB_SERVICE_SECRETS_CACHE_COUNT_DEFAULT = 20;
 
     private static final LoadingCache<String, String> SECRETS_CACHE = CacheBuilder.newBuilder()
+            .maximumSize(getEnvOrDefault(JOB_SERVICE_SECRETS_CACHE_COUNT_CONFIG, JOB_SERVICE_SECRETS_CACHE_COUNT_DEFAULT))
             .build(new CacheLoader<>() {
                 @Override
                 public String load(final String key) throws IOException {
                     return SecretUtil.getSecret(key);
                 }
             });
+
+    private static int getEnvOrDefault(final String name, final int defaultValue) {
+        final String value = System.getenv(name);
+        return !Strings.isNullOrEmpty(value) ? Integer.parseInt(value) : defaultValue;
+    }
 
     @Autowired
     private Environment environment;
