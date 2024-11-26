@@ -38,8 +38,10 @@ import com.google.common.cache.LoadingCache;
 @Configuration
 @PropertySource(value = "classpath:${JOB_SERVICE_API_CONFIG_PATH:config.properties}", ignoreResourceNotFound = true)
 public class AppConfig {
+    private static final int JOB_SERVICE_SECRETS_COUNT_DEFAULT = 20;
 
     private static final LoadingCache<String, String> SECRETS_CACHE = CacheBuilder.newBuilder()
+            .maximumSize(JOB_SERVICE_SECRETS_COUNT_DEFAULT)
             .build(new CacheLoader<>() {
                 @Override
                 public String load(final String key) throws IOException {
