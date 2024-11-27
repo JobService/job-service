@@ -28,7 +28,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
-import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -39,22 +38,21 @@ import com.google.common.cache.LoadingCache;
 @Configuration
 @PropertySource(value = "classpath:${JOB_SERVICE_API_CONFIG_PATH:config.properties}", ignoreResourceNotFound = true)
 public class AppConfig {
-    private static final String JOB_SERVICE_SECRETS_CACHE_COUNT_CONFIG = "JOB_SERVICE_SECRETS_CACHE_COUNT";
-    private static final int JOB_SERVICE_SECRETS_CACHE_COUNT_DEFAULT = 20;
 
-    private static final LoadingCache<String, String> SECRETS_CACHE = CacheBuilder.newBuilder()
-            .maximumSize(getEnvOrDefault(JOB_SERVICE_SECRETS_CACHE_COUNT_CONFIG, JOB_SERVICE_SECRETS_CACHE_COUNT_DEFAULT))
+    private enum SecretKey
+    {
+        CAF_RABBITMQ_PASSWORD,
+        JOB_SERVICE_DATABASE_PASSWORD,
+    }
+
+    private static final LoadingCache<SecretKey, String> SECRETS_CACHE = CacheBuilder.newBuilder()
+            .maximumSize(SecretKey.values().length)
             .build(new CacheLoader<>() {
                 @Override
-                public String load(final String key) throws IOException {
-                    return SecretUtil.getSecret(key);
+                public String load(final SecretKey key) throws IOException {
+                    return SecretUtil.getSecret(key.name());
                 }
             });
-
-    private static int getEnvOrDefault(final String name, final int defaultValue) {
-        final String value = System.getenv(name);
-        return !Strings.isNullOrEmpty(value) ? Integer.parseInt(value) : defaultValue;
-    }
 
     @Autowired
     private Environment environment;
@@ -77,7 +75,7 @@ public class AppConfig {
 
     public String getDatabasePassword() throws AppConfigException {
         try {
-            return SECRETS_CACHE.get("JOB_SERVICE_DATABASE_PASSWORD");
+            return SECRETS_CACHE.get(SecretKey.JOB_SERVICE_DATABASE_PASSWORD);
         } catch (final ExecutionException e) {
             throw new AppConfigException("Failed to get secret for 'JOB_SERVICE_DATABASE_PASSWORD'", e);
         }
@@ -106,7 +104,7 @@ public class AppConfig {
 
     public String getRabbitMQPassword() throws AppConfigException {
         try {
-            return SECRETS_CACHE.get("CAF_RABBITMQ_PASSWORD");
+            return SECRETS_CACHE.get(SecretKey.CAF_RABBITMQ_PASSWORD);
         } catch (final ExecutionException e) {
             throw new AppConfigException("Failed to get secret for 'CAF_RABBITMQ_PASSWORD'", e);
         }
