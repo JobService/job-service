@@ -189,7 +189,7 @@ BEGIN
                                     status = j.status,
                                     percentage_complete = j.percentage_complete
             FROM job j
-            WHERE nt.job_id = j.job_id;
+            WHERE nt.job_id = j.job_id AND j.partition_id = in_partition_id;
         END LOOP;
 
     END IF;
