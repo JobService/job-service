@@ -48,6 +48,10 @@ public class ScheduledExecutor {
         //  Execute the dropTablesTask periodically.
         scheduler.scheduleWithFixedDelay(new DropTablesTask(), 20, ScheduledExecutorConfig.getDropTablesSchedulerPeriod(),
                 TimeUnit.SECONDS);
+
+        //  Execute the updateJobProgress periodically.
+        scheduler.scheduleWithFixedDelay(new UpdateJobProgress(100), 20,
+                ScheduledExecutorConfig.getJobProgressUpdatePeriod(), TimeUnit.SECONDS);
     }
 
     public void poke()
