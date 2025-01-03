@@ -666,6 +666,44 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testGetJobsWithStatus() throws ApiException {
+        final String jobCorrelationId = "1";
+
+        for (int i = 0; i < 10; i++) {
+            final String jobId = "cancel_" + UUID.randomUUID();
+            final NewJob newJob = makeJob(jobId, "testCancelJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        for (int i = 0; i < 10; i++) {
+            final String jobId = "waiting_" + UUID.randomUUID();
+            final NewJob newJob = makeJob(jobId, "testWaitingJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        final String jobIdStartsWith = "cancel_";
+        final CancelJobs200Response response = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
+
+        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, null, null, "Cancelled", null,
+                null, null, null, null);
+
+        for (final Job job : cancelledJobs) {
+            assertEquals(job.getStatus(), JobStatus.CANCELLED);
+        }
+
+        final List<Job> waitingJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, null, null, "Waiting", null,
+                null, null, null, null);
+
+        for (final Job job : waitingJobs) {
+            assertEquals(job.getStatus(), JobStatus.WAITING);
+        }
+
+        assertEquals((long) response.getJobsCanceled(), 10L);
+    }
+
+    @Test
     public void testCancelJob() throws ApiException {
         //create a job
         String jobId = UUID.randomUUID().toString();
