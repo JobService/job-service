@@ -459,7 +459,7 @@ public class JobServiceIT {
         final DeleteJobs200Response response = jobsApi.deleteJobs(defaultPartitionId, jobCorrelationId, null, null, filter);
 
         final List<Job> deletedJobs = jobsApi.getJobs(
-                defaultPartitionId, jobCorrelationId,null,null,null,null,null, null, filter);
+                defaultPartitionId, jobCorrelationId,null,null, null,null,null,null, null, filter);
 
         assertTrue(deletedJobs.isEmpty());
 
@@ -481,7 +481,7 @@ public class JobServiceIT {
         final String jobIdStartsWith = "1234_";
         final DeleteJobs200Response response = jobsApi.deleteJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
 
-        final List<Job> deletedJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null,
+        final List<Job> deletedJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null, null,
                 null, null, null, null);
 
         assertTrue(deletedJobs.isEmpty());
@@ -546,7 +546,7 @@ public class JobServiceIT {
         }
 
         List<Job> retrievedJobs = jobsApi.getJobs(
-            defaultPartitionId, "100",null,null,null,null,null, null, null);
+            defaultPartitionId, "100",null,null, null,null,null,null, null, null);
         assertEquals(retrievedJobs.size(), 10);
 
         for(int i=0; i<10; i++) {
@@ -577,7 +577,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, waitingJobId, waitingJob, correlationId);
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, correlationId, null, "NotFinished", null, null, null, null, null);
+            defaultPartitionId, correlationId, null, "NotFinished", null, null, null, null, null, null);
         assertEquals(jobs.size(), 1);
         assertEquals(jobs.get(0).getId(), waitingJobId);
     }
@@ -608,7 +608,7 @@ public class JobServiceIT {
         final String job3Id = createJob(jobId + "b");
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, "1", null, null, null, null, "jobId:asc", null, null);
+            defaultPartitionId, "1", null, null, null, null, null, "jobId:asc", null, null);
         final List<String> resultJobIds =
             jobs.stream().map(job -> job.getId()).collect(Collectors.toList());
         assertEquals(resultJobIds, Arrays.asList(jobId + "A", jobId + "b", jobId + "C"),
@@ -623,7 +623,7 @@ public class JobServiceIT {
         final String job3Id = createJob(jobId + "B");
 
         final List<Job> jobs = jobsApi.getJobs(
-            defaultPartitionId, "1", null, null, null, null, "name:asc", null, null);
+            defaultPartitionId, "1", null, null, null, null, null, "name:asc", null, null);
         final List<String> resultJobIds =
             jobs.stream().map(job -> job.getName()).collect(Collectors.toList());
         assertEquals(resultJobIds, Arrays.asList("Job_"+jobId + "A", "Job_"+jobId + "B", "Job_"+jobId + "C"),
@@ -649,7 +649,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, job3, correlationId);
 
         //retrieve job using web method
-        List<Job> jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
+        List<Job> jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
                 null, null, "labels.tag1:asc", null, null);
         assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()),
                                                     new HashSet<>(Arrays.asList(jobId2, jobId1, jobId3)));
@@ -659,7 +659,7 @@ public class JobServiceIT {
         assertEquals(sortJobIds, Arrays.asList(jobId2, jobId1, jobId3),
             "should sort case-insensitively by ascending job labels for the label-key: tag1");
 
-        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,null,
+        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null, null,null,
                 "labels.owner:asc", "owner", null);
         assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()),
                                                 new HashSet<>(Arrays.asList(jobId2)));
@@ -726,7 +726,7 @@ public class JobServiceIT {
         final String filter = String.format("id=in=(%s, %s, %s)", jobIds.get(0), jobIds.get(1), jobIds.get(2));
         final CancelJobs200Response response = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, filter);
 
-        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, null, null, null,
+        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, null, null, null, null,
                 null, null, null, filter);
 
         for (final Job job : cancelledJobs) {
@@ -755,7 +755,7 @@ public class JobServiceIT {
         final String jobIdStartsWith = "1234_";
         final CancelJobs200Response response = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
 
-        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null,
+        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null, null,
                 null, null, null, null);
 
         for (final Job job : cancelledJobs) {
@@ -779,7 +779,7 @@ public class JobServiceIT {
 
         final CancelJobs200Response response = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, null, null, null);
 
-        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, null, null, 1000,
+        final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, jobCorrelationId, null, null, null, 1000,
                 null, null, null, null);
 
         for (final Job job : cancelledJobs) {
@@ -840,7 +840,7 @@ public class JobServiceIT {
         "tag:1", null);
 
         final List<Job> cancelledJobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
-                null, null, "tag:1", null);
+                null, null, null, "tag:1", null);
 
         for (final Job job : cancelledJobs) {
             assertEquals(job.getStatus(), JobStatus.CANCELLED);
@@ -947,7 +947,7 @@ public class JobServiceIT {
 
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         final List<Job> jobs = jobsApi.getJobs(
-            UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null, null, null, null);
+            UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null, null, null, null, null);
         assertEquals(jobs.size(), 0, "job list should be empty");
     }
 
@@ -1218,7 +1218,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, job3, correlationId);
 
         //retrieve job using web method
-        List<Job> jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
+        List<Job> jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
                 null, null, null, "tag:1", null);
         assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(jobId1, jobId2)));
 
@@ -1233,11 +1233,11 @@ public class JobServiceIT {
         assertTrue(dbJob2.getLabels().containsKey("tag:1"));
         assertTrue(dbJob2.getLabels().containsKey("owner"));
 
-        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
+        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null, null,
                 null, null, "tag:1,random", null);
         assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Arrays.asList(jobId1, jobId2, jobId3)));
 
-        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
+        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null, null,
                 null, null, "owner", null);
         assertEquals(jobs.stream().map(Job::getId).collect(Collectors.toSet()), new HashSet<>(Collections.singletonList(jobId2)));
     }
@@ -1261,7 +1261,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId3, job3, correlationId);
 
         //retrieve job using web method
-        List<Job> jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
+        List<Job> jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
                 2, 0, "createTime:asc", null, null);
         assertEquals(jobs.size(), 2);
         //Assert all labels are returned
@@ -1270,11 +1270,11 @@ public class JobServiceIT {
         assertTrue(dbJob1.getLabels().containsKey("tag:1"));
         assertTrue(dbJob1.getLabels().containsKey("tag:2"));
 
-        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
+        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
                 5, 0, "createTime:asc", null, null);
         assertEquals(jobs.size(), 3);
 
-        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null,
+        jobs = jobsApi.getJobs(defaultPartitionId, correlationId, null, null, null,
                 2, 2, "createTime:asc", null, null);
         assertEquals(jobs.size(), 1);
     }
