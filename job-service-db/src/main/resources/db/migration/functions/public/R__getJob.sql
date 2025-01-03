@@ -46,13 +46,6 @@ BEGIN
         RAISE EXCEPTION 'Job identifier has not been specified' USING ERRCODE = '02000'; -- sqlstate no data
     END IF;
 
-    -- Take out an exclusive update lock on the job row
-    PERFORM NULL
-    FROM job j
-    WHERE j.partition_id = in_partition_id
-        AND j.job_id = in_job_id
-    FOR UPDATE;
-
     -- Return job metadata belonging to the specified job_id
     -- 'WORKER' is the only supported action type for now
     RETURN QUERY

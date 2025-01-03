@@ -27,6 +27,7 @@ CREATE OR REPLACE FUNCTION get_jobs(
     in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),
     in_status_type VARCHAR(20),
+    in_status VARCHAR(20),
     in_limit INT,
     in_offset INT,
     in_sort_field VARCHAR(20),
@@ -133,6 +134,11 @@ BEGIN
         END IF;
     END IF;
 
+    IF in_status IS NOT NULL AND in_status != '' THEN
+        sql := sql || whereOrAnd || ' status = ' || quote_literal(in_status);
+        whereOrAnd := andConst;
+    END IF;
+
     IF in_filter IS NOT NULL THEN
         sql := sql || whereOrAnd || in_filter;
     END IF;
@@ -165,48 +171,6 @@ BEGIN
        END ||
         ' ' || CASE WHEN in_sort_ascending THEN 'ASC' ELSE 'DESC' END;
 
-    -- Create temporary table as a base to update the job progress
-    EXECUTE 'CREATE TEMPORARY TABLE get_job_temp ON COMMIT DROP AS ' || sql;
-
-    ALTER TABLE get_job_temp ADD COLUMN id SERIAL PRIMARY KEY;
-
-    -- Create an array of job_id(s) based on the get_job_temp table
-    jobIdArray := ARRAY(SELECT DISTINCT (jt.job_id) FROM get_job_temp jt ORDER BY jt.job_id);
-
-    -- Check that the array is not empty
-    IF array_length(jobIdArray, 1) > 0 THEN
-
-        FOREACH jobId IN ARRAY jobIdArray LOOP
-            -- Take out an exclusive update lock on the job row
-            PERFORM NULL FROM job j
-            WHERE j.partition_id = in_partition_id
-              AND j.job_id = jobId
-                FOR UPDATE;
-
-            UPDATE get_job_temp nt SET
-                                    status = j.status,
-                                    percentage_complete = j.percentage_complete
-            FROM job j
-            WHERE nt.job_id = j.job_id AND j.partition_id = in_partition_id;
-        END LOOP;
-
-    END IF;
-
-    -- Return the new table created
-    RETURN QUERY
-        SELECT at.job_id,
-               at.name,
-               at.description,
-               at.data,
-               at.create_date,
-               at.last_update_date,
-               at.status,
-               at.percentage_complete,
-               at.failure_details,
-               CAST('WORKER' AS CHAR(6)) AS actionType,
-               at.label,
-               at.value
-        FROM get_job_temp at
-        ORDER BY at.id;
+    RETURN QUERY EXECUTE sql;
 END
 $$;
