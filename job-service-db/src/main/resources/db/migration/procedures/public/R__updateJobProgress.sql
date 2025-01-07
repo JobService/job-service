@@ -38,8 +38,8 @@ BEGIN
         -- Take out an exclusive update lock on the job row
         PERFORM NULL
         FROM job j
-        WHERE j.partition_id = rec.partition_id
-          AND j.job_id = rec.job_id
+        WHERE j.partition_id = task.partition_id
+          AND j.job_id = task.job_id
           FOR UPDATE;
 
         -- Perform update on the row
