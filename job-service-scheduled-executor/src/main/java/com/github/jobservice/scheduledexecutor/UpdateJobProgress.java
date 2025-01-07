@@ -41,7 +41,7 @@ public final class UpdateJobProgress implements Runnable {
         {
             if(LOG.isDebugEnabled())
             {
-                LOG.debug("Calling update_job_progress(tasksToUpdate) database procedure ...");
+                LOG.debug("Calling update_job_progress({}) database procedure ...", numOfTasksToUpdate);
                 final Instant start = Instant.now();
                 stmt.execute();
                 final Instant end = Instant.now();
