@@ -38,7 +38,7 @@ RETURNS TABLE(
     label VARCHAR(255),
     label_value VARCHAR(255)
 )
-LANGUAGE plpgsql VOLATILE
+LANGUAGE plpgsql STABLE
 AS $$
 BEGIN
     -- Raise exception if the job identifier has not been specified

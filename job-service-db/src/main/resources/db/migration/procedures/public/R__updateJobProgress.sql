@@ -24,16 +24,29 @@ CREATE OR REPLACE PROCEDURE public.update_job_progress(
 	IN in_num_of_tasks_to_update integer DEFAULT 100)
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    task RECORD;
 BEGIN
 
-    PERFORM internal_update_job_progress(tasks_to_update.partition_id, tasks_to_update.job_id)
-    FROM (
+    FOR task IN
         SELECT partition_id, job_id
         FROM completed_subtask_report
         GROUP BY partition_id, job_id
         ORDER BY random()
         LIMIT in_num_of_tasks_to_update
-    ) tasks_to_update;
+    LOOP
+        -- Take out an exclusive update lock on the job row
+        PERFORM NULL
+        FROM job j
+        WHERE j.partition_id = rec.partition_id
+          AND j.job_id = rec.job_id
+          FOR UPDATE;
 
+        -- Perform update on the row
+        PERFORM internal_update_job_progress(rec.partition_id, rec.job_id);
+
+        -- Complete transaction to update row
+        COMMIT;
+    END LOOP;
 END
 $$;

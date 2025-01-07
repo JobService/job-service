@@ -50,7 +50,7 @@ RETURNS TABLE(
     label VARCHAR(255),
     label_value VARCHAR(255)
 )
-LANGUAGE plpgsql VOLATILE
+LANGUAGE plpgsql STABLE
 AS $$
 DECLARE
     sql VARCHAR;
