@@ -43,7 +43,7 @@ BEGIN
           FOR UPDATE;
 
         -- Perform update on the row
-        PERFORM internal_update_job_progress(rec.partition_id, rec.job_id);
+        PERFORM internal_update_job_progress(task.partition_id, task.job_id);
 
         -- Complete transaction to update row
         COMMIT;

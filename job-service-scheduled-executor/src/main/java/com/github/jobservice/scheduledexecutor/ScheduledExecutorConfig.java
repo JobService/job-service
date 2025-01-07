@@ -157,10 +157,18 @@ public class ScheduledExecutorConfig {
         return (propertyValue != null) ? propertyValue : System.getenv(key);
     }
 
+    public static int getJobProgressTasksToUpdate() {
+        final String  numOfTasks = getPropertyOrEnvVar("CAF_JOB_PROGRESS_NUM_TASKS_TO_UPDATE");
+        if (null == numOfTasks || numOfTasks.isEmpty()) {
+            return 2;
+        }
+        return Integer.parseInt(numOfTasks);
+    }
+
     public static int getJobProgressUpdatePeriod() {
         final String  period = getPropertyOrEnvVar("CAF_JOB_PROGRESS_UPDATE_SCHEDULER_PERIOD");
         if (null == period || period.isEmpty()) {
-            return 60;
+            return 2;
         }
         return Integer.parseInt(period);
     }
