@@ -29,10 +29,8 @@ BEGIN
     PERFORM internal_update_job_progress(tasks_to_update.partition_id, tasks_to_update.job_id)
     FROM (
         SELECT partition_id, job_id
-        FROM (
-            SELECT DISTINCT partition_id, job_id
-            FROM completed_subtask_report
-        ) distinct_tasks
+        FROM completed_subtask_report
+        GROUP BY partition_id, job_id
         ORDER BY random()
         LIMIT in_num_of_tasks_to_update
     ) tasks_to_update;
