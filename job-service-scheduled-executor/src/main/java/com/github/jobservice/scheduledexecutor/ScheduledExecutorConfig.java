@@ -160,7 +160,7 @@ public class ScheduledExecutorConfig {
     public static int getJobProgressTasksToUpdate() {
         final String  numOfTasks = getPropertyOrEnvVar("CAF_JOB_PROGRESS_NUM_TASKS_TO_UPDATE");
         if (null == numOfTasks || numOfTasks.isEmpty()) {
-            return 2;
+            return 10;
         }
         return Integer.parseInt(numOfTasks);
     }
