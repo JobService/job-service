@@ -1439,8 +1439,8 @@ public class JobServiceIT {
         try(final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
         {
             IntStream.rangeClosed(1, 10).forEach(i -> {
-                String partitionId = "updateJobProgress_partitionId_" + i;
-                String jobId = "updateJobProgress_jobId_" + i;
+                final String partitionId = "updateJobProgress_partitionId_" + i;
+                final String jobId = "updateJobProgress_jobId_" + i;
 
                 // Simulate job completion, adding job to completed_bulk_report
                 reportComplete(dbConnection, partitionId, jobId);
@@ -1545,8 +1545,7 @@ public class JobServiceIT {
 
     private void reportComplete(final java.sql.Connection dbConnection, final String partitionId, final String jobId)
     {
-        try (final CallableStatement reportJobComplete = dbConnection
-                .prepareCall("{call report_complete(?,?)}")) {
+        try (final CallableStatement reportJobComplete = dbConnection.prepareCall("{call report_complete(?,?)}")) {
             reportJobComplete.setString(1, partitionId);
             reportJobComplete.setString(2, jobId);
             reportJobComplete.executeQuery();
@@ -1584,22 +1583,22 @@ public class JobServiceIT {
 
     private List<String> getCompletedSubtaskReportTable(final java.sql.Connection dbConnection) throws SQLException
     {
-        final List<String> foundTables = new ArrayList();
+        final List<String> completedSubtaskReportTables = new ArrayList();
         final DatabaseMetaData dbm = dbConnection.getMetaData();
         try(ResultSet rs = dbm.getTables(null, "public", "completed_subtask_report", null))
         {
             while(rs.next())
             {
-                foundTables.add(rs.getString("TABLE_NAME"));
+                completedSubtaskReportTables.add(rs.getString("TABLE_NAME"));
             }
         }
-        return foundTables;
+        return completedSubtaskReportTables;
     }
 
     private int getRowCountForCompletedSubtaskReport(final java.sql.Connection dbConnection) throws SQLException {
         final String query = "SELECT COUNT(*) FROM completed_subtask_report";
         try (PreparedStatement stmt = dbConnection.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
+             final ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1); // Return the row count from the first column
             }
