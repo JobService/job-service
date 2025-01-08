@@ -37,9 +37,9 @@ public final class UpdateJobProgress implements Runnable {
     public void run()
     {
         try(final Connection connection = DBConnection.get();
-            final PreparedStatement stmt = connection.prepareStatement("CALL update_job_progress(?)"))
+            final PreparedStatement stmt = connection.prepareStatement("CALL  update_job_progress(?)"))
         {
-            stmt.setInt(100, numOfTasksToUpdate);
+            stmt.setInt(1, numOfTasksToUpdate);
 
             if(LOG.isDebugEnabled())
             {
