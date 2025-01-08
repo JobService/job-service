@@ -755,26 +755,6 @@ public class JobServiceIT {
             "last-update-time should be updated on cancel");
     }
 
-    @Test
-    public void testCancelJobUsingStatus() throws ApiException {
-        //create a job
-        String jobId = UUID.randomUUID().toString();
-        String jobCorrelationId = "1";
-        final NewJob newJob = makeJob(jobId, "testCancelJob");
-
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
-
-        final Job initialJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-
-        jobsApi.cancelJob(defaultPartitionId, jobId, jobCorrelationId);
-
-        Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
-
-        assertEquals(cancelledJob.getStatus(), JobStatus.CANCELLED);
-        assertTrue(new Date(cancelledJob.getLastUpdateTime()).after(new Date(initialJob.getLastUpdateTime())),
-                "last-update-time should be updated on cancel");
-    }
-
     /**
      * This tests cancelling the same job twice, which should succeed without changing the status.
      */
