@@ -596,7 +596,7 @@ public class JobServiceIT {
         jobsApi.createOrUpdateJob(defaultPartitionId, waitingJobId, waitingJob, correlationId);
 
         final long count = jobsApi.getJobsCount(
-            defaultPartitionId, correlationId, null, "NotFinished", null);
+            defaultPartitionId, correlationId, null, "NotFinished", null, null);
         assertEquals(count, 1);
     }
 
@@ -997,7 +997,7 @@ public class JobServiceIT {
 
         jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
         final long count =
-            jobsApi.getJobsCount(UUID.randomUUID().toString(), jobCorrelationId, null, null, null);
+            jobsApi.getJobsCount(UUID.randomUUID().toString(), jobCorrelationId, null, null, null, null);
         assertEquals(count, 0, "job count should be zero");
     }
 

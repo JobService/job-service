@@ -30,12 +30,14 @@ public final class JobsStatsGetCount {
      * provide jobs beginning with "j1". The statusType parameter can be used to further filter the status of the jobs.
      *
      * @param   jobId       expression for filtering jobs to be counted
-     * @param   statusType  further filtering of jobs with the provided status
+     * @param   statusType  further filtering of jobs with the provided status type
+     * @param   status      further filtering of jobs with the provided status
      * @param   filter      further filtering using the provided RSQL filter expression
      * @return  jobsCount   the number of jobs matching the expression
      * @throws  Exception   bad request or database exceptions
      */
-    public static long getJobsCount(final String partitionId, final String jobId, final String statusType, final String filter)
+    public static long getJobsCount(final String partitionId, final String jobId, final String statusType, final String status,
+                                    final String filter)
         throws Exception {
 
         long jobsCount;
@@ -54,7 +56,7 @@ public final class JobsStatsGetCount {
 
             //  Get number of job definitions in the system.
             LOG.debug("getJobsCount: Getting number of job definitions...");
-            jobsCount = databaseHelper.getJobsCount(partitionId, jobId, statusType, convertedFilter);
+            jobsCount = databaseHelper.getJobsCount(partitionId, jobId, statusType, status, convertedFilter);
         } catch (Exception e) {
             LOG.error("Error - '{}'", e.toString());
             throw e;

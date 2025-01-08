@@ -157,13 +157,13 @@ public final class DatabaseHelper
     /**
      * Returns the number of job definitions in the system.
      */
-    public long getJobsCount(final String partitionId, String jobIdStartsWith, String statusType, final String filter) throws Exception {
+    public long getJobsCount(final String partitionId, String jobIdStartsWith, String statusType, String status, final String filter) throws Exception {
 
         long jobsCount = 0;
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_jobs_count(?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call get_jobs_count(?,?,?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -171,10 +171,14 @@ public final class DatabaseHelper
             if (statusType == null) {
                 statusType = "";
             }
+            if (status == null) {
+                status = "";
+            }
             stmt.setString(1, partitionId);
             stmt.setString(2, jobIdStartsWith);
             stmt.setString(3, statusType);
-            stmt.setString(4, filter);
+            stmt.setString(4, status);
+            stmt.setString(5, filter);
 
             //  Execute a query to return a count of all job definitions in the system.
             LOG.debug("Calling get_jobs_count() database function...");
