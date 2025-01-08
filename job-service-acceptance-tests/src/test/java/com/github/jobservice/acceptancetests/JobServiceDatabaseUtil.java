@@ -265,7 +265,7 @@ public class JobServiceDatabaseUtil
         try (final Connection dbConnection = getDbConnection()) {
             final String query = "SELECT COUNT(*) FROM completed_subtask_report";
             try (PreparedStatement stmt = dbConnection.prepareStatement(query);
-                 ResultSet rs = stmt.executeQuery()) {
+                 final ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1); // Return the row count from the first column
                 }
