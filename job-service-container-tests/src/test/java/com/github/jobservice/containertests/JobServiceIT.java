@@ -755,6 +755,26 @@ public class JobServiceIT {
             "last-update-time should be updated on cancel");
     }
 
+    @Test
+    public void testCancelJobUsingStatus() throws ApiException {
+        //create a job
+        String jobId = UUID.randomUUID().toString();
+        String jobCorrelationId = "1";
+        final NewJob newJob = makeJob(jobId, "testCancelJob");
+
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+
+        final Job initialJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+
+        jobsApi.cancelJob(defaultPartitionId, jobId, jobCorrelationId);
+
+        Job cancelledJob = jobsApi.getJob(defaultPartitionId, jobId, jobCorrelationId);
+
+        assertEquals(cancelledJob.getStatus(), JobStatus.CANCELLED);
+        assertTrue(new Date(cancelledJob.getLastUpdateTime()).after(new Date(initialJob.getLastUpdateTime())),
+                "last-update-time should be updated on cancel");
+    }
+
     /**
      * This tests cancelling the same job twice, which should succeed without changing the status.
      */
@@ -1433,6 +1453,33 @@ public class JobServiceIT {
         }
     }
 
+    @Test
+    public void testUpdateJobProgress()
+    {
+        try(final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
+        {
+            IntStream.rangeClosed(1, 10).forEach(i -> {
+                String partitionId = "updateJobProgress_partitionId_" + i;
+                String jobId = "updateJobProgress_jobId_" + i;
+
+                // Simulate job completion, adding job to completed_bulk_report
+                reportComplete(dbConnection, partitionId, jobId);
+            });
+
+            // update_job_progress is being called through the scheduled executor periodically.
+            waitWithRetriesTillCompletedTasksProcessed(dbConnection, 3);
+
+            final List<String> completedSubtaskReportTable = getCompletedSubtaskReportTable(dbConnection);
+            assertEquals(completedSubtaskReportTable.size(), 1);
+
+            // assert number of rows in completed_subtask_report to be 0.
+            assertEquals(getRowCountForCompletedSubtaskReport(dbConnection), 0);
+        } catch (final Exception e) {
+            LOG.error(e.getMessage(), e);
+            Assert.fail();
+        }
+    }
+
     private void waitWithRetriesTillTablesAreDropped(final java.sql.Connection dbConnection,
                                                      final int maxRetries) throws InterruptedException, SQLException
     {
@@ -1441,6 +1488,16 @@ public class JobServiceIT {
             Thread.sleep(70000);
             count++;
         } while (getAllTablesByPattern(dbConnection).size() != 0 && count < maxRetries);
+    }
+
+    private void waitWithRetriesTillCompletedTasksProcessed(final java.sql.Connection dbConnection,
+                                                     final int maxRetries) throws InterruptedException, SQLException
+    {
+        int count = 0;
+        do {
+            Thread.sleep(10000);
+            count++;
+        } while (getRowCountForCompletedSubtaskReport(dbConnection) != 0 && count < maxRetries);
     }
 
     private void createAndPopulateChildTables(final java.sql.Connection dbConnection, final String parentTableName)
@@ -1506,6 +1563,19 @@ public class JobServiceIT {
         }
     }
 
+    private void reportComplete(final java.sql.Connection dbConnection, final String partitionId, final String jobId)
+    {
+        try (final CallableStatement reportJobComplete = dbConnection
+                .prepareCall("{call report_complete(?,?)}")) {
+            reportJobComplete.setString(1, partitionId);
+            reportJobComplete.setString(2, jobId);
+            reportJobComplete.executeQuery();
+        } catch (final SQLException sqlException) {
+            LOG.error("Exception while calling procedure report_complete ", sqlException);
+            throw new RuntimeException(sqlException);
+        }
+    }
+
     private void createTaskTable(final java.sql.Connection dbConnection, final String parentTableName)
     {
         try (final CallableStatement createTaskTableStmt = dbConnection
@@ -1530,6 +1600,31 @@ public class JobServiceIT {
             }
         }
         return foundTables;
+    }
+
+    private List<String> getCompletedSubtaskReportTable(final java.sql.Connection dbConnection) throws SQLException
+    {
+        final List<String> foundTables = new ArrayList();
+        final DatabaseMetaData dbm = dbConnection.getMetaData();
+        try(ResultSet rs = dbm.getTables(null, "public", "completed_subtask_report", null))
+        {
+            while(rs.next())
+            {
+                foundTables.add(rs.getString("TABLE_NAME"));
+            }
+        }
+        return foundTables;
+    }
+
+    private int getRowCountForCompletedSubtaskReport(final java.sql.Connection dbConnection) throws SQLException {
+        final String query = "SELECT COUNT(*) FROM completed_subtask_report";
+        try (PreparedStatement stmt = dbConnection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1); // Return the row count from the first column
+            }
+        }
+        return 0;
     }
 
     private int getRowsInDeleteLog(final java.sql.Connection dbConnection) throws SQLException

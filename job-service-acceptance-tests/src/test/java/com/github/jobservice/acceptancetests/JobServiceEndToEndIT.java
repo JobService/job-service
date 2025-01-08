@@ -64,6 +64,9 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -269,8 +272,8 @@ public class JobServiceEndToEndIT {
         //Wait for the job to complete
         waitUntilJobCompletes(job3Id);
 
-        // Call getJob to trigger the subtask completion
-        jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
+        // update_job_progress is being called through the scheduled executor periodically to trigger the subtask completion
+        JobServiceDatabaseUtil.waitWithRetriesTillCompletedTasksProcessed(3);
 
         //  Verify job 3 has completed and no job dependency rows exist.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
@@ -382,8 +385,8 @@ public class JobServiceEndToEndIT {
         //Wait for the job to complete
         waitUntilJobCompletes(job3Id);
 
-        // Call getJob to trigger the subtask completion
-        jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
+        // update_job_progress is being called through the scheduled executor periodically to trigger the subtask completion
+        JobServiceDatabaseUtil.waitWithRetriesTillCompletedTasksProcessed(3);
 
         //  Verify job 3 has completed and no job dependency rows exist.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");
@@ -584,9 +587,8 @@ public class JobServiceEndToEndIT {
         waitUntilJobCompletes(job3Id);
         waitUntilJobCompletes(job4Id);
 
-        // Call getJob to trigger the subtask completion
-        jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
-        jobsApi.getJob(defaultPartitionId, job4Id, jobCorrelationId);
+        // update_job_progress is being called through the scheduled executor periodically to trigger the subtask completion
+        JobServiceDatabaseUtil.waitWithRetriesTillCompletedTasksProcessed(3);
 
         //  Now that J1 has completed, verify this has triggered the completion of other jobs created
         //  with a prerequisite.
@@ -670,8 +672,8 @@ public class JobServiceEndToEndIT {
         //Wait for the job to complete
         waitUntilJobCompletes(job3Id);
 
-        // Call getJob to trigger the subtask completion
-        jobsApi.getJob(defaultPartitionId, job3Id, jobCorrelationId);
+        // update_job_progress is being called through the scheduled executor periodically to trigger the subtask completion
+        JobServiceDatabaseUtil.waitWithRetriesTillCompletedTasksProcessed(3);
 
         //  Verify J3 is complete.
         JobServiceDatabaseUtil.assertJobStatus(job3Id, "completed");

@@ -250,6 +250,30 @@ public class JobServiceDatabaseUtil
         }
     }
 
+    public static void waitWithRetriesTillCompletedTasksProcessed(final int maxRetries) throws InterruptedException, SQLException
+    {
+        try (final Connection dbConnection = getDbConnection()) {
+            int count = 0;
+            do {
+                Thread.sleep(10000);
+                count++;
+            } while (getRowCountForCompletedSubtaskReport() != 0 && count < maxRetries);
+        }
+    }
+
+    private static int getRowCountForCompletedSubtaskReport() throws SQLException {
+        try (final Connection dbConnection = getDbConnection()) {
+            final String query = "SELECT COUNT(*) FROM completed_subtask_report";
+            try (PreparedStatement stmt = dbConnection.prepareStatement(query);
+                 ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1); // Return the row count from the first column
+                }
+            }
+            return 0;
+        }
+    }
+
     private static Connection getDbConnection() throws SQLException
     {
         final String dbHost = Objects.requireNonNull(getPropertyOrEnvVar("JOB_SERVICE_DATABASE_HOST"));
