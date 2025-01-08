@@ -704,6 +704,38 @@ public class JobServiceIT {
     }
 
     @Test
+    public void testGetJobCountWithStatus() throws ApiException {
+        final String jobCorrelationId = "1";
+
+        for (int i = 0; i < 10; i++) {
+            final String jobId = "cancel_" + UUID.randomUUID();
+            final NewJob newJob = makeJob(jobId, "testCancelJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        for (int i = 0; i < 10; i++) {
+            final String jobId = "waiting_" + UUID.randomUUID();
+            final NewJob newJob = makeJob(jobId, "testWaitingJob");
+
+            jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, jobCorrelationId);
+        }
+
+        final String jobIdStartsWith = "cancel_";
+        final CancelJobs200Response response = jobsApi.cancelJobs(defaultPartitionId, jobCorrelationId, jobIdStartsWith, null, null);
+
+        final long cancelledJobCount = jobsApi.getJobsCount(defaultPartitionId, jobCorrelationId, null, null, "Cancelled", null);
+        assertEquals(cancelledJobCount, 10, "Cancelled job count should be 10");
+
+        final long waitingJobCount = jobsApi.getJobsCount(defaultPartitionId, jobCorrelationId, null, null, "Waiting", null);
+        assertEquals(waitingJobCount, 10, "Waiting job count should be 10");
+
+        final long totalJobCount = jobsApi.getJobsCount(defaultPartitionId, jobCorrelationId, null, null, null, null);
+        assertEquals(cancelledJobCount, 20, "Total job count should be 10");
+
+    }
+
+    @Test
     public void testCancelJob() throws ApiException {
         //create a job
         String jobId = UUID.randomUUID().toString();
