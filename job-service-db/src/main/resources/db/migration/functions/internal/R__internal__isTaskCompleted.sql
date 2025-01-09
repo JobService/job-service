@@ -28,7 +28,7 @@ RETURNS BOOLEAN
 LANGUAGE plpgsql STABLE
 AS $$
 DECLARE
-    v_parent_task_id VARCHAR(58);
+    v_parent_task_id VARCHAR(70);
     v_parent_task_table VARCHAR(63);
     v_is_task_completed BOOLEAN;
 
