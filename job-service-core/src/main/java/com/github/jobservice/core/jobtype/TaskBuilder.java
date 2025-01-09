@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 Open Text.
+ * Copyright 2016-2025 Open Text.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.github.jobservice.core.exceptions.BadRequestException;
 /**
  * Configured with a specific job type to construct the task for a newly submitted job.
  *
- * @see WorkerAction
+ * @see com.github.jobservice.api.generated.model.WorkerAction
  */
 public interface TaskBuilder {
 
