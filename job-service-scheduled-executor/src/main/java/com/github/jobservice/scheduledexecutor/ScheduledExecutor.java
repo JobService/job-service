@@ -29,11 +29,15 @@ public class ScheduledExecutor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ScheduledExecutor.class);
 
-    private final ScheduledExecutorService scheduler;
+    private final ScheduledExecutorService jobDispatchScheduler;
+    private final ScheduledExecutorService dropTablesScheduler;
+    private final ScheduledExecutorService updateJobProgressScheduler;
 
     public ScheduledExecutor() {
         // Create a scheduler to process scheduled tasks.
-        this.scheduler = Executors.newScheduledThreadPool(1);
+        this.jobDispatchScheduler = Executors.newScheduledThreadPool(1);
+        this.dropTablesScheduler = Executors.newScheduledThreadPool(1);
+        this.updateJobProgressScheduler = Executors.newScheduledThreadPool(1);
 
         LOG.info("Starting Job Service Scheduled Executor service ...");
 
@@ -41,18 +45,22 @@ public class ScheduledExecutor {
 
         //  Poll the Job Service database using the specified polling period configuration to specify how often the
         //  scheduled task is run.
-        scheduler.scheduleWithFixedDelay(task, 20, ScheduledExecutorConfig.getScheduledExecutorPeriod(),
+        jobDispatchScheduler.scheduleWithFixedDelay(task, 20, ScheduledExecutorConfig.getScheduledExecutorPeriod(),
                 TimeUnit.SECONDS);
 
         LOG.info("Starting task for dropping soft deleted tables ...");
         //  Execute the dropTablesTask periodically.
-        scheduler.scheduleWithFixedDelay(new DropTablesTask(), 20, ScheduledExecutorConfig.getDropTablesSchedulerPeriod(),
+        dropTablesScheduler.scheduleWithFixedDelay(new DropTablesTask(), 20, ScheduledExecutorConfig.getDropTablesSchedulerPeriod(),
                 TimeUnit.SECONDS);
+
+        //  Execute the updateJobProgress periodically.
+        updateJobProgressScheduler.scheduleWithFixedDelay(new UpdateJobProgress(ScheduledExecutorConfig.getJobProgressTasksToUpdate()), 20,
+                ScheduledExecutorConfig.getJobProgressUpdatePeriod(), TimeUnit.SECONDS);
     }
 
     public void poke()
     {
-        scheduler.submit(() -> runAvailableJobs("Manual"));
+        jobDispatchScheduler.submit(() -> runAvailableJobs("Manual"));
     }
 
     /**

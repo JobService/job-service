@@ -49,52 +49,52 @@ public final class JobsGetTest {
     public void testGetJob_Success() throws Exception {
         try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class)){
             //  Test successful run of job retrieval.
-            JobsGet.getJobs("partition", "", null, 0, 0, null, null, null);
+            JobsGet.getJobs("partition", "", null, null, 0, 0, null, null, null);
 
             Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1)).getJobs(
-                    "partition", "", null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null);
+                    "partition", "", null, null, 0, 0, JobSortField.CREATE_DATE, SortDirection.DESCENDING, null, null);
         }
     }
 
     @Test
     @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobs_Failure_EmptyPartitionId() throws Exception {
-         Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("", "", null, 0, 0, null, null, null));
+         Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("", "", null, null, 0, 0, null, null, null));
     }
 
     @Test
     public void testGetJobs_Success_WithSort() throws Exception {
         try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class)) {
-            JobsGet.getJobs("partition", "", null, 0, 0, "jobId:asc", null, null);
+            JobsGet.getJobs("partition", "", null, null, 0, 0, "jobId:asc", null, null);
             Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1)).getJobs(
-                    "partition", "", null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null);
+                    "partition", "", null, null, 0, 0, JobSortField.JOB_ID, SortDirection.ASCENDING, null, null);
         }
     }
 
     @Test
     public void testGetJobs_Success_WithNameSort() throws Exception {
         try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class)) {
-            JobsGet.getJobs("partition", "", null, 0, 0, "name:asc", null, null);
+            JobsGet.getJobs("partition", "", null, null, 0, 0, "name:asc", null, null);
             Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1)).getJobs(
-                    "partition", "", null, 0, 0, JobSortField.NAME, SortDirection.ASCENDING, null, null);
+                    "partition", "", null, null, 0, 0, JobSortField.NAME, SortDirection.ASCENDING, null, null);
         }
     }
 
     @Test
     @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobs_Failure_InvalidSort() throws Exception {
-        Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("partition", "", null, 0, 0, "invalid", null, null));
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("partition", "", null, null, 0, 0, "invalid", null, null));
     }
 
     @Test
     @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobs_Failure_InvalidSortField() throws Exception {
-        Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("partition", "", null, 0, 0, "unknown:desc", null, null));
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("partition", "", null, null, 0, 0, "unknown:desc", null, null));
     }
 
     @Test
     @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobs_Failure_InvalidSortDirection() throws Exception {
-        Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("partition", "", null, 0, 0, "jobId:random", null, null));
+        Assertions.assertThrows(BadRequestException.class, () -> JobsGet.getJobs("partition", "", null, null, 0, 0, "jobId:random", null, null));
     }
 }

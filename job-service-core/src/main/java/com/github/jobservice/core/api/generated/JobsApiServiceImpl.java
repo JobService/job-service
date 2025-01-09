@@ -47,18 +47,19 @@ public class JobsApiServiceImpl implements JobsApi {
     }
 
     @Override
-    public Response getJobs(final String partitionId, final String jobIdStartsWith, final String statusType,
+    public Response getJobs(final String partitionId, final String jobIdStartsWith, final String statusType, final String status,
                             final Integer limit, final Integer offset, final String sort,
                             final String label, final String filter)
             throws Exception {
-        final Job[] jobs = JobsGet.getJobs(partitionId, jobIdStartsWith, statusType, limit, offset, sort, label, filter);
+        final Job[] jobs = JobsGet.getJobs(partitionId, jobIdStartsWith, statusType, status, limit, offset, sort, label, filter);
         return Response.ok().entity(jobs).build();
     }
 
     @Override
-    public Response getJobsCount(final String partitionId, final String jobIdStartsWith, final String statusType, final String filter)
+    public Response getJobsCount(final String partitionId, final String jobIdStartsWith, final String statusType,
+                                 final String status, final String filter)
             throws Exception {
-        final Long jobsCount = JobsStatsGetCount.getJobsCount(partitionId, jobIdStartsWith, statusType, filter);
+        final Long jobsCount = JobsStatsGetCount.getJobsCount(partitionId, jobIdStartsWith, statusType, status, filter);
         return Response.ok().entity(jobsCount).build();
     }
 

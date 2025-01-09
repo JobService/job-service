@@ -24,6 +24,7 @@ CREATE OR REPLACE FUNCTION get_jobs_count(
     in_partition_id VARCHAR(40),
     in_job_id_starts_with VARCHAR(48),
     in_status_type VARCHAR(20),
+    in_status VARCHAR(20),
     in_filter VARCHAR(255)
 )
 RETURNS TABLE(
@@ -72,6 +73,11 @@ BEGIN
             sql := sql || whereOrAnd || $q$ status IN ('Active', 'Paused', 'Waiting')$q$;
             whereOrAnd := andConst;
         END IF;
+    END IF;
+
+    IF in_status IS NOT NULL AND in_status != '' THEN
+        sql := sql || whereOrAnd || ' status = ' || quote_literal(in_status);
+        whereOrAnd := andConst;
     END IF;
 
     IF in_filter IS NOT NULL THEN

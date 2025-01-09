@@ -68,7 +68,7 @@ public final class DatabaseHelper
         DatabaseHelper.appConfig = appConfig;
     }
 
-    public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, Integer limit,
+    public Job[] getJobs(final String partitionId, String jobIdStartsWith, String statusType, String status, Integer limit,
                          Integer offset, final SortField sortField, final SortDirection sortDirection,
                          final List<String> labels, final String filter) throws Exception {
 
@@ -76,13 +76,16 @@ public final class DatabaseHelper
 
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call get_jobs(?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
             }
             if (statusType == null) {
                 statusType = "";
+            }
+            if (status == null) {
+                status = "";
             }
             if (limit == null) {
                 limit = 0;
@@ -93,19 +96,20 @@ public final class DatabaseHelper
             stmt.setString(1, partitionId);
             stmt.setString(2, jobIdStartsWith);
             stmt.setString(3, statusType);
-            stmt.setInt(4, limit);
-            stmt.setInt(5, offset);
-            stmt.setString(6, sortField.getDbField());
-            stmt.setString(7, sortField.getSortLabel());
-            stmt.setBoolean(8, sortDirection.getDbValue());
+            stmt.setString(4, status);
+            stmt.setInt(5, limit);
+            stmt.setInt(6, offset);
+            stmt.setString(7, sortField.getDbField());
+            stmt.setString(8, sortField.getSortLabel());
+            stmt.setBoolean(9, sortDirection.getDbValue());
             Array array;
             if (labels != null) {
                 array = conn.createArrayOf("VARCHAR", labels.toArray());
             } else {
                 array = conn.createArrayOf("VARCHAR", new String[0]);
             }
-            stmt.setArray(9, array);
-            stmt.setString(10, filter);
+            stmt.setArray(10, array);
+            stmt.setString(11, filter);
 
             //  Execute a query to return a list of all job definitions in the system.
             LOG.debug("Calling get_jobs() database function...");
@@ -153,13 +157,13 @@ public final class DatabaseHelper
     /**
      * Returns the number of job definitions in the system.
      */
-    public long getJobsCount(final String partitionId, String jobIdStartsWith, String statusType, final String filter) throws Exception {
+    public long getJobsCount(final String partitionId, String jobIdStartsWith, String statusType, String status, final String filter) throws Exception {
 
         long jobsCount = 0;
 
         try (
                 Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                CallableStatement stmt = conn.prepareCall("{call get_jobs_count(?,?,?,?)}")
+                CallableStatement stmt = conn.prepareCall("{call get_jobs_count(?,?,?,?,?)}")
         ) {
             if (jobIdStartsWith == null) {
                 jobIdStartsWith = "";
@@ -167,10 +171,14 @@ public final class DatabaseHelper
             if (statusType == null) {
                 statusType = "";
             }
+            if (status == null) {
+                status = "";
+            }
             stmt.setString(1, partitionId);
             stmt.setString(2, jobIdStartsWith);
             stmt.setString(3, statusType);
-            stmt.setString(4, filter);
+            stmt.setString(4, status);
+            stmt.setString(5, filter);
 
             //  Execute a query to return a count of all job definitions in the system.
             LOG.debug("Calling get_jobs_count() database function...");

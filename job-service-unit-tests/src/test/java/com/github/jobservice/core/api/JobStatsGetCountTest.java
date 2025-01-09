@@ -47,15 +47,15 @@ public final class JobStatsGetCountTest {
     public void testGetJobCount_Success() throws Exception {
         try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class)) {
             //  Test successful run of job count retrieval.
-            JobsStatsGetCount.getJobsCount("partition", "", null, null);
+            JobsStatsGetCount.getJobsCount("partition", "", null, null, null);
 
-            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1)).getJobsCount("partition", "", null, null);
+            Mockito.verify(mockDatabaseHelper.constructed().get(0), Mockito.times(1)).getJobsCount("partition", "", null, null, null);
         }
     }
 
     @Test
     @SuppressWarnings("ThrowableResultIgnored")
     public void testGetJobCount_Success_EmptyPartitionId() throws Exception {
-        Assertions.assertThrows(BadRequestException.class, () -> JobsStatsGetCount.getJobsCount("", "", null, null));
+        Assertions.assertThrows(BadRequestException.class, () -> JobsStatsGetCount.getJobsCount("", "", null, null, null));
     }
 }

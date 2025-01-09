@@ -90,6 +90,18 @@ paths:
           - Completed
           - Inactive
           - NotFinished
+      - name: status
+        in: query
+        type: string
+        required: false
+        description: Active - only those with active status will be returned; Cancelled - only those with cancelled status will be returned; Completed - only those results with completed status will be returned; Failed - only those results with failed status will be returned; Paused - only those results with paused status will be returned, Waiting - only those results with waiting status will be returned.
+        enum:
+          - Active
+          - Cancelled
+          - Completed
+          - Failed
+          - Paused
+          - Waiting
       - name: limit
         in: query
         type: integer
@@ -447,6 +459,18 @@ paths:
           - Completed
           - Inactive
           - NotFinished
+      - name: status
+        in: query
+        type: string
+        required: false
+        description: Active - only those with active status will be returned; Cancelled - only those with cancelled status will be returned; Completed - only those results with completed status will be returned; Failed - only those results with failed status will be returned; Paused - only those results with paused status will be returned, Waiting - only those results with waiting status will be returned.
+        enum:
+          - Active
+          - Cancelled
+          - Completed
+          - Failed
+          - Paused
+          - Waiting
       - name: filter
         in: query
         type: string
