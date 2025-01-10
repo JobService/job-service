@@ -1,5 +1,3 @@
-!not-ready-for-release!
-
 #### Version Number
 ${version-number}
 
@@ -10,3 +8,4 @@ ${version-number}
 - D998053: Fixed `isTaskCompleted()` issue that impacts very large jobs
 
 #### Known Issues
+- None
