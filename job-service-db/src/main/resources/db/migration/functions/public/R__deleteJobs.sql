@@ -23,8 +23,8 @@
      jobIds varchar[];
      jobId varchar;
  BEGIN
-    jobIds := ARRAY(SELECT DISTINCT job_id FROM public.get_jobs(in_partition_id, in_job_id_starts_with, in_status_type, null
-        in_limit, 0, 'job_id', null, false, in_labels, in_filter) ORDER BY job_id);
+    jobIds := ARRAY(SELECT DISTINCT job_id FROM public.get_jobs(in_partition_id, in_job_id_starts_with, in_status_type,
+         null, in_limit, 0, 'job_id', null, false, in_labels, in_filter) ORDER BY job_id);
 
     FOREACH jobId IN ARRAY jobIds
     LOOP
