@@ -38,6 +38,7 @@ import org.slf4j.MDC;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -222,11 +223,16 @@ public final class JobsPut {
         try (final QueueServices queueServices = QueueServicesFactory.create(config, config.getSchedulerQueue(), codec)) {
             LOG.debug("createOrUpdateJob: Triggering scheduler to send data to the target queue");
 
+            final DocumentWorkerDocumentTask documentWorkerDocumentTask = new DocumentWorkerDocumentTask();
+            final Map<String, String> customData = new HashMap<>();
+            customData.put("correlationId", MDC.get(MDC_KEY));
+            documentWorkerDocumentTask.customData = customData;
+
             final TaskMessage taskMessage = new TaskMessage(
                 UUID.randomUUID().toString(),
                 DocumentWorkerConstants.DOCUMENT_TASK_NAME,
                 1,
-                codec.serialise(new DocumentWorkerDocumentTask()),
+                codec.serialise(documentWorkerDocumentTask),
                 TaskStatus.NEW_TASK,
                 Collections.emptyMap(),
                 config.getSchedulerQueue(),
