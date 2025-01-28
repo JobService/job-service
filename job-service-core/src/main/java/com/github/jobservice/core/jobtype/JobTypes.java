@@ -15,7 +15,10 @@
  */
 package com.github.jobservice.core.jobtype;
 
+import com.github.jobservice.core.api.JobsPut;
 import com.github.jobservice.core.exceptions.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -29,6 +32,8 @@ public final class JobTypes {
      * The global instance.
      */
     private static JobTypes INSTANCE;
+
+    private static final Logger LOG = LoggerFactory.getLogger(JobTypes.class);
 
     /**
      * Job type lookup by ID.
@@ -45,6 +50,7 @@ public final class JobTypes {
                 throw new InvalidJobTypeDefinitionException("Duplicate job type ID: " + id);
             }
             jobTypes.put(id, defn);
+            LOG.info("Loaded job type {}: {}", id, defn);
         }
     }
 
