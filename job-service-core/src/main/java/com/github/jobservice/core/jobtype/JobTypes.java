@@ -33,8 +33,6 @@ public final class JobTypes {
      */
     private static JobTypes INSTANCE;
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobTypes.class);
-
     /**
      * Job type lookup by ID.
      */
@@ -50,7 +48,6 @@ public final class JobTypes {
                 throw new InvalidJobTypeDefinitionException("Duplicate job type ID: " + id);
             }
             jobTypes.put(id, defn);
-            LOG.info("Loaded job type {}: {}", id, defn);
         }
     }
 
