@@ -48,6 +48,7 @@ public class JobServiceScheduler implements DocumentWorker
     @Override
     public void processDocument(Document document) throws InterruptedException, DocumentWorkerTransientException
     {
+        // Is there a way that I can get the correlationId from the taskMessage:correlationId field?
         MDC.put(CORRELATION_ID_KEY, getOrCreateCorrelationId(document.getTask()));
 
         scheduler.poke();
