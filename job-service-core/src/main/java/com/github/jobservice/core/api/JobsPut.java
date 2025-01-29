@@ -223,6 +223,10 @@ public final class JobsPut {
         try (final QueueServices queueServices = QueueServicesFactory.create(config, config.getSchedulerQueue(), codec)) {
             LOG.debug("createOrUpdateJob: Triggering scheduler to send data to the target queue");
 
+            /*
+            Having to put correlation id in customData as that's only place I can
+            get it from in JobServiceScheduler when the document is received
+             */
             final DocumentWorkerDocumentTask documentWorkerDocumentTask = new DocumentWorkerDocumentTask();
             final Map<String, String> customData = new HashMap<>();
             customData.put("correlationId", MDC.get(MDC_KEY));

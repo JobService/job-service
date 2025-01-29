@@ -19,9 +19,14 @@ import com.github.cafdataprocessing.workers.document.exceptions.DocumentWorkerTr
 import com.github.cafdataprocessing.workers.document.extensibility.DocumentWorker;
 import com.github.cafdataprocessing.workers.document.model.Document;
 import com.github.cafdataprocessing.workers.document.model.HealthMonitor;
+import com.github.cafdataprocessing.workers.document.model.Task;
+import org.slf4j.MDC;
+
+import java.util.UUID;
 
 public class JobServiceScheduler implements DocumentWorker
 {
+    private static final String CORRELATION_ID_KEY = "correlationId";
     private final ScheduledExecutor scheduler;
 
     public JobServiceScheduler()
@@ -43,6 +48,17 @@ public class JobServiceScheduler implements DocumentWorker
     @Override
     public void processDocument(Document document) throws InterruptedException, DocumentWorkerTransientException
     {
+        MDC.put(CORRELATION_ID_KEY, getOrCreateCorrelationId(document.getTask()));
+
         scheduler.poke();
+    }
+
+    private static String getOrCreateCorrelationId(final Task task)
+    {
+        final String correlationId = task.getCustomData(CORRELATION_ID_KEY);
+
+        return (correlationId == null)
+                ? UUID.randomUUID().toString()
+                : correlationId;
     }
 }

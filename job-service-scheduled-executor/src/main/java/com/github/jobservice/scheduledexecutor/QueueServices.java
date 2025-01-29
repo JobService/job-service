@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.ws.rs.core.UriBuilder;
+import org.slf4j.MDC;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -43,6 +45,7 @@ import java.util.concurrent.TimeoutException;
  */
 public final class QueueServices implements AutoCloseable
 {
+    private static final String CORRELATION_ID_KEY = "correlationId";
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
 
     private final Connection connection;
@@ -158,7 +161,9 @@ public final class QueueServices implements AutoCloseable
             TaskStatus.NEW_TASK,
             Collections.emptyMap(),
             targetQueue,
-            trackingInfo);
+            trackingInfo,
+            null,
+            MDC.get(CORRELATION_ID_KEY));
     }
 
     private static long getStatusCheckIntervalMillis(final String statusCheckIntervalSeconds)
