@@ -242,7 +242,7 @@ public final class JobsPut {
                 config.getSchedulerQueue(),
                     null,
                     null,
-                    MDC.get(MDC_KEY));
+                    MDC.get(MDC_KEY));  // currently redundant putting this here - can't access it in scheduled executor
             final byte[] taskMessageBytes = serializeData(taskMessage, codec);
             queueServices.publishMessage(taskMessageBytes);
         } catch (final Exception ex) {
