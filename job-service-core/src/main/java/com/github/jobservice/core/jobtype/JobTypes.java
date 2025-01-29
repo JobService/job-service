@@ -15,10 +15,7 @@
  */
 package com.github.jobservice.core.jobtype;
 
-import com.github.jobservice.core.api.JobsPut;
 import com.github.jobservice.core.exceptions.BadRequestException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
