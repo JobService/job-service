@@ -34,17 +34,14 @@ import com.github.workerframework.api.TaskStatus;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.github.cafapi.correlation.constants.CorrelationIdConfigurationConstants.MDC_KEY;
 
 public final class JobsPut {
 
@@ -223,26 +220,14 @@ public final class JobsPut {
         try (final QueueServices queueServices = QueueServicesFactory.create(config, config.getSchedulerQueue(), codec)) {
             LOG.debug("createOrUpdateJob: Triggering scheduler to send data to the target queue");
 
-            /*
-            Having to put correlation id in customData as that's only place I can
-            get it from in JobServiceScheduler when the document is received
-             */
-            final DocumentWorkerDocumentTask documentWorkerDocumentTask = new DocumentWorkerDocumentTask();
-            final Map<String, String> customData = new HashMap<>();
-            customData.put("correlationId", MDC.get(MDC_KEY));
-            documentWorkerDocumentTask.customData = customData;
-
             final TaskMessage taskMessage = new TaskMessage(
                 UUID.randomUUID().toString(),
                 DocumentWorkerConstants.DOCUMENT_TASK_NAME,
                 1,
-                codec.serialise(documentWorkerDocumentTask),
+                codec.serialise(new DocumentWorkerDocumentTask()),
                 TaskStatus.NEW_TASK,
                 Collections.emptyMap(),
-                config.getSchedulerQueue(),
-                    null,
-                    null,
-                    MDC.get(MDC_KEY));  // currently redundant putting this here - can't access it in scheduled executor
+                config.getSchedulerQueue());
             final byte[] taskMessageBytes = serializeData(taskMessage, codec);
             queueServices.publishMessage(taskMessageBytes);
         } catch (final Exception ex) {
