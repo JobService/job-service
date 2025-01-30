@@ -276,10 +276,11 @@ public final class DatabaseHelper
     public boolean createJob(final String partitionId, final String jobId, final String name, final String description,
             final String data, final int jobHash, final String taskClassifier,
             final int taskApiVersion, final byte[] taskData, final String taskPipe,
-            final String targetPipe, final int delay, final Map<String, String> labels) throws Exception {
+            final String targetPipe, final int delay, final Map<String, String> labels,
+            final String correlationId) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
             final List<String[]> labelArray = buildLabelSqlArray(labels);
 
@@ -303,6 +304,9 @@ public final class DatabaseHelper
                 array = conn.createArrayOf("VARCHAR", new String[0]);
             }
             stmt.setArray(13, array);
+
+            stmt.setString(14, correlationId);
+
             try {
                 return callCreateJobFunction(stmt);
             } finally {
@@ -322,10 +326,10 @@ public final class DatabaseHelper
                                           final int taskApiVersion, final byte[] taskData, final String taskPipe,
                                           final String targetPipe, final List<String> prerequisiteJobIds,
                                           final int delay, final Map<String, String> labels,
-                                          final boolean partitionSuspended) throws Exception {
+                                          final boolean partitionSuspended, final String correlationId) throws Exception {
         try (
                 final Connection conn = DatabaseConnectionProvider.getConnection(appConfig);
-                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
+                final CallableStatement stmt = conn.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")
         ) {
             final String[] prerequisiteJobIdStringArray = getPrerequisiteJobIds(prerequisiteJobIds);
             Array prerequisiteJobIdSQLArray = conn.createArrayOf("varchar", prerequisiteJobIdStringArray);
@@ -354,6 +358,7 @@ public final class DatabaseHelper
             }
             stmt.setArray(14, array);
             stmt.setBoolean(15, partitionSuspended);
+            stmt.setString(16, correlationId);
 
             try {
                 return callCreateJobFunction(stmt);
