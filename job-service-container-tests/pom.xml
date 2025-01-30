@@ -239,6 +239,7 @@
                 <executions>
                     <execution>
                         <id>webservice-Docker</id>
+                        <phase>integration-test</phase>
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
@@ -246,6 +247,9 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
                     <systemPropertyVariables>
                         <webservice.adminport>${webservice.adminport}</webservice.adminport>
                         <rabbitmq.node.protocol>amqp</rabbitmq.node.protocol>
