@@ -731,8 +731,7 @@ public class JobServiceIT {
         assertEquals(waitingJobCount, 10, "Waiting job count should be 10");
 
         final long totalJobCount = jobsApi.getJobsCount(defaultPartitionId, jobCorrelationId, null, null, null, null);
-        assertEquals(cancelledJobCount, 20, "Total job count should be 10");
-
+        assertEquals(cancelledJobCount, 10, "Total job count should be 10");
     }
 
     @Test
