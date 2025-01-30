@@ -62,7 +62,6 @@ public class JobDatabase {
         String description = MessageFormat.format("{0}_{1} description", jobDescriptor, jobId);
         String data = MessageFormat.format("{0}_{1} data", jobDescriptor, jobId);
         int jobHash = random.nextInt();
-        String correlationId = UUID.randomUUID().toString();
 
         try(Connection connection = getConnection();
             CallableStatement stmt = connection.prepareCall("{call create_job(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}")) {
@@ -83,7 +82,7 @@ public class JobDatabase {
             Array labelArray = connection.createArrayOf("VARCHAR", new String[0]);
 
             stmt.setArray(13, labelArray);
-            stmt.setString(14, correlationId);
+            stmt.setString(14, "correlation_id");
             LOG.info("Creating job {}", jobId);
             stmt.execute();
         }
