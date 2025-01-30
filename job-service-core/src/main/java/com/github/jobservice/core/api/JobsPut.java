@@ -180,6 +180,7 @@ public final class JobsPut {
             }
 
             final String correlationId = MDC.get("correlationId");
+            if (correlationId == null) throw new RuntimeException("Key 'correlationId' is not set in MDC.");
 
             final boolean partitionSuspended = ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId);
             //  Create job in the database.
