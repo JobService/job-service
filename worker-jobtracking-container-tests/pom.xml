@@ -141,11 +141,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.expressly</groupId>
             <artifactId>expressly</artifactId>
             <scope>test</scope>
@@ -190,6 +185,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <executions>
                     <execution>
+                        <phase>integration-test</phase>
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
@@ -197,6 +193,9 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
                     <systemPropertyVariables>
                         <docker.host.address>${docker.host.address}</docker.host.address>
                         <worker.restport>${worker.restport}</worker.restport>
