@@ -243,6 +243,20 @@
                 </executions>
             </plugin>
 
+            <!--Compile test resources.-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>testResources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
@@ -251,6 +265,7 @@
                         <id>start</id>
                         <phase>pre-integration-test</phase>
                         <goals>
+                            <goal>build</goal>
                             <goal>start</goal>
                         </goals>
                     </execution>
