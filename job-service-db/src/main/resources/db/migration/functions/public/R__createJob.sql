@@ -34,7 +34,8 @@ CREATE OR REPLACE FUNCTION create_job(
     in_task_pipe VARCHAR(255),
     in_target_pipe VARCHAR(255),
     in_delay INT,
-    in_labels VARCHAR(255)[][] default null
+    in_labels VARCHAR(255)[][] default null,
+    in_correlation_id VARCHAR(48) default null
 )
 RETURNS TABLE(
     job_created BOOLEAN
@@ -90,7 +91,8 @@ BEGIN
             task_data,
             task_pipe,
             target_pipe,
-            eligible_to_run_date
+            eligible_to_run_date,
+            correlation_id
         ) VALUES (
             in_partition_id,
             in_job_id,
@@ -99,7 +101,8 @@ BEGIN
             in_task_data,
             in_task_pipe,
             in_target_pipe,
-            now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second')
+            now() AT TIME ZONE 'UTC' + (in_delay * interval '1 second'),
+            in_correlation_id
         );
 
     RETURN QUERY SELECT TRUE;
