@@ -161,7 +161,7 @@
             <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>
                 <artifactId>caffeine</artifactId>
-                <version>3.1.8</version>
+                <version>3.2.0</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
@@ -527,7 +527,7 @@
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.17.2</version>
+                <version>1.18.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -732,12 +732,12 @@
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.15.11</version>
+                <version>1.17.0</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
-                <version>1.15.11</version>
+                <version>1.17.0</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
@@ -860,12 +860,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>11.1.1</version>
+                <version>11.2.0</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>11.1.1</version>
+                <version>11.2.0</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.expressly</groupId>
@@ -963,73 +963,73 @@
                 <groupId>org.graalvm.js</groupId>
                 <artifactId>js-community</artifactId>
                 <type>pom</type>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.js</groupId>
                 <artifactId>js-language</artifactId>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.js</groupId>
                 <artifactId>js-scriptengine</artifactId>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.polyglot</groupId>
                 <artifactId>js-community</artifactId>
                 <type>pom</type>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.polyglot</groupId>
                 <artifactId>polyglot</artifactId>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.regex</groupId>
                 <artifactId>regex</artifactId>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.sdk</groupId>
                 <artifactId>collections</artifactId>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.sdk</groupId>
                 <artifactId>jniutils</artifactId>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.sdk</groupId>
                 <artifactId>nativeimage</artifactId>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.sdk</groupId>
                 <artifactId>word</artifactId>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.shadowed</groupId>
                 <artifactId>icu4j</artifactId>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.truffle</groupId>
                 <artifactId>truffle-api</artifactId>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.truffle</groupId>
                 <artifactId>truffle-compiler</artifactId>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.truffle</groupId>
                 <artifactId>truffle-runtime</artifactId>
-                <version>24.1.1</version>
+                <version>24.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.hibernate.validator</groupId>
@@ -1134,22 +1134,22 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aop</artifactId>
-                <version>6.2.1</version>
+                <version>6.2.2</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
-                <version>6.2.1</version>
+                <version>6.2.2</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>6.2.1</version>
+                <version>6.2.2</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>6.2.1</version>
+                <version>6.2.2</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework</groupId>
@@ -1160,7 +1160,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-expression</artifactId>
-                <version>6.2.1</version>
+                <version>6.2.2</version>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
@@ -1298,8 +1298,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>1.1.5</tag>
-                            <digest>sha256:e7a6c3a2b9254bb9d5f87d1ba8231e2f65ccf95186ebd75106a87c5b235c114b</digest>
+                            <tag>1.1.6</tag>
+                            <digest>sha256:9e595aa80c54e1c1aa2a25d136f6dc8855c77e55561df94f3ac49092974370c7</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
