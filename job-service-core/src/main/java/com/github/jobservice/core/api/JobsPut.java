@@ -42,7 +42,6 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-
 public final class JobsPut {
 
     public static final String ERR_MSG_JOB_AND_TASK_SPECIFIED = "Specifying both typeId and task properties is not allowed.";
