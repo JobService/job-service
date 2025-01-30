@@ -48,6 +48,7 @@ public class WorkerAction
     private TaskDataEncodingEnum taskDataEncoding = null;
     private String taskPipe = null;
     private String targetPipe = null;
+    private String correlationId = null;
 
     public WorkerAction taskClassifier(final String taskClassifier) {
         this.taskClassifier = taskClassifier;
@@ -119,6 +120,19 @@ public class WorkerAction
     }
     public void setTargetPipe(final String targetPipe) {
         this.targetPipe = targetPipe;
+    }
+
+    public WorkerAction correlationId(final String correlationId) {
+        this.correlationId = correlationId;
+        return this;
+    }
+
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public void setCorrelationId(final String correlationId) {
+        this.correlationId = correlationId;
     }
 
     @Override
