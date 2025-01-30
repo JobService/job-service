@@ -28,7 +28,8 @@ RETURNS TABLE(
     task_api_version INT,
     task_data BYTEA,
     task_pipe VARCHAR(255),
-    target_pipe VARCHAR(255)
+    target_pipe VARCHAR(255),
+    correlation_id VARCHAR(48)
 )
 LANGUAGE plpgsql STABLE
 AS $$
