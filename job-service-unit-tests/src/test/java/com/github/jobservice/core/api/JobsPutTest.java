@@ -140,11 +140,11 @@ public final class JobsPutTest {
         try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
             when(mock.createJob(
                     anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), anyString()))
+                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), null))
                     .thenReturn(true);
             when(mock.createJobWithDependencies(
                     anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(), anyInt(), any(),
-                    anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), anyString()
+                    anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), null
             )).thenReturn(true);
         })) {
 
@@ -154,7 +154,7 @@ public final class JobsPutTest {
 
             verify(mockDatabaseHelper.constructed().get(0), times(1))
                     .createJob(eq("partition"), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                            anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), anyString());
+                            anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), null);
             assertEquals("create", result);
         }
 
@@ -165,11 +165,11 @@ public final class JobsPutTest {
         try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
             when(mock.createJob(
                     anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), anyString()))
+                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), null))
                     .thenReturn(false);
             when(mock.createJobWithDependencies(
                     anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(), anyInt(), any(),
-                    anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), anyString()
+                    anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), null
             )).thenReturn(true);
         })) {
             //  Test successful run of job creation when a matching job row already exists.
@@ -179,7 +179,7 @@ public final class JobsPutTest {
             verify(mockDatabaseHelper.constructed().get(0), times(1))
                     .createJob(
                             anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                            anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), anyString());
+                            anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), null);
             assertEquals("update", result);
         }
     }
@@ -246,7 +246,7 @@ public final class JobsPutTest {
 
         verify(mockDatabaseHelper, times(1))
             .createJob(eq("partition"), eq("id"), anyString(),anyString(),anyString(),anyInt(), anyString(),
-                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), anyString());
+                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), null);
         final ArgumentCaptor<WorkerAction> workerActionCaptor =
             ArgumentCaptor.forClass(WorkerAction.class);
 
@@ -298,7 +298,7 @@ public final class JobsPutTest {
 
             verify(mockDatabaseHelper.constructed().get(0), times(1)).createJob(
                     anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
-                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), anyString());
+                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), null);
         }
     }
 
@@ -322,11 +322,11 @@ public final class JobsPutTest {
         try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
             when(mock.createJob(
                     anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), anyString()))
+                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), null))
                     .thenReturn(true);
             when(mock.createJobWithDependencies(
                     anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(), anyInt(), any(),
-                    anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), anyString()
+                    anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), null
             )).thenReturn(true);
         })) {
             //  Test creation of job when no matching job row exists and job has prereqs that have not been completed.
@@ -337,7 +337,7 @@ public final class JobsPutTest {
 
             verify(mockDatabaseHelper.constructed().get(0), times(1)).createJobWithDependencies(
                     anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(), anyInt(), any(),
-                    anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), anyString());
+                    anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), null);
         }
     }
 
@@ -347,11 +347,11 @@ public final class JobsPutTest {
         try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
             when(mock.createJob(
                     anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(),
-                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), anyString()))
+                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), null))
                     .thenReturn(true);
             when(mock.createJobWithDependencies(
                     anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(), anyInt(),
-                    any(), anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), anyString()
+                    any(), anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), null
             )).thenReturn(false);
         })) {
             final NewJob job = makeJob();
@@ -364,7 +364,7 @@ public final class JobsPutTest {
             assertEquals("update", result);
             verify(mockDatabaseHelper.constructed().get(0), times(1)).createJobWithDependencies(
                     anyString(), anyString(),anyString(),anyString(),anyString(),anyInt(), anyString(), anyInt(), any(),
-                    anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), anyString());
+                    anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), null);
         }
     }
 
@@ -407,11 +407,11 @@ public final class JobsPutTest {
         try (MockedConstruction<DatabaseHelper> mockDatabaseHelper = Mockito.mockConstruction(DatabaseHelper.class, (mock, context) -> {
             when(mock.createJob(
                     anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(),
-                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), anyString()))
+                    anyInt(), any(), anyString(), anyString(), anyInt(), anyMap(), null))
                     .thenReturn(true);
             when(mock.createJobWithDependencies(
                     anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString(), anyInt(),
-                    any(), anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), anyString()
+                    any(), anyString(), anyString(), any(), anyInt(), anyMap(), eq(false), null
             )).thenReturn(true);
         })) {
             Exception bre = Assertions.assertThrows(BadRequestException.class, () -> JobsPut.createOrUpdateJob("partition", "067e6162-3b6f-4ae2-a171-2470b63dff00", job));
