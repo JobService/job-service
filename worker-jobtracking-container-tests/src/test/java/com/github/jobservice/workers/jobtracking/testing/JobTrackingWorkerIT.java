@@ -211,7 +211,7 @@ public class JobTrackingWorkerIT {
             // Increased the waiting time to match the 10s to wait induced by the batch
             // (see in JobtrackingWorkerFactory.processTasks())
             wait(2000);
-            database.verifyJobStatus(defaultPartitionId, jobTaskId, expectation);
+            database.verifyJobStatus(defaultPartitionId, jobTaskId, expectation, 3);
         }
     }
 
@@ -277,7 +277,11 @@ public class JobTrackingWorkerIT {
                 new JobReportingExpectation(jobTaskId, JobStatus.Completed, 100, false, true, true, true, true));
         testProxiedMessageReporting(failureMessage, expectation);
 
+        final DBJob jobFromDb = jobDatabase.getJob(defaultPartitionId, jobTaskId);
+
         boolean condition = jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate());
+
+        LOG.warn("Last update: {}, create date: {}", jobFromDb.getLastUpdateDate(), jobFromDb.getCreateDate());
 
         String formattedMessage = MessageFormatter.format(
                 "last-update-time should be updated on fail. lastUpdate: {}, createDate: {}",

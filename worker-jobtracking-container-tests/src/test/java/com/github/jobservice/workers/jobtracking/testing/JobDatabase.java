@@ -130,9 +130,16 @@ public class JobDatabase {
     }
 
     public void verifyJobStatus(
-        final String partitionId, String jobTaskId, JobReportingExpectation jobReportingExpectation
+        final String partitionId, String jobTaskId, JobReportingExpectation jobReportingExpectation, final int maxRetries
     ) throws Exception {
         final DBJob job = getJob(partitionId, jobTaskId);
+        final JobStatus initialJobStatus = job.getStatus();
+        // update_job_progress is being called through the scheduled executor periodically to trigger the subtask completion
+        int count = 0;
+        do {
+            Thread.sleep(10000);
+            count++;
+        } while (initialJobStatus != job.getStatus() || count < maxRetries);
         LOG.info("Called get_job for job task {}. Verifying results against expectations...", jobTaskId);
         assertEquals(jobTaskId, "job_id", job.getJobId(), jobReportingExpectation.getJobId());
         assertEquals(jobTaskId, "status", job.getStatus(), jobReportingExpectation.getStatus());

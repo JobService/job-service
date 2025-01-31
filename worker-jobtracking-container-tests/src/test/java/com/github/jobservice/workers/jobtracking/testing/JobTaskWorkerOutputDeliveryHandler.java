@@ -71,7 +71,8 @@ public class JobTaskWorkerOutputDeliveryHandler implements ResultHandler {
             database.verifyJobStatus(
                 expectation.getPartitionId(),
                 expectation.getJobTaskId(),
-                expectation.getJobReportingExpectation());
+                expectation.getJobReportingExpectation(),
+                3);
         } catch (Exception e) {
             context.failed(new TestItem<>(taskMessage.getTaskId(), null, null), e.getMessage());
         }
