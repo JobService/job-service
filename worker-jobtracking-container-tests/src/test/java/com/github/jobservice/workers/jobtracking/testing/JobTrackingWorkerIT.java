@@ -47,6 +47,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.slf4j.helpers.MessageFormatter;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -276,9 +277,13 @@ public class JobTrackingWorkerIT {
                 new JobReportingExpectation(jobTaskId, JobStatus.Completed, 100, false, true, true, true, true));
         testProxiedMessageReporting(failureMessage, expectation);
 
-        final DBJob jobFromDb = jobDatabase.getJob(defaultPartitionId, jobTaskId);
-        Assert.assertTrue(jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate()),
-            "last-update-time should be updated on fail");
+        boolean condition = jobFromDb.getLastUpdateDate().isAfter(jobFromDb.getCreateDate());
+
+        String formattedMessage = MessageFormatter.format(
+                "last-update-time should be updated on fail. lastUpdate: {}, createDate: {}",
+                jobFromDb.getLastUpdateDate(), jobFromDb.getCreateDate()).getMessage();
+
+        Assert.assertTrue(condition, formattedMessage);
     }
 
     /**
