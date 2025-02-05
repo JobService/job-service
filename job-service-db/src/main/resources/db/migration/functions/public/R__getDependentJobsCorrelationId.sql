@@ -20,9 +20,9 @@
  *  Description:
  *  Returns a list of dependent jobs that are now eligible to run.
  */
-DROP FUNCTION IF EXISTS get_dependent_jobs();
+DROP FUNCTION IF EXISTS get_dependent_jobs_correlation_id();
 
-CREATE OR REPLACE FUNCTION get_dependent_jobs()
+CREATE OR REPLACE FUNCTION get_dependent_jobs_correlation_id()
 RETURNS TABLE(
     partition_id VARCHAR(40),
     job_id VARCHAR(48),
@@ -31,6 +31,7 @@ RETURNS TABLE(
     task_data BYTEA,
     task_pipe VARCHAR(255),
     target_pipe VARCHAR(255),
+    correlation_id VARCHAR(48)
 )
 LANGUAGE plpgsql STABLE
 AS $$
@@ -44,6 +45,7 @@ BEGIN
             jtd.task_data,
             jtd.task_pipe,
             jtd.target_pipe,
+            jtd.correlation_id
         FROM job_task_data jtd
         LEFT JOIN job_dependency jd
             ON jd.partition_id = jtd.partition_id AND jd.job_id = jtd.job_id
