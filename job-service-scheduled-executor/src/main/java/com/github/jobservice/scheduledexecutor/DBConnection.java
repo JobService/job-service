@@ -61,19 +61,19 @@ public final class DBConnection
             LOG.debug("Connected to database.");
         }
         catch (final NumberFormatException e){
-            final String errorMessage = format("Invalid database port provided {}", dbPortString);
+            final String errorMessage = format("Invalid database port provided {0}", dbPortString);
             LOG.error(errorMessage);
             throw new ScheduledExecutorException(errorMessage);
         }
         catch(final SQLException se)
         {
-            final String errorMessage = format("Failed to connect to database {} with host {}, port {}, username {} and password {}.",
+            final String errorMessage = format("Failed to connect to database {0} with host {1}, port {2}, username {3} and password {4}.",
                     dbName, dbHost, dbPortString, dbUser, dbPass);
             /*
             SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Log forging. The values of databaseUrl, dbUser, dbPass are all set using
             properties or env variables.
             */
-            LOG.error(errorMessage);
+            LOG.error(errorMessage, se);
             throw new ScheduledExecutorException(errorMessage);
         }
         
