@@ -114,7 +114,7 @@ public class DatabasePoller
         */
         try (
                 Connection connection = DBConnection.get();
-                CallableStatement stmt = connection.prepareCall("{call get_dependent_jobs_correlation_id()}")
+                CallableStatement stmt = connection.prepareCall("{call get_dependent_jobs()}")
         ) {
             LOG.debug("Calling get_dependent_jobs() database function ...");
             stmt.execute();
