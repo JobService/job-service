@@ -34,23 +34,23 @@ RETURNS TABLE(
 LANGUAGE plpgsql STABLE
 AS $$
 BEGIN
-RETURN QUERY
-SELECT
-    jtd.partition_id,
-    jtd.job_id,
-    jtd.task_classifier,
-    jtd.task_api_version,
-    jtd.task_data,
-    jtd.task_pipe,
-    jtd.target_pipe,
-    jtd.correlation_id
-FROM job_task_data jtd
-         LEFT JOIN job_dependency jd
-                   ON jd.partition_id = jtd.partition_id AND jd.job_id = jtd.job_id
-WHERE NOT jtd.suspended
-  AND jtd.eligible_to_run_date IS NOT NULL
-  AND jtd.eligible_to_run_date <= now() AT TIME ZONE 'UTC'  -- now eligible for running
-    AND jd.job_id IS NULL;  -- no other dependencies to wait on
+    RETURN QUERY
+        SELECT
+            jtd.partition_id,
+            jtd.job_id,
+            jtd.task_classifier,
+            jtd.task_api_version,
+            jtd.task_data,
+            jtd.task_pipe,
+            jtd.target_pipe,
+            jtd.correlation_id
+        FROM job_task_data jtd
+        LEFT JOIN job_dependency jd
+            ON jd.partition_id = jtd.partition_id AND jd.job_id = jtd.job_id
+        WHERE NOT jtd.suspended
+            AND jtd.eligible_to_run_date IS NOT NULL
+            AND jtd.eligible_to_run_date <= now() AT TIME ZONE 'UTC'  -- now eligible for running
+            AND jd.job_id IS NULL;  -- no other dependencies to wait on
 
 END
 $$;
