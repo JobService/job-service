@@ -41,7 +41,7 @@ DROP FUNCTION IF EXISTS create_job(
     in_task_pipe VARCHAR(255),
     in_target_pipe VARCHAR(255),
     in_delay INT,
-    in_labels VARCHAR(255)[][] default null
+    in_labels VARCHAR(255)[][]
 );
 
 DROP FUNCTION IF EXISTS create_job(
@@ -58,8 +58,8 @@ DROP FUNCTION IF EXISTS create_job(
     in_target_pipe VARCHAR(255),
     in_prerequisite_job_ids VARCHAR(128)[],
     in_delay INT,
-    in_labels VARCHAR(255)[][] default null,
-    in_suspended_partition BOOLEAN default false
+    in_labels VARCHAR(255)[][],
+    in_suspended_partition BOOLEAN
 );
 
 DROP FUNCTION IF EXISTS internal_create_job(
@@ -70,5 +70,5 @@ DROP FUNCTION IF EXISTS internal_create_job(
     in_data TEXT,
     in_delay INT,
     in_job_hash INT,
-    in_labels VARCHAR(255)[][] default null
+    in_labels VARCHAR(255)[][]
 );
