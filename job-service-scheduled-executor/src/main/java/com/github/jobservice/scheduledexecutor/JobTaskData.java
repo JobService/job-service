@@ -39,7 +39,6 @@ public class JobTaskData
     private String taskPipe;
     @NotNull
     private String targetPipe;
-    @Null
     private String correlationId;
 
     public String getPartitionId() {
