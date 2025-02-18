@@ -21,6 +21,9 @@ import java.util.Objects;
  * This class is used to publish messages on to RabbitMQ.
  * NOTE - best to keep this in synch with
  * job-service\src\main\java\com\github\jobservice\api\generated\model\WorkerAction.java
+ *
+ * Correlation id which is present in this class has intentionally been left out of
+ * generated WorkerAction.java
  */
 public class WorkerAction
 {
@@ -149,12 +152,13 @@ public class WorkerAction
                 Objects.equals(taskData, workerAction.taskData) &&
                 Objects.equals(taskDataEncoding, workerAction.taskDataEncoding) &&
                 Objects.equals(taskPipe, workerAction.taskPipe) &&
-                Objects.equals(targetPipe, workerAction.targetPipe);
+                Objects.equals(targetPipe, workerAction.targetPipe) &&
+                Objects.equals(correlationId, workerAction.correlationId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(taskClassifier, taskApiVersion, taskData, taskDataEncoding, taskPipe, targetPipe);
+        return Objects.hash(taskClassifier, taskApiVersion, taskData, taskDataEncoding, taskPipe, targetPipe, correlationId);
     }
 
     @Override
@@ -168,6 +172,7 @@ public class WorkerAction
         sb.append("    taskDataEncoding: ").append(toIndentedString(taskDataEncoding)).append("\n");
         sb.append("    taskPipe: ").append(toIndentedString(taskPipe)).append("\n");
         sb.append("    targetPipe: ").append(toIndentedString(targetPipe)).append("\n");
+        sb.append("    correlationId: ").append(toIndentedString(correlationId)).append("\n");
         sb.append("}");
         return sb.toString();
     }
