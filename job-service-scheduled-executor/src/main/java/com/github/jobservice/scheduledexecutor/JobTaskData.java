@@ -16,7 +16,6 @@
 package com.github.jobservice.scheduledexecutor;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
 
 import java.util.Objects;
 
@@ -39,6 +38,7 @@ public class JobTaskData
     private String taskPipe;
     @NotNull
     private String targetPipe;
+
     private String correlationId;
 
     public String getPartitionId() {

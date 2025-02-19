@@ -21,9 +21,8 @@ import java.util.Objects;
  * This class is used to publish messages on to RabbitMQ.
  * NOTE - best to keep this in synch with
  * job-service\src\main\java\com\github\jobservice\api\generated\model\WorkerAction.java
- *
- * Correlation id which is present in this class has intentionally been left out of
- * generated WorkerAction.java
+ * <p>
+ * Correlation id which is present in this class has intentionally been left out of generated WorkerAction.java
  */
 public class WorkerAction
 {
