@@ -16,7 +16,6 @@
 package com.github.jobservice.scheduledexecutor;
 
 import jakarta.validation.constraints.NotNull;
-
 import java.util.Objects;
 
 /**
