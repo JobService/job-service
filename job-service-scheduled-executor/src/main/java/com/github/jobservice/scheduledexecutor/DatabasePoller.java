@@ -61,6 +61,7 @@ public class DatabasePoller
                     }
                     workerAction.setTaskPipe(jtd.getTaskPipe());
                     workerAction.setTargetPipe(jtd.getTargetPipe());
+                    workerAction.setCorrelationId(jtd.getCorrelationId());
                     sendMessageToQueueMessaging(codec, jtd, workerAction);
                 }
             }
@@ -129,7 +130,7 @@ public class DatabasePoller
                 dependency.setTaskData(stmt.getResultSet().getBytes(5));
                 dependency.setTaskPipe(stmt.getResultSet().getString(6));
                 dependency.setTargetPipe(stmt.getResultSet().getString(7));
-
+                dependency.setCorrelationId(stmt.getResultSet().getString(8));
                 jobTaskDataList.add(dependency);
             }
 

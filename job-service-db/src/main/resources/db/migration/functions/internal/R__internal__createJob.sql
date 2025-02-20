@@ -29,7 +29,8 @@ CREATE OR REPLACE FUNCTION internal_create_job(
     in_data TEXT,
     in_delay INT,
     in_job_hash INT,
-    in_labels VARCHAR(255)[][] default null
+    in_labels VARCHAR(255)[][] default null,
+    in_correlation_id VARCHAR(48) default null
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql
@@ -50,7 +51,8 @@ BEGIN
         percentage_complete,
         failure_details,
         delay,
-        job_hash
+        job_hash,
+        correlation_id
     ) VALUES (
         in_partition_id,
         in_job_id,
@@ -63,7 +65,8 @@ BEGIN
         0.00,
         NULL,
         in_delay,
-        in_job_hash
+        in_job_hash,
+        in_correlation_id
     );
 
     IF in_labels IS NOT NULL AND in_labels != '{}' THEN
