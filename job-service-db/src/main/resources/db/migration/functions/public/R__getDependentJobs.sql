@@ -28,7 +28,8 @@ RETURNS TABLE(
     task_api_version INT,
     task_data BYTEA,
     task_pipe VARCHAR(255),
-    target_pipe VARCHAR(255)
+    target_pipe VARCHAR(255),
+    correlation_id VARCHAR(48)
 )
 LANGUAGE plpgsql STABLE
 AS $$
@@ -41,7 +42,8 @@ BEGIN
             jtd.task_api_version,
             jtd.task_data,
             jtd.task_pipe,
-            jtd.target_pipe
+            jtd.target_pipe,
+            jtd.correlation_id
         FROM job_task_data jtd
         LEFT JOIN job_dependency jd
             ON jd.partition_id = jtd.partition_id AND jd.job_id = jtd.job_id

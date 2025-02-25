@@ -158,7 +158,9 @@ public final class QueueServices implements AutoCloseable
             TaskStatus.NEW_TASK,
             Collections.emptyMap(),
             targetQueue,
-            trackingInfo);
+            trackingInfo,
+            null,
+            workerAction.getCorrelationId());
     }
 
     private static long getStatusCheckIntervalMillis(final String statusCheckIntervalSeconds)

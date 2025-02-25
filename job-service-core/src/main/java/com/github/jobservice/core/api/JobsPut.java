@@ -34,6 +34,7 @@ import com.github.workerframework.api.TaskStatus;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -178,6 +179,9 @@ public final class JobsPut {
                         .collect(Collectors.toList()));
             }
 
+            final String correlationId = MDC.get("correlationId");
+            if (correlationId == null) throw new RuntimeException("Key 'correlationId' is not set in MDC.");
+
             final boolean partitionSuspended = ApiServiceUtil.isPartitionSuspended(config.getSuspendedPartitionsPattern(), partitionId);
             //  Create job in the database.
             LOG.debug("createOrUpdateJob: Creating job in the database for {} : {}...",
@@ -186,14 +190,14 @@ public final class JobsPut {
             if ((job.getPrerequisiteJobIds() != null && !job.getPrerequisiteJobIds().isEmpty()) || partitionSuspended) {
                 jobCreated = databaseHelper.createJobWithDependencies(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
-                        getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
-                        job.getPrerequisiteJobIds(), job.getDelay(), job.getLabels(), partitionSuspended);
+                        getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(), job.getPrerequisiteJobIds(),
+                        job.getDelay(), job.getLabels(), partitionSuspended, correlationId);
 
             } else {
                 jobCreated = databaseHelper.createJob(partitionId, jobId, job.getName(), job.getDescription(),
                         job.getExternalData(), jobHash, jobTask.getTaskClassifier(), jobTask.getTaskApiVersion(),
                         getTaskDataBytes(jobTask, codec), jobTask.getTaskPipe(), jobTask.getTargetPipe(),
-                        job.getDelay(), job.getLabels());
+                        job.getDelay(), job.getLabels(), correlationId);
             }
 
             if (!jobCreated) {

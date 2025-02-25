@@ -38,6 +38,8 @@ public class JobTaskData
     @NotNull
     private String targetPipe;
 
+    private String correlationId;
+
     public String getPartitionId() {
         return partitionId;
     }
@@ -95,5 +97,13 @@ public class JobTaskData
         if (targetPipe != null && targetPipe.isEmpty())
             throw new IllegalArgumentException("Target Pipe is empty");
         this.targetPipe = targetPipe;
+    }
+
+    public void setCorrelationId(final String correlationId) {
+        this.correlationId = correlationId;
+    }
+
+    public String getCorrelationId() {
+        return correlationId;
     }
 }
