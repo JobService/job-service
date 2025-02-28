@@ -51,12 +51,12 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.5.16</version>
+                <version>1.5.17</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.5.16</version>
+                <version>1.5.17</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback.access</groupId>
@@ -69,14 +69,9 @@
                 <version>2.0.6</version>
             </dependency>
             <dependency>
-                <groupId>com.beust</groupId>
-                <artifactId>jcommander</artifactId>
-                <version>1.82</version>
-            </dependency>
-            <dependency>
                 <groupId>com.ethlo.time</groupId>
                 <artifactId>itu</artifactId>
-                <version>1.10.3</version>
+                <version>1.14.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml</groupId>
@@ -281,22 +276,22 @@
             <dependency>
                 <groupId>com.github.cafdataprocessing.workers.document</groupId>
                 <artifactId>worker-document</artifactId>
-                <version>7.0.0-1496</version>
+                <version>7.1.0-1518</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing.workers.document</groupId>
                 <artifactId>worker-document-interface</artifactId>
-                <version>7.0.0-1496</version>
+                <version>7.1.0-1518</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing.workers.document</groupId>
                 <artifactId>worker-document-shared</artifactId>
-                <version>7.0.0-1496</version>
+                <version>7.1.0-1518</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing.workers.document</groupId>
                 <artifactId>worker-document-utility</artifactId>
-                <version>7.0.0-1496</version>
+                <version>7.1.0-1518</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
@@ -512,7 +507,7 @@
             <dependency>
                 <groupId>com.networknt</groupId>
                 <artifactId>json-schema-validator</artifactId>
-                <version>1.5.5</version>
+                <version>1.5.6</version>
             </dependency>
             <dependency>
                 <groupId>com.rabbitmq</groupId>
@@ -732,12 +727,12 @@
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.17.0</version>
+                <version>1.17.1</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
-                <version>1.17.0</version>
+                <version>1.17.1</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
@@ -748,6 +743,11 @@
                 <groupId>net.sourceforge.argparse4j</groupId>
                 <artifactId>argparse4j</artifactId>
                 <version>0.9.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>4.13.2</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -860,12 +860,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>11.3.1</version>
+                <version>11.3.4</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>11.3.1</version>
+                <version>11.3.4</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.expressly</groupId>
@@ -1047,6 +1047,11 @@
                 <version>3.6.1.Final</version>
             </dependency>
             <dependency>
+                <groupId>org.jcommander</groupId>
+                <artifactId>jcommander</artifactId>
+                <version>2.0</version>
+            </dependency>
+            <dependency>
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
                 <version>20250107</version>
@@ -1059,12 +1064,12 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.11.4</version>
+                <version>5.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-commons</artifactId>
-                <version>1.11.4</version>
+                <version>1.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.jvnet.mimepull</groupId>
@@ -1109,47 +1114,47 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
-                <version>2.0.16</version>
+                <version>2.0.17</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
-                <version>2.0.16</version>
+                <version>2.0.17</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>log4j-over-slf4j</artifactId>
-                <version>2.0.16</version>
+                <version>2.0.17</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>2.0.16</version>
+                <version>2.0.17</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>2.0.16</version>
+                <version>2.0.17</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aop</artifactId>
-                <version>6.2.2</version>
+                <version>6.2.3</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
-                <version>6.2.2</version>
+                <version>6.2.3</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>6.2.2</version>
+                <version>6.2.3</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>6.2.2</version>
+                <version>6.2.3</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework</groupId>
@@ -1160,12 +1165,12 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-expression</artifactId>
-                <version>6.2.2</version>
+                <version>6.2.3</version>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
-                <version>7.10.2</version>
+                <version>7.11.0</version>
             </dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
@@ -1175,7 +1180,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>2.3</version>
+                <version>2.4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -1293,8 +1298,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-jre21</repository>
-                            <tag>4.2.3</tag>
-                            <digest>sha256:94d2f1315af973246a4f1a50723afecbf58856204544faed71360e50f42cab67</digest>
+                            <tag>4.2.4</tag>
+                            <digest>sha256:a18b7a0a7c1297fa416c028d0156e971c1818a0f1ad8e1c90cf1b7fa2277b5c5</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
