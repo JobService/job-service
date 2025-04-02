@@ -461,7 +461,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>33.4.5-jre</version>
+                <version>33.4.6-jre</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -537,72 +537,72 @@
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-assets</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-configuration</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-core</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-health</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-jackson</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-jersey</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-jetty</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-lifecycle</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-logging</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-metrics</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-request-logging</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-servlets</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-util</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-validation</artifactId>
-                <version>5.0.0-rc.1</version>
+                <version>5.0.0-rc.2</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.logback</groupId>
@@ -717,17 +717,17 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.13.1</version>
+                <version>2.14.0</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.17.3</version>
+                <version>1.17.5</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
-                <version>1.17.3</version>
+                <version>1.17.5</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
@@ -794,7 +794,7 @@
             <dependency>
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
-                <version>3.49.1</version>
+                <version>3.49.2</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jettison</groupId>
@@ -855,12 +855,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>11.4.1</version>
+                <version>11.5.0</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>11.4.1</version>
+                <version>11.5.0</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.expressly</groupId>
@@ -1298,13 +1298,13 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-jre21</repository>
-                            <tag>4.2.5</tag>
-                            <digest>sha256:d4ef63665dc923f25173d055de36e6e1222f35f70367832533a9dfeaf1af98f0</digest>
+                            <tag>4.2.6</tag>
+                            <digest>sha256:8dfaf78d8089024edfccc1090abc8d35ffb6dad697448ee4cfb510d15645716e</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>1.1.9</tag>
-                            <digest>sha256:b06fdd6a847d507e704bc847be5ce4d60861c95344c7e0aac861c9535fa27ec9</digest>
+                            <tag>1.1.10</tag>
+                            <digest>sha256:ffcb7999be8fc62a5c8220a047553e43bdfb8af1602c053c46ce8c273ee931b4</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
