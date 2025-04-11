@@ -27,7 +27,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-aggregator</artifactId>
-    <version>9.2.2-SNAPSHOT</version>
+    <version>9.2.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <parent>
@@ -296,13 +296,13 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-config</artifactId>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-container</artifactId>
                 <type>pom</type>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>*</groupId>
@@ -313,47 +313,47 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-contract</artifactId>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-core</artifactId>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db</artifactId>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db-client</artifactId>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-dropwizard</artifactId>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-internal-client</artifactId>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-scheduled-executor</artifactId>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-testing-worker-shared</artifactId>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-util</artifactId>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice.workers.batch</groupId>
@@ -363,13 +363,13 @@
             <dependency>
                 <groupId>com.github.jobservice.workers.jobtracking</groupId>
                 <artifactId>worker-jobtracking</artifactId>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice.workers.jobtracking</groupId>
                 <artifactId>worker-jobtracking-container</artifactId>
                 <type>pom</type>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>*</groupId>
@@ -380,7 +380,7 @@
             <dependency>
                 <groupId>com.github.jobservice.workers.jobtracking</groupId>
                 <artifactId>worker-jobtracking-shared</artifactId>
-                <version>9.2.2-SNAPSHOT</version>
+                <version>9.2.3-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
@@ -461,7 +461,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>33.4.6-jre</version>
+                <version>33.4.7-jre</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -752,7 +752,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
-                <version>1.13.0</version>
+                <version>1.13.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
@@ -809,22 +809,22 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-http</artifactId>
-                <version>12.0.18</version>
+                <version>12.0.19</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-io</artifactId>
-                <version>12.0.18</version>
+                <version>12.0.19</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-security</artifactId>
-                <version>12.0.18</version>
+                <version>12.0.19</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
-                <version>12.0.18</version>
+                <version>12.0.19</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.eclipse.jetty.toolchain</groupId>
@@ -835,17 +835,17 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-session</artifactId>
-                <version>12.0.18</version>
+                <version>12.0.19</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-util</artifactId>
-                <version>12.0.18</version>
+                <version>12.0.19</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty.ee10</groupId>
                 <artifactId>jetty-ee10-servlet</artifactId>
-                <version>12.0.18</version>
+                <version>12.0.19</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty.toolchain.setuid</groupId>
@@ -855,12 +855,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>11.5.0</version>
+                <version>11.7.0</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>11.5.0</version>
+                <version>11.7.0</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.expressly</groupId>
@@ -1064,12 +1064,12 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.12.1</version>
+                <version>5.12.2</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-commons</artifactId>
-                <version>1.12.1</version>
+                <version>1.12.2</version>
             </dependency>
             <dependency>
                 <groupId>org.jvnet.mimepull</groupId>
@@ -1079,7 +1079,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>5.16.1</version>
+                <version>5.17.0</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
@@ -1089,7 +1089,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>5.16.1</version>
+                <version>5.17.0</version>
             </dependency>
             <dependency>
                 <groupId>org.objenesis</groupId>
