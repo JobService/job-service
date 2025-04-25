@@ -55,8 +55,7 @@ public final class DBConnection
             dbSource.setUser(dbUser);
             dbSource.setPassword(dbPass);
             dbSource.setApplicationName(appName);
-            LOG.debug("Connecting to database {} with host {}, port {}, username {} and password {}.",
-                            dbName, dbHost, dbPortString, dbUser, dbPass);
+            LOG.debug("Connecting to database {} with host {}, port {}", dbName, dbHost, dbPortString);
             conn = dbSource.getConnection();
             LOG.debug("Connected to database.");
         }
@@ -67,8 +66,8 @@ public final class DBConnection
         }
         catch(final SQLException se)
         {
-            final String errorMessage = format("Failed to connect to database {0} with host {1}, port {2}, username {3} and password {4}.",
-                    dbName, dbHost, dbPortString, dbUser, dbPass);
+            final String errorMessage = format("Failed to connect to database {0} with host {1}, port {2}",
+                    dbName, dbHost, dbPortString);
             /*
             SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Log forging. The values of databaseUrl, dbUser, dbPass are all set using
             properties or env variables.
