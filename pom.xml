@@ -386,57 +386,57 @@
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>standard-worker-container</artifactId>
                 <type>pom</type>
-                <version>9.1.0-1331</version>
+                <version>9.1.1-1334</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>util-rabbitmq</artifactId>
-                <version>9.1.0-1331</version>
+                <version>9.1.1-1334</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-api</artifactId>
-                <version>9.1.0-1331</version>
+                <version>9.1.1-1334</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-caf</artifactId>
-                <version>9.1.0-1331</version>
+                <version>9.1.1-1334</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-configs</artifactId>
-                <version>9.1.0-1331</version>
+                <version>9.1.1-1334</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-core</artifactId>
-                <version>9.1.0-1331</version>
+                <version>9.1.1-1334</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-default-configs</artifactId>
-                <version>9.1.0-1331</version>
+                <version>9.1.1-1334</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-queue-rabbit</artifactId>
-                <version>9.1.0-1331</version>
+                <version>9.1.1-1334</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-store-fs</artifactId>
-                <version>9.1.0-1331</version>
+                <version>9.1.1-1334</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-store-http</artifactId>
-                <version>9.1.0-1331</version>
+                <version>9.1.1-1334</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-tracking-report</artifactId>
-                <version>9.1.0-1331</version>
+                <version>9.1.1-1334</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework.testing</groupId>
@@ -1298,8 +1298,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>1.1.11</tag>
-                            <digest>sha256:dc3121ea4d101bdf87c5336079fbe5291ec741c50bbf36645b60546fd17d46fd</digest>
+                            <tag>1.1.12</tag>
+                            <digest>sha256:8eb5136a2ab064831c855eb4ebaf10e2c09f075aa8c2003b8644a9dbbcbe3ac5</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
