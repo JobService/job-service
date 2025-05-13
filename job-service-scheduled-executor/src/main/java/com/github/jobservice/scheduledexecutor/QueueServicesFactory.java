@@ -94,7 +94,7 @@ public final class QueueServicesFactory
         final RabbitConfiguration rabbitConfiguration = new RabbitConfiguration();
         rabbitConfiguration.setRabbitProtocol(ScheduledExecutorConfig.getRabbitMQProtocol());
         rabbitConfiguration.setRabbitTlsProtocolVersion(ScheduledExecutorConfig.getRabbitMQTlsProtocolVersion());
-        rabbitConfiguration.setRabbitHost(System.getenv(ScheduledExecutorConfig.getRabbitMQHost()));
+        rabbitConfiguration.setRabbitHost(ScheduledExecutorConfig.getRabbitMQHost());
         rabbitConfiguration.setRabbitPort(ScheduledExecutorConfig.getRabbitMQPort());
         rabbitConfiguration.setRabbitUser(ScheduledExecutorConfig.getRabbitMQUsername());
         rabbitConfiguration.setRabbitPassword(ScheduledExecutorConfig.getRabbitMQPassword());

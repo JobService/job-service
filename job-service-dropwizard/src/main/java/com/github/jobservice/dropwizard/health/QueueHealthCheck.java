@@ -113,7 +113,6 @@ public final class QueueHealthCheck extends HealthCheck
 
     private static String getRabbitTlsProtocolVersion()
     {
-        // Default to 'TLSv1.2' if CAF_RABBITMQ_TLS_PROTOCOL_VERSION is not specified
         final String rabbitTlsProtocolVersion = System.getenv("CAF_RABBITMQ_TLS_PROTOCOL_VERSION");
         if (null == rabbitTlsProtocolVersion || rabbitTlsProtocolVersion.isEmpty()) {
             return "TLSv1.2";

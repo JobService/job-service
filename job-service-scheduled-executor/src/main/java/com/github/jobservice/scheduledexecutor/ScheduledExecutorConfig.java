@@ -84,7 +84,6 @@ public class ScheduledExecutorConfig {
 
     public static String getRabbitMQTlsProtocolVersion()
     {
-        // Default to 'TLSv1.2' if CAF_RABBITMQ_TLS_PROTOCOL_VERSION is not specified
         final String rabbitMqTlsProtocolVersion = getPropertyOrEnvVar("CAF_RABBITMQ_TLS_PROTOCOL_VERSION");
         if (null == rabbitMqTlsProtocolVersion || rabbitMqTlsProtocolVersion.isEmpty()) {
             return "TLSv1.2";
