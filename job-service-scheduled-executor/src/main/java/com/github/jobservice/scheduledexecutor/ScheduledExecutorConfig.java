@@ -82,6 +82,15 @@ public class ScheduledExecutorConfig {
         return rabbitMqProtocol;
     }
 
+    public static String getRabbitMQTlsProtocolVersion()
+    {
+        final String rabbitMqTlsProtocolVersion = getPropertyOrEnvVar("CAF_RABBITMQ_TLS_PROTOCOL_VERSION");
+        if (null == rabbitMqTlsProtocolVersion || rabbitMqTlsProtocolVersion.isEmpty()) {
+            return "TLSv1.2";
+        }
+        return rabbitMqTlsProtocolVersion;
+    }
+
     public static String getRabbitMQHost(){
         return getPropertyOrEnvVar("CAF_RABBITMQ_HOST");
     }

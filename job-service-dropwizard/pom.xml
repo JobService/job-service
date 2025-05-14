@@ -67,6 +67,10 @@
             <artifactId>util-rabbitmq</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-configs</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
         </dependency>

@@ -93,6 +93,10 @@
             <artifactId>worker-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.workerframework</groupId>
+            <artifactId>worker-configs</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.cafapi.common</groupId>
             <artifactId>caf-api</artifactId>
         </dependency>

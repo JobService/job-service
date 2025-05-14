@@ -16,6 +16,7 @@
 package com.github.jobservice.core.queue;
 
 import com.github.cafapi.common.api.Codec;
+import com.github.workerframework.configs.RabbitConfiguration;
 import com.github.workerframework.util.rabbitmq.RabbitUtil;
 import com.github.jobservice.configuration.AppConfig;
 import com.github.jobservice.configuration.AppConfigException;
@@ -75,7 +76,17 @@ public final class QueueServicesFactory {
     private static Connection createConnection(AppConfig configuration)
             throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException, AppConfigException
     {
-        return RabbitUtil.createRabbitConnection(configuration.getRabbitMQProtocol(), configuration.getRabbitMQHost(),
-                configuration.getRabbitMQPort(), configuration.getRabbitMQUsername(), configuration.getRabbitMQPassword());
+        final RabbitConfiguration rabbitConfiguration = new RabbitConfiguration();
+        rabbitConfiguration.setRabbitProtocol(configuration.getRabbitMQProtocol());
+        rabbitConfiguration.setRabbitTlsProtocolVersion(configuration.getRabbitMQTlsProtocolVersion());
+        rabbitConfiguration.setRabbitHost(configuration.getRabbitMQHost());
+        rabbitConfiguration.setRabbitPort(configuration.getRabbitMQPort());
+        rabbitConfiguration.setRabbitUser(configuration.getRabbitMQUsername());
+        rabbitConfiguration.setRabbitPassword(configuration.getRabbitMQPassword());
+        rabbitConfiguration.setMaxBackoffInterval(30);
+        rabbitConfiguration.setBackoffInterval(1);
+        rabbitConfiguration.setMaxAttempts(20);
+
+        return RabbitUtil.createRabbitConnection(rabbitConfiguration);
     }
 }

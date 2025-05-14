@@ -17,6 +17,7 @@ package com.github.jobservice.dropwizard.health;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.github.cafapi.common.util.secret.SecretUtil;
+import com.github.workerframework.configs.RabbitConfiguration;
 import com.github.workerframework.util.rabbitmq.RabbitUtil;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -86,12 +87,18 @@ public final class QueueHealthCheck extends HealthCheck
     private Connection createConnection()
             throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
     {
-        return RabbitUtil.createRabbitConnection(
-                getRabbitProtocol(),
-                System.getenv("CAF_RABBITMQ_HOST"),
-                Integer.parseInt(System.getenv("CAF_RABBITMQ_PORT")),
-                System.getenv("CAF_RABBITMQ_USERNAME"),
-                rabbitPassword);
+        final RabbitConfiguration rabbitConfiguration = new RabbitConfiguration();
+        rabbitConfiguration.setRabbitProtocol(getRabbitProtocol());
+        rabbitConfiguration.setRabbitTlsProtocolVersion(getRabbitTlsProtocolVersion());
+        rabbitConfiguration.setRabbitHost(System.getenv("CAF_RABBITMQ_HOST"));
+        rabbitConfiguration.setRabbitPort(Integer.parseInt(System.getenv("CAF_RABBITMQ_PORT")));
+        rabbitConfiguration.setRabbitUser(System.getenv("CAF_RABBITMQ_USERNAME"));
+        rabbitConfiguration.setRabbitPassword(rabbitPassword);
+        rabbitConfiguration.setMaxBackoffInterval(30);
+        rabbitConfiguration.setBackoffInterval(1);
+        rabbitConfiguration.setMaxAttempts(20);
+
+        return RabbitUtil.createRabbitConnection(rabbitConfiguration);
     }
 
     private static String getRabbitProtocol()
@@ -102,5 +109,14 @@ public final class QueueHealthCheck extends HealthCheck
             return "amqp";
         }
         return rabbitProtocol;
+    }
+
+    private static String getRabbitTlsProtocolVersion()
+    {
+        final String rabbitTlsProtocolVersion = System.getenv("CAF_RABBITMQ_TLS_PROTOCOL_VERSION");
+        if (null == rabbitTlsProtocolVersion || rabbitTlsProtocolVersion.isEmpty()) {
+            return "TLSv1.2";
+        }
+        return rabbitTlsProtocolVersion;
     }
 }
