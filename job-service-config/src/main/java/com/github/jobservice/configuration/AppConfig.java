@@ -90,6 +90,15 @@ public class AppConfig {
         return environment.getProperty("CAF_RABBITMQ_PROTOCOL");
     }
 
+    public String getRabbitMQTlsProtocolVersion()
+    {
+        final String rabbitTlsProtocolVersion = environment.getProperty("CAF_RABBITMQ_TLS_PROTOCOL_VERSION");
+        if (null == rabbitTlsProtocolVersion || rabbitTlsProtocolVersion.isEmpty()) {
+            return "TLSv1.2";
+        }
+        return rabbitTlsProtocolVersion;
+    }
+
     public String getRabbitMQHost(){
         return environment.getProperty("CAF_RABBITMQ_HOST");
     }
