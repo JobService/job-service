@@ -95,11 +95,6 @@
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-toml</artifactId>
-                <version>2.19.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
                 <version>2.19.0</version>
             </dependency>
@@ -667,12 +662,12 @@
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-commons</artifactId>
-                <version>1.14.6</version>
+                <version>1.15.0</version>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-observation</artifactId>
-                <version>1.14.6</version>
+                <version>1.15.0</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.activation</groupId>
@@ -789,7 +784,7 @@
             <dependency>
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
-                <version>3.49.2</version>
+                <version>3.49.3</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jettison</groupId>
@@ -804,22 +799,22 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-http</artifactId>
-                <version>12.0.19</version>
+                <version>12.0.21</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-io</artifactId>
-                <version>12.0.19</version>
+                <version>12.0.21</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-security</artifactId>
-                <version>12.0.19</version>
+                <version>12.0.21</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
-                <version>12.0.19</version>
+                <version>12.0.21</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.eclipse.jetty.toolchain</groupId>
@@ -830,17 +825,17 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-session</artifactId>
-                <version>12.0.19</version>
+                <version>12.0.21</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-util</artifactId>
-                <version>12.0.19</version>
+                <version>12.0.21</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty.ee10</groupId>
                 <artifactId>jetty-ee10-servlet</artifactId>
-                <version>12.0.19</version>
+                <version>12.0.21</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty.toolchain.setuid</groupId>
@@ -850,12 +845,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>11.8.0</version>
+                <version>11.8.2</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>11.8.0</version>
+                <version>11.8.2</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.expressly</groupId>
@@ -1134,22 +1129,22 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aop</artifactId>
-                <version>6.2.6</version>
+                <version>6.2.7</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
-                <version>6.2.6</version>
+                <version>6.2.7</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>6.2.6</version>
+                <version>6.2.7</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>6.2.6</version>
+                <version>6.2.7</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework</groupId>
@@ -1160,7 +1155,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-expression</artifactId>
-                <version>6.2.6</version>
+                <version>6.2.7</version>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
@@ -1293,13 +1288,13 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-jre21</repository>
-                            <tag>4.2.6</tag>
-                            <digest>sha256:8dfaf78d8089024edfccc1090abc8d35ffb6dad697448ee4cfb510d15645716e</digest>
+                            <tag>4.2.7</tag>
+                            <digest>sha256:59810121fb7d72f01c76579277ea21719e3ef8fc607c49dbf0e6d635a93b285c</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>1.1.12</tag>
-                            <digest>sha256:8eb5136a2ab064831c855eb4ebaf10e2c09f075aa8c2003b8644a9dbbcbe3ac5</digest>
+                            <tag>1.1.13</tag>
+                            <digest>sha256:c0e4c7ac7a0bc8dfd378c3d965079c6c6ed8597613521b229ef4d0c7f0d39ac1</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
