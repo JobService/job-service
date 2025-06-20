@@ -23,6 +23,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-caller</artifactId>
+    <name>job-service-caller</name>
     <packaging>pom</packaging>
 
     <parent>

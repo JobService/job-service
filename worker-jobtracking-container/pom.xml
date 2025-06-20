@@ -29,6 +29,7 @@
 
     <groupId>com.github.jobservice.workers.jobtracking</groupId>
     <artifactId>worker-jobtracking-container</artifactId>
+    <name>worker-jobtracking-container</name>
     <packaging>pom</packaging>
 
     <dependencies>

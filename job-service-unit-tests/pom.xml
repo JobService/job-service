@@ -27,6 +27,7 @@
     </parent>
 
     <artifactId>job-service-unit-tests</artifactId>
+    <name>job-service-unit-tests</name>
 
     <properties>
         <maven.install.skip>true</maven.install.skip>

@@ -23,6 +23,7 @@
 
     <groupId>com.github.jobservice.workers.jobtracking</groupId>
     <artifactId>worker-jobtracking-shared</artifactId>
+    <name>worker-jobtracking-shared</name>
 
     <parent>
         <groupId>com.github.jobservice</groupId>

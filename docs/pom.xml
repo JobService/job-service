@@ -23,6 +23,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-docs</artifactId>
+    <name>job-service-docs</name>
     <packaging>pom</packaging>
 
     <parent>
