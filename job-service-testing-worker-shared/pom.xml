@@ -28,6 +28,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-testing-worker-shared</artifactId>
+    <name>job-service-testing-worker-shared</name>
 
     <dependencies>
         <dependency>

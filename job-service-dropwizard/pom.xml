@@ -28,6 +28,7 @@
     </parent>
 
     <artifactId>job-service-dropwizard</artifactId>
+    <name>job-service-dropwizard</name>
 
     <properties>
         <debug.argument>-showversion</debug.argument>

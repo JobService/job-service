@@ -23,6 +23,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-db</artifactId>
+    <name>job-service-db</name>
 
     <parent>
         <groupId>com.github.jobservice</groupId>

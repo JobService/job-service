@@ -23,6 +23,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-contract</artifactId>
+    <name>job-service-contract</name>
 
     <parent>
         <groupId>com.github.jobservice</groupId>

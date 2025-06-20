@@ -23,6 +23,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-acceptance-tests</artifactId>
+    <name>job-service-acceptance-tests</name>
     <packaging>pom</packaging>
 
     <parent>

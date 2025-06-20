@@ -28,6 +28,7 @@
     </parent>
 
     <artifactId>job-service-internal-client</artifactId>
+    <name>job-service-internal-client</name>
 
     <dependencies>
         <dependency>
