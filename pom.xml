@@ -446,7 +446,7 @@
             <dependency>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
-                <version>2.38.0</version>
+                <version>2.39.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -1293,8 +1293,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>1.2.2</tag>
-                            <digest>sha256:abe12b402838323485bfbd23810d93b81e19aa0d84cfdd15f8ed773d8992064e</digest>
+                            <tag>1.2.3</tag>
+                            <digest>sha256:c1d44a6b759aa5ae43d5eda8f380a029938208ac553728a3958707ab1ff93c9c</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
