@@ -27,7 +27,7 @@
 
     <groupId>com.github.jobservice</groupId>
     <artifactId>job-service-aggregator</artifactId>
-    <version>9.3.1-SNAPSHOT</version>
+    <version>9.3.1-620</version>
     <packaging>pom</packaging>
 
     <parent>
@@ -291,13 +291,13 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-config</artifactId>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-container</artifactId>
                 <type>pom</type>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
                 <exclusions>
                     <exclusion>
                         <groupId>*</groupId>
@@ -308,47 +308,47 @@
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-contract</artifactId>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-core</artifactId>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db</artifactId>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-db-client</artifactId>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-dropwizard</artifactId>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-internal-client</artifactId>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-scheduled-executor</artifactId>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-testing-worker-shared</artifactId>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
                 <artifactId>job-service-util</artifactId>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice.workers.batch</groupId>
@@ -358,13 +358,13 @@
             <dependency>
                 <groupId>com.github.jobservice.workers.jobtracking</groupId>
                 <artifactId>worker-jobtracking</artifactId>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice.workers.jobtracking</groupId>
                 <artifactId>worker-jobtracking-container</artifactId>
                 <type>pom</type>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
                 <exclusions>
                     <exclusion>
                         <groupId>*</groupId>
@@ -375,7 +375,7 @@
             <dependency>
                 <groupId>com.github.jobservice.workers.jobtracking</groupId>
                 <artifactId>worker-jobtracking-shared</artifactId>
-                <version>9.3.1-SNAPSHOT</version>
+                <version>9.3.1-620</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
