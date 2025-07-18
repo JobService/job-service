@@ -72,6 +72,8 @@ public final class JobsPut {
      */
     public static String createOrUpdateJob(final String partitionId, String jobId, NewJob job) throws Exception {
         try {
+            LOG.info("createOrUpdateJob: Creating or updating job with id '{}'...", jobId);
+            LOG.info(job.toString());
             LOG.debug("createOrUpdateJob: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
 
