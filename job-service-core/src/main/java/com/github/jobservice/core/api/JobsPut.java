@@ -72,8 +72,26 @@ public final class JobsPut {
      */
     public static String createOrUpdateJob(final String partitionId, String jobId, NewJob job) throws Exception {
         try {
-            LOG.info("createOrUpdateJob: Creating or updating job with id '{}'...", jobId);
-            LOG.info(job.toString());
+            LOG.info("RORY createOrUpdateJob: Creating or updating job with id '{}'...", jobId);
+            boolean roryLog = "true".equalsIgnoreCase(System.getenv().getOrDefault("RORY_LOG", "false"));
+            boolean roryWrite = !"false".equalsIgnoreCase(System.getenv().getOrDefault("RORY_WRITE", "true"));
+
+            if (roryLog) {
+                LOG.info(job.toString());
+            }
+
+            if (roryWrite) {
+                try {
+                    String path = "/tmp/" + job.getName() + "_" + jobId + ".txt";
+                    LOG.info("RORY Writing job to file '{}'...", path);
+                    java.nio.file.Files.write(
+                            java.nio.file.Paths.get(path),
+                            job.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)
+                    );
+                } catch (Exception e) {
+                    LOG.warn("Failed to write job info to file: {}", e.getMessage());
+                }
+            }
             LOG.debug("createOrUpdateJob: Starting...");
             ApiServiceUtil.validatePartitionId(partitionId);
 
