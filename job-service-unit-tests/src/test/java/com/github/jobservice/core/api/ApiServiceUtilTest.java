@@ -66,8 +66,6 @@ public final class ApiServiceUtilTest {
         newEnv.put("JOB_SERVICE_DATABASE_USERNAME","testUserName");
         newEnv.put("JOB_SERVICE_DATABASE_PASSWORD","testPassword");
         newEnv.put("JOB_SERVICE_DATABASE_APPNAME","testAppName");
-        //need to set the invalid path else it will pick JOB_SERVICE_DATABASE details from config.properties and the test will fail
-        newEnv.put("JOB_SERVICE_API_CONFIG_PATH","Override-Default-MissingConfig");
         TestUtil.setSystemEnvironmentFields(newEnv);
 
         //  Test expected failure call to class method because of missing properties/

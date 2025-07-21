@@ -15,10 +15,6 @@
  */
 package com.github.jobservice.configuration;
 
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-
 public final class AppConfigProvider
 {
     private static final String ERR_MSG_DB_CONNECTION_PROPS_MISSING = "One or more PostgreSQL database connection " +
@@ -33,22 +29,13 @@ public final class AppConfigProvider
     }
 
     /**
-     * Load required inputs from config.properties or environment variables.
+     * Load required inputs from environment variables.
      *
      * @return  properties  an object containing the properties read from environment variables
      * @throws  AppConfigException thrown upon configuration issue
      */
     public static AppConfig getAppConfigProperties() throws AppConfigException {
-        AppConfig properties;
-
-        AnnotationConfigApplicationContext propertiesApplicationContext = new AnnotationConfigApplicationContext();
-        propertiesApplicationContext.register(PropertySourcesPlaceholderConfigurer.class);
-        RootBeanDefinition beanDefinition = new RootBeanDefinition();
-        beanDefinition.setBeanClass(AppConfig.class);
-        propertiesApplicationContext.registerBeanDefinition("AppConfig", beanDefinition);
-        propertiesApplicationContext.refresh();
-
-        properties = propertiesApplicationContext.getBean(AppConfig.class);
+        final AppConfig properties = new AppConfig();
 
         try {
             //  Make sure DB connection properties have been specified.
