@@ -16,10 +16,6 @@
 package com.github.jobservice.configuration;
 
 import com.github.cafapi.common.util.secret.SecretUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -35,8 +31,6 @@ import com.google.common.cache.LoadingCache;
 /**
  * Configuration class for the job service api. Includes connection properties to both database and RabbitMQ.
  */
-@Configuration
-@PropertySource(value = "classpath:${JOB_SERVICE_API_CONFIG_PATH:config.properties}", ignoreResourceNotFound = true)
 public class AppConfig {
 
     private enum SecretKey
@@ -54,8 +48,11 @@ public class AppConfig {
                 }
             });
 
-    @Autowired
-    private Environment environment;
+    private static final Environment environment = new Environment();
+
+    AppConfig()
+    {
+    }
 
     public String getDatabaseHost(){
         return environment.getProperty("JOB_SERVICE_DATABASE_HOST");
