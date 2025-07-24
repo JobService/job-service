@@ -82,14 +82,19 @@ public final class JobsPut {
 
             if (roryWrite) {
                 try {
-                    String path = "/tmp/" + job.getName() + "_" + jobId + ".txt";
-                    LOG.info("RORY Writing job to file '{}'...", path);
+                    String dirPath = "/etc/store/rory";
+                    String filePath = dirPath + "/" + job.getName() + "_" + jobId + ".txt";
+                
+                    java.nio.file.Path dir = java.nio.file.Paths.get(dirPath);
+                    java.nio.file.Files.createDirectories(dir); // Create directory if it doesn't exist
+                
+                    LOG.info("RORY Writing job to file '{}'...", filePath);
                     java.nio.file.Files.write(
-                            java.nio.file.Paths.get(path),
+                            java.nio.file.Paths.get(filePath),
                             job.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)
                     );
                 } catch (Exception e) {
-                    LOG.warn("Failed to write job info to file: {}", e.getMessage());
+                    LOG.warn("Failed to write job info to file: {}", e.getMessage(), e);
                 }
             }
             LOG.debug("createOrUpdateJob: Starting...");
