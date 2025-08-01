@@ -86,8 +86,9 @@ public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnLis
         try {
             DatabasePoller.deleteDependentJob(partitionId, jobId);
         } catch (final ScheduledExecutorException e) {
-            // Failing to delete from job_task_data will mean the job will be picked up again later and another message
-            // sent to the target queue, not sure how we can prevent this?
+            // If we failed to delete the job from job_task_data it means that the job will be picked up again
+            // later and retried.
+            // This is not ideal, but not sure what else we can do here.
             LOG.error("Failed to delete dependent job {} for partition {} from job_task_data: {}",
                     jobId, partitionId, e.getMessage(), e);
         }
@@ -234,7 +235,6 @@ public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnLis
                 final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
                 mapper.setDateFormat(df);
                 try {
-                    // TODO job task id
                     DatabasePoller.reportFailure(partitionId, jobId, mapper.writeValueAsString(f));
                 } catch (final ScheduledExecutorException | JsonProcessingException e) {
                     // If we failed to mark the job as failed in the database just return here without deleting the job
