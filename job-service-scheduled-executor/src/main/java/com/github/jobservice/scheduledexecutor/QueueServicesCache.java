@@ -95,7 +95,7 @@ final class QueueServicesCache {
 
     /**
      * Explicitly invalidates and removes a QueueServices instance from the cache.
-     * Call this when an ack or nack is received. This will trigger the removal listener to close the connection.
+     * This will trigger the removal listener to close the connection.
      *
      * @param key The unique key to invalidate.
      */
@@ -130,7 +130,7 @@ final class QueueServicesCache {
                             "Reason: Publisher ack, nack, return or shutdown received.", notification.getKey());
                     break;
                 case EXPIRED:
-                    LOG.warn("Removing QueueServices with key={} from cache. Reason: No publisher ack, nack, return " +
+                    LOG.error("Removing QueueServices with key={} from cache. Reason: No publisher ack, nack, return " +
                                     "or shutdown received within timeout period of {} minutes.",
                             notification.getKey(), TIMEOUT_MINUTES);
                     break;

@@ -15,6 +15,8 @@
  */
 package com.github.jobservice.scheduledexecutor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConfirmListener;
@@ -25,6 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Manages and analyzes publisher confirmations, returns, and shutdowns to determine
@@ -73,11 +79,18 @@ public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnLis
         LOG.info("Received ACK for deliveryTag: {} (multiple: {}) [partitionId={}, jobId={}, queue={}]",
                 deliveryTag, multiple, partitionId, jobId, targetQueue);
 
-        // Delete the job from the job_task_data table as it has been successfully processed
-        DatabasePoller.deleteDependentJob(partitionId, jobId);
-
         // Remove the QueueServices instance from the cache (will also call QueueServices.close())
         QueueServicesCache.invalidate(new QueueServicesCache.Key(partitionId, jobId));
+
+        // Delete the job from the job_task_data table as it has been successfully processed
+        try {
+            DatabasePoller.deleteDependentJob(partitionId, jobId);
+        } catch (final ScheduledExecutorException e) {
+            // Failing to delete from job_task_data will mean the job will be picked up again later and another message
+            // sent to the target queue, not sure how we can prevent this?
+            LOG.error("Failed to delete dependent job {} for partition {} from job_task_data: {}",
+                    jobId, partitionId, e.getMessage(), e);
+        }
     }
 
     /**
@@ -92,11 +105,12 @@ public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnLis
     public void handleNack(final long deliveryTag, final boolean multiple) throws IOException {
         // This is a soft failure. Assume TRANSIENT because the most common reason is a full queue.
         final String reason = String.format(
-                "Received NACK for deliveryTag: %d (multiple: %b) [partitionId=%s, jobId=%s, queue=%s]",
+                "Received NACK for deliveryTag: %d (multiple: %b) [partitionId=%s, jobId=%s, queue=%s]. " +
+                        "Assuming this is due to a transient issue like queue full or network problem.",
                 deliveryTag, multiple, partitionId, jobId, targetQueue);
         LOG.warn(reason);
 
-        handleFailure(FailureType.TRANSIENT);
+        handleFailure(FailureType.TRANSIENT, reason);
     }
 
     /**
@@ -112,7 +126,7 @@ public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnLis
                 replyCode, replyText, exchange, routingKey, partitionId, jobId, targetQueue);
         LOG.error("NON-TRANSIENT failure: {}", reason);
 
-        handleFailure(FailureType.NON_TRANSIENT);
+        handleFailure(FailureType.NON_TRANSIENT, reason);
     }
 
     /**
@@ -135,7 +149,7 @@ public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnLis
         LOG.error("{} failure: {} [partitionId={}, jobId={}, queue={}]",
                 failureType, reason, partitionId, jobId, targetQueue, cause);
 
-        handleFailure(failureType);
+        handleFailure(failureType, reason);
     }
 
     /**
@@ -198,7 +212,7 @@ public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnLis
      *
      * @param type The type of failure (TRANSIENT or NON_TRANSIENT).
      */
-    private void handleFailure(final FailureType type) {
+    private void handleFailure(final FailureType type, final String reason) {
         switch (type) {
             case TRANSIENT:
                 // Remove the QueueServices instance from the cache (will also call QueueServices.close())
@@ -206,14 +220,43 @@ public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnLis
 
                 break;
             case NON_TRANSIENT:
-                // Delete the job from the job_task_data table to prevent the job from being retried
-                DatabasePoller.deleteDependentJob(partitionId, jobId);
-
                 // Remove the QueueServices instance from the cache (will also call QueueServices.close())
                 QueueServicesCache.invalidate(new QueueServicesCache.Key(partitionId, jobId));
 
                 // Mark the job as failed in the database
-                LOG.error("TODO MARK JOB AS FAILED IN DB");
+                final QueueFailure f = new QueueFailure();
+                f.setFailureId("ADD_TO_QUEUE_FAILURE");
+                f.setFailureTime(new Date());
+                f.failureSource(MessageFormat.format("Job Service Scheduled Executor for job id {0}", jobId));
+                f.failureMessage(reason);
+
+                final ObjectMapper mapper = new ObjectMapper();
+                final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                mapper.setDateFormat(df);
+                try {
+                    // TODO job task id
+                    DatabasePoller.reportFailure(partitionId, jobId, mapper.writeValueAsString(f));
+                } catch (final ScheduledExecutorException | JsonProcessingException e) {
+                    // If we failed to mark the job as failed in the database just return here without deleting the job
+                    // from job_task_data, which means that the job will be picked up again later and retried.
+                    // This is not ideal, but at least we won't lose the message for the job.
+                    LOG.error("Failed to mark the job {} for partition {} as failed in the database: {}",
+                            jobId, partitionId, e.getMessage(), e);
+                    return;
+                }
+
+                // We have just marked the job as failed in the database, so delete the job from the job_task_data
+                // table to prevent the job from being retried
+                try {
+                    DatabasePoller.deleteDependentJob(partitionId, jobId);
+                } catch (final ScheduledExecutorException e) {
+                    // If we failed to delete the job from job_task_data it means that the job will be picked up again
+                    // later and retried, even though we have already marked it as failed in the database.
+                    // This is not ideal, but not sure what else we can do here.
+                    LOG.error("Failed to delete dependent job {} for partition {} from job_task_data: {}",
+                            jobId, partitionId, e.getMessage(), e);
+                    return;
+                }
 
                 break;
         }

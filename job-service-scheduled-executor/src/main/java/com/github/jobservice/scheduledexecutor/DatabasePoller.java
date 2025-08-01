@@ -53,7 +53,7 @@ public class DatabasePoller
 
                 //  For each job to run, submit message to the rabbitMQ queue for further processing.
                 for (final JobTaskData jtd : jobsToRun) {
-                    LOG.info(MessageFormat.format("Processing job id {0} ...", jtd.getJobId()));
+                    LOG.info(MessageFormat.format("Processing job task id {0} ...", jtd.getJobId()));
 
                     final WorkerAction workerAction = new WorkerAction();
                     workerAction.setTaskClassifier(jtd.getTaskClassifier());
@@ -107,11 +107,11 @@ public class DatabasePoller
             // TODO distinguish between transient and non-transient errors
         }
     }
-    
+
     /**
      * Deletes the supplied job from the job_task_data database table.
      */
-    public static void deleteDependentJob(final String partitionId, final String jobId)
+    public static void deleteDependentJob(final String partitionId, final String jobId) throws ScheduledExecutorException
     {
         try (
                 Connection connection = DBConnection.get();
@@ -120,10 +120,11 @@ public class DatabasePoller
             stmt.setString(2, jobId);
             LOG.info(MessageFormat.format("Calling delete_dependent_job({0},{1}) database function ...", partitionId, jobId));
             stmt.execute();
-        } catch (final ScheduledExecutorException | SQLException e) {
-            final String errorMessage = MessageFormat.format("Failed in call to delete_dependent_job({0},{1}) database function. {2}",
+        } catch (final SQLException e) {
+            final String errorMessage = MessageFormat.format("Failed in call to delete_dependent_job({0},{1}) database function.{3}",
                     partitionId, jobId,e.getMessage());
             LOG.error(errorMessage);
+            throw new ScheduledExecutorException(errorMessage);
         }
     }
 
@@ -165,4 +166,31 @@ public class DatabasePoller
         }
     }
 
+    /**
+     * Reports failure for the specified job identifier.
+     */
+    public static void reportFailure(
+            final String partitionId,
+            final String jobTaskId,
+            final String failureDetails) throws ScheduledExecutorException {
+        /*
+        SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Unreleased Resource: Database.
+        */
+        try (
+                Connection conn = DBConnection.get();
+                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")
+        ) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2,jobTaskId);
+            stmt.setString(3,failureDetails);
+
+            LOG.info("Calling report_failure() database function...");
+            stmt.execute();
+        } catch (final SQLException e) {
+            final String errorMessage = MessageFormat.format(
+                    "Failed in call to report_failure() database function.{0}", e.getMessage());
+            LOG.error(errorMessage);
+            throw new ScheduledExecutorException(errorMessage);
+        }
+    }
 }
