@@ -139,6 +139,11 @@ final class QueueServicesCache {
                             notification.getKey(), notification.getCause());
                     break;
             }
+
+            // Create a new thread to call QueueServices.close() (prevents a TimeoutException on the main thread)
+            LOG.info("Calling close() on QueueServices with key={}", notification.getKey());
+            final Thread cleanupThread = new Thread(queueServices::close);
+            cleanupThread.start();
         }
     }
 }

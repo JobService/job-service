@@ -76,20 +76,8 @@ public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnLis
         // Delete the job from the job_task_data table as it has been successfully processed
         DatabasePoller.deleteDependentJob(partitionId, jobId);
 
-        // Retrieve the QueueServices instance to close the resources
-        final QueueServicesCache.Key key = new QueueServicesCache.Key(partitionId, jobId);
-        final QueueServices queueServices = QueueServicesCache.getIfPresent(key);
-
-        // Close the resources and then invalidate the cache on a separate thread
-        // If this is not done on a separate thread, it will result in a TimeoutException after 10 seconds
-        final Thread cleanupThread = new Thread(() -> {
-            try {
-                queueServices.close();
-            } finally {
-                QueueServicesCache.invalidate(key);
-            }
-        });
-        cleanupThread.start();
+        // Remove the QueueServices instance from the cache (will also call QueueServices.close())
+        QueueServicesCache.invalidate(new QueueServicesCache.Key(partitionId, jobId));
     }
 
     /**
@@ -211,32 +199,18 @@ public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnLis
      * @param type The type of failure (TRANSIENT or NON_TRANSIENT).
      */
     private void handleFailure(final FailureType type) {
-        // Retrieve the QueueServices instance to close the resources
-        final QueueServicesCache.Key key = new QueueServicesCache.Key(partitionId, jobId);
-        final QueueServices queueServices = QueueServicesCache.getIfPresent(key);
-
-        // Close the resources and then invalidate the cache on a separate thread
-        // If this is not done on a separate thread, it will result in a TimeoutException after 10 seconds
-        final Thread cleanupThread = new Thread(() -> {
-            try {
-                queueServices.close();
-            } finally {
-                QueueServicesCache.invalidate(key);
-            }
-        });
-
         switch (type) {
             case TRANSIENT:
-                // Close the resources and then invalidate the cache
-                cleanupThread.start();
+                // Remove the QueueServices instance from the cache (will also call QueueServices.close())
+                QueueServicesCache.invalidate(new QueueServicesCache.Key(partitionId, jobId));
 
                 break;
             case NON_TRANSIENT:
                 // Delete the job from the job_task_data table to prevent the job from being retried
                 DatabasePoller.deleteDependentJob(partitionId, jobId);
 
-                // Close the resources and then invalidate the cache
-                cleanupThread.start();
+                // Remove the QueueServices instance from the cache (will also call QueueServices.close())
+                QueueServicesCache.invalidate(new QueueServicesCache.Key(partitionId, jobId));
 
                 // Mark the job as failed in the database
                 LOG.error("TODO MARK JOB AS FAILED IN DB");
