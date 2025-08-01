@@ -111,7 +111,7 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
      */
     @Override
     public void handleAck(final long deliveryTag, final boolean multiple) {
-        LOG.info("Message acknowledged by broker - deliveryTag: {} (multiple: {}) [partitionId={}, jobId={}, queue={}]",
+        LOG.info("Message acknowledged by broker (deliveryTag: {}, multiple: {}). [partitionId={}, jobId={}, queue={}]",
                 deliveryTag, multiple, partitionId, jobId, targetQueue);
 
         // A successful ACK means we can safely remove the job from the system.
@@ -129,11 +129,11 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
     @Override
     public void handleNack(final long deliveryTag, final boolean multiple) {
         final String reason = String.format(
-                "Message rejected by broker - deliveryTag: %d (multiple: %b) [partitionId=%s, jobId=%s, queue=%s]. " +
-                        "This is likely a transient issue, such as a full queue.",
-                deliveryTag, multiple, partitionId, jobId, targetQueue);
+                "Message rejected by broker (deliveryTag: %d, multiple: %b). Likely a transient issue like a full queue.",
+                deliveryTag, multiple);
 
-        LOG.warn("TRANSIENT failure detected: {}", reason);
+        LOG.warn("TRANSIENT failure detected. {} [partitionId={}, jobId={}, queue={}]",
+                reason, partitionId, jobId, targetQueue);
         handleFailure(FailureType.TRANSIENT, reason);
     }
 
@@ -153,11 +153,11 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
                              final String routingKey, final AMQP.BasicProperties properties, final byte[] body) {
 
         final String reason = String.format(
-                "Unroutable message - Reply code: %d, Text: '%s', Exchange: '%s', " +
-                        "RoutingKey: '%s' [partitionId=%s, jobId=%s, queue=%s]",
-                replyCode, replyText, exchange, routingKey, partitionId, jobId, targetQueue);
+                "Unroutable message. Reply code: %d, Text: '%s', Exchange: '%s', RoutingKey: '%s'",
+                replyCode, replyText, exchange, routingKey);
 
-        LOG.error("NON-TRANSIENT failure detected: {}", reason);
+        LOG.error("NON-TRANSIENT failure detected. {} [partitionId={}, jobId={}, queue={}]",
+                reason, partitionId, jobId, targetQueue);
         handleFailure(FailureType.NON_TRANSIENT, reason);
     }
 
@@ -172,7 +172,7 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
     public void shutdownCompleted(final ShutdownSignalException cause) {
         // Ignore graceful shutdowns initiated by our application.
         if (cause.isInitiatedByApplication()) {
-            LOG.info("Channel shutdown initiated by application - no action needed [partitionId={}, jobId={}, queue={}]",
+            LOG.info("Channel shutdown initiated by application. No action needed. [partitionId={}, jobId={}, queue={}]",
                     partitionId, jobId, targetQueue);
             return;
         }
@@ -180,7 +180,7 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
         final FailureType failureType = analyzeShutdownCause(cause) ? FailureType.TRANSIENT : FailureType.NON_TRANSIENT;
         final String reason = String.format("Unexpected shutdown: %s", cause.getMessage());
 
-        LOG.error("{} failure detected: {} [partitionId={}, jobId={}, queue={}]",
+        LOG.error("{} failure detected. {} [partitionId={}, jobId={}, queue={}]",
                 failureType, reason, partitionId, jobId, targetQueue, cause);
 
         handleFailure(failureType, reason);
@@ -200,12 +200,12 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
         // If no AMQP reply code is available, check for a network I/O issue.
         if (replyCode == -1) {
             boolean isIoException = cause.getCause() instanceof IOException;
-            LOG.debug("No AMQP reply code found. Assuming network I/O issue is transient: {} [partitionId={}, jobId={}, queue={}]",
+            LOG.debug("No AMQP reply code found. Assuming network I/O issue is transient: {}. [partitionId={}, jobId={}, queue={}]",
                     isIoException, partitionId, jobId, targetQueue);
             return isIoException; // Network I/O exceptions are typically transient.
         }
 
-        LOG.info("Analyzing AMQP reply code: {} [partitionId={}, jobId={}, queue={}]",
+        LOG.info("Analyzing AMQP reply code: {}. [partitionId={}, jobId={}, queue={}]",
                 replyCode, partitionId, jobId, targetQueue);
 
         return isReplyCodeTransient(replyCode);
@@ -260,7 +260,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
 
             // Default to non-transient for unknown codes to prevent infinite retries.
             default -> {
-                LOG.warn("Unknown AMQP reply code: {}. Assuming NON-TRANSIENT to prevent retry loop.", replyCode);
+                LOG.warn("Unknown AMQP reply code: {}. Assuming NON-TRANSIENT to prevent retry loop. [partitionId={}, jobId={}, queue={}]",
+                        replyCode, partitionId, jobId, targetQueue);
                 yield false;
             }
         };
@@ -279,8 +280,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
             DatabasePoller.deleteDependentJob(partitionId, jobId);
         } catch (final ScheduledExecutorException e) {
             // If deletion fails, log a warning. The job will be retried later, which is not ideal but acceptable.
-            LOG.error("Failed to delete completed job {} for partition {} from job_task_data. " +
-                    "Job may be retried: {}", jobId, partitionId, e.getMessage(), e);
+            LOG.error("Failed to delete completed job from job_task_data. Job may be retried. [partitionId={}, jobId={}, queue={}, error={}]",
+                    partitionId, jobId, targetQueue, e.getMessage(), e);
         }
     }
 
@@ -303,8 +304,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
         if (failureType == FailureType.NON_TRANSIENT) {
             handleNonTransientFailure(reason);
         } else {
-            LOG.warn("Transient failure handled. Job will be retried later. [partitionId={}, jobId={}]",
-                    partitionId, jobId);
+            LOG.warn("Transient failure handled. Job will be retried later. [partitionId={}, jobId={}, queue={}]",
+                    partitionId, jobId, targetQueue);
         }
     }
 
@@ -323,8 +324,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
         try {
             failureJson = serializeFailure(failure);
         } catch (final JsonProcessingException e) {
-            LOG.error("Failed to serialize failure record for job {} (partition {}). " +
-                    "Cannot mark as failed, so job will be retried: {}", jobId, partitionId, e.getMessage(), e);
+            LOG.error("Failed to serialize failure record. Cannot mark as failed, so job will be retried. [partitionId={}, jobId={}, queue={}, error={}]",
+                    partitionId, jobId, targetQueue, e.getMessage(), e);
             return;
         }
 
@@ -332,8 +333,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
         try {
             DatabasePoller.reportFailure(partitionId, jobId, failureJson);
         } catch (final ScheduledExecutorException e) {
-            LOG.error("Failed to mark job {} (partition {}) as failed in the database. " +
-                    "Job will be retried: {}", jobId, partitionId, e.getMessage(), e);
+            LOG.error("Failed to mark job as failed in the database. Job will be retried. [partitionId={}, jobId={}, queue={}, error={}]",
+                    partitionId, jobId, targetQueue, e.getMessage(), e);
             return;
         }
 
@@ -343,9 +344,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
         } catch (final ScheduledExecutorException e) {
             // This is a less critical error, as the failure has already been recorded.
             // The job may be retried, but at least the failure is documented.
-            LOG.error("Failed to delete non-transient job {} for partition {} from job_task_data. " +
-                            "Job may be retried despite being marked as failed: {}",
-                    jobId, partitionId, e.getMessage(), e);
+            LOG.error("Failed to delete non-transient job from job_task_data. Job may be retried despite being marked as failed. [partitionId={}, jobId={}, queue={}, error={}]",
+                    partitionId, jobId, targetQueue, e.getMessage(), e);
         }
     }
 
