@@ -45,18 +45,23 @@ public final class QueueServices implements AutoCloseable
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
 
+    private final String partitionId;
+    private final String jobId;
     private final Connection connection;
     private final Channel publisherChannel;
     private final String targetQueue;               // Queue that should be set in the 'to' field of the task message
-
     private final Codec codec;
 
     public QueueServices(
+            final String partitionId,
+            final String jobId,
             final Connection connection,
             final Channel publisherChannel,
             final String targetQueue,
             final Codec codec) {
 
+        this.partitionId = partitionId;
+        this.jobId = jobId;
         this.connection = connection;
         this.publisherChannel = publisherChannel;
         this.targetQueue = targetQueue;
@@ -72,7 +77,7 @@ public final class QueueServices implements AutoCloseable
      */
     public void sendMessage(
         final String partitionId, final String jobId, final WorkerAction workerAction
-    ) throws IOException, URISyntaxException {
+    ) throws IOException, URISyntaxException, InterruptedException, TimeoutException {
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
@@ -105,7 +110,7 @@ public final class QueueServices implements AutoCloseable
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Publishing the following message to the {} queue: {}",
+            LOG.info("Publishing the following message to the {} queue: {}",
                     targetQueue, new String(taskMessageBytes, StandardCharsets.UTF_8));
         }
 
@@ -174,27 +179,33 @@ public final class QueueServices implements AutoCloseable
 
     /**
      * Closes the queue connection.
-     * @throws RuntimeException thrown if the queue connection cannot be closed.
      */
     @Override
-    public void close() throws RuntimeException{
+    public void close() {
         try {
             //  Close channel.
-            if (publisherChannel != null) {
-                LOG.debug("Closing channel ...");
+            if (publisherChannel != null && publisherChannel.isOpen()) {
+                LOG.info("Closing channel [partitionId={}, jobId={}, queue={}]...",
+                        partitionId, jobId, targetQueue);
                 publisherChannel.close();
+            } else {
+                LOG.info("Publisher channel is already closed or was never opened [partitionId={}, jobId={}, queue={}]",
+                        partitionId, jobId, targetQueue);
             }
 
             //  Close connection.
-            if (connection != null) {
-                LOG.debug("Closing connection ...");
+            if (connection != null && connection.isOpen()) {
+                LOG.info("Closing connection [partitionId={}, jobId={}, queue={}]...",
+                        partitionId, jobId, targetQueue);
                 connection.close();
+            } else {
+                LOG.info("Connection is already closed or was never opened [partitionId={}, jobId={}, queue={}]",
+                        partitionId, jobId, targetQueue);
             }
 
-        } catch (IOException | TimeoutException e) {
-            final String errorMessage = "Failed to close the queuing connection.";
-            LOG.error(errorMessage);
-            throw new RuntimeException(errorMessage);
+        } catch (final IOException | TimeoutException e) {
+            LOG.error("Failed to close the queuing connection [partitionId={}, jobId={}, queue={}]",
+                    partitionId, jobId, targetQueue, e);
         }
     }
 

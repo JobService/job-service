@@ -181,4 +181,12 @@ public class ScheduledExecutorConfig {
         }
         return Integer.parseInt(period);
     }
+
+    public static int getQueueServicesCacheTimeoutMinutes() {
+        final String timeoutMinutes = getPropertyOrEnvVar("CAF_QUEUE_SERVICES_CACHE_TIMEOUT_MINUTES");
+        if (null == timeoutMinutes || timeoutMinutes.isEmpty()) {
+            return 5;
+        }
+        return Integer.parseInt(timeoutMinutes);
+    }
 }

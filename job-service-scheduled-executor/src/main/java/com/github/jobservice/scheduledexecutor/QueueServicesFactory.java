@@ -66,7 +66,8 @@ public final class QueueServicesFactory
      * @throws  IOException                     thrown if the connection cannot be created
      * @throws  TimeoutException                thrown if the connection cannot be created
      */
-    public static QueueServices create(final String targetQueue, final String partitionId, final Codec codec)
+    public static QueueServices create(
+            final String partitionId, final String jobId, final String targetQueue, final Codec codec)
             throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException
     {
         //  Create connection and channel for publishing messages.
@@ -76,13 +77,16 @@ public final class QueueServicesFactory
         LOG.debug("Creating channel ...");
         final Channel publishChannel = connection.createChannel();
 
+        publishChannel.confirmSelect();
+        new PublisherConfirmationAnalyzer(publishChannel, partitionId, jobId, targetQueue);
+
         //  Declare worker queue.
         LOG.debug("Declaring worker queue {}...", targetQueue);
 
         //setting queue properties: durable - true, exclusive - false, autoDelete - false
         publishChannel.queueDeclare(targetQueue, true, false, false, QUEUE_ARGUMENTS);
 
-        return new QueueServices(connection, publishChannel, targetQueue, codec);
+        return new QueueServices(partitionId, jobId, connection, publishChannel, targetQueue, codec);
     }
 
     /**

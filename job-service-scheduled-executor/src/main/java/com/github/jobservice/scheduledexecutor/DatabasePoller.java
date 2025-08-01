@@ -39,6 +39,8 @@ public class DatabasePoller
 
     public static void pollDatabaseForJobsToRun() {
         try {
+            LOG.info("QueueServicesCache size: {}", QueueServicesCache.size());
+
             //  Poll database for prerequisite jobs that are now available to be run.
             LOG.debug("Polling Job Service database for jobs to run ...");
             final List<JobTaskData> jobsToRun = getDependentJobsToRun();
@@ -74,20 +76,42 @@ public class DatabasePoller
 
     private static void sendMessageToQueueMessaging(final Codec codec, final JobTaskData jtd, final WorkerAction workerAction)
     {
-        try (final QueueServices queueServices= QueueServicesFactory.create(jtd.getTaskPipe(), jtd.getPartitionId(), codec)){
+        // Create a QueueServices instance to send the message for this job to the queue
+        final QueueServicesCache.Key key = new QueueServicesCache.Key(jtd.getPartitionId(),  jtd.getJobId());
+        final QueueServices queueServices;
+        try {
+            final QueueServices existingEntry = QueueServicesCache.getIfPresent(key);
+            if (existingEntry == null) {
+                queueServices =
+                        QueueServicesFactory.create(jtd.getPartitionId(), jtd.getJobId(), jtd.getTaskPipe(), codec);
+                QueueServicesCache.put(key, queueServices);
+            } else {
+                LOG.warn("A QueueServices instance already exists for key={}. This means we have already sent a " +
+                                "message for this job to the {} queue and are awaiting a publisher confirm. The " +
+                                "new job will be processed when a publisher confirm is received for the existing job " +
+                                "(or the QueueServicesCache timeout occurs).",
+                        key, jtd.getTaskPipe());
+                return;
+            }
+        } catch (final Exception e) {
+            LOG.error(MessageFormat.format(
+                    "Exception thrown creating QueueServices for partition ID {0} and task pipe {1}. {2}",
+                    jtd.getPartitionId(), jtd.getTaskPipe(), e.getMessage()), e);
+            return;
+        }
+
+        // Send the message for this job to the queue, responses will be handled by the QueueServices instance
+        try {
             queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
-            deleteDependentJob(jtd.getPartitionId(), jtd.getJobId());
-        } catch(final Exception ex) {
-            LOG.warn(MessageFormat.format(
-                    "Exception thrown during processing of job with partition ID {0}, job ID {1} and task data {2}",
-                    jtd.getPartitionId(), jtd.getJobId(), workerAction), ex);
+        } catch (final Exception e) {
+            // TODO distinguish between transient and non-transient errors
         }
     }
     
     /**
      * Deletes the supplied job from the job_task_data database table.
      */
-    private static void deleteDependentJob(final String partitionId, final String jobId) throws ScheduledExecutorException
+    public static void deleteDependentJob(final String partitionId, final String jobId)
     {
         try (
                 Connection connection = DBConnection.get();
@@ -96,11 +120,10 @@ public class DatabasePoller
             stmt.setString(2, jobId);
             LOG.info(MessageFormat.format("Calling delete_dependent_job({0},{1}) database function ...", partitionId, jobId));
             stmt.execute();
-        } catch (final SQLException e) {
-            final String errorMessage = MessageFormat.format("Failed in call to delete_dependent_job({0},{1}) database function.{3}",
+        } catch (final ScheduledExecutorException | SQLException e) {
+            final String errorMessage = MessageFormat.format("Failed in call to delete_dependent_job({0},{1}) database function. {2}",
                     partitionId, jobId,e.getMessage());
             LOG.error(errorMessage);
-            throw new ScheduledExecutorException(errorMessage);
         }
     }
 
