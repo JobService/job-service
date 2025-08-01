@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,12 +33,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Manages and analyzes publisher confirmations, returns, and shutdowns to determine
- * if a message failure is transient.
- * <p>
- * It implements all necessary listeners and should be added to the channel.
+ * Monitors RabbitMQ publisher confirmations, message returns, and channel shutdowns
+ * to determine if message publication failures are transient or permanent.
+ *
+ * <p>This analyzer listens for three event types to provide comprehensive failure analysis:
+ * <ul>
+ * <li><b>Publisher confirmations (ACK/NACK):</b> Indicates the broker's acceptance or rejection of a message.</li>
+ * <li><b>Message returns:</b> Signifies that a 'mandatory' message could not be routed to any queue.</li>
+ * <li><b>Channel shutdowns:</b> Reports unexpected connection or channel-level failures.</li>
+ * </ul>
+ *
+ * <p>The analyzer is automatically registered as a listener on the provided channel.
+ * Based on its analysis, it either leaves the job to be retried (transient failure)
+ * or marks it as permanently failed and removes it from the queue (non-transient failure).
  */
-public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnListener, ShutdownListener {
+public final class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnListener, ShutdownListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(PublisherConfirmationAnalyzer.class);
 
@@ -46,25 +55,46 @@ public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnLis
     private final String jobId;
     private final String targetQueue;
 
+    /**
+     * Enumerates the types of message publication failures.
+     */
     public enum FailureType {
-        /** The error may be resolved by retrying later (e.g., queue full, network issue). */
+        /**
+         * A temporary failure that may be resolved by retrying later.
+         * Examples include network issues, full queues, or a broker under heavy load.
+         */
         TRANSIENT,
-        /** The error will not be resolved by retrying (e.g., unroutable message, invalid permissions). */
-        NON_TRANSIENT;
+
+        /**
+         * A permanent failure that will not be resolved by retrying.
+         * Examples include unroutable messages, invalid permissions, or protocol errors.
+         */
+        NON_TRANSIENT
     }
 
+    /**
+     * Constructs a new analyzer and registers it with the specified channel.
+     *
+     * @param channel The RabbitMQ channel to monitor (must not be null).
+     * @param partitionId The partition identifier for this job.
+     * @param jobId The unique job identifier.
+     * @param targetQueue The name of the queue where messages are being sent.
+     * @throws IllegalArgumentException if the provided channel is null.
+     */
     public PublisherConfirmationAnalyzer(
             final Channel channel,
             final String partitionId,
             final String jobId,
             final String targetQueue) {
-        if (channel != null) {
-            channel.addConfirmListener(this);
-            channel.addReturnListener(this);
-            channel.addShutdownListener(this);
-        } else {
+
+        if (channel == null) {
             throw new IllegalArgumentException("Channel cannot be null");
         }
+
+        // Register this analyzer to receive all relevant events.
+        channel.addConfirmListener(this);
+        channel.addReturnListener(this);
+        channel.addShutdownListener(this);
 
         this.partitionId = partitionId;
         this.jobId = jobId;
@@ -72,193 +102,279 @@ public class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnLis
     }
 
     /**
-     * Handles a successful ACK from the broker.
+     * Handles a successful message acknowledgment from the broker.
+     * This indicates that the message has been accepted and safely handled by the broker.
+     * The job is considered successfully processed and is removed from the system.
+     *
+     * @param deliveryTag The unique identifier for the acknowledged message.
+     * @param multiple If {@code true}, all messages up to this tag are acknowledged.
      */
     @Override
-    public void handleAck(final long deliveryTag, final boolean multiple) throws IOException {
-        LOG.info("Received ACK for deliveryTag: {} (multiple: {}) [partitionId={}, jobId={}, queue={}]",
+    public void handleAck(final long deliveryTag, final boolean multiple) {
+        LOG.info("Message acknowledged by broker - deliveryTag: {} (multiple: {}) [partitionId={}, jobId={}, queue={}]",
                 deliveryTag, multiple, partitionId, jobId, targetQueue);
 
-        // Remove the QueueServices instance from the cache (will also call QueueServices.close())
-        QueueServicesCache.invalidate(new QueueServicesCache.Key(partitionId, jobId));
-
-        // Delete the job from the job_task_data table as it has been successfully processed
-        try {
-            DatabasePoller.deleteDependentJob(partitionId, jobId);
-        } catch (final ScheduledExecutorException e) {
-            // If we failed to delete the job from job_task_data it means that the job will be picked up again
-            // later and retried.
-            // This is not ideal, but not sure what else we can do here.
-            LOG.error("Failed to delete dependent job {} for partition {} from job_task_data: {}",
-                    jobId, partitionId, e.getMessage(), e);
-        }
+        // A successful ACK means we can safely remove the job from the system.
+        cleanupSuccessfulJob();
     }
 
     /**
-     * Handles a broker NACK. This is typically due to a transient issue like a queue
-     * reaching its max-length or max-bytes limit. Since the protocol doesn't provide
-     * a specific reason here, we assume it's transient.
+     * Handles a message rejection (NACK) from the broker.
+     * NACKs are typically caused by transient issues, such as a queue reaching its capacity,
+     * so they are treated as retryable failures.
      *
-     * @param deliveryTag the delivery tag of the NACKed message.
-     * @param multiple if true, all outstanding messages up to this delivery tag are NACKed.
+     * @param deliveryTag The unique identifier for the rejected message.
+     * @param multiple If {@code true}, all messages up to this tag are rejected.
      */
     @Override
-    public void handleNack(final long deliveryTag, final boolean multiple) throws IOException {
-        // This is a soft failure. Assume TRANSIENT because the most common reason is a full queue.
+    public void handleNack(final long deliveryTag, final boolean multiple) {
         final String reason = String.format(
-                "Received NACK for deliveryTag: %d (multiple: %b) [partitionId=%s, jobId=%s, queue=%s]. " +
-                        "Assuming this is due to a transient issue like queue full or network problem.",
+                "Message rejected by broker - deliveryTag: %d (multiple: %b) [partitionId=%s, jobId=%s, queue=%s]. " +
+                        "This is likely a transient issue, such as a full queue.",
                 deliveryTag, multiple, partitionId, jobId, targetQueue);
-        LOG.warn(reason);
 
+        LOG.warn("TRANSIENT failure detected: {}", reason);
         handleFailure(FailureType.TRANSIENT, reason);
     }
 
     /**
-     * Handles a message that was published as 'mandatory' but could not be routed.
-     * This is a definitive NON-TRANSIENT failure.
+     * Handles messages that were published as 'mandatory' but could not be routed to any queue.
+     * This is considered a permanent, non-transient failure.
+     *
+     * @param replyCode The AMQP reply code indicating the routing failure reason.
+     * @param replyText The human-readable description of the failure.
+     * @param exchange The exchange the message was published to.
+     * @param routingKey The routing key used.
+     * @param properties The message properties.
+     * @param body The message body.
      */
     @Override
-    public void handleReturn(final int replyCode, final String replyText, final String exchange, final String routingKey,
-                             final AMQP.BasicProperties properties, final byte[] body) throws IOException {
-        // This is a hard failure. The message is unroutable.
-        final String reason = String.format("Unroutable message. Reply code: %d, Text: %s, Exchange: '%s', " +
+    public void handleReturn(final int replyCode, final String replyText, final String exchange,
+                             final String routingKey, final AMQP.BasicProperties properties, final byte[] body) {
+
+        final String reason = String.format(
+                "Unroutable message - Reply code: %d, Text: '%s', Exchange: '%s', " +
                         "RoutingKey: '%s' [partitionId=%s, jobId=%s, queue=%s]",
                 replyCode, replyText, exchange, routingKey, partitionId, jobId, targetQueue);
-        LOG.error("NON-TRANSIENT failure: {}", reason);
 
+        LOG.error("NON-TRANSIENT failure detected: {}", reason);
         handleFailure(FailureType.NON_TRANSIENT, reason);
     }
 
     /**
-     * Handles an unexpected channel or connection shutdown. The reason for the shutdown
-     * determines if the failure is transient or not.
+     * Handles an unexpected channel or connection shutdown.
+     * The shutdown cause is analyzed to determine if the failure is transient or permanent.
+     * Application-initiated shutdowns are ignored.
      *
-     * @param cause the ShutdownSignalException containing the reason.
+     * @param cause The {@link ShutdownSignalException} containing shutdown details.
      */
     @Override
     public void shutdownCompleted(final ShutdownSignalException cause) {
-        // This is a hard failure. We need to analyze the cause.
+        // Ignore graceful shutdowns initiated by our application.
         if (cause.isInitiatedByApplication()) {
-            LOG.info("Shutdown initiated by application. No action needed. [partitionId={}, jobId={}, queue={}]",
+            LOG.info("Channel shutdown initiated by application - no action needed [partitionId={}, jobId={}, queue={}]",
                     partitionId, jobId, targetQueue);
             return;
         }
 
-        final FailureType failureType = isShutdownTransient(cause) ? FailureType.TRANSIENT : FailureType.NON_TRANSIENT;
-        final String reason = String.format("Shutdown signal received: %s", cause.getMessage());
-        LOG.error("{} failure: {} [partitionId={}, jobId={}, queue={}]",
+        final FailureType failureType = analyzeShutdownCause(cause) ? FailureType.TRANSIENT : FailureType.NON_TRANSIENT;
+        final String reason = String.format("Unexpected shutdown: %s", cause.getMessage());
+
+        LOG.error("{} failure detected: {} [partitionId={}, jobId={}, queue={}]",
                 failureType, reason, partitionId, jobId, targetQueue, cause);
 
         handleFailure(failureType, reason);
     }
 
     /**
-     * Analyzes the shutdown reason to determine if it is transient.
-     * This logic is adapted from your original NackReasonAnalyzer.
+     * Analyzes a shutdown exception to determine if the underlying cause is transient.
+     * The logic relies on AMQP reply codes and exception types.
      *
-     * @param cause The exception that caused the shutdown.
-     * @return true if the shutdown reason suggests a transient problem.
+     * @param cause The shutdown exception to analyze.
+     * @return {@code true} if the shutdown suggests a transient problem, {@code false} otherwise.
      */
-    private boolean isShutdownTransient(final ShutdownSignalException cause) {
+    private boolean analyzeShutdownCause(final ShutdownSignalException cause) {
         final Object reason = cause.getReason();
-        int replyCode = -1;
+        final int replyCode = extractReplyCode(reason);
 
-        if (reason instanceof AMQP.Connection.Close) {
-            replyCode = ((AMQP.Connection.Close) reason).getReplyCode();
-        } else if (reason instanceof AMQP.Channel.Close) {
-            replyCode = ((AMQP.Channel.Close) reason).getReplyCode();
-        }
-
+        // If no AMQP reply code is available, check for a network I/O issue.
         if (replyCode == -1) {
-            // Could be a network I/O exception, which is transient.
-            return cause.getCause() instanceof IOException;
+            boolean isIoException = cause.getCause() instanceof IOException;
+            LOG.debug("No AMQP reply code found. Assuming network I/O issue is transient: {} [partitionId={}, jobId={}, queue={}]",
+                    isIoException, partitionId, jobId, targetQueue);
+            return isIoException; // Network I/O exceptions are typically transient.
         }
 
-        LOG.info("Analyzing shutdown reply code: {} [partitionId={}, jobId={}, queue={}]",
+        LOG.info("Analyzing AMQP reply code: {} [partitionId={}, jobId={}, queue={}]",
                 replyCode, partitionId, jobId, targetQueue);
 
+        return isReplyCodeTransient(replyCode);
+    }
+
+    /**
+     * Extracts the AMQP reply code from a connection or channel close reason.
+     *
+     * @param reason The AMQP close reason object.
+     * @return The reply code, or -1 if no code is available.
+     */
+    private int extractReplyCode(final Object reason) {
+        if (reason instanceof AMQP.Connection.Close) {
+            return ((AMQP.Connection.Close) reason).getReplyCode();
+        }
+        if (reason instanceof AMQP.Channel.Close) {
+            return ((AMQP.Channel.Close) reason).getReplyCode();
+        }
+        return -1;
+    }
+
+    /**
+     * Determines if an AMQP reply code indicates a transient failure condition.
+     *
+     * @param replyCode The AMQP reply code to evaluate.
+     * @return {@code true} if the reply code suggests a transient issue.
+     */
+    private boolean isReplyCodeTransient(final int replyCode) {
         return switch (replyCode) {
-            // Transient reply codes
-            case AMQP.REPLY_SUCCESS, // e.g. Connection shutdown requested by client
-                 313, // NO_CONSUMERS (can be transient if consumers come online)
-                 320, // CONNECTION_FORCED (e.g. by management UI, could be for transient reasons)
-                 405, // RESOURCE_LOCKED (e.g., exclusive queue access conflict)
-                 503, // SERVICE_UNAVAILABLE (e.g., RabbitMQ is shutting down gracefully)
-                 506, // RESOURCE_ERROR (e.g. out of memory)
-                 541, // INTERNAL_ERROR (often transient)
-                 542 -> true; // BROKER_OVERLOADED
+            // Transient conditions that may resolve with a retry.
+            case AMQP.REPLY_SUCCESS,    // e.g., graceful shutdown, may come back online
+                 313,                   // NO_CONSUMERS - consumers may reconnect
+                 320,                   // CONNECTION_FORCED - administrative action, could be temporary
+                 405,                   // RESOURCE_LOCKED - exclusive access conflict, may resolve
+                 503,                   // SERVICE_UNAVAILABLE - broker maintenance, temporary
+                 506,                   // RESOURCE_ERROR - memory/disk issues, may be temporary
+                 541,                   // INTERNAL_ERROR - often recoverable
+                 542                    // BROKER_OVERLOADED - load issue, temporary
+                    -> true;
 
-            // Non-transient reply codes
-            case 311, // CONTENT_TOO_LARGE
-                 312, // NO_ROUTE
-                 403, // ACCESS_REFUSED
-                 404, // NOT_FOUND
-                 406, // PRECONDITION_FAILED
-                 501, // NOT_IMPLEMENTED
-                 502, // COMMAND_INVALID
-                 504, // CHANNEL_ERROR
-                 505 -> false; // UNEXPECTED_FRAME
+            // Non-transient conditions that will not resolve with a retry.
+            case 311,                   // CONTENT_TOO_LARGE
+                 312,                   // NO_ROUTE
+                 403,                   // ACCESS_REFUSED
+                 404,                   // NOT_FOUND
+                 406,                   // PRECONDITION_FAILED
+                 501,                   // NOT_IMPLEMENTED
+                 502,                   // COMMAND_INVALID
+                 504,                   // CHANNEL_ERROR
+                 505                    // UNEXPECTED_FRAME
+                    -> false;
 
+            // Default to non-transient for unknown codes to prevent infinite retries.
             default -> {
-                // Default to non-transient if uncertain.
-                LOG.warn("Unknown reply code: {}. Assuming NON-TRANSIENT.", replyCode);
+                LOG.warn("Unknown AMQP reply code: {}. Assuming NON-TRANSIENT to prevent retry loop.", replyCode);
                 yield false;
             }
         };
     }
 
     /**
-     * Central point for handling the analyzed failure.
-     *
-     * @param type The type of failure (TRANSIENT or NON_TRANSIENT).
+     * Performs cleanup operations for a successfully completed job.
+     * This includes releasing cached resources and removing the job from the database.
      */
-    private void handleFailure(final FailureType type, final String reason) {
-        switch (type) {
-            case TRANSIENT:
-                // Remove the QueueServices instance from the cache (will also call QueueServices.close())
-                QueueServicesCache.invalidate(new QueueServicesCache.Key(partitionId, jobId));
+    private void cleanupSuccessfulJob() {
+        // Release cached resources.
+        QueueServicesCache.invalidate(new QueueServicesCache.Key(partitionId, jobId));
 
-                break;
-            case NON_TRANSIENT:
-                // Remove the QueueServices instance from the cache (will also call QueueServices.close())
-                QueueServicesCache.invalidate(new QueueServicesCache.Key(partitionId, jobId));
-
-                // Mark the job as failed in the database
-                final QueueFailure f = new QueueFailure();
-                f.setFailureId("ADD_TO_QUEUE_FAILURE");
-                f.setFailureTime(new Date());
-                f.failureSource(MessageFormat.format("Job Service Scheduled Executor for job id {0}", jobId));
-                f.failureMessage(reason);
-
-                final ObjectMapper mapper = new ObjectMapper();
-                final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                mapper.setDateFormat(df);
-                try {
-                    DatabasePoller.reportFailure(partitionId, jobId, mapper.writeValueAsString(f));
-                } catch (final ScheduledExecutorException | JsonProcessingException e) {
-                    // If we failed to mark the job as failed in the database just return here without deleting the job
-                    // from job_task_data, which means that the job will be picked up again later and retried.
-                    // This is not ideal, but at least we won't lose the message for the job.
-                    LOG.error("Failed to mark the job {} for partition {} as failed in the database: {}",
-                            jobId, partitionId, e.getMessage(), e);
-                    return;
-                }
-
-                // We have just marked the job as failed in the database, so delete the job from the job_task_data
-                // table to prevent the job from being retried
-                try {
-                    DatabasePoller.deleteDependentJob(partitionId, jobId);
-                } catch (final ScheduledExecutorException e) {
-                    // If we failed to delete the job from job_task_data it means that the job will be picked up again
-                    // later and retried, even though we have already marked it as failed in the database.
-                    // This is not ideal, but not sure what else we can do here.
-                    LOG.error("Failed to delete dependent job {} for partition {} from job_task_data: {}",
-                            jobId, partitionId, e.getMessage(), e);
-                    return;
-                }
-
-                break;
+        // Remove the completed job from the job_task_data table.
+        try {
+            DatabasePoller.deleteDependentJob(partitionId, jobId);
+        } catch (final ScheduledExecutorException e) {
+            // If deletion fails, log a warning. The job will be retried later, which is not ideal but acceptable.
+            LOG.error("Failed to delete completed job {} for partition {} from job_task_data. " +
+                    "Job may be retried: {}", jobId, partitionId, e.getMessage(), e);
         }
+    }
+
+    /**
+     * A centralized handler for all failure scenarios.
+     *
+     * <p>For transient failures, it simply logs the event and cleans up resources, allowing
+     * the job to be picked up again for a retry.
+     *
+     * <p>For non-transient failures, it marks the job as permanently failed in the database
+     * and then removes it from the task data table to prevent any further retries.
+     *
+     * @param failureType The classification of the failure.
+     * @param reason A descriptive string of the failure.
+     */
+    private void handleFailure(final FailureType failureType, final String reason) {
+        // In all failure cases, the QueueServices instance for this job is no longer valid.
+        QueueServicesCache.invalidate(new QueueServicesCache.Key(partitionId, jobId));
+
+        if (failureType == FailureType.NON_TRANSIENT) {
+            handleNonTransientFailure(reason);
+        } else {
+            LOG.warn("Transient failure handled. Job will be retried later. [partitionId={}, jobId={}]",
+                    partitionId, jobId);
+        }
+    }
+
+    /**
+     * Handles non-transient failures by marking the job as permanently failed in the database
+     * and then deleting it from the job_task_data table.
+     *
+     * @param reason A descriptive string of the failure.
+     */
+    private void handleNonTransientFailure(final String reason) {
+        // Create a structured failure record.
+        final QueueFailure failure = createFailureRecord(reason);
+
+        // Serialize the failure record to JSON.
+        final String failureJson;
+        try {
+            failureJson = serializeFailure(failure);
+        } catch (final JsonProcessingException e) {
+            LOG.error("Failed to serialize failure record for job {} (partition {}). " +
+                    "Cannot mark as failed, so job will be retried: {}", jobId, partitionId, e.getMessage(), e);
+            return;
+        }
+
+        // Report the failure to the database.
+        try {
+            DatabasePoller.reportFailure(partitionId, jobId, failureJson);
+        } catch (final ScheduledExecutorException e) {
+            LOG.error("Failed to mark job {} (partition {}) as failed in the database. " +
+                    "Job will be retried: {}", jobId, partitionId, e.getMessage(), e);
+            return;
+        }
+
+        // If the failure was successfully reported, delete the job to prevent retries.
+        try {
+            DatabasePoller.deleteDependentJob(partitionId, jobId);
+        } catch (final ScheduledExecutorException e) {
+            // This is a less critical error, as the failure has already been recorded.
+            // The job may be retried, but at least the failure is documented.
+            LOG.error("Failed to delete non-transient job {} for partition {} from job_task_data. " +
+                            "Job may be retried despite being marked as failed: {}",
+                    jobId, partitionId, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Creates a standard failure record with metadata for database storage.
+     *
+     * @param reason The descriptive failure reason.
+     * @return A populated {@link QueueFailure} object.
+     */
+    private QueueFailure createFailureRecord(final String reason) {
+        final QueueFailure failure = new QueueFailure();
+        failure.setFailureId("ADD_TO_QUEUE_FAILURE");
+        failure.setFailureTime(new Date());
+        failure.failureSource(MessageFormat.format("Job Service Scheduled Executor for job id {0}", jobId));
+        failure.failureMessage(reason);
+        return failure;
+    }
+
+    /**
+     * Serializes a failure record object into a JSON string.
+     *
+     * @param failure The failure record to serialize.
+     * @return The JSON representation of the failure.
+     * @throws JsonProcessingException if the serialization process fails.
+     */
+    private String serializeFailure(final QueueFailure failure) throws JsonProcessingException {
+        final ObjectMapper mapper = new ObjectMapper();
+        final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        mapper.setDateFormat(dateFormat);
+        return mapper.writeValueAsString(failure);
     }
 }
