@@ -200,7 +200,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
         // If no AMQP reply code is available, check for a network I/O issue.
         if (replyCode == -1) {
             boolean isIoException = cause.getCause() instanceof IOException;
-            LOG.debug("No AMQP reply code found. Assuming network I/O issue is transient: {}. [partitionId={}, jobId={}, queue={}]",
+            LOG.debug("No AMQP reply code found. Assuming network I/O issue is transient: {}. " +
+                            "[partitionId={}, jobId={}, queue={}]",
                     isIoException, partitionId, jobId, targetQueue);
             return isIoException; // Network I/O exceptions are typically transient.
         }
@@ -260,7 +261,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
 
             // Default to non-transient for unknown codes to prevent infinite retries.
             default -> {
-                LOG.warn("Unknown AMQP reply code: {}. Assuming NON-TRANSIENT to prevent retry loop. [partitionId={}, jobId={}, queue={}]",
+                LOG.warn("Unknown AMQP reply code: {}. Assuming NON-TRANSIENT to prevent retry loop. " +
+                                "[partitionId={}, jobId={}, queue={}]",
                         replyCode, partitionId, jobId, targetQueue);
                 yield false;
             }
@@ -280,7 +282,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
             DatabasePoller.deleteDependentJob(partitionId, jobId);
         } catch (final ScheduledExecutorException e) {
             // If deletion fails, log a warning. The job will be retried later, which is not ideal but acceptable.
-            LOG.error("Failed to delete completed job from job_task_data. Job may be retried. [partitionId={}, jobId={}, queue={}, error={}]",
+            LOG.error("Failed to delete completed job from job_task_data. Job may be retried. " +
+                            "[partitionId={}, jobId={}, queue={}, error={}]",
                     partitionId, jobId, targetQueue, e.getMessage(), e);
         }
     }
@@ -324,7 +327,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
         try {
             failureJson = serializeFailure(failure);
         } catch (final JsonProcessingException e) {
-            LOG.error("Failed to serialize failure record. Cannot mark as failed, so job will be retried. [partitionId={}, jobId={}, queue={}, error={}]",
+            LOG.error("Failed to serialize failure record. Cannot mark as failed, so job will be retried. " +
+                            "[partitionId={}, jobId={}, queue={}, error={}]",
                     partitionId, jobId, targetQueue, e.getMessage(), e);
             return;
         }
@@ -333,7 +337,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
         try {
             DatabasePoller.reportFailure(partitionId, jobId, failureJson);
         } catch (final ScheduledExecutorException e) {
-            LOG.error("Failed to mark job as failed in the database. Job will be retried. [partitionId={}, jobId={}, queue={}, error={}]",
+            LOG.error("Failed to mark job as failed in the database. Job will be retried. " +
+                            "[partitionId={}, jobId={}, queue={}, error={}]",
                     partitionId, jobId, targetQueue, e.getMessage(), e);
             return;
         }
@@ -344,7 +349,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
         } catch (final ScheduledExecutorException e) {
             // This is a less critical error, as the failure has already been recorded.
             // The job may be retried, but at least the failure is documented.
-            LOG.error("Failed to delete non-transient job from job_task_data. Job may be retried despite being marked as failed. [partitionId={}, jobId={}, queue={}, error={}]",
+            LOG.error("Failed to delete non-transient job from job_task_data. Job may be retried despite being " +
+                            "marked as failed. [partitionId={}, jobId={}, queue={}, error={}]",
                     partitionId, jobId, targetQueue, e.getMessage(), e);
         }
     }
