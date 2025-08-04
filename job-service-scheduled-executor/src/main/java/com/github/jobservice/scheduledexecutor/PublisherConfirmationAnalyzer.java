@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The analyzer is automatically registered as a listener on the provided channel.
  * Based on its analysis, it either leaves the job to be retried (transient failure)
- * or marks it as permanently failed and removes it from the queue (non-transient failure).
+ * or marks it as permanently failed and removes it from the job_task_data table (non-transient failure).
  */
 public final class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnListener, ShutdownListener {
 
