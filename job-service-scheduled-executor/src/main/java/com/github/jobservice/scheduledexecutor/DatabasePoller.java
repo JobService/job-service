@@ -18,9 +18,11 @@ package com.github.jobservice.scheduledexecutor;
 import com.github.cafapi.common.api.Codec;
 import com.github.cafapi.common.util.moduleloader.ModuleLoader;
 import com.github.cafapi.common.util.moduleloader.ModuleLoaderException;
+import com.rabbitmq.client.ShutdownSignalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -99,27 +101,55 @@ public class DatabasePoller
                         key, jtd.getTaskPipe());
             }
         } catch (final Exception e) {
-            // Analyze the exception to determine if it's transient or non-transient
+            // If the exception is a wrapped ShutdownSignalException, it likely came from
+            // the async listener and was re-thrown - let the async handler deal with it
+            if (isAsyncListenerException(e)) {
+                LOG.warn("Exception appears to be from async listener - deferring to async handler. " +
+                                "[partitionId={}, jobId={}, exception={}]",
+                        jtd.getPartitionId(), jtd.getJobId(), e.getClass().getSimpleName());
+
+                return;
+            }
+
+            // Handle synchronous exceptions (connection setup, serialization, etc.)
             final PublisherConfirmationAnalyzer.FailureType failureType = JobFailureHandler.analyzeException(e);
-            final String reason = MessageFormat.format(
-                    "Exception during message publishing: {0}", e.getMessage());
+            final String reason = MessageFormat.format("Exception during message publishing setup: {0}", e.getMessage());
 
             if (failureType == PublisherConfirmationAnalyzer.FailureType.NON_TRANSIENT) {
-                LOG.error("NON-TRANSIENT failure detected during message publishing. " +
+                LOG.error("NON-TRANSIENT failure detected during message publishing setup. " +
                                 "Marking job as failed. [partitionId={}, jobId={}, taskPipe={}].",
                         jtd.getPartitionId(), jtd.getJobId(), jtd.getTaskPipe(), e);
-
                 JobFailureHandler.handleNonTransientFailure(jtd.getPartitionId(), jtd.getJobId(), reason);
             } else {
-                LOG.warn("TRANSIENT failure detected during message publishing. " +
+                LOG.warn("TRANSIENT failure detected during message publishing setup. " +
                                 "Job will be retried later. [partitionId={}, jobId={}, taskPipe={}].",
                         jtd.getPartitionId(), jtd.getJobId(), jtd.getTaskPipe(), e);
-
-                // For transient failures, we don't mark the job as failed - it will be retried
-                // Just ensure any cached QueueServices is invalidated
                 QueueServicesCache.invalidate(key);
             }
         }
+    }
+
+    /**
+     * Determines if an exception likely originated from an async listener callback.
+     * These exceptions should be handled by the async listener, not the synchronous catch block.
+     */
+    private static boolean isAsyncListenerException(final Exception exception) {
+        // Look for IOException wrapping ShutdownSignalException - this is typically
+        // what happens when RabbitMQ async callbacks throw exceptions that get
+        // propagated back to synchronous code
+        if (exception instanceof IOException) {
+            Throwable cause = exception.getCause();
+            while (cause != null) {
+                if (cause instanceof ShutdownSignalException) {
+                    // This is likely from an async callback
+                    return true;
+                }
+                cause = cause.getCause();
+            }
+        }
+
+        // Direct ShutdownSignalException in sync context is unusual - likely async
+        return exception instanceof ShutdownSignalException;
     }
 
     /**

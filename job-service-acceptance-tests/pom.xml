@@ -625,6 +625,10 @@
                                     <CAF_RABBITMQ_PASSWORD>guest</CAF_RABBITMQ_PASSWORD>
                                     <CAF_SCHEDULED_EXECUTOR_PERIOD>2</CAF_SCHEDULED_EXECUTOR_PERIOD>
                                     <CAF_WORKER_INPUT_QUEUE>jobservicescheduler-in</CAF_WORKER_INPUT_QUEUE>
+                                    <!-- Can't use quorum as the integration tests (the ones that are not disabled) are
+                                    using an old worker that does not support the 'queueType' prop in its js config:
+                                    cfg_test_worker-batch_RabbitWorkerQueueConfiguration -->
+                                    <CAF_RABBITMQ_QUEUE_TYPE>classic</CAF_RABBITMQ_QUEUE_TYPE>
                                 </env>
                                 <links>
                                     <link>rabbitmq</link>

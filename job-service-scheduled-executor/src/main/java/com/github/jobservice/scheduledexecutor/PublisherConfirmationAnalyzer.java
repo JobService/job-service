@@ -124,7 +124,8 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
     @Override
     public void handleNack(final long deliveryTag, final boolean multiple) {
         final String reason = MessageFormat.format(
-                "Message rejected by broker (deliveryTag: {0}, multiple: {1}). Likely a transient issue like a full queue.",
+                "Message rejected by broker (deliveryTag: {0}, multiple: {1}). " +
+                        "Likely a transient issue like a full queue.",
                 deliveryTag, multiple);
 
         LOG.warn("TRANSIENT failure detected. {} [partitionId={}, jobId={}, queue={}]",
@@ -213,14 +214,17 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
      * @param reason A descriptive string of the failure.
      */
     private void handleFailure(final FailureType failureType, final String reason) {
-        // In all failure cases, the QueueServices instance for this job is no longer valid.
+        LOG.info("Handling failure from async listener. [partitionId={}, jobId={}, type={}]",
+                partitionId, jobId, failureType);
+
         QueueServicesCache.invalidate(new QueueServicesCache.Key(partitionId, jobId));
 
         if (failureType == FailureType.NON_TRANSIENT) {
-            JobFailureHandler.handleNonTransientFailure(partitionId, jobId, reason);
+            final String asyncReason = "Async listener: " + reason;
+            JobFailureHandler.handleNonTransientFailure(partitionId, jobId, asyncReason);
         } else {
-            LOG.warn("Transient failure handled. Job will be retried later. [partitionId={}, jobId={}, queue={}]",
-                    partitionId, jobId, targetQueue);
+            LOG.warn("Transient failure handled by async listener. Job will be retried later. " +
+                    "[partitionId={}, jobId={}, queue={}]", partitionId, jobId, targetQueue);
         }
     }
 }
