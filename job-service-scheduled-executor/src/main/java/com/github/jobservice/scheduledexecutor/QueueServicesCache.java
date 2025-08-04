@@ -37,30 +37,7 @@ final class QueueServicesCache {
 
     private static final long TIMEOUT_MINUTES = ScheduledExecutorConfig.getQueueServicesCacheTimeoutMinutes();
 
-    static final class Key {
-        private final String keyString;
-
-        public Key(final String partitionId, final String jobId) {
-            this.keyString = partitionId + "-" + jobId;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof final Key key)) return false;
-            return keyString.equals(key.keyString);
-        }
-
-        @Override
-        public int hashCode() {
-            return keyString.hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return keyString;
-        }
-    }
+    record Key(String partitionId, String jobId) { }
 
     private static final Cache<Key, QueueServices> CACHE =
             CacheBuilder.newBuilder()
@@ -126,22 +103,22 @@ final class QueueServicesCache {
 
             switch (notification.getCause()) {
                 case EXPLICIT:
-                    LOG.info("Removing QueueServices with key={} from cache. " +
+                    LOG.info("Removing QueueServices {} from cache. " +
                             "Reason: Publisher ack, nack, return or shutdown received.", notification.getKey());
                     break;
                 case EXPIRED:
-                    LOG.error("Removing QueueServices with key={} from cache. Reason: No publisher ack, nack, return " +
+                    LOG.error("Removing QueueServices {} from cache. Reason: No publisher ack, nack, return " +
                                     "or shutdown received within timeout period of {} minutes.",
                             notification.getKey(), TIMEOUT_MINUTES);
                     break;
                 default:
-                    LOG.warn("Removing QueueServices with key={} from cache. Reason: {} (unexpected)",
+                    LOG.warn("Removing QueueServices {} from cache. Reason: {} (unexpected)",
                             notification.getKey(), notification.getCause());
                     break;
             }
 
             // Create a new thread to call QueueServices.close() (prevents a TimeoutException on the main thread)
-            LOG.info("Calling close() on QueueServices with key={}", notification.getKey());
+            LOG.info("Calling close() on QueueServices {}", notification.getKey());
             final Thread cleanupThread = new Thread(queueServices::close);
             cleanupThread.start();
         }

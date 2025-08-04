@@ -94,7 +94,7 @@ public class DatabasePoller
 
                 queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
             } else {
-                LOG.warn("A QueueServices instance already exists for key={}. This means we have already sent a " +
+                LOG.warn("A QueueServices instance already exists {}. This means we have already sent a " +
                                 "message for this job to the {} queue and are awaiting a publisher confirm. The " +
                                 "new job will be processed when a publisher confirm is received for the existing job " +
                                 "(or the QueueServicesCache timeout occurs).",
