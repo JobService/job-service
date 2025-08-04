@@ -53,7 +53,7 @@ public class DatabasePoller
 
                 //  For each job to run, submit message to the rabbitMQ queue for further processing.
                 for (final JobTaskData jtd : jobsToRun) {
-                    LOG.info(MessageFormat.format("Processing job task id {0} ...", jtd.getJobId()));
+                    LOG.info(MessageFormat.format("Processing job id {0} ...", jtd.getJobId()));
 
                     final WorkerAction workerAction = new WorkerAction();
                     workerAction.setTaskClassifier(jtd.getTaskClassifier());
