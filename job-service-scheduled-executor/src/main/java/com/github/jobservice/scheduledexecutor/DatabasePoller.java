@@ -82,29 +82,43 @@ public class DatabasePoller
         try {
             final QueueServices existingEntry = QueueServicesCache.getIfPresent(key);
             if (existingEntry == null) {
+                // Responses to this message will be handled by PublisherConfirmationAnalyzer, unless an exception
+                // occurs while creating the QueueServices instance or during publishing of the message, in which case
+                // the exception will be caught and handled in the catch block below.
+
                 queueServices =
                         QueueServicesFactory.create(jtd.getPartitionId(), jtd.getJobId(), jtd.getTaskPipe(), codec);
                 QueueServicesCache.put(key, queueServices);
+
+                queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
             } else {
                 LOG.warn("A QueueServices instance already exists for key={}. This means we have already sent a " +
                                 "message for this job to the {} queue and are awaiting a publisher confirm. The " +
                                 "new job will be processed when a publisher confirm is received for the existing job " +
                                 "(or the QueueServicesCache timeout occurs).",
                         key, jtd.getTaskPipe());
-                return;
             }
         } catch (final Exception e) {
-            LOG.error(MessageFormat.format(
-                    "Exception thrown creating QueueServices for partition ID {0} and task pipe {1}. {2}",
-                    jtd.getPartitionId(), jtd.getTaskPipe(), e.getMessage()), e);
-            return;
-        }
+            // Analyze the exception to determine if it's transient or non-transient
+            final PublisherConfirmationAnalyzer.FailureType failureType = JobFailureHandler.analyzeException(e);
+            final String reason = MessageFormat.format(
+                    "Exception during message publishing: {0}", e.getMessage());
 
-        // Send the message for this job to the queue, responses will be handled by the QueueServices instance
-        try {
-            queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
-        } catch (final Exception e) {
-            // TODO distinguish between transient and non-transient errors
+            if (failureType == PublisherConfirmationAnalyzer.FailureType.NON_TRANSIENT) {
+                LOG.error("NON-TRANSIENT failure detected during message publishing. " +
+                                "Marking job as failed. [partitionId={}, jobId={}, taskPipe={}].",
+                        jtd.getPartitionId(), jtd.getJobId(), jtd.getTaskPipe(), e);
+
+                JobFailureHandler.handleNonTransientFailure(jtd.getPartitionId(), jtd.getJobId(), reason);
+            } else {
+                LOG.warn("TRANSIENT failure detected during message publishing. " +
+                                "Job will be retried later. [partitionId={}, jobId={}, taskPipe={}].",
+                        jtd.getPartitionId(), jtd.getJobId(), jtd.getTaskPipe(), e);
+
+                // For transient failures, we don't mark the job as failed - it will be retried
+                // Just ensure any cached QueueServices is invalidated
+                QueueServicesCache.invalidate(key);
+            }
         }
     }
 
@@ -171,7 +185,7 @@ public class DatabasePoller
      */
     public static void reportFailure(
             final String partitionId,
-            final String jobTaskId,
+            final String jobId,
             final String failureDetails) throws ScheduledExecutorException {
         /*
         SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Unreleased Resource: Database.
@@ -181,14 +195,17 @@ public class DatabasePoller
                 CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")
         ) {
             stmt.setString(1, partitionId);
-            stmt.setString(2,jobTaskId);
-            stmt.setString(3,failureDetails);
+            stmt.setString(2, jobId);
+            stmt.setString(3, failureDetails);
 
-            LOG.info("Calling report_failure() database function...");
+            LOG.info("Calling report_failure() database function with partitionId={}, jobId={}, failureDetails={} ...",
+                    partitionId, jobId, failureDetails);
             stmt.execute();
         } catch (final SQLException e) {
             final String errorMessage = MessageFormat.format(
-                    "Failed in call to report_failure() database function.{0}", e.getMessage());
+                    "Failed in call to report_failure() database function with " +
+                            "partitionId={0}, jobId={1}, failureDetails={2}. {3}",
+                    partitionId, jobId, failureDetails, e.getMessage());
             LOG.error(errorMessage);
             throw new ScheduledExecutorException(errorMessage);
         }
