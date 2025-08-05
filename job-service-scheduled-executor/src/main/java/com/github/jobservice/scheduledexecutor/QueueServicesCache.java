@@ -29,7 +29,8 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * This class acts as a static facade, hiding the underlying Guava Cache implementation.
  * It ensures that QueueServices are kept in scope until they are confirmed (acked/nacked)
- * or time out.
+ * or time out. Each QueueServices instance manages its own channel while sharing the
+ * underlying RabbitMQ connection.
  */
 final class QueueServicesCache {
 
@@ -41,7 +42,7 @@ final class QueueServicesCache {
 
     private static final Cache<Key, QueueServices> CACHE =
             CacheBuilder.newBuilder()
-                    .expireAfterAccess(TIMEOUT_MINUTES, TimeUnit.MINUTES)
+                    .expireAfterWrite(TIMEOUT_MINUTES, TimeUnit.MINUTES)
                     .removalListener(new QueueServicesRemovalListener())
                     .build();
 
@@ -51,28 +52,19 @@ final class QueueServicesCache {
     private QueueServicesCache() {}
 
     /**
-     * Adds a QueueServices instance to the cache, associated with a unique key.
-     *
-     * @param key      The unique key.
-     * @param services The QueueServices instance to cache.
-     */
-    public static void put(final Key key, final QueueServices services) {
-        CACHE.put(key, services);
-    }
-
-    /**
-     * Retrieves a QueueServices instance from the cache, if it exists.
+     * Atomically puts a QueueServices instance in the cache if the key is not already present.
      *
      * @param key The unique key.
-     * @return The cached QueueServices instance, or null if not found.
+     * @param services The QueueServices instance to cache.
+     * @return The previous value associated with the key, or null if there was no mapping.
      */
-    public static QueueServices getIfPresent(final Key key) {
-        return CACHE.getIfPresent(key);
+    public static QueueServices putIfAbsent(final Key key, final QueueServices services) {
+        return CACHE.asMap().putIfAbsent(key, services);
     }
 
     /**
      * Explicitly invalidates and removes a QueueServices instance from the cache.
-     * This will trigger the removal listener to close the connection.
+     * This will trigger the removal listener to close the channel (but not the shared connection).
      *
      * @param key The unique key to invalidate.
      */
@@ -91,7 +83,8 @@ final class QueueServicesCache {
 
     /**
      * The removal listener handles the cleanup logic when an entry is removed from the cache,
-     * either by explicit invalidation or timeout.
+     * either by explicit invalidation or timeout. With the shared connection approach, this
+     * only closes the individual channel, not the shared connection.
      */
     private static class QueueServicesRemovalListener implements RemovalListener<Key, QueueServices> {
         @Override
@@ -101,25 +94,36 @@ final class QueueServicesCache {
                 return;
             }
 
+            final Key key = notification.getKey();
             switch (notification.getCause()) {
                 case EXPLICIT:
                     LOG.info("Removing QueueServices {} from cache. " +
-                            "Reason: Publisher ack, nack, return or shutdown received.", notification.getKey());
+                            "Reason: Publisher ack, nack, return or shutdown received.", key);
                     break;
                 case EXPIRED:
                     LOG.error("Removing QueueServices {} from cache. Reason: No publisher ack, nack, return " +
                                     "or shutdown received within timeout period of {} minutes.",
-                            notification.getKey(), TIMEOUT_MINUTES);
+                            key, TIMEOUT_MINUTES);
                     break;
                 default:
                     LOG.warn("Removing QueueServices {} from cache. Reason: {} (unexpected)",
-                            notification.getKey(), notification.getCause());
+                            key, notification.getCause());
                     break;
             }
 
-            // Create a new thread to call QueueServices.close() (prevents a TimeoutException on the main thread)
-            LOG.info("Calling close() on QueueServices {}", notification.getKey());
-            final Thread cleanupThread = new Thread(queueServices::close);
+            // Create a new thread to call QueueServices.close() to prevent blocking the main thread
+            // Only closes the individual channel, the shared connection remains open
+            LOG.info("Calling close() on QueueServices {} (channel only - shared connection remains open)", key);
+            final Thread cleanupThread = new Thread(() -> {
+                try {
+                    queueServices.close();
+                    LOG.info("Successfully closed QueueServices {} channel", key);
+                } catch (final Exception e) {
+                    LOG.error("Error closing QueueServices {} channel", key, e);
+                }
+            }, "QueueServices-Cleanup-" + key.partitionId() + "-" + key.jobId());
+
+            cleanupThread.setDaemon(true); // Don't prevent JVM shutdown
             cleanupThread.start();
         }
     }

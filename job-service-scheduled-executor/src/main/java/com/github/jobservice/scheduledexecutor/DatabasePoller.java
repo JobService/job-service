@@ -41,10 +41,12 @@ public class DatabasePoller
 
     public static void pollDatabaseForJobsToRun() {
         try {
-            LOG.info("QueueServicesCache size: {}", QueueServicesCache.size());
-
             //  Poll database for prerequisite jobs that are now available to be run.
-            LOG.debug("Polling Job Service database for jobs to run ...");
+            LOG.info("Polling Job Service database for jobs to run - QueueServicesCache size: {}, " +
+                            "Shared connection open: {}",
+                    QueueServicesCache.size(),
+                    QueueServicesFactory.isSharedConnectionOpen());
+
             final List<JobTaskData> jobsToRun = getDependentJobsToRun();
 
             //  Determine if there are any jobs to run.
@@ -82,27 +84,27 @@ public class DatabasePoller
         final QueueServicesCache.Key key = new QueueServicesCache.Key(jtd.getPartitionId(),  jtd.getJobId());
         final QueueServices queueServices;
         try {
-            final QueueServices existingEntry = QueueServicesCache.getIfPresent(key);
-            if (existingEntry == null) {
-                // Responses to this message will be handled by PublisherConfirmationAnalyzer, unless an exception
-                // occurs while creating the QueueServices instance or during publishing of the message, in which case
-                // the exception will be caught and handled in the catch block below.
+            // Create the QueueServices instance
+            queueServices =
+                    QueueServicesFactory.create(jtd.getPartitionId(), jtd.getJobId(), jtd.getTaskPipe(), codec);
 
-                queueServices =
-                        QueueServicesFactory.create(jtd.getPartitionId(), jtd.getJobId(), jtd.getTaskPipe(), codec);
-                QueueServicesCache.put(key, queueServices);
+            // Atomically put if absent - returns null if successfully added, or existing value if already present
+            final QueueServices alreadyPresent = QueueServicesCache.putIfAbsent(key, queueServices);
 
+            if (alreadyPresent == null) {
+                // No existing entry was present
                 queueServices.sendMessage(jtd.getPartitionId(), jtd.getJobId(), workerAction);
             } else {
+                // Another entry was present
                 LOG.warn("A QueueServices instance already exists {}. This means we have already sent a " +
-                                "message for this job to the {} queue and are awaiting a publisher confirm. The " +
-                                "new job will be processed when a publisher confirm is received for the existing job " +
-                                "(or the QueueServicesCache timeout occurs).",
+                                "message for this job to the {} queue and are awaiting a publisher confirm.",
                         key, jtd.getTaskPipe());
+
+                queueServices.close();
             }
-        } catch (final Exception e) {
+        }catch (final Exception e) {
             // If the exception is a wrapped ShutdownSignalException, it likely came from
-            // the async listener and was re-thrown - let the async handler deal with it
+            // the async handler (PublisherConfirmationAnalyzer) and was re-thrown - let the async handler deal with it
             if (isAsyncListenerException(e)) {
                 LOG.warn("Exception appears to be from async listener - deferring to async handler. " +
                                 "[partitionId={}, jobId={}, exception={}]",
@@ -113,15 +115,15 @@ public class DatabasePoller
 
             // Handle synchronous exceptions (connection setup, serialization, etc.)
             final PublisherConfirmationAnalyzer.FailureType failureType = JobFailureHandler.analyzeException(e);
-            final String reason = MessageFormat.format("Exception during message publishing setup: {0}", e.getMessage());
+            final String reason = MessageFormat.format("Exception during message publishing: {0}", e.getMessage());
 
             if (failureType == PublisherConfirmationAnalyzer.FailureType.NON_TRANSIENT) {
-                LOG.error("NON-TRANSIENT failure detected during message publishing setup. " +
+                LOG.error("NON-TRANSIENT failure detected during message publishing. " +
                                 "Marking job as failed. [partitionId={}, jobId={}, taskPipe={}].",
                         jtd.getPartitionId(), jtd.getJobId(), jtd.getTaskPipe(), e);
                 JobFailureHandler.handleNonTransientFailure(jtd.getPartitionId(), jtd.getJobId(), reason);
             } else {
-                LOG.warn("TRANSIENT failure detected during message publishing setup. " +
+                LOG.warn("TRANSIENT failure detected during message publishing. " +
                                 "Job will be retried later. [partitionId={}, jobId={}, taskPipe={}].",
                         jtd.getPartitionId(), jtd.getJobId(), jtd.getTaskPipe(), e);
                 QueueServicesCache.invalidate(key);
@@ -165,7 +167,7 @@ public class DatabasePoller
             LOG.info(MessageFormat.format("Calling delete_dependent_job({0},{1}) database function ...", partitionId, jobId));
             stmt.execute();
         } catch (final SQLException e) {
-            final String errorMessage = MessageFormat.format("Failed in call to delete_dependent_job({0},{1}) database function.{3}",
+            final String errorMessage = MessageFormat.format("Failed in call to delete_dependent_job({0},{1}) database function.{2}",
                     partitionId, jobId,e.getMessage());
             LOG.error(errorMessage);
             throw new ScheduledExecutorException(errorMessage);

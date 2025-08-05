@@ -22,7 +22,6 @@ import com.github.workerframework.api.TaskMessage;
 import com.github.workerframework.api.TaskStatus;
 import com.github.workerframework.api.TrackingInfo;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.MessageProperties;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -40,29 +39,27 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * This class is responsible for sending task data to the target queue.
+ * It uses a shared connection but maintains its own channel per job.
  */
-public final class QueueServices implements AutoCloseable
+public final class QueueServices
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
 
     private final String partitionId;
     private final String jobId;
-    private final Connection connection;
-    private final Channel publisherChannel;
+    private final Channel publisherChannel;         // This instance owns and manages this channel
     private final String targetQueue;               // Queue that should be set in the 'to' field of the task message
     private final Codec codec;
 
     public QueueServices(
             final String partitionId,
             final String jobId,
-            final Connection connection,
             final Channel publisherChannel,
             final String targetQueue,
             final Codec codec) {
 
         this.partitionId = partitionId;
         this.jobId = jobId;
-        this.connection = connection;
         this.publisherChannel = publisherChannel;
         this.targetQueue = targetQueue;
         this.codec = codec;
@@ -71,6 +68,7 @@ public final class QueueServices implements AutoCloseable
     /**
      * Send task data message to the target queue.
      *
+     * @param   partitionId         the partition identifier
      * @param   jobId               the job identifier
      * @param   workerAction        the worker task details
      * @throws IOException          thrown if message cannot be sent
@@ -178,12 +176,12 @@ public final class QueueServices implements AutoCloseable
     }
 
     /**
-     * Closes the queue connection.
+     * Closes only the channel owned by this instance.
+     * The shared connection is NOT closed as it may be used by other jobs.
      */
-    @Override
     public void close() {
         try {
-            //  Close channel.
+            // Close only the channel - the shared connection should remain open for other jobs
             if (publisherChannel != null && publisherChannel.isOpen()) {
                 LOG.info("Closing channel [partitionId={}, jobId={}, queue={}]...",
                         partitionId, jobId, targetQueue);
@@ -192,21 +190,9 @@ public final class QueueServices implements AutoCloseable
                 LOG.info("Publisher channel is already closed or was never opened [partitionId={}, jobId={}, queue={}]",
                         partitionId, jobId, targetQueue);
             }
-
-            //  Close connection.
-            if (connection != null && connection.isOpen()) {
-                LOG.info("Closing connection [partitionId={}, jobId={}, queue={}]...",
-                        partitionId, jobId, targetQueue);
-                connection.close();
-            } else {
-                LOG.info("Connection is already closed or was never opened [partitionId={}, jobId={}, queue={}]",
-                        partitionId, jobId, targetQueue);
-            }
-
         } catch (final IOException | TimeoutException e) {
-            LOG.error("Failed to close the queuing connection [partitionId={}, jobId={}, queue={}]",
+            LOG.error("Failed to close the channel [partitionId={}, jobId={}, queue={}]",
                     partitionId, jobId, targetQueue, e);
         }
     }
-
 }
