@@ -103,9 +103,11 @@ public class DatabasePoller
                 queueServices.close();
             }
         }catch (final Exception e) {
-            // If the exception is a wrapped ShutdownSignalException, it likely came from
-            // the async handler (PublisherConfirmationAnalyzer) and was re-thrown - let the async handler deal with it
             if (isAsyncListenerException(e)) {
+                // This exception came from the same shutdown that the async handler (PublisherConfirmationAnalyzer) is
+                // processing. Let the async handler deal with it to avoid double handling.
+                //
+                // This will happen if publishChannel.queueDeclare in QueueServicesFactory.create encounters an error
                 LOG.warn("Exception appears to be from async listener - deferring to async handler. " +
                                 "[partitionId={}, jobId={}, exception={}]",
                         jtd.getPartitionId(), jtd.getJobId(), e.getClass().getSimpleName());
