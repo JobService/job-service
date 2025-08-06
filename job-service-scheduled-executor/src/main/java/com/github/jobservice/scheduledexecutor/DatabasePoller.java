@@ -104,10 +104,17 @@ public class DatabasePoller
             }
         }catch (final Exception e) {
             if (isAsyncListenerException(e)) {
-                // This exception came from the same shutdown that the async handler (PublisherConfirmationAnalyzer) is
-                // processing. Let the async handler deal with it to avoid double handling.
+                // This exception came from the same shutdown that the async handler is processing. Let the async
+                // handler deal with it to avoid double handling.
                 //
-                // This will happen if publishChannel.queueDeclare in QueueServicesFactory.create encounters an error
+                // This can happen if publishChannel.queueDeclare in QueueServicesFactory.create encounters an error
+                // such as trying to declare a queue with unexpected arguments. The timeline of events is:
+                //
+                // - The synchronous code (QueueServicesFactory.create) calls queueDeclare() which blocks waiting for
+                //   RabbitMQ's response
+                // - RabbitMQ sends a channel.close with the error
+                // - The async listener (RabbitMqAsyncListener) receives this shutdown signal via shutdownCompleted
+                // - The blocked queueDeclare() call also receives the same error and throws it which is caught here
                 LOG.warn("Exception appears to be from async listener - deferring to async handler. " +
                                 "[partitionId={}, jobId={}, exception={}]",
                         jtd.getPartitionId(), jtd.getJobId(), e.getClass().getSimpleName());
@@ -116,10 +123,10 @@ public class DatabasePoller
             }
 
             // Handle synchronous exceptions (connection setup, serialization, etc.)
-            final PublisherConfirmationAnalyzer.FailureType failureType = JobFailureHandler.analyzeException(e);
+            final RabbitMqAsyncListener.FailureType failureType = JobFailureHandler.analyzeException(e);
             final String reason = MessageFormat.format("Exception during message publishing: {0}", e.getMessage());
 
-            if (failureType == PublisherConfirmationAnalyzer.FailureType.NON_TRANSIENT) {
+            if (failureType == RabbitMqAsyncListener.FailureType.NON_TRANSIENT) {
                 LOG.error("NON-TRANSIENT failure detected during message publishing. " +
                                 "Marking job as failed. [partitionId={}, jobId={}, taskPipe={}].",
                         jtd.getPartitionId(), jtd.getJobId(), jtd.getTaskPipe(), e);

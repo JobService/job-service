@@ -30,20 +30,20 @@ import org.slf4j.LoggerFactory;
  * Monitors RabbitMQ publisher confirmations, message returns, and channel shutdowns
  * to determine if message publication failures are transient or permanent.
  * <p>
- * This analyzer listens for three event types to provide comprehensive failure analysis:
+ * Listens for three event types to provide comprehensive failure analysis:
  * <ul>
  * <li><b>Publisher confirmations (ACK/NACK):</b> Indicates the broker's acceptance or rejection of a message.</li>
  * <li><b>Message returns:</b> Signifies that a 'mandatory' message could not be routed to any queue.</li>
  * <li><b>Channel shutdowns:</b> Reports unexpected connection or channel-level failures.</li>
  * </ul>
  * <p>
- * The analyzer is automatically registered as a listener on the provided channel.
+ * This class is automatically registered as a listener on the provided channel.
  * Based on its analysis, it either leaves the job to be retried (transient failure)
  * or marks it as permanently failed and removes it from the job_task_data table (non-transient failure).
  */
-public final class PublisherConfirmationAnalyzer implements ConfirmListener, ReturnListener, ShutdownListener {
+public final class RabbitMqAsyncListener implements ConfirmListener, ReturnListener, ShutdownListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PublisherConfirmationAnalyzer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RabbitMqAsyncListener.class);
 
     private final String partitionId;
     private final String jobId;
@@ -67,7 +67,7 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
     }
 
     /**
-     * Constructs a new analyzer and registers it with the specified channel.
+     * Constructs a new listener and registers it with the specified channel.
      *
      * @param channel The RabbitMQ channel to monitor (must not be null).
      * @param partitionId The partition identifier for this job.
@@ -75,7 +75,7 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
      * @param targetQueue The name of the queue where messages are being sent.
      * @throws IllegalArgumentException if the provided channel is null.
      */
-    public PublisherConfirmationAnalyzer(
+    public RabbitMqAsyncListener(
             final Channel channel,
             final String partitionId,
             final String jobId,
@@ -85,7 +85,7 @@ public final class PublisherConfirmationAnalyzer implements ConfirmListener, Ret
             throw new IllegalArgumentException("Channel cannot be null");
         }
 
-        // Register this analyzer to receive all relevant events.
+        // Register this listener to receive all relevant events.
         channel.addConfirmListener(this);
         channel.addReturnListener(this);
         channel.addShutdownListener(this);

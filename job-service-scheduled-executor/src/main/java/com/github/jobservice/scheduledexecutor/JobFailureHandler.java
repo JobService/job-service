@@ -51,7 +51,7 @@ class JobFailureHandler {
      * @param exception The exception to analyze
      * @return The failure type classification
      */
-    public static PublisherConfirmationAnalyzer.FailureType analyzeException(final Exception exception) {
+    public static RabbitMqAsyncListener.FailureType analyzeException(final Exception exception) {
         // Check for specific exception types that indicate non-transient failures
         if (exception instanceof IllegalArgumentException ||
                 exception instanceof SecurityException ||
@@ -62,24 +62,24 @@ class JobFailureHandler {
                 exception instanceof AlreadyClosedException ||
                 exception instanceof MissedHeartbeatException) {
             // Configuration, code-related, or definitive RabbitMQ state errors are non-transient.
-            return PublisherConfirmationAnalyzer.FailureType.NON_TRANSIENT;
+            return RabbitMqAsyncListener.FailureType.NON_TRANSIENT;
         }
 
         if (exception instanceof ShutdownSignalException shutdownException) {
-            // For shutdown signals, analyze the cause similar to PublisherConfirmationAnalyzer.
+            // For shutdown signals, analyze the cause
             return analyzeShutdownException(shutdownException);
         }
 
         // Check for network-related exceptions (typically transient)
         if (exception instanceof IOException || exception instanceof TimeoutException) {
             // Network issues are typically transient.
-            return PublisherConfirmationAnalyzer.FailureType.TRANSIENT;
+            return RabbitMqAsyncListener.FailureType.TRANSIENT;
         }
 
         // Default to transient for unknown exceptions to allow retries
         LOG.warn("Unknown exception type encountered: {}. Defaulting to TRANSIENT classification to allow for retry.",
                 exception.getClass().getName());
-        return PublisherConfirmationAnalyzer.FailureType.TRANSIENT;
+        return RabbitMqAsyncListener.FailureType.TRANSIENT;
     }
 
     /**
@@ -144,11 +144,11 @@ class JobFailureHandler {
      * @param shutdownException The shutdown exception to analyze
      * @return The failure type classification
      */
-    public static PublisherConfirmationAnalyzer.FailureType analyzeShutdownException(
+    public static RabbitMqAsyncListener.FailureType analyzeShutdownException(
             final ShutdownSignalException shutdownException) {
 
         if (shutdownException.isInitiatedByApplication()) {
-            return PublisherConfirmationAnalyzer.FailureType.TRANSIENT;
+            return RabbitMqAsyncListener.FailureType.TRANSIENT;
         }
 
         final Object reason = shutdownException.getReason();
@@ -156,12 +156,12 @@ class JobFailureHandler {
 
         if (replyCode == -1) {
             boolean isIoException = shutdownException.getCause() instanceof IOException;
-            return isIoException ? PublisherConfirmationAnalyzer.FailureType.TRANSIENT :
-                    PublisherConfirmationAnalyzer.FailureType.NON_TRANSIENT;
+            return isIoException ? RabbitMqAsyncListener.FailureType.TRANSIENT :
+                    RabbitMqAsyncListener.FailureType.NON_TRANSIENT;
         }
 
-        return isReplyCodeTransient(replyCode) ? PublisherConfirmationAnalyzer.FailureType.TRANSIENT :
-                PublisherConfirmationAnalyzer.FailureType.NON_TRANSIENT;
+        return isReplyCodeTransient(replyCode) ? RabbitMqAsyncListener.FailureType.TRANSIENT :
+                RabbitMqAsyncListener.FailureType.NON_TRANSIENT;
     }
 
     /**
