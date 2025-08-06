@@ -77,7 +77,7 @@ class JobFailureHandler {
         }
 
         // Default to non-transient for unknown exceptions to prevent infinite retry loops
-        LOG.warn("Unknown exception type encountered: {}. Assuming NON-TRANSIENT to prevent retry loop.",
+        LOG.error("Unknown exception type encountered: {}. Assuming NON-TRANSIENT to prevent retry loop.",
                 exception.getClass().getName());
         return RabbitMqAsyncListener.FailureType.NON_TRANSIENT;
     }

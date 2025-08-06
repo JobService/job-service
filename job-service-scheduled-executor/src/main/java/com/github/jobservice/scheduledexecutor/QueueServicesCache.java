@@ -97,7 +97,7 @@ final class QueueServicesCache {
             final Key key = notification.getKey();
             switch (notification.getCause()) {
                 case EXPLICIT:
-                    LOG.info("Removing QueueServices {} from cache. " +
+                    LOG.debug("Removing QueueServices {} from cache. " +
                             "Reason: Publisher ack, nack, return or shutdown received.", key);
                     break;
                 case EXPIRED:
@@ -106,20 +106,20 @@ final class QueueServicesCache {
                             key, TIMEOUT_MINUTES);
                     break;
                 default:
-                    LOG.warn("Removing QueueServices {} from cache. Reason: {} (unexpected)",
+                    LOG.error("Removing QueueServices {} from cache. Reason: {} (unexpected)",
                             key, notification.getCause());
                     break;
             }
 
             // Create a new thread to call QueueServices.close() to prevent blocking the main thread
             // Only closes the individual channel, the shared connection remains open
-            LOG.info("Calling close() on QueueServices {} (channel only - shared connection remains open)", key);
+            LOG.debug("Calling close() on QueueServices {} (channel only - shared connection remains open)", key);
             final Thread cleanupThread = new Thread(() -> {
                 try {
                     queueServices.close();
-                    LOG.info("Successfully closed QueueServices {} channel", key);
+                    LOG.debug("Successfully closed QueueServices {} channel", key);
                 } catch (final Exception e) {
-                    LOG.error("Error closing QueueServices {} channel", key, e);
+                    LOG.warn("Error closing QueueServices {} channel", key, e);
                 }
             }, "QueueServices-Cleanup-" + key.partitionId() + "-" + key.jobId());
 

@@ -92,7 +92,7 @@ public final class QueueServicesFactory
         final Connection connection = getOrCreateSharedConnection();
 
         // Create a new channel for this job (channels are not thread-safe, so each job needs its own)
-        LOG.info("Creating channel for job [partitionId={}, jobId={}, queue={}]...",
+        LOG.debug("Creating channel for job [partitionId={}, jobId={}, queue={}]...",
                 partitionId, jobId, targetQueue);
         final Channel publishChannel = connection.createChannel();
         if (publishChannel == null) {

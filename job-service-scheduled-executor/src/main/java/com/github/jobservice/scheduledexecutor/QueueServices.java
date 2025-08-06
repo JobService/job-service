@@ -108,7 +108,7 @@ public final class QueueServices
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.info("Publishing the following message to the {} queue: {}",
+            LOG.debug("Publishing the following message to the {} queue: {}",
                     targetQueue, new String(taskMessageBytes, StandardCharsets.UTF_8));
         }
 
@@ -183,11 +183,11 @@ public final class QueueServices
         try {
             // Close only the channel - the shared connection should remain open for other jobs
             if (publisherChannel != null && publisherChannel.isOpen()) {
-                LOG.info("Closing channel [partitionId={}, jobId={}, queue={}]...",
+                LOG.debug("Closing channel [partitionId={}, jobId={}, queue={}]...",
                         partitionId, jobId, targetQueue);
                 publisherChannel.close();
             } else {
-                LOG.info("Publisher channel is already closed or was never opened [partitionId={}, jobId={}, queue={}]",
+                LOG.debug("Publisher channel is already closed or was never opened [partitionId={}, jobId={}, queue={}]",
                         partitionId, jobId, targetQueue);
             }
         } catch (final IOException | TimeoutException e) {

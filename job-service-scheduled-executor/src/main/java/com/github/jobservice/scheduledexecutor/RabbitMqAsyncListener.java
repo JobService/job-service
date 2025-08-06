@@ -106,7 +106,7 @@ public final class RabbitMqAsyncListener implements ConfirmListener, ReturnListe
      */
     @Override
     public void handleAck(final long deliveryTag, final boolean multiple) throws IOException {
-        LOG.info("Message acknowledged by broker (deliveryTag: {}, multiple: {}). [partitionId={}, jobId={}, queue={}]",
+        LOG.debug("Message acknowledged by broker (deliveryTag: {}, multiple: {}). [partitionId={}, jobId={}, queue={}]",
                 deliveryTag, multiple, partitionId, jobId, targetQueue);
 
         // A successful ACK means we can safely remove the job from the system.
@@ -168,7 +168,7 @@ public final class RabbitMqAsyncListener implements ConfirmListener, ReturnListe
     public void shutdownCompleted(final ShutdownSignalException cause) {
         // Ignore graceful shutdowns initiated by our application.
         if (cause.isInitiatedByApplication()) {
-            LOG.info("Channel shutdown initiated by application. No action needed. [partitionId={}, jobId={}, queue={}]",
+            LOG.debug("Channel shutdown initiated by application. No action needed. [partitionId={}, jobId={}, queue={}]",
                     partitionId, jobId, targetQueue);
             return;
         }

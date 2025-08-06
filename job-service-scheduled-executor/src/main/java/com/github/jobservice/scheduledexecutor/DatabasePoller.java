@@ -42,7 +42,7 @@ public class DatabasePoller
     public static void pollDatabaseForJobsToRun() {
         try {
             //  Poll database for prerequisite jobs that are now available to be run.
-            LOG.info("Polling Job Service database for jobs to run - QueueServicesCache size: {}, " +
+            LOG.debug("Polling Job Service database for jobs to run - QueueServicesCache size: {}, " +
                             "Shared connection open: {}",
                     QueueServicesCache.size(),
                     QueueServicesFactory.isSharedConnectionOpen());
@@ -97,7 +97,7 @@ public class DatabasePoller
             } else {
                 // Another entry was present
                 LOG.warn("A QueueServices instance already exists {}. This means we have already sent a " +
-                                "message for this job to the {} queue and are awaiting a publisher confirm.",
+                                "message for this job to the {} queue and are awaiting a response.",
                         key, jtd.getTaskPipe());
 
                 queueServices.close();
