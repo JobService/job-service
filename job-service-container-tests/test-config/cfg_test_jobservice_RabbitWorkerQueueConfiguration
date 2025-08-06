@@ -3,8 +3,5 @@
     "inputQueue": "jobservice-test-input-1",
     "rejectedQueue": "jobservice-test-rejected-1",
     "retryLimit": 1,
-    "queueType": "quorum",
-    "isPayloadOffloadingEnabled": false,
-    "payloadOffloadingThreshold": 16777216,
-    "payloadOffloadingDirectory": "queues"
+    "queueType": "quorum"
 }
