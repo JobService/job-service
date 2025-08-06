@@ -352,11 +352,6 @@
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice.workers.batch</groupId>
-                <artifactId>worker-batch</artifactId>
-                <version>4.1.0-US1009117-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.jobservice.workers.batch</groupId>
                 <artifactId>worker-batch-shared</artifactId>
                 <version>4.1.0-US1009117-SNAPSHOT</version>
             </dependency>
