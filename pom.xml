@@ -271,22 +271,22 @@
             <dependency>
                 <groupId>com.github.cafdataprocessing.workers.document</groupId>
                 <artifactId>worker-document</artifactId>
-                <version>7.1.0-1518</version>
+                <version>7.2.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing.workers.document</groupId>
                 <artifactId>worker-document-interface</artifactId>
-                <version>7.1.0-1518</version>
+                <version>7.2.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing.workers.document</groupId>
                 <artifactId>worker-document-shared</artifactId>
-                <version>7.1.0-1518</version>
+                <version>7.2.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafdataprocessing.workers.document</groupId>
                 <artifactId>worker-document-utility</artifactId>
-                <version>7.1.0-1518</version>
+                <version>7.2.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice</groupId>
@@ -381,67 +381,67 @@
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>standard-worker-container</artifactId>
                 <type>pom</type>
-                <version>9.1.1-1334</version>
+                <version>10.0.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>util-rabbitmq</artifactId>
-                <version>9.1.1-1334</version>
+                <version>10.0.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-api</artifactId>
-                <version>9.1.1-1334</version>
+                <version>10.0.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-caf</artifactId>
-                <version>9.1.1-1334</version>
+                <version>10.0.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-configs</artifactId>
-                <version>9.1.1-1334</version>
+                <version>10.0.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-core</artifactId>
-                <version>9.1.1-1334</version>
+                <version>10.0.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-default-configs</artifactId>
-                <version>9.1.1-1334</version>
+                <version>10.0.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-queue-rabbit</artifactId>
-                <version>9.1.1-1334</version>
+                <version>10.0.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-store-fs</artifactId>
-                <version>9.1.1-1334</version>
+                <version>10.0.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-store-http</artifactId>
-                <version>9.1.1-1334</version>
+                <version>10.0.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework</groupId>
                 <artifactId>worker-tracking-report</artifactId>
-                <version>9.1.1-1334</version>
+                <version>10.0.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework.testing</groupId>
                 <artifactId>workerframework-testing-integration</artifactId>
-                <version>4.0.0-267</version>
+                <version>4.1.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.workerframework.testing</groupId>
                 <artifactId>workerframework-testing-util</artifactId>
-                <version>4.0.0-267</version>
+                <version>4.1.0-US1009117-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.google.errorprone</groupId>

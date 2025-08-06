@@ -23,25 +23,7 @@ import com.github.cafapi.common.api.DecodeMethod;
 import com.github.cafapi.common.api.HealthResult;
 import com.github.cafapi.common.api.HealthStatus;
 import com.github.jobservice.util.JobTaskId;
-import com.github.workerframework.api.BulkWorker;
-import com.github.workerframework.api.BulkWorkerRuntime;
-import com.github.workerframework.api.DataStore;
-import com.github.workerframework.api.InvalidTaskException;
-import com.github.workerframework.api.TaskFailedException;
-import com.github.workerframework.api.TaskInformation;
-import com.github.workerframework.api.TaskMessage;
-import com.github.workerframework.api.TaskMessageForwardingEvaluator;
-import com.github.workerframework.api.TaskRejectedException;
-import com.github.workerframework.api.TaskSourceInfo;
-import com.github.workerframework.api.TaskStatus;
-import com.github.workerframework.api.TrackingInfo;
-import com.github.workerframework.api.Worker;
-import com.github.workerframework.api.WorkerCallback;
-import com.github.workerframework.api.WorkerException;
-import com.github.workerframework.api.WorkerFactory;
-import com.github.workerframework.api.WorkerResponse;
-import com.github.workerframework.api.WorkerTask;
-import com.github.workerframework.api.WorkerTaskData;
+import com.github.workerframework.api.*;
 import com.github.workerframework.tracking.report.TrackingReportConstants;
 import com.github.workerframework.tracking.report.TrackingReportTask;
 import com.github.workerframework.util.rabbitmq.RabbitHeaders;
@@ -241,7 +223,12 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
     @Override
     public String getInvalidTaskQueue() {
-        return configuration.getOutputQueue();
+        return configuration.getInvalidQueue();
+    }
+
+    @Override
+    public WorkerConfiguration getWorkerConfiguration() {
+        return configuration;
     }
 
 

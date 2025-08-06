@@ -3,5 +3,8 @@
         "inputQueue": "batchworker-test-input-1",
         "retryQueue": "batchworker-test-input-1",
         "rejectedQueue": "batchworker-test-rejected-1",
-        "retryLimit": 2
+        "retryLimit": 2,
+        "isPayloadOffloadingEnabled": false,
+        "payloadOffloadingThreshold": 16777216,
+        "payloadOffloadingDirectory": "queues"
 }
