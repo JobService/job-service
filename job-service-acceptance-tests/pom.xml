@@ -77,6 +77,10 @@
         </dependency>
         <dependency>
             <groupId>com.github.jobservice.workers.batch</groupId>
+            <artifactId>worker-batch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jobservice.workers.batch</groupId>
             <artifactId>worker-batch-shared</artifactId>
         </dependency>
         <dependency>
