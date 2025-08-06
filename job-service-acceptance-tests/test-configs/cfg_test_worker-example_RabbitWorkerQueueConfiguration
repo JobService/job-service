@@ -3,8 +3,5 @@
         "inputQueue": "exampleworker-test-input-1",
         "retryQueue": "exampleworker-test-input-1",
         "rejectedQueue": "exampleworker-test-rejected-1",
-        "retryLimit": 2,
-        "isPayloadOffloadingEnabled": false,
-        "payloadOffloadingThreshold": 16777216,
-        "payloadOffloadingDirectory": "queues"
+        "retryLimit": 2
 }
