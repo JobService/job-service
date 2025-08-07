@@ -39,28 +39,27 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * This class is responsible for sending task data to the target queue.
- * It uses a shared connection but maintains its own channel per job.
+ * <p>
+ * It uses a shared connection but takes ownership of the provided channel.
  */
-public final class QueueServices
+public final class QueueServices implements AutoCloseable
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
 
-    private final String partitionId;
-    private final String jobId;
     private final Channel publisherChannel;         // This instance owns and manages this channel
+    private final Object publisherChannelLogData;   // Data that gets logged when referring to the channel in the logs
     private final String targetQueue;               // Queue that should be set in the 'to' field of the task message
+
     private final Codec codec;
 
     public QueueServices(
-            final String partitionId,
-            final String jobId,
             final Channel publisherChannel,
+            final Object publisherChannelLogData,
             final String targetQueue,
             final Codec codec) {
 
-        this.partitionId = partitionId;
-        this.jobId = jobId;
         this.publisherChannel = publisherChannel;
+        this.publisherChannelLogData = publisherChannelLogData;
         this.targetQueue = targetQueue;
         this.codec = codec;
     }
@@ -75,7 +74,7 @@ public final class QueueServices
      */
     public void sendMessage(
         final String partitionId, final String jobId, final WorkerAction workerAction
-    ) throws IOException, URISyntaxException, InterruptedException, TimeoutException {
+    ) throws IOException, URISyntaxException {
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
@@ -176,23 +175,24 @@ public final class QueueServices
     }
 
     /**
-     * Closes only the channel owned by this instance.
+     * Closes the channel owned by this instance.<p>
      * The shared connection is NOT closed as it may be used by other jobs.
      */
-    public void close() {
+    @Override
+    @SuppressWarnings("ConvertToTryWithResources")
+    public void close()
+    {
         try {
             // Close only the channel - the shared connection should remain open for other jobs
             if (publisherChannel != null && publisherChannel.isOpen()) {
-                LOG.debug("Closing channel [partitionId={}, jobId={}, queue={}]...",
-                        partitionId, jobId, targetQueue);
+                LOG.debug("Closing channel [{}]...", publisherChannelLogData);
                 publisherChannel.close();
             } else {
-                LOG.debug("Publisher channel is already closed or was never opened [partitionId={}, jobId={}, queue={}]",
-                        partitionId, jobId, targetQueue);
+                LOG.debug("Publisher channel is already closed or was never opened [{}]", publisherChannelLogData);
             }
         } catch (final IOException | TimeoutException e) {
-            LOG.error("Failed to close the channel [partitionId={}, jobId={}, queue={}]",
-                    partitionId, jobId, targetQueue, e);
+            LOG.error("Failed to close the channel [{}]", publisherChannelLogData, e);
         }
     }
+
 }

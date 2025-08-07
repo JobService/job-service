@@ -225,28 +225,26 @@ public class DatabasePoller
      * Reports failure for the specified job identifier.
      */
     public static void reportFailure(
-            final String partitionId,
-            final String jobId,
-            final String failureDetails) throws ScheduledExecutorException {
-        /*
-        SCMOD-6525 - FALSE POSITIVE on FORTIFY SCAN for Unreleased Resource: Database.
-        */
-        try (
-                Connection conn = DBConnection.get();
-                CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}")
-        ) {
+        final String partitionId,
+        final String jobId,
+        final String failureDetails
+    ) throws ScheduledExecutorException
+    {
+        try (final Connection conn = DBConnection.get();
+             final CallableStatement stmt = conn.prepareCall("{call report_failure(?,?,?)}"))
+        {
             stmt.setString(1, partitionId);
             stmt.setString(2, jobId);
             stmt.setString(3, failureDetails);
 
             LOG.info("Calling report_failure() database function with partitionId={}, jobId={}, failureDetails={} ...",
-                    partitionId, jobId, failureDetails);
+                     partitionId, jobId, failureDetails);
             stmt.execute();
         } catch (final SQLException e) {
             final String errorMessage = MessageFormat.format(
-                    "Failed in call to report_failure() database function with " +
-                            "partitionId={0}, jobId={1}, failureDetails={2}. {3}",
-                    partitionId, jobId, failureDetails, e.getMessage());
+                "Failed in call to report_failure() database function with "
+                + "partitionId={0}, jobId={1}, failureDetails={2}. {3}",
+                partitionId, jobId, failureDetails, e.getMessage());
             LOG.error(errorMessage);
             throw new ScheduledExecutorException(errorMessage);
         }

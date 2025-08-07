@@ -35,15 +35,26 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * This class is responsible for creating the RabbitMQ connection and channels.
+ * This class is responsible for creating the RabbitMQ connection and channels.<br>
  * It maintains a single shared connection across all jobs for efficiency.
  */
 public final class QueueServicesFactory
 {
+    private record ChannelLoggingInfo(String partitionId, String jobId, String queue)
+    {
+        @Override
+        public String toString()
+        {
+            return "partitionId=" + partitionId + ", jobId=" + jobId + ", queue=" + queue;
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(QueueServicesFactory.class);
 
     private static final String RABBIT_PROP_KEY_MAX_PRIORITY = "x-max-priority";
+
     private static final String RABBIT_PROP_QUEUE_TYPE = "x-queue-type";
+
     private static final String RABBIT_PROP_QUEUE_TYPE_CLASSIC = "classic";
 
     private static final Map<String, Object> QUEUE_ARGUMENTS = new HashMap<>();
@@ -64,10 +75,8 @@ public final class QueueServicesFactory
             final Connection connection = SHARED_CONNECTION.get();
             if (connection != null && connection.isOpen()) {
                 try {
-                    LOG.info("Shutting down shared RabbitMQ connection...");
-                    connection.close();
+                    connection.close(5_000);
                 } catch (final IOException e) {
-                    LOG.warn("Error closing shared connection during shutdown", e);
                 }
             }
         }));
@@ -110,7 +119,8 @@ public final class QueueServicesFactory
         //setting queue properties: durable - true, exclusive - false, autoDelete - false
         publishChannel.queueDeclare(targetQueue, true, false, false, QUEUE_ARGUMENTS);
 
-        return new QueueServices(partitionId, jobId, publishChannel, targetQueue, codec);
+        final Object publisherChannelLogData = new ChannelLoggingInfo(partitionId, jobId, targetQueue);
+        return new QueueServices(publishChannel, publisherChannelLogData, targetQueue, codec);
     }
 
     /**
@@ -167,8 +177,11 @@ public final class QueueServicesFactory
 
     /**
      * Returns whether the shared connection is currently open and available.
+     *
+     * @return whether the shared connection is currently open and available
      */
-    public static boolean isSharedConnectionOpen() {
+    public static boolean isSharedConnectionOpen()
+    {
         final Connection connection = SHARED_CONNECTION.get();
         return connection != null && connection.isOpen();
     }
