@@ -353,7 +353,7 @@
             <dependency>
                 <groupId>com.github.jobservice.workers.batch</groupId>
                 <artifactId>worker-batch-shared</artifactId>
-                <version>4.1.0-US1009117-SNAPSHOT</version>
+                <version>4.0.0-452</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jobservice.workers.jobtracking</groupId>
