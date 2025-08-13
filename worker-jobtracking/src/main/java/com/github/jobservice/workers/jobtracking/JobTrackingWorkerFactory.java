@@ -37,7 +37,6 @@ import com.github.workerframework.api.TaskStatus;
 import com.github.workerframework.api.TrackingInfo;
 import com.github.workerframework.api.Worker;
 import com.github.workerframework.api.WorkerCallback;
-import com.github.workerframework.api.WorkerConfiguration;
 import com.github.workerframework.api.WorkerException;
 import com.github.workerframework.api.WorkerFactory;
 import com.github.workerframework.api.WorkerResponse;
@@ -242,12 +241,7 @@ public class JobTrackingWorkerFactory implements WorkerFactory, TaskMessageForwa
 
     @Override
     public String getInvalidTaskQueue() {
-        return configuration.getInvalidQueue();
-    }
-
-    @Override
-    public WorkerConfiguration getWorkerConfiguration() {
-        return configuration;
+        return configuration.getOutputQueue();
     }
 
 

@@ -33,10 +33,6 @@ public class JobTrackingWorkerConfiguration extends WorkerConfiguration {
     @Size(min = 1)
     private String outputQueue;
 
-    @NotNull
-    @Size(min = 1)
-    private String invalidQueue;
-
     /**
      * Number of threads to use in the worker.
      */
@@ -57,13 +53,6 @@ public class JobTrackingWorkerConfiguration extends WorkerConfiguration {
         this.outputQueue = outputQueue;
     }
 
-    public String getInvalidQueue() {
-        return invalidQueue;
-    }
-
-    public void setInvalidQueue(String invalidQueue) {
-        this.invalidQueue = invalidQueue;
-    }
 
     public int getThreads() {
         return threads;

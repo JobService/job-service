@@ -17,8 +17,6 @@
     workerName: "JobServiceScheduler",
     workerVersion: "${project.version}",
     outputQueue: getenv("CAF_WORKER_OUTPUT_QUEUE") || undefined,
-    invalidQueue: getenv("CAF_WORKER_INVALID_QUEUE")
-        || (getenv("CAF_WORKER_BASE_QUEUE_NAME") || getenv("CAF_WORKER_NAME") || "worker") + "-invalid",
     failureQueue: getenv("CAF_WORKER_FAILURE_QUEUE")
         || (getenv("CAF_WORKER_BASE_QUEUE_NAME") || getenv("CAF_WORKER_NAME") || "worker") + "-err",
     rejectQueue: getenv("CAF_WORKER_REJECT_QUEUE")
