@@ -3,6 +3,5 @@
         "inputQueue": "batchworker-test-input-1",
         "retryQueue": "batchworker-test-input-1",
         "rejectedQueue": "batchworker-test-rejected-1",
-        "missingOffloadedPayloadQueue": "batchworker-test-missing-1",
         "retryLimit": 2
 }
