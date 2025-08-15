@@ -20,7 +20,6 @@
     pausedQueue: getenv("CAF_WORKER_PAUSED_QUEUE") || undefined,
     retryQueue: getenv("CAF_WORKER_RETRY_QUEUE") || undefined,
     rejectedQueue: "worker-rejected",
-    missingOffloadedPayloadQueue: "worker-missing-offloaded-payload",
     retryLimit: getenv("CAF_WORKER_RETRY_LIMIT") || 10,
     maxPriority: getenv("CAF_RABBITMQ_MAX_PRIORITY") || 0,
     queueType: getenv("CAF_RABBITMQ_QUEUE_TYPE") || "quorum"
