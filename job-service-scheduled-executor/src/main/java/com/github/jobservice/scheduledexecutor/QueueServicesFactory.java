@@ -112,7 +112,7 @@ public final class QueueServicesFactory
         }
 
         publishChannel.confirmSelect();
-        new RabbitMqAsyncListener(publishChannel, partitionId, jobId, targetQueue);
+        RabbitMqAsyncListener.registerListeners(publishChannel, partitionId, jobId, targetQueue);
 
         //  Declare worker queue.
         LOG.debug("Declaring worker queue {}...", targetQueue);
