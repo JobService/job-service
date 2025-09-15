@@ -18,5 +18,5 @@ package com.github.jobservice.scheduledexecutor;
 enum ExceptionType
 {
     TRANSIENT,
-    NON_TRANSIENT
+    PERMANENT
 }
