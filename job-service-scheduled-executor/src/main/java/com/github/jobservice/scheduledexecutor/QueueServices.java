@@ -45,6 +45,9 @@ public final class QueueServices implements AutoCloseable
 {
     private static final Logger LOG = LoggerFactory.getLogger(QueueServices.class);
 
+    private static final int RABBIT_MQ_PUBLISH_TIMEOUT_MILLIS =
+            ScheduledExecutorConfig.getRabbitMQPublishTimeoutSeconds() * 1000;
+
     private final Connection connection;
     private final Channel publisherChannel;
     private final String targetQueue;               // Queue that should be set in the 'to' field of the task message
@@ -72,7 +75,8 @@ public final class QueueServices implements AutoCloseable
      */
     public void sendMessage(
         final String partitionId, final String jobId, final WorkerAction workerAction
-    ) throws IOException, URISyntaxException {
+    ) throws IOException, URISyntaxException, InterruptedException, TimeoutException
+    {
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
@@ -110,6 +114,7 @@ public final class QueueServices implements AutoCloseable
         }
 
         publisherChannel.basicPublish("", targetQueue, true, MessageProperties.PERSISTENT_TEXT_PLAIN, taskMessageBytes);
+        publisherChannel.waitForConfirmsOrDie(RABBIT_MQ_PUBLISH_TIMEOUT_MILLIS);
     }
 
     private TaskMessage getTaskMessage(

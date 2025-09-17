@@ -76,6 +76,9 @@ public final class QueueServicesFactory
         LOG.debug("Creating channel ...");
         final Channel publishChannel = connection.createChannel();
 
+        // Enable publishing acknowledgements
+        publishChannel.confirmSelect();
+
         //  Declare worker queue.
         LOG.debug("Declaring worker queue {}...", targetQueue);
 

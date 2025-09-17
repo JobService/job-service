@@ -111,6 +111,14 @@ public class ScheduledExecutorConfig {
         }
     }
 
+    public static int getRabbitMQPublishTimeoutSeconds() {
+        final String rabbitmqPublishTimeoutSeconds = getPropertyOrEnvVar("CAF_RABBITMQ_PUBLISH_TIMEOUT_SECONDS");
+        if (null == rabbitmqPublishTimeoutSeconds || rabbitmqPublishTimeoutSeconds.isEmpty()) {
+            return 10;
+        }
+        return Integer.parseInt(rabbitmqPublishTimeoutSeconds);
+    }
+
     public static String getTrackingPipe() {
         return getPropertyOrEnvVar("CAF_TRACKING_PIPE");
     }
