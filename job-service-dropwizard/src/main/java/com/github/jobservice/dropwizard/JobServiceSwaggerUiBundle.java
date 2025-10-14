@@ -36,7 +36,7 @@ enum JobServiceSwaggerUiBundle implements ConfiguredBundle<Object>
     public void initialize(final Bootstrap<?> bootstrap)
     {
         bootstrap.addBundle(new AssetsBundle(
-            "/META-INF/resources/webjars/opentext-swagger-ui-dist/2.0.0/",
+            "/META-INF/resources/webjars/opentext-swagger-ui-dist/2.1.0/",
             SWAGGER_UI_BASE_PATH + "/",
             "index.html",
             "swagger-ui"));
