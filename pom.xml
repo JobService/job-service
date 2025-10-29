@@ -151,7 +151,7 @@
             <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>
                 <artifactId>caffeine</artifactId>
-                <version>3.2.2</version>
+                <version>3.2.3</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
@@ -497,7 +497,7 @@
             <dependency>
                 <groupId>com.networknt</groupId>
                 <artifactId>json-schema-validator</artifactId>
-                <version>2.0.0</version>
+                <version>1.5.9</version>
             </dependency>
             <dependency>
                 <groupId>com.rabbitmq</groupId>
@@ -1313,8 +1313,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>1.4.1</tag>
-                            <digest>sha256:645019f43cae26eaed8ad8fb9084f632e38f118e16a69c60673c7b6d1ac2b979</digest>
+                            <tag>1.4.2</tag>
+                            <digest>sha256:668eb96fb0948b95a27104e42c9e26f16fe1f50fdea31b0adf249750e2faf967</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
