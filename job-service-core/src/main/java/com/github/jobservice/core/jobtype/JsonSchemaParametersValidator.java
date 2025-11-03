@@ -17,12 +17,11 @@ package com.github.jobservice.core.jobtype;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.jobservice.core.exceptions.BadRequestException;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.SpecVersionDetector;
-import com.networknt.schema.ValidationMessage;
-import java.util.Set;
+import com.networknt.schema.Error;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
+import java.util.List;
 
 /**
  * Validate parameters using JSON Schema.
@@ -32,7 +31,7 @@ final class JsonSchemaParametersValidator implements ParametersValidator {
     /**
      * Compiled schema to validate with.
      */
-    private final JsonSchema schema;
+    private final Schema schema;
 
     /**
      * @param jobTypeId Job type's ID, used for error messages
@@ -41,18 +40,17 @@ final class JsonSchemaParametersValidator implements ParametersValidator {
      */
     public JsonSchemaParametersValidator(final String jobTypeId, final JsonNode schema)
     {
-        final VersionFlag schemaVersion = SpecVersionDetector.detectOptionalVersion(schema, true).orElse(VersionFlag.V4);
-        final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(schemaVersion);
-        this.schema = factory.getSchema(schema);
+        final SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
+        this.schema = schemaRegistry.getSchema(schema);
     }
 
     @Override
     public void validate(final JsonNode parameters) throws BadRequestException {
-        final Set<ValidationMessage> errors = schema.validate(parameters);
+        final List<Error> errors = schema.validate(parameters);
 
         if (!errors.isEmpty()) {
             final StringBuilder errorMessage = new StringBuilder("Invalid job parameters:");
-            for (final ValidationMessage error : errors) {
+            for (final Error error : errors) {
                 errorMessage.append('\n').append(error.getMessage());
             }
 

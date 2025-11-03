@@ -16,24 +16,22 @@
 package com.github.jobservice.core.jobtype;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.SpecVersionDetector;
-import com.networknt.schema.ValidationMessage;
-import java.util.Set;
+import com.networknt.schema.Error;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
+import java.util.List;
 
 public final class JsonSchemaTaskScriptValidator {
 
     private static JsonSchemaTaskScriptValidator INSTANCE;
 
-    private final JsonSchema compiledTaskScriptSchema;
+    private final Schema compiledTaskScriptSchema;
 
     private JsonSchemaTaskScriptValidator(final JsonNode taskScriptSchema)
     {
-        final VersionFlag schemaVersion = SpecVersionDetector.detectOptionalVersion(taskScriptSchema, true).orElse(VersionFlag.V4);
-        final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(schemaVersion);
-        this.compiledTaskScriptSchema = factory.getSchema(taskScriptSchema);
+        final SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
+        this.compiledTaskScriptSchema = schemaRegistry.getSchema(taskScriptSchema);
     }
 
     public static void initialise(final JsonNode taskScriptSchema)
@@ -50,11 +48,11 @@ public final class JsonSchemaTaskScriptValidator {
     }
 
     public void validate(final JsonNode taskScript) throws InvalidJobTypeDefinitionException {
-        final Set<ValidationMessage> errors = compiledTaskScriptSchema.validate(taskScript);
+        final List<Error> errors = compiledTaskScriptSchema.validate(taskScript);
 
         if (!errors.isEmpty()) {
             final StringBuilder errorMessage = new StringBuilder("Invalid taskScript:");
-            for (final ValidationMessage error : errors) {
+            for (final Error error : errors) {
                 errorMessage.append('\n').append(error.getMessage());
             }
             throw new InvalidJobTypeDefinitionException(errorMessage.toString());
