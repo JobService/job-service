@@ -24,7 +24,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>10.0.1-SNAPSHOT</version>
+        <version>10.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>job-service-internal-client</artifactId>
