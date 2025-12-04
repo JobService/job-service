@@ -53,6 +53,7 @@ The jdbc database connection, user and password string arguments will need chang
 #### Additional Install Arguments
 The following install arguments can also be specified:
 
+*   db.tablespace <tablespaceName> : Specifies the tablespace to use when creating the database, if applicable. If not specified, the default tablespace will be used.
 *   fd  :  Enables the deletion of the existing database for a fresh install, rather than updating the database.
 *   log : Specifies the logging level of the installer. Valid options are: [debug, info, warning, severe, off].
 
