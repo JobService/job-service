@@ -20,6 +20,10 @@ From the folder with the jars run:
 
 The database connection, user and password string arguments will need changed to match your PostgreSQL 11 or later setup.
 
+Optional argument:  
+
+	db.tablespace : Specifies the tablespace to use when creating the database, if applicable. If not specified, the default tablespace will be used.
+
 ### Docker Image
 This is available as a Docker container - see [job-service-postgres-container](../job-service-postgres-container).
 
@@ -36,6 +40,7 @@ then run the image using:
 	-db.name jobservice \
 	-db.user postgres \
 	-db.pass root
+	-db.tablespace dbspace
 
 where:
 
@@ -45,5 +50,6 @@ where:
 *   db.user  :  Specifies the username to access the database.
 *   db.pass  :  Specifies the password to access the database.
 *   log      :  Specifies the log level.
+*   db.tablespace : (Optional) Specifies the tablespace to use when creating the database, if applicable. If not specified, the default tablespace will be used.
 
 The jdbc database connection, user and password string arguments will need changed to match your external PostgreSQL 11 or later setup.
