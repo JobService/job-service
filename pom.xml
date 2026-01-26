@@ -51,12 +51,12 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.5.22</version>
+                <version>1.5.26</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.5.22</version>
+                <version>1.5.26</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback.access</groupId>
@@ -76,72 +76,72 @@
             <dependency>
                 <groupId>com.fasterxml</groupId>
                 <artifactId>classmate</artifactId>
-                <version>1.7.1</version>
+                <version>1.7.3</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>2.20</version>
+                <version>2.21</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-guava</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jdk8</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
                 <artifactId>jackson-jakarta-rs-base</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
                 <artifactId>jackson-jakarta-rs-json-provider</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-blackbird</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-parameter-names</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.woodstox</groupId>
@@ -446,7 +446,7 @@
             <dependency>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
-                <version>2.45.0</version>
+                <version>2.46.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -607,57 +607,57 @@
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-annotation</artifactId>
-                <version>4.2.37</version>
+                <version>4.2.38</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
-                <version>4.2.37</version>
+                <version>4.2.38</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-healthchecks</artifactId>
-                <version>4.2.37</version>
+                <version>4.2.38</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jakarta-servlets</artifactId>
-                <version>4.2.37</version>
+                <version>4.2.38</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jersey3</artifactId>
-                <version>4.2.37</version>
+                <version>4.2.38</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jetty12</artifactId>
-                <version>4.2.37</version>
+                <version>4.2.38</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jetty12-ee10</artifactId>
-                <version>4.2.37</version>
+                <version>4.2.38</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jmx</artifactId>
-                <version>4.2.37</version>
+                <version>4.2.38</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-json</artifactId>
-                <version>4.2.37</version>
+                <version>4.2.38</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-jvm</artifactId>
-                <version>4.2.37</version>
+                <version>4.2.38</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-logback</artifactId>
-                <version>4.2.37</version>
+                <version>4.2.38</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
@@ -762,12 +762,12 @@
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.18.2</version>
+                <version>1.18.4</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
-                <version>1.18.2</version>
+                <version>1.18.4</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
@@ -829,7 +829,7 @@
             <dependency>
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
-                <version>3.52.1</version>
+                <version>3.53.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jettison</groupId>
@@ -890,12 +890,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>11.19.0</version>
+                <version>11.20.2</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>11.19.0</version>
+                <version>11.20.2</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.expressly</groupId>
@@ -993,84 +993,84 @@
                 <groupId>org.graalvm.js</groupId>
                 <artifactId>js</artifactId>
                 <type>pom</type>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.js</groupId>
                 <artifactId>js-community</artifactId>
                 <type>pom</type>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.js</groupId>
                 <artifactId>js-language</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.js</groupId>
                 <artifactId>js-scriptengine</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.polyglot</groupId>
                 <artifactId>js-community</artifactId>
                 <type>pom</type>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.polyglot</groupId>
                 <artifactId>polyglot</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.regex</groupId>
                 <artifactId>regex</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.sdk</groupId>
                 <artifactId>collections</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.sdk</groupId>
                 <artifactId>jniutils</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.sdk</groupId>
                 <artifactId>nativeimage</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.sdk</groupId>
                 <artifactId>word</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.shadowed</groupId>
                 <artifactId>icu4j</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.shadowed</groupId>
                 <artifactId>xz</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.truffle</groupId>
                 <artifactId>truffle-api</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.truffle</groupId>
                 <artifactId>truffle-compiler</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.graalvm.truffle</groupId>
                 <artifactId>truffle-runtime</artifactId>
-                <version>25.0.1</version>
+                <version>25.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.hibernate.validator</groupId>
@@ -1095,7 +1095,7 @@
             <dependency>
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
-                <version>20250517</version>
+                <version>20251224</version>
             </dependency>
             <dependency>
                 <groupId>org.jspecify</groupId>
@@ -1105,12 +1105,12 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>6.0.1</version>
+                <version>6.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-commons</artifactId>
-                <version>6.0.1</version>
+                <version>6.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.jvnet.mimepull</groupId>
@@ -1150,7 +1150,7 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.7.8</version>
+                <version>42.7.9</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -1180,7 +1180,7 @@
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
-                <version>7.11.0</version>
+                <version>7.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
@@ -1313,8 +1313,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>2.1.0</tag>
-                            <digest>sha256:e355ad06092acbeb156cf77fec9ac5316cac433d2ae9626fe51fdc6c606203bf</digest>
+                            <tag>2.1.1</tag>
+                            <digest>sha256:f125b783de44d3ea76f96d51ac689a6a6a9375c4daf731f5b7b308b33e0a5cf4</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
