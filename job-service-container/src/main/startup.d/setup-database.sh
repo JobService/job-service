@@ -25,6 +25,7 @@ java -cp "*" \
      -db.port "${JOB_SERVICE_DATABASE_PORT}" \
      -db.user "${JOB_SERVICE_DATABASE_USERNAME}" \
      -db.secretKeys "JOB_SERVICE_DATABASE_PASSWORD" \
-     -db.name "${JOB_SERVICE_DATABASE_NAME}"
+     -db.name "${JOB_SERVICE_DATABASE_NAME}" \
+     -db.tablespace "${JOB_SERVICE_DATABASE_TABLESPACE}"
 
 echo "Completed installation of Job Service database."
