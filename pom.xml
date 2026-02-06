@@ -51,22 +51,22 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.5.26</version>
+                <version>1.5.28</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.5.26</version>
+                <version>1.5.28</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback.access</groupId>
                 <artifactId>logback-access-common</artifactId>
-                <version>2.0.6</version>
+                <version>2.0.9</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback.access</groupId>
                 <artifactId>logback-access-jetty12</artifactId>
-                <version>2.0.6</version>
+                <version>2.0.9</version>
             </dependency>
             <dependency>
                 <groupId>com.ethlo.time</groupId>
@@ -446,7 +446,7 @@
             <dependency>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
-                <version>2.46.0</version>
+                <version>2.47.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -512,7 +512,7 @@
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.20.0</version>
+                <version>1.21.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -532,72 +532,72 @@
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-assets</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-configuration</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-core</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-health</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-jackson</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-jersey</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-jetty</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-lifecycle</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-logging</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-metrics</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-request-logging</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-servlets</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-util</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-validation</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.logback</groupId>
@@ -662,57 +662,57 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-buffer</artifactId>
-                <version>4.2.9.Final</version>
+                <version>4.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec</artifactId>
-                <version>4.2.9.Final</version>
+                <version>4.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-base</artifactId>
-                <version>4.2.9.Final</version>
+                <version>4.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-compression</artifactId>
-                <version>4.2.9.Final</version>
+                <version>4.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-marshalling</artifactId>
-                <version>4.2.9.Final</version>
+                <version>4.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-protobuf</artifactId>
-                <version>4.2.9.Final</version>
+                <version>4.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-common</artifactId>
-                <version>4.2.9.Final</version>
+                <version>4.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-handler</artifactId>
-                <version>4.2.9.Final</version>
+                <version>4.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-resolver</artifactId>
-                <version>4.2.9.Final</version>
+                <version>4.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-transport</artifactId>
-                <version>4.2.9.Final</version>
+                <version>4.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-transport-native-unix-common</artifactId>
-                <version>4.2.9.Final</version>
+                <version>4.2.10.Final</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.activation</groupId>
@@ -752,7 +752,7 @@
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
-                <version>4.0.4</version>
+                <version>4.0.5</version>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
@@ -829,7 +829,7 @@
             <dependency>
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
-                <version>3.53.0</version>
+                <version>3.53.1</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jettison</groupId>
@@ -844,22 +844,22 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-http</artifactId>
-                <version>12.1.5</version>
+                <version>12.1.6</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-io</artifactId>
-                <version>12.1.5</version>
+                <version>12.1.6</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-security</artifactId>
-                <version>12.1.5</version>
+                <version>12.1.6</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
-                <version>12.1.5</version>
+                <version>12.1.6</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.eclipse.jetty.toolchain</groupId>
@@ -870,17 +870,17 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-session</artifactId>
-                <version>12.1.5</version>
+                <version>12.1.6</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-util</artifactId>
-                <version>12.1.5</version>
+                <version>12.1.6</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty.ee10</groupId>
                 <artifactId>jetty-ee10-servlet</artifactId>
-                <version>12.1.5</version>
+                <version>12.1.6</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty.toolchain.setuid</groupId>
@@ -890,12 +890,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>11.20.2</version>
+                <version>12.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>11.20.2</version>
+                <version>12.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.expressly</groupId>
@@ -1085,7 +1085,7 @@
             <dependency>
                 <groupId>org.jboss.logging</groupId>
                 <artifactId>jboss-logging</artifactId>
-                <version>3.6.1.Final</version>
+                <version>3.6.2.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.jcommander</groupId>
@@ -1135,12 +1135,12 @@
             <dependency>
                 <groupId>org.objenesis</groupId>
                 <artifactId>objenesis</artifactId>
-                <version>3.4</version>
+                <version>3.5</version>
             </dependency>
             <dependency>
                 <groupId>org.openapitools</groupId>
                 <artifactId>jackson-databind-nullable</artifactId>
-                <version>0.2.8</version>
+                <version>0.2.9</version>
             </dependency>
             <dependency>
                 <groupId>org.opentest4j</groupId>
@@ -1308,13 +1308,13 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-jre21</repository>
-                            <tag>5.1.0</tag>
-                            <digest>sha256:e346802052f3b2494efa912a4de60e5ebd5c4314677dfac06ffacdcb45e6794b</digest>
+                            <tag>5.1.1</tag>
+                            <digest>sha256:2b5567440715a2d385e09774020f434e775f1ea1c543608911717094e224e756</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>2.1.1</tag>
-                            <digest>sha256:f125b783de44d3ea76f96d51ac689a6a6a9375c4daf731f5b7b308b33e0a5cf4</digest>
+                            <tag>2.1.2</tag>
+                            <digest>sha256:4916df8dd88ad471864eb861c59d6a5a8b23f7b03519d5a8ee9a1796544f3f37</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
