@@ -1,5 +1,3 @@
-!not-ready-for-release!
-
 #### Version Number
 ${version-number}
 
@@ -8,3 +6,4 @@ ${version-number}
   `-db.tablespace` optional argument or `JOB_SERVICE_DATABASE_TABLESPACE` env variable can be now be passed to specify the tablespace for the Job service database creation. If not set, the database default tablespace will be used.
 
 #### Known Issues
+- None
