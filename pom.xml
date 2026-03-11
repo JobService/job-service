@@ -156,67 +156,72 @@
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>bootstrapconfig-system</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>caf-api</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>cipher-null</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>codec-json</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>config-decoder</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>config-file</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>config-source</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>decoder-js</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cafapi.common</groupId>
+                <artifactId>util-jackson</artifactId>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>util-moduleloader</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>util-naming</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>util-process-identifier</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>util-ref</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
                 <artifactId>util-secret</artifactId>
-                <version>4.0.1-694</version>
+                <version>4.1.0-999</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.correlation</groupId>
@@ -497,7 +502,7 @@
             <dependency>
                 <groupId>com.networknt</groupId>
                 <artifactId>json-schema-validator</artifactId>
-                <version>2.0.1</version>
+                <version>3.0.0</version>
             </dependency>
             <dependency>
                 <groupId>com.rabbitmq</groupId>
@@ -1188,6 +1193,11 @@
                 <version>3.7.1</version>
             </dependency>
             <dependency>
+                <groupId>org.snakeyaml</groupId>
+                <artifactId>snakeyaml-engine</artifactId>
+                <version>3.0.1</version>
+            </dependency>
+            <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>2.6</version>
@@ -1200,6 +1210,11 @@
             <dependency>
                 <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
+                <version>3.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>tools.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>3.1.0</version>
             </dependency>
         </dependencies>
