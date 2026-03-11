@@ -16,6 +16,7 @@
 package com.github.jobservice.core.jobtype;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.cafapi.common.util.jackson.JacksonMigrationFunctions;
 import com.github.jobservice.core.exceptions.BadRequestException;
 import com.networknt.schema.Error;
 import com.networknt.schema.Schema;
@@ -41,12 +42,12 @@ final class JsonSchemaParametersValidator implements ParametersValidator {
     public JsonSchemaParametersValidator(final String jobTypeId, final JsonNode schema)
     {
         final SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
-        this.schema = schemaRegistry.getSchema(schema);
+        this.schema = schemaRegistry.getSchema(JacksonMigrationFunctions.toJackson3(schema));
     }
 
     @Override
     public void validate(final JsonNode parameters) throws BadRequestException {
-        final List<Error> errors = schema.validate(parameters);
+        final List<Error> errors = schema.validate(JacksonMigrationFunctions.toJackson3(parameters));
 
         if (!errors.isEmpty()) {
             final StringBuilder errorMessage = new StringBuilder("Invalid job parameters:");

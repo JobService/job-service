@@ -16,6 +16,7 @@
 package com.github.jobservice.core.jobtype;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.cafapi.common.util.jackson.JacksonMigrationFunctions;
 import com.networknt.schema.Error;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
@@ -31,7 +32,7 @@ public final class JsonSchemaTaskScriptValidator {
     private JsonSchemaTaskScriptValidator(final JsonNode taskScriptSchema)
     {
         final SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
-        this.compiledTaskScriptSchema = schemaRegistry.getSchema(taskScriptSchema);
+        this.compiledTaskScriptSchema = schemaRegistry.getSchema(JacksonMigrationFunctions.toJackson3(taskScriptSchema));
     }
 
     public static void initialise(final JsonNode taskScriptSchema)
@@ -48,7 +49,7 @@ public final class JsonSchemaTaskScriptValidator {
     }
 
     public void validate(final JsonNode taskScript) throws InvalidJobTypeDefinitionException {
-        final List<Error> errors = compiledTaskScriptSchema.validate(taskScript);
+        final List<Error> errors = compiledTaskScriptSchema.validate(JacksonMigrationFunctions.toJackson3(taskScript));
 
         if (!errors.isEmpty()) {
             final StringBuilder errorMessage = new StringBuilder("Invalid taskScript:");
