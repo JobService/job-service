@@ -1,5 +1,3 @@
-!not-ready-for-release!
-
 #### Version Number
 ${version-number}
 
@@ -7,5 +5,7 @@ ${version-number}
 - Third-party dependency updates
 
 #### New Features
+- None
 
 #### Known Issues
+- None
