@@ -1427,9 +1427,137 @@ public class JobServiceIT {
             assertEquals(foundTables.size(), 0);
             // assert number of rows in delete_log to be 0.
             assertEquals(getRowsInDeleteLog(dbConnection), 0);
+            assertEquals(getRowsInDeleteLogFailed(dbConnection), 0,
+                    "delete_log_failed should be empty after all tables are dropped successfully");
         } catch (final Exception e) {
             LOG.error(e.getMessage(), e);
             Assert.fail();
+        }
+    }
+
+    @Test
+    public void testDeleteLogBacklogWhenDropTableFails() throws SQLException
+    {
+        final String tablePrefix = "task_delete_log_lock_" + System.currentTimeMillis();
+        final String parentTableName = tablePrefix;
+
+        // lockAcquired[0]: set by lock thread once the lock is held — gates the procedure call.
+        // releaseLock[0]:  set by main thread after procedure returns — signals lock thread to release.
+        final boolean[] lockAcquired = {false};
+        final boolean[] releaseLock = {false};
+
+        Thread lockThread = null;
+        final String firstChildTable = parentTableName + ".1";
+        try (final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
+        {
+            // Create a hierarchy and queue it for asynchronous deletion.
+            createTaskTable(dbConnection, parentTableName);
+            insertRecordsInTaskTable(dbConnection, parentTableName, 20);
+            createAndPopulateChildTables(dbConnection, parentTableName);
+            insertTableNameIntoParentTableLog(dbConnection, parentTableName);
+
+            // Acquire an EXCLUSIVE lock on the first child table before the procedure starts.
+            lockThread = new Thread(() -> {
+                System.out.println("Lock thread started");
+                try (final java.sql.Connection lockConn = JobServiceConnectionUtil.getDbConnection()) {
+                    lockConn.setAutoCommit(false);
+                    try (final PreparedStatement lockStmt = lockConn.prepareStatement(
+                            "LOCK TABLE \"" + firstChildTable + "\" IN EXCLUSIVE MODE")) {
+                        lockStmt.execute();
+                    }
+                    // Signal the main thread that the lock is held.
+                    synchronized (lockAcquired) {
+                        lockAcquired[0] = true;
+                        lockAcquired.notifyAll();
+                    }
+                    System.out.println("Lock acquired on " + firstChildTable + ", holding until procedure completes");
+                    // Hold the lock until the main thread signals that the procedure has finished.
+                    final long deadline = System.currentTimeMillis() + 15_000L;
+                    synchronized (releaseLock) {
+                        while (!releaseLock[0] && System.currentTimeMillis() < deadline) {
+                            releaseLock.wait(500);
+                        }
+                    }
+                    lockConn.rollback();
+                    System.out.println("Lock released on " + firstChildTable);
+                } catch (final Exception ex) {
+                    LOG.warn("Lock thread error", ex);
+                }
+            });
+            lockThread.start();
+
+            // Wait until the lock thread confirms the lock is held before calling the procedure.
+            synchronized (lockAcquired) {
+                final long deadline = System.currentTimeMillis() + 10_000L;
+                while (!lockAcquired[0] && System.currentTimeMillis() < deadline) {
+                    lockAcquired.wait(500);
+                }
+            }
+            if (!lockAcquired[0]) {
+                Assert.fail("Lock thread did not acquire the lock within 10 seconds");
+            }
+
+            // Make the failing DROP deterministic and fast.
+            setLockTimeout(dbConnection, "1s");
+
+            // Procedure now handles DROP failures internally — it no longer throws to the caller.
+            System.out.println("Calling drop_deleted_task_tables procedure which should encounter lock and handle it internally");
+            callDropDeletedTaskTables(dbConnection);
+            System.out.println("drop_deleted_task_tables procedure completed");
+
+            // Procedure has returned — signal the lock thread to release, then assert.
+            synchronized (releaseLock) {
+                releaseLock[0] = true;
+                releaseLock.notifyAll();
+            }
+            // The procedure's internal WHILE loop runs until no retryable entries remain, so within
+            // a single call firstChildTable is attempted max_retries (3) times, exhausted, and evicted
+            // to delete_log_failed.  It is no longer in delete_log at this point.
+            assertFalse(entryInDeleteLog(dbConnection, firstChildTable),
+                    "firstChildTable should have been evicted from delete_log after exhausting max_retries");
+            // Verify the entry landed in the dead-letter table with a captured error message.
+            final String lastError = getLastErrorFromDeleteLogFailed(dbConnection, firstChildTable);
+            assertNotNull(lastError,
+                    "last_error in delete_log_failed should be set after failed drop attempts");
+            assertFalse(lastError.isEmpty(),
+                    "last_error in delete_log_failed should not be empty");
+            // delete_log must be empty — all other tables were dropped, firstChildTable was evicted.
+            assertEquals(getRowsInDeleteLog(dbConnection), 0,
+                    "delete_log should be empty after procedure completes");
+            // The physical table must still exist — it could not be dropped.
+            final List<String> tablesAfterDropAttempt = getTablesByPrefix(dbConnection, firstChildTable);
+            assertFalse(tablesAfterDropAttempt.isEmpty(),
+                    "firstChildTable should still physically exist since DROP was blocked");
+
+        } catch (final Exception e) {
+            LOG.error(e.getMessage(), e);
+            Assert.fail();
+        } finally {
+            // Ensure the lock thread is always unblocked even if the try block threw.
+            synchronized (releaseLock) {
+                releaseLock[0] = true;
+                releaseLock.notifyAll();
+            }
+            if (lockThread != null) {
+                try {
+                    lockThread.join(5000);
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            // Best-effort cleanup so later tests are not affected by leftover task tables.
+            try (final java.sql.Connection cleanupConnection = JobServiceConnectionUtil.getDbConnection()) {
+                setLockTimeout(cleanupConnection, "30s");
+                for (int i = 0; i < 5; i++) {
+                    callDropDeletedTaskTables(cleanupConnection);
+                    if (getTablesByPrefix(cleanupConnection, tablePrefix).isEmpty()) {
+                        break;
+                    }
+                    Thread.sleep(1000);
+                }
+            } catch (final Exception cleanupError) {
+                LOG.warn("Cleanup after testDeleteLogBacklogWhenDropTableFails did not fully complete", cleanupError);
+            }
         }
     }
 
@@ -1617,6 +1745,74 @@ public class JobServiceIT {
             }
         }
         return 0;
+    }
+
+    private int getRowsInDeleteLogFailed(final java.sql.Connection dbConnection) throws SQLException
+    {
+        try (final PreparedStatement stmt = dbConnection.prepareStatement(
+                "SELECT COUNT(*) FROM delete_log_failed");
+             final ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+
+    private String getLastErrorFromDeleteLogFailed(final java.sql.Connection dbConnection, final String tableName) throws SQLException
+    {
+        try (final PreparedStatement stmt = dbConnection.prepareStatement(
+                "SELECT last_error FROM delete_log_failed WHERE table_name = ?")) {
+            stmt.setString(1, tableName);
+            try (final ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString(1);
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean entryInDeleteLog(final java.sql.Connection dbConnection, final String tableName) throws SQLException
+    {
+        try (final PreparedStatement stmt = dbConnection.prepareStatement(
+                "SELECT 1 FROM delete_log WHERE table_name = ?")) {
+            stmt.setString(1, tableName);
+            try (final ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    private List<String> getTablesByPrefix(final java.sql.Connection dbConnection, final String tablePrefix) throws SQLException
+    {
+        final List<String> foundTables = new ArrayList();
+        try (final PreparedStatement stmt = dbConnection.prepareStatement(
+                "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public' AND tablename LIKE ?")) {
+            stmt.setString(1, tablePrefix + "%");
+            try (final ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    foundTables.add(rs.getString(1));
+                }
+            }
+        }
+        return foundTables;
+    }
+
+    private void callDropDeletedTaskTables(final java.sql.Connection dbConnection) throws SQLException
+    {
+        try (final CallableStatement dropDeletedTables = dbConnection.prepareCall("call drop_deleted_task_tables()")) {
+            dropDeletedTables.execute();
+        }
+    }
+
+    private void setLockTimeout(final java.sql.Connection dbConnection, final String timeout) throws SQLException
+    {
+        try (final PreparedStatement lockTimeoutStmt = dbConnection.prepareStatement(
+                "SELECT set_config('lock_timeout', ?, false)")) {
+            lockTimeoutStmt.setString(1, timeout);
+            lockTimeoutStmt.execute();
+        }
     }
 
     /**
