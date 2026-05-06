@@ -47,6 +47,3 @@ CREATE TABLE IF NOT EXISTS public.delete_log_failed
     last_attempted_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
     CONSTRAINT delete_log_failed_pkey PRIMARY KEY (table_name)
 );
-
--- Note: the PRIMARY KEY constraint above already creates a btree index on table_name;
--- no additional secondary index is required.
