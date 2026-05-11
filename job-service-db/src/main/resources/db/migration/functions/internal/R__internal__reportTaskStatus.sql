@@ -40,8 +40,8 @@ BEGIN
         RETURN;
     END IF;
 
-    -- If the task is being marked completed, then drop any subtask tables
-    IF in_status = 'Completed' THEN
+    -- If the task is being marked completed or failed, then drop any subtask tables
+    IF in_status IN ('Completed', 'Failed') THEN
         PERFORM internal_drop_task_tables(in_partition_id, in_task_id);
     END IF;
 
