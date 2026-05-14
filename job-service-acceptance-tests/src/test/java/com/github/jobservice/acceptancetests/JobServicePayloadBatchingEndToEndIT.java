@@ -106,12 +106,17 @@ public class JobServicePayloadBatchingEndToEndIT
         // Create RabbitMQ connection for queue operations
         rabbitConn = RabbitUtil.createRabbitConnection(rabbitConfiguration.getRabbitConfiguration());
 
-        final String connectionString = System.getenv("webserviceurl");
+        jobsApi = createJobsApi();
+    }
+
+    private static JobsApi createJobsApi()
+    {
+        final String connectionString = System.getenv("CAF_WEBSERVICE_URL");
         final ApiClient client = new ApiClient();
         client.setBasePath(connectionString);
         final SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         client.setDateFormat(f);
-        jobsApi = new JobsApi(client);
+        return new JobsApi(client);
     }
 
     @BeforeMethod
