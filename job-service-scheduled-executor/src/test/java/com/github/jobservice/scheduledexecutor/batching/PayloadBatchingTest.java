@@ -18,6 +18,7 @@ package com.github.jobservice.scheduledexecutor.batching;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jobservice.scheduledexecutor.WorkerAction;
+import com.github.jobservice.util.TaskPipeUtil;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -36,12 +37,11 @@ public class PayloadBatchingTest
 {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final int BATCH_SIZE = PayloadBatchingService.BATCH_SIZE;
-    private static final String SUBDOCUMENT_BATCHER_PREFIX = PayloadBatchingService.SUBDOCUMENT_BATCHER_PREFIX;
     private static final String PARTITION_ID = "tenant-user1";
     private static final String JOB_ID = "job123";
     private static final String TARGET_PIPE = "target-pipe";
     private static final String BASE_TASK_PIPE = "worker-queue";
-    private static final String TASK_PIPE_WITH_PREFIX = SUBDOCUMENT_BATCHER_PREFIX + BASE_TASK_PIPE;
+    private static final String TASK_PIPE_WITH_PREFIX = TaskPipeUtil.SUBDOCUMENT_BATCHER_PREFIX + BASE_TASK_PIPE;
 
     // =====================================================
     // DETECTION TESTS (PayloadBatchingService)
@@ -105,58 +105,6 @@ public class PayloadBatchingTest
         action.setTaskPipe(TASK_PIPE_WITH_PREFIX);
         action.setTaskData(null);
         assertFalse(PayloadBatchingService.shouldBatchPayload(action));
-    }
-
-    // =====================================================
-    // TASK PIPE PREFIX TESTS
-    // =====================================================
-
-    @Test
-    public void testHasSubdocumentBatcherPrefix_WithPrefix()
-    {
-        final WorkerAction action = new WorkerAction();
-        action.setTaskPipe(TASK_PIPE_WITH_PREFIX);
-        assertTrue(PayloadBatchingService.hasSubdocumentBatcherPrefix(action));
-    }
-
-    @Test
-    public void testHasSubdocumentBatcherPrefix_WithoutPrefix()
-    {
-        final WorkerAction action = new WorkerAction();
-        action.setTaskPipe(BASE_TASK_PIPE);
-        assertFalse(PayloadBatchingService.hasSubdocumentBatcherPrefix(action));
-    }
-
-    @Test
-    public void testHasSubdocumentBatcherPrefix_NullTaskPipe()
-    {
-        final WorkerAction action = new WorkerAction();
-        action.setTaskPipe(null);
-        assertFalse(PayloadBatchingService.hasSubdocumentBatcherPrefix(action));
-    }
-
-    @Test
-    public void testStripBatcherPrefix_WithPrefix()
-    {
-        final WorkerAction action = new WorkerAction();
-        action.setTaskPipe(TASK_PIPE_WITH_PREFIX);
-        assertEquals(BASE_TASK_PIPE, PayloadBatchingService.stripBatcherPrefix(action));
-    }
-
-    @Test
-    public void testStripBatcherPrefix_WithoutPrefix()
-    {
-        final WorkerAction action = new WorkerAction();
-        action.setTaskPipe(BASE_TASK_PIPE);
-        assertEquals(BASE_TASK_PIPE, PayloadBatchingService.stripBatcherPrefix(action));
-    }
-
-    @Test
-    public void testStripBatcherPrefix_NullTaskPipe()
-    {
-        final WorkerAction action = new WorkerAction();
-        action.setTaskPipe(null);
-        assertNull(PayloadBatchingService.stripBatcherPrefix(action));
     }
 
     @Test

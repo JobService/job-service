@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jobservice.scheduledexecutor.WorkerAction;
+import com.github.jobservice.util.TaskPipeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +44,6 @@ public final class PayloadBatchingService
     /** Task classifier that triggers batching */
     public static final String DOCUMENT_WORKER_TASK_CLASSIFIER = "DocumentWorkerTask";
 
-    /** Task pipe prefix that opts-in to subdocument batching */
-    public static final String SUBDOCUMENT_BATCHER_PREFIX = "DocumentWorkerSubdocumentBatcher() ";
 
     /** Maximum number of subdocuments per batch */
     public static final int BATCH_SIZE = 200;
@@ -74,7 +73,7 @@ public final class PayloadBatchingService
             return false;
         }
 
-        if (!hasSubdocumentBatcherPrefix(workerAction)) {
+        if (!TaskPipeUtil.hasSubdocumentBatcherPrefix(workerAction.getTaskPipe())) {
             LOG.debug("Task pipe does not have DocumentWorkerSubdocumentBatcher() prefix, skipping batching");
             return false;
         }
@@ -96,30 +95,6 @@ public final class PayloadBatchingService
         return true;
     }
 
-    /**
-     * Checks if the task pipe starts with the DocumentWorkerSubdocumentBatcher() prefix.
-     * @param workerAction The worker action
-     * @return true if task pipe has the batching prefix, false otherwise
-     */
-    public static boolean hasSubdocumentBatcherPrefix(final WorkerAction workerAction)
-    {
-        final String taskPipe = workerAction.getTaskPipe();
-        return taskPipe != null && taskPipe.startsWith(SUBDOCUMENT_BATCHER_PREFIX);
-    }
-
-    /**
-     * Strips the DocumentWorkerSubdocumentBatcher() prefix from the task pipe.
-     * @param workerAction The worker action
-     * @return The task pipe without the prefix, or the original task pipe if prefix not present
-     */
-    public static String stripBatcherPrefix(final WorkerAction workerAction)
-    {
-        final String taskPipe = workerAction.getTaskPipe();
-        if (taskPipe != null && taskPipe.startsWith(SUBDOCUMENT_BATCHER_PREFIX)) {
-            return taskPipe.substring(SUBDOCUMENT_BATCHER_PREFIX.length());
-        }
-        return taskPipe;
-    }
 
     /**
      * Gets the subdocuments count from a worker action.

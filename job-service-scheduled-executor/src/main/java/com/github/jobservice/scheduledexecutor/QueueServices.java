@@ -42,6 +42,7 @@ import java.util.concurrent.TimeoutException;
 import com.github.jobservice.scheduledexecutor.batching.PayloadBatchingService;
 import com.github.jobservice.scheduledexecutor.batching.SubdocumentBatchSplitter;
 import com.github.jobservice.scheduledexecutor.batching.SubtaskIdGenerator;
+import com.github.jobservice.util.TaskPipeUtil;
 
 /**
  * This class is responsible for sending task data to the target queue.
@@ -117,8 +118,8 @@ public final class QueueServices implements AutoCloseable
 
         // Strip the batcher prefix from task pipe if present
         final WorkerAction NonBatchingWorkerAction;
-        if (PayloadBatchingService.hasSubdocumentBatcherPrefix(workerAction)) {
-            final String strippedTaskPipe = PayloadBatchingService.stripBatcherPrefix(workerAction);
+        if (TaskPipeUtil.hasSubdocumentBatcherPrefix(workerAction.getTaskPipe())) {
+            final String strippedTaskPipe = TaskPipeUtil.stripBatcherPrefix(workerAction.getTaskPipe());
             NonBatchingWorkerAction = new WorkerAction();
             NonBatchingWorkerAction.setTaskClassifier(workerAction.getTaskClassifier());
             NonBatchingWorkerAction.setTaskApiVersion(workerAction.getTaskApiVersion());
@@ -172,7 +173,7 @@ public final class QueueServices implements AutoCloseable
             .path("status").build().toString();
 
         // Strip the DocumentWorkerSubdocumentBatcher() prefix from task pipe
-        final String strippedTaskPipe = PayloadBatchingService.stripBatcherPrefix(workerAction);
+        final String strippedTaskPipe = TaskPipeUtil.stripBatcherPrefix(workerAction.getTaskPipe());
 
         LOG.info("Sending {} batched messages for job {} ({} subdocuments, batch size {}, task pipe: {})",
                  totalBatches, jobId, subdocuments.size(), batchSize, strippedTaskPipe);

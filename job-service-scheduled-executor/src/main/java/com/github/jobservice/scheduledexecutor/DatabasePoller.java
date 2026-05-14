@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cafapi.common.api.Codec;
 import com.github.cafapi.common.util.moduleloader.ModuleLoader;
 import com.github.cafapi.common.util.moduleloader.ModuleLoaderException;
+import com.github.jobservice.util.TaskPipeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +89,10 @@ public class DatabasePoller
         final String context = MessageFormat.format("[partitionId={0}, jobId={1}, taskPipe={2}]",
                 partitionId, jobId, taskPipe);
 
-        try (final QueueServices queueServices = QueueServicesFactory.create(taskPipe, partitionId, codec)) {
+        // Strip the DocumentWorkerSubdocumentBatcher() prefix from taskPipe to get the actual target queue.
+        final String actualTargetQueue = TaskPipeUtil.stripBatcherPrefix(workerAction.getTaskPipe());
+
+        try (final QueueServices queueServices = QueueServicesFactory.create(actualTargetQueue, partitionId, codec)) {
 
             queueServices.sendMessage(partitionId, jobId, workerAction);
 
