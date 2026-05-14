@@ -67,6 +67,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -1427,8 +1428,8 @@ public class JobServiceIT {
             assertEquals(foundTables.size(), 0);
             // assert number of rows in delete_log to be 0.
             assertEquals(getRowsInDeleteLog(dbConnection), 0);
-            assertEquals(getRowsInDeleteLogFailed(dbConnection), 0,
-                    "delete_log_failed should be empty after all tables are dropped successfully");
+            assertEquals(getRowsInTableCleanupFailed(dbConnection), 0,
+                    "table_cleanup_failed should be empty after all tables are dropped successfully");
         } catch (final Exception e) {
             LOG.error(e.getMessage(), e);
             Assert.fail();
@@ -1512,15 +1513,15 @@ public class JobServiceIT {
             }
             // The procedure's internal WHILE loop runs until no retryable entries remain, so within
             // a single call firstChildTable is attempted max_retries (3) times, exhausted, and evicted
-            // to delete_log_failed.  It is no longer in delete_log at this point.
+            // to table_cleanup_failed.  It is no longer in delete_log at this point.
             assertFalse(entryInDeleteLog(dbConnection, firstChildTable),
                     "firstChildTable should have been evicted from delete_log after exhausting max_retries");
             // Verify the entry landed in the dead-letter table with a captured error message.
-            final String lastError = getLastErrorFromDeleteLogFailed(dbConnection, firstChildTable);
+            final String lastError = getLastErrorFromTableCleanupFailed(dbConnection, firstChildTable);
             assertNotNull(lastError,
-                    "last_error in delete_log_failed should be set after failed drop attempts");
+                    "last_error in table_cleanup_failed should be set after failed drop attempts");
             assertFalse(lastError.isEmpty(),
-                    "last_error in delete_log_failed should not be empty");
+                    "last_error in table_cleanup_failed should not be empty");
             // delete_log must be empty — all other tables were dropped, firstChildTable was evicted.
             assertEquals(getRowsInDeleteLog(dbConnection), 0,
                     "delete_log should be empty after procedure completes");
@@ -1557,6 +1558,137 @@ public class JobServiceIT {
                 }
             } catch (final Exception cleanupError) {
                 LOG.warn("Cleanup after testDeleteLogBacklogWhenDropTableFails did not fully complete", cleanupError);
+            }
+        }
+    }
+
+    @Test
+    public void testPopulateFailureDoesNotLeaveParentEntryStuck() throws SQLException
+    {
+        final String tablePrefix = "task_populate_fail_" + System.currentTimeMillis();
+        final String parentTableName = tablePrefix;
+
+        // lockAcquired[0]: set by lock thread once the lock is held — gates the procedure call.
+        // releaseLock[0]:  set by main thread after procedure returns — signals lock thread to release.
+        final boolean[] lockAcquired = {false};
+        final boolean[] releaseLock = {false};
+
+        Thread lockThread = null;
+        try (final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection())
+        {
+            // Create the parent table (no child tables needed — the SELECT on the parent is enough
+            // to trigger the failure).
+            createTaskTable(dbConnection, parentTableName);
+            insertRecordsInTaskTable(dbConnection, parentTableName, 5);
+            insertTableNameIntoParentTableLog(dbConnection, parentTableName);
+
+            // Hold ACCESS EXCLUSIVE on the parent task table. This blocks the ACCESS SHARE
+            // (SELECT) issued by internal_populate_delete_log_table when it reads subtask rows.
+            lockThread = new Thread(() -> {
+                try (java.sql.Connection lockConn = JobServiceConnectionUtil.getDbConnection()) {
+                    lockConn.setAutoCommit(false);
+                    try (final PreparedStatement lockStmt = lockConn.prepareStatement(
+                            "LOCK TABLE \"" + parentTableName + "\" IN ACCESS EXCLUSIVE MODE")) {
+                        lockStmt.execute();
+                    }
+                    synchronized (lockAcquired) {
+                        lockAcquired[0] = true;
+                        lockAcquired.notifyAll();
+                    }
+                    System.out.println("ACCESS EXCLUSIVE lock acquired on " + parentTableName);
+                    final long deadline = System.currentTimeMillis() + 60_000L;
+                    synchronized (releaseLock) {
+                        while (!releaseLock[0] && System.currentTimeMillis() < deadline) {
+                            releaseLock.wait(500);
+                        }
+                    }
+                    lockConn.rollback();
+                    System.out.println("ACCESS EXCLUSIVE lock released on " + parentTableName);
+                } catch (final Exception ex) {
+                    LOG.warn("Lock thread error", ex);
+                }
+            });
+            lockThread.start();
+
+            // Wait until the lock thread confirms the lock is held before calling the procedure.
+            synchronized (lockAcquired) {
+                final long deadline = System.currentTimeMillis() + 10_000L;
+                while (!lockAcquired[0] && System.currentTimeMillis() < deadline) {
+                    lockAcquired.wait(500);
+                }
+            }
+            if (!lockAcquired[0]) {
+                Assert.fail("Lock thread did not acquire ACCESS EXCLUSIVE lock within 10 seconds");
+            }
+
+            // Short lock_timeout so the SELECT inside populate fails quickly and deterministically.
+            setLockTimeout(dbConnection, "1s");
+
+            // populate fails once due to lock timeout, entry immediately evicted to dead-letter
+            System.out.println("Calling drop_deleted_task_tables — populate should fail due to lock timeout");
+            callDropDeletedTaskTables(dbConnection);
+            System.out.println("drop_deleted_task_tables completed");
+
+            // Signal the lock thread to release before asserting.
+            synchronized (releaseLock) {
+                releaseLock[0] = true;
+                releaseLock.notifyAll();
+            }
+
+            // Entry must be immediately in table_cleanup_failed
+            assertTrue(getRowsInTableCleanupFailed(dbConnection) > 0,
+                    "table_cleanup_failed should have failed populate entry after first failure (Phase 1 fail-fast)");
+            final String lastError = getLastErrorFromTableCleanupFailed(dbConnection, parentTableName);
+            assertTrue(lastError != null && lastError.contains("populate failed:"),
+                    "dead-letter entry must have error prefixed with 'populate failed:', got: " + lastError);
+
+            // Entry must be removed from deleted_parent_table_log (evicted to dead-letter).
+            assertFalse(entryInDeletedParentTableLog(dbConnection, parentTableName),
+                    "deleted_parent_table_log entry must be removed after eviction to dead-letter");
+
+            // delete_log must be empty — populate failed, nothing was queued for DROP.
+            assertEquals(getRowsInDeleteLog(dbConnection), 0,
+                    "delete_log should be empty because populate failed");
+
+            // The physical table must still exist — it was never queued for deletion.
+            assertFalse(getTablesByPrefix(dbConnection, parentTableName).isEmpty(),
+                    "parent task table should still exist since populate never succeeded");
+
+        } catch (final Exception e) {
+            LOG.error(e.getMessage(), e);
+            Assert.fail();
+        } finally {
+            synchronized (releaseLock) {
+                releaseLock[0] = true;
+                releaseLock.notifyAll();
+            }
+            if (lockThread != null) {
+                try {
+                    lockThread.join(5000);
+                } catch (final InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+
+            try (final java.sql.Connection cleanupConnection = JobServiceConnectionUtil.getDbConnection()) {
+                setLockTimeout(cleanupConnection, "30s");
+                try (final PreparedStatement stmt = cleanupConnection.prepareStatement(
+                        "DELETE FROM table_cleanup_failed WHERE table_name = ?")) {
+                    stmt.setString(1, parentTableName);
+                    stmt.executeUpdate();
+                } catch (final Exception deadLetterCleanupError) {
+                    LOG.warn("Could not clean up table_cleanup_failed entry for {}", parentTableName, deadLetterCleanupError);
+                }
+                // Drop the physical table(s) — each drop is independently guarded.
+                for (final String table : getTablesByPrefix(cleanupConnection, tablePrefix)) {
+                    try (final Statement stmt = cleanupConnection.createStatement()) {
+                        stmt.execute("DROP TABLE IF EXISTS \"" + table + "\"");
+                    } catch (final Exception dropError) {
+                        LOG.warn("Could not drop table {} during cleanup", table, dropError);
+                    }
+                }
+            } catch (final Exception cleanupError) {
+                LOG.warn("Cleanup after testPopulateFailureDoesNotLeaveParentEntryStuck did not fully complete", cleanupError);
             }
         }
     }
@@ -1747,10 +1879,10 @@ public class JobServiceIT {
         return 0;
     }
 
-    private int getRowsInDeleteLogFailed(final java.sql.Connection dbConnection) throws SQLException
+    private int getRowsInTableCleanupFailed(final java.sql.Connection dbConnection) throws SQLException
     {
         try (final PreparedStatement stmt = dbConnection.prepareStatement(
-                "SELECT COUNT(*) FROM delete_log_failed");
+                "SELECT COUNT(*) FROM table_cleanup_failed");
              final ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -1759,10 +1891,10 @@ public class JobServiceIT {
         return 0;
     }
 
-    private String getLastErrorFromDeleteLogFailed(final java.sql.Connection dbConnection, final String tableName) throws SQLException
+    private String getLastErrorFromTableCleanupFailed(final java.sql.Connection dbConnection, final String tableName) throws SQLException
     {
         try (final PreparedStatement stmt = dbConnection.prepareStatement(
-                "SELECT last_error FROM delete_log_failed WHERE table_name = ?")) {
+                "SELECT last_error FROM table_cleanup_failed WHERE table_name = ?")) {
             stmt.setString(1, tableName);
             try (final ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -1777,6 +1909,17 @@ public class JobServiceIT {
     {
         try (final PreparedStatement stmt = dbConnection.prepareStatement(
                 "SELECT 1 FROM delete_log WHERE table_name = ?")) {
+            stmt.setString(1, tableName);
+            try (final ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    private boolean entryInDeletedParentTableLog(final java.sql.Connection dbConnection, final String tableName) throws SQLException
+    {
+        try (final PreparedStatement stmt = dbConnection.prepareStatement(
+                "SELECT 1 FROM deleted_parent_table_log WHERE table_name = ?")) {
             stmt.setString(1, tableName);
             try (final ResultSet rs = stmt.executeQuery()) {
                 return rs.next();

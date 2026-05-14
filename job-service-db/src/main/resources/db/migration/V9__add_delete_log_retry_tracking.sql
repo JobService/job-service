@@ -17,14 +17,17 @@
 /*
  **************************************************************
  ** Add retry tracking columns to delete_log and create the   **
- ** delete_log_failed dead-letter table.                      **
+ ** table_cleanup_failed dead-letter table.                   **
  **                                                           **
  ** delete_log table now records how many times a             **
  ** deletion has been attempted, the last error encountered,  **
  ** and when it was last tried. Entries that exceed the       **
- ** maximum retry threshold are promoted to delete_log_failed **
- ** so that operators can inspect and remediate them without  **
- ** blocking ongoing cleanup work.                            **
+ ** maximum retry threshold are promoted to                   **
+ ** table_cleanup_failed so that operators can inspect and    **
+ ** remediate them without blocking ongoing cleanup work.     **
+ **                                                           **
+ ** table_cleanup_failed is also used in case of any transient**
+ ** failures during population of delete_log entries.         **
  **************************************************************
  */
 
@@ -38,12 +41,12 @@ ALTER TABLE public.delete_log
 ALTER TABLE public.delete_log
     ADD COLUMN IF NOT EXISTS last_attempted_at TIMESTAMPTZ;
 
--- Dead-letter table for delete_log entries that have exhausted all retries.
-CREATE TABLE IF NOT EXISTS public.delete_log_failed
+-- Dead-letter table for entries fails during cleanup procedure.
+CREATE TABLE IF NOT EXISTS public.table_cleanup_failed
 (
     table_name        VARCHAR(63)  NOT NULL,
     last_error        TEXT,
     first_failed_at   TIMESTAMPTZ  NOT NULL DEFAULT now(),
     last_attempted_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
-    CONSTRAINT delete_log_failed_pkey PRIMARY KEY (table_name)
+    CONSTRAINT table_cleanup_failed_pkey PRIMARY KEY (table_name)
 );

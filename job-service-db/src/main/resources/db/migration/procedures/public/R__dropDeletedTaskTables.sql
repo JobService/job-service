@@ -23,9 +23,14 @@
  *  and drops them.
  *  All the above is done through batch commits. The batch is defined by commit_limit variable. Default batch size being 10.
  *
- *  DROP loop includes retry-and-dead-letter behaviour: each DROP is attempted up to max_retries times (default 3).
+ *  POPULATE phase (Phase 1) uses immediate failure-to-dead-letter: if populate fails (lock timeout, table corruption, etc.),
+ *  the entry is immediately evicted to table_cleanup_failed for operator inspection and remediation. Retrying Phase 1 is unsafe
+ *  because the recursive procedure with intermediate commits may have partially inserted rows into delete_log already; retrying
+ *  would cause duplicates or silent conflicts. Instead, operators investigate the root cause, fix it, and re-run the procedure.
+ *
+ *  DROP loop (Phase 2) includes retry-and-dead-letter behaviour: each DROP is attempted up to max_retries times (default 3).
  *  On failure the retry_count, last_error, and last_attempted_at columns of delete_log are updated. Once a row reaches
- *  max_retries without a successful DROP it is evicted to the dead-letter table delete_log_failed (and removed from
+ *  max_retries without a successful DROP it is evicted to the dead-letter table table_cleanup_failed (and removed from
  *  delete_log) before the batch COMMIT so that it does not block subsequent processing.
  */
 CREATE OR REPLACE PROCEDURE drop_deleted_task_tables()
@@ -39,18 +44,31 @@ DECLARE
     rec RECORD;
     max_retries CONSTANT INTEGER := 3;
     drop_error TEXT;
+    populate_error TEXT;
 
 BEGIN
-    -- insert table names into delete_log
+    -- if populate fails, entry is immediately evicted
     selected_parent_table_names :=
                     $q$SELECT table_name FROM deleted_parent_table_log LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
     WHILE EXISTS(SELECT 1 FROM deleted_parent_table_log)
     LOOP
         FOR parent_table_log_rec IN EXECUTE selected_parent_table_names
         LOOP
-            CALL internal_populate_delete_log_table(parent_table_log_rec.table_name, 0);
-            -- delete the parent table name from parent table.
-            DELETE FROM deleted_parent_table_log WHERE table_name = parent_table_log_rec.table_name;
+            BEGIN
+                CALL internal_populate_delete_log_table(parent_table_log_rec.table_name, 0);
+                -- Successfully populated — delete the parent table entry.
+                DELETE FROM deleted_parent_table_log WHERE table_name = parent_table_log_rec.table_name;
+            EXCEPTION WHEN OTHERS THEN
+                -- Populate failed — immediately evict to dead-letter for operator investigation.
+                GET STACKED DIAGNOSTICS populate_error = MESSAGE_TEXT;
+                INSERT INTO table_cleanup_failed (table_name, last_error, last_attempted_at)
+                VALUES (parent_table_log_rec.table_name, 'populate failed: ' || populate_error, now())
+                ON CONFLICT (table_name) DO UPDATE
+                    SET last_error        = EXCLUDED.last_error,
+                        last_attempted_at = EXCLUDED.last_attempted_at;
+                -- Delete the parent entry so future calls don't re-attempt.
+                DELETE FROM deleted_parent_table_log WHERE table_name = parent_table_log_rec.table_name;
+            END;
         END LOOP;
         COMMIT;
     END LOOP;
@@ -74,7 +92,7 @@ BEGIN
             END;
         END LOOP;
         -- Move exhausted entries to dead-letter table
-        INSERT INTO delete_log_failed (table_name, last_error, last_attempted_at)
+        INSERT INTO table_cleanup_failed (table_name, last_error, last_attempted_at)
         SELECT table_name, last_error, last_attempted_at
         FROM   delete_log
         WHERE  retry_count >= max_retries
