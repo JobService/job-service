@@ -73,10 +73,10 @@ public final class PayloadBatchingService
             return false;
         }
 
-        if (!TaskPipeUtil.hasSubdocumentBatcherPrefix(workerAction.getTaskPipe())) {
-            LOG.debug("Task pipe does not have DocumentWorkerSubdocumentBatcher() prefix, skipping batching");
-            return false;
-        }
+//        if (!TaskPipeUtil.hasSubdocumentBatcherPrefix(workerAction.getTaskPipe())) {
+//            LOG.debug("Task pipe does not have DocumentWorkerSubdocumentBatcher() prefix, skipping batching");
+//            return false;
+//        }
 
         final int subdocCount = getSubdocumentsCount(workerAction);
         if (subdocCount < 0) {
