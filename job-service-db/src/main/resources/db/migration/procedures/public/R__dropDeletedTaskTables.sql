@@ -23,9 +23,14 @@
  *  and drops them.
  *  All the above is done through batch commits. The batch is defined by commit_limit variable. Default batch size being 10.
  *
- *  DROP loop includes retry-and-dead-letter behaviour: each DROP is attempted up to max_retries times (default 3).
- *  On failure the retry_count, last_error, and last_attempted_at columns of delete_log are updated. Once a row reaches
- *  max_retries without a successful DROP it is evicted to the dead-letter table delete_log_failed (and removed from
+ *  Populate loop (Phase 1): each call to internal_populate_delete_log_table is wrapped in an exception handler.
+ *  Because that procedure recursively populates delete_log, retrying on failure would produce duplicate entries;
+ *  therefore a failed populate is written directly to table_cleanup_failed (no retry) and the parent entry is
+ *  removed from deleted_parent_table_log so it does not re-enter the loop.
+ *
+ *  DROP loop (Phase 2) includes retry-and-dead-letter behaviour: each DROP is attempted up to max_retries times
+ *  (default 3). On failure the retry_count, last_error, and last_attempted_at columns of delete_log are updated.
+ *  Once a row reaches max_retries without a successful DROP it is evicted to delete_log_failed (and removed from
  *  delete_log) before the batch COMMIT so that it does not block subsequent processing.
  */
 CREATE OR REPLACE PROCEDURE drop_deleted_task_tables()
@@ -48,8 +53,19 @@ BEGIN
     LOOP
         FOR parent_table_log_rec IN EXECUTE selected_parent_table_names
         LOOP
-            CALL internal_populate_delete_log_table(parent_table_log_rec.table_name, 0);
-            -- delete the parent table name from parent table.
+            BEGIN
+                CALL internal_populate_delete_log_table(parent_table_log_rec.table_name, 0);
+            EXCEPTION WHEN OTHERS THEN
+                -- No retry: re-invoking the recursive procedure would insert duplicate entries into delete_log.
+                -- Record the failure directly in the dead-letter table and continue processing.
+                GET STACKED DIAGNOSTICS drop_error = MESSAGE_TEXT;
+                INSERT INTO delete_log_failed (table_name, last_error, last_attempted_at)
+                VALUES (parent_table_log_rec.table_name, drop_error, now())
+                ON CONFLICT (table_name) DO UPDATE
+                    SET last_error        = EXCLUDED.last_error,
+                        last_attempted_at = EXCLUDED.last_attempted_at;
+            END;
+            -- Always remove from deleted_parent_table_log (success or failure) to prevent re-processing.
             DELETE FROM deleted_parent_table_log WHERE table_name = parent_table_log_rec.table_name;
         END LOOP;
         COMMIT;
