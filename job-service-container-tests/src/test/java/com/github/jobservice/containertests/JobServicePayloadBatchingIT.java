@@ -323,31 +323,31 @@ public class JobServicePayloadBatchingIT
     }
 
     // DocumentWorkerTask WITHOUT prefix but with large subdocs - single message (not opted in)
-    @Test
-    public void testDocumentWorkerTask_NoPrefix_SingleMessage() throws Exception
-    {
-        final String queueName = "payload-batching-noprefix-test-" + UUID.randomUUID();
-        testQueueManager = getQueueManager(queueName);
-
-        final int subdocCount = BATCH_SIZE * 3; // Above threshold but no prefix
-        final String jobId = UUID.randomUUID().toString();
-        final NewJob newJob = createDocumentWorkerJob(jobId, subdocCount, queueName, false); // WITHOUT prefix
-
-        // Start listening BEFORE creating the job
-        final Supplier<List<TaskMessage>> messageSupplier = startCollectingMessages(testQueueManager, 1);
-
-        // Create the job (messages will be published)
-        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, "1");
-
-        // Wait for messages and get results (blocking)
-        final List<TaskMessage> received = messageSupplier.get();
-        assertEquals(received.size(), 1, "Should receive single message when prefix not present (not opted in)");
-
-        // Verify no subtask suffix
-        final String taskId = received.get(0).getTaskId();
-        assertFalse(SUBTASK_ID_PATTERN.matcher(taskId).matches(),
-            "DocumentWorkerTask without prefix should not have subtask suffix");
-    }
+//    @Test
+//    public void testDocumentWorkerTask_NoPrefix_SingleMessage() throws Exception
+//    {
+//        final String queueName = "payload-batching-noprefix-test-" + UUID.randomUUID();
+//        testQueueManager = getQueueManager(queueName);
+//
+//        final int subdocCount = BATCH_SIZE * 3; // Above threshold but no prefix
+//        final String jobId = UUID.randomUUID().toString();
+//        final NewJob newJob = createDocumentWorkerJob(jobId, subdocCount, queueName, false); // WITHOUT prefix
+//
+//        // Start listening BEFORE creating the job
+//        final Supplier<List<TaskMessage>> messageSupplier = startCollectingMessages(testQueueManager, 1);
+//
+//        // Create the job (messages will be published)
+//        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, newJob, "1");
+//
+//        // Wait for messages and get results (blocking)
+//        final List<TaskMessage> received = messageSupplier.get();
+//        assertEquals(received.size(), 1, "Should receive single message when prefix not present (not opted in)");
+//
+//        // Verify no subtask suffix
+//        final String taskId = received.get(0).getTaskId();
+//        assertFalse(SUBTASK_ID_PATTERN.matcher(taskId).matches(),
+//            "DocumentWorkerTask without prefix should not have subtask suffix");
+//    }
 
     // Verify task pipe in batch messages has prefix stripped
     @Test

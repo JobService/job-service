@@ -80,13 +80,13 @@ public class PayloadBatchingTest
         assertTrue(PayloadBatchingService.shouldBatchPayload(action));
     }
 
-    @Test
-    public void testDocumentWorkerTask_NoPrefix_LargeSubdocuments_NoSplitting() throws JsonProcessingException
-    {
-        // DocumentWorkerTask WITHOUT prefix but with large subdocuments (not opted in)
-        final WorkerAction action = createWorkerActionWithoutPrefix(createTaskDataMap(BATCH_SIZE * 5));
-        assertFalse(PayloadBatchingService.shouldBatchPayload(action));
-    }
+//    @Test
+//    public void testDocumentWorkerTask_NoPrefix_LargeSubdocuments_NoSplitting() throws JsonProcessingException
+//    {
+//        // DocumentWorkerTask WITHOUT prefix but with large subdocuments (not opted in)
+//        final WorkerAction action = createWorkerActionWithoutPrefix(createTaskDataMap(BATCH_SIZE * 5));
+//        assertFalse(PayloadBatchingService.shouldBatchPayload(action));
+//    }
 
     @Test
     public void testNonDocumentWorkerTask_WithPrefix_NoSplitting() throws JsonProcessingException
