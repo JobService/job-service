@@ -30,13 +30,9 @@
 
 -- Add retry tracking columns to the existing delete_log table.
 ALTER TABLE public.delete_log
-    ADD COLUMN IF NOT EXISTS retry_count INTEGER NOT NULL DEFAULT 0;
-
-ALTER TABLE public.delete_log
-    ADD COLUMN IF NOT EXISTS last_error TEXT;
-
-ALTER TABLE public.delete_log
-    ADD COLUMN IF NOT EXISTS last_attempted_at TIMESTAMPTZ;
+    ADD COLUMN IF NOT EXISTS retry_count        INTEGER     NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS last_error         TEXT,
+    ADD COLUMN IF NOT EXISTS last_attempted_at  TIMESTAMPTZ;
 
 -- Dead-letter table for delete_log entries that have exhausted all retries.
 CREATE TABLE IF NOT EXISTS public.delete_log_failed
