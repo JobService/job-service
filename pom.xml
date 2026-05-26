@@ -1333,13 +1333,13 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-jre21</repository>
-                            <tag>5.1.2</tag>
-                            <digest>sha256:c43a12ffe93d5e76e2ae8ce020dafa02fadfdea95e7216c06a2ccb516e7ad8c1</digest>
+                            <tag>7.0.0</tag>
+                            <digest>sha256:afbb10a069e97c7d01b42acfbfc4d676a633d8f77ac30cad2c59a6e22ac159ad</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>2.1.5</tag>
-                            <digest>sha256:13c7f81849d73faae337341c9d5ab116f94f883da75f2ed79125000c8992da67</digest>
+                            <tag>2.2.1</tag>
+                            <digest>sha256:7c766b0ce3fd64295fca070e89a83d143e1c3494364977e002ba43ca3199ade7</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
