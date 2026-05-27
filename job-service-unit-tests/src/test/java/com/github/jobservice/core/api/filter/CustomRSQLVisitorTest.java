@@ -155,7 +155,7 @@ public class CustomRSQLVisitorTest
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
         final Condition filterQueryCondition = RsqlToSqlConverter.convert(rootNode);
-        assertEquals("(job.status IN ('Active','Waiting','Failed') )", filterQueryCondition.toString());
+        assertEquals("(job.status IN ('Active','Waiting','Failed'))", filterQueryCondition.toString());
     }
 
     @Test
@@ -165,7 +165,7 @@ public class CustomRSQLVisitorTest
         final RSQLParser rsqlParser = new RSQLParser();
         final Node rootNode = rsqlParser.parse(filter);
         final Condition filterQueryCondition = RsqlToSqlConverter.convert(rootNode);
-        assertEquals("(NOT (job.status IN ('Active','Waiting','Complete') ))", filterQueryCondition.toString());
+        assertEquals("(NOT (job.status IN ('Active','Waiting','Complete')))", filterQueryCondition.toString());
     }
 
     @Test
