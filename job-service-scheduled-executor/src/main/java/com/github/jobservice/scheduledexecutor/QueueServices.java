@@ -17,7 +17,9 @@ package com.github.jobservice.scheduledexecutor;
 
 import com.github.cafapi.common.api.Codec;
 import com.github.cafapi.common.api.CodecException;
+import com.github.jobservice.scheduledexecutor.batching.*;
 import com.github.jobservice.util.JobTaskId;
+import com.github.jobservice.util.TaskPipeUtil;
 import com.github.workerframework.api.TaskMessage;
 import com.github.workerframework.api.TaskStatus;
 import com.github.workerframework.api.TrackingInfo;
@@ -39,10 +41,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
-import com.github.jobservice.scheduledexecutor.batching.PayloadBatchingService;
-import com.github.jobservice.scheduledexecutor.batching.SubdocumentBatchSplitter;
-import com.github.jobservice.scheduledexecutor.batching.SubtaskIdGenerator;
-import com.github.jobservice.util.TaskPipeUtil;
+import static com.github.jobservice.scheduledexecutor.batching.PayloadBatchingService.DOCUMENT_WORKER_TASK_CLASSIFIER;
 
 /**
  * This class is responsible for sending task data to the target queue.
@@ -83,9 +82,16 @@ public final class QueueServices implements AutoCloseable
         final String partitionId, final String jobId, final WorkerAction workerAction
     ) throws IOException, URISyntaxException, InterruptedException, TimeoutException
     {
+        // If not opted for payload batching, send the message as a single task message.
+        if (!TaskPipeUtil.hasSubdocumentBatcherPrefix(workerAction.getTaskPipe())) {
+            sendSingleMessage(partitionId, jobId, workerAction);
+            return;
+        }
+
         // Check if payload batching is required
-        if (PayloadBatchingService.shouldBatchPayload(workerAction)) {
-            sendBatchedMessages(partitionId, jobId, workerAction);
+        Map<String, Object> taskDataMap = PayloadBatchingService.deserializeTaskData(workerAction);
+        if (PayloadBatchingService.shouldBatchPayload(workerAction, taskDataMap)) {
+            sendBatchedMessages(partitionId, jobId, workerAction, taskDataMap);
         } else {
             sendSingleMessage(partitionId, jobId, workerAction);
         }
@@ -117,22 +123,20 @@ public final class QueueServices implements AutoCloseable
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 
         // Strip the batcher prefix from task pipe if present
-        final WorkerAction NonBatchingWorkerAction;
+        WorkerAction nonBatchingWorkerAction;
         if (TaskPipeUtil.hasSubdocumentBatcherPrefix(workerAction.getTaskPipe())) {
             final String strippedTaskPipe = TaskPipeUtil.stripBatcherPrefix(workerAction.getTaskPipe());
-            NonBatchingWorkerAction = new WorkerAction();
-            NonBatchingWorkerAction.setTaskClassifier(workerAction.getTaskClassifier());
-            NonBatchingWorkerAction.setTaskApiVersion(workerAction.getTaskApiVersion());
-            NonBatchingWorkerAction.setTaskData(workerAction.getTaskData());
-            NonBatchingWorkerAction.setTaskDataEncoding(workerAction.getTaskDataEncoding());
-            NonBatchingWorkerAction.setTaskPipe(strippedTaskPipe);
-            NonBatchingWorkerAction.setTargetPipe(workerAction.getTargetPipe());
-            NonBatchingWorkerAction.setCorrelationId(workerAction.getCorrelationId());
+            if( strippedTaskPipe.isBlank()) {
+                throw new RuntimeException("Task pipe must not be empty after stripping batcher prefix.");
+            }
+            nonBatchingWorkerAction  = new WorkerAction();
+            nonBatchingWorkerAction = CopyWorkerActionWithStrippedTaskpipe(workerAction, nonBatchingWorkerAction, strippedTaskPipe);
+
         } else {
-            NonBatchingWorkerAction = workerAction;
+            nonBatchingWorkerAction = workerAction;
         }
 
-        final Object taskMessage = getTaskMessage(trackingInfo, NonBatchingWorkerAction, taskId);
+        final Object taskMessage = getTaskMessage(trackingInfo, nonBatchingWorkerAction, taskId);
 
         //  Serialise and publish
         publishTaskMessage(taskMessage);
@@ -144,11 +148,10 @@ public final class QueueServices implements AutoCloseable
     private void sendBatchedMessages(
         final String partitionId,
         final String jobId,
-        final WorkerAction workerAction
+        final WorkerAction workerAction,
+        final Map<String, Object> taskDataMap
     ) throws IOException, URISyntaxException, InterruptedException, TimeoutException
     {
-        // Deserialize taskData JSON to Map
-        final Map<String, Object> taskDataMap = PayloadBatchingService.deserializeTaskData(workerAction);
         if (taskDataMap == null) {
             throw new RuntimeException("Failed to deserialize taskData for batching");
         }
@@ -175,19 +178,27 @@ public final class QueueServices implements AutoCloseable
         // Strip the DocumentWorkerSubdocumentBatcher() prefix from task pipe
         final String strippedTaskPipe = TaskPipeUtil.stripBatcherPrefix(workerAction.getTaskPipe());
 
+        if( strippedTaskPipe.isBlank()) {
+            throw new RuntimeException("Task pipe must not be empty after stripping batcher prefix.");
+        }
+
         LOG.info("Sending {} batched messages for job {} ({} subdocuments, batch size {}, task pipe: {})",
                  totalBatches, jobId, subdocuments.size(), batchSize, strippedTaskPipe);
+
+        // Build a reusable base map once so each batch only injects subdocuments.
+        final Map<String, Object> taskDataTemplateWithoutSubdocs =
+            SubdocumentBatchSplitter.createTaskDataTemplateWithoutSubdocuments(taskDataMap);
 
         // Process ONE batch at a time
         for (int batchIndex = 1; batchIndex <= totalBatches; batchIndex++) {
 
-            // 1. Get subdocuments subList VIEW for this batch
+            // 1. Get subdocuments subList VIEW for this batch. Must not be used after the underlying taskData map is mutated to avoid ConcurrentModificationException.
             final List<Object> subdocBatch = SubdocumentBatchSplitter.getSubdocumentsBatchView(
                 subdocuments, batchIndex, batchSize);
 
             // 2. Create batched taskData Map with this batch's subdocuments
-            final Map<String, Object> batchedTaskDataMap = SubdocumentBatchSplitter.createBatchedTaskData(
-                taskDataMap, subdocBatch);
+            final Map<String, Object> batchedTaskDataMap = SubdocumentBatchSplitter.createBatchedTaskDataFromTemplate(
+                taskDataTemplateWithoutSubdocs, subdocBatch);
 
             // 3. Serialize batched taskData to JSON String for WorkerAction
             final byte[] batchedTaskDataBytes;
@@ -214,14 +225,9 @@ public final class QueueServices implements AutoCloseable
                 workerAction.getTargetPipe());
 
             // 6. Create a modified WorkerAction with batched taskData and stripped task pipe
-            final WorkerAction batchWorkerAction = new WorkerAction();
-            batchWorkerAction.setTaskClassifier(workerAction.getTaskClassifier());
-            batchWorkerAction.setTaskApiVersion(workerAction.getTaskApiVersion());
+            WorkerAction batchWorkerAction = new WorkerAction();
+            batchWorkerAction = CopyWorkerActionWithStrippedTaskpipe(workerAction, batchWorkerAction, strippedTaskPipe);
             batchWorkerAction.setTaskData(batchedTaskDataString);
-            batchWorkerAction.setTaskDataEncoding(WorkerAction.TaskDataEncodingEnum.UTF8);
-            batchWorkerAction.setTaskPipe(strippedTaskPipe);
-            batchWorkerAction.setTargetPipe(workerAction.getTargetPipe());
-            batchWorkerAction.setCorrelationId(workerAction.getCorrelationId());
 
             // 7. Reuse existing getTaskMessage() method
             final TaskMessage taskMessage = getTaskMessage(trackingInfo, batchWorkerAction, taskSubtaskId);
@@ -344,6 +350,19 @@ public final class QueueServices implements AutoCloseable
             LOG.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
+    }
+
+    private static WorkerAction CopyWorkerActionWithStrippedTaskpipe(WorkerAction orgWorkerAction, WorkerAction copyWorkerAction, String strippedTaskPipe)
+    {
+        copyWorkerAction.setTaskClassifier(orgWorkerAction.getTaskClassifier());
+        copyWorkerAction.setTaskApiVersion(orgWorkerAction.getTaskApiVersion());
+        copyWorkerAction.setTaskData(orgWorkerAction.getTaskData());
+        copyWorkerAction.setTaskDataEncoding(orgWorkerAction.getTaskDataEncoding());
+        copyWorkerAction.setTaskPipe(strippedTaskPipe);
+        copyWorkerAction.setTargetPipe(orgWorkerAction.getTargetPipe());
+        copyWorkerAction.setCorrelationId(orgWorkerAction.getCorrelationId());
+
+        return copyWorkerAction;
     }
 
 }

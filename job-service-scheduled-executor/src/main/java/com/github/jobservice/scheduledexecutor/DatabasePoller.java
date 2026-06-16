@@ -91,6 +91,9 @@ public class DatabasePoller
 
         // Strip the DocumentWorkerSubdocumentBatcher() prefix from taskPipe to get the actual target queue.
         final String actualTargetQueue = TaskPipeUtil.stripBatcherPrefix(workerAction.getTaskPipe());
+        if( actualTargetQueue.isBlank()) {
+            throw new RuntimeException("Task pipe must not be empty after stripping batcher prefix.");
+        }
 
         try (final QueueServices queueServices = QueueServicesFactory.create(actualTargetQueue, partitionId, codec)) {
 

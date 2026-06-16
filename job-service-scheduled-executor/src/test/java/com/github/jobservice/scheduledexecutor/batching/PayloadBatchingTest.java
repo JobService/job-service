@@ -53,7 +53,8 @@ public class PayloadBatchingTest
     {
         // DocumentWorkerTask with prefix but without subdocuments field
         final WorkerAction action = createWorkerActionWithPrefix(createTaskDataWithoutSubdocs());
-        assertFalse(PayloadBatchingService.shouldBatchPayload(action));
+        final Map<String, Object> taskDataMap = PayloadBatchingService.deserializeTaskData(action);
+        assertFalse(PayloadBatchingService.shouldBatchPayload(action, taskDataMap));
     }
 
     @Test
@@ -61,7 +62,8 @@ public class PayloadBatchingTest
     {
         // DocumentWorkerTask with prefix and empty subdocuments array
         final WorkerAction action = createWorkerActionWithPrefix(createTaskDataMap(0));
-        assertFalse(PayloadBatchingService.shouldBatchPayload(action));
+        final Map<String, Object> taskDataMap = PayloadBatchingService.deserializeTaskData(action);
+        assertFalse(PayloadBatchingService.shouldBatchPayload(action, taskDataMap));
     }
 
     @Test
@@ -69,7 +71,8 @@ public class PayloadBatchingTest
     {
         // DocumentWorkerTask with prefix and subdocuments below threshold
         final WorkerAction action = createWorkerActionWithPrefix(createTaskDataMap(BATCH_SIZE / 2));
-        assertFalse(PayloadBatchingService.shouldBatchPayload(action));
+        final Map<String, Object> taskDataMap = PayloadBatchingService.deserializeTaskData(action);
+        assertFalse(PayloadBatchingService.shouldBatchPayload(action, taskDataMap));
     }
 
     @Test
@@ -77,7 +80,8 @@ public class PayloadBatchingTest
     {
         // DocumentWorkerTask with prefix and subdocuments above threshold
         final WorkerAction action = createWorkerActionWithPrefix(createTaskDataMap(BATCH_SIZE + 1));
-        assertTrue(PayloadBatchingService.shouldBatchPayload(action));
+        final Map<String, Object> taskDataMap = PayloadBatchingService.deserializeTaskData(action);
+        assertTrue(PayloadBatchingService.shouldBatchPayload(action, taskDataMap));
     }
 
     @Test
@@ -85,7 +89,8 @@ public class PayloadBatchingTest
     {
         // DocumentWorkerTask WITHOUT prefix but with large subdocuments (not opted in)
         final WorkerAction action = createWorkerActionWithoutPrefix(createTaskDataMap(BATCH_SIZE * 5));
-        assertFalse(PayloadBatchingService.shouldBatchPayload(action));
+        final Map<String, Object> taskDataMap = PayloadBatchingService.deserializeTaskData(action);
+        assertFalse(PayloadBatchingService.shouldBatchPayload(action, taskDataMap));
     }
 
     @Test
@@ -94,7 +99,8 @@ public class PayloadBatchingTest
         // Non-DocumentWorkerTask with prefix in task pipe (wrong classifier)
         final WorkerAction action = createWorkerActionWithPrefix(createTaskDataMap(BATCH_SIZE * 5));
         action.setTaskClassifier("NonDocumentWorkerTask");
-        assertFalse(PayloadBatchingService.shouldBatchPayload(action));
+        final Map<String, Object> taskDataMap = PayloadBatchingService.deserializeTaskData(action);
+        assertFalse(PayloadBatchingService.shouldBatchPayload(action, taskDataMap));
     }
 
     @Test
@@ -104,21 +110,25 @@ public class PayloadBatchingTest
         action.setTaskClassifier(PayloadBatchingService.DOCUMENT_WORKER_TASK_CLASSIFIER);
         action.setTaskPipe(TASK_PIPE_WITH_PREFIX);
         action.setTaskData(null);
-        assertFalse(PayloadBatchingService.shouldBatchPayload(action));
+        final Map<String, Object> taskDataMap = PayloadBatchingService.deserializeTaskData(action);
+        assertFalse(PayloadBatchingService.shouldBatchPayload(action, taskDataMap));
     }
 
     @Test
     public void testGetSubdocumentsCount_Valid() throws JsonProcessingException
     {
         final WorkerAction action = createWorkerActionWithPrefix(createTaskDataMap(500));
-        assertEquals(500, PayloadBatchingService.getSubdocumentsCount(action));
+        final Map<String, Object> taskDataMap = PayloadBatchingService.deserializeTaskData(action);
+        assertEquals(500, PayloadBatchingService.getSubdocumentsCount(taskDataMap));
     }
 
     @Test
     public void testCalculateTotalBatches() throws JsonProcessingException
     {
         final WorkerAction action = createWorkerActionWithPrefix(createTaskDataMap(500));
-        assertEquals(3, PayloadBatchingService.calculateTotalBatches(action)); // 500/200 = 2.5 = 3
+        final Map<String, Object> taskDataMap = PayloadBatchingService.deserializeTaskData(action);
+        final int subdocCount = PayloadBatchingService.getSubdocumentsCount(taskDataMap);
+        assertEquals(Math.ceilDiv(500,BATCH_SIZE), SubdocumentBatchSplitter.calculateBatchCount(subdocCount, BATCH_SIZE)); // 500/200 = 2.5 = 3
     }
 
     @Test
@@ -243,10 +253,13 @@ public class PayloadBatchingTest
     {
         final Map<String, Object> original = createTaskDataMap(500);
         final List<Object> subdocs = SubdocumentBatchSplitter.extractSubdocuments(original);
+        final Map<String, Object> template =
+            SubdocumentBatchSplitter.createTaskDataTemplateWithoutSubdocuments(original);
 
         for (int i = 1; i <= 3; i++) {
             final List<Object> batch = SubdocumentBatchSplitter.getSubdocumentsBatchView(subdocs, i, BATCH_SIZE);
-            final Map<String, Object> batched = SubdocumentBatchSplitter.createBatchedTaskData(original, batch);
+            final Map<String, Object> batched =
+                SubdocumentBatchSplitter.createBatchedTaskDataFromTemplate(template, batch);
 
             // Verify customData and scripts preserved
             assertEquals(original.get("customData"), batched.get("customData"));
@@ -281,6 +294,45 @@ public class PayloadBatchingTest
         assertEquals("400", getSubdocId(batch2.get(BATCH_SIZE - 1)));
         assertEquals("401", getSubdocId(batch3.get(0)));
         assertEquals("500", getSubdocId(batch3.get(batch3.size() - 1)));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testCreateTaskDataTemplateWithoutSubdocuments_RemovesOnlySubdocuments()
+    {
+        final Map<String, Object> original = createTaskDataMap(500);
+
+        final Map<String, Object> template =
+            SubdocumentBatchSplitter.createTaskDataTemplateWithoutSubdocuments(original);
+
+        final Map<String, Object> originalDoc = (Map<String, Object>) original.get("document");
+        final Map<String, Object> templateDoc = (Map<String, Object>) template.get("document");
+
+        assertNotNull(templateDoc.get("fields"));
+        assertFalse(templateDoc.containsKey("subdocuments"));
+        assertTrue(originalDoc.containsKey("subdocuments"));
+        assertEquals(original.get("customData"), template.get("customData"));
+        assertEquals(original.get("scripts"), template.get("scripts"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testCreateBatchedTaskDataFromTemplate_InsertsBatchSubdocuments()
+    {
+        final Map<String, Object> original = createTaskDataMap(500);
+        final List<Object> subdocs = SubdocumentBatchSplitter.extractSubdocuments(original);
+        final Map<String, Object> template =
+            SubdocumentBatchSplitter.createTaskDataTemplateWithoutSubdocuments(original);
+        final List<Object> batch = SubdocumentBatchSplitter.getSubdocumentsBatchView(subdocs, 2, BATCH_SIZE);
+
+        final Map<String, Object> batched =
+            SubdocumentBatchSplitter.createBatchedTaskDataFromTemplate(template, batch);
+        final Map<String, Object> batchedDoc = (Map<String, Object>) batched.get("document");
+        final Map<String, Object> templateDoc = (Map<String, Object>) template.get("document");
+
+        assertEquals(BATCH_SIZE, ((List<?>) batchedDoc.get("subdocuments")).size());
+        assertEquals("201", getSubdocId(((List<Object>) batchedDoc.get("subdocuments")).get(0)));
+        assertFalse(templateDoc.containsKey("subdocuments"));
     }
 
     @Test

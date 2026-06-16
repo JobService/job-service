@@ -189,4 +189,12 @@ public class ScheduledExecutorConfig {
         }
         return Integer.parseInt(period);
     }
+
+    public static int getJobServicePayloadBatchingSize() {
+        final String batchSize = getPropertyOrEnvVar("JOB_SERVICE_PAYLOAD_BATCH_SIZE");
+        if( null == batchSize || batchSize.isEmpty()) {
+            return 200;
+        }
+        return Integer.parseInt(batchSize);
+    }
 }

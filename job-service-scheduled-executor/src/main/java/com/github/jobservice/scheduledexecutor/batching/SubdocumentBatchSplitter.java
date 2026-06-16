@@ -79,7 +79,7 @@ public final class SubdocumentBatchSplitter
         if (batchSize < 1) {
             throw new IllegalArgumentException("Batch size must be >= 1");
         }
-        return (int) Math.ceil((double) totalItems / batchSize);
+        return Math.ceilDiv(totalItems,batchSize);
     }
 
     /**
@@ -127,21 +127,45 @@ public final class SubdocumentBatchSplitter
     }
 
     /**
-     * Creates a new taskData map with a batch of subdocuments replacing the original.
+     * Creates a reusable taskData template with document.subdocuments removed.
+     * This avoids re-copying unchanged top-level and document entries for every batch.
+     *
      * @param originalTaskData The original taskData map
-     * @param subdocumentsBatch The batch of subdocuments to use (can be a subList view)
-     * @return New taskData map with batched subdocuments
+     * @return A new template map without document.subdocuments
      */
     @SuppressWarnings("unchecked")
-    public static Map<String, Object> createBatchedTaskData(
-        final Map<String, Object> originalTaskData,
-        final List<Object> subdocumentsBatch)
+    public static Map<String, Object> createTaskDataTemplateWithoutSubdocuments(
+        final Map<String, Object> originalTaskData)
     {
-        final Map<String, Object> batchedTaskData = new HashMap<>(originalTaskData);
+        final Map<String, Object> taskDataTemplate = new HashMap<>(originalTaskData);
         final Map<String, Object> originalDocument = (Map<String, Object>) originalTaskData.get(DOCUMENT_KEY);
 
         if (originalDocument != null) {
-            final Map<String, Object> batchedDocument = new HashMap<>(originalDocument);
+            final Map<String, Object> documentTemplate = new HashMap<>(originalDocument);
+            documentTemplate.remove(SUBDOCUMENTS_KEY);
+            taskDataTemplate.put(DOCUMENT_KEY, documentTemplate);
+        }
+
+        return taskDataTemplate;
+    }
+
+    /**
+     * Creates a new taskData map from a reusable template and batch subdocuments.
+     *
+     * @param taskDataTemplate A taskData template created without document.subdocuments
+     * @param subdocumentsBatch The batch of subdocuments to use (can be a subList view)
+     * @return New taskData map with batch subdocuments added into document
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> createBatchedTaskDataFromTemplate(
+        final Map<String, Object> taskDataTemplate,
+        final List<Object> subdocumentsBatch)
+    {
+        final Map<String, Object> batchedTaskData = new HashMap<>(taskDataTemplate);
+        final Map<String, Object> documentTemplate = (Map<String, Object>) taskDataTemplate.get(DOCUMENT_KEY);
+
+        if (documentTemplate != null) {
+            final Map<String, Object> batchedDocument = new HashMap<>(documentTemplate);
             batchedDocument.put(SUBDOCUMENTS_KEY, subdocumentsBatch);
             batchedTaskData.put(DOCUMENT_KEY, batchedDocument);
         }

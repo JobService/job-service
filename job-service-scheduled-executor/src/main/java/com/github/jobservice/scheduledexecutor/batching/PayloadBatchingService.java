@@ -18,6 +18,7 @@ package com.github.jobservice.scheduledexecutor.batching;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.jobservice.scheduledexecutor.ScheduledExecutorConfig;
 import com.github.jobservice.scheduledexecutor.WorkerAction;
 import com.github.jobservice.util.TaskPipeUtil;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public final class PayloadBatchingService
 
 
     /** Maximum number of subdocuments per batch */
-    public static final int BATCH_SIZE = 200;
+    public static final int BATCH_SIZE = ScheduledExecutorConfig.getJobServicePayloadBatchingSize();
 
     private PayloadBatchingService()
     {
@@ -64,9 +65,10 @@ public final class PayloadBatchingService
      * </ul>
      *
      * @param workerAction The worker action to evaluate
+     * @param taskDataMap to extract subdocuments count to evaluate
      * @return true if the payload should be batched, false otherwise
      */
-    public static boolean shouldBatchPayload(final WorkerAction workerAction)
+    public static boolean shouldBatchPayload(final WorkerAction workerAction, Map<String, Object> taskDataMap)
     {
         if (!DOCUMENT_WORKER_TASK_CLASSIFIER.equals(workerAction.getTaskClassifier())) {
             LOG.debug("Not a DocumentWorkerTask, skipping batching");
@@ -78,7 +80,7 @@ public final class PayloadBatchingService
             return false;
         }
 
-        final int subdocCount = getSubdocumentsCount(workerAction);
+        final int subdocCount = getSubdocumentsCount(taskDataMap);
         if (subdocCount < 0) {
             LOG.debug("Could not determine subdocuments count, skipping batching");
             return false;
@@ -98,12 +100,11 @@ public final class PayloadBatchingService
 
     /**
      * Gets the subdocuments count from a worker action.
-     * @param workerAction The worker action
+     * @param taskDataMap To extract subdocuments count
      * @return Subdocuments count, or -1 if cannot be determined
      */
-    public static int getSubdocumentsCount(final WorkerAction workerAction)
+    public static int getSubdocumentsCount(final Map<String, Object> taskDataMap)
     {
-        final Map<String, Object> taskDataMap = deserializeTaskData(workerAction);
         if (taskDataMap == null) {
             return -1;
         }
@@ -141,20 +142,6 @@ public final class PayloadBatchingService
             LOG.debug("Failed to deserialize taskData as JSON: {}", e.getMessage());
             return null;
         }
-    }
-
-    /**
-     * Calculates the total number of batches needed.
-     * @param workerAction The worker action
-     * @return Number of batches, or 0 if batching not applicable
-     */
-    public static int calculateTotalBatches(final WorkerAction workerAction)
-    {
-        final int subdocCount = getSubdocumentsCount(workerAction);
-        if (subdocCount <= 0) {
-            return 0;
-        }
-        return SubdocumentBatchSplitter.calculateBatchCount(subdocCount, BATCH_SIZE);
     }
 
     /**
