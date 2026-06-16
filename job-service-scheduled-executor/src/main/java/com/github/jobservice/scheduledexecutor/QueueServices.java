@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.github.jobservice.scheduledexecutor.batching.PayloadBatchingService.DOCUMENT_WORKER_TASK_CLASSIFIER;
@@ -52,6 +53,8 @@ public final class QueueServices implements AutoCloseable
 
     private static final int RABBIT_MQ_PUBLISH_TIMEOUT_MILLIS =
             ScheduledExecutorConfig.getRabbitMQPublishTimeoutSeconds() * 1000;
+    private static final int BATCH_MESSAGE_MAX_RETRIES = 3;
+    private static final long BATCH_MESSAGE_RETRY_DELAY_MILLIS = 500L;
 
     private final Connection connection;
     private final Channel publisherChannel;
@@ -236,10 +239,43 @@ public final class QueueServices implements AutoCloseable
             LOG.debug("Sending batch {}/{} with {} subdocuments (taskId={}, jobTaskId={})",
                       batchIndex, totalBatches, subdocBatch.size(), taskSubtaskId, jobTaskSubtaskId);
 
-            publishTaskMessage(taskMessage);
+            publishBatchedTaskMessageWithRetry(taskMessage, jobId, batchIndex, totalBatches);
         }
 
         LOG.info("Successfully sent all {} batches for job {}", totalBatches, jobId);
+    }
+
+    /**
+     * Retries transient publish failures for individual batches to avoid failing the whole batched send.
+     */
+    private void publishBatchedTaskMessageWithRetry(
+        final TaskMessage taskMessage,
+        final String jobId,
+        final int batchIndex,
+        final int totalBatches
+    ) throws IOException, InterruptedException, TimeoutException
+    {
+        int retryCount = 0;
+
+        for (;;) {
+            try {
+                publishTaskMessage(taskMessage);
+                return;
+            } catch (final IOException | TimeoutException ex) {
+                if (retryCount >= BATCH_MESSAGE_MAX_RETRIES) {
+                    LOG.error("Exceeded transient retry limit for job {} batch {}/{} after {} retries",
+                        jobId, batchIndex, totalBatches, retryCount, ex);
+                    throw ex;
+                }
+
+                retryCount++;
+                LOG.warn("Transient failure sending job {} batch {}/{} (retry {}/{}). Retrying in {} ms",
+                    jobId, batchIndex, totalBatches, retryCount, BATCH_MESSAGE_MAX_RETRIES,
+                    BATCH_MESSAGE_RETRY_DELAY_MILLIS, ex);
+
+                TimeUnit.MILLISECONDS.sleep(BATCH_MESSAGE_RETRY_DELAY_MILLIS);
+            }
+        }
     }
 
     /**
