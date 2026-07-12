@@ -1460,6 +1460,56 @@ public class JobServiceIT {
         }
     }
 
+    /**
+     * Verifies that when a job's top-level task transitions to 'Completed', its task table is
+     * enqueued in deleted_parent_table_log for deferred physical deletion.
+     */
+    @Test
+    public void testTaskTableEnqueuedForDeletionOnCompletion() throws ApiException, SQLException
+    {
+        final String jobId = UUID.randomUUID().toString();
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, makeJob(jobId, "testCompletionCleanup"), "1");
+
+        try (final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection()) {
+            final String taskTableName = getTaskTableName(dbConnection, defaultPartitionId, jobId);
+            createTaskTable(dbConnection, taskTableName);
+            try {
+                callInternalReportTaskStatus(dbConnection, defaultPartitionId, jobId, "Completed", 100.0, null);
+                assertTrue(isTableInDeletedParentTableLog(dbConnection, taskTableName),
+                    "task table should be enqueued in deleted_parent_table_log when job completes");
+            } finally {
+                cleanupDeletedParentTableLog(dbConnection, taskTableName);
+                dropTaskTableIfExists(dbConnection, taskTableName);
+            }
+        }
+    }
+
+    /**
+     * Verifies that when a job's top-level task transitions to 'Failed', its task table is
+     * enqueued in deleted_parent_table_log for deferred physical deletion.
+     * This covers the fix for orphaned task tables left by failed jobs.
+     */
+    @Test
+    public void testTaskTableEnqueuedForDeletionOnFailure() throws ApiException, SQLException
+    {
+        final String jobId = UUID.randomUUID().toString();
+        jobsApi.createOrUpdateJob(defaultPartitionId, jobId, makeJob(jobId, "testFailureCleanup"), "1");
+
+        try (final java.sql.Connection dbConnection = JobServiceConnectionUtil.getDbConnection()) {
+            final String taskTableName = getTaskTableName(dbConnection, defaultPartitionId, jobId);
+            createTaskTable(dbConnection, taskTableName);
+            try {
+                callInternalReportTaskStatus(dbConnection, defaultPartitionId, jobId, "Failed", 0.0,
+                    "{\"failureId\": \"test-failure\", \"description\": \"simulated failure\", \"callStack\": \"\"}");
+                assertTrue(isTableInDeletedParentTableLog(dbConnection, taskTableName),
+                    "task table should be enqueued in deleted_parent_table_log when job fails");
+            } finally {
+                cleanupDeletedParentTableLog(dbConnection, taskTableName);
+                dropTaskTableIfExists(dbConnection, taskTableName);
+            }
+        }
+    }    
+
     private void waitWithRetriesTillTablesAreDropped(final java.sql.Connection dbConnection,
                                                      final int maxRetries) throws InterruptedException, SQLException
     {
@@ -1670,6 +1720,95 @@ public class JobServiceIT {
         return timer;
     }
 
+    /**
+     * Returns the task table name for the given job as computed by internal_get_task_table_name.
+     * The name is based on the job's serial identity column, e.g. "task_42".
+     */
+    private String getTaskTableName(final java.sql.Connection dbConnection,
+                                    final String partitionId, final String jobId) throws SQLException
+    {
+        try (final PreparedStatement stmt = dbConnection.prepareStatement(
+                "SELECT internal_get_task_table_name(?, ?)")) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2, jobId);
+            try (final ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString(1);
+                }
+            }
+        }
+        throw new IllegalStateException("Could not determine task table name for job: " + jobId);
+    }
+
+    /**
+     * Calls internal_report_task_status directly to simulate a status transition.
+     */
+    private void callInternalReportTaskStatus(final java.sql.Connection dbConnection,
+                                              final String partitionId, final String taskId,
+                                              final String status, final double percentageComplete,
+                                              final String failureDetails) throws SQLException
+    {
+        try (final PreparedStatement stmt = dbConnection.prepareStatement(
+                "SELECT internal_report_task_status(?, ?, CAST(? AS job_status), ?, ?)")) {
+            stmt.setString(1, partitionId);
+            stmt.setString(2, taskId);
+            stmt.setString(3, status);
+            stmt.setDouble(4, percentageComplete);
+            if (failureDetails != null) {
+                stmt.setString(5, failureDetails);
+            } else {
+                stmt.setNull(5, java.sql.Types.VARCHAR);
+            }
+            stmt.execute();
+        }
+    }
+
+    /**
+     * Returns true if the given table name is present in deleted_parent_table_log.
+     */
+    private boolean isTableInDeletedParentTableLog(final java.sql.Connection dbConnection,
+                                                   final String tableName) throws SQLException
+    {
+        try (final PreparedStatement stmt = dbConnection.prepareStatement(
+                "SELECT 1 FROM deleted_parent_table_log WHERE table_name = ?")) {
+            stmt.setString(1, tableName);
+            try (final ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
+     * Removes a specific entry from deleted_parent_table_log; used for test isolation cleanup.
+     */
+    private void cleanupDeletedParentTableLog(final java.sql.Connection dbConnection,
+                                              final String tableName)
+    {
+        try (final PreparedStatement stmt = dbConnection.prepareStatement(
+                "DELETE FROM deleted_parent_table_log WHERE table_name = ?")) {
+            stmt.setString(1, tableName);
+            stmt.executeUpdate();
+        } catch (final SQLException e) {
+            LOG.warn("Failed to clean up deleted_parent_table_log for table: {}", tableName, e);
+        }
+    }
+
+    /**
+     * Drops the task table created during a test.  The table name must match the pattern
+     * produced by internal_get_task_table_name (digits and dots after the "task_" prefix).
+     */
+    private void dropTaskTableIfExists(final java.sql.Connection dbConnection,
+                                       final String tableName)
+    {
+        if (!tableName.matches("^task_[0-9.]+$")) {
+            throw new IllegalArgumentException("Unexpected task table name format: " + tableName);
+        }
+        try (final java.sql.Statement stmt = dbConnection.createStatement()) {
+            stmt.execute("DROP TABLE IF EXISTS \"" + tableName + "\"");
+        } catch (final SQLException e) {
+            LOG.warn("Failed to drop task table: {}", tableName, e);
+        }
+    }
 
     /**
      * Format of task data produced by all test job type definitions.  We use a common structure to
