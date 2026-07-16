@@ -29,6 +29,8 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The ApiExceptionMapper class maps exceptions thrown by the audit management api
@@ -36,6 +38,8 @@ import java.util.concurrent.TimeoutException;
  */
 @Provider
 public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiExceptionMapper.class);
 
     /**
      * Convert an exception to the appropriate response object.
@@ -46,6 +50,8 @@ public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
     @Override
     public Response toResponse(Exception exception) {
         final Response.Status httpStatus;
+        String exceptionMessage = "An Internal Server Error occurred while processing the request";
+
         if (exception instanceof BadRequestException ||
             exception instanceof UnrecognizedPropertyException
         ) {
@@ -65,10 +71,16 @@ public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
             httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
         }
 
+        if(exception instanceof BadRequestException|| exception instanceof NotFoundException||
+                exception instanceof ForbiddenException) {
+            exceptionMessage = exception.getMessage();
+        }
+        LOGGER.error("An API exception occurred while processing the request: {}", exceptionMessage, exception);
+
         //  Include exception message in response.
         return Response.status(httpStatus)
             .type(MediaType.APPLICATION_JSON)
-            .entity(new ApiResponseMessage(exception.getMessage()))
+            .entity(new ApiResponseMessage(exceptionMessage))
             .build();
     }
 }
