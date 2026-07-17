@@ -1110,12 +1110,12 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>6.1.1</version>
+                <version>6.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-commons</artifactId>
-                <version>6.1.1</version>
+                <version>6.1.2</version>
             </dependency>
             <dependency>
                 <groupId>org.jvnet.mimepull</groupId>
@@ -1338,8 +1338,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre21</repository>
-                            <tag>2.2.5</tag>
-                            <digest>sha256:8c02daf2155cdfcd81350e40b8b596266a5618580c0e115331a6b8de652e41cb</digest>
+                            <tag>2.2.6</tag>
+                            <digest>sha256:64c05cf2405ff5875d1c95a39d4bccf0b883d68c77573fd09cf06d361304aa3b</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
