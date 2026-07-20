@@ -50,7 +50,7 @@ public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
     @Override
     public Response toResponse(Exception exception) {
         final Response.Status httpStatus;
-        String exceptionMessage = "An Internal Server Error occurred while processing the request";
+        String exceptionMessage;
 
         if (exception instanceof BadRequestException ||
             exception instanceof UnrecognizedPropertyException
@@ -71,11 +71,14 @@ public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
             httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
         }
 
-        if(exception instanceof BadRequestException|| exception instanceof NotFoundException||
-                exception instanceof ForbiddenException) {
+        if (httpStatus == Response.Status.INTERNAL_SERVER_ERROR || httpStatus == Response.Status.SERVICE_UNAVAILABLE) {
+            LOGGER.error("An API exception occurred while processing the request: {}", exception.getMessage(), exception);
+            exceptionMessage = "An Internal Server Error occurred while processing the request";
+        }
+        else {
+            LOGGER.warn("An API exception occurred while processing the request: {}", exception.getMessage(), exception);
             exceptionMessage = exception.getMessage();
         }
-        LOGGER.error("An API exception occurred while processing the request: {}", exceptionMessage, exception);
 
         //  Include exception message in response.
         return Response.status(httpStatus)
