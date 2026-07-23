@@ -29,7 +29,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>10.2.1-SNAPSHOT</version>
+        <version>10.2.1-789</version>
     </parent>
 
     <dependencies>
