@@ -24,7 +24,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>10.2.2-SNAPSHOT</version>
+        <version>10.3.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.github.jobservice.workers.jobtracking</groupId>
@@ -141,7 +141,7 @@
                             <alias>jobtracking-worker</alias>
                             <name>${dockerJobServiceOrg}worker-jobtracking${dockerProjectVersion}</name>
                             <build>
-                                <from>${projectDockerRegistry}/cafapi/oraclelinux-jre21</from>
+                                <from>${projectDockerRegistry}/cafapi/oraclelinux-jre25</from>
                                 <healthCheck>
                                     <cmd>curl -f http://localhost:8080/health-check?type=READY || exit 1</cmd>
                                 </healthCheck>

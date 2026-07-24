@@ -29,7 +29,7 @@
     <parent>
         <groupId>com.github.jobservice</groupId>
         <artifactId>job-service-aggregator</artifactId>
-        <version>10.2.2-SNAPSHOT</version>
+        <version>10.3.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -71,7 +71,7 @@
                             <alias>job-service</alias>
                             <name>${dockerJobServiceOrg}job-service${dockerProjectVersion}</name>
                             <build>
-                                <from>${projectDockerRegistry}/cafapi/oraclelinux-jre21</from>
+                                <from>${projectDockerRegistry}/cafapi/oraclelinux-jre25</from>
                                 <cmd>
                                     <exec>
                                         <args>/maven/service.sh</args>
