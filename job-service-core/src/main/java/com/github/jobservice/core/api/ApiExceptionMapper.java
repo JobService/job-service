@@ -29,6 +29,8 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The ApiExceptionMapper class maps exceptions thrown by the audit management api
@@ -36,6 +38,10 @@ import java.util.concurrent.TimeoutException;
  */
 @Provider
 public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiExceptionMapper.class);
+    private static final String GENERIC_EXCEPTION_LOG = "An API exception occurred while processing the request: {}";
+    private static final String INTERNAL_SERVER_ERROR_MSG = "An Internal Server Error occurred while processing the request";
 
     /**
      * Convert an exception to the appropriate response object.
@@ -46,6 +52,7 @@ public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
     @Override
     public Response toResponse(Exception exception) {
         final Response.Status httpStatus;
+
         if (exception instanceof BadRequestException ||
             exception instanceof UnrecognizedPropertyException
         ) {
@@ -65,10 +72,22 @@ public final class ApiExceptionMapper implements ExceptionMapper<Exception> {
             httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
         }
 
+        final String exceptionMessage = logExceptionAndGetMessage(exception, httpStatus);
+
         //  Include exception message in response.
         return Response.status(httpStatus)
             .type(MediaType.APPLICATION_JSON)
-            .entity(new ApiResponseMessage(exception.getMessage()))
+            .entity(new ApiResponseMessage(exceptionMessage))
             .build();
+    }
+
+    private String logExceptionAndGetMessage(final Exception exception, final Response.Status status) {
+        if (status == Response.Status.INTERNAL_SERVER_ERROR || status == Response.Status.SERVICE_UNAVAILABLE) {
+            LOGGER.error(GENERIC_EXCEPTION_LOG, exception.getMessage(), exception);
+            return INTERNAL_SERVER_ERROR_MSG;
+        } else {
+            LOGGER.warn(GENERIC_EXCEPTION_LOG, exception.getMessage(), exception);
+        }
+        return exception.getMessage();
     }
 }
