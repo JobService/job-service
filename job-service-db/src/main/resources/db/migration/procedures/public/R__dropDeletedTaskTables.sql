@@ -20,8 +20,13 @@
  *  Description:
  *  This procedure reads parent task table names from deleted_parent_table_log table and populates delete_log table with names of
  *  parent as well as child task tables to be dropped. After populating the tables, it then reads the table names from delete_log table
- *  and drops them. 
+ *  and drops them.
  *  All the above is done through batch commits. The batch is defined by commit_limit variable. Default batch size being 10.
+ *
+ *  DROP loop includes retry-and-dead-letter behaviour: each DROP is attempted up to max_retries times (default 3).
+ *  On failure the retry_count, last_error, and last_attempted_at columns of delete_log are updated. Once a row reaches
+ *  max_retries without a successful DROP it is evicted to the dead-letter table delete_log_failed (and removed from
+ *  delete_log) before the batch COMMIT so that it does not block subsequent processing.
  */
 CREATE OR REPLACE PROCEDURE drop_deleted_task_tables()
 LANGUAGE plpgsql
@@ -32,6 +37,8 @@ DECLARE
     commit_limit INTEGER:=10;
     parent_table_log_rec RECORD;
     rec RECORD;
+    max_retries CONSTANT INTEGER := 3;
+    drop_error TEXT;
 
 BEGIN
     -- insert table names into delete_log
@@ -48,15 +55,33 @@ BEGIN
         COMMIT;
     END LOOP;
 
-    selected_table_names := $q$SELECT table_name FROM delete_log LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
+    selected_table_names := $q$SELECT table_name FROM delete_log WHERE retry_count < $q$ || max_retries || $q$ LIMIT $q$ || commit_limit || $q$ FOR UPDATE SKIP LOCKED$q$;
 
-    WHILE EXISTS (SELECT 1 FROM delete_log)
+    WHILE EXISTS (SELECT 1 FROM delete_log WHERE retry_count < max_retries)
     LOOP
         FOR rec IN EXECUTE selected_table_names
         LOOP
-            EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(rec.table_name);
-            DELETE FROM delete_log WHERE table_name = rec.table_name;
+            BEGIN
+                EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(rec.table_name);
+                DELETE FROM delete_log WHERE table_name = rec.table_name;
+            EXCEPTION WHEN OTHERS THEN
+                GET STACKED DIAGNOSTICS drop_error = MESSAGE_TEXT;
+                UPDATE delete_log
+                SET    retry_count       = retry_count + 1,
+                       last_error        = drop_error,
+                       last_attempted_at = now()
+                WHERE  table_name = rec.table_name;
+            END;
         END LOOP;
+        -- Move exhausted entries to dead-letter table
+        INSERT INTO delete_log_failed (table_name, last_error, last_attempted_at)
+        SELECT table_name, last_error, last_attempted_at
+        FROM   delete_log
+        WHERE  retry_count >= max_retries
+        ON CONFLICT (table_name) DO UPDATE
+            SET last_error        = EXCLUDED.last_error,
+                last_attempted_at = EXCLUDED.last_attempted_at;
+        DELETE FROM delete_log WHERE retry_count >= max_retries;
         COMMIT;
     END LOOP;
 END

@@ -1,5 +1,5 @@
 --
--- Copyright 2016-2022 Micro Focus or one of its affiliates.
+-- Copyright 2016-2026 Micro Focus or one of its affiliates.
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -27,6 +27,6 @@ RETURNS VOID
 LANGUAGE plpgsql VOLATILE
 AS $$
 BEGIN
-    INSERT INTO public.delete_log VALUES (task_table_name);
+    INSERT INTO public.delete_log (table_name) VALUES (task_table_name);
 END
 $$;
