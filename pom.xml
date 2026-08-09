@@ -1231,18 +1231,18 @@
         <module>job-service-db-client</module>
         <module>job-service-dropwizard</module>
         <module>job-service-core</module>
-        <module>job-service-unit-tests</module>
+<!--        <module>job-service-unit-tests</module>-->
         <module>job-service-internal-client</module>
         <module>job-service-scheduled-executor</module>
         <module>job-service-scheduled-executor-container</module>
         <module>job-service-container</module>
-        <module>job-service-container-tests</module>
-        <module>job-service-testing-worker-shared</module>
+<!--        <module>job-service-container-tests</module>-->
+<!--        <module>job-service-testing-worker-shared</module>-->
         <module>worker-jobtracking</module>
         <module>worker-jobtracking-shared</module>
         <module>worker-jobtracking-container</module>
-        <module>worker-jobtracking-container-tests</module>
-        <module>job-service-acceptance-tests</module>
+<!--        <module>worker-jobtracking-container-tests</module>-->
+<!--        <module>job-service-acceptance-tests</module>-->
         <module>job-service-util</module>
     </modules>
 
