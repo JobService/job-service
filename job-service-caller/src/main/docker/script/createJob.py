@@ -129,7 +129,7 @@ def validate_args(args):
 def call_put_job_service(uri, job_definition):
     log('Calling CAF Job Service to create a new job with job definition %s ...' % job_definition)
 
-    headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+    headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'User-Agent': 'job-service'}
 
     # Issue call to the CAF Job Service to create a new job using the specified job definition.
     put_response = requests.put(uri, data=job_definition, headers=headers)
@@ -144,7 +144,7 @@ def call_get_job_service(uri):
     log('Calling CAF Job Service to retrieve job status ...')
 
     # Issue call to the CAF Job Service to retrieve the job metadata.
-    headers = {'Accept': 'application/json'}
+    headers = {'Accept': 'application/json', 'User-Agent': 'job-service'}
     get_response = requests.get(uri, headers=headers)
 
     # For successful API call, response code should be 200 (OK).
