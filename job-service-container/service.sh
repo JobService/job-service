@@ -50,10 +50,6 @@ then
 fi
 
 cd /maven
-if [ "$OTEL_JAVAAGENT_ENABLED" = "true" ]
-then
-  export OTEL_SERVICE_NAME=job-service
-fi
 exec java $(${OTEL_GET_JAVA_TOOL_OPTIONS}) \
     ${JOB_SERVICE_JAVA_OPTS} \
     -classpath *:classpath \

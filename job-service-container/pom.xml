@@ -72,6 +72,9 @@
                             <name>${dockerJobServiceOrg}job-service${dockerProjectVersion}</name>
                             <build>
                                 <from>${projectDockerRegistry}/cafapi/oraclelinux-jre25-otel</from>
+                                <env>
+                                    <OTEL_SERVICE_NAME>job-service</OTEL_SERVICE_NAME>
+                                </env>
                                 <cmd>
                                     <exec>
                                         <args>/maven/service.sh</args>
