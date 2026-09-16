@@ -512,7 +512,7 @@
             <dependency>
                 <groupId>com.rabbitmq</groupId>
                 <artifactId>amqp-client</artifactId>
-                <version>5.35.0</version>
+                <version>5.36.0</version>
             </dependency>
             <dependency>
                 <groupId>com.schibsted.spt.data</groupId>
@@ -772,12 +772,12 @@
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.18.13-jdk5</version>
+                <version>1.18.14-jdk5</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
-                <version>1.18.13-jdk5</version>
+                <version>1.18.14-jdk5</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
@@ -844,12 +844,12 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bctls-jdk18on</artifactId>
-                <version>1.85</version>
+                <version>1.86.1</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcutil-jdk18on</artifactId>
-                <version>1.85</version>
+                <version>1.86</version>
             </dependency>
             <dependency>
                 <groupId>org.checkerframework</groupId>
@@ -915,17 +915,17 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>13.6.0</version>
+                <version>13.7.0</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-cockroachdb</artifactId>
-                <version>13.6.0</version>
+                <version>13.7.0</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>13.6.0</version>
+                <version>13.7.0</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.expressly</groupId>
@@ -1363,8 +1363,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre25</repository>
-                            <tag>2.4.0</tag>
-                            <digest>sha256:8254d8602db30d23204ff0632d4d992c3005f5f32b7300d72b05675fd44383d2</digest>
+                            <tag>2.4.1</tag>
+                            <digest>sha256:e93218a69b8736cbfbb0855592fdf6b79595400904830ca4d5dd380b9258e6e1</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
