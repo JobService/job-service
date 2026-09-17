@@ -50,7 +50,7 @@ then
 fi
 
 cd /maven
-exec java \
+exec java $(${OTEL_GET_JAVA_TOOL_OPTIONS}) \
     ${JOB_SERVICE_JAVA_OPTS} \
     -classpath *:classpath \
     com.github.jobservice.dropwizard.JobServiceApplication
