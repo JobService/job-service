@@ -1368,8 +1368,8 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre25-otel</repository>
-                            <tag>2.4.0</tag>
-                            <digest>sha256:83a26a5483484303fa9ee700fe73cc82ee7a0d1a3052c9935d6cbf6dfa4d12fd</digest>
+                            <tag>2.4.1</tag>
+                            <digest>sha256:764895b53d132ace700b8268d3c3dad1531e7c8a14757bb3bdfda0a0cbd29567</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
