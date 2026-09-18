@@ -1,5 +1,3 @@
-!not-ready-for-release!
-
 #### Version Number
 ${version-number}
 
@@ -9,3 +7,4 @@ ${version-number}
 - **US1212235**: Added OpenTelemetry support.
 
 #### Known Issues
+- None
