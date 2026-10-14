@@ -17,7 +17,9 @@ package com.github.jobservice.scheduledexecutor;
 
 import com.github.cafapi.common.api.Codec;
 import com.github.cafapi.common.api.CodecException;
+import com.github.jobservice.scheduledexecutor.batching.*;
 import com.github.jobservice.util.JobTaskId;
+import com.github.jobservice.util.TaskPipeUtil;
 import com.github.workerframework.api.TaskMessage;
 import com.github.workerframework.api.TaskStatus;
 import com.github.workerframework.api.TrackingInfo;
@@ -34,9 +36,13 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import static com.github.jobservice.scheduledexecutor.batching.PayloadBatchingService.DOCUMENT_WORKER_TASK_CLASSIFIER;
 
 /**
  * This class is responsible for sending task data to the target queue.
@@ -47,6 +53,8 @@ public final class QueueServices implements AutoCloseable
 
     private static final int RABBIT_MQ_PUBLISH_TIMEOUT_MILLIS =
             ScheduledExecutorConfig.getRabbitMQPublishTimeoutSeconds() * 1000;
+    private static final int BATCH_MESSAGE_MAX_RETRIES = 3;
+    private static final long BATCH_MESSAGE_RETRY_DELAY_MILLIS = 500L;
 
     private final Connection connection;
     private final Channel publisherChannel;
@@ -77,6 +85,28 @@ public final class QueueServices implements AutoCloseable
         final String partitionId, final String jobId, final WorkerAction workerAction
     ) throws IOException, URISyntaxException, InterruptedException, TimeoutException
     {
+        // If not opted for payload batching, send the message as a single task message.
+        if (!TaskPipeUtil.hasSubdocumentBatcherPrefix(workerAction.getTaskPipe())) {
+            sendSingleMessage(partitionId, jobId, workerAction);
+            return;
+        }
+
+        // Check if payload batching is required
+        Map<String, Object> taskDataMap = PayloadBatchingService.deserializeTaskData(workerAction);
+        if (PayloadBatchingService.shouldBatchPayload(workerAction, taskDataMap)) {
+            sendBatchedMessages(partitionId, jobId, workerAction, taskDataMap);
+        } else {
+            sendSingleMessage(partitionId, jobId, workerAction);
+        }
+    }
+
+    /**
+     * Sends task data as a single message to the target queue.
+     */
+    private void sendSingleMessage(
+            final String partitionId, final String jobId, final WorkerAction workerAction
+    ) throws IOException, URISyntaxException, InterruptedException, TimeoutException
+    {
         //  Generate a random task id.
         LOG.debug("Generating task id ...");
         final String taskId = UUID.randomUUID().toString();
@@ -95,10 +125,165 @@ public final class QueueServices implements AutoCloseable
                 getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
                 statusCheckUrl, ScheduledExecutorConfig.getTrackingPipe(), workerAction.getTargetPipe());
 
-        final Object taskMessage = getTaskMessage(trackingInfo, workerAction, taskId);
+        // Strip the batcher prefix from task pipe if present
+        WorkerAction nonBatchingWorkerAction;
+        if (TaskPipeUtil.hasSubdocumentBatcherPrefix(workerAction.getTaskPipe())) {
+            final String strippedTaskPipe = TaskPipeUtil.stripBatcherPrefix(workerAction.getTaskPipe());
+            if( strippedTaskPipe.isBlank()) {
+                throw new RuntimeException("Task pipe must not be empty after stripping batcher prefix.");
+            }
+            nonBatchingWorkerAction  = new WorkerAction();
+            nonBatchingWorkerAction = CopyWorkerActionWithStrippedTaskpipe(workerAction, nonBatchingWorkerAction, strippedTaskPipe);
 
-        //  Serialise the task message.
-        //  Wrap any CodecException as a RuntimeException as it shouldn't happen
+        } else {
+            nonBatchingWorkerAction = workerAction;
+        }
+
+        final Object taskMessage = getTaskMessage(trackingInfo, nonBatchingWorkerAction, taskId);
+
+        //  Serialise and publish
+        publishTaskMessage(taskMessage);
+    }
+
+    /**
+     * Sends task data as multiple batched messages for large DocumentWorkerTask payloads.
+     */
+    private void sendBatchedMessages(
+        final String partitionId,
+        final String jobId,
+        final WorkerAction workerAction,
+        final Map<String, Object> taskDataMap
+    ) throws IOException, URISyntaxException, InterruptedException, TimeoutException
+    {
+        if (taskDataMap == null) {
+            throw new RuntimeException("Failed to deserialize taskData for batching");
+        }
+
+        // Extract subdocuments reference
+        final List<Object> subdocuments = SubdocumentBatchSplitter.extractSubdocuments(taskDataMap);
+        if (subdocuments == null) {
+            throw new RuntimeException("No subdocuments found for batching");
+        }
+
+        final int batchSize = PayloadBatchingService.getBatchSize();
+        final int totalBatches = SubdocumentBatchSplitter.calculateBatchCount(subdocuments.size(), batchSize);
+
+        // Generate ONE base task UUID for all batches of this job
+        final String baseTaskId = UUID.randomUUID().toString();
+        final String baseJobTaskId = new JobTaskId(partitionId, jobId).getMessageId();
+
+        // Status check URL is same for all batches (points to parent job)
+        final String statusCheckUrl = UriBuilder.fromUri(ScheduledExecutorConfig.getWebserviceUrl())
+            .path("partitions").path(partitionId)
+            .path("jobs").path(jobId)
+            .path("status").build().toString();
+
+        // Strip the DocumentWorkerSubdocumentBatcher() prefix from task pipe
+        final String strippedTaskPipe = TaskPipeUtil.stripBatcherPrefix(workerAction.getTaskPipe());
+
+        if( strippedTaskPipe.isBlank()) {
+            throw new RuntimeException("Task pipe must not be empty after stripping batcher prefix.");
+        }
+
+        LOG.info("Sending {} batched messages for job {} ({} subdocuments, batch size {}, task pipe: {})",
+                 totalBatches, jobId, subdocuments.size(), batchSize, strippedTaskPipe);
+
+        // Build a reusable base map once so each batch only injects subdocuments.
+        final Map<String, Object> taskDataTemplateWithoutSubdocs =
+            SubdocumentBatchSplitter.createTaskDataTemplateWithoutSubdocuments(taskDataMap);
+
+        // Process ONE batch at a time
+        for (int batchIndex = 1; batchIndex <= totalBatches; batchIndex++) {
+
+            // 1. Get subdocuments subList VIEW for this batch. Must not be used after the underlying taskData map is mutated to avoid ConcurrentModificationException.
+            final List<Object> subdocBatch = SubdocumentBatchSplitter.getSubdocumentsBatchView(
+                subdocuments, batchIndex, batchSize);
+
+            // 2. Create batched taskData Map with this batch's subdocuments
+            final Map<String, Object> batchedTaskDataMap = SubdocumentBatchSplitter.createBatchedTaskDataFromTemplate(
+                taskDataTemplateWithoutSubdocs, subdocBatch);
+
+            // 3. Serialize batched taskData to JSON String for WorkerAction
+            final byte[] batchedTaskDataBytes;
+            try {
+                batchedTaskDataBytes = codec.serialise(batchedTaskDataMap);
+            } catch (final CodecException e) {
+                throw new RuntimeException("Failed to serialize batched taskData", e);
+            }
+            final String batchedTaskDataString = new String(batchedTaskDataBytes, StandardCharsets.UTF_8);
+
+            // 4. Generate subtask IDs for this batch
+            final String taskSubtaskId = SubtaskIdGenerator.generateTaskSubtaskId(
+                baseTaskId, batchIndex, totalBatches);
+            final String jobTaskSubtaskId = SubtaskIdGenerator.generateJobTaskSubtaskId(
+                baseJobTaskId, batchIndex, totalBatches);
+
+            // 5. Create TrackingInfo with subtask jobTaskId
+            final TrackingInfo trackingInfo = new TrackingInfo(
+                jobTaskSubtaskId,
+                new Date(),
+                getStatusCheckIntervalMillis(ScheduledExecutorConfig.getStatusCheckIntervalSeconds()),
+                statusCheckUrl,
+                ScheduledExecutorConfig.getTrackingPipe(),
+                workerAction.getTargetPipe());
+
+            // 6. Create a modified WorkerAction with batched taskData and stripped task pipe
+            WorkerAction batchWorkerAction = new WorkerAction();
+            batchWorkerAction = CopyWorkerActionWithStrippedTaskpipe(workerAction, batchWorkerAction, strippedTaskPipe);
+            batchWorkerAction.setTaskData(batchedTaskDataString);
+
+            // 7. Reuse existing getTaskMessage() method
+            final TaskMessage taskMessage = getTaskMessage(trackingInfo, batchWorkerAction, taskSubtaskId);
+
+            // 8. Publish this batch
+            LOG.debug("Sending batch {}/{} with {} subdocuments (taskId={}, jobTaskId={})",
+                      batchIndex, totalBatches, subdocBatch.size(), taskSubtaskId, jobTaskSubtaskId);
+
+            publishBatchedTaskMessageWithRetry(taskMessage, jobId, batchIndex, totalBatches);
+        }
+
+        LOG.info("Successfully sent all {} batches for job {}", totalBatches, jobId);
+    }
+
+    /**
+     * Retries transient publish failures for individual batches to avoid failing the whole batched send.
+     */
+    private void publishBatchedTaskMessageWithRetry(
+        final TaskMessage taskMessage,
+        final String jobId,
+        final int batchIndex,
+        final int totalBatches
+    ) throws IOException, InterruptedException, TimeoutException
+    {
+        int retryCount = 0;
+
+        for (;;) {
+            try {
+                publishTaskMessage(taskMessage);
+                return;
+            } catch (final IOException | TimeoutException ex) {
+                if (retryCount >= BATCH_MESSAGE_MAX_RETRIES) {
+                    LOG.error("Exceeded transient retry limit for job {} batch {}/{} after {} retries",
+                        jobId, batchIndex, totalBatches, retryCount, ex);
+                    throw ex;
+                }
+
+                retryCount++;
+                LOG.warn("Transient failure sending job {} batch {}/{} (retry {}/{}). Retrying in {} ms",
+                    jobId, batchIndex, totalBatches, retryCount, BATCH_MESSAGE_MAX_RETRIES,
+                    BATCH_MESSAGE_RETRY_DELAY_MILLIS, ex);
+
+                TimeUnit.MILLISECONDS.sleep(BATCH_MESSAGE_RETRY_DELAY_MILLIS);
+            }
+        }
+    }
+
+    /**
+     * Publishes a task message to RabbitMQ.
+     */
+    private void publishTaskMessage(final Object taskMessage)
+        throws IOException, InterruptedException, TimeoutException
+    {
         final byte[] taskMessageBytes;
         try {
             LOG.debug("Serialise the task message ...");
@@ -201,6 +386,19 @@ public final class QueueServices implements AutoCloseable
             LOG.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
+    }
+
+    private static WorkerAction CopyWorkerActionWithStrippedTaskpipe(WorkerAction orgWorkerAction, WorkerAction copyWorkerAction, String strippedTaskPipe)
+    {
+        copyWorkerAction.setTaskClassifier(orgWorkerAction.getTaskClassifier());
+        copyWorkerAction.setTaskApiVersion(orgWorkerAction.getTaskApiVersion());
+        copyWorkerAction.setTaskData(orgWorkerAction.getTaskData());
+        copyWorkerAction.setTaskDataEncoding(orgWorkerAction.getTaskDataEncoding());
+        copyWorkerAction.setTaskPipe(strippedTaskPipe);
+        copyWorkerAction.setTargetPipe(orgWorkerAction.getTargetPipe());
+        copyWorkerAction.setCorrelationId(orgWorkerAction.getCorrelationId());
+
+        return copyWorkerAction;
     }
 
 }
