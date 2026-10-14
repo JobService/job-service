@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 public final class PingHealthCheck extends HealthCheck
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(PingHealthCheck.class);
+    private static final String USER_AGENT = "job-service";
 
     @Override
     protected Result check() throws Exception
@@ -40,6 +41,7 @@ public final class PingHealthCheck extends HealthCheck
         }
         final ApiClient client = new ApiClient();
         client.setBasePath(connectionString);
+        client.setUserAgent(USER_AGENT);
         final SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         client.setDateFormat(f);
         final JobsApi jobsApi = new JobsApi(client);
