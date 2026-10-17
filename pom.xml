@@ -76,7 +76,7 @@
             <dependency>
                 <groupId>com.fasterxml</groupId>
                 <artifactId>classmate</artifactId>
-                <version>1.7.3</version>
+                <version>1.8.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -151,7 +151,7 @@
             <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>
                 <artifactId>caffeine</artifactId>
-                <version>3.3.0</version>
+                <version>3.3.1</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.common</groupId>
@@ -256,12 +256,12 @@
             <dependency>
                 <groupId>com.github.cafapi.ssl</groupId>
                 <artifactId>caf-ssl-core</artifactId>
-                <version>2.0.1-471</version>
+                <version>2.1.0-480</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.ssl</groupId>
                 <artifactId>caf-ssl-dropwizard</artifactId>
-                <version>2.0.1-471</version>
+                <version>2.1.0-480</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cafapi.util.dropwizard</groupId>
@@ -522,7 +522,7 @@
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.22.1</version>
+                <version>1.23.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -772,12 +772,12 @@
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
-                <version>1.18.14-jdk5</version>
+                <version>1.18.15-jdk5</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
-                <version>1.18.14-jdk5</version>
+                <version>1.18.15-jdk5</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
@@ -915,17 +915,17 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>13.10.0</version>
+                <version>13.10.3</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-cockroachdb</artifactId>
-                <version>13.10.0</version>
+                <version>13.10.3</version>
             </dependency>
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-database-postgresql</artifactId>
-                <version>13.10.0</version>
+                <version>13.10.3</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.expressly</groupId>
@@ -1105,7 +1105,7 @@
             <dependency>
                 <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
-                <version>8.0.5.Final</version>
+                <version>8.0.6.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.javassist</groupId>
@@ -1363,13 +1363,13 @@
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre25</repository>
-                            <tag>2.4.2</tag>
-                            <digest>sha256:3f3cde138be8ce748c5e908cf629f112fa754a3d343784e252293ef58c5c9c66</digest>
+                            <tag>2.4.3</tag>
+                            <digest>sha256:3c4bae05c1500090e5d53a697b7ac4e34abe9f4b05bb75d327aa687cacaa8444</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/oraclelinux-jre25-otel</repository>
-                            <tag>2.4.2</tag>
-                            <digest>sha256:b21dcb1a91e7799a1097ab0681d6a3f49b9cc964a878ae97237d404533205e0b</digest>
+                            <tag>2.4.3</tag>
+                            <digest>sha256:8ef75d56357dae6a884d5fa8bc9feae312760848d0b0d6fb6939a7458d4646dc</digest>
                         </image>
                         <image>
                             <repository>${dockerHubPublic}/cafapi/opensuse-python3</repository>
