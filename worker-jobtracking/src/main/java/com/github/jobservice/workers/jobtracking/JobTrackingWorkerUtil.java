@@ -16,6 +16,7 @@
 package com.github.jobservice.workers.jobtracking;
 
 import com.github.jobservice.util.JobTaskId;
+import com.github.jobservice.util.TaskPipeUtil;
 import com.github.workerframework.api.TaskMessage;
 import com.github.workerframework.api.TaskStatus;
 import com.github.workerframework.api.TrackingInfo;
@@ -63,6 +64,9 @@ public final class JobTrackingWorkerUtil
                 new JobTaskId(jobDependency.getPartitionId(), jobDependency.getJobId()).getMessageId(),
                 new Date(), getStatusCheckIntervalMillis(statusCheckIntervalSeconds), statusCheckUrl, trackingPipe, jobDependency.getTargetPipe());
 
+        // Strip the DocumentWorkerSubdocumentBatcher() prefix from taskPipe if present.
+        final String actualTaskPipe = TaskPipeUtil.stripBatcherPrefix(jobDependency.getTaskPipe());
+
         return new TaskMessage(
                 taskId,
                 jobDependency.getTaskClassifier(),
@@ -70,7 +74,7 @@ public final class JobTrackingWorkerUtil
                 jobDependency.getTaskData(),
                 TaskStatus.NEW_TASK,
                 Collections.<String, byte[]>emptyMap(),
-                jobDependency.getTaskPipe(),
+                actualTaskPipe,
                 trackingInfo,
                 null,
                 correlationId);
